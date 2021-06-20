@@ -2,7 +2,7 @@
 
 Nxtp is a lightweight protocol for generalized xchain transactions.
 
-The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, an offchain router that participates in auctions and passes calldata between chains, and a user-side sdk that finds routs and prompts onchain transctions.
+The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
 [Diagram needed]
 
