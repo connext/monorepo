@@ -26,9 +26,9 @@ export async function setupListeners(
 
 
     // Setup Subgraph events
-    subgraph.on(SubgraphEvents.SENDER_PREPARE, async(data) => {
+    subgraph.on(SubgraphEvents.SENDER_PREPARE, async(data: EventData.SENDER_PREPARE) => {
         // On sender prepare, route to sender prepare handler
-        const res = await handler.handleSenderPrepare();
+        const res = await handler.handleSenderPrepare(data);
     });
 
     subgraph.on(SubgraphEvents.RECEIVER_PREPARE, async(data) => {

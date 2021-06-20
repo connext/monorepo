@@ -78,7 +78,9 @@ export class Handler implements IHandler{
 
     // HandleSenderPrepare
     // Purpose: On sender PREPARE, router should mirror the data to receiver chain
-    public async handleSenderPrepare(): Promise<void> {
+    public async handleSenderPrepare(
+        inboundData: EventData.SENDER_PREPARE,
+    ): Promise<void> {
         // First log
 
         // Validate the prepare data
@@ -86,14 +88,38 @@ export class Handler implements IHandler{
         // that user is only sending stuff that makes sense is possibly ok since otherwise
         // they're losing gas costs
 
-        // Next, prepare the tx object
+        // Next, prepare the outbound data
+        // Must have:
+        // - Sending and receiving chainId
+        // - Sending and receiving assetId
+        // - Sender address
+        // - Router address
+        // - Unique transferId (TODO: do we need this? How should we create this?)
+        // - Price and fee quote (TODO: either we can agree upon this upfront)
+        // - Amount sent by user
+        // - Router signature on hash of all of above
+        // - Recipient (callTo) and callData
+        const outboundData = await this.mutatePrepareData(inboundData);
+
+        // Then prepare tx object
+        // Note tx object must have:
+        // - Prepare fn params
+        // - Destination chainId
+        // - Amount
+        // - AssetId
+        const outboundDataTx = await this.createTxFromData(outboundData);
 
         // Send to txService
-
-        // If success, update metrics
+        const txRes = await this.txService.send(outboundDataTx);
 
         // If fail, collaboratively cancel the sender prepare
         // TODO we'll need another fn for this?
+        if(txRes.isError) {
+            // TODO log error
+            // TODO call cancel sender prepare
+        }
+
+        // If success, update metrics
     }
 
     // HandleReceiverPrepare
@@ -126,6 +152,14 @@ export class Handler implements IHandler{
 
         // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
         // TODO discuss the above case!!
+    }
+
+    // MutatePrepareData
+    // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
+    public async mutatePrepareData(
+        data: EventData.SENDER_PREPARE
+    ): Promise<EventData.SENDER_PREPARE> {
+        // 
     }
 } 
 
