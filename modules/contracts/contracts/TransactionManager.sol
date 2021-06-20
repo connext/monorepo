@@ -3,6 +3,7 @@ pragma solidity ^0.8.1;
 // TODO Reentrancy guard
 // TODO add LibAsset and LibERC20 helpers for unusual tokens
 // TODO add calldata helper (gnosis has one)
+// TODO how can users check pending txs?
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     struct TransactionData {
@@ -15,8 +16,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         uint24 receivingChainId;
         address callTo;
         bytes callData;
+        // TODO consider using global nonce instead of transactionId
         bytes32 transactionId;
-        uint256 timeout;
+        uint256 expiry;
     }
 
     event LiquidityAdded(
@@ -89,7 +91,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     function prepare(
         TransactionData calldata txData
     ) external payable override nonReentrant returns (bytes32) {
-        require((txData.timeout - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
+        require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
         require(txData.sendingChainId == this.chainId || 
             txData.receivingChainId == this.chainId, "prepare: INVALID_CHAINIDS");
 
@@ -122,6 +124,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             // validation *outside* the contracts as we likely want the logic to be flexible
 
             // Pull funds from router balance (use msg.sender here to mitigate 3rd party attack)
+
+            // What would happen if some router tried to swoop in and steal another router's spot?
+            // - 3rd party router could EITHER use original txData or replace txData.router with itself
+            // - if original txData, 3rd party router would basically be paying for original router
+            // - if relaced router address, user sig on digest would not unlock sender side
             routerBalances[msg.sender][txData.receivingAssetId] -= txData.amount;
         }
 
@@ -135,6 +142,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         return digest;
     }
 
+    // TODO need to add fee incentive for router submission
     function fulfill(
         TransactionData calldata txData,
         bytes calldata signature
@@ -179,7 +187,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         if (txData.senderChainId == this.chainId) {
             // Sender side --> funds go back to user
-            if(txData.timeout >= block.timestamp) {
+            if(txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by router
                 require(msg.sender == txData.router);
             }
@@ -188,7 +196,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             return;
         } else {
             // Receiver side --> funds go back to router
-            if(txData.timeout >= block.timestamp) {
+            if(txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by user
                 require(msg.sender == txData.user);
             }

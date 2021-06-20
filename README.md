@@ -15,6 +15,23 @@ Transactions go through three phases:
 
 If a transaction is not fulfilled within a fixed timeout, it reverts and can be reclaimed by the party that called `prepare` on each chain (initiator). Additionally, transactions can be cancelled unilaterally by the counterparty (responder).
 
+### Key Differences With Vector
+Benefits:
+1. Nxtp *only* has onchain data. No offchain state or db at all. This means:
+    - Impossible for data to get out of sync
+    - TxService can be way simpler bc double collateralizations are impossible.
+    - No more iframe/browser state data.
+    - Out of the box perfect crash tolerance.
+    - We can use a subgraph out of the box for all of our data reading needs.
+    - Router can be *fully* stateless.
+2. When the receiving side funds are unlocked, sender side is immediately able to be unlocked. This means it is not possible for liquidity to leak.
+3. All of our current functionality around crosschain transfers is preserved. Auctions and AMMs will work very easily on this.
+4. The protocol is stupidly simple (enough that we can reasonably build and test it in 2-3 weeks).
+
+Drawbacks/Risks:
+1. Nxtp is *only* a protocol for (generalized) xchain transactions. It does not use channels at all and so cannot be used for other kinds of transfers.
+2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours).
+
 ### Architecture
 
 [Diagram needed]
