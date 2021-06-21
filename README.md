@@ -38,11 +38,11 @@ Drawbacks/Risks:
 ![Architecture](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/Architecture.png)
 
 This monorepo contains the following pieces:
-- Contracts - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
+- [Contracts](https://github.com/connext/nxtp/tree/main/modules/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
 - Subgraph - enables scalable querying/responding by caching onchain data and events.
-- TxService - resiliently attempts to send transactions to chain (with retries, etc.)
+- [TxService](https://github.com/connext/nxtp/tree/main/modules/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
 - Messaging - prepares, sends, and listens for message data over [nats](https://nats.io)
-- Router - listens for events from messaging service and subgraph, and then dispatches transactions to txService
+- [Router](https://github.com/connext/nxtp/tree/main/modules/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
 - SDK - creates auctions, listens for events and creates transactions on the user side.
 
 ### Internal Design Principles
