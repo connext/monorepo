@@ -39,6 +39,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // TODO perhaps move to user address --> iterable mapping of digests --> timeout
     // Otherwise, there's no way to get the timeout offchain
+    // TODO: update on above -- actually this wont work. We *need* to include params that change
+    // like amount and timeout in cleartext. Otherwise we would get a sig mismatch on receiver side.
     mapping(bytes32 => bool) public activeTransactions;
     uint24 public chainId;
 
@@ -136,6 +138,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         // Store the transaction
         bytes32 digest = keccak256(abi.encode(txData));
+        // TODO: see above -- need to store more than just boolean for this to work
         activeTransactions[digest] = true;
 
         // Emit event -- TODO
