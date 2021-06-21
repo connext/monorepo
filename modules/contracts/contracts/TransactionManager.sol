@@ -258,6 +258,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         pure
         returns (bytes32)
     {
+        // TODO: is this the right payload to sign?
         SignedTransactionData memory data = SignedTransactionData({
           user: txData.user,
           router: txData.router,
