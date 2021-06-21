@@ -2,7 +2,7 @@
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (do not include any external validator set).
+**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (does **not** rely on any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
@@ -12,7 +12,7 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 
 Transactions go through three phases:
 
-1. **Route Auction**: User broadcasts to the network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
+1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
 2. **Prepare**: User submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid along with their funds. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain.
 3. **Fulfill**: Upon detecting an event from the prepare step on the receiver-side chain, user signs a message and sends it to the router. Router submits that message to the `TransactionManager` alongside the user's calldata to complete their transaction on receiver-side chain. Router then submits the same signed message and completes transaction on sender-side.
 
