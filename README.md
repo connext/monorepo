@@ -36,7 +36,7 @@ Benefits:
 Drawbacks/Risks:
 
 1. Nxtp is _only_ a protocol for (generalized) xchain transactions. It does not use channels at all and so cannot be used for other kinds of transfers.
-2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same requirement. However, in nxtp, we will just see this more often.
+2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same liveness requirement, but it exists on both the user *and* router.
 
 ### Architecture
 
