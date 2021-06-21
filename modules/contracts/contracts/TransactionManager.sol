@@ -1,63 +1,38 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
+import "./interfaces/ITransactionManager.sol";
+import "./lib/LibERC20.sol";
+import "./lib/LibAsset.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/cryptography/ECDSA.sol";
-// TODO Reentrancy guard
-// TODO add LibAsset and LibERC20 helpers for unusual tokens
-// TODO add calldata helper (gnosis has one)
-// TODO how can users check pending txs?
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+// TODO: add calldata helper (gnosis has one)
+// TODO: how can users check pending txs?
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
-
-    struct TransactionData {
-        address user;
-        address router;
-        uint256 amount;
-        address sendingAssetId;
-        address receivingAssetId;
-        uint24 sendingChainId;
-        uint24 receivingChainId;
-        address callTo;
-        bytes callData;
-        // TODO consider using global nonce instead of transactionId
-        bytes32 transactionId;
-        uint256 expiry;
-    }
-
-    event LiquidityAdded(
-        address router,
-        address assetId,
-        uint256 amount
-    );
-
-    event LiquidityRemoved(
-        address router,
-        address assetId,
-        uint256 amount,
-        address recipient
-    );
 
     // Mapping of router to balance specific to asset
     mapping(address => mapping(address => uint256)) public routerBalances;
 
-    // TODO perhaps move to user address --> iterable mapping of digests --> timeout
+    // TODO: perhaps move to user address --> iterable mapping of digests --> timeout
     // Otherwise, there's no way to get the timeout offchain
     // TODO: update on above -- actually this wont work. We *need* to include params that change
     // like amount and timeout in cleartext. Otherwise we would get a sig mismatch on receiver side.
     mapping(bytes32 => bool) public activeTransactions;
-    uint24 public chainId;
+    uint24 public immutable chainId;
 
-    // TODO determine min timeout
+    // TODO: determine min timeout
     uint256 public constant MIN_TIMEOUT = 0;
 
-    constructor(uint256 _chainId) {
-        this.chainId = _chainId;
+    constructor(uint24 _chainId) {
+        chainId = _chainId;
     }
 
     function addLiquidity(uint256 amount, address assetId)
         external  
         payable 
         override 
-        nonReentrant 
+        nonReentrant
     {
         // Validate correct amounts
         if (LibAsset.isEther(assetId)) {
@@ -75,34 +50,34 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             );
         }
         // If router amount exists, add to it. Else, create it.
-        // TODO we are letting anyone be a router here -- is this ok?
+        // TODO: we are letting anyone be a router here -- is this ok?
         routerBalances[msg.sender][assetId] += amount;
         emit LiquidityAdded(msg.sender, assetId, amount);
     }
 
-    function removeLiquidity(uint256 amount, address assetId, address recipient)
+    function removeLiquidity(uint256 amount, address assetId, address payable recipient)
         external
         override
         nonReentrant
     {
-        // TODO is this check necessary now that solidity 0.8.0 has safemath?
+        // TODO: is this check necessary now that solidity 0.8.0 has safemath?
         require(routerBalances[msg.sender][assetId] >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
-        routerBalances[msg.sender][assetId]-= amount;
-        // TODO use existing transfer utils from vector here
-        transferAsset(assetId, recipient, amount);
+        routerBalances[msg.sender][assetId] -= amount;
+        require(LibAsset.transferAsset(assetId, recipient, amount), "removeLiquidity: TRANSFER_FAILED");
+
         emit LiquidityRemoved(msg.sender, assetId, amount, recipient);
     }
 
-    // TODO checks effects interactions
+    // : checks effects interactions
     function prepare(
         TransactionData calldata txData
     ) external payable override nonReentrant returns (bytes32) {
         require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
-        require(txData.sendingChainId == this.chainId || 
-            txData.receivingChainId == this.chainId, "prepare: INVALID_CHAINIDS");
+        require(txData.sendingChainId == chainId || 
+            txData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
 
         // First determine if this is sender side or receiver side
-        if (txData.sendingChainId == this.chainId) {
+        if (txData.sendingChainId == chainId) {
             // This is sender side prepare
             // What validation is needed here?
 
@@ -139,17 +114,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         }
 
         // Store the transaction
-        bytes32 digest = keccak256(abi.encode(txData));
+        bytes32 digest = hashTransactionData(txData);
         // TODO: see above -- need to store more than just boolean for this to work
         activeTransactions[digest] = true;
 
-        // Emit event -- TODO
-        emit TransactionPrepared();
+        // Emit event
+        emit TransactionPrepared(txData, msg.sender);
 
         return digest;
     }
 
-    // TODO need to add fee incentive for router submission
+    // TODO: need to add fee incentive for router submission
     function fulfill(
         TransactionData calldata txData,
         bytes calldata signature
@@ -157,27 +132,30 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
-        require(activeTransactions[keccak256(abi.encode(txData))] = true, "fulfill: INVALID_PARAMS");
+        bytes32 digest = hashTransactionData(txData);
+        require(activeTransactions[digest] = true, "fulfill: INVALID_PARAMS");
 
         // Zero out StoredTransaction
-        activeTransactions[keccak256(abi.encode(txData))] = false;
+        activeTransactions[digest] = false;
 
         // Validate signature
-        require(ECDSA.recover(storedTransactions[txData.transactionId].diges, signature) == storedTransactions[txData.transactionId].user, "fulfill: INVALID_SIGNATURE");
+        // TODO: should there be prefixes added to the signing here?
+        require(ECDSA.recover(digest, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
     
-        if (txData.senderChainId == this.chainId) {
+        if (txData.sendingChainId == chainId) {
             // Complete tx to router
             routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
         } else {
             // Complete tx to user
-            // TODO How to handle calldata here?
-            if (txData.callData == bytes(0)) {
-                transferAsset(txData.receivingAssetId, txData.callTo, txData.amount);
+            if (keccak256(txData.callData) == keccak256(new bytes(0))) {
+                require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.callTo), txData.amount), "fulfill: TRANSFER_FAILED");
+            } else {
+              // TODO: Add multicall pattern with `catch` fallback
             }
         }
 
-        // Emit event -- TODO
-        emit TransactionFulfilled();
+        // Emit event
+        emit TransactionFulfilled(txData, signature, msg.sender);
     }
 
     // Tx can be "collaboratively" cancelled by the receiver at any time and by the sender after expiry
@@ -187,33 +165,52 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
-        require(activeTransactions[keccak256(abi.encode(txData))] = true, "cancel: INVALID_PARAMS");
+
+        bytes32 digest = hashTransactionData(txData);
+        require(activeTransactions[digest] = true, "cancel: INVALID_PARAMS");
 
         // Zero out StoredTransaction
-        activeTransactions[keccak256(abi.encode(txData))] = false;
+        activeTransactions[digest] = false;
 
-        if (txData.senderChainId == this.chainId) {
+        if (txData.sendingChainId == chainId) {
             // Sender side --> funds go back to user
-            if(txData.expiry >= block.timestamp) {
+            if (txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by router
                 require(msg.sender == txData.router);
             }
             // Return to user
-            transferAsset(txData.sendingAssetId, txData.user, txData.amount);
-            return;
+            require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), txData.amount), "cancel: TRANSFER_FAILED");
         } else {
             // Receiver side --> funds go back to router
-            if(txData.expiry >= block.timestamp) {
+            if (txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by user
-                // TODO replace this with signature cancellation?
+                // TODO: replace this with signature cancellation?
                 require(msg.sender == txData.user);
             }
             // Return to router
             routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
-            return;
         }
 
-        // Emit event -- TODO
-        emit TransactionCancelled();
+        // Emit event
+        emit TransactionCancelled(txData, msg.sender);
+    }
+
+    function hashTransactionData(TransactionData calldata txData)
+        internal
+        pure
+        returns (bytes32)
+    {
+        SignableTransactionData memory data = SignableTransactionData(
+          txData.user,
+          txData.router,
+          txData.sendingAssetId,
+          txData.receivingAssetId,
+          txData.sendingChainId,
+          txData.receivingChainId,
+          txData.callTo,
+          txData.callData,
+          txData.transactionId
+        );
+        return keccak256(abi.encode(data));
     }
 }
