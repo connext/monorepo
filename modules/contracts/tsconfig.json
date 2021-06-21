@@ -2,14 +2,14 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "declarationDir": "dist/",
     "incremental": true,
     "module": "commonjs",
     "noUnusedLocals": false,
-    "outDir": "dist",
+    "outDir": "./dist",
     "strict": true,
-    "target": "es6"
+    "target": "es6",
+    "resolveJsonModule": true
   },
   "exclude": ["dist", "node_modules"],
-  "include": ["test/**/*.ts"]
+  "include": ["hardhat.config.ts", "test/**/*.ts"]
 }
