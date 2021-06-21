@@ -2,6 +2,7 @@
 
 ### Flow
 There are two key functions in the contract, `prepare` and `fulfill`.
+
 0. Lets assume that by this point the user has already run the auction.
 1. User calls `prepare` passing in all of the relevant data about the transfer on the sender side chain along with their funds for the transfer. The contract stores the funds and the hash of the data in its state.
 2. The `prepare` call above emits an event with the same calldata. Router hears this event (which includes its address) and calls the `prepare` function with the same calldata on the receiving chain (with decremented fees and timeout).
