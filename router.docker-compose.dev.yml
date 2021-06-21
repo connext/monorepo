@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  router:
+    container_name: router
+    build:
+      context: ./modules/router
+    ports:
+      - 8080:8080
+    volumes:
+      - ./modules/router:/router
+      - /worker/node_modules
