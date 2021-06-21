@@ -5,9 +5,9 @@ Nxtp is a lightweight protocol for generalized xchain transactions that retain t
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
-[Diagram needed]
-
 ### Transaction Lifecycle
+
+![HighLevelFlow](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/HighLevelFlow.png)
 
 Transactions go through three phases:
 1. Route Auction: User broadcasts to the network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
