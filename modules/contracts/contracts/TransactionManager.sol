@@ -75,6 +75,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
         require(txData.sendingChainId == chainId || 
             txData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
+        // TODO: Hard require that the transfer is not already active with same txData
 
         // First determine if this is sender side or receiver side
         if (txData.sendingChainId == chainId) {
