@@ -4,7 +4,7 @@ import "@typechain/hardhat";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.5",
+    version: "0.8.4",
   },
 };
 
