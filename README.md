@@ -1,4 +1,5 @@
 # NXTP [Name is a WIP]
+**N**oncustodial **X**chain **T**ransfer **P**rotocol
 
 Nxtp is a lightweight protocol for generalized xchain transactions.
 
