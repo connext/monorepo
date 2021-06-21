@@ -1,6 +1,7 @@
-# NXTP [Name is a WIP]
+# NXTP
+**N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-Nxtp is a lightweight protocol for generalized xchain transactions.
+Nxtp is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (do not include any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
