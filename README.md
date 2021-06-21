@@ -35,7 +35,7 @@ Drawbacks/Risks:
 
 ### Architecture
 
-[Diagram needed]
+![Architecture](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/Architecture.png)
 
 This monorepo contains the following pieces:
 - Contracts - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
