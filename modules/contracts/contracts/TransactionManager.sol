@@ -88,6 +88,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Make sure the chains are relevant
         require(txData.sendingChainId == chainId || 
             txData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
+        // TODO: Hard require that the transfer is not already active with same txData
 
         // TODO: how to enforce transactionId validity?
         // TODO: should we enforce a valid `callTo` (not address(0))?
