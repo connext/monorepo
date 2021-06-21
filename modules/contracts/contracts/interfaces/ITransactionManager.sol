@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
+
+struct UnsignedTransactionData {
+  uint256 amount;
+  uint256 expiry;
+  bytes32 digest;
+}
+
 interface ITransactionManager {
   // Structs
   struct TransactionData {
@@ -18,7 +25,7 @@ interface ITransactionManager {
     uint256 expiry;
   }
 
-  struct SignableTransactionData {
+  struct SignedTransactionData {
     address user;
     address router;
     address sendingAssetId;

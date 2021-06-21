@@ -2,14 +2,17 @@
 pragma solidity ^0.8.1;
 
 import "./interfaces/ITransactionManager.sol";
-import "./lib/LibERC20.sol";
 import "./lib/LibAsset.sol";
+import "./lib/LibERC20.sol";
+import "./lib/LibIterableMapping.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 // TODO: add calldata helper (gnosis has one)
 // TODO: how can users check pending txs?
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
+
+    using LibIterableMapping for LibIterableMapping.IterableMapping;
 
     // Mapping of router to balance specific to asset
     mapping(address => mapping(address => uint256)) public routerBalances;
@@ -18,7 +21,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Otherwise, there's no way to get the timeout offchain
     // TODO: update on above -- actually this wont work. We *need* to include params that change
     // like amount and timeout in cleartext. Otherwise we would get a sig mismatch on receiver side.
-    mapping(bytes32 => bool) public activeTransactions;
+    // mapping(bytes32 => bool) public activeTransactions;
+
+    LibIterableMapping.IterableMapping activeTransactions;
+
+
     uint24 public immutable chainId;
 
     // TODO: determine min timeout
@@ -85,6 +92,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Make sure the expiry is greater than min
         require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
 
+        // Make sure the chains are different
+        require(txData.sendingChainId != txData.receivingChainId, "prepare: SAME_CHAINIDS");
+
         // Make sure the chains are relevant
         require(txData.sendingChainId == chainId || 
             txData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
@@ -143,10 +153,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             routerBalances[txData.router][txData.receivingAssetId] -= txData.amount;
         }
 
-        // Store the transaction
+        // Store the transaction variants
         bytes32 digest = hashTransactionData(txData);
-        // TODO: see above -- need to store more than just boolean for this to work
-        activeTransactions[digest] = true;
+
+        activeTransactions.addTransaction(
+          UnsignedTransactionData({ amount: txData.amount, expiry: txData.expiry, digest: digest })
+        );
 
         // Emit event
         emit TransactionPrepared(txData, msg.sender);
@@ -163,10 +175,15 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
         bytes32 digest = hashTransactionData(txData);
-        require(activeTransactions[digest] = true, "fulfill: INVALID_PARAMS");
 
-        // Zero out active transaction
-        activeTransactions[digest] = false;
+        // Retrieving this will revert if the record does not exist by the
+        // digest (which asserts all but tx.amount, tx.expiry)
+        UnsignedTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
+
+        // Amount and expiry should be the same as the record
+        require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
+
+        require(record.expiry == txData.expiry, "cancel: INVALID_EXPIRY");
 
         // Validate signature
         require(ECDSA.recover(digest, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
@@ -184,6 +201,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             }
         }
 
+        // Remove the active transaction
+        activeTransactions.removeTransaction(digest);
+        
         // Emit event
         emit TransactionFulfilled(txData, signature, msg.sender);
     }
@@ -196,19 +216,25 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
         bytes32 digest = hashTransactionData(txData);
-        require(activeTransactions[digest] = true, "cancel: INVALID_PARAMS");
+        
+        // Retrieving this will revert if the record does not exist by the
+        // digest (which asserts all but tx.amount, tx.expiry)
+        UnsignedTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
-        // Zero out active transaction
-        activeTransactions[digest] = false;
+        // Amount and expiry should be the same as the record
+        require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
+
+        require(record.expiry == txData.expiry, "cancel: INVALID_EXPIRY");
 
         if (txData.sendingChainId == chainId) {
             // Sender side --> funds go back to user
             if (txData.expiry >= block.timestamp) {
-                // Timeout has not expired and tx may only be cancelled by router
-                require(msg.sender == txData.router);
+                // Timeout has not expired and tx may only be cancelled by srouter
+                require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
             }
             // Return to user
             require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), txData.amount), "cancel: TRANSFER_FAILED");
+
         } else {
             // Receiver side --> funds go back to router
             if (txData.expiry >= block.timestamp) {
@@ -220,6 +246,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
         }
 
+        // Remove the active transaction
+        activeTransactions.removeTransaction(digest);
+
         // Emit event
         emit TransactionCancelled(txData, msg.sender);
     }
@@ -229,17 +258,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         pure
         returns (bytes32)
     {
-        SignableTransactionData memory data = SignableTransactionData(
-          txData.user,
-          txData.router,
-          txData.sendingAssetId,
-          txData.receivingAssetId,
-          txData.sendingChainId,
-          txData.receivingChainId,
-          txData.callTo,
-          txData.callData,
-          txData.transactionId
-        );
+        SignedTransactionData memory data = SignedTransactionData({
+          user: txData.user,
+          router: txData.router,
+          sendingAssetId: txData.sendingAssetId,
+          receivingAssetId: txData.receivingAssetId,
+          sendingChainId: txData.sendingChainId,
+          receivingChainId: txData.receivingChainId,
+          callTo: txData.callTo,
+          callData: txData.callData,
+          transactionId: txData.transactionId
+        });
         return keccak256(abi.encode(data));
     }
 }
