@@ -35,8 +35,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     );
 
     // Mapping of router to balance specific to asset
-    // TODO: should we have locked bals in here? Could be helpful for analytics
     mapping(address => mapping(address => uint256)) public routerBalances;
+
+    // TODO perhaps move to user address --> iterable mapping of digests --> timeout
+    // Otherwise, there's no way to get the timeout offchain
     mapping(bytes32 => bool) public activeTransactions;
     uint24 public chainId;
 
@@ -70,7 +72,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         }
         // If router amount exists, add to it. Else, create it.
         // TODO we are letting anyone be a router here -- is this ok?
-        routerBalances[msg.sender][assetId] += amount; // TODO syntax
+        routerBalances[msg.sender][assetId] += amount;
         emit LiquidityAdded(msg.sender, assetId, amount);
     }
 
@@ -198,6 +200,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             // Receiver side --> funds go back to router
             if(txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by user
+                // TODO replace this with signature cancellation?
                 require(msg.sender == txData.user);
             }
             // Return to router
