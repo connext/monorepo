@@ -1,3 +1,5 @@
+import { NxtpMessaging } from "@connext/nxtp-utils";
+
 import { Handler } from "./handler";
 
 /*
@@ -7,18 +9,20 @@ import { Handler } from "./handler";
     logic should be routed to handlers.ts. 
 */
 export async function setupListeners(
-  messagingService: MessagingService,
+  messagingService: NxtpMessaging,
   subgraph: Subgraph,
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {
   // Setup Messaging Service events
-  messagingService.on(MessageEvents.AUCTION, async data => {
+  // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
+  messagingService.subscribe("*.auction.>", async data => {
     // On every new auction broadcast, route to the new auction handler
     const res = await handler.handleNewAuction();
   });
 
-  messagingService.on(MessageEvents.METATX, async data => {
+  // <from>.metatx
+  messagingService.subscribe("*.metatx", async data => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
     const res = await handler.handleMetaTxRequest();

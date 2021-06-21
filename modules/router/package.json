@@ -15,7 +15,8 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^3.18.0"
+    "fastify": "^3.18.0",
+    "@connext/nxtp-utils": "^0.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.19",

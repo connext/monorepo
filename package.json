@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "lerna": "lerna",
-    "start": "lerna run start --stream --parallel",
+    "watch": "lerna run watch --stream --parallel",
     "test": "lerna run test --",
     "lint": "lerna run lint -- --fix",
     "clean": "rm -rf node_modules* && rm -rf modules/*/node_modules* modules/*/dist* modules/*/.nyc_output*",

@@ -6,8 +6,8 @@
     "baseUrl": ".",
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
-      "@connext/nxtp-utils": ["modules/utils/src"],
-      "@connext/nxtp-contracts": ["modules/contracts/typechain"],
+      "@connext/sdk": ["modules/sdk/src"],
+      "@connext/modal": ["modules/widget/src"],
       "$test/*": ["test/*"]
     }
   }
