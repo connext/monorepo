@@ -15,14 +15,16 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@connext/nxtp-utils": "^0.0.1",
     "fastify": "^3.18.0",
-    "@connext/nxtp-utils": "^0.0.1"
+    "pino": "^6.11.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.19",
     "@types/chai-as-promised": "^7.1.4",
     "@types/chai-subset": "^1.3.3",
     "@types/mocha": "^8.2.2",
+    "@types/pino": "^6.3.8",
     "@types/sinon": "^10.0.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
