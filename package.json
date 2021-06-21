@@ -1,0 +1,25 @@
+{
+  "name": "mono",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "tsdx": "^0.14.1",
+    "typescript": "^4.3.4"
+  },
+  "workspaces": [
+    "modules/*"
+  ],
+  "scripts": {
+    "lerna": "lerna",
+    "start": "lerna run start --stream --parallel",
+    "test": "lerna run test --",
+    "lint": "lerna run lint -- --fix",
+    "clean": "rm -rf node_modules* && rm -rf modules/*/node_modules* modules/*/dist* modules/*/.nyc_output*",
+    "build": "lerna run build",
+    "prepublish": "lerna run prepublish",
+    "publish": "lerna publish"
+  },
+  "dependencies": {
+    "start-server-and-test": "^1.12.5"
+  }
+}
