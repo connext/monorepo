@@ -14,11 +14,6 @@ const config: HardhatUserConfig = {
     sources: "./contracts",
     tests: "./test",
   },
-  typechain: {
-    outDir: "src/types",
-    target: "ethers-v5",
-    alwaysGenerateOverloads: false,
-  },
   defaultNetwork: "hardhat",
 };
 
