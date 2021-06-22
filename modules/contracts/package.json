@@ -4,8 +4,13 @@
   "description": "",
   "scripts": {
     "test": "npx hardhat test",
-    "build": "npx hardhat compile"
+    "build": "npx hardhat compile",
+    "prepublish": "yarn build"
   },
+  "files": [
+    "typechain",
+    "artifacts"
+  ],
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
