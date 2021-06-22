@@ -11,6 +11,7 @@ const config: HardhatUserConfig = {
   paths: {
     artifacts: "./artifacts",
     sources: "./contracts",
+    tests: "./test",
   },
   defaultNetwork: "hardhat",
 };
