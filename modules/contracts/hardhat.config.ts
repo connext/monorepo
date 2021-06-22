@@ -1,6 +1,7 @@
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+import "hardhat-gas-reporter";
 
 import { HardhatUserConfig } from "hardhat/types";
 
@@ -12,6 +13,11 @@ const config: HardhatUserConfig = {
     artifacts: "./artifacts",
     sources: "./contracts",
     tests: "./test",
+  },
+  typechain: {
+    outDir: "src/types",
+    target: "ethers-v5",
+    alwaysGenerateOverloads: false,
   },
   defaultNetwork: "hardhat",
 };
