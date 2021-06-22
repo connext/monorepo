@@ -11,6 +11,9 @@
     "remove-local": "graph remove --node http://localhost:8020/ connext/nxtp",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp"
   },
+  "files": [
+    "schema.graphql"
+  ],
   "dependencies": {
     "@graphprotocol/graph-cli": "0.20.1",
     "@graphprotocol/graph-ts": "0.20.0",
