@@ -7,7 +7,11 @@
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
       "@connext/nxtp-utils": ["modules/utils/src"],
-      "@connext/nxtp-contracts": ["modules/contracts/typechain"],
+      "@connext/nxtp-contracts": [
+        "modules/contracts/typechain",
+        "modules/contracts/artifacts",
+        "modules/contracts/deployments"
+      ],
       "$test/*": ["test/*"]
     }
   }

@@ -2,23 +2,23 @@
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (do not include any external validator set).
+**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (does **not** rely on any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
-### Transaction Lifecycle
+## Transaction Lifecycle
 
 ![HighLevelFlow](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/HighLevelFlow.png)
 
 Transactions go through three phases:
 
-1. **Route Auction**: User broadcasts to the network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
+1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
 2. **Prepare**: User submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid along with their funds. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain.
 3. **Fulfill**: Upon detecting an event from the prepare step on the receiver-side chain, user signs a message and sends it to the router. Router submits that message to the `TransactionManager` alongside the user's calldata to complete their transaction on receiver-side chain. Router then submits the same signed message and completes transaction on sender-side.
 
 If a transaction is not fulfilled within a fixed timeout, it reverts and can be reclaimed by the party that called `prepare` on each chain (initiator). Additionally, transactions can be cancelled unilaterally by the counterparty (responder).
 
-### Key Differences With Vector
+## Key Differences With Vector
 
 Benefits:
 
@@ -36,9 +36,9 @@ Benefits:
 Drawbacks/Risks:
 
 1. Nxtp is _only_ a protocol for (generalized) xchain transactions. It does not use channels at all and so cannot be used for other kinds of transfers.
-2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours).
+2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same liveness requirement, but it exists on both the user *and* router.
 
-### Architecture
+## Architecture
 
 ![Architecture](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/Architecture.png)
 
@@ -51,7 +51,7 @@ This monorepo contains the following pieces:
 - [Router](https://github.com/connext/nxtp/tree/main/modules/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
 - SDK - creates auctions, listens for events and creates transactions on the user side.
 
-### Internal Design Principles
+## Internal Design Principles
 
 These are **important** and everyone must adhere to them:
 
