@@ -5,6 +5,7 @@ import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
 import "./lib/LibIterableMapping.sol";
+import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSend.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -21,17 +22,19 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Otherwise, there's no way to get the timeout offchain
     // TODO: update on above -- actually this wont work. We *need* to include params that change
     // like amount and timeout in cleartext. Otherwise we would get a sig mismatch on receiver side.
-    // mapping(bytes32 => bool) public activeTransactions;
+    // TODO: is this still relevant? @arjun -layne
 
     LibIterableMapping.IterableMapping activeTransactions;
 
 
     uint24 public immutable chainId;
+    address public immutable multisend;
 
     // TODO: determine min timeout
     uint256 public constant MIN_TIMEOUT = 0;
 
-    constructor(uint24 _chainId) {
+    constructor(address _multisend, uint24 _chainId) {
+        multisend = _multisend;
         chainId = _chainId;
     }
 
@@ -86,6 +89,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // TODO: checks effects interactions
+    // TODO: does this need to return a `digest`? for composablity..?
     function prepare(
         TransactionData calldata txData
     ) external payable override nonReentrant returns (bytes32) {
@@ -167,6 +171,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // TODO: need to add fee incentive for router submission
+    // ^^ does this need to happen? cant this be included in the offchain
+    // fee calculation?
     function fulfill(
         TransactionData calldata txData,
         bytes calldata signature
@@ -194,16 +200,22 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         } else {
             // Complete tx to user
             if (keccak256(txData.callData) == keccak256(new bytes(0))) {
-                require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.callTo), txData.amount), "fulfill: TRANSFER_FAILED");
+                require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.receivingAddress), txData.amount), "fulfill: TRANSFER_FAILED");
             } else {
-                // TODO: Add multicall pattern with `catch` fallback
-                require(false, "fulfill: add multicall pattern");
+                // TODO: this gnosis contracts support delegate calls as well,
+                // should we restrict this behavior?
+                try MultiSend(multisend).multiSend(txData.callData) {
+                } catch {
+                  // One of the transactions reverted, fallback of
+                  // send funds to `receivingAddress`
+                  LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), txData.amount);
+                }
             }
         }
 
         // Remove the active transaction
         activeTransactions.removeTransaction(digest);
-        
+
         // Emit event
         emit TransactionFulfilled(txData, signature, msg.sender);
     }
@@ -266,7 +278,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
           receivingAssetId: txData.receivingAssetId,
           sendingChainId: txData.sendingChainId,
           receivingChainId: txData.receivingChainId,
-          callTo: txData.callTo,
+          receivingAddress: txData.receivingAddress,
           callData: txData.callData,
           transactionId: txData.transactionId
         });

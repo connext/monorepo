@@ -18,7 +18,7 @@ interface ITransactionManager {
     address receivingAssetId;
     uint24 sendingChainId;
     uint24 receivingChainId;
-    address callTo;
+    address receivingAddress; // if calling fails, or isnt used, this is the address the funds are sent to
     bytes callData;
     // TODO: consider using global nonce instead of transactionId
     bytes32 transactionId;
@@ -32,7 +32,7 @@ interface ITransactionManager {
     address receivingAssetId;
     uint24 sendingChainId;
     uint24 receivingChainId;
-    address callTo;
+    address receivingAddress;
     bytes callData;
     // TODO: consider using global nonce instead of transactionId
     bytes32 transactionId;
@@ -69,6 +69,8 @@ interface ITransactionManager {
     TransactionData txData,
     address caller
   );
+
+  // Getters
 
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;
