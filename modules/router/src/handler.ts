@@ -1,3 +1,14 @@
+import { NxtpMessaging } from "@connext/nxtp-utils";
+import { Signer } from "ethers";
+import { BaseLogger } from "pino";
+
+import {
+  ReceiverFulfillData,
+  ReceiverPrepareData,
+  SenderFulfillData,
+  SenderPrepareData,
+  TransactionManagerListener,
+} from "./transactionManagerListener";
 /*
     Handler.ts
 
@@ -15,17 +26,35 @@
 // TODO should this be a class? Would be much easier to test, and remove the need
 // to pass in dependencies into every single function from the listener.
 
-export class Handler implements IHandler {
-  private messagingService: MesssagingService;
-  private subgraph: Subgraph;
-  private txService: TxService;
-  private signer: Signer;
-  private logger: BaseLogger;
+// TODO: once this gets built, import it
+interface TxService {}
+
+export interface Handler {
+  handleNewAuction(data: AuctionData): Promise<void>;
+  handleMetaTxRequest(data: MetaTxData): Promise<void>;
+  handleSenderPrepare(inboundData: SenderPrepareData): Promise<void>;
+  handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
+  handleSenderFulfill(data: SenderFulfillData): Promise<void>;
+  handleReceiverFulfill(data: ReceiverFulfillData): Promise<void>;
+  mutatePrepareData(data: SenderPrepareData): Promise<SenderPrepareData>;
+}
+
+export type AuctionData = any;
+export type MetaTxData = any;
+
+export class Handler implements Handler {
+  constructor(
+    private readonly messagingService: NxtpMessaging,
+    private readonly txManager: TransactionManagerListener,
+    private readonly signer: Signer,
+    private readonly txService: TxService,
+    private readonly logger: BaseLogger,
+  ) {}
 
   // HandleNewAuction
   // Purpose: Respond to auction with bid if router has sufficient funds for transfer
   // NOTE: This does not need to be implemented as part of MVP
-  public async handleNewAuction(data): Promise<void> {
+  public async handleNewAuction(data: AuctionData): Promise<void> {
     // First, log
     // TODO
     // Next, validate that assets/chains are supported and there is enough liquidity
@@ -48,7 +77,7 @@ export class Handler implements IHandler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxData): Promise<void> {
     // First log
     // TODO
     // Validate that metatx request matches with known data about fulfill
@@ -67,7 +96,7 @@ export class Handler implements IHandler {
 
   // HandleSenderPrepare
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
-  public async handleSenderPrepare(inboundData: EventData.SENDER_PREPARE): Promise<void> {
+  public async handleSenderPrepare(inboundData: SenderPrepareData): Promise<void> {
     // First log
 
     // Validate the prepare data
@@ -112,21 +141,21 @@ export class Handler implements IHandler {
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
   // metrics
-  public async handleReceiverPrepare(): Promise<void> {
+  public async handleReceiverPrepare(data: ReceiverPrepareData): Promise<void> {
     // First log
     // Update metrics
   }
 
   // HandleSenderFulfill
   // Purpose: No action is needed here from router except to update metrics
-  public async handleSenderFulfill(): Promise<void> {
+  public async handleSenderFulfill(data: SenderFulfillData): Promise<void> {
     // First log
     // Update metrics
   }
 
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
-  public async handleReceiverFulfill(): Promise<void> {
+  public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
     // First log
     // Prepare tx packet
     // Send to tx service
@@ -137,7 +166,7 @@ export class Handler implements IHandler {
 
   // MutatePrepareData
   // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
-  public async mutatePrepareData(data: EventData.SENDER_PREPARE): Promise<EventData.SENDER_PREPARE> {
+  public async mutatePrepareData(data: SenderPrepareData): Promise<SenderPrepareData> {
     //
   }
 }
