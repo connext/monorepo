@@ -32,19 +32,19 @@ contract LibIterableMappingTest {
     return LibIterableMapping.length(data);
   }
 
-  function getTransactionByDigest(bytes32 digest) public view returns (UnsignedTransactionData memory) {
+  function getTransactionByDigest(bytes32 digest) public view returns (VariableTransactionData memory) {
     return LibIterableMapping.getTransactionByDigest(data, digest);
   }
 
-  function getTransactionByIndex(uint256 index) public view returns (UnsignedTransactionData memory) {
+  function getTransactionByIndex(uint256 index) public view returns (VariableTransactionData memory) {
     return LibIterableMapping.getTransactionByIndex(data, index);
   }
 
-  function getTransactions() public view returns (UnsignedTransactionData[] memory) {
+  function getTransactions() public view returns (VariableTransactionData[] memory) {
     return LibIterableMapping.getTransactions(data);
   }
 
-  function addTransaction(UnsignedTransactionData memory transfer) public {
+  function addTransaction(VariableTransactionData memory transfer) public {
     return LibIterableMapping.addTransaction(data, transfer);
   }
 

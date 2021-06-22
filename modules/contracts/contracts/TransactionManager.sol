@@ -5,12 +5,10 @@ import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
 import "./lib/LibIterableMapping.sol";
-import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSend.sol";
+import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-// TODO: add calldata helper (gnosis has one)
-// TODO: how can users check pending txs?
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     using LibIterableMapping for LibIterableMapping.IterableMapping;
@@ -18,16 +16,19 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Mapping of router to balance specific to asset
     mapping(address => mapping(address => uint256)) public routerBalances;
 
-    // TODO: perhaps move to user address --> iterable mapping of digests --> timeout
-    // Otherwise, there's no way to get the timeout offchain
-    // TODO: update on above -- actually this wont work. We *need* to include params that change
-    // like amount and timeout in cleartext. Otherwise we would get a sig mismatch on receiver side.
-    // TODO: is this still relevant? @arjun -layne
-
+    /// @notice  Contains all the variable parts of a transaction, and a block
+    ///          number to look up the rest of the data via events. The 
+    ///          variable parts of the transaction data cannot be signed in the 
+    ///          digest, since then the digest and signature would be different 
+    ///          for sending and receiving chains. Must be iterable so user can
+    ///          always pull their pending transactions without knowing the 
+    ///          digest.
     LibIterableMapping.IterableMapping activeTransactions;
 
-
+    /// @dev The chain id of the contract, is passed in to avoid any evm issues
     uint24 public immutable chainId;
+
+    /// @dev Address of the deployed multisending helper contract
     address public immutable multisend;
 
     // TODO: determine min timeout
@@ -38,6 +39,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         chainId = _chainId;
     }
 
+    /// @dev returns all active transactions for a given user
+    function getActiveTransactionsByUser(address user) external view override returns (VariableTransactionData[] memory) {
+      return activeTransactions.getTransactionsByUser(user);
+    }
+
+    /// @param amount The amount of liquidity to add for the router
+    /// @param assetId The address (or `address(0)` if native asset) of the
+    ///                asset you're adding liquidity for
     function addLiquidity(uint256 amount, address assetId)
         external  
         payable 
@@ -61,9 +70,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         }
 
         // Update the router balances
-        // TODO: we are letting anyone be a router here -- is this ok?
-        // We are not permitting delegated liquidity here, what other checks
-        // would be safe? - layne
         routerBalances[msg.sender][assetId] += amount;
 
         // Emit event
@@ -88,11 +94,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         emit LiquidityRemoved(msg.sender, assetId, amount, recipient);
     }
 
-    // TODO: checks effects interactions
-    // TODO: does this need to return a `digest`? for composablity..?
     function prepare(
         TransactionData calldata txData
-    ) external payable override nonReentrant returns (bytes32) {
+    ) external payable override nonReentrant returns (TransactionData memory) {
         // Make sure the expiry is greater than min
         require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
 
@@ -102,18 +106,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Make sure the chains are relevant
         require(txData.sendingChainId == chainId || 
             txData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
-        // TODO: Hard require that the transfer is not already active with same txData
 
-        // TODO: how to enforce transactionId validity?
-        // TODO: should we enforce a valid `callTo` (not address(0))?
+        // Sanity check: valid fallback
+        require(txData.receivingAddress != address(0), "prepare: INVALID_RECEIVING_ADDRESS");
+        
+        // Make sure the hash is not a duplicate
+        bytes32 digest = hashTransactionData(txData);
+        require(!activeTransactions.digestExists(digest), "prepare: DUPLICATE_DIGEST");
 
         // First determine if this is sender side or receiver side
         if (txData.sendingChainId == chainId) {
             // This is sender side prepare
-            // What validation is needed here?
-            // - receivingAssetId is valid?
-            // - sendingAssetId is acceptable for receivingAssetId?
-            // - enforce the receiving chainId != sendingChainId?
 
             // Validate correct amounts and transfer
             if (LibAsset.isEther(txData.sendingAssetId)) {
@@ -137,7 +140,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             require(chainId == txData.receivingChainId, "prepare: INVALID_RECEIVING_CHAIN");
 
             // Check that the caller is the router
-            // TODO: this also prevents delegated liquidity (direct on contract)
             require(msg.sender == txData.router, "prepare: ROUTER_MISMATCH");
 
             // Check that router has liquidity
@@ -158,72 +160,88 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         }
 
         // Store the transaction variants
-        bytes32 digest = hashTransactionData(txData);
-
         activeTransactions.addTransaction(
-          UnsignedTransactionData({ amount: txData.amount, expiry: txData.expiry, digest: digest })
+          VariableTransactionData({ amount: txData.amount, expiry: txData.expiry, digest: digest, user: txData.user, blockNumber: block.number })
         );
 
         // Emit event
         emit TransactionPrepared(txData, msg.sender);
-
-        return digest;
+        return txData;
     }
 
-    // TODO: need to add fee incentive for router submission
-    // ^^ does this need to happen? cant this be included in the offchain
-    // fee calculation?
     function fulfill(
         TransactionData calldata txData,
-        bytes calldata signature
-    ) external override nonReentrant {
+        uint256 relayerFee,
+        bytes calldata signature // signature on fee + digest
+    ) external override nonReentrant returns (TransactionData memory) {
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
-        // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
+        // Also checks that sender or receiver chainID is this chainId (bc we 
+        // checked it previously)
         bytes32 digest = hashTransactionData(txData);
 
         // Retrieving this will revert if the record does not exist by the
         // digest (which asserts all but tx.amount, tx.expiry)
-        UnsignedTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
+        VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
         // Amount and expiry should be the same as the record
-        require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
+        require(record.amount == txData.amount, "fulfill: INVALID_AMOUNT");
 
-        require(record.expiry == txData.expiry, "cancel: INVALID_EXPIRY");
+        require(record.expiry == txData.expiry, "fulfill: INVALID_EXPIRY");
 
         // Validate signature
-        require(ECDSA.recover(digest, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
+        require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
+
+        // Sanity check: fee < amount
+        require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
     
         if (txData.sendingChainId == chainId) {
             // Complete tx to router
+            // NOTE: there is no fee taken on the sending side for the relayer
             routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
         } else {
             // Complete tx to user
+            // Get the amount to send
+            uint256 toSend = txData.amount - relayerFee;
+
             if (keccak256(txData.callData) == keccak256(new bytes(0))) {
-                require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.receivingAddress), txData.amount), "fulfill: TRANSFER_FAILED");
+                // No external calls, send directly to receiving address
+                require(LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend), "fulfill: TRANSFER_FAILED");
             } else {
-                // TODO: this gnosis contracts support delegate calls as well,
-                // should we restrict this behavior?
-                try MultiSend(multisend).multiSend(txData.callData) {
+
+                // Send the relayer the fee
+                if (relayerFee > 0) {
+                  require(LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee), "fulfill: FEE_TRANSFER_FAILED");
+                }
+
+                // Handle external calls with a fallback to the receiving
+                // address
+                try MultiSendCallOnly(multisend).multiSend(txData.callData) {
                 } catch {
-                  // One of the transactions reverted, fallback of
-                  // send funds to `receivingAddress`
-                  LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), txData.amount);
+                  require(LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend), "fulfill: TRANSFER_FAILED");
                 }
             }
+        }
+
+        // Send the relayer the fee
+        if (relayerFee > 0) {
+          require(LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee), "fulfill: FEE_TRANSFER_FAILED");
         }
 
         // Remove the active transaction
         activeTransactions.removeTransaction(digest);
 
         // Emit event
-        emit TransactionFulfilled(txData, signature, msg.sender);
+        emit TransactionFulfilled(txData, relayerFee, signature, msg.sender);
+
+        return txData;
     }
 
     // Tx can be "collaboratively" cancelled by the receiver at any time and by the sender after expiry
     function cancel(
-        TransactionData calldata txData
-    ) external override nonReentrant {     
+        TransactionData calldata txData,
+        bytes calldata signature
+    ) external override nonReentrant returns (TransactionData memory) {     
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
@@ -231,7 +249,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         
         // Retrieving this will revert if the record does not exist by the
         // digest (which asserts all but tx.amount, tx.expiry)
-        UnsignedTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
+        VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
         // Amount and expiry should be the same as the record
         require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
@@ -251,8 +269,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             // Receiver side --> funds go back to router
             if (txData.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by user
-                // TODO: replace this with signature-based cancellation?
-                require(msg.sender == txData.user, "cancel: USER_MUST_CANCEL");
+                // Validate signature
+                require(recoverCancelSignature(txData, signature) == txData.user, "cancel: INVALID_SIGNATURE");
             }
             // Return to router
             routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
@@ -263,17 +281,53 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         // Emit event
         emit TransactionCancelled(txData, msg.sender);
+
+        // Return
+        return txData;
     }
 
-
     // Private functions
+    function recoverFulfillSignature(
+      TransactionData calldata txData,
+      uint256 relayerFee,
+      bytes calldata signature
+    ) internal pure returns (address) {
+      // Create the digest
+      bytes32 txDigest = hashTransactionData(txData);
+
+      // Create the signed payload
+      SignedFulfillData memory payload = SignedFulfillData({
+        txDigest: txDigest,
+        relayerFee: relayerFee
+      });
+
+      // Recover
+      return ECDSA.recover(keccak256(abi.encode(payload)), signature);
+    }
+
+    function recoverCancelSignature(
+      TransactionData calldata txData,
+      bytes calldata signature
+    ) internal pure returns (address) {
+      // Create the digest
+      bytes32 txDigest = hashTransactionData(txData);
+
+      // Create the signed payload
+      SignedCancelData memory payload = SignedCancelData({
+        txDigest: txDigest,
+        cancel: "cancel"
+      });
+
+      // Recover
+      return ECDSA.recover(keccak256(abi.encode(payload)), signature);
+    }
+
     function hashTransactionData(TransactionData calldata txData)
         internal
         pure
         returns (bytes32)
     {
-        // TODO: is this the right payload to sign?
-        SignedTransactionData memory data = SignedTransactionData({
+        InvariantTransactionData memory data = InvariantTransactionData({
           user: txData.user,
           router: txData.router,
           sendingAssetId: txData.sendingAssetId,

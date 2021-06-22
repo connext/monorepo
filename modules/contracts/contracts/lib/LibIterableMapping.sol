@@ -6,16 +6,16 @@ import "../interfaces/ITransactionManager.sol";
 /// @title LibIterableMapping
 /// @author Connext <support@connext.network>
 /// @notice This library provides an efficient way to store and retrieve
-///         UnsignedTransactionData. This contract is used to manage the 
+///         VariableTransactionData. This contract is used to manage the 
 ///         transactions stored by `TransactionManager.sol`
 library LibIterableMapping {
-    struct UnsignedTransactionDataWithIndex {
-        UnsignedTransactionData transaction;
+    struct VariableTransactionDataWithIndex {
+        VariableTransactionData transaction;
         uint256 index;
     }
 
     struct IterableMapping {
-        mapping(bytes32 => UnsignedTransactionDataWithIndex) transactions;
+        mapping(bytes32 => VariableTransactionDataWithIndex) transactions;
         bytes32[] digests;
     }
 
@@ -53,7 +53,7 @@ library LibIterableMapping {
     function getTransactionByDigest(
         IterableMapping storage self,
         bytes32 digest
-    ) internal view returns (UnsignedTransactionData memory) {
+    ) internal view returns (VariableTransactionData memory) {
         require(digestExists(self, digest), "LibIterableMapping: DIGEST_NOT_FOUND");
         return self.transactions[digest].transaction;
     }
@@ -61,18 +61,34 @@ library LibIterableMapping {
     function getTransactionByIndex(
         IterableMapping storage self,
         uint256 index
-    ) internal view returns (UnsignedTransactionData memory) {
+    ) internal view returns (VariableTransactionData memory) {
         require(index < self.digests.length, "LibIterableMapping: INVALID_INDEX");
         return self.transactions[self.digests[index]].transaction;
+    }
+
+    function getTransactionsByUser(
+        IterableMapping storage self,
+        address user
+    ) internal view returns (VariableTransactionData[] memory) {
+        uint256 l = self.digests.length;
+        VariableTransactionData[] memory transactions = new VariableTransactionData[](l);
+        uint256 userIndex = 0;
+        for (uint256 i = 0; i < l; i++) {
+            if (self.transactions[self.digests[i]].transaction.user == user) {
+              transactions[userIndex] = self.transactions[self.digests[i]].transaction;
+              userIndex += 1;
+            }
+        }
+        return transactions;
     }
 
     function getTransactions(IterableMapping storage self)
         internal
         view
-        returns (UnsignedTransactionData[] memory)
+        returns (VariableTransactionData[] memory)
     {
         uint256 l = self.digests.length;
-        UnsignedTransactionData[] memory transactions = new UnsignedTransactionData[](l);
+        VariableTransactionData[] memory transactions = new VariableTransactionData[](l);
         for (uint256 i = 0; i < l; i++) {
             transactions[i] = self.transactions[self.digests[i]].transaction;
         }
@@ -81,12 +97,12 @@ library LibIterableMapping {
 
     function addTransaction(
         IterableMapping storage self,
-        UnsignedTransactionData memory transaction
+        VariableTransactionData memory transaction
     ) internal {
         bytes32 digest = transaction.digest;
         require(!isEmptyString(digest), "LibIterableMapping: EMPTY_DIGEST");
         require(!digestExists(self, digest), "LibIterableMapping: DIGEST_ALREADY_ADDED");
-        self.transactions[digest] = UnsignedTransactionDataWithIndex({
+        self.transactions[digest] = VariableTransactionDataWithIndex({
             transaction: transaction,
             index: self.digests.length
         });

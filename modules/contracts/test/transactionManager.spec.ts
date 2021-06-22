@@ -10,14 +10,14 @@ import { AddressZero } from "@ethersproject/constants";
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 
-describe("TransactionManager", function () {
+describe("TransactionManager", function() {
   let transactionManager: TransactionManager;
 
   const fixture = async () => {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
     return (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
   };
-  beforeEach(async function () {
+  beforeEach(async function() {
     transactionManager = await waffle.loadFixture(fixture);
   });
 

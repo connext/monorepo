@@ -18,7 +18,7 @@ describe.only("libIterableMapping", function() {
     return (await libIterableMappingTestFactory.deploy()) as LibIterableMappingTest;
   };
 
-  const createUnsignedTransactionDataMock = (params: { amount?: number; expiry?: number; digest?: string }) => {
+  const createVariableTransactionDataMock = (params: { amount?: number; expiry?: number; digest?: string }) => {
     return {
       amount: params.amount ?? 1,
       expiry: params.expiry ?? 10,
@@ -102,14 +102,14 @@ describe.only("libIterableMapping", function() {
 
   describe("#addTransaction", () => {
     it("should revert if empty string", async () => {
-      const mockTestParam = createUnsignedTransactionDataMock({ digest: formatBytes32String("0") });
+      const mockTestParam = createVariableTransactionDataMock({ digest: formatBytes32String("0") });
       await expect(libIterableMappingTest.addTransaction(mockTestParam)).to.be.revertedWith(
         "LibIterableMapping: EMPTY_DIGEST",
       );
     });
 
     it("should revert if digest already exist", async () => {
-      const mockTestParam = createUnsignedTransactionDataMock({});
+      const mockTestParam = createVariableTransactionDataMock({});
       const res = await libIterableMappingTest.addTransaction(mockTestParam);
       console.log(res);
 
@@ -119,7 +119,7 @@ describe.only("libIterableMapping", function() {
     });
 
     it("happy case: addTransaction", async () => {
-      const mockTestParam = createUnsignedTransactionDataMock({});
+      const mockTestParam = createVariableTransactionDataMock({});
       const res = await libIterableMappingTest.addTransaction(mockTestParam);
       console.log(res);
     });
@@ -139,7 +139,7 @@ describe.only("libIterableMapping", function() {
     });
 
     it("happy case: removeTransaction", async () => {
-      const mockTestParam = createUnsignedTransactionDataMock({});
+      const mockTestParam = createVariableTransactionDataMock({});
       const resAddTransaction = await libIterableMappingTest.addTransaction(mockTestParam);
       console.log(resAddTransaction);
 
