@@ -10,6 +10,9 @@ import "../lib/LibAsset.sol";
 ///         methods.
 
 contract LibAssetTest {
+  
+  constructor() {}
+
   function isEther(address assetId) internal pure returns (bool) {
     return LibAsset.isEther(assetId);
   }

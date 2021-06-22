@@ -10,6 +10,9 @@ import "../lib/LibERC20.sol";
 ///         methods.
 
 contract LibERC20Test {
+  
+  constructor() {}
+
   function wrapCall(address assetId, bytes memory callData) internal returns (bool) {
     return LibERC20.wrapCall(assetId, callData);
   }
