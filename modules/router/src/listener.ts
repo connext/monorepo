@@ -1,4 +1,5 @@
 import { NxtpMessaging } from "@connext/nxtp-utils";
+import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
 
