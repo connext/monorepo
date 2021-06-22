@@ -13,15 +13,15 @@ contract LibAssetTest {
   
   constructor() {}
 
-  function isEther(address assetId) internal pure returns (bool) {
+  function isEther(address assetId) public pure returns (bool) {
     return LibAsset.isEther(assetId);
   }
 
-  function getOwnBalance(address assetId) internal view returns (uint256) {
+  function getOwnBalance(address assetId) public view returns (uint256) {
     return LibAsset.getOwnBalance(assetId);
   }
 
-  function transferEther(address payable recipient, uint256 amount) internal returns (bool) {
+  function transferEther(address payable recipient, uint256 amount) public returns (bool) {
     return LibAsset.transferEther(recipient, amount);
   }
 
@@ -29,7 +29,7 @@ contract LibAssetTest {
     address assetId,
     address recipient,
     uint256 amount
-  ) internal returns (bool) {
+  ) public returns (bool) {
     return LibAsset.transferERC20(assetId, recipient, amount);
   }
 
@@ -40,7 +40,7 @@ contract LibAssetTest {
     address assetId,
     address payable recipient,
     uint256 amount
-  ) internal returns (bool) {
+  ) public returns (bool) {
     return LibAsset.transferAsset(assetId, recipient, amount);
   }
 }
