@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: TransactionManager
-    network: goerli
+    network: "{{network}}"
     source:
-      address: "0xa0c9a9B022aaDF065767Ec5Eb9923c62ED2EbeB4"
+      address: "{{address}}"
       abi: TransactionManager
     mapping:
       kind: ethereum/events
