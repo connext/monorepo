@@ -1,15 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "incremental": true,
+    "target": "es2018",
     "module": "commonjs",
-    "noUnusedLocals": false,
-    "outDir": "./dist",
     "strict": true,
-    "target": "es6",
+    "esModuleInterop": true,
+    "outDir": "dist",
     "resolveJsonModule": true
   },
-  "exclude": ["dist", "node_modules"],
-  "include": ["hardhat.config.ts", "test/**/*.ts"]
+  "include": ["./scripts", "./test"],
+  "files": ["./hardhat.config.ts"],
+  "exclude": ["dist", "node_modules"]
 }
