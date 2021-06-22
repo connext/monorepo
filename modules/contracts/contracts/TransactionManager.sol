@@ -265,6 +265,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         emit TransactionCancelled(txData, msg.sender);
     }
 
+
+    // Private functions
     function hashTransactionData(TransactionData calldata txData)
         internal
         pure

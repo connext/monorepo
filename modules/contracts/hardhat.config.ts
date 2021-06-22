@@ -23,6 +23,11 @@ const config: HardhatUserConfig = {
     sources: "./contracts",
     tests: "./test",
   },
+  typechain: {
+    outDir: "./typechain",
+    target: "ethers-v5",
+    alwaysGenerateOverloads: false,
+  },
   defaultNetwork: "hardhat",
   networks: {
     localhost: {
