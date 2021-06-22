@@ -20,6 +20,7 @@
     "@connext/vector-types": "^0.2.5-beta.20",
     "@ethersproject/address": "^5.3.0",
     "@ethersproject/bignumber": "^5.3.0",
+    "@ethersproject/units": "^5.3.0",
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
     "ethers": "^5.3.1",
@@ -28,6 +29,9 @@
     "pino": "^6.11.3"
   },
   "devDependencies": {
+    "@ethersproject/constants": "^5.3.0",
+    "@ethersproject/contracts": "^5.3.0",
+    "@ethersproject/providers": "^5.3.1",
     "@sinclair/typebox": "^0.16.7",
     "@types/chai": "^4.2.19",
     "@types/chai-as-promised": "^7.1.4",

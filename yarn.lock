@@ -1447,7 +1447,7 @@
     "@ethersproject/rlp" "^5.3.0"
     "@ethersproject/signing-key" "^5.3.0"
 
-"@ethersproject/units@5.3.0":
+"@ethersproject/units@5.3.0", "@ethersproject/units@^5.3.0":
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/units/-/units-5.3.0.tgz#c4d1493532ad3d4ddf6e2bc4f8c94a2db933a8f5"
   integrity sha512-BkfccZGwfJ6Ob+AelpIrgAzuNhrN2VLp3AILnkqTOv+yBdsc83V4AYf25XC/u0rHnWl6f4POaietPwlMqP2vUg==
@@ -8704,7 +8704,7 @@ hardhat-gas-reporter@^1.0.4:
     eth-gas-reporter "^0.2.20"
     sha1 "^1.1.1"
 
-hardhat@2.4.0:
+hardhat@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.4.0.tgz#b0db7a6e07fa72414665634ced149bbb10252499"
   integrity sha512-IMh7Ws/7fIO5RRkm4nhqS2JWEct0690K35BcFVuIOoIRMcDLKc/7+JSxhey3RkXc5M4qUvdxfQI0LRQx4aqBZw==
@@ -16475,15 +16475,15 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@4.3.4, typescript@^4.3.4:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.4.tgz#3f85b986945bcf31071decdd96cf8bfa65f9dcbc"
-  integrity sha512-uauPG7XZn9F/mo+7MrsRjyvbxFpzemRjKEZXS4AK83oP2KKOJPvb+9cO/gmnv8arWZvhnjVOXz7B49m1l0e9Ew==
-
 typescript@^3.7.3:
   version "3.9.10"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
+
+typescript@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.4.tgz#3f85b986945bcf31071decdd96cf8bfa65f9dcbc"
+  integrity sha512-uauPG7XZn9F/mo+7MrsRjyvbxFpzemRjKEZXS4AK83oP2KKOJPvb+9cO/gmnv8arWZvhnjVOXz7B49m1l0e9Ew==
 
 typewise-core@^1.2, typewise-core@^1.2.0:
   version "1.2.0"
