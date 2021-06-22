@@ -1,8 +1,14 @@
 import { NxtpMessaging } from "@connext/nxtp-utils";
-
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
+import {
+  ReceiverFulfillData,
+  ReceiverPrepareData,
+  SenderFulfillData,
+  SenderPrepareData,
+  TransactionManagerListener,
+} from "./transactionManagerListener";
 
 /*
     Listener.ts
@@ -12,7 +18,7 @@ import { Handler } from "./handler";
 */
 export async function setupListeners(
   messagingService: NxtpMessaging,
-  subgraph: Subgraph,
+  txManager: TransactionManagerListener,
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {
@@ -20,7 +26,7 @@ export async function setupListeners(
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
   messagingService.subscribe("*.auction.>", async data => {
     // On every new auction broadcast, route to the new auction handler
-    const res = await handler.handleNewAuction();
+    const res = await handler.handleNewAuction(data);
   });
 
   // <from>.metatx
@@ -31,22 +37,22 @@ export async function setupListeners(
   });
 
   // Setup Subgraph events
-  subgraph.on(SubgraphEvents.SENDER_PREPARE, async (data: EventData.SENDER_PREPARE) => {
+  txManager.onSenderPrepare(async (data: SenderPrepareData) => {
     // On sender prepare, route to sender prepare handler
     const res = await handler.handleSenderPrepare(data);
   });
 
-  subgraph.on(SubgraphEvents.RECEIVER_PREPARE, async data => {
+  txManager.onReceiverPrepare(async (data: ReceiverPrepareData) => {
     // On receiver prepare, route to receiver prepare handler
     const res = await handler.handleReceiverPrepare();
   });
 
-  subgraph.on(SubgraphEvents.SENDER_FULFILL, async data => {
+  txManager.onSenderFulfill(async (data: SenderFulfillData) => {
     // On sender fulfill, route to sender fulfill handler
     const res = await handler.handleSenderFulfill();
   });
 
-  subgraph.on(SubgraphEvents.RECEIVER_FULFILL, async data => {
+  txManager.onReceiverFulfill(async (data: ReceiverFulfillData) => {
     // On receiver fulfill, route to receiver fulfill handler
     const res = await handler.handleReceiverFulfill();
   });
