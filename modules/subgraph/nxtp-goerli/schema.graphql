@@ -1,6 +1,6 @@
 type AssetBalance @entity {
   id: ID!
-  amount: Int!
+  amount: BigInt!
   router: Router!
 }
 
@@ -30,7 +30,7 @@ type Transaction @entity {
   receivingAddress: Bytes!
   callData: Bytes!
   transactionId: Bytes!
-  expiry: Int!
+  expiry: BigInt!
   status: TransactionStatus!
 }
 

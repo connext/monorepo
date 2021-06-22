@@ -1,5 +1,5 @@
+/* eslint-disable prefer-const */
 import {
-  TransactionManager,
   LiquidityAdded,
   LiquidityRemoved,
   TransactionCancelled,
@@ -16,13 +16,14 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   }
 
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  let assetBalance = AssetBalance.load(`${event.params.assetId.toHex()}-${event.params.router.toHex()}`);
+  let assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
+  let assetBalance = AssetBalance.load(assetBalanceId);
   if (assetBalance == null) {
-    assetBalance = new AssetBalance(`${event.params.assetId.toHex()}-${event.params.router.toHex()}`);
+    assetBalance = new AssetBalance(assetBalanceId);
     assetBalance.router = router.id;
   }
   // add new amount
-  assetBalance.amount = assetBalance.amount + event.params.amount;
+  assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
   assetBalance.save();
 }
 
@@ -34,16 +35,17 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   }
 
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = AssetBalance.load(`${event.params.assetId.toHex()}-${event.params.router.toHex()}`);
+  let assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
+  let assetBalance = AssetBalance.load(assetBalanceId);
   // add new amount
-  assetBalance!.amount = assetBalance!.amount - event.params.amount;
+  assetBalance!.amount = assetBalance!.amount.minus(event.params.amount);
   assetBalance!.save();
 }
 
 export function handleTransactionPrepared(event: TransactionPrepared): void {
   // load user and router
   // router must necessarily exist at this point because it had to have provided liquidity
-  const router = Router.load(event.params.txData.router.toHex());
+  let router = Router.load(event.params.txData.router.toHex());
 
   let user = User.load(event.params.txData.router.toHex());
   if (user == null) {
@@ -52,7 +54,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   }
 
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  const transaction = new Transaction(event.params.txData.transactionId.toHex());
+  let transaction = new Transaction(event.params.txData.transactionId.toHex());
   transaction.user = user.id;
   transaction.router = router!.id;
   transaction.amount = event.params.txData.amount;
@@ -71,7 +73,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  const transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Fulfilled";
 
   transaction!.save();
@@ -79,7 +81,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
 export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  const transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Cancelled";
 
   transaction!.save();
