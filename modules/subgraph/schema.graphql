@@ -32,6 +32,7 @@ type Transaction @entity {
   transactionId: Bytes!
   expiry: BigInt!
   status: TransactionStatus!
+  chainId: Int!
 }
 
 # User entity keeps track of active user transactions

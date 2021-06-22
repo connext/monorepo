@@ -1,5 +1,6 @@
 /* eslint-disable prefer-const */
 import {
+  TransactionManager,
   LiquidityAdded,
   LiquidityRemoved,
   TransactionCancelled,
@@ -53,6 +54,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     user.save();
   }
 
+  // instantiate contract to get the chainId
+  let contract = TransactionManager.bind(event.address);
+  let chainId = contract.chainId();
+
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = new Transaction(event.params.txData.transactionId.toHex());
   transaction.user = user.id;
@@ -67,6 +72,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.transactionId = event.params.txData.transactionId;
   transaction.expiry = event.params.txData.expiry;
   transaction.status = "Prepared";
+  transaction.chainId = chainId;
 
   transaction.save();
 }
