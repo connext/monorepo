@@ -1,37 +1,53 @@
-import { ethers } from "hardhat";
-import { Signer } from "ethers";
-// import { expect } from "chai";
+import { ethers, waffle } from "hardhat";
+// import { Signer } from "ethers";
+import { expect, use } from "chai";
+import { solidity } from "ethereum-waffle";
 
-// import { Contract } from "@ethersproject/contracts";
+use(solidity);
 
-// // import artifact
-// // import { TransactionManager } from "../src/artifacts";
+import { AddressZero } from "@ethersproject/constants";
 
-// describe("TransactionManager", function () {
-//   // let transactionManager: Contract;
+// import types
+import { TransactionManager } from "../typechain/TransactionManager";
 
-//   beforeEach(async function () {
-//     // transactionManager = await (ethers as any).getContract("TransactionManager", signer);
-//   });
+describe("TransactionManager", function () {
+  let transactionManager: TransactionManager;
 
-//   // it("should deploy", async () => {
-//   //   expect(transactionManager.address).to.be.a("string");
-//   // });
-
-//   it("should do something right", async function () {
-//     // Do something with the accounts
-//   });
-// });
-
-describe("Token", function () {
-  let accounts: Signer[];
-
+  const fixture = async () => {
+    const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
+    return (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+  };
   beforeEach(async function () {
-    accounts = await ethers.getSigners();
+    transactionManager = await waffle.loadFixture(fixture);
   });
 
-  it("should do something right", async function () {
-    // Do something with the accounts
-    console.log(accounts);
+  it("should deploy", async () => {
+    console.log("Address", transactionManager.address);
+    expect(transactionManager.address).to.be.a("string");
+  });
+
+  it("constructor initialize", async () => {
+    expect(await transactionManager.chainId()).to.eq(1337);
+    expect(await transactionManager.multisend()).to.eq(AddressZero);
+  });
+
+  describe("#addLiquidity", () => {
+    it("should do something right", async () => {});
+  });
+
+  describe("#removeLiquidity", () => {
+    it("should do something right", async () => {});
+  });
+
+  describe("#prepare", () => {
+    it("should do something right", async () => {});
+  });
+
+  describe("#fulfill", () => {
+    it("should do something right", async () => {});
+  });
+
+  describe("#cancel", () => {
+    it("should do something right", async () => {});
   });
 });
