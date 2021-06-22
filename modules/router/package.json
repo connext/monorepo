@@ -15,6 +15,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@apollo/client": "^3.3.20",
     "@connext/nxtp-utils": "^0.0.1",
     "@connext/vector-types": "^0.2.5-beta.20",
     "@ethersproject/address": "^5.3.0",
@@ -22,6 +23,7 @@
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
     "fastify": "^3.18.0",
+    "graphql": "^15.5.1",
     "pino": "^6.11.3"
   },
   "devDependencies": {

@@ -12,7 +12,8 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp"
   },
   "files": [
-    "schema.graphql"
+    "schema.graphql",
+    "generated"
   ],
   "dependencies": {
     "@graphprotocol/graph-cli": "0.20.1",

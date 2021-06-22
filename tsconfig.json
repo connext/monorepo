@@ -12,6 +12,7 @@
         "modules/contracts/artifacts",
         "modules/contracts/deployments"
       ],
+      "@connext/nxtp-subgraph": ["modules/subgraph/generated"],
       "$test/*": ["test/*"]
     }
   }
