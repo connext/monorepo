@@ -1,5 +1,4 @@
 import { NxtpMessaging } from "@connext/nxtp-utils";
-
 import { Handler } from "./handler";
 
 /*
