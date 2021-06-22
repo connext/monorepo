@@ -13,7 +13,7 @@ contract LibERC20Test {
   
   constructor() {}
 
-  function wrapCall(address assetId, bytes memory callData) internal returns (bool) {
+  function wrapCall(address assetId, bytes memory callData) public returns (bool) {
     return LibERC20.wrapCall(assetId, callData);
   }
 
@@ -21,7 +21,7 @@ contract LibERC20Test {
     address assetId,
     address spender,
     uint256 amount
-  ) internal returns (bool) {
+  ) public returns (bool) {
     return LibERC20.approve(assetId, spender, amount);
   }
 
@@ -30,7 +30,7 @@ contract LibERC20Test {
     address sender,
     address recipient,
     uint256 amount
-  ) internal returns (bool) {
+  ) public returns (bool) {
     return LibERC20.transferFrom(assetId, sender, recipient, amount);
   }
 
@@ -38,7 +38,7 @@ contract LibERC20Test {
     address assetId,
     address recipient,
     uint256 amount
-  ) internal returns (bool) {
+  ) public returns (bool) {
     return LibERC20.transfer(assetId, recipient, amount);
   }
 }
