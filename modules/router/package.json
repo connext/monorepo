@@ -22,6 +22,7 @@
     "@ethersproject/bignumber": "^5.3.0",
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
+    "ethers": "^5.3.1",
     "fastify": "^3.18.0",
     "graphql": "^15.5.1",
     "pino": "^6.11.3"

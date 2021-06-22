@@ -10,7 +10,7 @@ import { formatBytes32String } from "@ethersproject/strings";
 // import types
 import { LibIterableMappingTest } from "../../typechain/LibIterableMappingTest";
 
-describe.only("libIterableMapping", function() {
+describe("libIterableMapping", function() {
   let libIterableMappingTest: LibIterableMappingTest;
 
   const fixture = async () => {
@@ -40,11 +40,13 @@ describe.only("libIterableMapping", function() {
     it("happy case: should return false", async () => {
       const res = await libIterableMappingTest.digestEqual(formatBytes32String("0"), formatBytes32String("1"));
       console.log(res);
+      expect(res).to.be.false;
     });
 
     it("happy case: should return true", async () => {
       const res = await libIterableMappingTest.digestEqual(formatBytes32String("0"), formatBytes32String("0"));
       console.log(res);
+      expect(res).to.be.true;
     });
   });
 
@@ -52,11 +54,14 @@ describe.only("libIterableMapping", function() {
     it("happy case: should return false", async () => {
       const res = await libIterableMappingTest.isEmptyString(formatBytes32String("1"));
       console.log(res);
+      expect(res).to.be.false;
     });
 
     it("happy case: should return true", async () => {
-      const res = await libIterableMappingTest.isEmptyString(formatBytes32String("0"));
+      console.log();
+      const res = await libIterableMappingTest.isEmptyString(formatBytes32String(""));
       console.log(res);
+      expect(res).to.be.true;
     });
   });
 
@@ -64,11 +69,17 @@ describe.only("libIterableMapping", function() {
     it("happy case: should return false", async () => {
       const res = await libIterableMappingTest.digestExists(formatBytes32String("1"));
       console.log(res);
+      expect(res).to.be.false;
     });
 
     it("happy case: should return true", async () => {
+      const mockTestParam = createUnsignedTransactionDataMock({ digest: formatBytes32String("1") });
+      const resAddTransaction = await libIterableMappingTest.addTransaction(mockTestParam);
+      console.log(resAddTransaction);
+
       const res = await libIterableMappingTest.digestExists(formatBytes32String("1"));
       console.log(res);
+      expect(res).to.be.true;
     });
   });
 
@@ -127,7 +138,7 @@ describe.only("libIterableMapping", function() {
 
   describe("#removeTransaction", () => {
     it("should revert if empty string", async () => {
-      await expect(libIterableMappingTest.removeTransaction(formatBytes32String("0"))).to.be.revertedWith(
+      await expect(libIterableMappingTest.removeTransaction(formatBytes32String(""))).to.be.revertedWith(
         "LibIterableMapping: EMPTY_DIGEST",
       );
     });
