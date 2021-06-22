@@ -1,0 +1,41 @@
+type AssetBalance @entity {
+  id: ID!
+  amount: Int!
+  router: Router!
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+  transactions: [Transaction!]! @derivedFrom(field: "router")
+}
+
+enum TransactionStatus {
+  Prepared
+  Fulfilled
+  Cancelled
+}
+
+# Transaction represents a transaction
+type Transaction @entity {
+  id: ID!
+  user: User!
+  router: Router!
+  amount: BigInt!
+  sendingAssetId: Bytes!
+  receivingAssetId: Bytes!
+  sendingChainId: Int!
+  receivingChainId: Int!
+  receivingAddress: Bytes!
+  callData: Bytes!
+  transactionId: Bytes!
+  expiry: Int!
+  status: TransactionStatus!
+}
+
+# User entity keeps track of active user transactions
+type User @entity {
+  id: ID!
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+}

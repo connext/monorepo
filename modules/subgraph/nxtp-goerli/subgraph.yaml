@@ -1,0 +1,35 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: TransactionManager
+    network: goerli
+    source:
+      address: "0xa0c9a9B022aaDF065767Ec5Eb9923c62ED2EbeB4"
+      abi: TransactionManager
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityAdded
+        - LiquidityRemoved
+        - TransactionCancelled
+        - TransactionFulfilled
+        - TransactionPrepared
+      abis:
+        - name: TransactionManager
+          file: ./abis/TransactionManager.json
+      eventHandlers:
+        - event: LiquidityAdded(address,address,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(address,address,uint256,address)
+          handler: handleLiquidityRemoved
+        - event: TransactionCancelled((address,address,uint256,address,address,uint24,uint24,address,bytes,bytes32,uint256),address)
+          handler: handleTransactionCancelled
+        - event: TransactionFulfilled((address,address,uint256,address,address,uint24,uint24,address,bytes,bytes32,uint256),bytes,address)
+          handler: handleTransactionFulfilled
+        - event: TransactionPrepared((address,address,uint256,address,address,uint24,uint24,address,bytes,bytes32,uint256),address)
+          handler: handleTransactionPrepared
+      file: ./src/mapping.ts
