@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "name": "@connext/nxtp-subgraph",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp",
+    "create-local": "graph create --node http://localhost:8020/ connext/nxtp",
+    "remove-local": "graph remove --node http://localhost:8020/ connext/nxtp",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.20.1",
+    "@graphprotocol/graph-ts": "0.20.0"
+  }
+}
