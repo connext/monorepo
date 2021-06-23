@@ -1,11 +1,14 @@
-import { Static, Type } from '@sinclair/typebox'
+import { Type, Static } from "@sinclair/typebox";
 import { defaultAbiCoder } from "ethers/lib/utils";
-import { BigNumberish } from "ethers";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 //todo: these types exist in config also need nxtp-types package
 export const TAddress = Type.RegEx(/^0x[a-fA-F0-9]{40}$/);
+export const TBytes32 = Type.RegEx(/^0x([a-fA-F0-9]{64})$/);
+export const TBytes = Type.RegEx(/^0x([a-fA-F0-9])$/);
+export const TIntegerString = Type.RegEx(/^([0-9])*$/);
+export const TNonzeroNumber = Type.Number({ minimum: 1 });
 
 export const TransactionDataParamsEncoding = tidy(`tuple(
   address user,
@@ -22,21 +25,23 @@ export const TransactionDataParamsEncoding = tidy(`tuple(
   uint256 blockNumber
 `);
 
-export interface TransactionDataParams {
-  user: Static<typeof TAddress>;
-  router: Static<typeof TAddress>;
-  sendingAssetId: Static<typeof TAddress>;
-  receivingAssetId: Static<typeof TAddress>;
-  receivingAddress: Static<typeof TAddress>;
-  callData: string;
-  transactionId: string;
-  sendingChainId: BigNumberish;
-  receivingChainId: BigNumberish;
-  amount: BigNumberish;
-  expiry: BigNumberish;
-  blockNumber: BigNumberish;
-}
+export const TransactionDataSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  sendingAssetId: TAddress,
+  receivingAssetId: TAddress,
+  receivingAddress: TAddress,
+  callData: TBytes,
+  transactionId: TBytes32,
+  sendingChainId: TNonzeroNumber,
+  receivingChainId: TNonzeroNumber,
+  amount: TIntegerString,
+  expiry: TIntegerString,
+  blockNumber: TNonzeroNumber,
+});
 
-export const encodeTxData = (txDataParams: TransactionDataParams): string => {
+// export type TransactionDataParams = Static<typeof TransactionDataSchema>;
+
+export const encodeTxData = (txDataParams: any): string => {
   return defaultAbiCoder.encode([TransactionDataParamsEncoding], [txDataParams]);
 };
