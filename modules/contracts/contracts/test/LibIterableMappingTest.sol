@@ -40,6 +40,10 @@ contract LibIterableMappingTest {
     return LibIterableMapping.getTransactionByIndex(data, index);
   }
 
+  function getTransactionsByUser(address user) public view returns (VariableTransactionData[] memory) {
+    return LibIterableMapping.getTransactionsByUser(data, user);
+  }
+
   function getTransactions() public view returns (VariableTransactionData[] memory) {
     return LibIterableMapping.getTransactions(data);
   }

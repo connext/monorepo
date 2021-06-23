@@ -71,15 +71,26 @@ library LibIterableMapping {
         address user
     ) internal view returns (VariableTransactionData[] memory) {
         uint256 l = self.digests.length;
-        VariableTransactionData[] memory transactions = new VariableTransactionData[](l);
-        uint256 userIndex = 0;
+
+        // First determine how many user txs there are for array length
+        uint256 userTxs = 0;
         for (uint256 i = 0; i < l; i++) {
             if (self.transactions[self.digests[i]].transaction.user == user) {
-              transactions[userIndex] = self.transactions[self.digests[i]].transaction;
-              userIndex += 1;
+              userTxs += 1;
             }
         }
-        return transactions;
+
+        // Add each user tx to array at index
+        VariableTransactionData[] memory userTransactions = new VariableTransactionData[](userTxs);
+        uint256 idx = 0;
+        for (uint256 i = 0; i < l; i++) {
+            if (self.transactions[self.digests[i]].transaction.user == user) {
+              userTransactions[idx] = self.transactions[self.digests[i]].transaction;
+              idx += 1;
+            }
+        }
+
+        return userTransactions;
     }
 
     function getTransactions(IterableMapping storage self)
