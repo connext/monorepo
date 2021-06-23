@@ -6,8 +6,9 @@ import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 
 import { delay } from "@connext/nxtp-utils";
-import { ChainError, MinimalTransaction, IChainService, ChainUtils } from "@connext/nxtp-types";
+import { MinimalTransaction, IChainService, ChainUtils } from "@connext/nxtp-types";
 import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
+import { ChainError } from "./error";
 import axios from "axios";
 
 export class ChainService implements IChainService {
