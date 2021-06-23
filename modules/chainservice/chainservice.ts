@@ -3,23 +3,13 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { Wallet } from "@ethersproject/wallet";
 import { Contract } from "@ethersproject/contracts";
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from "@ethersproject/providers";
-import { parseUnits } from "ethers/lib/utils";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 
 import { delay } from "@connext/nxtp-utils";
-import { ChainError, MinimalTransaction } from "@connext/nxtp-types";
+import { ChainError, MinimalTransaction, IChainService, ChainUtils } from "@connext/nxtp-types";
 import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
 import axios from "axios";
-
-interface IChainService {}
-
-type ChainUtils = {
-  signer: Signer;
-  queue: PriorityQueue;
-  provider: JsonRpcProvider;
-  confirmationsRequired: number;
-};
 
 export class ChainService implements IChainService {
   private config: ChainServiceConfig;
