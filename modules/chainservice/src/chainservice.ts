@@ -6,7 +6,7 @@ import axios from "axios";
 
 import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
-import { ChainUtils } from "./types";
+import { ChainUtils, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider } = providers;
 
