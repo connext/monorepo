@@ -22,7 +22,7 @@ type VariableTransactionData = {
   digest: string;
 };
 
-describe.only("LibIterableMapping.sol", function() {
+describe("LibIterableMapping.sol", function() {
   let libIterableMappingTest: LibIterableMappingTest;
 
   const fixture = async () => {
