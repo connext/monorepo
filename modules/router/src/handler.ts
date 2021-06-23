@@ -1,7 +1,8 @@
 import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
 import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
-import abi from "./abi";
+import { TransactionManager } from "@connext/nxtp-contracts";
+import TransactioManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
   ReceiverFulfillData,
@@ -154,7 +155,9 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Recipient (callTo) and callData
     const mutatedData = this.mutatePrepareData(inboundData);
-    const nxtpContract = new utils.Interface(abi);
+    const nxtpContract = new utils.Interface(TransactioManagerArtifact.abi) as TransactionManager["interface"];
+
+    // @ts-ignore TODO: fix this types shit
     const encodedData = nxtpContract.encodeFunctionData("prepare", [mutatedData]);
 
     // Then prepare tx object
