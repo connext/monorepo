@@ -6,11 +6,11 @@ import axios from "axios";
 
 import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
-import { IChainService, ChainUtils } from "./types";
+import { ChainUtils } from "./types";
 
 const { JsonRpcProvider } = providers;
 
-export class ChainService implements IChainService {
+export class ChainService {
   private config: ChainServiceConfig;
   private chains: Map<number, ChainUtils> = new Map();
   private log: BaseLogger;

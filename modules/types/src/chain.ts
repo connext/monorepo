@@ -11,9 +11,6 @@ export type MinimalTransaction = {
   data: HexString;
 };
 
-// TODO: Move to types
-export interface IChainService {}
-
 export type ChainUtils = {
   signer: Signer;
   queue: PriorityQueue;

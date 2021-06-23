@@ -9,9 +9,6 @@ export type MinimalTransaction = {
   from?: string;
 };
 
-// TODO: Move to types
-export interface IChainService {}
-
 export type ChainUtils = {
   signer: Signer;
   queue: PriorityQueue;
