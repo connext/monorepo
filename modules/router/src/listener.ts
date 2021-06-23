@@ -33,7 +33,7 @@ export async function setupListeners(
   messagingService.subscribe("*.metatx", async data => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
-    const res = await handler.handleMetaTxRequest();
+    const res = await handler.handleMetaTxRequest(data);
   });
 
   // Setup Subgraph events
@@ -44,16 +44,16 @@ export async function setupListeners(
 
   txManager.onReceiverPrepare(async (data: ReceiverPrepareData) => {
     // On receiver prepare, route to receiver prepare handler
-    const res = await handler.handleReceiverPrepare();
+    const res = await handler.handleReceiverPrepare(data);
   });
 
   txManager.onSenderFulfill(async (data: SenderFulfillData) => {
     // On sender fulfill, route to sender fulfill handler
-    const res = await handler.handleSenderFulfill();
+    const res = await handler.handleSenderFulfill(data);
   });
 
   txManager.onReceiverFulfill(async (data: ReceiverFulfillData) => {
     // On receiver fulfill, route to receiver fulfill handler
-    const res = await handler.handleReceiverFulfill();
+    const res = await handler.handleReceiverFulfill(data);
   });
 }
