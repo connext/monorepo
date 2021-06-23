@@ -1,12 +1,8 @@
-import { Type } from "@sinclair/typebox";
 import { defaultAbiCoder } from "ethers/lib/utils";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
-//todo: these types exist in config also need nxtp-types package
-export const TAddress = Type.RegEx(/^0x[a-fA-F0-9]{40}$/);
-
-export const TransactionDataParamsEncoding = tidy(`tuple(
+export const TransactionDataEncoding = tidy(`tuple(
   address user,
   address router,
   address sendingAssetId,
@@ -21,21 +17,21 @@ export const TransactionDataParamsEncoding = tidy(`tuple(
   uint256 blockNumber
 `);
 
-export interface TransactionDataParams {
-  // user: Static<typeof TAddress>;
-  // router: Static<typeof TAddress>;
-  // sendingAssetId: Static<typeof TAddress>;
-  // receivingAssetId: Static<typeof TAddress>;
-  // receivingAddress: Static<typeof TAddress>;
-  // callData: string;
-  // transactionId: string;
-  // sendingChainId: BigNumberish;
-  // receivingChainId: BigNumberish;
-  // amount: BigNumberish;
-  // expiry: BigNumberish;
-  // blockNumber: BigNumberish;
-}
+export type TransactionData = {
+  user: string;
+  router: string;
+  sendingAssetId: string;
+  receivingAssetId: string;
+  receivingAddress: string;
+  callData: string;
+  transactionId: string;
+  sendingChainId: number;
+  receivingChainId: number;
+  amount: string;
+  expiry: string;
+  blockNumber: string;
+};
 
-export const encodeTxData = (txDataParams: TransactionDataParams): string => {
-  return defaultAbiCoder.encode([TransactionDataParamsEncoding], [txDataParams]);
+export const encodeTxData = (txDataParams: TransactionData): string => {
+  return defaultAbiCoder.encode([TransactionDataEncoding], [txDataParams]);
 };
