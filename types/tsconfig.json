@@ -1,14 +1,8 @@
 {
-  "extends": "./tsconfig.build.json",
-  "include": ["modules", "types", "scripts", "example"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowJs": false,
-    "baseUrl": ".",
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "paths": {
-      "@connext/sdk": ["modules/sdk/src"],
-      "@connext/modal": ["modules/widget/src"],
-      "$test/*": ["test/*"]
-    }
-  }
+    "composite": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
 }

@@ -30,6 +30,7 @@ export class ChainError extends VectorError {
     super(message, context, ChainError.type);
   }
 
+  // TODO: Fill out all error cases for translation here.
   static parseChainErrorReason = (message: string): string | undefined => {
     if (message.includes("sender doesn't have enough funds")) {
       return ChainError.reasons.NotEnoughFunds;
