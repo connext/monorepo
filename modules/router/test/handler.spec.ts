@@ -2,8 +2,8 @@ import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
 import { ChainService } from "@connext/nxtp-chainservice";
 import { expect } from "chai";
 import { describe } from "mocha";
-import { createStubInstance, reset, restore, SinonStubbedInstance } from "sinon";
-import { SubgraphTransactionManagerListener } from "src/transactionManagerListener";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { SenderPrepareData, SubgraphTransactionManagerListener } from "src/transactionManagerListener";
 import pino from "pino";
 import { Signer } from "ethers";
 
@@ -28,6 +28,10 @@ describe("Handler", () => {
 
   describe("handleSenderPrepare", () => {
     it("should send prepare for receiving chain with ETH asset", async () => {
+      const data: SenderPrepareData = {
+        /// todo
+      };
+      stub(handler, "mutatePrepareData").returns(data);
       expect(true).to.be.true;
     });
     it("should send prepare for receiving chain with token asset", async () => {});
