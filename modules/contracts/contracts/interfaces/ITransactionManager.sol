@@ -12,6 +12,10 @@ struct VariableTransactionData {
 
 interface ITransactionManager {
   // Structs
+  // TODO: Add bid data if needed?
+  // TODO: make this structure invariant *only* (consolidate with below)
+  // Then, we can pass in amount/expiry explicitly and use only the record values
+  // which will reduce duplication/confusion
   struct TransactionData {
     address user;
     address router;

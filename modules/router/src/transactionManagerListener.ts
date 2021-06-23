@@ -25,6 +25,7 @@ export type SenderPrepareData = {
     expiry: number;
     status: TransactionStatus;
     chainId: number;
+    blockNumber: number;
   };
 };
 export type ReceiverPrepareData = any;

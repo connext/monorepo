@@ -82,6 +82,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         nonReentrant
     {
         // Check that the amount can be deducted for the router
+        // TODO is this check worth the extra gas?
         require(routerBalances[msg.sender][assetId] >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
 
         // Update router balances
@@ -136,13 +137,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         } else {
             // This is receiver side prepare
 
-            // Make sure this is the right chain
-            require(chainId == txData.receivingChainId, "prepare: INVALID_RECEIVING_CHAIN");
-
             // Check that the caller is the router
             require(msg.sender == txData.router, "prepare: ROUTER_MISMATCH");
 
             // Check that router has liquidity
+            // TODO do we need explicit check vs implicit from safemath below?
             require(routerBalances[txData.router][txData.receivingAssetId] >= txData.amount, "prepare: INSUFFICIENT_LIQUIDITY");
 
             // NOTE: Timeout and amounts should have been decremented offchain
@@ -174,6 +173,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         uint256 relayerFee,
         bytes calldata signature // signature on fee + digest
     ) external override nonReentrant returns (TransactionData memory) {
+        // TODO: MAKE SURE TO CHECK TX IS NOT EXPIRED
+
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we 
@@ -185,15 +186,19 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
         // Amount and expiry should be the same as the record
+        // These are explicit sanity checks -- TODO remove these after txData change
         require(record.amount == txData.amount, "fulfill: INVALID_AMOUNT");
-
         require(record.expiry == txData.expiry, "fulfill: INVALID_EXPIRY");
 
         // Validate signature
         require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
         // Sanity check: fee < amount
+        // TODO: Do we need this check? Safemath would catch it below
         require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
+
+        // Remove the active transaction
+        activeTransactions.removeTransaction(digest);
     
         if (txData.sendingChainId == chainId) {
             // Complete tx to router
@@ -204,32 +209,26 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             // Get the amount to send
             uint256 toSend = txData.amount - relayerFee;
 
+            // Send the relayer the fee
+            if (relayerFee > 0) {
+                require(LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee), "fulfill: FEE_TRANSFER_FAILED");
+            }
+
             if (keccak256(txData.callData) == keccak256(new bytes(0))) {
                 // No external calls, send directly to receiving address
                 require(LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend), "fulfill: TRANSFER_FAILED");
             } else {
 
-                // Send the relayer the fee
-                if (relayerFee > 0) {
-                  require(LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee), "fulfill: FEE_TRANSFER_FAILED");
-                }
-
                 // Handle external calls with a fallback to the receiving
                 // address
+                // TODO: This would allow us to execute an arbitrary transfer to drain the contracts
+                // We'll need to change this to use vector pattern with *explicit* amount.
                 try MultiSendCallOnly(multisend).multiSend(txData.callData) {
                 } catch {
                   require(LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend), "fulfill: TRANSFER_FAILED");
                 }
             }
         }
-
-        // Send the relayer the fee
-        if (relayerFee > 0) {
-          require(LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee), "fulfill: FEE_TRANSFER_FAILED");
-        }
-
-        // Remove the active transaction
-        activeTransactions.removeTransaction(digest);
 
         // Emit event
         emit TransactionFulfilled(txData, relayerFee, signature, msg.sender);
@@ -252,14 +251,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
         // Amount and expiry should be the same as the record
+        // TODO: Remove this after struct changes
         require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
-
         require(record.expiry == txData.expiry, "cancel: INVALID_EXPIRY");
 
         if (txData.sendingChainId == chainId) {
             // Sender side --> funds go back to user
             if (txData.expiry >= block.timestamp) {
-                // Timeout has not expired and tx may only be cancelled by srouter
+                // Timeout has not expired and tx may only be cancelled by router
                 require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
             }
             // Return to user
