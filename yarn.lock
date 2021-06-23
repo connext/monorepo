@@ -3223,7 +3223,7 @@
   resolved "https://registry.yarnpkg.com/@typechain/ethers-v5/-/ethers-v5-7.0.1.tgz#f9ae60ae5bd9e8ea8a996f66244147e8e74034ae"
   integrity sha512-mXEJ7LG0pOYO+MRPkHtbf30Ey9X2KAsU0wkeoVvjQIn7iAY6tB3k3s+82bbmJAUMyENbQ04RDOZit36CgSG6Gg==
 
-"@typechain/hardhat@^2.0.2":
+"@typechain/hardhat@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@typechain/hardhat/-/hardhat-2.1.0.tgz#e6abe4b44172273f537121ea79afe0bbbbb0bff9"
   integrity sha512-f9zv+yGA6P055U8cYruW9UnSH2lBdM2PSJx/oy8biMXdw5d+xVfY4GCet4w6ry32Vy1OjqGoDM98EZ9H0EAPrg==
@@ -9077,7 +9077,7 @@ hardhat-gas-reporter@^1.0.4:
     eth-gas-reporter "^0.2.20"
     sha1 "^1.1.1"
 
-hardhat@^2.4.0:
+hardhat@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.4.1.tgz#2cd1e86ee6ca3a6a473eeb0f55bd3124c8c59250"
   integrity sha512-vwllrFypukeE/Q+4ZfWj7j7nUo4ncUhRpsAYUM0Ruuuk6pQlKmRa0A6c0kxRSvvVgQsMud6j+/weYhbMX1wPmQ==
@@ -16443,7 +16443,7 @@ typechain@^3.0.0:
     ts-essentials "^6.0.3"
     ts-generator "^0.1.1"
 
-typechain@^5.0.0:
+typechain@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/typechain/-/typechain-5.1.0.tgz#0ccad4f8ba0d38fe95c1cc5f5de609831ac5281b"
   integrity sha512-T9SIda/EUGqLJYXqo0JcquWY5BXeuJ+VyNdOvCzhsMqKraRD0JtiNnqfjRJPs1IHZO38vRADd7ubG6r7FQC2iA==
