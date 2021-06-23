@@ -280,7 +280,7 @@ export interface NxtpMessaging extends BasicMessaging {
 }
 
 export const generateMessagingInbox = (): string => {
-  return `_INBOX:${v4()}`;
+  return `_INBOX.${v4()}`;
 };
 
 export class NatsNxtpMessagingService extends NatsBasicMessagingService implements NxtpMessaging {

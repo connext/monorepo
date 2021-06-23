@@ -20,7 +20,6 @@
     "src"
   ],
   "dependencies": {
-    "@sinclair/typebox": "^0.16.7",
     "ethers": "^5.3.1",
     "pino": "^6.11.3",
     "ts-natsutil": "^1.1.1",
