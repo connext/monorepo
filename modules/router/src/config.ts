@@ -45,7 +45,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   let configFile: any = {};
 
   try {
-    let json;
+    let json: string;
     if (process.env.NXTP_CONFIG_FILE) {
       console.log("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
       json = readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
@@ -62,7 +62,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   }
   // return configFile;
 
-  if (process.env.VECTOR_CONFIG) {
+  if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
       if (configJson) console.log("Found process.env.VECTOR_CONFIG");
