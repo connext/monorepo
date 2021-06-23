@@ -1,0 +1,8 @@
+schema: https://api.thegraph.com/subgraphs/name/connext/nxtp
+documents: "src/**/!(*.d).{ts,tsx}"
+generates:
+  ./src/graphqlsdk.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
