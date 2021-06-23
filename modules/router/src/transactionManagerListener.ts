@@ -1,4 +1,5 @@
 import { gql, GraphQLClient } from "graphql-request";
+import { BaseLogger } from "pino";
 import { Exact, GetPrepareTransactionsForRouterQuery, getSdk, TransactionStatus } from "./graphqlsdk";
 
 export interface TransactionManagerListener {
@@ -55,42 +56,57 @@ const getSenderPrepareQuery = gql`
   }
 `;
 
-export class SubgraphTransactionManagerListener implements TransactionManagerListener {
-  private sdk: {
-    GetPrepareTransactionsForRouter(
-      variables: Exact<{ routerId: string; sendingChainId: number }>,
-      requestHeaders?: Headers | string[][] | Record<string, string>,
-    ): Promise<GetPrepareTransactionsForRouterQuery>;
-  };
+// imported
+type GraphQlSdk = {
+  GetPrepareTransactionsForRouter(
+    variables: Exact<{ routerId: string; sendingChainId: number }>,
+    requestHeaders?: Headers | string[][] | Record<string, string>,
+  ): Promise<GetPrepareTransactionsForRouterQuery>;
+};
 
-  constructor(subgraphUrl: string, private readonly routerAddress: string) {
-    const client = new GraphQLClient(subgraphUrl);
-    this.sdk = getSdk(client);
+export class SubgraphTransactionManagerListener implements TransactionManagerListener {
+  private sdks!: Record<number, GraphQlSdk>;
+
+  constructor(
+    private readonly chainConfig: { [chainId: number]: string },
+    private readonly routerAddress: string,
+    private readonly logger: BaseLogger,
+    private readonly pollInterval = 15_000,
+  ) {
+    Object.entries(this.chainConfig).forEach(([chainId, subgraphUrl]) => {
+      const client = new GraphQLClient(subgraphUrl);
+      this.sdks[parseInt(chainId)] = getSdk(client);
+    });
   }
 
   // handler methods need to listen to the subgraph and call handler on any new results that come in
-  // we can do this either with Apollo refetching or subscriptions (but unknown if subgraphs support subscriptions)
+  // we will need to keep track of which txs we have already handled and only call handlers on new results
   async onSenderPrepare(handler: (data: SenderPrepareData) => Promise<void>): Promise<void> {
-    const query = await this.sdk.GetPrepareTransactionsForRouter({ routerId: this.routerAddress, sendingChainId: 5 });
-    query.transactions.forEach(transaction => {
-      const data: SenderPrepareData = {
-        transaction: {
-          amount: transaction.amount,
-          callData: transaction.callData,
-          chainId: transaction.chainId,
-          expiry: transaction.expiry,
-          receivingAddress: transaction.receivingAddress,
-          receivingAssetId: transaction.receivingAssetId,
-          receivingChainId: transaction.receivingChainId,
-          router: transaction.router.id,
-          sendingAssetId: transaction.sendingAssetId,
-          sendingChainId: transaction.sendingChainId,
-          status: transaction.status,
-          transactionId: transaction.transactionId,
-          user: transaction.user.id,
-        },
-      };
-      handler(data);
+    Object.keys(this.chainConfig).forEach(async chainId => {
+      const sdk: GraphQlSdk = this.sdks[chainId];
+      setInterval(async () => {
+        const query = await sdk.GetPrepareTransactionsForRouter({ routerId: this.routerAddress, sendingChainId: 5 });
+        query.transactions.forEach(transaction => {
+          const data: SenderPrepareData = {
+            transaction: {
+              amount: transaction.amount,
+              callData: transaction.callData,
+              chainId: transaction.chainId,
+              expiry: transaction.expiry,
+              receivingAddress: transaction.receivingAddress,
+              receivingAssetId: transaction.receivingAssetId,
+              receivingChainId: transaction.receivingChainId,
+              router: transaction.router.id,
+              sendingAssetId: transaction.sendingAssetId,
+              sendingChainId: transaction.sendingChainId,
+              status: transaction.status,
+              transactionId: transaction.transactionId,
+              user: transaction.user.id,
+            },
+          };
+          handler(data);
+        });
+      }, this.pollInterval);
     });
   }
 

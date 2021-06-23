@@ -1,4 +1,5 @@
 import { NxtpMessaging, encodeTxData } from "@connext/nxtp-utils";
+import {} from "@connext/nxtp-contracts";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
 
