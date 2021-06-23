@@ -1,5 +1,5 @@
 import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
-import { BigNumber, Signer, utils } from "ethers";
+import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import abi from "./abi";
 
@@ -10,8 +10,6 @@ import {
   SenderPrepareData,
   TransactionManagerListener,
 } from "./transactionManagerListener";
-import { defaultAbiCoder } from "ethers/lib/utils";
-import { ethers } from "ethers/lib.esm";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
