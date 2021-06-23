@@ -31,7 +31,7 @@ describe("Handler", () => {
       const data: SenderPrepareData = {
         /// todo
       };
-      stub(handler, "mutatePrepareData").returns(data);
+      stub(handler, "mutatePrepareData").returns(data); // use returns for sync functions, resolve for async
       expect(true).to.be.true;
     });
     it("should send prepare for receiving chain with token asset", async () => {});
