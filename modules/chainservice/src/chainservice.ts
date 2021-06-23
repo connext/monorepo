@@ -185,7 +185,7 @@ export class ChainService implements IChainService {
     return await queue.add(task);
   }
 
-  public async confirmTx(chainId: number, responses: TransactionResponse[]): Promise<TransactionReceipt> {
+  private async confirmTx(chainId: number, responses: TransactionResponse[]): Promise<TransactionReceipt> {
     const { provider, confirmationsRequired } = this.chains.get(chainId)!;
     const { confirmationTimeout, confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
