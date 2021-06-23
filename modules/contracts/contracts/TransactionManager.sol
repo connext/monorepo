@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
+import "hardhat/console.sol";
+
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
@@ -139,6 +141,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
             // Check that the caller is the router
             require(msg.sender == txData.router, "prepare: ROUTER_MISMATCH");
+            require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
 
             // Check that router has liquidity
             // TODO do we need explicit check vs implicit from safemath below?
