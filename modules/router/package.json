@@ -7,15 +7,15 @@
     "dev": "nodemon -L src/index.ts",
     "start": "yarn build && node dist/index.js",
     "watch": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
-    "build": "tsdx build --tsconfig tsconfig.build.json",
+    "build": "yarn generate && tsdx build --tsconfig tsconfig.build.json",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "lint": "tsdx lint",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "generate": "graphql-codegen"
   },
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.3.20",
     "@connext/nxtp-utils": "^0.0.1",
     "@sinclair/typebox": "^0.16.7",
     "adv": "^0.1.5",
@@ -23,9 +23,14 @@
     "ethers": "^5.3.1",
     "fastify": "^3.18.0",
     "graphql": "^15.5.1",
+    "graphql-request": "^3.4.0",
     "pino": "^6.11.3"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.5",
+    "@graphql-codegen/typescript": "^1.22.3",
+    "@graphql-codegen/typescript-graphql-request": "^3.2.3",
+    "@graphql-codegen/typescript-operations": "^1.18.2",
     "@types/chai": "^4.2.19",
     "@types/chai-as-promised": "^7.1.4",
     "@types/chai-subset": "^1.3.3",
