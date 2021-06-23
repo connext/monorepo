@@ -1,6 +1,5 @@
-import { Static, Type } from '@sinclair/typebox'
+import { Type } from "@sinclair/typebox";
 import { defaultAbiCoder } from "ethers/lib/utils";
-import { BigNumberish } from "ethers";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
@@ -23,18 +22,18 @@ export const TransactionDataParamsEncoding = tidy(`tuple(
 `);
 
 export interface TransactionDataParams {
-  user: Static<typeof TAddress>;
-  router: Static<typeof TAddress>;
-  sendingAssetId: Static<typeof TAddress>;
-  receivingAssetId: Static<typeof TAddress>;
-  receivingAddress: Static<typeof TAddress>;
-  callData: string;
-  transactionId: string;
-  sendingChainId: BigNumberish;
-  receivingChainId: BigNumberish;
-  amount: BigNumberish;
-  expiry: BigNumberish;
-  blockNumber: BigNumberish;
+  // user: Static<typeof TAddress>;
+  // router: Static<typeof TAddress>;
+  // sendingAssetId: Static<typeof TAddress>;
+  // receivingAssetId: Static<typeof TAddress>;
+  // receivingAddress: Static<typeof TAddress>;
+  // callData: string;
+  // transactionId: string;
+  // sendingChainId: BigNumberish;
+  // receivingChainId: BigNumberish;
+  // amount: BigNumberish;
+  // expiry: BigNumberish;
+  // blockNumber: BigNumberish;
 }
 
 export const encodeTxData = (txDataParams: TransactionDataParams): string => {

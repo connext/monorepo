@@ -7,7 +7,7 @@
     "dev": "nodemon -L src/index.ts",
     "start": "yarn build && node dist/index.js",
     "watch": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
-    "build": "yarn generate && tsdx build --tsconfig tsconfig.build.json",
+    "build": "tsdx build --tsconfig tsconfig.build.json",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "lint": "tsdx lint",
     "prepublish": "yarn build",
