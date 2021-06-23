@@ -3,57 +3,22 @@ pragma solidity ^0.8.1;
 
 import '../interfaces/IERC20Minimal.sol';
 
-contract TestERC20 is IERC20Minimal {
-    mapping(address => uint256) public override balanceOf;
-    mapping(address => mapping(address => uint256)) public override allowance;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-    constructor(uint256 amountToMint) {
-        mint(msg.sender, amountToMint);
+/* This token is ONLY useful for testing
+ * Anybody can mint as many tokens as they like
+ * Anybody can burn anyone else's tokens
+ */
+contract TestERC20 is ERC20 {
+    constructor() ERC20("Test Token", "TEST") {
+        _mint(msg.sender, 1000000 ether);
     }
 
-    function mint(address to, uint256 amount) public {
-        uint256 balanceNext = balanceOf[to] + amount;
-        require(balanceNext >= amount, 'overflow balance');
-        balanceOf[to] = balanceNext;
+    function mint(address account, uint256 amount) external {
+        _mint(account, amount);
     }
 
-    function transfer(address recipient, uint256 amount) external override returns (bool) {
-        uint256 balanceBefore = balanceOf[msg.sender];
-        require(balanceBefore >= amount, 'insufficient balance');
-        balanceOf[msg.sender] = balanceBefore - amount;
-
-        uint256 balanceRecipient = balanceOf[recipient];
-        require(balanceRecipient + amount >= balanceRecipient, 'recipient balance overflow');
-        balanceOf[recipient] = balanceRecipient + amount;
-
-        emit Transfer(msg.sender, recipient, amount);
-        return true;
-    }
-
-    function approve(address spender, uint256 amount) external override returns (bool) {
-        allowance[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
-        return true;
-    }
-
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external override returns (bool) {
-        uint256 allowanceBefore = allowance[sender][msg.sender];
-        require(allowanceBefore >= amount, 'allowance insufficient');
-
-        allowance[sender][msg.sender] = allowanceBefore - amount;
-
-        uint256 balanceRecipient = balanceOf[recipient];
-        require(balanceRecipient + amount >= balanceRecipient, 'overflow balance recipient');
-        balanceOf[recipient] = balanceRecipient + amount;
-        uint256 balanceSender = balanceOf[sender];
-        require(balanceSender >= amount, 'underflow balance sender');
-        balanceOf[sender] = balanceSender - amount;
-
-        emit Transfer(sender, recipient, amount);
-        return true;
+    function burn(address account, uint256 amount) external {
+        _burn(account, amount);
     }
 }
