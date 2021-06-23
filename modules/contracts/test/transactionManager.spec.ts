@@ -1,10 +1,10 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
-import { encodeTxData, TransactionData } from "@connext/nxtp-utils";
+import { TransactionData, signFulfillTransactionPayload } from "@connext/nxtp-utils";
 use(solidity);
 
-import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
+import { hexlify, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt } from "ethers";
 
 // import types
@@ -208,6 +208,8 @@ describe.only("TransactionManager", function() {
         : expected,
     );
 
+    // TODO: add `getTransactionsByUser` assertion
+
     // Verify amount has been added to contract
     if (!userSending) {
       // Router does not send funds
@@ -221,6 +223,78 @@ describe.only("TransactionManager", function() {
     expect(finalContractAmount).to.be.eq(initialContractAmount.add(transaction.amount));
   };
 
+  const fulfillAndAssert = async (
+    transaction: TransactionData,
+    relayerFee: string,
+    fulfillingForSender: boolean,
+    submitter: Wallet,
+  ) => {
+    // Get pre-fulfull balance. If fulfilling on sender side, router
+    // liquidity of sender asset will increase. If fulfilling on receiving
+    // side, user balance of receiving asset will increase + relayer paid
+    const initialIncrease = fulfillingForSender
+      ? await getOnchainBalance(transaction.receivingAssetId, transaction.receivingAddress, ethers.provider)
+      : await transactionManager.routerBalances(router.address, transaction.sendingAssetId);
+    const expectedIncrease = initialIncrease.add(transaction.amount).sub(fulfillingForSender ? relayerFee : 0);
+
+    // Check for relayer balances
+    const initialRelayer = await getOnchainBalance(transaction.receivingAssetId, submitter.address, ethers.provider);
+
+    // Check for values that remain flat
+    const initialFlat = fulfillingForSender
+      ? await transactionManager.routerBalances(router.address, transaction.receivingAssetId)
+      : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
+
+    // Generate signature from user
+    const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+
+    // Send tx
+    const tx = await transactionManager.connect(submitter).fulfill(transaction, relayerFee, signature);
+    const receipt = await tx.wait();
+    expect(receipt.status).to.be.eq(1);
+
+    // Assert event
+    await assertReceiptEvent(receipt, "TransactionFulfilled", {
+      txData: transaction,
+      relayerFee,
+      signature,
+      caller: submitter.address,
+    });
+
+    // Verify final balances
+    const finalIncreased = fulfillingForSender
+      ? await getOnchainBalance(transaction.receivingAssetId, transaction.receivingAddress, ethers.provider)
+      : await transactionManager.routerBalances(router.address, transaction.sendingAssetId);
+
+    const finalFlat = fulfillingForSender
+      ? await transactionManager.routerBalances(router.address, transaction.receivingAssetId)
+      : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
+
+    // Assert relayer fee if needed
+    if (fulfillingForSender && submitter.address !== user.address) {
+      // Assert relayer got fees
+      const expectedRelayer = initialRelayer.add(relayerFee);
+      const finalRelayer = await getOnchainBalance(transaction.receivingAssetId, submitter.address, ethers.provider);
+      expect(finalRelayer).to.be.eq(
+        transaction.receivingAssetId === AddressZero
+          ? expectedRelayer.sub(tx.gasPrice.mul(receipt.gasUsed))
+          : expectedRelayer,
+      );
+    }
+
+    const gas = tx.gasPrice.mul(receipt.gasUsed).toString();
+
+    expect(finalIncreased).to.be.eq(
+      !fulfillingForSender ||
+        user.address !== submitter.address ||
+        transaction.receivingAssetId !== AddressZero ||
+        user.address !== transaction.receivingAddress
+        ? expectedIncrease
+        : expectedIncrease.add(relayerFee).sub(gas),
+    );
+    expect(finalFlat).to.be.eq(initialFlat);
+  };
+
   it("should deploy", async () => {
     expect(transactionManager.address).to.be.a("string");
   });
@@ -228,26 +302,6 @@ describe.only("TransactionManager", function() {
   it("constructor initialize", async () => {
     expect(await transactionManager.chainId()).to.eq(1337);
     expect(await transactionManager.multisend()).to.eq(AddressZero);
-  });
-
-  it.skip("happy case: should be able to perform a crosschain transfer", async () => {
-    // TODO: make this crosschain
-    // 1. Add router liquidity
-    await addAndAssertLiquidity(10);
-
-    // 2. User prepares transaction on sending chain
-    // (2a. Router prepares transaction on receiving chain)
-    const transaction = await getTransactionData();
-    const prepareTx = await transactionManager.prepare(transaction);
-    await prepareTx.wait();
-    // TODO: event assertions
-
-    // 3. User generates signature
-    // (3b. User fulfills transaction on receiving chain)
-
-    // 4. Router fulfills transaction on sending chain
-
-    // 5. Remove router liquidity receiving chain
   });
 
   describe("#addLiquidity", () => {
@@ -287,7 +341,7 @@ describe.only("TransactionManager", function() {
     });
   });
 
-  describe.only("#prepare", () => {
+  describe("#prepare", () => {
     // TODO: revert and emit event test cases
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
@@ -352,19 +406,97 @@ describe.only("TransactionManager", function() {
 
   describe("#fulfill", () => {
     // TODO: revert and emit event test cases
-    it.skip("should do something right", async () => {});
+    it("happy case: router fulfills in native asset", async () => {
+      const prepareAmount = "100";
+      const assetId = AddressZero;
+      const relayerFee = "10";
 
-    it("happy case: fulfill sender-side", async () => {
-      const prepareAmount = "10";
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router);
+
       const transaction = await getTransactionData({
+        sendingAssetId: tokenB.address,
+        receivingAssetId: assetId,
         amount: prepareAmount,
       });
 
-      const prepareTx = await transactionManager.connect(user).prepare(transaction, { value: prepareAmount });
-      console.log(prepareTx);
+      // User prepares
+      await approveTokens(prepareAmount, user, tokenB);
+      await prepareAndAssert(transaction, user);
 
-      const digest = keccak256(encodeTxData(transaction));
-      console.log(digest);
+      // Router fulfills
+      await fulfillAndAssert(transaction, relayerFee, false, router);
+    });
+
+    it("happy case: router fulfills in ERC20", async () => {
+      const prepareAmount = "100";
+      const assetId = tokenA.address;
+      const relayerFee = "10";
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, tokenA);
+      await addAndAssertLiquidity(prepareAmount, assetId, router);
+
+      const transaction = await getTransactionData({
+        sendingAssetId: tokenB.address,
+        receivingAssetId: assetId,
+        amount: prepareAmount,
+      });
+
+      // User prepares
+      await approveTokens(prepareAmount, user, tokenB);
+      await prepareAndAssert(transaction, user);
+
+      // Router fulfills
+      await fulfillAndAssert(transaction, relayerFee, false, router);
+    });
+
+    it("happy case: user fulfills in native asset", async () => {
+      const prepareAmount = "100";
+      const assetId = AddressZero;
+      const relayerFee = "10";
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router);
+
+      const transaction = await getTransactionData({
+        sendingChainId: 1338,
+        receivingChainId: 1337,
+        sendingAssetId: tokenB.address,
+        receivingAssetId: assetId,
+        amount: prepareAmount,
+      });
+
+      // Router prepares
+      await prepareAndAssert(transaction, router);
+
+      // User fulfills
+      await fulfillAndAssert(transaction, relayerFee, true, user);
+    });
+
+    it("happy case: user fulfills in ERC20", async () => {
+      const prepareAmount = "100";
+      const assetId = tokenA.address;
+      const relayerFee = "10";
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, tokenA);
+      await addAndAssertLiquidity(prepareAmount, assetId, router);
+
+      const transaction = await getTransactionData({
+        sendingChainId: 1338,
+        receivingChainId: 1337,
+        sendingAssetId: tokenB.address,
+        receivingAssetId: assetId,
+        amount: prepareAmount,
+      });
+
+      // Router prepares
+      console.log("router preparing");
+      await prepareAndAssert(transaction, router);
+
+      // User fulfills
+      await fulfillAndAssert(transaction, relayerFee, true, user);
     });
   });
 

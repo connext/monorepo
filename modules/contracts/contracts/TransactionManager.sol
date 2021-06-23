@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
-import "hardhat/console.sol";
-
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
@@ -176,8 +174,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         uint256 relayerFee,
         bytes calldata signature // signature on fee + digest
     ) external override nonReentrant returns (TransactionData memory) {
-        // TODO: MAKE SURE TO CHECK TX IS NOT EXPIRED
-
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we 
@@ -223,7 +219,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
                 // No external calls, send directly to receiving address
                 require(LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend), "fulfill: TRANSFER_FAILED");
             } else {
-
                 // Handle external calls with a fallback to the receiving
                 // address
                 // TODO: This would allow us to execute an arbitrary transfer to drain the contracts
@@ -305,8 +300,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         relayerFee: relayerFee
       });
 
+      bytes32 signed = keccak256(abi.encode(payload));
       // Recover
-      return ECDSA.recover(keccak256(abi.encode(payload)), signature);
+      return ECDSA.recover(ECDSA.toEthSignedMessageHash(signed), signature);
     }
 
     function recoverCancelSignature(
@@ -323,7 +319,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       });
 
       // Recover
-      return ECDSA.recover(keccak256(abi.encode(payload)), signature);
+      bytes32 signed = keccak256(abi.encode(payload));
+      // Recover
+      return ECDSA.recover(ECDSA.toEthSignedMessageHash(signed), signature);
     }
 
     function hashTransactionData(TransactionData calldata txData)

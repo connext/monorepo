@@ -7,4 +7,5 @@ export * from "./logger";
 export * from "./util";
 export * from "./encode";
 export * from "./error";
-export * from "./math"
+export * from "./math";
+export * from "./signatures";
