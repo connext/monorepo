@@ -42,6 +42,7 @@
     "@types/sinon": "^10.0.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "chai-subset": "^1.6.0",
     "mocha": "^9.0.1",
     "nodemon": "^2.0.7",
     "nyc": "^15.1.0",
