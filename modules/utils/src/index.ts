@@ -7,3 +7,4 @@ export * from "./logger";
 export * from "./util";
 export * from "./encode";
 export * from "./error";
+export * from "./math"

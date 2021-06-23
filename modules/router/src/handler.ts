@@ -1,6 +1,8 @@
-import { NxtpMessaging, encodeTxData } from "@connext/nxtp-utils";
-import { Signer } from "ethers";
+import { NxtpMessaging, encodeTxData, calculateExchangeAmount} from "@connext/nxtp-utils";
+import {BigNumber, Signer, utils} from "ethers";
 import { BaseLogger } from "pino";
+import { parseUnits } from "@ethersproject/units";
+import abi from './abi'
 
 import {
   ReceiverFulfillData,
@@ -9,6 +11,45 @@ import {
   SenderPrepareData,
   TransactionManagerListener,
 } from "./transactionManagerListener";
+import {defaultAbiCoder} from "ethers/lib/utils";
+import {ethers} from "ethers/lib.esm";
+
+export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
+export const EXPIRY_DECREMENT = 3600 * 24;
+
+export const TransactionDataParamsEncoding = tidy(`tuple(
+  address user,
+  address router,
+  address sendingAssetId,
+  address receivingAssetId,
+  address receivingAddress,
+  bytes callData,
+  bytes32 transactionId,
+  uint24 sendingChainId,
+  uint24 receivingChainId,
+  uint256 amount,
+  uint256 expiry,
+  uint256 blockNumber
+`);
+
+export interface TransactionDataParams {
+  user: string;
+  router: string;
+  sendingAssetId: string;
+  receivingAssetId: string;
+  receivingAddress: string;
+  callData: string;
+  transactionId: string,
+  sendingChainId: number,
+  receivingChainId: number,
+  amount: string,
+  expiry: number,
+  blockNumber: number,
+}
+
+//look @ ethers Contract instantiation for abiEncode
+
+
 
 /*
     Handler.ts
@@ -105,6 +146,12 @@ export class Handler implements Handler {
     // that user is only sending stuff that makes sense is possibly ok since otherwise
     // they're losing gas costs
 
+
+
+
+
+    //calculateExchange
+
     // Next, prepare the outbound data
     // Must have:
     // - Sending and receiving chainId
@@ -114,9 +161,10 @@ export class Handler implements Handler {
     // - Unique transferId (TODO: do we need this? How should we create this?)
     // - Price and fee quote (TODO: either we can agree upon this upfront)
     // - Amount sent by user
-    // - Router signature on hash of all of above
     // - Recipient (callTo) and callData
-    const mutatedData = await this.mutatePrepareData(inboundData);
+    const mutatedData = this.mutatePrepareData(inboundData);
+    const nxtpContract  = new utils.Interface(abi)
+    const encodedData = nxtpContract.encodeFunctionData('prepare',[mutatedData]);
 
     // Then prepare tx object
     // Note tx object must have:
@@ -126,7 +174,9 @@ export class Handler implements Handler {
     // - AssetId
 
     //should encode the data for contract call
-    const outboundData = encodeTxData(mutatedData);
+    // const outboundData = encodeTxData(mutatedData.transaction);
+
+
 
     const outboundDataTx = await this.createTxFromData(outboundData);
 
@@ -171,7 +221,18 @@ export class Handler implements Handler {
 
   // MutatePrepareData
   // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
-  public async mutatePrepareData(data: SenderPrepareData): Promise<SenderPrepareData> {
-    //
+  public mutatePrepareData(data: SenderPrepareData): SenderPrepareData {
+
+    const newAmount = calculateExchangeAmount(data.transaction.amount, "0.995");
+    let mutatedData = data;
+
+    mutatedData.transaction.amount = newAmount;
+    const newExpiration = mutatedData.transaction.expiry - EXPIRY_DECREMENT;
+
+    if(newExpiration < Date.now()){
+      throw new Error('expiry already happened')
+    };
+
+    return mutatedData;
   }
 }
