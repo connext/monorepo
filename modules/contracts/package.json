@@ -15,6 +15,7 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
+    "@ethersproject/abi": "^5.3.1",
     "@ethersproject/constants": "^5.3.0",
     "@ethersproject/contracts": "^5.3.0",
     "@ethersproject/providers": "^5.3.1",
