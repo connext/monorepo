@@ -1,8 +1,7 @@
 import { NxtpMessaging } from "@connext/nxtp-utils";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-
-import {TransactionManager} from "@connext/nxtp-contracts";
+import { Type, Static } from "@sinclair/typebox";
 import { defaultAbiCoder } from "@ethersproject/abi";
 
 import {
@@ -12,7 +11,6 @@ import {
   SenderPrepareData,
   TransactionManagerListener,
 } from "./transactionManagerListener";
-import {Type,Static} from "@sinclair/typebox";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
@@ -35,23 +33,23 @@ export const TransactionDataParamsEncoding = tidy(`tuple(
 `);
 
 export interface TransactionDataParams {
-  user: Static <typeof TAddress>;
-  router: Static <typeof TAddress>;
-  sendingAssetId: Static <typeof TAddress>;
-  receivingAssetId: Static <typeof TAddress>;
-  receivingAddress: Static <typeof TAddress>;
+  user: Static<typeof TAddress>;
+  router: Static<typeof TAddress>;
+  sendingAssetId: Static<typeof TAddress>;
+  receivingAssetId: Static<typeof TAddress>;
+  receivingAddress: Static<typeof TAddress>;
   callData: string;
-  transactionId: string,
-  sendingChainId: number,
-  receivingChainId: number,
-  amount: string,
-  expiry: number,
-  blockNumber: number,
+  transactionId: string;
+  sendingChainId: number;
+  receivingChainId: number;
+  amount: string;
+  expiry: number;
+  blockNumber: number;
 }
 
-const encodeTxData = (txDataParams:TransactionDataParams) : string  => {
+const encodeTxData = (txDataParams: TransactionDataParams): string => {
   return defaultAbiCoder.encode([TransactionDataParamsEncoding], [txDataParams]);
-}
+};
 
 /*
     Handler.ts
@@ -159,9 +157,7 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Router signature on hash of all of above
     // - Recipient (callTo) and callData
-    const mutatedData =  await this.mutatePrepareData(inboundData);
-
-
+    const mutatedData = await this.mutatePrepareData(inboundData);
 
     // Then prepare tx object
     // Note tx object must have:
