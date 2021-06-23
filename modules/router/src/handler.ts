@@ -1,7 +1,9 @@
 import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
 import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
-import abi from "./abi";
+import { TransactionManager } from "@connext/nxtp-contracts";
+import { ChainService } from "@connext/nxtp-chainservice";
+import TransactioManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
   ReceiverFulfillData,
@@ -10,6 +12,7 @@ import {
   SenderPrepareData,
   TransactionManagerListener,
 } from "./transactionManagerListener";
+import { getConfig } from "./config";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -63,9 +66,6 @@ export interface TransactionDataParams {
 // TODO should this be a class? Would be much easier to test, and remove the need
 // to pass in dependencies into every single function from the listener.
 
-// TODO: once this gets built, import it
-interface TxService {}
-
 export interface Handler {
   handleNewAuction(data: AuctionData): Promise<void>;
   handleMetaTxRequest(data: MetaTxData): Promise<void>;
@@ -73,7 +73,7 @@ export interface Handler {
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
   handleReceiverFulfill(data: ReceiverFulfillData): Promise<void>;
-  mutatePrepareData(data: SenderPrepareData): Promise<SenderPrepareData>;
+  mutatePrepareData(data: SenderPrepareData): SenderPrepareData;
 }
 
 export type AuctionData = any;
@@ -84,7 +84,7 @@ export class Handler implements Handler {
     private readonly messagingService: NxtpMessaging,
     private readonly txManager: TransactionManagerListener,
     private readonly signer: Signer,
-    private readonly txService: TxService,
+    private readonly txService: ChainService,
     private readonly logger: BaseLogger,
   ) {}
 
@@ -134,6 +134,8 @@ export class Handler implements Handler {
   // HandleSenderPrepare
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
   public async handleSenderPrepare(inboundData: SenderPrepareData): Promise<void> {
+    const signerAddress = await this.signer.getAddress();
+    const config = getConfig();
     // First log
 
     // Validate the prepare data
@@ -154,7 +156,10 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Recipient (callTo) and callData
     const mutatedData = this.mutatePrepareData(inboundData);
-    const nxtpContract = new utils.Interface(abi);
+    const nxtpContract = new utils.Interface(TransactioManagerArtifact.abi) as TransactionManager["interface"];
+
+    // encode the data for contract call
+    // @ts-ignore TODO: fix this types shit
     const encodedData = nxtpContract.encodeFunctionData("prepare", [mutatedData]);
 
     // Then prepare tx object
@@ -164,20 +169,19 @@ export class Handler implements Handler {
     // - Amount
     // - AssetId
 
-    //should encode the data for contract call
-    // const outboundData = encodeTxData(mutatedData.transaction);
-
-    const outboundDataTx = await this.createTxFromData(outboundData);
+    // TODO: approve tokens if transaction.receivingAssetId !== ethers.constants.AddressZero
+    // TODO: if transaction.receivingAssetId === ethers.constants.AddressZero, add value
 
     // Send to txService
-    const txRes = await this.txService.send(outboundDataTx);
-
-    // If fail, collaboratively cancel the sender prepare
-    // TODO we'll need another fn for this?
-    if (txRes.isError) {
-      // TODO log error
-      // TODO call cancel sender prepare
-    }
+    try {
+      const txRes = await this.txService.sendAndConfirmTx(inboundData.transaction.receivingChainId, {
+        to: config.chainConfig[inboundData.transaction.receivingChainId].transactionManagerAddress,
+        data: encodedData,
+        value: 0, // TODO
+        chainId: inboundData.transaction.receivingChainId,
+        from: signerAddress,
+      });
+    } catch (e) {}
 
     // If success, update metrics
   }
