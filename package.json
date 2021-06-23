@@ -20,6 +20,7 @@
     "publish": "lerna publish"
   },
   "dependencies": {
+    "eslint": "^7.29.0",
     "start-server-and-test": "^1.12.5"
   }
 }

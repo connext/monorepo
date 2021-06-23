@@ -223,6 +223,29 @@ export class NatsBasicMessagingService implements BasicMessaging {
   }
 }
 
-export interface NxtpMessaging extends BasicMessaging {}
+export type AuctionPayload = {};
+export type AuctionResponse = {};
+export type MetaTxPayload = {};
+export type MetaTxResponse = {};
 
-export class NatsNxtpMessagingService extends NatsBasicMessagingService implements NxtpMessaging {}
+export interface NxtpMessaging extends BasicMessaging {
+  publishStartAuction(data: AuctionPayload): { inbox: string };
+  subscribeToAuctionResponse(inbox: string, handler: (data: AuctionResponse) => void): void;
+  publishRequestMetaTx(data: MetaTxPayload): { inbox: string };
+  subscribeToMetaTxResponse(inbox: string, handler: (data: MetaTxResponse) => void): void;
+}
+
+export class NatsNxtpMessagingService extends NatsBasicMessagingService implements NxtpMessaging {
+  publishStartAuction(_data: AuctionPayload): { inbox: string } {
+    throw new Error("Method not implemented.");
+  }
+  subscribeToAuctionResponse(_inbox: string, _handler: (data: AuctionResponse) => void): void {
+    throw new Error("Method not implemented.");
+  }
+  publishRequestMetaTx(_data: MetaTxPayload): { inbox: string } {
+    throw new Error("Method not implemented.");
+  }
+  subscribeToMetaTxResponse(_inbox: string, _handler: (data: MetaTxResponse) => void): void {
+    throw new Error("Method not implemented.");
+  }
+}
