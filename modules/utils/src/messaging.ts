@@ -387,5 +387,4 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
       return handler(msg.data, err);
     });
   }
-  }
 }
