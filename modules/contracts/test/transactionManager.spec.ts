@@ -1,4 +1,4 @@
-import { ethers, getNamedAccounts, getUnnamedAccounts, waffle } from "hardhat";
+import { ethers, getNamedAccounts, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 
@@ -8,6 +8,7 @@ import { Wallet, BigNumber, BigNumberish, constants } from "ethers";
 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
+import { TestERC20 } from "../typechain/TestERC20";
 import { hexlify, randomBytes } from "ethers/lib/utils";
 
 const { AddressZero } = constants;
@@ -27,13 +28,33 @@ type TransactionData = {
   blockNumber: BigNumberish;
 };
 
-describe("TransactionManager", function() {
+const createFixtureLoader = waffle.createFixtureLoader;
+describe.only("TransactionManager", function() {
+  const [wallet, other, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
+  let tokenA: TestERC20;
+  let tokenB: TestERC20;
 
   const fixture = async () => {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-    return (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+
+    const testERC20Factory = await ethers.getContractFactory("TestERC20");
+
+    transactionManager = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+    tokenA = (await testERC20Factory.deploy("10000")) as TestERC20;
+    tokenB = (await testERC20Factory.deploy("10000")) as TestERC20;
+
+    return { transactionManager, tokenA, tokenB };
   };
+
+  let loadFixture: ReturnType<typeof createFixtureLoader>;
+  before("create fixture loader", async () => {
+    loadFixture = createFixtureLoader([wallet, other, receiver]);
+  });
+
+  beforeEach(async function() {
+    ({ transactionManager, tokenA, tokenB } = await loadFixture(fixture));
+  });
 
   const getTransactionData = async (overrides: Partial<TransactionData> = {}): Promise<TransactionData> => {
     return {
@@ -71,10 +92,6 @@ describe("TransactionManager", function() {
     expect(liquidity).to.be.eq(amount);
   };
 
-  beforeEach(async function() {
-    transactionManager = await waffle.loadFixture(fixture);
-  });
-
   it("should deploy", async () => {
     console.log("Address", transactionManager.address);
     expect(transactionManager.address).to.be.a("string");
@@ -85,7 +102,7 @@ describe("TransactionManager", function() {
     expect(await transactionManager.multisend()).to.eq(AddressZero);
   });
 
-  it.only("happy case: should be able to perform a crosschain transfer", async () => {
+  it("happy case: should be able to perform a crosschain transfer", async () => {
     // TODO: make this crosschain
     // 1. Add router liquidity
     await addAndAssertLiquidity(10);
@@ -106,22 +123,43 @@ describe("TransactionManager", function() {
   });
 
   describe("#addLiquidity", () => {
-    it("should do something right", async () => {});
+    it.skip("should do something right", async () => {});
+    // TODO: revert and emit event cases
+    it("happy case: addLiquity ERC20", async () => {
+      const amount = "1";
+      const assetId = tokenA.address;
+
+      console.log(amount, assetId);
+      const approveTx = await tokenA.connect(wallet).approve(transactionManager.address, amount);
+      console.log(approveTx);
+
+      const tx = await transactionManager.connect(wallet).addLiquidity(amount, assetId);
+      console.log(tx);
+    });
+
+    it("happy case: addLiquity Native/Ether token", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      console.log(amount, assetId);
+      const tx = await transactionManager.connect(wallet).addLiquidity(amount, assetId, { value: amount });
+      console.log(tx);
+    });
   });
 
   describe("#removeLiquidity", () => {
-    it("should do something right", async () => {});
+    it.skip("should do something right", async () => {});
   });
 
   describe("#prepare", () => {
-    it("should do something right", async () => {});
+    it.skip("should do something right", async () => {});
   });
 
   describe("#fulfill", () => {
-    it("should do something right", async () => {});
+    it.skip("should do something right", async () => {});
   });
 
   describe("#cancel", () => {
-    it("should do something right", async () => {});
+    it.skip("should do something right", async () => {});
   });
 });
