@@ -1,9 +1,9 @@
 import { Signer, Wallet } from "ethers";
 import { arrayify, solidityKeccak256, verifyMessage } from "ethers/lib/utils";
-import { encodeCancelData, encodeFulfillData, TransactionData } from "./encode";
+import { encodeCancelData, encodeFulfillData, InvariantTransactionData } from "./encode";
 
 export const signFulfillTransactionPayload = (
-  data: TransactionData,
+  data: InvariantTransactionData,
   relayerFee: string,
   signer: Wallet,
 ): Promise<string> => {
@@ -14,7 +14,7 @@ export const signFulfillTransactionPayload = (
 };
 
 export const recoverFulfilledTransactionPayload = (
-  data: TransactionData,
+  data: InvariantTransactionData,
   relayerFee: string,
   signature: string,
 ): string => {
@@ -23,13 +23,13 @@ export const recoverFulfilledTransactionPayload = (
   return verifyMessage(arrayify(hashed), signature);
 };
 
-export const signCancelTransactionPayload = (data: TransactionData, signer: Signer): Promise<string> => {
+export const signCancelTransactionPayload = (data: InvariantTransactionData, signer: Signer): Promise<string> => {
   const payload = encodeCancelData(data);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return signer.signMessage(hashed);
 };
 
-export const recoverCancelTransactionPayload = (data: TransactionData, signature: string): string => {
+export const recoverCancelTransactionPayload = (data: InvariantTransactionData, signature: string): string => {
   const payload = encodeCancelData(data);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return verifyMessage(arrayify(hashed), signature);

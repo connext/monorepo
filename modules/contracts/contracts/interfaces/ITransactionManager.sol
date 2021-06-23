@@ -16,21 +16,6 @@ interface ITransactionManager {
   // TODO: make this structure invariant *only* (consolidate with below)
   // Then, we can pass in amount/expiry explicitly and use only the record values
   // which will reduce duplication/confusion
-  struct TransactionData {
-    address user;
-    address router;
-    address sendingAssetId;
-    address receivingAssetId;
-    address receivingAddress; // if calling fails, or isnt used, this is the address the funds are sent to
-    bytes callData;
-    bytes32 transactionId;
-    uint24 sendingChainId;
-    uint24 receivingChainId;
-    uint256 amount;
-    uint256 expiry;
-    uint256 blockNumber;
-  }
-
   struct InvariantTransactionData {
     address user;
     address router;
@@ -70,19 +55,28 @@ interface ITransactionManager {
   // Transaction events
   // TODO: structure
   event TransactionPrepared(
-    TransactionData txData,
+    InvariantTransactionData txData,
+    uint256 amount,
+    uint256 expiry,
+    uint256 blockNumber,
     address caller
   );
 
   event TransactionFulfilled(
-    TransactionData txData,
+    InvariantTransactionData txData,
+    uint256 amount,
+    uint256 expiry,
+    uint256 blockNumber,
     uint256 relayerFee,
     bytes signature,
     address caller
   );
 
   event TransactionCancelled(
-    TransactionData txData,
+    InvariantTransactionData txData,
+    uint256 amount,
+    uint256 expiry,
+    uint256 blockNumber,
     address caller
   );
 
@@ -95,9 +89,9 @@ interface ITransactionManager {
   function removeLiquidity(uint256 amount, address assetId, address payable recipient) external;
 
   // Transaction methods
-  function prepare(TransactionData calldata txData) external payable returns (TransactionData memory);
+  function prepare(InvariantTransactionData calldata txData, uint256 amount, uint256 expiry) external payable returns (InvariantTransactionData memory);
 
-  function fulfill(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);
+  function fulfill(InvariantTransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (InvariantTransactionData memory);
 
-  function cancel(TransactionData calldata txData, bytes calldata signature) external returns (TransactionData memory);
+  function cancel(InvariantTransactionData calldata txData, bytes calldata signature) external returns (InvariantTransactionData memory);
 }

@@ -25,7 +25,7 @@ export const CancelEncoding = tidy(`tuple(
   string cancel
 )`);
 
-export type TransactionData = {
+export type InvariantTransactionData = {
   user: string;
   router: string;
   sendingAssetId: string;
@@ -35,30 +35,30 @@ export type TransactionData = {
   receivingChainId: number;
   callData: string;
   transactionId: string;
+};
+
+export type VariantTransactionData = {
   amount: string;
   expiry: string;
   blockNumber: string;
 };
 
-export const encodeTxData = (txDataParams: TransactionData): string => {
-  const { amount, expiry, blockNumber, ...invariant } = txDataParams;
-  return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [invariant]);
+export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
+  return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
 
-export const encodeFulfillData = (txDataParams: TransactionData, relayerFee: string): string => {
-  const { amount, expiry, blockNumber, ...invariant } = txDataParams;
+export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
   const digest = solidityKeccak256(
     ["bytes"],
-    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [invariant])],
+    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
   );
   return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee }]);
 };
 
-export const encodeCancelData = (txDataParams: TransactionData): string => {
-  const { amount, expiry, blockNumber, ...invariant } = txDataParams;
+export const encodeCancelData = (txDataParams: InvariantTransactionData): string => {
   const digest = solidityKeccak256(
     ["bytes"],
-    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [invariant])],
+    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
   );
   return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, cancel: "cancel" }]);
 };
