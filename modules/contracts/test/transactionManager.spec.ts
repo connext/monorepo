@@ -1,7 +1,7 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
-
+import { encodeTxData, TransactionDataParams } from "@connext/nxtp-utils";
 use(solidity);
 
 import { Wallet, BigNumber, BigNumberish, constants } from "ethers";
@@ -9,7 +9,7 @@ import { Wallet, BigNumber, BigNumberish, constants } from "ethers";
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { TestERC20 } from "../typechain/TestERC20";
-import { hexlify, randomBytes } from "ethers/lib/utils";
+import { hexlify, randomBytes, keccak256 } from "ethers/lib/utils";
 
 const { AddressZero } = constants;
 
@@ -69,7 +69,7 @@ describe.only("TransactionManager", function() {
     await tokenB.connect(wallet).transfer(bob.address, prepareFunds);
   });
 
-  const getTransactionData = async (overrides: Partial<TransactionData> = {}): Promise<TransactionData> => {
+  const getTransactionData = async (overrides: Partial<TransactionDataParams> = {}): Promise<TransactionDataParams> => {
     return {
       user: bob.address,
       router: router.address,
@@ -271,7 +271,21 @@ describe.only("TransactionManager", function() {
   });
 
   describe("#fulfill", () => {
+    // TODO: revert and emit event test cases
     it.skip("should do something right", async () => {});
+
+    it("happy case: fulfill sender-side", async () => {
+      const prepareAmount = "10";
+      const transaction = await getTransactionData({
+        amount: prepareAmount,
+      });
+
+      const prepareTx = await transactionManager.connect(bob).prepare(transaction, { value: prepareAmount });
+      console.log(prepareTx);
+
+      const digest = keccak256(encodeTxData(transaction));
+      console.log(digest);
+    });
   });
 
   describe("#cancel", () => {
