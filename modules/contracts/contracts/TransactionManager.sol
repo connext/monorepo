@@ -96,10 +96,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     function prepare(
-        TransactionData calldata txData
-    ) external payable override nonReentrant returns (TransactionData memory) {
+        InvariantTransactionData calldata txData,
+        uint256 amount,
+        uint256 expiry
+    ) external payable override nonReentrant returns (InvariantTransactionData memory) {
         // Make sure the expiry is greater than min
-        require((txData.expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
+        require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
 
         // Make sure the chains are different
         require(txData.sendingChainId != txData.receivingChainId, "prepare: SAME_CHAINIDS");
@@ -121,7 +123,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
             // Validate correct amounts and transfer
             if (LibAsset.isEther(txData.sendingAssetId)) {
-                require(msg.value == txData.amount, "prepare: VALUE_MISMATCH");
+                require(msg.value == amount, "prepare: VALUE_MISMATCH");
             } else {
                 require(msg.value == 0, "prepare: ETH_WITH_ERC_TRANSFER");
                 require(
@@ -129,7 +131,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
                         txData.sendingAssetId,
                         msg.sender,
                         address(this),
-                        txData.amount
+                        amount
                     ),
                     "prepare: ERC20_TRANSFER_FAILED"
                 );
@@ -143,7 +145,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
             // Check that router has liquidity
             // TODO do we need explicit check vs implicit from safemath below?
-            require(routerBalances[txData.router][txData.receivingAssetId] >= txData.amount, "prepare: INSUFFICIENT_LIQUIDITY");
+            require(routerBalances[txData.router][txData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
 
             // NOTE: Timeout and amounts should have been decremented offchain
 
@@ -156,24 +158,24 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
             // - 3rd party router could EITHER use original txData or replace txData.router with itself
             // - if original txData, 3rd party router would basically be paying for original router
             // - if relaced router address, user sig on digest would not unlock sender side
-            routerBalances[txData.router][txData.receivingAssetId] -= txData.amount;
+            routerBalances[txData.router][txData.receivingAssetId] -= amount;
         }
 
         // Store the transaction variants
         activeTransactions.addTransaction(
-          VariableTransactionData({ amount: txData.amount, expiry: txData.expiry, digest: digest, user: txData.user, blockNumber: block.number })
+          VariableTransactionData({ amount: amount, expiry: expiry, digest: digest, user: txData.user, blockNumber: block.number })
         );
 
         // Emit event
-        emit TransactionPrepared(txData, msg.sender);
+        emit TransactionPrepared(txData, amount, expiry, block.number, msg.sender);
         return txData;
     }
 
     function fulfill(
-        TransactionData calldata txData,
+        InvariantTransactionData calldata txData,
         uint256 relayerFee,
         bytes calldata signature // signature on fee + digest
-    ) external override nonReentrant returns (TransactionData memory) {
+    ) external override nonReentrant returns (InvariantTransactionData memory) {
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we 
@@ -184,11 +186,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // digest (which asserts all but tx.amount, tx.expiry)
         VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
-        // Amount and expiry should be the same as the record
-        // These are explicit sanity checks -- TODO remove these after txData change
-        require(record.amount == txData.amount, "fulfill: INVALID_AMOUNT");
-        require(record.expiry == txData.expiry, "fulfill: INVALID_EXPIRY");
-
         require(record.expiry > block.timestamp, "fulfill: EXPIRED");
 
         // Validate signature
@@ -196,7 +193,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         // Sanity check: fee < amount
         // TODO: Do we need this check? Safemath would catch it below
-        require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
+        require(relayerFee < record.amount, "fulfill: INVALID_RELAYER_FEE");
 
         // Remove the active transaction
         activeTransactions.removeTransaction(digest);
@@ -204,11 +201,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         if (txData.sendingChainId == chainId) {
             // Complete tx to router
             // NOTE: there is no fee taken on the sending side for the relayer
-            routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+            routerBalances[txData.router][txData.sendingAssetId] += record.amount;
         } else {
             // Complete tx to user
             // Get the amount to send
-            uint256 toSend = txData.amount - relayerFee;
+            uint256 toSend = record.amount - relayerFee;
 
             // Send the relayer the fee
             if (relayerFee > 0) {
@@ -231,16 +228,16 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         }
 
         // Emit event
-        emit TransactionFulfilled(txData, relayerFee, signature, msg.sender);
+        emit TransactionFulfilled(txData, record.amount, record.expiry, record.blockNumber, relayerFee, signature, msg.sender);
 
         return txData;
     }
 
     // Tx can be "collaboratively" cancelled by the receiver at any time and by the sender after expiry
     function cancel(
-        TransactionData calldata txData,
+        InvariantTransactionData calldata txData,
         bytes calldata signature
-    ) external override nonReentrant returns (TransactionData memory) {     
+    ) external override nonReentrant returns (InvariantTransactionData memory) {     
         // Make sure params match against stored data
         // Also checks that there is an active transfer here
         // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
@@ -250,36 +247,31 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // digest (which asserts all but tx.amount, tx.expiry)
         VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
 
-        // Amount and expiry should be the same as the record
-        // TODO: Remove this after struct changes
-        require(record.amount == txData.amount, "cancel: INVALID_AMOUNT");
-        require(record.expiry == txData.expiry, "cancel: INVALID_EXPIRY");
-
         if (txData.sendingChainId == chainId) {
             // Sender side --> funds go back to user
-            if (txData.expiry >= block.timestamp) {
+            if (record.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by router
                 require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
             }
             // Return to user
-            require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), txData.amount), "cancel: TRANSFER_FAILED");
+            require(LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), record.amount), "cancel: TRANSFER_FAILED");
 
         } else {
             // Receiver side --> funds go back to router
-            if (txData.expiry >= block.timestamp) {
+            if (record.expiry >= block.timestamp) {
                 // Timeout has not expired and tx may only be cancelled by user
                 // Validate signature
                 require(recoverCancelSignature(txData, signature) == txData.user, "cancel: INVALID_SIGNATURE");
             }
             // Return to router
-            routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
+            routerBalances[txData.router][txData.receivingAssetId] += record.amount;
         }
 
         // Remove the active transaction
         activeTransactions.removeTransaction(digest);
 
         // Emit event
-        emit TransactionCancelled(txData, msg.sender);
+        emit TransactionCancelled(txData, record.amount, record.expiry, record.blockNumber, msg.sender);
 
         // Return
         return txData;
@@ -287,7 +279,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Private functions
     function recoverFulfillSignature(
-      TransactionData calldata txData,
+      InvariantTransactionData calldata txData,
       uint256 relayerFee,
       bytes calldata signature
     ) internal pure returns (address) {
@@ -306,7 +298,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     function recoverCancelSignature(
-      TransactionData calldata txData,
+      InvariantTransactionData calldata txData,
       bytes calldata signature
     ) internal pure returns (address) {
       // Create the digest
@@ -324,7 +316,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       return ECDSA.recover(ECDSA.toEthSignedMessageHash(signed), signature);
     }
 
-    function hashTransactionData(TransactionData calldata txData)
+    function hashTransactionData(InvariantTransactionData calldata txData)
         internal
         pure
         returns (bytes32)
