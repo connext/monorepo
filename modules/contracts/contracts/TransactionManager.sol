@@ -190,6 +190,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         require(record.amount == txData.amount, "fulfill: INVALID_AMOUNT");
         require(record.expiry == txData.expiry, "fulfill: INVALID_EXPIRY");
 
+        require(record.expiry > block.timestamp, "fulfill: EXPIRED");
+
         // Validate signature
         require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
