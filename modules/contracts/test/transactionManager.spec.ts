@@ -4,13 +4,13 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { Wallet } from "@ethersproject/wallet";
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { AddressZero } from "@ethersproject/constants";
+import { Wallet, BigNumber, BigNumberish, constants } from "ethers";
 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { hexlify, randomBytes } from "ethers/lib/utils";
+
+const { AddressZero } = constants;
 
 type TransactionData = {
   user: string;

@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-utils",
+  "name": "@connext/nxtp-chainservice",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "Connext",
@@ -20,10 +20,9 @@
     "src"
   ],
   "dependencies": {
-    "@sinclair/typebox": "^0.16.7",
+    "@connext/nxtp-utils": "0.0.1",
     "ethers": "^5.3.1",
-    "pino": "^6.11.3",
-    "ts-natsutil": "^1.1.1"
+    "pino": "^6.11.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.19",

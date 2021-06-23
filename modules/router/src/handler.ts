@@ -2,7 +2,7 @@ import { NxtpMessaging } from "@connext/nxtp-utils";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
-import { defaultAbiCoder } from "@ethersproject/abi";
+import { defaultAbiCoder } from "ethers/lib/utils";
 
 import {
   ReceiverFulfillData,

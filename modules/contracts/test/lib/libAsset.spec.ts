@@ -2,14 +2,15 @@ import { ethers, waffle } from "hardhat";
 // import { Signer } from "ethers";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
-import { AddressZero } from "@ethersproject/constants";
-import { BigNumber } from "@ethersproject/bignumber";
 
 use(solidity);
 
 // import types
 import { LibAssetTest } from "../../typechain/LibAssetTest";
 import { TestERC20 } from "../../typechain/TestERC20";
+import { BigNumber, constants } from "ethers";
+
+const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("LibAsset", function() {

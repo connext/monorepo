@@ -16,16 +16,12 @@
     "generated"
   ],
   "dependencies": {
-    "@ethersproject/units": "^5.3.0",
+    "ethers": "^5.3.1",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "0.20.1",
     "@graphprotocol/graph-ts": "0.20.0",
-    "@ethersproject/abi": "^5.3.1",
-    "@ethersproject/constants": "^5.3.0",
-    "@ethersproject/contracts": "^5.3.0",
-    "@ethersproject/providers": "^5.3.1",
     "sinon": "^11.1.1"
   },
   "resolutions": {

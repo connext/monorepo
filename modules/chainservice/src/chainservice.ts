@@ -1,15 +1,31 @@
-import { BigNumber } from "@ethersproject/bignumber";
-import { Signer } from "@ethersproject/abstract-signer";
-import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from "@ethersproject/providers";
+import { BigNumber, Signer, Wallet, providers, BigNumberish } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 
 import { delay } from "@connext/nxtp-utils";
-import { MinimalTransaction, IChainService, ChainUtils } from "@connext/nxtp-types";
 import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
 import axios from "axios";
+
+const { JsonRpcProvider } = providers;
+
+export type MinimalTransaction = {
+  chainId: number;
+  to: string;
+  value: BigNumberish;
+  data: string;
+  from?: string;
+};
+
+// TODO: Move to types
+export interface IChainService {}
+
+export type ChainUtils = {
+  signer: Signer;
+  queue: PriorityQueue;
+  provider: providers.JsonRpcProvider;
+  confirmationsRequired: number;
+};
 
 export class ChainService implements IChainService {
   private config: ChainServiceConfig;
@@ -43,7 +59,7 @@ export class ChainService implements IChainService {
     chainId: number,
     tx: MinimalTransaction,
     presetGasPrice?: BigNumber,
-  ): Promise<TransactionReceipt> {
+  ): Promise<providers.TransactionReceipt> {
     const method = this.sendAndConfirmTx.name;
     // const methodId = getRandomBytes32();
 
@@ -57,8 +73,8 @@ export class ChainService implements IChainService {
     let nonceExpired: boolean = false;
     let gasPrice: BigNumber;
 
-    let responses: TransactionResponse[] = [];
-    let receipt: TransactionReceipt | undefined;
+    let responses: providers.TransactionResponse[] = [];
+    let receipt: providers.TransactionReceipt | undefined;
 
     try {
       // Get (initial) gas price if there is not a preset amount passed into this method.
@@ -150,16 +166,16 @@ export class ChainService implements IChainService {
     tx: MinimalTransaction,
     gasPrice: BigNumber,
     nonce?: number,
-  ): Promise<TransactionResponse> {
+  ): Promise<providers.TransactionResponse> {
     const { signer, queue } = this.chains.get(chainId)!;
     // Define task to send tx with proper nonce
-    const task = async (): Promise<TransactionResponse | Error> => {
+    const task = async (): Promise<providers.TransactionResponse> => {
       try {
         // Send transaction using the passed in callback.
         // const stored = this.nonces.get(chainId);
         // const nonceToUse: number = nonce ?? stored ?? (await signer.getTransactionCount("pending"));
         const pending: number = await signer.getTransactionCount("pending");
-        const response: TransactionResponse | undefined = await signer.sendTransaction({
+        const response: providers.TransactionResponse | undefined = await signer.sendTransaction({
           to: tx.to,
           data: tx.data,
           chainId: tx.chainId,
@@ -185,7 +201,10 @@ export class ChainService implements IChainService {
     return await queue.add(task);
   }
 
-  private async confirmTx(chainId: number, responses: TransactionResponse[]): Promise<TransactionReceipt> {
+  private async confirmTx(
+    chainId: number,
+    responses: providers.TransactionResponse[],
+  ): Promise<providers.TransactionReceipt> {
     const { provider, confirmationsRequired } = this.chains.get(chainId)!;
     const { confirmationTimeout, confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
@@ -195,9 +214,9 @@ export class ChainService implements IChainService {
     // An anon fn to get the tx receipts for all responses.
     // We must check for confirmation in all previous transactions. Although it's most likely
     // that it's the previous one, any of them could have been confirmed.
-    const pollForReceipt = async (): Promise<TransactionReceipt | undefined> => {
+    const pollForReceipt = async (): Promise<providers.TransactionReceipt | undefined> => {
       // Save all reverted receipts for a check in case our Promise.race evaluates to be undefined.
-      let reverted: TransactionReceipt[] = [];
+      let reverted: providers.TransactionReceipt[] = [];
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
       const receipt = await Promise.race<any>(
         responses
@@ -232,7 +251,7 @@ export class ChainService implements IChainService {
     };
 
     // Poll for receipt.
-    let receipt: TransactionReceipt | undefined = await pollForReceipt();
+    let receipt: providers.TransactionReceipt | undefined = await pollForReceipt();
     // NOTE: This loop won't execute if receipt is valid (not undefined).
     let timeElapsed: number = 0;
     const startMark = new Date().getTime();

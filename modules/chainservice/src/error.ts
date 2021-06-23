@@ -1,6 +1,6 @@
-import { VectorError, Values } from "@connext/nxtp-types";
+import { Values, NxtpError } from "@connext/nxtp-utils";
 
-export class ChainError extends VectorError {
+export class ChainError extends NxtpError {
   static readonly type = "ChainError";
   static readonly reasons = {
     ProviderNotFound: "Provider not found for chainId",

@@ -1,15 +1,10 @@
 import { ethers, waffle } from "hardhat";
-// import { Signer } from "ethers";
+import { BigNumber, BigNumberish, constants } from "ethers";
+import { formatBytes32String, hexlify, randomBytes } from "ethers/lib/utils";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 
 use(solidity);
-
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { Zero } from "@ethersproject/constants";
-import { formatBytes32String } from "@ethersproject/strings";
-import { randomBytes } from "@ethersproject/random";
-import { hexlify } from "@ethersproject/bytes";
 
 // import types
 import { LibIterableMappingTest } from "../../typechain/LibIterableMappingTest";
@@ -136,7 +131,7 @@ describe("LibIterableMapping.sol", function() {
   describe("#length", () => {
     it("should work when empty", async () => {
       const res = await libIterableMappingTest.length();
-      expect(res).to.be.eq(Zero);
+      expect(res).to.be.eq(constants.Zero);
     });
 
     it("should work when loaded", async () => {
@@ -176,7 +171,7 @@ describe("LibIterableMapping.sol", function() {
     });
 
     it("should work", async () => {
-      const res = await libIterableMappingTest.getTransactionByIndex(Zero);
+      const res = await libIterableMappingTest.getTransactionByIndex(constants.Zero);
       assertDigest(transactions[0], res);
     });
 
