@@ -2,6 +2,9 @@ import { NxtpMessaging } from "@connext/nxtp-utils";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
 
+import {TransactionManager} from "@connext/nxtp-contracts";
+import { defaultAbiCoder } from "@ethersproject/abi";
+
 import {
   ReceiverFulfillData,
   ReceiverPrepareData,
@@ -9,6 +12,47 @@ import {
   SenderPrepareData,
   TransactionManagerListener,
 } from "./transactionManagerListener";
+import {Type,Static} from "@sinclair/typebox";
+
+export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
+
+//todo: these types exist in config also need nxtp-types package
+export const TAddress = Type.RegEx(/^0x[a-fA-F0-9]{40}$/);
+
+export const TransactionDataParamsEncoding = tidy(`tuple(
+  address user,
+  address router,
+  address sendingAssetId,
+  address receivingAssetId,
+  address receivingAddress,
+  bytes callData,
+  bytes32 transactionId,
+  uint24 sendingChainId,
+  uint24 receivingChainId,
+  uint256 amount,
+  uint256 expiry,
+  uint256 blockNumber
+`);
+
+export interface TransactionDataParams {
+  user: Static <typeof TAddress>;
+  router: Static <typeof TAddress>;
+  sendingAssetId: Static <typeof TAddress>;
+  receivingAssetId: Static <typeof TAddress>;
+  receivingAddress: Static <typeof TAddress>;
+  callData: string;
+  transactionId: string,
+  sendingChainId: number,
+  receivingChainId: number,
+  amount: string,
+  expiry: number,
+  blockNumber: number,
+}
+
+const encodeTxData = (txDataParams:TransactionDataParams) : string  => {
+  return defaultAbiCoder.encode([TransactionDataParamsEncoding], [txDataParams]);
+}
+
 /*
     Handler.ts
 
@@ -115,7 +159,9 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Router signature on hash of all of above
     // - Recipient (callTo) and callData
-    const outboundData = await this.mutatePrepareData(inboundData);
+    const mutatedData =  await this.mutatePrepareData(inboundData);
+
+
 
     // Then prepare tx object
     // Note tx object must have:
@@ -123,6 +169,10 @@ export class Handler implements Handler {
     // - Destination chainId
     // - Amount
     // - AssetId
+
+    //should encode the data for contract call
+    const outboundData = encodeTxData(mutatedData);
+
     const outboundDataTx = await this.createTxFromData(outboundData);
 
     // Send to txService
