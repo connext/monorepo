@@ -1,7 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber";
 import { Signer } from "@ethersproject/abstract-signer";
 import { Wallet } from "@ethersproject/wallet";
-import { Contract } from "@ethersproject/contracts";
 import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from "@ethersproject/providers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
