@@ -66,6 +66,8 @@ library LibIterableMapping {
         return self.transactions[self.digests[index]].transaction;
     }
 
+    // DO NOT USE THIS IN A WRITE OPERATION
+    // Two for loops make this very expensive
     function getTransactionsByUser(
         IterableMapping storage self,
         address user

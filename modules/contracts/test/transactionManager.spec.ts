@@ -1,36 +1,22 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
-import { encodeTxData, TransactionDataParams } from "@connext/nxtp-utils";
+import { encodeTxData, TransactionData } from "@connext/nxtp-utils";
 use(solidity);
 
-import { Wallet, BigNumber, BigNumberish, constants } from "ethers";
+import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
+import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt } from "ethers";
 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { TestERC20 } from "../typechain/TestERC20";
-import { hexlify, randomBytes, keccak256 } from "ethers/lib/utils";
+import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
 
-type TransactionData = {
-  user: string;
-  router: string;
-  sendingAssetId: string;
-  receivingAssetId: string;
-  receivingAddress: string;
-  callData: string;
-  transactionId: string;
-  sendingChainId: BigNumberish;
-  receivingChainId: BigNumberish;
-  amount: BigNumberish;
-  expiry: BigNumberish;
-  blockNumber: BigNumberish;
-};
-
 const createFixtureLoader = waffle.createFixtureLoader;
 describe.only("TransactionManager", function() {
-  const [wallet, router, bob, receiver] = waffle.provider.getWallets();
+  const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
   let tokenA: TestERC20;
@@ -42,10 +28,8 @@ describe.only("TransactionManager", function() {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     transactionManager = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
-    console.log(transactionManager.address);
 
     transactionManagerReceiverSide = (await transactionManagerFactory.deploy(AddressZero, 1338)) as TransactionManager;
-    console.log(transactionManagerReceiverSide.address);
     tokenA = (await testERC20Factory.deploy("10000")) as TestERC20;
     tokenB = (await testERC20Factory.deploy("10000")) as TestERC20;
 
@@ -54,7 +38,7 @@ describe.only("TransactionManager", function() {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, bob, receiver]);
+    loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
   beforeEach(async function() {
@@ -65,13 +49,13 @@ describe.only("TransactionManager", function() {
     await tokenB.connect(wallet).transfer(router.address, liq);
 
     const prepareFunds = "100";
-    await tokenA.connect(wallet).transfer(bob.address, prepareFunds);
-    await tokenB.connect(wallet).transfer(bob.address, prepareFunds);
+    await tokenA.connect(wallet).transfer(user.address, prepareFunds);
+    await tokenB.connect(wallet).transfer(user.address, prepareFunds);
   });
 
-  const getTransactionData = async (overrides: Partial<TransactionDataParams> = {}): Promise<TransactionDataParams> => {
+  const getTransactionData = async (overrides: Partial<TransactionData> = {}): Promise<TransactionData> => {
     return {
-      user: bob.address,
+      user: user.address,
       router: router.address,
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
@@ -80,33 +64,103 @@ describe.only("TransactionManager", function() {
       transactionId: hexlify(randomBytes(32)),
       sendingChainId: 1337,
       receivingChainId: 1338,
-      amount: 10,
-      expiry: Math.floor(Date.now() / 1000) + 5_000,
-      blockNumber: 10,
+      amount: "10",
+      expiry: (Math.floor(Date.now() / 1000) + 5_000).toString(),
+      blockNumber: "10",
       ...overrides,
     };
   };
 
-  const addAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
-    const router = await (_router ?? transactionManager.signer).getAddress();
-    const event = new Promise(resolve => {
-      transactionManager.once("LiquidityAdded", data => resolve(data));
-    });
-    const tx = await transactionManager.addLiquidity(amount, assetId, { value: BigNumber.from(amount) });
+  const approveTokens = async (amount: BigNumberish, approver: Wallet, token: Contract = tokenA) => {
+    const approveTx = await token.connect(approver).approve(transactionManager.address, amount);
+    await approveTx.wait();
+  };
 
-    const [receipt, payload] = await Promise.all([tx.wait(), event]);
-    // TODO: stronger event assertions
-    expect(payload).to.be.ok;
-    expect(receipt.status).to.be.ok;
-    // expect(receipt.events).to.be.deep.eq([payload]);
+  const assertObject = (expected: any, returned: any) => {
+    const keys = Object.keys(expected);
+    keys.map(k => {
+      expect(returned[k]).to.be.deep.eq((expected as any)[k]);
+    });
+  };
+
+  const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
+    expect(receipt.status).to.be.eq(1);
+    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
+    expect(idx).to.not.be.eq(-1);
+    const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
+    assertObject(expected, decoded);
+  };
+
+  const addAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
+    const router = _router ?? transactionManager.signer;
+    transactionManager.on("LiquidityAdded", data => {
+      console.log("got liquidity added event", data);
+    });
+    // TODO: debug event emission wtf
+    // const event = new Promise(resolve => {
+    //   transactionManager.once("LiquidityAdded", data => {
+    //     return resolve(data);
+    //   });
+    // });
+    const tx = await transactionManager
+      .connect(router)
+      .addLiquidity(amount, assetId, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
+
+    const receipt = await tx.wait();
+    // const [receipt, payload] = await Promise.all([tx.wait(), event]);
+    // expect(payload).to.be.ok;
+
+    // Verify receipt + attached events
+    expect(receipt.status).to.be.eq(1);
+    await assertReceiptEvent(receipt, "LiquidityAdded", { router: await router.getAddress(), assetId, amount });
 
     // Check liquidity
-    const liquidity = await transactionManager.routerBalances(router, assetId);
+    const liquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
     expect(liquidity).to.be.eq(amount);
   };
 
+  const removeAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
+    const router = _router ?? transactionManager.signer;
+
+    // Get starting + expected  balance
+    const startingBalance = await getOnchainBalance(assetId, await router.getAddress(), ethers.provider);
+    const expectedBalance = startingBalance.add(amount);
+
+    const startingLiquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
+    const expectedLiquidity = startingLiquidity.sub(amount);
+
+    // TODO: debug event emission wtf
+    // const event = new Promise(resolve => {
+    //   transactionManager.once("LiquidityRemoved", data => resolve(data));
+    // });
+    const tx = await transactionManager.connect(router).removeLiquidity(amount, assetId, await router.getAddress());
+
+    const receipt = await tx.wait();
+    expect(receipt.status).to.be.eq(1);
+    // const [receipt, payload] = await Promise.all([tx.wait(), event]);
+    // expect(payload).to.be.ok;
+
+    // Verify receipt events
+    const routerAddress = await router.getAddress();
+    await assertReceiptEvent(receipt, "LiquidityRemoved", {
+      router: routerAddress,
+      assetId,
+      amount,
+      recipient: routerAddress,
+    });
+
+    // Check liquidity
+    const liquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
+    expect(liquidity).to.be.eq(expectedLiquidity);
+
+    // Check balance
+    const finalBalance = await getOnchainBalance(assetId, await router.getAddress(), ethers.provider);
+    expect(finalBalance).to.be.eq(
+      assetId !== AddressZero ? expectedBalance : expectedBalance.sub(receipt.cumulativeGasUsed.mul(tx.gasPrice)),
+    );
+  };
+
   it("should deploy", async () => {
-    console.log("Address", transactionManager.address);
     expect(transactionManager.address).to.be.a("string");
   });
 
@@ -140,22 +194,14 @@ describe.only("TransactionManager", function() {
     it("happy case: addLiquity ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
-
-      console.log(amount, assetId);
-      const approveTx = await tokenA.connect(wallet).approve(transactionManager.address, amount);
-      console.log(approveTx);
-
-      const tx = await transactionManager.connect(wallet).addLiquidity(amount, assetId);
-      console.log(tx);
+      await approveTokens(amount, router);
+      await addAndAssertLiquidity(amount, assetId, router);
     });
 
     it("happy case: addLiquity Native/Ether token", async () => {
       const amount = "1";
       const assetId = AddressZero;
-
-      console.log(amount, assetId);
-      const tx = await transactionManager.connect(wallet).addLiquidity(amount, assetId, { value: amount });
-      console.log(tx);
+      await addAndAssertLiquidity(amount, assetId, router);
     });
   });
 
@@ -165,30 +211,18 @@ describe.only("TransactionManager", function() {
       const amount = "1";
       const assetId = AddressZero;
 
-      console.log(amount, assetId);
-      const addLiquidityTx = await transactionManager.connect(wallet).addLiquidity(amount, assetId, { value: amount });
-      console.log(addLiquidityTx);
+      await addAndAssertLiquidity(amount, assetId, router);
 
-      const removeLiquidityTx = await transactionManager
-        .connect(wallet)
-        .removeLiquidity(amount, assetId, wallet.address);
-      console.log(removeLiquidityTx);
+      await removeAndAssertLiquidity(amount, assetId, router);
     });
+
     it("happy case: addLiquity ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
+      await approveTokens(amount, router);
+      await addAndAssertLiquidity(amount, assetId, router);
 
-      console.log(amount, assetId);
-      const approveTx = await tokenA.connect(wallet).approve(transactionManager.address, amount);
-      console.log(approveTx);
-
-      const addLiquidityTx = await transactionManager.connect(wallet).addLiquidity(amount, assetId);
-      console.log(addLiquidityTx);
-
-      const removeLiquidityTx = await transactionManager
-        .connect(wallet)
-        .removeLiquidity(amount, assetId, wallet.address);
-      console.log(removeLiquidityTx);
+      await removeAndAssertLiquidity(amount, assetId, router);
     });
   });
 
@@ -202,10 +236,10 @@ describe.only("TransactionManager", function() {
         amount: prepareAmount,
       });
 
-      const bobApproveTx = await tokenA.connect(bob).approve(transactionManager.address, prepareAmount);
+      const bobApproveTx = await tokenA.connect(user).approve(transactionManager.address, prepareAmount);
       console.log(bobApproveTx);
 
-      const prepareTx = await transactionManager.connect(bob).prepare(transaction);
+      const prepareTx = await transactionManager.connect(user).prepare(transaction);
       console.log(prepareTx);
     });
 
@@ -215,7 +249,7 @@ describe.only("TransactionManager", function() {
         amount: prepareAmount,
       });
 
-      const prepareTx = await transactionManager.connect(bob).prepare(transaction, { value: prepareAmount });
+      const prepareTx = await transactionManager.connect(user).prepare(transaction, { value: prepareAmount });
       console.log(prepareTx);
     });
 
@@ -280,7 +314,7 @@ describe.only("TransactionManager", function() {
         amount: prepareAmount,
       });
 
-      const prepareTx = await transactionManager.connect(bob).prepare(transaction, { value: prepareAmount });
+      const prepareTx = await transactionManager.connect(user).prepare(transaction, { value: prepareAmount });
       console.log(prepareTx);
 
       const digest = keccak256(encodeTxData(transaction));
