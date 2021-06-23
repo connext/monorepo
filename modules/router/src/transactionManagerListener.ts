@@ -103,6 +103,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               status: transaction.status,
               transactionId: transaction.transactionId,
               user: transaction.user.id,
+              blockNumber: 0, // TODO
             },
           };
           handler(data);
