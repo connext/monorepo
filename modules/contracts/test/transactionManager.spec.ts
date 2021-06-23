@@ -1,4 +1,4 @@
-import { ethers, getNamedAccounts, waffle } from "hardhat";
+import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 
@@ -30,8 +30,10 @@ type TransactionData = {
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe.only("TransactionManager", function() {
-  const [wallet, other, receiver] = waffle.provider.getWallets();
+  const [wallet, router, bob, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
+  let transactionManagerSenderSide: TransactionManager;
+  let transactionManagerReceiverSide: TransactionManager;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
 
@@ -41,6 +43,11 @@ describe.only("TransactionManager", function() {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     transactionManager = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+
+    transactionManagerSenderSide = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+    console.log(transactionManagerSenderSide.address);
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(AddressZero, 1338)) as TransactionManager;
+    console.log(transactionManagerReceiverSide.address);
     tokenA = (await testERC20Factory.deploy("10000")) as TestERC20;
     tokenB = (await testERC20Factory.deploy("10000")) as TestERC20;
 
@@ -49,20 +56,28 @@ describe.only("TransactionManager", function() {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, other, receiver]);
+    loadFixture = createFixtureLoader([wallet, bob, receiver]);
   });
 
   beforeEach(async function() {
     ({ transactionManager, tokenA, tokenB } = await loadFixture(fixture));
+
+    const liq = "1000";
+    await tokenA.connect(wallet).transfer(router.address, liq);
+    await tokenB.connect(wallet).transfer(router.address, liq);
+
+    const prepareFunds = "100";
+    await tokenA.connect(wallet).transfer(bob.address, prepareFunds);
+    await tokenB.connect(wallet).transfer(bob.address, prepareFunds);
   });
 
   const getTransactionData = async (overrides: Partial<TransactionData> = {}): Promise<TransactionData> => {
     return {
-      user: (await getNamedAccounts()).bob,
-      router: await transactionManager.signer.getAddress(),
+      user: bob.address,
+      router: router.address,
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
-      receivingAddress: (await getNamedAccounts()).rando,
+      receivingAddress: receiver.address,
       callData: "0x",
       transactionId: hexlify(randomBytes(32)),
       sendingChainId: 1337,
@@ -102,7 +117,7 @@ describe.only("TransactionManager", function() {
     expect(await transactionManager.multisend()).to.eq(AddressZero);
   });
 
-  it("happy case: should be able to perform a crosschain transfer", async () => {
+  it.skip("happy case: should be able to perform a crosschain transfer", async () => {
     // TODO: make this crosschain
     // 1. Add router liquidity
     await addAndAssertLiquidity(10);
@@ -123,8 +138,7 @@ describe.only("TransactionManager", function() {
   });
 
   describe("#addLiquidity", () => {
-    it.skip("should do something right", async () => {});
-    // TODO: revert and emit event cases
+    // TODO: revert and emit event test cases
     it("happy case: addLiquity ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
@@ -148,11 +162,86 @@ describe.only("TransactionManager", function() {
   });
 
   describe("#removeLiquidity", () => {
-    it.skip("should do something right", async () => {});
+    // TODO: revert and emit event test cases
+    it("happy case: removeLiquidity Native/Ether token", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      console.log(amount, assetId);
+      const addLiquidityTx = await transactionManager.connect(wallet).addLiquidity(amount, assetId, { value: amount });
+      console.log(addLiquidityTx);
+
+      const removeLiquidityTx = await transactionManager
+        .connect(wallet)
+        .removeLiquidity(amount, assetId, wallet.address);
+      console.log(removeLiquidityTx);
+    });
+    it("happy case: addLiquity ERC20", async () => {
+      const amount = "1";
+      const assetId = tokenA.address;
+
+      console.log(amount, assetId);
+      const approveTx = await tokenA.connect(wallet).approve(transactionManager.address, amount);
+      console.log(approveTx);
+
+      const addLiquidityTx = await transactionManager.connect(wallet).addLiquidity(amount, assetId);
+      console.log(addLiquidityTx);
+
+      const removeLiquidityTx = await transactionManager
+        .connect(wallet)
+        .removeLiquidity(amount, assetId, wallet.address);
+      console.log(removeLiquidityTx);
+    });
   });
 
   describe("#prepare", () => {
-    it.skip("should do something right", async () => {});
+    // TODO: revert and emit event test cases
+    it("happy case: prepare ERC20", async () => {
+      const amount = "100";
+      const assetId = tokenA.address;
+
+      console.log(amount, assetId);
+      const approveTx = await tokenA.connect(router).approve(transactionManager.address, amount);
+      console.log(approveTx);
+
+      const addLiquidityTx = await transactionManager.connect(router).addLiquidity(amount, assetId);
+      console.log(addLiquidityTx);
+
+      // 2. User prepares transaction on sending chain
+      // (2a. Router prepares transaction on receiving chain)
+      const prepareAmount = "10";
+      const transaction = await getTransactionData({
+        sendingAssetId: tokenA.address,
+        receivingAssetId: tokenB.address,
+        amount: prepareAmount,
+      });
+
+      const bobApproveTx = await tokenA.connect(bob).approve(transactionManager.address, prepareAmount);
+      console.log(bobApproveTx);
+
+      const prepareTx = await transactionManager.connect(bob).prepare(transaction);
+      console.log(prepareTx);
+    });
+
+    it("happy case: prepare Ether/Native token", async () => {
+      const amount = "100";
+      const assetId = AddressZero;
+
+      console.log(amount, assetId);
+
+      const addLiquidityTx = await transactionManager.connect(wallet).addLiquidity(amount, assetId, { value: amount });
+      console.log(addLiquidityTx);
+
+      // 2. User prepares transaction on sending chain
+      // (2a. Router prepares transaction on receiving chain)
+      const prepareAmount = "10";
+      const transaction = await getTransactionData({
+        amount: prepareAmount,
+      });
+
+      const prepareTx = await transactionManager.connect(bob).prepare(transaction, { value: prepareAmount });
+      console.log(prepareTx);
+    });
   });
 
   describe("#fulfill", () => {
