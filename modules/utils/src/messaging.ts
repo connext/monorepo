@@ -2,11 +2,29 @@ import axios, { AxiosResponse } from "axios";
 import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
+import { v4 } from "uuid";
 
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
+import { NxtpError, Values } from "./error";
 
 export { AuthService } from "ts-natsutil";
+
+export class MessagingError extends NxtpError {
+  static readonly type = "MessagingError";
+  static readonly reasons = {
+    ConfigError: "Error in configuration",
+    ConnectionError: "No connection detected",
+    VersionError: "Incoming message version not compatible",
+  };
+
+  constructor(
+    public readonly message: Values<typeof MessagingError.reasons> | string,
+    public readonly context: any = {},
+  ) {
+    super(message, context, MessagingError.type);
+  }
+}
 
 export const NATS_AUTH_URL = ""; // TODO add this
 export const NATS_WS_URL = "wss://websocket.connext.provide.network";
@@ -14,11 +32,11 @@ export const NATS_CLUSTER_URL =
   "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222";
 
 export type MessagingConfig = {
+  signer: Signer;
   messagingUrl?: string;
   authUrl?: string;
   natsUrl?: string;
   bearerToken?: string;
-  signer?: Signer;
   logger?: BaseLogger;
 };
 
@@ -51,7 +69,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
   private authUrl?: string;
   private bearerToken?: string;
   private natsUrl?: string;
-  private signer?: Signer;
+  protected signer: Signer;
 
   constructor(config: MessagingConfig) {
     this.log = config.logger || pino();
@@ -100,11 +118,10 @@ export class NatsBasicMessagingService implements BasicMessaging {
 
     if (config.bearerToken) {
       this.bearerToken = config.bearerToken;
-    } else if (config.signer) {
-      this.signer = config.signer;
     } else {
-      throw new Error(`Either a bearerToken or signer must be provided`);
+      throw new MessagingError(MessagingError.reasons.ConfigError, { message: `A bearerToken must be provided` });
     }
+    this.signer = config.signer;
   }
 
   private isConnected(): boolean {
@@ -113,7 +130,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
 
   public assertConnected(): void {
     if (!this.isConnected()) {
-      throw new Error(`No connection detected, use connect() method`);
+      throw new MessagingError(MessagingError.reasons.ConnectionError, { message: `Use connect() method` });
     }
   }
 
@@ -223,29 +240,152 @@ export class NatsBasicMessagingService implements BasicMessaging {
   }
 }
 
+const MESSAGING_VERSION = "0.0.1";
+const checkMessagingVersionValid = (version: string) => {
+  if (version.split(".")[0] === MESSAGING_VERSION.split(".")[0]) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export type NxtpMessageEnvelope<T> = {
+  version: string;
+  data: T;
+  inbox?: string;
+};
+
 export type AuctionPayload = {};
 export type AuctionResponse = {};
 export type MetaTxPayload = {};
 export type MetaTxResponse = {};
 
 export interface NxtpMessaging extends BasicMessaging {
-  publishStartAuction(data: AuctionPayload): { inbox: string };
-  subscribeToAuctionResponse(inbox: string, handler: (data: AuctionResponse) => void): void;
-  publishRequestMetaTx(data: MetaTxPayload): { inbox: string };
-  subscribeToMetaTxResponse(inbox: string, handler: (data: MetaTxResponse) => void): void;
+  publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }>;
+  subscribeToAuctionRequest(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
+  ): void;
+  subscribeToAuctionResponse(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
+  ): void;
+
+  publishMetaTxRequest(data: MetaTxPayload): Promise<{ inbox: string }>;
+  subscribeToMetaTxRequest(inbox: string, handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void): void;
+  subscribeToMetaTxResponse(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
+  ): void;
 }
 
+export const generateMessagingInbox = (): string => {
+  return `_INBOX:${v4()}`;
+};
+
 export class NatsNxtpMessagingService extends NatsBasicMessagingService implements NxtpMessaging {
-  publishStartAuction(_data: AuctionPayload): { inbox: string } {
-    throw new Error("Method not implemented.");
+  async publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }> {
+    if (!inbox) {
+      inbox = generateMessagingInbox();
+    }
+    const signerAddress = await this.signer.getAddress();
+    await this.publish(`${signerAddress}.auction`, {
+      inbox,
+      data,
+    });
+    return { inbox };
   }
-  subscribeToAuctionResponse(_inbox: string, _handler: (data: AuctionResponse) => void): void {
-    throw new Error("Method not implemented.");
+
+  subscribeToAuctionRequest(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
+  ): void {
+    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+      }
+      return handler(msg.data, err);
+    });
   }
-  publishRequestMetaTx(_data: MetaTxPayload): { inbox: string } {
-    throw new Error("Method not implemented.");
+
+  subscribeToAuctionResponse(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
+  ): void {
+    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+      }
+      return handler(msg.data, err);
+    });
   }
-  subscribeToMetaTxResponse(_inbox: string, _handler: (data: MetaTxResponse) => void): void {
-    throw new Error("Method not implemented.");
+
+  async publishMetaTxRequest(data: MetaTxPayload, inbox?: string): Promise<{ inbox: string }> {
+    if (!inbox) {
+      inbox = generateMessagingInbox();
+    }
+    const signerAddress = await this.signer.getAddress();
+    await this.publish(`${signerAddress}.metatx`, {
+      inbox,
+      data,
+    });
+    return { inbox };
+  }
+
+  subscribeToMetaTxRequest(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void,
+  ): void {
+    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<MetaTxResponse> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+      }
+      return handler(msg.data, err);
+    });
+  }
+
+  subscribeToMetaTxResponse(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
+  ): void {
+    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+      }
+      return handler(msg.data, err);
+    });
+  }
   }
 }

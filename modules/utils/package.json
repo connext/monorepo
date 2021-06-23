@@ -23,7 +23,8 @@
     "@sinclair/typebox": "^0.16.7",
     "ethers": "^5.3.1",
     "pino": "^6.11.3",
-    "ts-natsutil": "^1.1.1"
+    "ts-natsutil": "^1.1.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.19",
@@ -32,6 +33,7 @@
     "@types/mocha": "8.2.2",
     "@types/pino": "^6.3.8",
     "@types/sinon": "^10.0.2",
+    "@types/uuid": "^8.3.0",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
     "chai-subset": "^1.6.0",

@@ -1,5 +1,17 @@
 export type Values<E> = E[keyof E];
 
+export const jsonifyError = (error: NxtpError | Error): NxtpErrorJson => {
+  if (!!(error as any).type) {
+    return (error as NxtpError).toJson();
+  }
+  return {
+    message: error.message,
+    type: error.name,
+    context: {},
+    stack: error.stack,
+  };
+};
+
 // Abstract error for package
 export type NxtpErrorJson = {
   message: string;
@@ -29,6 +41,6 @@ export class NxtpError extends Error {
   }
 
   public static fromJson(json: NxtpErrorJson): NxtpError {
-    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? "VectorError");
+    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? "NxtpError");
   }
 }
