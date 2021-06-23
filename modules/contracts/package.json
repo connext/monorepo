@@ -5,12 +5,14 @@
   "scripts": {
     "test": "npx hardhat test",
     "build": "npx hardhat compile",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "export": "npx hardhat export --export-all ./deployments.json"
   },
   "files": [
     "typechain",
     "artifacts",
-    "deployments"
+    "deployments",
+    "deployments.json"
   ],
   "types": "typechain/index.ts",
   "author": "Connext",

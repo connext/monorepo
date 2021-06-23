@@ -2,6 +2,7 @@
 import { Type, Static } from "@sinclair/typebox";
 import { readFileSync } from "fs";
 import Ajv from "ajv";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const ajv = new Ajv();
 
@@ -17,6 +18,7 @@ export const TChainConfig = Type.Object({
   provider: Type.Array(TUrl),
   confirmations: Type.Number({ minimum: 1 }),
   subgraph: TUrl,
+  transactionManagerAddress: TAddress,
 });
 
 const NxtpRouterConfigSchema = Type.Object({
@@ -76,13 +78,27 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl,
     natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
-    chainConfig: process.env.NXTP_CHAIN_PROVIDERS
-      ? JSON.parse(process.env.NXTP_CHAIN_PROVIDERS)
+    chainConfig: process.env.NXTP_CHAIN_CONFIG
+      ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
     logLevel: process.env.NXTP_FEE_LOG_LEVEL || configJson.logLevel || configFile.logLevel,
   };
+
+  // add contract deployments if they exist
+  Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
+    // allow passed in address to override
+    // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
+    if (!chainConfig.transactionManagerAddress) {
+      try {
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          contractDeployments[chainId],
+        )[0] as any).contracts.TransactionManager.address;
+      } catch (e) {}
+    }
+  });
+
   return nxtpConfig;
 };
 

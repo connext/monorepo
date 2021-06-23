@@ -74,7 +74,7 @@ export interface Handler {
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
   handleReceiverFulfill(data: ReceiverFulfillData): Promise<void>;
-  mutatePrepareData(data: SenderPrepareData): Promise<SenderPrepareData>;
+  mutatePrepareData(data: SenderPrepareData): SenderPrepareData;
 }
 
 export type AuctionData = any;
