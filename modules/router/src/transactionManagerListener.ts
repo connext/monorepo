@@ -10,27 +10,105 @@ export interface TransactionManagerListener {
 }
 
 // TODO: how to get types from subgraph?
+/// Liquidity events
+// event LiquidityAdded(
+//   address router,
+//   address assetId,
+//   uint256 amount
+// );
+
+// event LiquidityRemoved(
+//   address router,
+//   address assetId,
+//   uint256 amount,
+//   address recipient
+// );
+
+/// Transaction events
+type InvariantTransactionData = {
+  transactionId: string;
+  user: string;
+  router: string;
+  sendingAssetId: string;
+  receivingAssetId: string;
+  sendingChainId: number;
+  receivingChainId: number;
+  callData: string;
+}
+
+// event TransactionPrepared(
+//   InvariantTransactionData txData,
+//   uint256 amount,
+//   uint256 expiry,
+//   uint256 blockNumber,
+//   address caller
+// );
+
 export type SenderPrepareData = {
   transaction: {
-    transactionId: string;
-    user: string;
-    router: string;
     amount: string;
-    sendingAssetId: string;
-    receivingAssetId: string;
-    sendingChainId: number;
-    receivingChainId: number;
-    receivingAddress: string;
-    callData: string;
     expiry: number;
-    status: TransactionStatus;
-    chainId: number;
     blockNumber: number;
-  };
+    caller: string;
+    // receivingAddress: string;
+    // status: TransactionStatus;
+  } & InvariantTransactionData;
 };
-export type ReceiverPrepareData = any;
-export type SenderFulfillData = any;
-export type ReceiverFulfillData = any;
+
+export type ReceiverPrepareData = {
+  transaction: {
+    amount: string;
+    expiry: number;
+    blockNumber: number;
+    caller: string;
+    // receivingAddress: string;
+    // status: TransactionStatus;
+  } & InvariantTransactionData;
+};
+
+// event TransactionFulfilled(
+//   InvariantTransactionData txData,
+//   uint256 amount,
+//   uint256 expiry,
+//   uint256 blockNumber,
+//   uint256 relayerFee,
+//   bytes signature,
+//   address caller
+// );
+
+export type SenderFulfillData = {
+  transaction: {
+    amount: string;
+    expiry: number;
+    blockNumber: number;
+    relayerFee: string;
+    signature: string;
+    caller: string;
+    // receivingAddress: string;
+    // status: TransactionStatus;
+  } & InvariantTransactionData;
+};
+
+export type ReceiverFulfillData = {
+  transaction: {
+    amount: string;
+    expiry: number;
+    blockNumber: number;
+    relayerFee: string;
+    signature: string;
+    caller: string;
+    // receivingAddress: string;
+    // status: TransactionStatus;
+  } & InvariantTransactionData;
+};
+
+// event TransactionCancelled(
+//   InvariantTransactionData txData,
+//   uint256 amount,
+//   uint256 expiry,
+//   uint256 blockNumber,
+//   address caller
+// );
 
 const getSenderPrepareQuery = gql`
   query GetPrepareTransactionsForRouter($routerId: String!, $sendingChainId: Int!) {
