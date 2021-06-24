@@ -49,7 +49,7 @@ This monorepo contains the following pieces:
 - [TxService](https://github.com/connext/nxtp/tree/main/modules/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
 - Messaging - prepares, sends, and listens for message data over [nats](https://nats.io)
 - [Router](https://github.com/connext/nxtp/tree/main/modules/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
-- SDK - creates auctions, listens for events and creates transactions on the user side.
+- [SDK](https://github.com/connext/nxtp/tree/main/modules/sdk) - creates auctions, listens for events and creates transactions on the user side.
 
 ## Internal Design Principles
 
