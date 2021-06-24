@@ -7,7 +7,6 @@ import axios from "axios";
 import { TransactionServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
 import { ChainUtils, MinimalTransaction } from "./types";
-import { hexlify } from "ethers/lib/utils";
 
 const { JsonRpcProvider } = providers;
 
