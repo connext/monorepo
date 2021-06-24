@@ -1,12 +1,11 @@
 import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
 
-import {signFulfillTransactionPayload} from "../../utils/src/signatures";
+import { signFulfillTransactionPayload } from "../../utils/src/signatures";
 import { Signer, Wallet, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import TransactionService from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-
 
 import {
   ReceiverFulfillData,
@@ -16,8 +15,8 @@ import {
   TransactionManagerListener,
 } from "./transactionManagerListener";
 import { getConfig } from "./config";
-import {defaultAbiCoder} from "ethers/lib/utils";
-import {InvariantTransactionData} from "@connext/nxtp-utils";
+import { defaultAbiCoder } from "ethers/lib/utils";
+import { InvariantTransactionData } from "@connext/nxtp-utils";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -164,8 +163,7 @@ export class Handler implements Handler {
 
     // encode the data for contract call
     // @ts-ignore TODO: fix this types shit
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [{txData: mutatedData}]);
-    
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [{ txData: mutatedData }]);
 
     // Then prepare tx object
     // Note tx object must have:
@@ -222,7 +220,9 @@ export class Handler implements Handler {
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     // @ts-ignore TODO: fix this types shit
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [{txDigest: data, relayerFee: relayerFee, signature: signedPayload}]);
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
+      { txDigest: data, relayerFee: relayerFee, signature: signedPayload },
+    ]);
 
     try {
       const txRes = await this.txService.sendAndConfirmTx(data.sendingChainId, {
