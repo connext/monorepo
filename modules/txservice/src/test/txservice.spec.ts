@@ -4,7 +4,7 @@ import { mkHash, mkAddress } from "@connext/nxtp-utils";
 import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub, assert } from "sinon";
 import pino from "pino";
 
-import TransactionService from "../txservice";
+import { TransactionService } from "../txservice";
 import { parseUnits } from "ethers/lib/utils";
 import { MinimalTransaction } from "../types";
 
@@ -68,12 +68,14 @@ describe("TransactionService unit test", () => {
     const _provider = createStubInstance(JsonRpcProvider);
     _provider.getTransaction.resolves(txResponse);
     provider1337 = _provider;
-    provider1338 = _provider;
     (signer as any).provider = provider1337;
 
     txService = new TransactionService(
       log,
-      signer
+      signer, 
+      { 1337: "", 1338: "" },
+      {},
+      (_: string) => provider1337
     );
 
     getGasPriceMock = stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
