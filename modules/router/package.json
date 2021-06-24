@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,9 +16,9 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-contracts": "^0.0.1",
-    "@connext/nxtp-txservice": "^0.0.1",
-    "@connext/nxtp-utils": "^0.0.1",
+    "@connext/nxtp-contracts": "^0.0.2",
+    "@connext/nxtp-txservice": "^0.0.2",
+    "@connext/nxtp-utils": "^0.0.2",
     "@sinclair/typebox": "^0.16.7",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "adv": "^0.1.5",
