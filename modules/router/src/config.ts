@@ -2,17 +2,10 @@
 import { Type, Static } from "@sinclair/typebox";
 import { readFileSync } from "fs";
 import Ajv from "ajv";
+import { TUrl, TAddress } from "@connext/nxtp-types";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const ajv = new Ajv();
-
-// String pattern types
-export const TAddress = Type.RegEx(/^0x[a-fA-F0-9]{40}$/);
-export const TIntegerString = Type.RegEx(/^([0-9])*$/);
-export const TUrl = Type.String({ format: "uri" });
-// Convenience types
-export const TChainId = Type.Number({ minimum: 1 });
-export const TDecimalString = Type.RegEx(/^[0-9]*\.?[0-9]*$/);
 
 export const TChainConfig = Type.Object({
   provider: Type.Array(TUrl),
