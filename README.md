@@ -47,7 +47,7 @@ This monorepo contains the following pieces:
 - [Contracts](https://github.com/connext/nxtp/tree/main/modules/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
 - [Subgraph](https://github.com/connext/nxtp/tree/main/modules/subgraph) - enables scalable querying/responding by caching onchain data and events.
 - [TxService](https://github.com/connext/nxtp/tree/main/modules/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
-- Messaging - prepares, sends, and listens for message data over [nats](https://nats.io)
+- [Messaging](https://github.com/connext/nxtp/blob/main/modules/utils/src/messaging.ts) - prepares, sends, and listens for message data over [nats](https://nats.io)
 - [Router](https://github.com/connext/nxtp/tree/main/modules/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
 - [SDK](https://github.com/connext/nxtp/tree/main/modules/sdk) - creates auctions, listens for events and creates transactions on the user side.
 
