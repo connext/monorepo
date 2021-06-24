@@ -179,11 +179,11 @@ export class Handler implements Handler {
 
     // Send to txService
     try {
-      const txRes = await this.txService.sendAndConfirmTx(inboundData.transaction.receivingChainId, {
-        to: config.chainConfig[inboundData.transaction.receivingChainId].transactionManagerAddress,
+      const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
+        to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
         value: 0, // TODO
-        chainId: inboundData.transaction.receivingChainId,
+        chainId: inboundData.receivingChainId,
         from: signerAddress,
       });
     } catch (e) {}
@@ -211,8 +211,6 @@ export class Handler implements Handler {
   public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
     // First log
     // Prepare tx packet
-    
-
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
 
@@ -227,11 +225,11 @@ export class Handler implements Handler {
     const encodedData = nxtpContract.encodeFunctionData("fulfill", [{txDigest: data, relayerFee: relayerFee, signature: signedPayload}]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(data.transaction.sendingChainId, {
-        to: config.chainConfig[data.transaction.sendingChainId].transactionManagerAddress,
+      const txRes = await this.txService.sendAndConfirmTx(data.sendingChainId, {
+        to: config.chainConfig[data.sendingChainId].transactionManagerAddress,
         data: encodedData,
         value: 0, // TODO
-        chainId: data.transaction.sendingChainId,
+        chainId: data.sendingChainId,
         from: signerAddress,
       });
     } catch (e) {}
