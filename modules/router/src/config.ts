@@ -2,7 +2,7 @@
 import { Type, Static } from "@sinclair/typebox";
 import { readFileSync } from "fs";
 import Ajv from "ajv";
-import { TUrl, TAddress } from "@connext/nxtp-types";
+import { TUrl, TAddress } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const ajv = new Ajv();
