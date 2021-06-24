@@ -13,6 +13,5 @@ export type PrepareParamType = {
   receivingAddress: string;
   amount: BigNumberish;
   expiry: string;
-  blockNumber: string;
   callData?: string;
 };
