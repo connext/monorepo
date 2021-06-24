@@ -10,6 +10,11 @@ import { ChainUtils, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider } = providers;
 
+const makeProvider = (url: string): providers.JsonRpcProvider => {
+  // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
+  return new JsonRpcProvider(url);
+}
+
 export class TransactionService {
   private config: TransactionServiceConfig;
   private chains: Map<number, ChainUtils> = new Map();
@@ -23,14 +28,15 @@ export class TransactionService {
   constructor(
     log: BaseLogger,
     signer: string | Signer,
+    chainProviders: { [chainId: number]: string },
     config: TransactionServiceConfig = {} as TransactionServiceConfig,
   ) {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     this.log = log;
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
-    config.chainProviderUrls.forEach((urls, chainId) => {
-      // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
-      const provider = new JsonRpcProvider(urls[0]);
+    Object.keys(chainProviders).map(Number).forEach((chainId) => {
+      const url = chainProviders[chainId];
+      const provider = makeProvider(url);
       const confirmationsRequired =
         this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
       this.chains.set(chainId, {
@@ -40,11 +46,6 @@ export class TransactionService {
         confirmationsRequired,
       } as ChainUtils);
     });
-  }
-
-  public getSigner(chainId: number): Signer {
-    const { signer } = this.chains.get(chainId)!;
-    return signer;
   }
 
   public async sendAndConfirmTx(
@@ -193,7 +194,7 @@ export class TransactionService {
     return await queue.add(task);
   }
 
-  private async confirmTx(
+  async confirmTx(
     chainId: number,
     responses: providers.TransactionResponse[],
   ): Promise<providers.TransactionReceipt> {
@@ -277,7 +278,7 @@ export class TransactionService {
     return bumpedGasPrice;
   }
 
-  private async getGasPrice(chainId: number): Promise<BigNumber> {
+  async getGasPrice(chainId: number): Promise<BigNumber> {
     const method = this.getGasPrice.name;
     const { provider } = this.chains.get(chainId)!;
     const { gasInitialBumpPercent, gasPriceMinimum } = this.config;
