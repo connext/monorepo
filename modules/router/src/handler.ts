@@ -142,10 +142,9 @@ export class Handler implements Handler {
   public async handleSenderPrepare(inboundData: SenderPrepareData): Promise<void> {
     const method = "handleSenderPrepare";
     const methodId = v4();
+    this.logger.info({ method, methodId, inboundData }, "Method start");
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
-    // First log
-    this.logger.info({ method, methodId, inboundData }, "Method start");
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
@@ -165,6 +164,7 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Recipient (callTo) and callData
 
+    // amount and expiry need to be modified
     const receiverAmount = calculateExchangeAmount(inboundData.amount, "0.995");
     const receiverExpiry = inboundData.expiry - EXPIRY_DECREMENT;
 
@@ -222,7 +222,7 @@ export class Handler implements Handler {
     ]);
     // Send to txService
     try {
-      this.logger.info({ method, methodId }, "Sending prepare tx");
+      this.logger.info({ method, methodId }, "Sending receiver prepare tx");
       const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
         to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
@@ -230,9 +230,9 @@ export class Handler implements Handler {
         chainId: inboundData.receivingChainId,
         from: signerAddress,
       });
-      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Prepare tx sent");
+      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Receiver prepare tx confirmed");
     } catch (e) {
-      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending prepare tx");
+      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending receiver prepare tx");
       // TODO: cancel sender here?
       throw e;
     }
@@ -258,12 +258,12 @@ export class Handler implements Handler {
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
   public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
-    // First log
-    // Prepare tx packet
+    const method = "handleSenderPrepare";
+    const methodId = v4();
+    this.logger.info({ method, methodId, data }, "Method start");
+
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
-
-    //signature on fee + digest
 
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
@@ -283,18 +283,23 @@ export class Handler implements Handler {
       data.signature,
     ]);
 
+    // Send to tx service
     try {
+      this.logger.info({ method, methodId }, "Sending sender fulfill tx");
       const txRes = await this.txService.sendAndConfirmTx(data.sendingChainId, {
         to: config.chainConfig[data.sendingChainId].transactionManagerAddress,
         data: encodedData,
-        value: 0, // TODO
+        value: 0,
         chainId: data.sendingChainId,
         from: signerAddress,
       });
-    } catch (e) {}
-    // Send to tx service
+      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Sender fulfill tx confirmed");
+    } catch (e) {
+      // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
+      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending sender fulfill tx");
+      // TODO discuss this case!!
+      throw e;
+    }
     // If success, update metrics
-    // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-    // TODO discuss the above case!!
   }
 }
