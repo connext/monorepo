@@ -7,7 +7,6 @@ import axios from "axios";
 import { TransactionServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
 import { ChainUtils, MinimalTransaction } from "./types";
-import { hexlify } from "ethers/lib/utils";
 
 const { JsonRpcProvider } = providers;
 
@@ -16,13 +15,16 @@ export default class TransactionService {
   private chains: Map<number, ChainUtils> = new Map();
   private log: BaseLogger;
 
-
   // TODO: Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
 
-  constructor(log: BaseLogger, signer: string | Signer, config: TransactionServiceConfig = {} as TransactionServiceConfig) {
+  constructor(
+    log: BaseLogger,
+    signer: string | Signer,
+    config: TransactionServiceConfig = {} as TransactionServiceConfig,
+  ) {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     this.log = log;
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
@@ -40,8 +42,8 @@ export default class TransactionService {
     });
   }
 
-  public getSigner(chainId:number):Signer{
-    const {signer} = this.chains.get(chainId)!;
+  public getSigner(chainId: number): Signer {
+    const { signer } = this.chains.get(chainId)!;
     return signer;
   }
 
