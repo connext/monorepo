@@ -18,7 +18,7 @@
   "dependencies": {
     "@connext/nxtp-utils": "^0.0.1",
     "@connext/nxtp-contracts": "^0.0.1",
-    "@connext/nxtp-chainservice": "^0.0.1",
+    "@connext/nxtp-txservice": "^0.0.1",
     "@sinclair/typebox": "^0.16.7",
     "adv": "^0.1.5",
     "ajv": "^8.6.0",

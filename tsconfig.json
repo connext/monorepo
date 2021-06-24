@@ -6,7 +6,7 @@
     "baseUrl": ".",
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
-      "@connext/nxtp-chainservice": ["modules/chainservice/src"],
+      "@connext/nxtp-txservice": ["modules/txservice/src"],
       "@connext/nxtp-utils": ["modules/utils/src"],
       "@connext/nxtp-contracts": [
         "modules/contracts/typechain",

@@ -2,7 +2,7 @@ import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
 import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
-import { ChainService } from "@connext/nxtp-chainservice";
+import TransactionStervice from "@connext/nxtp-txservice";
 import TransactioManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
@@ -84,7 +84,7 @@ export class Handler implements Handler {
     private readonly messagingService: NxtpMessaging,
     private readonly txManager: TransactionManagerListener,
     private readonly signer: Signer,
-    private readonly txService: ChainService,
+    private readonly txService: TransactionService,
     private readonly logger: BaseLogger,
   ) {}
 

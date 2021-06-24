@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { parseUnits } from "ethers/lib/utils";
 
-export type ChainServiceConfig = {
+export type TransactionServiceConfig = {
   /// GAS
   // % to bump gas by from gas station quote.
   gasInitialBumpPercent: number;
@@ -33,7 +33,7 @@ export type ChainServiceConfig = {
   chainProviderUrls: Map<number, string[]>;
 };
 
-export const DEFAULT_CONFIG: ChainServiceConfig = {
+export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasInitialBumpPercent: 30,
   // From ethers docs:
   // Generally, the new gas price should be about 50% + 1 wei more, so if a gas price
@@ -50,4 +50,4 @@ export const DEFAULT_CONFIG: ChainServiceConfig = {
 
   rpcProviderMaxRetries: 5,
   chainProviderUrls: new Map<number, string[]>(),
-} as ChainServiceConfig;
+} as TransactionServiceConfig;
