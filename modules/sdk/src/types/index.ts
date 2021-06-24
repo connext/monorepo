@@ -2,15 +2,9 @@ import { InvariantTransactionData } from "@connext/nxtp-utils";
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumberish } from "ethers";
 
-export type PrepareParamType = {
+export type PrepareParamType = Omit<InvariantTransactionData, "user" | "callData" | "transactionId"> & {
   userWebProvider: Web3Provider; // This has to be sending chain
-  routerAddress: string;
-  sendingChainId: number;
-  receivingChainId: number;
-  sendingAssetId: string;
-  receivingAssetId: string;
-  receivingAddress: string;
-  amount: BigNumberish;
+  amount: string;
   expiry: string;
   callData?: string;
 };
