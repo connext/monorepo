@@ -1,2 +1,1 @@
-export * from "./chainservice";
-export * from "./config";
+export { default } from "./chainservice";

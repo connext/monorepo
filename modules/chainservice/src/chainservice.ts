@@ -10,7 +10,7 @@ import { ChainUtils, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider } = providers;
 
-export class ChainService {
+export default class ChainService {
   private config: ChainServiceConfig;
   private chains: Map<number, ChainUtils> = new Map();
   private log: BaseLogger;
