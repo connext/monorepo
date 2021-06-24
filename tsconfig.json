@@ -6,9 +6,11 @@
     "baseUrl": ".",
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
+      "@connext/nxtp-sdk": ["modules/sdk/src"],
       "@connext/nxtp-txservice": ["modules/txservice/src"],
       "@connext/nxtp-utils": ["modules/utils/src"],
       "@connext/nxtp-contracts": [
+        "modules/contracts/src",
         "modules/contracts/typechain",
         "modules/contracts/artifacts",
         "modules/contracts/deployments"
