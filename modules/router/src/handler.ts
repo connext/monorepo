@@ -1,10 +1,16 @@
-import { NxtpMessaging, calculateExchangeAmount, signFulfillTransactionPayload } from "@connext/nxtp-utils";
-
-import { Signer, utils } from "ethers";
+import {
+  NxtpMessaging,
+  calculateExchangeAmount,
+  signFulfillTransactionPayload,
+  jsonifyError,
+} from "@connext/nxtp-utils";
+import { v4 } from "uuid";
+import { BigNumber, BigNumberish, BytesLike, constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
-import { TransactionManager } from "@connext/nxtp-contracts";
+import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
 import TransactionService from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import Erc20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 
 import {
   ReceiverFulfillData,
@@ -139,7 +145,7 @@ export class Handler implements Handler {
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
     // First log
-    this.logger.info({});
+    this.logger.info({ method, methodId, inboundData }, "Method start");
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
@@ -158,12 +164,38 @@ export class Handler implements Handler {
     // - Price and fee quote (TODO: either we can agree upon this upfront)
     // - Amount sent by user
     // - Recipient (callTo) and callData
-    const mutatedData = this.mutatePrepareData(inboundData);
-    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
-    // encode the data for contract call
-    // @ts-ignore TODO: fix this types shit
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [{ txData: mutatedData }]);
+    const receiverAmount = calculateExchangeAmount(inboundData.amount, "0.995");
+    const receiverExpiry = inboundData.expiry - EXPIRY_DECREMENT;
+
+    if (receiverExpiry < Date.now()) {
+      throw new Error("Expiry already happened");
+    }
+
+    const receivingChainContractAddress = config.chainConfig[inboundData.receivingChainId].transactionManagerAddress;
+
+    let value = constants.Zero;
+    if (inboundData.receivingAssetId === constants.AddressZero) {
+      // if transaction.receivingAssetId === ethers.constants.AddressZero, add value
+      value = BigNumber.from(receiverAmount);
+    } else {
+      // approve tokens if transaction.receivingAssetId !== ethers.constants.AddressZero
+      const tokenContract = new utils.Interface(Erc20Artifact.abi) as IERC20["interface"];
+      const approveData = tokenContract.encodeFunctionData("approve", [receivingChainContractAddress, receiverAmount]);
+      try {
+        this.logger.info({ method, methodId }, "Approving tokens");
+        const approveRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
+          chainId: inboundData.receivingChainId,
+          data: approveData,
+          to: receivingChainContractAddress,
+          value: 0,
+        });
+        this.logger.info({ method, methodId, txHash: approveRes.transactionHash }, "Approved tokens");
+      } catch (e) {
+        this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending approve tx");
+        throw e;
+      }
+    }
 
     // Then prepare tx object
     // Note tx object must have:
@@ -171,20 +203,39 @@ export class Handler implements Handler {
     // - Destination chainId
     // - Amount
     // - AssetId
-
-    // TODO: approve tokens if transaction.receivingAssetId !== ethers.constants.AddressZero
-    // TODO: if transaction.receivingAssetId === ethers.constants.AddressZero, add value
-
+    // encode the data for contract call
+    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [
+      {
+        callData: inboundData.callData,
+        receivingAddress: inboundData.receivingAddress,
+        receivingAssetId: inboundData.receivingAssetId,
+        receivingChainId: inboundData.receivingChainId,
+        router: inboundData.router,
+        sendingAssetId: inboundData.sendingAssetId,
+        sendingChainId: inboundData.sendingChainId,
+        transactionId: inboundData.transactionId,
+        user: inboundData.user,
+      },
+      receiverAmount,
+      receiverExpiry,
+    ]);
     // Send to txService
     try {
+      this.logger.info({ method, methodId }, "Sending prepare tx");
       const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
         to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
-        value: 0, // TODO
+        value,
         chainId: inboundData.receivingChainId,
         from: signerAddress,
       });
-    } catch (e) {}
+      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Prepare tx sent");
+    } catch (e) {
+      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending prepare tx");
+      // TODO: cancel sender here?
+      throw e;
+    }
 
     // If success, update metrics
   }
@@ -212,16 +263,24 @@ export class Handler implements Handler {
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
 
-    //signature on fee + digest.
-    const relayerFee = calculateExchangeAmount(data.amount, "0.995");
-    //or cast this.signer to wallet?
-    let signedPayload = signFulfillTransactionPayload(data, relayerFee, this.signer);
+    //signature on fee + digest
 
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    // @ts-ignore TODO: fix this types shit
     const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-      { txDigest: data, relayerFee: relayerFee, signature: signedPayload },
+      {
+        callData: data.callData,
+        receivingAddress: data.receivingAddress,
+        receivingAssetId: data.receivingAssetId,
+        receivingChainId: data.receivingChainId,
+        router: data.router,
+        sendingAssetId: data.sendingAssetId,
+        sendingChainId: data.sendingChainId,
+        transactionId: data.transactionId,
+        user: data.user,
+      },
+      data.relayerFee,
+      data.signature,
     ]);
 
     try {
@@ -237,21 +296,5 @@ export class Handler implements Handler {
     // If success, update metrics
     // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
     // TODO discuss the above case!!
-  }
-
-  // MutatePrepareData
-  // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
-  private mutatePrepareData(data: SenderPrepareData): SenderPrepareData {
-    const newAmount = calculateExchangeAmount(data.amount, "0.995");
-    let mutatedData = data;
-
-    mutatedData.amount = newAmount;
-    const newExpiration = mutatedData.expiry - EXPIRY_DECREMENT;
-
-    if (newExpiration < Date.now()) {
-      throw new Error("expiry already happened");
-    }
-
-    return mutatedData;
   }
 }
