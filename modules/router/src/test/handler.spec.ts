@@ -8,7 +8,11 @@ import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
 
-import { SenderPrepareData, SubgraphTransactionManagerListener } from "../transactionManagerListener";
+import {
+  ReceiverFulfillData,
+  SenderPrepareData,
+  SubgraphTransactionManagerListener
+} from "../transactionManagerListener";
 import { EXPIRY_DECREMENT, Handler } from "../handler";
 import * as config from "../config";
 import { parseEther } from "@ethersproject/units";
@@ -154,8 +158,6 @@ describe("Handler", () => {
         receiverExpiry,
       ]);
 
-      // console.log([{...tokenPrepareData}, receiverAmount, receiverExpiry])
-      // console.log(`BN `, BigNumber.from(receiverAmount))
 
       expect(call.args[1]).to.deep.eq({
         to: mkAddress("0xaaa"),
@@ -166,12 +168,58 @@ describe("Handler", () => {
         from: mkAddress("0xabc"),
       });
 
-
-      // console.log(`Call ${JSON.stringify(call)}`);
-
       // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
       expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
 
     });
   });
+  describe("handleReceiverFulfill", ()=>{
+    it('should fulfill eth asset',async ()=>{
+
+      const recieverFufillDataMock:ReceiverFulfillData = {
+
+        amount: parseEther("100").toString(),
+        blockNumber: 1,
+        callData: "0x",
+        chainId: 1337,
+        expiry: futureTime,
+        sendingAssetId: constants.AddressZero,
+        sendingChainId: 1337,
+        receivingAddress: mkAddress("0xaaa"),
+        receivingAssetId: constants.AddressZero,
+        receivingChainId: 1338,
+        router: mkAddress(),
+        transactionId: mkBytes32(),
+        user: mkAddress(),
+        relayerFee: "0",
+        signature: "0xdeadbeef",
+
+      }
+      await handler.handleReceiverFulfill(recieverFufillDataMock)
+      txService.sendAndConfirmTx.getCall(0);
+      const call = txService.sendAndConfirmTx.getCall(0);
+      expect(call.args[0]).to.eq(1337);
+
+      const encodedData = nxtpContract.encodeFunctionData("fulfill", [
+        {
+          ...recieverFufillDataMock
+        },
+          recieverFufillDataMock.relayerFee,
+          recieverFufillDataMock.signature
+      ]);
+
+      // console.log(`res data ${call.args[1].data}  comp data: ${encodedData}`)
+
+      expect(call.args[1]).to.deep.eq({
+        to: mkAddress("0xaaa"),
+        //todo:this breaks
+        value: 0,
+        data: encodedData,
+        chainId: 1337,
+        from: mkAddress("0xabc"),
+      });
+
+
+    })
+  })
 });
