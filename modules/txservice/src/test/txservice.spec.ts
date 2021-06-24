@@ -1,7 +1,7 @@
 import { providers, Signer, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
-import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
+import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub, assert } from "sinon";
 import pino from "pino";
 
 import TransactionService from "../txservice";
@@ -70,4 +70,20 @@ describe("TransactionService unit test", () => {
     restore();
     reset();
   });
+
+  describe("sendAndConfirmTx", () => {
+    beforeEach(() => {
+
+    });
+
+    it("errors if cannot get a signer", async () => {
+      
+    });
+
+    it("errors if cannot get provider", async () => {
+
+    });
+
+  });
+
 });

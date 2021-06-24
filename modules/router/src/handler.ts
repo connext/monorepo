@@ -78,7 +78,6 @@ export interface Handler {
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
   handleReceiverFulfill(data: ReceiverFulfillData): Promise<void>;
-  mutatePrepareData(data: SenderPrepareData): SenderPrepareData;
 }
 
 export type AuctionData = any;
@@ -166,6 +165,7 @@ export class Handler implements Handler {
     // encode the data for contract call
     // @ts-ignore TODO: fix this types shit
     const encodedData = nxtpContract.encodeFunctionData("prepare", [{txData: mutatedData}]);
+    
 
     // Then prepare tx object
     // Note tx object must have:
@@ -211,7 +211,7 @@ export class Handler implements Handler {
   public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
     // First log
     // Prepare tx packet
-    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+    
 
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
@@ -221,9 +221,10 @@ export class Handler implements Handler {
     //or cast this.signer to wallet?
     let signedPayload = signFulfillTransactionPayload(data, relayerFee, this.signer);
 
-
-    //todo: why cant it find fulfill?
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [{txDigest: data, relayerFee: relayerFee, signature:signedPayload}]);
+    // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+    // @ts-ignore TODO: fix this types shit
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [{txDigest: data, relayerFee: relayerFee, signature: signedPayload}]);
 
     try {
       const txRes = await this.txService.sendAndConfirmTx(data.transaction.sendingChainId, {
@@ -242,7 +243,7 @@ export class Handler implements Handler {
 
   // MutatePrepareData
   // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
-  public mutatePrepareData(data: SenderPrepareData): SenderPrepareData {
+  private mutatePrepareData(data: SenderPrepareData): SenderPrepareData {
     const newAmount = calculateExchangeAmount(data.transaction.amount, "0.995");
     let mutatedData = data;
 

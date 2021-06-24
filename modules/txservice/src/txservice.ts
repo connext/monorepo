@@ -7,6 +7,7 @@ import axios from "axios";
 import { TransactionServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
 import { ChainUtils, MinimalTransaction } from "./types";
+import { hexlify } from "ethers/lib/utils";
 
 const { JsonRpcProvider } = providers;
 
@@ -42,6 +43,17 @@ export default class TransactionService {
   public getSigner(chainId:number):Signer{
     const {signer} = this.chains.get(chainId)!;
     return signer;
+  }
+
+  public async signArbitraryHexData(chainId: number, data: string) {
+    if (!this.chains.has(chainId)) {
+      throw new ChainError(ChainError.reasons.SignerNotFound);
+    }
+
+    const { signer } = this.chains.get(chainId)!;
+    hexlify(sign())
+
+    bufferify()
   }
 
   public async sendAndConfirmTx(

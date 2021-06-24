@@ -9,9 +9,7 @@ export const signFulfillTransactionPayload = (
 ): Promise<string> => {
   const payload = encodeFulfillData(data, relayerFee);
   const hash = solidityKeccak256(["bytes"], [payload]);
-  let address;
-
-  signer instanceof Wallet? address = signer.address : address = signer.getAddress();
+  const address = signer instanceof Wallet ? signer.address : signer.getAddress();
   console.log(address, "is signing:", hash);
 
   return signer.signMessage(arrayify(hash));
