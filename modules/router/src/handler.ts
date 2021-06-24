@@ -2,7 +2,7 @@ import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
 import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
-import TransactionStervice from "@connext/nxtp-txservice";
+import TransactionService from "@connext/nxtp-txservice";
 import TransactioManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
