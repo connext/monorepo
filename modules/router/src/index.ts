@@ -1,7 +1,7 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
 import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
-import TxService from "@connext/nxtp-txservice";
+import { DEFAULT_CONFIG, TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 
 import { getConfig } from "./config";
@@ -20,12 +20,14 @@ const messaging = new NatsNxtpMessagingService({
   natsUrl: config.natsUrl,
 });
 const subgraphs: { [chainId: number]: string } = {};
+const chainProviderUrls: Map<number, string[]> = new Map();
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   // @ts-ignore
   subgraphs[parseInt(chainId)] = config.subgraph;
+  chainProviderUrls.set(parseInt(chainId), config.provider);
 });
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TxService(logger, wallet);
+const txService = new TransactionService(logger, wallet, { ...DEFAULT_CONFIG, chainProviderUrls });
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
 
 server.addHook("onReady", async function() {

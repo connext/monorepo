@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { BigNumber, constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
-import TransactionService from "@connext/nxtp-txservice";
+import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import Erc20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 

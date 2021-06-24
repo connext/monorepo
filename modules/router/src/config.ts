@@ -1,11 +1,29 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
 import { readFileSync } from "fs";
+import addFormats from "ajv-formats";
 import Ajv from "ajv";
-import { TUrl, TAddress } from "@connext/nxtp-utils";
+import { TAddress, TUrl } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-const ajv = new Ajv();
+const ajv = addFormats(new Ajv(), [
+  "date-time",
+  "time",
+  "date",
+  "email",
+  "hostname",
+  "ipv4",
+  "ipv6",
+  "uri",
+  "uri-reference",
+  "uuid",
+  "uri-template",
+  "json-pointer",
+  "relative-json-pointer",
+  "regex",
+])
+  .addKeyword("kind")
+  .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
   provider: Type.Array(TUrl),
@@ -28,7 +46,7 @@ const NxtpRouterConfigSchema = Type.Object({
       Type.Literal("silent"),
     ]),
   ),
-  natsUrl: Type.String(),
+  natsUrl: TUrl,
   authUrl: TUrl,
   mnemonic: Type.String(),
 });

@@ -43,12 +43,15 @@ export type MessagingConfig = {
 export const getBearerToken = (authUrl: string, signer: Signer) => async (): Promise<string> => {
   const address = await signer.getAddress();
   const nonceResponse = await axios.get(`${authUrl}/auth/${address}`);
+  console.log("nonceResponse: ", nonceResponse);
   const nonce = nonceResponse.data;
   const sig = await signer.signMessage(nonce);
+  console.log("sig: ", sig);
   const verifyResponse: AxiosResponse<string> = await axios.post(`${authUrl}/auth`, {
     sig,
-    userIdentifier: address,
+    signerAddress: address,
   });
+  console.log("verifyResponse: ", verifyResponse);
   return verifyResponse.data;
 };
 
@@ -118,7 +121,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
 
     if (config.bearerToken) {
       this.bearerToken = config.bearerToken;
-    } else {
+    } else if (!config.signer) {
       throw new MessagingError(MessagingError.reasons.ConfigError, { message: `A bearerToken must be provided` });
     }
     this.signer = config.signer;

@@ -36,7 +36,7 @@ export type ReceiverFulfillData = SenderFulfillData;
 // imported
 
 export class SubgraphTransactionManagerListener implements TransactionManagerListener {
-  private sdks!: Record<number, Sdk>;
+  private sdks: Record<number, Sdk> = {};
 
   constructor(
     private readonly chainConfig: { [chainId: number]: string },
