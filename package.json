@@ -11,7 +11,8 @@
     "modules/txservice",
     "modules/contracts",
     "modules/router",
-    "modules/utils"
+    "modules/utils",
+    "modules/test-ui"
   ],
   "scripts": {
     "lerna": "lerna",
