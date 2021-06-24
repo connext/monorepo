@@ -75,6 +75,15 @@ const senderPrepareData: SenderPrepareData = {
   user: mkAddress(),
 };
 
+const receiverFulfillDataMock:ReceiverFulfillData = {
+  ...senderPrepareData,
+  relayerFee: "0",
+  signature: "0xdeadbeef",
+}
+
+const rinkebyTestTokenAddress = '0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9'
+const goerliTestTokenAddress = '0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'
+
 describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
@@ -137,8 +146,7 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      const rinkebyTestTokenAddress = '0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9'
-      const goerliTestTokenAddress = '0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'
+
       let tokenPrepareData = {...senderPrepareData, sendingAssetId: rinkebyTestTokenAddress, receivingAssetId: goerliTestTokenAddress }
 
       await handler.handleSenderPrepare(tokenPrepareData);
@@ -176,49 +184,59 @@ describe("Handler", () => {
   describe("handleReceiverFulfill", ()=>{
     it('should fulfill eth asset',async ()=>{
 
-      const recieverFufillDataMock:ReceiverFulfillData = {
-
-        amount: parseEther("100").toString(),
-        blockNumber: 1,
-        callData: "0x",
-        chainId: 1337,
-        expiry: futureTime,
-        sendingAssetId: constants.AddressZero,
-        sendingChainId: 1337,
-        receivingAddress: mkAddress("0xaaa"),
-        receivingAssetId: constants.AddressZero,
-        receivingChainId: 1338,
-        router: mkAddress(),
-        transactionId: mkBytes32(),
-        user: mkAddress(),
-        relayerFee: "0",
-        signature: "0xdeadbeef",
-
-      }
-      await handler.handleReceiverFulfill(recieverFufillDataMock)
+      await handler.handleReceiverFulfill(receiverFulfillDataMock)
       txService.sendAndConfirmTx.getCall(0);
       const call = txService.sendAndConfirmTx.getCall(0);
       expect(call.args[0]).to.eq(1337);
 
       const encodedData = nxtpContract.encodeFunctionData("fulfill", [
         {
-          ...recieverFufillDataMock
+          ...receiverFulfillDataMock
         },
-          recieverFufillDataMock.relayerFee,
-          recieverFufillDataMock.signature
+          receiverFulfillDataMock.relayerFee,
+          receiverFulfillDataMock.signature
       ]);
-
-      // console.log(`res data ${call.args[1].data}  comp data: ${encodedData}`)
 
       expect(call.args[1]).to.deep.eq({
         to: mkAddress("0xaaa"),
-        //todo:this breaks
         value: 0,
         data: encodedData,
         chainId: 1337,
         from: mkAddress("0xabc"),
       });
 
+    })
+
+    it(`should fulfill token asset`, async()=>{
+      //change assetIds
+      const tokenRxFulfillDataMock =
+          { ...receiverFulfillDataMock,
+            sendingAssetId:rinkebyTestTokenAddress,
+            receivingAssetId:goerliTestTokenAddress}
+
+      await handler.handleReceiverFulfill(tokenRxFulfillDataMock)
+      txService.sendAndConfirmTx.getCall(0);
+      const call = txService.sendAndConfirmTx.getCall(0);
+
+      expect(call.args[0]).to.eq(1337);
+
+      const encodedData = nxtpContract.encodeFunctionData("fulfill", [
+        {
+          ...tokenRxFulfillDataMock,
+          sendingAssetId:rinkebyTestTokenAddress,
+          receivingAssetId:goerliTestTokenAddress,
+        },
+        tokenRxFulfillDataMock.relayerFee,
+        tokenRxFulfillDataMock.signature
+      ])
+
+      expect(call.args[1]).to.deep.eq({
+        to: mkAddress("0xaaa"),
+        value: 0,
+        data: encodedData,
+        chainId: 1337,
+        from: mkAddress("0xabc"),
+      });
 
     })
   })
