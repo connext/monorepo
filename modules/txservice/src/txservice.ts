@@ -1,4 +1,4 @@
-import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { BigNumber, Signer, Wallet, providers, Bytes } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 import { delay } from "@connext/nxtp-utils";
@@ -29,14 +29,15 @@ export class TransactionService {
     log: BaseLogger,
     signer: string | Signer,
     chainProviders: { [chainId: number]: string },
-    config: TransactionServiceConfig = {} as TransactionServiceConfig,
+    config: Partial<TransactionServiceConfig> = {} as TransactionServiceConfig,
+    makeProviderOverride?: (url: string) => providers.JsonRpcProvider,
   ) {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     this.log = log;
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     Object.keys(chainProviders).map(Number).forEach((chainId) => {
       const url = chainProviders[chainId];
-      const provider = makeProvider(url);
+      const provider = makeProviderOverride ? makeProviderOverride(url) : makeProvider(url);
       const confirmationsRequired =
         this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
       this.chains.set(chainId, {
