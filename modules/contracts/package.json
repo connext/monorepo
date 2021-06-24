@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "scripts": {
     "test": "npx hardhat test",
@@ -47,5 +47,6 @@
     "hardhat-deploy": "^0.8.8",
     "hardhat-gas-reporter": "^1.0.4",
     "typechain": "^5.1.0"
-  }
+  },
+  "gitHead": "147fd13e9d2653512e59b5b785892a5b5272e2c3"
 }
