@@ -167,7 +167,7 @@ export class Handler implements Handler {
     const receiverAmount = calculateExchangeAmount(inboundData.amount, "0.995");
     const receiverExpiry = inboundData.expiry - EXPIRY_DECREMENT;
 
-    if (receiverExpiry < Date.now()) {
+    if (receiverExpiry < Date.now() / 1000) {
       throw new Error("Expiry already happened");
     }
 

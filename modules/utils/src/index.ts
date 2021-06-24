@@ -10,3 +10,4 @@ export * from "./error";
 export * from "./math";
 export * from "./signatures";
 export * from "./basic";
+export * from "./hexStrings";
