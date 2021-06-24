@@ -1,9 +1,12 @@
 import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
-import { Signer, utils } from "ethers";
+
+import {signFulfillTransactionPayload} from "../../utils/src/signatures";
+import { Signer, Wallet, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import TransactionService from "@connext/nxtp-txservice";
-import TransactioManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+
 
 import {
   ReceiverFulfillData,
@@ -13,6 +16,8 @@ import {
   TransactionManagerListener,
 } from "./transactionManagerListener";
 import { getConfig } from "./config";
+import {defaultAbiCoder} from "ethers/lib/utils";
+import {InvariantTransactionData} from "@connext/nxtp-utils";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -156,11 +161,11 @@ export class Handler implements Handler {
     // - Amount sent by user
     // - Recipient (callTo) and callData
     const mutatedData = this.mutatePrepareData(inboundData);
-    const nxtpContract = new utils.Interface(TransactioManagerArtifact.abi) as TransactionManager["interface"];
+    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
     // encode the data for contract call
     // @ts-ignore TODO: fix this types shit
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [mutatedData]);
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [{txData: mutatedData}]);
 
     // Then prepare tx object
     // Note tx object must have:
@@ -206,6 +211,29 @@ export class Handler implements Handler {
   public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
     // First log
     // Prepare tx packet
+    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+
+    const signerAddress = await this.signer.getAddress();
+    const config = getConfig();
+
+    //signature on fee + digest.
+    const relayerFee = calculateExchangeAmount(data.amount, "0.995");
+    //or cast this.signer to wallet?
+    let signedPayload = signFulfillTransactionPayload(data, relayerFee, this.signer);
+
+
+    //todo: why cant it find fulfill?
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [{txDigest: data, relayerFee: relayerFee, signature:signedPayload}]);
+
+    try {
+      const txRes = await this.txService.sendAndConfirmTx(data.transaction.sendingChainId, {
+        to: config.chainConfig[data.transaction.sendingChainId].transactionManagerAddress,
+        data: encodedData,
+        value: 0, // TODO
+        chainId: data.transaction.sendingChainId,
+        from: signerAddress,
+      });
+    } catch (e) {}
     // Send to tx service
     // If success, update metrics
     // If fail -- something has gone really wrong here!! We need to figure out what ASAP.

@@ -15,6 +15,7 @@ export default class TransactionService {
   private chains: Map<number, ChainUtils> = new Map();
   private log: BaseLogger;
 
+
   // TODO: Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
@@ -36,6 +37,11 @@ export default class TransactionService {
         confirmationsRequired,
       } as ChainUtils);
     });
+  }
+
+  public getSigner(chainId:number):Signer{
+    const {signer} = this.chains.get(chainId)!;
+    return signer;
   }
 
   public async sendAndConfirmTx(

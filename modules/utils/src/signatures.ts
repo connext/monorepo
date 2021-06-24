@@ -5,11 +5,15 @@ import { encodeCancelData, encodeFulfillData, InvariantTransactionData } from ".
 export const signFulfillTransactionPayload = (
   data: InvariantTransactionData,
   relayerFee: string,
-  signer: Wallet,
+  signer: Wallet | Signer,
 ): Promise<string> => {
   const payload = encodeFulfillData(data, relayerFee);
   const hash = solidityKeccak256(["bytes"], [payload]);
-  console.log(signer.address, "is signing:", hash);
+  let address;
+
+  signer instanceof Wallet? address = signer.address : address = signer.getAddress();
+  console.log(address, "is signing:", hash);
+
   return signer.signMessage(arrayify(hash));
 };
 
