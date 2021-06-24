@@ -15,7 +15,7 @@ import { getOnchainBalance } from "./utils";
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("TransactionManager", function() {
+describe("TransactionManager", function() {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;

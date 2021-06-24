@@ -13,7 +13,7 @@ import { BigNumber, constants } from "ethers";
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("LibAsset", function() {
+describe("LibAsset", function () {
   const [wallet, other, receiver] = waffle.provider.getWallets();
 
   let libAssetTest: LibAssetTest;
@@ -24,7 +24,7 @@ describe("LibAsset", function() {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     libAssetTest = (await libAssetTestFactory.deploy()) as LibAssetTest;
-    token = (await testERC20Factory.deploy("10000")) as TestERC20;
+    token = (await testERC20Factory.deploy()) as TestERC20;
     return { libAssetTest, token };
   };
 
@@ -33,7 +33,7 @@ describe("LibAsset", function() {
     loadFixture = createFixtureLoader([wallet, other]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     ({ libAssetTest, token } = await loadFixture(fixture));
   });
 
@@ -88,7 +88,8 @@ describe("LibAsset", function() {
     it.skip("should error if recipient call fails", async () => {});
 
     it("happy case: transferEther", async () => {
-      const res = await libAssetTest.connect(wallet).transferEther(receiver.address, "1");
+      const amount = BigNumber.from(1);
+      const res = await libAssetTest.connect(wallet).transferEther(receiver.address, amount, { from: wallet.address });
       console.log(res);
     });
   });
@@ -98,7 +99,9 @@ describe("LibAsset", function() {
       const balanceOfWallet = await token.balanceOf(wallet.address);
       console.log(balanceOfWallet.toString());
 
-      const res = await libAssetTest.connect(wallet).transferERC20(token.address, receiver.address, "1");
+      const res = await libAssetTest
+        .connect(wallet)
+        .transferERC20(token.address, receiver.address, BigNumber.from(1), { from: wallet.address });
       console.log(res);
     });
   });

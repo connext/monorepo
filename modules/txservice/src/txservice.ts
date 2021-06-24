@@ -4,28 +4,29 @@ import PriorityQueue from "p-queue";
 import { delay } from "@connext/nxtp-utils";
 import axios from "axios";
 
-import { ChainServiceConfig, DEFAULT_CONFIG } from "./config";
+import { TransactionServiceConfig, DEFAULT_CONFIG } from "./config";
 import { ChainError } from "./error";
 import { ChainUtils, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider } = providers;
 
-export class ChainService {
-  private config: ChainServiceConfig;
+export default class TransactionService {
+  private config: TransactionServiceConfig;
   private chains: Map<number, ChainUtils> = new Map();
   private log: BaseLogger;
+
 
   // TODO: Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
 
-  constructor(log: BaseLogger, signer: string | Signer, config: ChainServiceConfig = {} as ChainServiceConfig) {
+  constructor(log: BaseLogger, signer: string | Signer, config: TransactionServiceConfig = {} as TransactionServiceConfig) {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     this.log = log;
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     config.chainProviderUrls.forEach((urls, chainId) => {
-      // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to ChainService.
+      // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
       const provider = new JsonRpcProvider(urls[0]);
       const confirmationsRequired =
         this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
@@ -36,6 +37,11 @@ export class ChainService {
         confirmationsRequired,
       } as ChainUtils);
     });
+  }
+
+  public getSigner(chainId:number):Signer{
+    const {signer} = this.chains.get(chainId)!;
+    return signer;
   }
 
   public async sendAndConfirmTx(

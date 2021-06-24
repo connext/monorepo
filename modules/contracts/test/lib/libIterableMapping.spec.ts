@@ -225,7 +225,7 @@ describe("LibIterableMapping.sol", function() {
 
   describe("#addTransaction", () => {
     it("should revert if empty string", async () => {
-      const mockTestParam = createVariableTransactionDataMock({ digest: formatBytes32String("0") });
+      const mockTestParam = createVariableTransactionDataMock({ digest: formatBytes32String("") });
       await expect(libIterableMappingTest.addTransaction(mockTestParam)).to.be.revertedWith(
         "LibIterableMapping: EMPTY_DIGEST",
       );
@@ -241,7 +241,7 @@ describe("LibIterableMapping.sol", function() {
       );
     });
 
-    it("addTransaction", async () => {
+    it("happy case: addTransaction", async () => {
       const mockTestParam = createVariableTransactionDataMock();
       const res = await libIterableMappingTest.addTransaction(mockTestParam);
       console.log(res);
@@ -261,12 +261,12 @@ describe("LibIterableMapping.sol", function() {
       );
     });
 
-    it("removeTransaction", async () => {
+    it("happy case: removeTransaction", async () => {
       const mockTestParam = createVariableTransactionDataMock();
       const resAddTransaction = await libIterableMappingTest.addTransaction(mockTestParam);
       console.log(resAddTransaction);
 
-      const res = await libIterableMappingTest.removeTransaction(formatBytes32String("a"));
+      const res = await libIterableMappingTest.removeTransaction(mockTestParam.digest);
       console.log(res);
     });
   });

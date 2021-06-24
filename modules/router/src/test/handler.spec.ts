@@ -1,13 +1,13 @@
 import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
-import { ChainService } from "@connext/nxtp-chainservice";
+import TransactionService from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { SenderPrepareData, SubgraphTransactionManagerListener } from "src/transactionManagerListener";
+import { SenderPrepareData, SubgraphTransactionManagerListener } from "../transactionManagerListener";
 import pino from "pino";
 import { Signer } from "ethers";
 
-import { Handler } from "../src/handler";
+import { Handler } from "../handler";
 
 const logger = pino();
 
@@ -17,7 +17,7 @@ describe("Handler", () => {
     const messaging = createStubInstance(NatsNxtpMessagingService);
     const subgraph = createStubInstance(SubgraphTransactionManagerListener);
     const signer = createStubInstance(Signer);
-    const txService = createStubInstance(ChainService);
+    const txService = createStubInstance(TransactionService);
     handler = new Handler(messaging, subgraph, signer, txService as any, logger);
   });
 

@@ -1,14 +1,14 @@
-# ChainService
+# TransactionService
 
-ChainService is a transaction relayer that should work with any chain and ensure that a tx gets submitted.
+TransactionService is a transaction relayer that should work with any chain and ensure that a tx gets submitted.
 
 ### Key differences with Vector
 
 1. Impossible to double-collateralize: because of how the contracts are written, we do not have to ensure that a tx gets submitted to chain with only one nonce. Submitting multiple times will just result in a revert that can easily be handled.
-2. No offchain DB -- the ChainService should be fully stateless. The router (responsible for calling ChainService) whould be responsible for calling ChainService on init if there are pending transfers that need to be completed.
-3. Should be as generalized as possible. Params should take in arbitrary calldata. That way, we can iterate on biz logic mostly inside the router and keep ChainService untouched.
+2. No offchain DB -- the TransactionService should be fully stateless. The router (responsible for calling TransactionService) whould be responsible for calling TransactionService on init if there are pending transfers that need to be completed.
+3. Should be as generalized as possible. Params should take in arbitrary calldata. That way, we can iterate on biz logic mostly inside the router and keep TransactionService untouched.
 
-All in all, this means the ChainService should be as "dumb" as possible. It should simply relay transactions to chain with gas bump + retries return a success EITHER when it notices an onchain event was emitted OR when the txs revert onchain bc they were already submitted.
+All in all, this means the TransactionService should be as "dumb" as possible. It should simply relay transactions to chain with gas bump + retries return a success EITHER when it notices an onchain event was emitted OR when the txs revert onchain bc they were already submitted.
 
 It should also natively support multiple providers, rotating through them if it fails to receive success responses.
 

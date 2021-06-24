@@ -7,7 +7,7 @@
     "typescript": "^4.3.4"
   },
   "workspaces": [
-    "modules/chainservice",
+    "modules/txservice",
     "modules/contracts",
     "modules/router",
     "modules/utils"

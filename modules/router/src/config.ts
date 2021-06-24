@@ -67,9 +67,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-      if (configJson) console.log("Found process.env.VECTOR_CONFIG");
+      if (configJson) console.log("Found process.env.NXTP_CONFIG_FILE");
     } catch (e) {
-      console.warn("No VECTOR_CONFIG exists...");
+      console.warn("No NXTP_CONFIG_FILE exists...");
     }
   }
 

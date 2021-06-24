@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-chainservice",
+  "name": "@connext/nxtp-txservice",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "Connext",
@@ -7,7 +7,7 @@
   "scripts": {
     "watch": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
     "build": "tsdx build --tsconfig tsconfig.build.json",
-    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'src/test/**/*.spec.ts'",
     "lint": "tsdx lint",
     "prepublish": "yarn build"
   },
@@ -21,6 +21,8 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "0.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "eslint": "^7.29.0",
     "ethers": "^5.3.1",
     "pino": "^6.11.3"
   },

@@ -52,7 +52,7 @@ export const encodeFulfillData = (txDataParams: InvariantTransactionData, relaye
     ["bytes"],
     [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
   );
-  return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee }]);
+  return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee: relayerFee }]);
 };
 
 export const encodeCancelData = (txDataParams: InvariantTransactionData): string => {

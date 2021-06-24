@@ -38,8 +38,10 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
+    "eslint": "^7.29.0",
     "hardhat-deploy": "^0.8.8",
     "hardhat-gas-reporter": "^1.0.4",
     "typechain": "^5.1.0"

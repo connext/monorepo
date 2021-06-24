@@ -1,0 +1,8 @@
+{
+    "adminToken": "test123",
+    "chainConfig": {},
+    "logLevel": "debug",
+    "natsUrl": "",
+    "authUrl": "",
+    "mnemonic": ""
+}
