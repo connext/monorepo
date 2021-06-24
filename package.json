@@ -1,6 +1,5 @@
 {
   "name": "mono",
-  "private": true,
   "devDependencies": {
     "lerna": "^4.0.0",
     "tsdx": "^0.14.1",
@@ -22,7 +21,7 @@
     "clean": "rm -rf node_modules* && rm -rf modules/*/node_modules* modules/*/dist* modules/*/.nyc_output* modules/*/artifacts* modules/*/cache* modules/*/typechain*",
     "build": "lerna run build",
     "prepublish": "lerna run prepublish",
-    "publish": "lerna publish"
+    "publish": "lerna publish --access=public"
   },
   "resolutions": {
     "**/typescript": "^4.3.4"
