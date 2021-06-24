@@ -1,4 +1,4 @@
-import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { BigNumber, Signer, Wallet, providers, Bytes } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 import { delay } from "@connext/nxtp-utils";
