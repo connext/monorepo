@@ -2,7 +2,7 @@
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (does **not** rely on any external validator set).
+**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (i.e. it does **not** rely on any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
 
@@ -35,7 +35,7 @@ Benefits:
 
 Drawbacks/Risks:
 
-1. Nxtp is _only_ a protocol for (generalized) xchain transactions. It does not use channels at all and so cannot be used for other kinds of transfers.
+1. Nxtp is _only_ a protocol for (generalized) xchain transactions. It does not use channels (i.e. does not utilize offchain state). This means it cannot be used to do batched conditional transfers for the purposes of scalable micropayments.
 2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same liveness requirement, but it exists on both the user *and* router.
 
 ## Architecture
