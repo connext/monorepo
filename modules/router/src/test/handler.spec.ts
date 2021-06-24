@@ -74,6 +74,8 @@ const senderPrepareData: SenderPrepareData = {
 describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
+  const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+
   beforeEach(() => {
     const messaging = createStubInstance(NatsNxtpMessagingService);
 
@@ -103,7 +105,6 @@ describe("Handler", () => {
       const call = txService.sendAndConfirmTx.getCall(0);
       expect(call.args[0]).to.eq(1338);
 
-      const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
       const receiverAmount = "99500000000000000000"; // based on input amount
       const receiverExpiry = futureTime - EXPIRY_DECREMENT;
       const encodedData = nxtpContract.encodeFunctionData("prepare", [
@@ -132,7 +133,45 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
+      const rinkebyTestTokenAddress = '0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9'
+      const goerliTestTokenAddress = '0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'
+      let tokenPrepareData = {...senderPrepareData, sendingAssetId: rinkebyTestTokenAddress, receivingAssetId: goerliTestTokenAddress }
+
+      await handler.handleSenderPrepare(tokenPrepareData);
+
+      txService.sendAndConfirmTx.getCall(1);
+      const call = txService.sendAndConfirmTx.getCall(1);
+      expect(call.args[0]).to.eq(1338);
+
+      const receiverAmount = "99500000000000000000"; // based on input amount
+      const receiverExpiry = futureTime - EXPIRY_DECREMENT;
+
+      const encodedData = nxtpContract.encodeFunctionData("prepare", [
+        {
+         ...tokenPrepareData
+        },
+        receiverAmount,
+        receiverExpiry,
+      ]);
+
+      // console.log([{...tokenPrepareData}, receiverAmount, receiverExpiry])
+      // console.log(`BN `, BigNumber.from(receiverAmount))
+
+      expect(call.args[1]).to.deep.eq({
+        to: mkAddress("0xaaa"),
+        //todo:this breaks
+        value: BigNumber.from(0),
+        data: encodedData,
+        chainId: 1338,
+        from: mkAddress("0xabc"),
+      });
+
+
+      // console.log(`Call ${JSON.stringify(call)}`);
+
       // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
+      expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
+
     });
   });
 });
