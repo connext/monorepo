@@ -3,12 +3,15 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { SenderPrepareData, SubgraphTransactionManagerListener } from "../transactionManagerListener";
 import pino from "pino";
-import { constants, providers, Signer } from "ethers";
+import { BigNumber, constants, providers, Signer, utils } from "ethers";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
 
-import { Handler } from "../handler";
+import { SenderPrepareData, SubgraphTransactionManagerListener } from "../transactionManagerListener";
+import { EXPIRY_DECREMENT, Handler } from "../handler";
 import * as config from "../config";
+import { parseEther } from "@ethersproject/units";
 
 const logger = pino();
 
@@ -53,7 +56,7 @@ const fakeConfig: config.NxtpRouterConfig = {
 const futureTime = Date.now() + 3600 * 24 * 7; // 1 week
 
 const senderPrepareData: SenderPrepareData = {
-  amount: "1",
+  amount: parseEther("100").toString(),
   blockNumber: 1,
   callData: "0x",
   chainId: 1337,
@@ -77,8 +80,7 @@ describe("Handler", () => {
     const subgraph = createStubInstance(SubgraphTransactionManagerListener);
 
     const signer = createStubInstance(Signer);
-    console.log("signer: ", signer);
-    (signer as any).getAddress = () => Promise.resolve(mkAddress("0xabc"));
+    (signer as any).getAddress = () => Promise.resolve(mkAddress("0xabc")); // need to do this differently bc the function doesnt exist on the interface
 
     txService = createStubInstance(TransactionService);
     txService.sendAndConfirmTx.resolves(fakeTxReceipt);
@@ -93,16 +95,44 @@ describe("Handler", () => {
   });
 
   describe("handleSenderPrepare", () => {
-    it.only("should send prepare for receiving chain with ETH asset", async () => {
+    it("should send prepare for receiving chain with ETH asset", async () => {
       await handler.handleSenderPrepare(senderPrepareData);
 
       expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
       txService.sendAndConfirmTx.getCall(0);
-      console.log("txService.sendAndConfirmTx.getCall(0): ", txService.sendAndConfirmTx.getCall(0));
-      // TODO: assert the args to txService.sendAndConfirmTx.getCall(0)
-      // expect(txService.sendAndConfirmTx.getCall(0))
+      const call = txService.sendAndConfirmTx.getCall(0);
+      expect(call.args[0]).to.eq(1338);
+
+      const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+      const receiverAmount = "99500000000000000000"; // based on input amount
+      const receiverExpiry = futureTime - EXPIRY_DECREMENT;
+      const encodedData = nxtpContract.encodeFunctionData("prepare", [
+        {
+          callData: senderPrepareData.callData,
+          receivingAddress: senderPrepareData.receivingAddress,
+          receivingAssetId: senderPrepareData.receivingAssetId,
+          receivingChainId: senderPrepareData.receivingChainId,
+          router: senderPrepareData.router,
+          sendingAssetId: senderPrepareData.sendingAssetId,
+          sendingChainId: senderPrepareData.sendingChainId,
+          transactionId: senderPrepareData.transactionId,
+          user: senderPrepareData.user,
+        },
+        receiverAmount,
+        receiverExpiry,
+      ]);
+
+      expect(call.args[1]).to.deep.eq({
+        to: mkAddress("0xaaa"),
+        value: BigNumber.from(receiverAmount),
+        data: encodedData,
+        chainId: 1338,
+        from: mkAddress("0xabc"),
+      });
     });
 
-    it("should send prepare for receiving chain with token asset", async () => {});
+    it("should send prepare for receiving chain with token asset", async () => {
+      // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
+    });
   });
 });
