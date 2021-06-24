@@ -88,6 +88,7 @@ export class Handler implements Handler {
     private readonly txService: TransactionService,
     private readonly logger: BaseLogger,
   ) {
+    // log to get rid of unused build errors
     console.log(typeof this.messagingService);
     console.log(typeof this.txManager);
   }

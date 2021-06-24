@@ -62,7 +62,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           sendingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.transactions }, "Queried senderPrepare transactions");
+        this.logger.info({ transactions: query.transactions, chainId }, "Queried senderPrepare transactions");
         query.transactions.forEach(transaction => {
           const data: SenderPrepareData = {
             amount: transaction.amount,
@@ -98,7 +98,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           receivingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.transactions }, "Queried receiverPrepare transactions");
+        this.logger.info({ transactions: query.transactions, chainId }, "Queried receiverPrepare transactions");
         query.transactions.forEach(transaction => {
           const data: ReceiverPrepareData = {
             amount: transaction.amount,
@@ -134,7 +134,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           receivingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.transactions }, "Queried receiverFulfill transactions");
+        this.logger.info({ transactions: query.transactions, chainId }, "Queried receiverFulfill transactions");
         query.transactions.forEach(transaction => {
           const data: ReceiverFulfillData = {
             amount: transaction.amount,
@@ -172,7 +172,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           sendingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.transactions }, "Queried senderFulfill transactions");
+        this.logger.info({ transactions: query.transactions, chainId }, "Queried senderFulfill transactions");
         query.transactions.forEach(transaction => {
           const data: SenderFulfillData = {
             amount: transaction.amount,
