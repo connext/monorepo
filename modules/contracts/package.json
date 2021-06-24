@@ -8,13 +8,15 @@
     "prepublish": "yarn build",
     "export": "npx hardhat export --export-all ./deployments.json"
   },
+  "main": "dist/index.js",
+  "types": "typechain/index.ts",
   "files": [
+    "src",
     "typechain",
     "artifacts",
     "deployments",
     "deployments.json"
   ],
-  "types": "typechain/index.ts",
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {

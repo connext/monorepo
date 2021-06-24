@@ -1,2 +1,0 @@
-
-const runAuction = ():void => {}
