@@ -5,6 +5,8 @@ import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonSt
 import pino from "pino";
 
 import TransactionService from "../txservice";
+import { parseUnits } from "ethers/lib/utils";
+import { MinimalTransaction } from "../types";
 
 const { JsonRpcProvider } = providers;
 type TransactionReceipt = providers.TransactionReceipt;
@@ -15,7 +17,16 @@ let txService: TransactionService;
 let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
 let provider1338: SinonStubbedInstance<providers.JsonRpcProvider>;
 
-let confirmTxMock: SinonStub;
+let confirmTxMock: SinonStub<[chainId: number, responses: TransactionResponse[]], Promise<TransactionReceipt>>;
+let getGasPriceMock: SinonStub<[chainId: number], Promise<BigNumber>>;
+
+const tx: MinimalTransaction = {
+  chainId: 1337,
+  to: AddressZero,
+  from: AddressZero,
+  data: "0x",
+  value: Zero,
+}
 
 const txResponse: TransactionResponse = {
   chainId: 1337,
@@ -51,7 +62,7 @@ const log = pino({ level: "debug", name: "TransactionServiceTest" });
 describe("TransactionService unit test", () => {
   beforeEach(() => {
     signer = createStubInstance(Signer);
-    signer.connect.returns(signer as any);
+    // signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
 
     const _provider = createStubInstance(JsonRpcProvider);
@@ -64,6 +75,9 @@ describe("TransactionService unit test", () => {
       log,
       signer
     );
+
+    getGasPriceMock = stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
+    confirmTxMock = stub(txService, "confirmTx").resolves(txReceipt);
   });
 
   afterEach(() => {
@@ -72,16 +86,38 @@ describe("TransactionService unit test", () => {
   });
 
   describe("sendAndConfirmTx", () => {
-    beforeEach(() => {
+    // beforeEach(() => {
 
-    });
+    // });
 
-    it("errors if cannot get a signer", async () => {
+    // it("errors if cannot get a signer", async () => {
       
-    });
+    // });
 
-    it("errors if cannot get provider", async () => {
+    // it("errors if cannot get provider", async () => {
 
+    // });
+
+    // it("if receipt status == 0, errors out", async () => {
+
+    // });
+
+    // it("retries transaction with higher gas price", async () => {
+
+    // });
+
+    // it("stops trying to send if at max gas price", async () => {
+
+    // });
+
+    it("happy: confirmation on first loop", async () => {
+      const result = await txService.sendAndConfirmTx(1337, tx);
+
+      expect(signer.sendTransaction.callCount).toEqual(1);
+      const sendTransactionCall = signer.sendTransaction.getCall(0);
+      expect(sendTransactionCall.args[0]).toEqual(tx);
+
+      expect(result).toStrictEqual(txReceipt);
     });
 
   });

@@ -29,8 +29,6 @@ export type TransactionServiceConfig = {
   /// RPC PROVIDERS
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
   rpcProviderMaxRetries: number;
-  // RPC urls by chain.
-  chainProviderUrls: Map<number, string[]>;
 };
 
 export const DEFAULT_CONFIG: TransactionServiceConfig = {
@@ -49,5 +47,4 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   chainConfirmations: new Map<number, number>(),
 
   rpcProviderMaxRetries: 5,
-  chainProviderUrls: new Map<number, string[]>(),
 } as TransactionServiceConfig;
