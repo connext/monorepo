@@ -1,8 +1,9 @@
+import { InvariantTransactionData } from "@connext/nxtp-utils";
 import { Web3Provider } from "@ethersproject/providers";
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumberish } from "ethers";
 
 export type PrepareParamType = {
-  userWebProvider: Web3Provider;
+  userWebProvider: Web3Provider; // This has to be sending chain
   routerAddress: string;
   sendingChainId: number;
   receivingChainId: number;
@@ -14,18 +15,19 @@ export type PrepareParamType = {
   callData?: string;
 };
 
-export type listenRouterPrepareParamType = {
-  userWebProvider: Web3Provider;
-  receivingChainId: number;
+export type ListenRouterPrepareParamType = {
+  txData: InvariantTransactionData;
+  userWebProvider: Web3Provider; // This has to be receiving chain
   relayerFee: BigNumberish;
 };
 
-export type listenRouterFulfillParamType = {
-  receivingChainId: number;
+export type ListenRouterFulfillParamType = {
+  txData: InvariantTransactionData;
+  userWebProvider: Web3Provider; // This has to be receiving chain
 };
 
 export type CrossChainParamType = {
-  userWebProvider: Web3Provider;
+  userWebProvider: Web3Provider; // This has to be receiving chain
   routerAddress: string;
   sendingChainId: number;
   receivingChainId: number;
