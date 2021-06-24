@@ -10,5 +10,5 @@
     "noImplicitAny": false
   },
   "exclude": ["dist", "node_modules"],
-  "include": ["test/**/*.ts", "src/**/*.ts"]
+  "include": ["test/*.ts", "src/*.ts", "src/**/*.ts"]
 }
