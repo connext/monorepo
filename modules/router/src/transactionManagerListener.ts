@@ -1,8 +1,8 @@
 import { gql, GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
-import { InvariantTransactionData } from "@connext/nxtp-utils"
+import { InvariantTransactionData } from "@connext/nxtp-utils";
 
-import { Exact, GetPrepareTransactionsForRouterQuery, getSdk, TransactionStatus } from "./graphqlsdk";
+import { Exact, GetPrepareTransactionsForRouterQuery, getSdk, TransactionStatus, Sdk } from "./graphqlsdk";
 
 export interface TransactionManagerListener {
   onSenderPrepare(handler: (data: SenderPrepareData) => any): Promise<void>;
@@ -16,8 +16,7 @@ export type SenderPrepareData = {
   amount: string;
   expiry: number;
   blockNumber: number;
-  caller: string;
-  status: TransactionStatus;
+  chainId: number;
 } & InvariantTransactionData;
 
 export type ReceiverPrepareData = {
@@ -25,7 +24,7 @@ export type ReceiverPrepareData = {
   expiry: number;
   blockNumber: number;
   caller: string;
-  status: TransactionStatus;
+  chainId: number;
 } & InvariantTransactionData;
 
 export type SenderFulfillData = {
@@ -35,7 +34,7 @@ export type SenderFulfillData = {
   relayerFee: string;
   signature: string;
   caller: string;
-  status: TransactionStatus;
+  chainId: number;
 } & InvariantTransactionData;
 
 export type ReceiverFulfillData = {
@@ -46,12 +45,14 @@ export type ReceiverFulfillData = {
   signature: string;
   caller: string;
   receivingAddress: string;
-  status: TransactionStatus;
+  chainId: number;
 } & InvariantTransactionData;
 
 const getSenderPrepareQuery = gql`
   query GetPrepareTransactionsForRouter($routerId: String!, $sendingChainId: Int!) {
-    transactions(where: { router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
+    transactions(
+      where: { router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Prepared }
+    ) {
       id
       user {
         id
@@ -70,20 +71,16 @@ const getSenderPrepareQuery = gql`
       expiry
       status
       chainId
+      blockNumber
     }
   }
 `;
 
 // imported
-type GraphQlSdk = {
-  GetPrepareTransactionsForRouter(
-    variables: Exact<{ routerId: string; sendingChainId: number }>,
-    requestHeaders?: Headers | string[][] | Record<string, string>,
-  ): Promise<GetPrepareTransactionsForRouterQuery>;
-};
 
 export class SubgraphTransactionManagerListener implements TransactionManagerListener {
-  private sdks!: Record<number, GraphQlSdk>;
+  private sdks!: Record<number, Sdk>;
+  private handled: Record<number, string[]> = {};
 
   constructor(
     private readonly chainConfig: { [chainId: number]: string },
@@ -94,6 +91,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
     Object.entries(this.chainConfig).forEach(([chainId, subgraphUrl]) => {
       const client = new GraphQLClient(subgraphUrl);
       this.sdks[parseInt(chainId)] = getSdk(client);
+      this.handled[parseInt(chainId)] = [];
     });
   }
 
@@ -101,12 +99,17 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   // we will need to keep track of which txs we have already handled and only call handlers on new results
   async onSenderPrepare(handler: (data: SenderPrepareData) => Promise<void>): Promise<void> {
     Object.keys(this.chainConfig).forEach(async chainId => {
-      const sdk: GraphQlSdk = this.sdks[chainId];
+      const sdk: Sdk = this.sdks[parseInt(chainId)];
       setInterval(async () => {
-        const query = await sdk.GetPrepareTransactionsForRouter({ routerId: this.routerAddress, sendingChainId: 5 });
+        const handledForChain = this.handled[parseInt(chainId)];
+        const query = await sdk.GetPrepareTransactionsForRouter({
+          routerId: this.routerAddress,
+          sendingChainId: parseInt(chainId),
+        });
         query.transactions.forEach(transaction => {
-          const data: SenderPrepareData = {
-            transaction: {
+          // check if we have handled this txId yet
+          if (!handledForChain.find(transaction.transactionId)) {
+            const data: SenderPrepareData = {
               amount: transaction.amount,
               callData: transaction.callData,
               chainId: transaction.chainId,
@@ -117,13 +120,14 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               router: transaction.router.id,
               sendingAssetId: transaction.sendingAssetId,
               sendingChainId: transaction.sendingChainId,
-              status: transaction.status,
               transactionId: transaction.transactionId,
               user: transaction.user.id,
-              blockNumber: 0, // TODO
-            },
-          };
-          handler(data);
+              blockNumber: transaction.blockNumber,
+            };
+            handler(data);
+          } else {
+            this.logger.info({ transactionId: transaction.transactionId, chainId }, "Already handled transactionId");
+          }
         });
       }, this.pollInterval);
     });

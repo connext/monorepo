@@ -9,3 +9,4 @@ export * from "./encode";
 export * from "./error";
 export * from "./math";
 export * from "./signatures";
+export * from "./basic";

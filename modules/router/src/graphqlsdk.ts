@@ -303,6 +303,12 @@ export type Transaction = {
   expiry: Scalars['BigInt'];
   status: TransactionStatus;
   chainId: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
+  relayerFee: Scalars['BigInt'];
+  signature: Scalars['Bytes'];
+  prepareCaller: Scalars['Bytes'];
+  fulfillCaller: Scalars['Bytes'];
+  cancelCaller: Scalars['Bytes'];
 };
 
 export enum TransactionStatus {
@@ -420,6 +426,46 @@ export type Transaction_Filter = {
   chainId_lte?: Maybe<Scalars['Int']>;
   chainId_in?: Maybe<Array<Scalars['Int']>>;
   chainId_not_in?: Maybe<Array<Scalars['Int']>>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+  blockNumber_not?: Maybe<Scalars['BigInt']>;
+  blockNumber_gt?: Maybe<Scalars['BigInt']>;
+  blockNumber_lt?: Maybe<Scalars['BigInt']>;
+  blockNumber_gte?: Maybe<Scalars['BigInt']>;
+  blockNumber_lte?: Maybe<Scalars['BigInt']>;
+  blockNumber_in?: Maybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  relayerFee_not?: Maybe<Scalars['BigInt']>;
+  relayerFee_gt?: Maybe<Scalars['BigInt']>;
+  relayerFee_lt?: Maybe<Scalars['BigInt']>;
+  relayerFee_gte?: Maybe<Scalars['BigInt']>;
+  relayerFee_lte?: Maybe<Scalars['BigInt']>;
+  relayerFee_in?: Maybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  signature?: Maybe<Scalars['Bytes']>;
+  signature_not?: Maybe<Scalars['Bytes']>;
+  signature_in?: Maybe<Array<Scalars['Bytes']>>;
+  signature_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  signature_contains?: Maybe<Scalars['Bytes']>;
+  signature_not_contains?: Maybe<Scalars['Bytes']>;
+  prepareCaller?: Maybe<Scalars['Bytes']>;
+  prepareCaller_not?: Maybe<Scalars['Bytes']>;
+  prepareCaller_in?: Maybe<Array<Scalars['Bytes']>>;
+  prepareCaller_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  prepareCaller_contains?: Maybe<Scalars['Bytes']>;
+  prepareCaller_not_contains?: Maybe<Scalars['Bytes']>;
+  fulfillCaller?: Maybe<Scalars['Bytes']>;
+  fulfillCaller_not?: Maybe<Scalars['Bytes']>;
+  fulfillCaller_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillCaller_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillCaller_contains?: Maybe<Scalars['Bytes']>;
+  fulfillCaller_not_contains?: Maybe<Scalars['Bytes']>;
+  cancelCaller?: Maybe<Scalars['Bytes']>;
+  cancelCaller_not?: Maybe<Scalars['Bytes']>;
+  cancelCaller_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelCaller_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelCaller_contains?: Maybe<Scalars['Bytes']>;
+  cancelCaller_not_contains?: Maybe<Scalars['Bytes']>;
 };
 
 export enum Transaction_OrderBy {
@@ -436,7 +482,13 @@ export enum Transaction_OrderBy {
   TransactionId = 'transactionId',
   Expiry = 'expiry',
   Status = 'status',
-  ChainId = 'chainId'
+  ChainId = 'chainId',
+  BlockNumber = 'blockNumber',
+  RelayerFee = 'relayerFee',
+  Signature = 'signature',
+  PrepareCaller = 'prepareCaller',
+  FulfillCaller = 'fulfillCaller',
+  CancelCaller = 'cancelCaller'
 }
 
 export type User = {
@@ -511,7 +563,7 @@ export type GetPrepareTransactionsForRouterQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -526,7 +578,7 @@ export type GetPrepareTransactionsForRouterQuery = (
 export const GetPrepareTransactionsForRouterDocument = gql`
     query GetPrepareTransactionsForRouter($routerId: String!, $sendingChainId: Int!) {
   transactions(
-    where: {router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId}
+    where: {router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Prepared}
   ) {
     id
     user {
@@ -546,6 +598,7 @@ export const GetPrepareTransactionsForRouterDocument = gql`
     expiry
     status
     chainId
+    blockNumber
   }
 }
     `;
