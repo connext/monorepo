@@ -16,9 +16,9 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-utils": "^0.0.1",
     "@connext/nxtp-contracts": "^0.0.1",
     "@connext/nxtp-txservice": "^0.0.1",
+    "@connext/nxtp-utils": "^0.0.1",
     "@sinclair/typebox": "^0.16.7",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "adv": "^0.1.5",
@@ -27,7 +27,8 @@
     "fastify": "^3.18.0",
     "graphql": "^15.5.1",
     "graphql-request": "^3.4.0",
-    "pino": "^6.11.3"
+    "pino": "^6.11.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.21.5",

@@ -1,7 +1,6 @@
-import { NxtpMessaging, calculateExchangeAmount } from "@connext/nxtp-utils";
+import { NxtpMessaging, calculateExchangeAmount, signFulfillTransactionPayload } from "@connext/nxtp-utils";
 
-import { signFulfillTransactionPayload } from "../../utils/src/signatures";
-import { Signer, Wallet, utils } from "ethers";
+import { Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import TransactionService from "@connext/nxtp-txservice";
@@ -15,8 +14,6 @@ import {
   TransactionManagerListener,
 } from "./transactionManagerListener";
 import { getConfig } from "./config";
-import { defaultAbiCoder } from "ethers/lib/utils";
-import { InvariantTransactionData } from "@connext/nxtp-utils";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -137,9 +134,12 @@ export class Handler implements Handler {
   // HandleSenderPrepare
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
   public async handleSenderPrepare(inboundData: SenderPrepareData): Promise<void> {
+    const method = "handleSenderPrepare";
+    const methodId = v4();
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
     // First log
+    this.logger.info({});
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
