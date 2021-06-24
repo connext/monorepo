@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sdk",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "> TODO: description",
   "author": "Connext",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "src"
   ],
   "dependencies": {
-    "@connext/nxtp-contracts": "^0.0.1",
+    "@connext/nxtp-contracts": "^0.0.3",
     "ethers": "^5.3.1",
     "evt": "^1.9.14",
     "pino": "^6.11.3"
@@ -46,5 +46,6 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
-  }
+  },
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
 }

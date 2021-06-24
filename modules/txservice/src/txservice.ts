@@ -1,4 +1,4 @@
-import { BigNumber, Signer, Wallet, providers, Bytes } from "ethers";
+import { BigNumber, Signer, Wallet, providers } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 import { delay } from "@connext/nxtp-utils";
@@ -11,9 +11,8 @@ import { ChainUtils, MinimalTransaction } from "./types";
 const { JsonRpcProvider } = providers;
 
 const makeProvider = (url: string): providers.JsonRpcProvider => {
-  // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
   return new JsonRpcProvider(url);
-}
+};
 
 export class TransactionService {
   private config: TransactionServiceConfig;
@@ -28,25 +27,32 @@ export class TransactionService {
   constructor(
     log: BaseLogger,
     signer: string | Signer,
-    chainProviders: { [chainId: number]: string },
+    chainProviders: { [chainId: number]: string[] },
     config: Partial<TransactionServiceConfig> = {} as TransactionServiceConfig,
     makeProviderOverride?: (url: string) => providers.JsonRpcProvider,
   ) {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     this.log = log;
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
-    Object.keys(chainProviders).map(Number).forEach((chainId) => {
-      const url = chainProviders[chainId];
-      const provider = makeProviderOverride ? makeProviderOverride(url) : makeProvider(url);
-      const confirmationsRequired =
-        this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
-      this.chains.set(chainId, {
-        signer: typeof signer === "string" ? new Wallet(signer, provider) : (signer.connect(provider) as Signer),
-        queue: new PriorityQueue({ concurrency: 1 }),
-        provider,
-        confirmationsRequired,
-      } as ChainUtils);
-    });
+    Object.keys(chainProviders)
+      .map(Number)
+      .forEach((chainId) => {
+        const urls = chainProviders[chainId];
+        if (urls.length === 0) {
+          throw new ChainError(ChainError.reasons.ProviderNotFound);
+        }
+        // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
+        const url = urls[0];
+        const provider = makeProviderOverride ? makeProviderOverride(url) : makeProvider(url);
+        const confirmationsRequired =
+          this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
+        this.chains.set(chainId, {
+          signer: typeof signer === "string" ? new Wallet(signer, provider) : (signer.connect(provider) as Signer),
+          queue: new PriorityQueue({ concurrency: 1 }),
+          provider,
+          confirmationsRequired,
+        } as ChainUtils);
+      });
   }
 
   public async sendAndConfirmTx(
@@ -188,6 +194,7 @@ export class TransactionService {
         // }
         return response;
       } catch (e) {
+        this.log.error(e);
         return e;
       }
     };
@@ -195,10 +202,7 @@ export class TransactionService {
     return await queue.add(task);
   }
 
-  async confirmTx(
-    chainId: number,
-    responses: providers.TransactionResponse[],
-  ): Promise<providers.TransactionReceipt> {
+  async confirmTx(chainId: number, responses: providers.TransactionResponse[]): Promise<providers.TransactionReceipt> {
     const { provider, confirmationsRequired } = this.chains.get(chainId)!;
     const { confirmationTimeout, confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
