@@ -18,14 +18,12 @@ export type PrepareParamType = {
 export type ListenRouterPrepareParamType = {
   txData: InvariantTransactionData;
   userWebProvider: Web3Provider; // This has to be receiving chain
-  receivingChainId: number;
   relayerFee: BigNumberish;
 };
 
 export type ListenRouterFulfillParamType = {
   txData: InvariantTransactionData;
   userWebProvider: Web3Provider; // This has to be receiving chain
-  receivingChainId: number;
 };
 
 export type CrossChainParamType = {

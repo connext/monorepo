@@ -8,8 +8,8 @@ import Ajv from "ajv";
 import {
   getTransactionManagerContract,
   TransactionManagerEvents,
-  TransactionManagerListener,
   validateAndParseAddress,
+  TransactionManagerListener,
 } from "./utils";
 import { PrepareParamType, ListenRouterPrepareParamType, ListenRouterFulfillParamType } from "./types";
 
@@ -49,11 +49,11 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
     const transaction = {
       user: userAddress,
       router: routerAddress,
-      sendingAssetId: sendingAssetId,
-      receivingAssetId: receivingAssetId,
-      receivingAddress: receivingAddress,
-      callData: callData,
-      transactionId: transactionId,
+      sendingAssetId,
+      receivingAssetId,
+      receivingAddress,
+      callData,
+      transactionId,
       sendingChainId: params.sendingChainId,
       receivingChainId: params.receivingChainId,
     };
@@ -98,43 +98,47 @@ export type TransactionPrepareEvent = {
 
 const switchChainIfNeeded = async (receivingChainId: number, web3Provider: providers.Web3Provider) => {
   // Make sure user is on the receiving chain
-  const { chainId } = await web3Provider.getNetwork();
+  const res = await web3Provider.getNetwork();
 
   // TODO: what if they arent using metamask
-  if (chainId !== receivingChainId) {
-    console.warn(`user is on ${chainId} and should be on ${receivingChainId}`);
-    const promise = new Promise<void>(resolve => {
-      web3Provider.on("chainChanged", chainId => {
-        if (chainId === receivingChainId) {
-          resolve();
-        }
-      });
-    });
+  if (res.chainId !== receivingChainId) {
+    throw new Error(`user is on ${res.chainId} and should be on ${receivingChainId}`);
+    // const promise = new Promise<void>(resolve => {
+    //   web3Provider.on("chainChanged", chainId => {
+    //     if (chainId === receivingChainId) {
+    //       resolve();
+    //     }
+    //   });
+    // });
 
-    const networkSwitch = new Promise<void>((resolve, reject) => {
-      web3Provider
-        .send("wallet_switchEthereumChain", [{ chainId: BigNumber.from(receivingChainId).toHexString() }])
-        .then(resolve)
-        .catch(reject);
-    });
+    // const networkSwitch = new Promise<void>((resolve, reject) => {
+    //   web3Provider
+    //     .send("wallet_switchEthereumChain", [{ chainId: BigNumber.from(receivingChainId).toHexString() }])
+    //     .then(resolve)
+    //     .catch(reject);
+    // });
 
-    await Promise.all([promise, networkSwitch]);
+    // await Promise.all([promise, networkSwitch]);
   }
 };
 
 export const listenRouterPrepare = async (params: ListenRouterPrepareParamType): Promise<void> => {
   const method = "listenRouterPrepare";
   const methodId = hexlify(randomBytes(32));
-  console.log(method, methodId, params);
+  console.log(method, methodId, params.txData, params.relayerFee);
 
   // Make sure user is on the receiving chain
-  await switchChainIfNeeded(params.receivingChainId, params.userWebProvider);
+  await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
 
-  const listener = await TransactionManagerListener.connect(params.userWebProvider);
+  console.log("setting up chain listener");
+  const listener = new TransactionManagerListener(params.userWebProvider);
+  await listener.establishListeners();
 
+  console.log("getting signer");
   const signer = params.userWebProvider.getSigner();
 
   // Wait 1min for router event
+  console.log("waiting for event");
   const event = await listener.waitFor(
     TransactionManagerEvents.TransactionPrepared,
     60_000,
@@ -142,14 +146,16 @@ export const listenRouterPrepare = async (params: ListenRouterPrepareParamType):
   );
 
   // Generate signature
+  console.log("generating signature");
   const signature = await signFulfillTransactionPayload(event.txData, params.relayerFee.toString(), signer);
   console.log(signature);
 
   // TODO: broadcast from messaging service here and add logic to wait
   // for relayer submission or submit it on our own before expiry
   // Submit fulfill to receiver chain
-  const { address, abi } = getTransactionManagerContract(params.receivingChainId);
-  const instance = new Contract(address, abi);
+  console.log("getting contract");
+  const { address, abi } = getTransactionManagerContract(params.txData.receivingChainId);
+  const instance = new Contract(address, abi).connect(signer);
   console.log("submitting fulfill to chain");
   const fulfillTx = await instance.fulfill(event.txData, params.relayerFee.toString(), signature);
   console.log("submitted", fulfillTx.hash);
@@ -165,9 +171,10 @@ export const listenRouterFulfill = async (params: ListenRouterFulfillParamType):
   console.log(method, methodId, params);
 
   // Make sure user is on the receiving chain
-  await switchChainIfNeeded(params.receivingChainId, params.userWebProvider);
+  await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
 
-  const listener = await TransactionManagerListener.connect(params.userWebProvider);
+  const listener = new TransactionManagerListener(params.userWebProvider);
+  await listener.establishListeners();
 
   await listener.waitFor(TransactionManagerEvents.TransactionFulfilled, 60_000, data => {
     return data.txData.transactionId === params.txData.transactionId && data.caller === params.txData.router;
