@@ -57,11 +57,11 @@ describe("LibErc20", function() {
 
   describe("#transferFrom", () => {
     it.skip("should error if params are buggy", async () => {});
-    it("happy case:transferFrom", async () => {
-      const approveRes = await token.connect(wallet).approve(other.address, "1");
+    it("happy case: transferFrom", async () => {
+      const approveRes = await token.connect(wallet).approve(receiver.address, "1");
       console.log(approveRes);
 
-      const res = await libERC20Test.connect(other).transferFrom(token.address, wallet.address, receiver.address, "1");
+      const res = await libERC20Test.connect(wallet).transferFrom(token.address, wallet.address, receiver.address, "1");
       console.log(res);
     });
   });
