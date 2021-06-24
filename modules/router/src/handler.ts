@@ -242,11 +242,11 @@ export class Handler implements Handler {
   // MutatePrepareData
   // Purpose: Internal fn used to mutate the prepare data between sender and receiver chain
   private mutatePrepareData(data: SenderPrepareData): SenderPrepareData {
-    const newAmount = calculateExchangeAmount(data.transaction.amount, "0.995");
+    const newAmount = calculateExchangeAmount(data.amount, "0.995");
     let mutatedData = data;
 
-    mutatedData.transaction.amount = newAmount;
-    const newExpiration = mutatedData.transaction.expiry - EXPIRY_DECREMENT;
+    mutatedData.amount = newAmount;
+    const newExpiration = mutatedData.expiry - EXPIRY_DECREMENT;
 
     if (newExpiration < Date.now()) {
       throw new Error("expiry already happened");
