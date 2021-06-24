@@ -11,7 +11,6 @@ import { ChainUtils, MinimalTransaction } from "./types";
 const { JsonRpcProvider } = providers;
 
 const makeProvider = (url: string): providers.JsonRpcProvider => {
-  // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
   return new JsonRpcProvider(url);
 };
 
@@ -28,7 +27,7 @@ export class TransactionService {
   constructor(
     log: BaseLogger,
     signer: string | Signer,
-    chainProviders: { [chainId: number]: string },
+    chainProviders: { [chainId: number]: string[] },
     config: Partial<TransactionServiceConfig> = {} as TransactionServiceConfig,
     makeProviderOverride?: (url: string) => providers.JsonRpcProvider,
   ) {
@@ -37,8 +36,13 @@ export class TransactionService {
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     Object.keys(chainProviders)
       .map(Number)
-      .forEach(chainId => {
-        const url = chainProviders[chainId];
+      .forEach((chainId) => {
+        const urls = chainProviders[chainId];
+        if (urls.length === 0) {
+          throw new ChainError(ChainError.reasons.ProviderNotFound);
+        }
+        // TODO: Use multiple providers, with either a wrapping ChainRpcProvider class or something internal to TransactionService.
+        const url = urls[0];
         const provider = makeProviderOverride ? makeProviderOverride(url) : makeProvider(url);
         const confirmationsRequired =
           this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
@@ -190,6 +194,7 @@ export class TransactionService {
         // }
         return response;
       } catch (e) {
+        this.log.error(e);
         return e;
       }
     };

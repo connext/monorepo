@@ -67,17 +67,19 @@ describe("TransactionService unit test", () => {
 
     const _provider = createStubInstance(JsonRpcProvider);
     _provider.getTransaction.resolves(txResponse);
+    _provider.sendTransaction.resolves(txResponse);
     provider1337 = _provider;
     (signer as any).provider = provider1337;
 
     txService = new TransactionService(
       log,
       signer, 
-      { 1337: "", 1338: "" },
+      { 1337: [""], 1338: [""] },
       {},
       (_: string) => provider1337
     );
 
+    signer.sendTransaction.resolves(txResponse);
     getGasPriceMock = stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
     confirmTxMock = stub(txService, "confirmTx").resolves(txReceipt);
   });
