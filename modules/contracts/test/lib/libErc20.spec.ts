@@ -22,7 +22,7 @@ describe("LibErc20", function() {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     libERC20Test = (await libERC20TestFactory.deploy()) as LibERC20Test;
-    token = (await testERC20Factory.deploy("10000")) as TestERC20;
+    token = (await testERC20Factory.deploy()) as TestERC20;
     return { libERC20Test, token };
   };
 

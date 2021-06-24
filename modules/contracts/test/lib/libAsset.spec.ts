@@ -24,7 +24,7 @@ describe("LibAsset", function() {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     libAssetTest = (await libAssetTestFactory.deploy()) as LibAssetTest;
-    token = (await testERC20Factory.deploy("10000")) as TestERC20;
+    token = (await testERC20Factory.deploy()) as TestERC20;
     return { libAssetTest, token };
   };
 
