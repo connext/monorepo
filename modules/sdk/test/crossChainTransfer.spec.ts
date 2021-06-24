@@ -1,9 +1,10 @@
 import { constants, Contract, providers, Wallet } from "ethers";
-import { createStubInstance, restore, SinonStubbedInstance } from "sinon";
+import { createStubInstance, restore, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManagerListener } from "../src/utils";
-import { InvariantTransactionData } from "@connext/nxtp-utils";
+import { InvariantTransactionData, recoverFulfilledTransactionPayload } from "@connext/nxtp-utils";
 import { hexlify, randomBytes } from "ethers/lib/utils";
 import { listenRouterPrepare } from "@connext/nxtp-sdk";
+import { expect } from "chai";
 
 const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
   const transaction = {
@@ -56,17 +57,34 @@ describe.only("listenRouterPrepare", () => {
     });
 
     // Setup mocks
-    listener.establishListeners.resolves();
     userWeb3Provider.getNetwork.resolves({ chainId: receivingChainId, name: "test" });
     userWeb3Provider.getSigner.returns(user as any);
+
     listener.waitFor.resolves({ txData, amount, expiry, blockNumber, caller: txData.router });
-    contract.fulfill = (...args: any) => new Promise(resolve => resolve({ args, hash: "0xhash" }));
+
+    const fulfillStub = stub().resolves({ hash: "success", wait: () => Promise.resolve() });
+    contract.fulfill = fulfillStub;
+
+    const obj = {
+      fulfill: fulfillStub,
+    };
+
+    listener.getTransactionManager.returns({
+      ...obj,
+      connect: (_signer => obj) as any,
+    } as any);
 
     // Make call
     const response = await listenRouterPrepare(
       { txData, relayerFee, userWebProvider: userWeb3Provider },
-      listener as any,
+      (listener as unknown) as TransactionManagerListener,
     );
-    expect(response).toBeDefined;
+    expect(response).to.be.undefined;
+    expect(fulfillStub.calledOnce).to.be.true;
+    const [txDataUsed, relayerFeeUsed, sig] = fulfillStub.firstCall.args;
+    expect(txDataUsed).to.be.deep.eq(txData);
+    expect(relayerFeeUsed).to.be.eq(relayerFee);
+    const recovered = recoverFulfilledTransactionPayload(txData, relayerFee, sig);
+    expect(recovered.toLowerCase()).to.be.eq(user.address.toLowerCase());
   });
 });

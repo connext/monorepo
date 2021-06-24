@@ -49,14 +49,28 @@ export class TransactionManagerListener {
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
 
-  private established: boolean = false;
+  private constructor(
+    private readonly provider: providers.Web3Provider,
+    private readonly transactionManager: Contract,
+  ) {}
 
-  public constructor(public readonly provider: providers.Web3Provider) {}
+  static async connect(provider: providers.Web3Provider): Promise<TransactionManagerListener> {
+    const { chainId } = await provider.getNetwork();
 
-  public async establishListeners(): Promise<void> {
-    if (this.established) {
-      return;
-    }
+    const { address, abi } = getTransactionManagerContract(chainId);
+    console.log("trying to create contract");
+    console.log("");
+    const contract = new Contract(address, abi, provider);
+    const listener = new TransactionManagerListener(provider, contract);
+    await listener.establishListeners();
+    return listener;
+  }
+
+  public getTransactionManager(): Contract {
+    return this.transactionManager;
+  }
+
+  private async establishListeners(): Promise<void> {
     const { chainId } = await this.provider.getNetwork();
 
     const { address, abi } = getTransactionManagerContract(chainId);
@@ -116,7 +130,6 @@ export class TransactionManagerListener {
       };
       this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
     });
-    this.established = true;
   }
 
   public attach<T extends TransactionManagerEvent>(

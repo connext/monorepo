@@ -133,15 +133,9 @@ export const listenRouterPrepare = async (
   // Make sure user is on the receiving chain
   await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
 
-  // console.log("setting up chain listener");
-  // const listener = new TransactionManagerListener(params.userWebProvider);
-  await listener.establishListeners();
-
-  console.log("getting signer");
   const signer = params.userWebProvider.getSigner();
 
   // Wait 1min for router event
-  console.log("waiting for event");
   const event = await listener.waitFor(
     TransactionManagerEvents.TransactionPrepared,
     60_000,
@@ -149,35 +143,28 @@ export const listenRouterPrepare = async (
   );
 
   // Generate signature
-  console.log("generating signature");
   const signature = await signFulfillTransactionPayload(event.txData, params.relayerFee.toString(), signer);
-  console.log(signature);
 
   // TODO: broadcast from messaging service here and add logic to wait
   // for relayer submission or submit it on our own before expiry
   // Submit fulfill to receiver chain
-  console.log("getting contract");
-  const { address, abi } = getTransactionManagerContract(params.txData.receivingChainId);
-  const instance = new Contract(address, abi).connect(signer);
-  console.log("submitting fulfill to chain");
+  const instance = listener.getTransactionManager().connect(signer);
   const fulfillTx = await instance.fulfill(event.txData, params.relayerFee.toString(), signature);
-  console.log("submitted", fulfillTx.hash);
   await fulfillTx.wait();
-  console.log("mined");
 };
 
 // NOTE: once we have submitted the `Fulfill` we dont need to wait for the
 // router to do it
-export const listenRouterFulfill = async (params: ListenRouterFulfillParamType): Promise<void> => {
+export const listenRouterFulfill = async (
+  params: ListenRouterFulfillParamType,
+  listener: TransactionManagerListener,
+): Promise<void> => {
   const method = "listenRouterFulfill";
   const methodId = hexlify(randomBytes(32));
   console.log(method, methodId, params);
 
   // Make sure user is on the receiving chain
   await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
-
-  const listener = new TransactionManagerListener(params.userWebProvider);
-  await listener.establishListeners();
 
   await listener.waitFor(TransactionManagerEvents.TransactionFulfilled, 60_000, data => {
     return data.txData.transactionId === params.txData.transactionId && data.caller === params.txData.router;

@@ -21,6 +21,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-contracts": "^0.0.3",
+    "@connext/nxtp-utils": "^0.0.3",
     "ethers": "^5.3.1",
     "evt": "^1.9.14",
     "pino": "^6.11.3"
