@@ -5,7 +5,7 @@ import {
   // PublicKey,
   PrivateKey,
   SignatureString,
-} from "@connext/vector-types";
+} from "@connext/nxtp-utils";
 import { Signer, Wallet, providers, Bytes } from "ethers";
 
 export class TransactionSigner extends Signer {
