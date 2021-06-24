@@ -31,6 +31,7 @@ const txService = new TransactionService(logger, wallet, { ...DEFAULT_CONFIG, ch
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
 
 server.addHook("onReady", async function() {
+  await messaging.connect();
   await setupListeners(messaging, subgraph, handler, logger);
 });
 

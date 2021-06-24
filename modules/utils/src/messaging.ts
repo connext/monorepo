@@ -43,15 +43,12 @@ export type MessagingConfig = {
 export const getBearerToken = (authUrl: string, signer: Signer) => async (): Promise<string> => {
   const address = await signer.getAddress();
   const nonceResponse = await axios.get(`${authUrl}/auth/${address}`);
-  console.log("nonceResponse: ", nonceResponse);
   const nonce = nonceResponse.data;
   const sig = await signer.signMessage(nonce);
-  console.log("sig: ", sig);
   const verifyResponse: AxiosResponse<string> = await axios.post(`${authUrl}/auth`, {
     sig,
     signerAddress: address,
   });
-  console.log("verifyResponse: ", verifyResponse);
   return verifyResponse.data;
 };
 
@@ -139,14 +136,8 @@ export class NatsBasicMessagingService implements BasicMessaging {
 
   async connect(): Promise<void> {
     if (!this.bearerToken) {
-      const address = await this.signer!.getAddress();
-      const nonce = (await axios.get(`${this.authUrl}/auth/${address}`)).data;
-      const sig = await this.signer!.signMessage(nonce);
-      const verifyResponse: AxiosResponse<string> = await axios.post(`${this.authUrl}/auth`, {
-        sig,
-        userIdentifier: address,
-      });
-      this.bearerToken = verifyResponse.data;
+      const token = await getBearerToken(this.authUrl!, this.signer!)();
+      this.bearerToken = token;
     }
     // TODO: fail fast w sensible error message if bearer token is invalid #446
     const service = natsServiceFactory(
