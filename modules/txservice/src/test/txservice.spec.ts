@@ -70,7 +70,4 @@ describe("TransactionService unit test", () => {
     restore();
     reset();
   });
-
-  describe("")
-
 });
