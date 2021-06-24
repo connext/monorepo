@@ -3,7 +3,6 @@ import { Type, Static } from "@sinclair/typebox";
 import { readFileSync } from "fs";
 import addFormats from "ajv-formats";
 import Ajv from "ajv";
-import { TAddress, TUrl } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const ajv = addFormats(new Ajv(), [
@@ -26,10 +25,10 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
-  provider: Type.Array(TUrl),
+  provider: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  subgraph: TUrl,
-  transactionManagerAddress: TAddress,
+  subgraph: Type.String(),
+  transactionManagerAddress: Type.String(),
 });
 
 const NxtpRouterConfigSchema = Type.Object({
@@ -46,8 +45,8 @@ const NxtpRouterConfigSchema = Type.Object({
       Type.Literal("silent"),
     ]),
   ),
-  natsUrl: TUrl,
-  authUrl: TUrl,
+  natsUrl: Type.String(),
+  authUrl: Type.String(),
   mnemonic: Type.String(),
 });
 

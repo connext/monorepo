@@ -4,7 +4,10 @@ import { mkHash, mkAddress } from "@connext/nxtp-utils";
 import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub, assert } from "sinon";
 import pino from "pino";
 
-import TransactionService from "../txservice";
+import { TransactionService } from "../txservice";
+import { parseUnits } from "ethers/lib/utils";
+import { MinimalTransaction } from "../types";
+import { TransactionSigner } from "../signer";
 
 const { JsonRpcProvider } = providers;
 type TransactionReceipt = providers.TransactionReceipt;
@@ -13,9 +16,17 @@ type TransactionResponse = providers.TransactionResponse;
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
 let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
-let provider1338: SinonStubbedInstance<providers.JsonRpcProvider>;
 
-let confirmTxMock: SinonStub;
+let confirmTxMock: SinonStub<[chainId: number, responses: TransactionResponse[]], Promise<TransactionReceipt>>;
+let getGasPriceMock: SinonStub<[chainId: number], Promise<BigNumber>>;
+
+const tx: MinimalTransaction = {
+  chainId: 1337,
+  to: AddressZero,
+  from: AddressZero,
+  data: "0x",
+  value: Zero,
+}
 
 const txResponse: TransactionResponse = {
   chainId: 1337,
@@ -50,20 +61,25 @@ const txReceipt: TransactionReceipt = {
 const log = pino({ level: "debug", name: "TransactionServiceTest" });
 describe("TransactionService unit test", () => {
   beforeEach(() => {
-    signer = createStubInstance(Signer);
+    signer = createStubInstance(TransactionSigner);
     signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
 
     const _provider = createStubInstance(JsonRpcProvider);
     _provider.getTransaction.resolves(txResponse);
     provider1337 = _provider;
-    provider1338 = _provider;
     (signer as any).provider = provider1337;
 
     txService = new TransactionService(
       log,
-      signer
+      signer, 
+      { 1337: "", 1338: "" },
+      {},
+      (_: string) => provider1337
     );
+
+    getGasPriceMock = stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
+    confirmTxMock = stub(txService, "confirmTx").resolves(txReceipt);
   });
 
   afterEach(() => {
@@ -72,16 +88,38 @@ describe("TransactionService unit test", () => {
   });
 
   describe("sendAndConfirmTx", () => {
-    beforeEach(() => {
+    // beforeEach(() => {
 
-    });
+    // });
 
-    it("errors if cannot get a signer", async () => {
+    // it("errors if cannot get a signer", async () => {
       
-    });
+    // });
 
-    it("errors if cannot get provider", async () => {
+    // it("errors if cannot get provider", async () => {
 
+    // });
+
+    // it("if receipt status == 0, errors out", async () => {
+
+    // });
+
+    // it("retries transaction with higher gas price", async () => {
+
+    // });
+
+    // it("stops trying to send if at max gas price", async () => {
+
+    // });
+
+    it("happy: confirmation on first loop", async () => {
+      const result = await txService.sendAndConfirmTx(1337, tx);
+
+      expect(signer.sendTransaction.callCount).toEqual(1);
+      const sendTransactionCall = signer.sendTransaction.getCall(0);
+      expect(sendTransactionCall.args[0]).toEqual(tx);
+
+      expect(result).toStrictEqual(txReceipt);
     });
 
   });

@@ -16,6 +16,7 @@
         "modules/contracts/deployments"
       ],
       "@connext/nxtp-subgraph": ["modules/subgraph/generated"],
+      "@connext/nxtp-sdk": ["modules/sdk/src"],
       "$test/*": ["test/*"]
     }
   }
