@@ -45,17 +45,6 @@ export default class TransactionService {
     return signer;
   }
 
-  public async signArbitraryHexData(chainId: number, data: string) {
-    if (!this.chains.has(chainId)) {
-      throw new ChainError(ChainError.reasons.SignerNotFound);
-    }
-
-    const { signer } = this.chains.get(chainId)!;
-    hexlify(sign())
-
-    bufferify()
-  }
-
   public async sendAndConfirmTx(
     chainId: number,
     tx: MinimalTransaction,
