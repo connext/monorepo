@@ -1,7 +1,8 @@
 import { providers, Signer, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
-import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub, assert } from "sinon";
+import { restore, reset, createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
+import { expect } from "chai";
 import pino from "pino";
 
 import { TransactionService } from "../txservice";
@@ -117,11 +118,11 @@ describe("TransactionService unit test", () => {
     it("happy: confirmation on first loop", async () => {
       const result = await txService.sendAndConfirmTx(1337, tx);
 
-      expect(signer.sendTransaction.callCount).toEqual(1);
+      expect(signer.sendTransaction.callCount).eq(1);
       const sendTransactionCall = signer.sendTransaction.getCall(0);
-      expect(sendTransactionCall.args[0]).toEqual(tx);
+      expect(sendTransactionCall.args[0]).eq(tx);
 
-      expect(result).toStrictEqual(txReceipt);
+      expect(result).to.deep.eq(txReceipt);
     });
 
   });
