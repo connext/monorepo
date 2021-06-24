@@ -1,11 +1,6 @@
-import {
-  NxtpMessaging,
-  calculateExchangeAmount,
-  signFulfillTransactionPayload,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { NxtpMessaging, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { BigNumber, BigNumberish, BytesLike, constants, Signer, utils } from "ethers";
+import { BigNumber, constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
 import TransactionService from "@connext/nxtp-txservice";
@@ -92,12 +87,15 @@ export class Handler implements Handler {
     private readonly signer: Signer,
     private readonly txService: TransactionService,
     private readonly logger: BaseLogger,
-  ) {}
+  ) {
+    console.log(typeof this.messagingService);
+    console.log(typeof this.txManager);
+  }
 
   // HandleNewAuction
   // Purpose: Respond to auction with bid if router has sufficient funds for transfer
   // NOTE: This does not need to be implemented as part of MVP
-  public async handleNewAuction(data: AuctionData): Promise<void> {
+  public async handleNewAuction(_data: AuctionData): Promise<void> {
     // First, log
     // TODO
     // Next, validate that assets/chains are supported and there is enough liquidity
@@ -120,7 +118,7 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(data: MetaTxData): Promise<void> {
+  public async handleMetaTxRequest(_data: MetaTxData): Promise<void> {
     // First log
     // TODO
     // Validate that metatx request matches with known data about fulfill
@@ -243,14 +241,14 @@ export class Handler implements Handler {
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
   // metrics
-  public async handleReceiverPrepare(data: ReceiverPrepareData): Promise<void> {
+  public async handleReceiverPrepare(_data: ReceiverPrepareData): Promise<void> {
     // First log
     // Update metrics
   }
 
   // HandleSenderFulfill
   // Purpose: No action is needed here from router except to update metrics
-  public async handleSenderFulfill(data: SenderFulfillData): Promise<void> {
+  public async handleSenderFulfill(_data: SenderFulfillData): Promise<void> {
     // First log
     // Update metrics
   }

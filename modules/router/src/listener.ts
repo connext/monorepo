@@ -22,38 +22,39 @@ export async function setupListeners(
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {
+  logger.info("setupListeners");
   // Setup Messaging Service events
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
   messagingService.subscribe("*.auction.>", async data => {
     // On every new auction broadcast, route to the new auction handler
-    const res = await handler.handleNewAuction(data);
+    await handler.handleNewAuction(data);
   });
 
   // <from>.metatx
   messagingService.subscribe("*.metatx", async data => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
-    const res = await handler.handleMetaTxRequest(data);
+    await handler.handleMetaTxRequest(data);
   });
 
   // Setup Subgraph events
   txManager.onSenderPrepare(async (data: SenderPrepareData) => {
     // On sender prepare, route to sender prepare handler
-    const res = await handler.handleSenderPrepare(data);
+    await handler.handleSenderPrepare(data);
   });
 
   txManager.onReceiverPrepare(async (data: ReceiverPrepareData) => {
     // On receiver prepare, route to receiver prepare handler
-    const res = await handler.handleReceiverPrepare(data);
+    await handler.handleReceiverPrepare(data);
   });
 
   txManager.onSenderFulfill(async (data: SenderFulfillData) => {
     // On sender fulfill, route to sender fulfill handler
-    const res = await handler.handleSenderFulfill(data);
+    await handler.handleSenderFulfill(data);
   });
 
   txManager.onReceiverFulfill(async (data: ReceiverFulfillData) => {
     // On receiver fulfill, route to receiver fulfill handler
-    const res = await handler.handleReceiverFulfill(data);
+    await handler.handleReceiverFulfill(data);
   });
 }

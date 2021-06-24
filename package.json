@@ -23,6 +23,9 @@
     "prepublish": "lerna run prepublish",
     "publish": "lerna publish"
   },
+  "resolutions": {
+    "**/typescript": "^4.3.4"
+  },
   "dependencies": {
     "eslint": "^7.29.0",
     "start-server-and-test": "^1.12.5"

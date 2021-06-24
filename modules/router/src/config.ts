@@ -86,7 +86,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     if (!chainConfig.transactionManagerAddress) {
       try {
         nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
-          contractDeployments[chainId],
+          (contractDeployments as any)[chainId],
         )[0] as any).contracts.TransactionManager.address;
       } catch (e) {}
     }
