@@ -50,8 +50,6 @@ describe.only("listenRouterPrepare", () => {
     const expiry = (Date.now() + 10_000).toString();
     const blockNumber = 10;
     const user = Wallet.createRandom();
-    console.log("user", user);
-    console.log("user._isSigner", user._isSigner);
     const txData = getTransactionData({
       receivingChainId,
       user: user.address,
@@ -60,12 +58,15 @@ describe.only("listenRouterPrepare", () => {
     // Setup mocks
     listener.establishListeners.resolves();
     userWeb3Provider.getNetwork.resolves({ chainId: receivingChainId, name: "test" });
-    userWeb3Provider.getSigner.resolves(user);
+    userWeb3Provider.getSigner.returns(user as any);
     listener.waitFor.resolves({ txData, amount, expiry, blockNumber, caller: txData.router });
     contract.fulfill = (...args: any) => new Promise(resolve => resolve({ args, hash: "0xhash" }));
 
     // Make call
-    const response = await listenRouterPrepare({ txData, relayerFee, userWebProvider: userWeb3Provider });
+    const response = await listenRouterPrepare(
+      { txData, relayerFee, userWebProvider: userWeb3Provider },
+      listener as any,
+    );
     expect(response).toBeDefined;
   });
 });

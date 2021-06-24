@@ -98,11 +98,11 @@ export type TransactionPrepareEvent = {
 
 const switchChainIfNeeded = async (receivingChainId: number, web3Provider: providers.Web3Provider) => {
   // Make sure user is on the receiving chain
-  const res = await web3Provider.getNetwork();
+  const { chainId } = await web3Provider.getNetwork();
 
   // TODO: what if they arent using metamask
-  if (res.chainId !== receivingChainId) {
-    throw new Error(`user is on ${res.chainId} and should be on ${receivingChainId}`);
+  if (chainId !== receivingChainId) {
+    throw new Error(`user is on ${chainId} and should be on ${receivingChainId}`);
     // const promise = new Promise<void>(resolve => {
     //   web3Provider.on("chainChanged", chainId => {
     //     if (chainId === receivingChainId) {
@@ -122,7 +122,10 @@ const switchChainIfNeeded = async (receivingChainId: number, web3Provider: provi
   }
 };
 
-export const listenRouterPrepare = async (params: ListenRouterPrepareParamType): Promise<void> => {
+export const listenRouterPrepare = async (
+  params: ListenRouterPrepareParamType,
+  listener: TransactionManagerListener,
+): Promise<void> => {
   const method = "listenRouterPrepare";
   const methodId = hexlify(randomBytes(32));
   console.log(method, methodId, params.txData, params.relayerFee);
@@ -130,8 +133,8 @@ export const listenRouterPrepare = async (params: ListenRouterPrepareParamType):
   // Make sure user is on the receiving chain
   await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
 
-  console.log("setting up chain listener");
-  const listener = new TransactionManagerListener(params.userWebProvider);
+  // console.log("setting up chain listener");
+  // const listener = new TransactionManagerListener(params.userWebProvider);
   await listener.establishListeners();
 
   console.log("getting signer");
