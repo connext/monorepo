@@ -1,8 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": true,
-    "outDir": "dist"
+    "baseUrl": "./",
+    "declarationDir": "dist/",
+    "incremental": true,
+    "module": "commonjs",
+    "noUnusedLocals": false,
+    "outDir": "dist",
+    "strict": true,
+    "target": "es6"
   },
-  "include": ["src/**/*.ts"]
+  "exclude": ["dist", "node_modules"],
+  "include": ["src/*.ts", "src/**/*.ts"]
 }
