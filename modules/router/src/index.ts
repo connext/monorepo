@@ -20,14 +20,14 @@ const messaging = new NatsNxtpMessagingService({
   natsUrl: config.natsUrl,
 });
 const subgraphs: { [chainId: number]: string } = {};
-const chainProviderUrls: Map<number, string[]> = new Map();
+const providers: { [chainId: number]: string[] } = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   // @ts-ignore
   subgraphs[parseInt(chainId)] = config.subgraph;
-  chainProviderUrls.set(parseInt(chainId), config.provider);
+  providers[parseInt(chainId)] = config.provider;
 });
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TransactionService(logger, wallet, {});
+const txService = new TransactionService(logger, wallet, providers);
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
 
 server.addHook("onReady", async function() {
