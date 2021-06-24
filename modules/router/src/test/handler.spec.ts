@@ -1,5 +1,5 @@
 import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
-import TransactionService from "@connext/nxtp-txservice";
+import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -28,10 +28,6 @@ describe("Handler", () => {
 
   describe("handleSenderPrepare", () => {
     it("should send prepare for receiving chain with ETH asset", async () => {
-      const data: SenderPrepareData = {
-        /// todo
-      };
-      stub(handler, "mutatePrepareData").returns(data); // use returns for sync functions, resolve for async
       expect(true).to.be.true;
     });
     it("should send prepare for receiving chain with token asset", async () => {});
