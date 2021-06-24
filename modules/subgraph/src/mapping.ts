@@ -62,7 +62,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   let transaction = new Transaction(event.params.txData.transactionId.toHex());
   transaction.user = user.id;
   transaction.router = router!.id;
-  transaction.amount = event.params.txData.amount;
+  transaction.amount = event.params.amount;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainId = event.params.txData.sendingChainId;
@@ -70,9 +70,11 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingAddress = event.params.txData.receivingAddress;
   transaction.callData = event.params.txData.callData;
   transaction.transactionId = event.params.txData.transactionId;
-  transaction.expiry = event.params.txData.expiry;
+  transaction.expiry = event.params.expiry;
+  transaction.blockNumber = event.params.blockNumber;
   transaction.status = "Prepared";
   transaction.chainId = chainId;
+  transaction.prepareCaller = event.params.caller;
 
   transaction.save();
 }
@@ -81,6 +83,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Fulfilled";
+  transaction!.fulfillCaller = event.params.caller;
+  transaction!.relayerFee = event.params.relayerFee;
+  transaction!.signature = event.params.signature;
 
   transaction!.save();
 }
@@ -89,6 +94,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Cancelled";
+  transaction!.cancelCaller = event.params.caller;
 
   transaction!.save();
 }

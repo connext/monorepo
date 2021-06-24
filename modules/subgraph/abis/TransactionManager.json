@@ -1,8 +1,16 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "_multisend", "type": "address" },
-      { "internalType": "uint24", "name": "_chainId", "type": "uint24" }
+      {
+        "internalType": "address",
+        "name": "_multisend",
+        "type": "address"
+      },
+      {
+        "internalType": "uint24",
+        "name": "_chainId",
+        "type": "uint24"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -68,9 +76,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -79,6 +94,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -92,22 +112,38 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -124,9 +160,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -135,6 +178,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -148,22 +196,44 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "relayerFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -186,9 +256,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -197,6 +274,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -210,22 +292,38 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -240,14 +338,28 @@
   {
     "inputs": [],
     "name": "MIN_TIMEOUT",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "address", "name": "assetId", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "assetId",
+        "type": "address"
+      }
     ],
     "name": "addLiquidity",
     "outputs": [],
@@ -258,9 +370,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -269,6 +388,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -282,32 +406,94 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
       }
     ],
     "name": "cancel",
-    "outputs": [],
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "sendingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "sendingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint24",
+            "name": "receivingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "transactionId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "chainId",
-    "outputs": [{ "internalType": "uint24", "name": "", "type": "uint24" }],
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -315,9 +501,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -326,6 +519,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -339,33 +537,145 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
       },
-      { "internalType": "bytes", "name": "signature", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "relayerFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
     ],
     "name": "fulfill",
-    "outputs": [],
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "sendingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "sendingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint24",
+            "name": "receivingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "transactionId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getActiveTransactionsByUser",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "digest",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct VariableTransactionData[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "multisend",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -373,9 +683,16 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "address", "name": "user", "type": "address" },
-          { "internalType": "address", "name": "router", "type": "address" },
-          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "sendingAssetId",
@@ -384,6 +701,11 @@
           {
             "internalType": "address",
             "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
             "type": "address"
           },
           {
@@ -397,32 +719,101 @@
             "type": "uint24"
           },
           {
-            "internalType": "address",
-            "name": "receivingAddress",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
           },
-          { "internalType": "bytes", "name": "callData", "type": "bytes" },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          },
-          { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+          }
         ],
-        "internalType": "struct ITransactionManager.TransactionData",
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
       }
     ],
     "name": "prepare",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "sendingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "sendingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint24",
+            "name": "receivingChainId",
+            "type": "uint24"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "transactionId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "address", "name": "assetId", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "assetId",
+        "type": "address"
+      },
       {
         "internalType": "address payable",
         "name": "recipient",
@@ -436,11 +827,25 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
     "name": "routerBalances",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }

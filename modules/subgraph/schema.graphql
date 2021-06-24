@@ -33,6 +33,12 @@ type Transaction @entity {
   expiry: BigInt!
   status: TransactionStatus!
   chainId: Int!
+  blockNumber: BigInt!
+  relayerFee: BigInt!
+  signature: Bytes!
+  prepareCaller: Bytes!
+  fulfillCaller: Bytes!
+  cancelCaller: Bytes!
 }
 
 # User entity keeps track of active user transactions
