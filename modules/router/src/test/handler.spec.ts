@@ -2,8 +2,8 @@ import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { describe } from "mocha";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { SenderPrepareData, SubgraphTransactionManagerListener } from "../transactionManagerListener";
+import { createStubInstance, reset, restore } from "sinon";
+import { SubgraphTransactionManagerListener } from "../transactionManagerListener";
 import pino from "pino";
 import { Signer } from "ethers";
 
