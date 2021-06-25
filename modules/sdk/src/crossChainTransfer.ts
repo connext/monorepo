@@ -1,14 +1,15 @@
-import { providers, BigNumber, constants } from "ethers";
-import { signFulfillTransactionPayload, InvariantTransactionData } from "@connext/nxtp-utils";
+import { BigNumber, constants, providers } from "ethers";
+import { InvariantTransactionData, signFulfillTransactionPayload } from "@connext/nxtp-utils";
 import Ajv from "ajv";
+
 import {
   TransactionManagerEvents,
   validateAndParseAddress,
-  TransactionManagerListener,
   getTransactionManagerContract,
   getRandomBytes32,
+  TransactionManagerListener,
 } from "./utils";
-import { PrepareParamType, ListenRouterPrepareParamType, ListenRouterFulfillParamType } from "./types";
+import { PrepareParamType, ListenRouterPrepareParamType, ListenRouterFulfillParamType } from ".";
 
 export const ajv = new Ajv();
 
@@ -55,58 +56,53 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
   //   throw new Error("Invalid Params");
   // }
 
-  try {
-    const signer = params.userWebProvider.getSigner();
-    const user = await signer.getAddress();
+  const signer = params.userWebProvider.getSigner();
+  const user = await signer.getAddress();
 
-    // await switchChainIfNeeded(params.sendingChainId, params.userWebProvider);
+  // await switchChainIfNeeded(params.sendingChainId, params.userWebProvider);
 
-    const { instance } = getTransactionManagerContract(params.sendingChainId, params.userWebProvider);
+  const { instance } = getTransactionManagerContract(params.sendingChainId, params.userWebProvider);
 
-    const router = validateAndParseAddress(params.router);
-    const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
-    const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
-    const receivingAddress = validateAndParseAddress(params.receivingAddress);
+  const router = validateAndParseAddress(params.router);
+  const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
+  const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
+  const receivingAddress = validateAndParseAddress(params.receivingAddress);
 
-    const transactionId = getRandomBytes32();
+  const transactionId = getRandomBytes32();
 
-    // validate expiry
-    const expiry = params.expiry;
+  // validate expiry
+  const expiry = params.expiry;
 
-    const transaction: InvariantTransactionData = {
-      user,
-      router,
-      sendingAssetId,
-      receivingAssetId,
-      receivingAddress,
-      callData: params.callData ?? "0x",
-      transactionId,
-      sendingChainId: params.sendingChainId,
-      receivingChainId: params.receivingChainId,
-    };
+  const transaction: InvariantTransactionData = {
+    user,
+    router,
+    sendingAssetId,
+    receivingAssetId,
+    receivingAddress,
+    callData: params.callData ?? "0x",
+    transactionId,
+    sendingChainId: params.sendingChainId,
+    receivingChainId: params.receivingChainId,
+  };
 
-    const record = {
-      amount: params.amount,
-      expiry,
-    };
+  const record = {
+    amount: params.amount,
+    expiry,
+  };
 
-    const prepareTx = await instance
-      .connect(signer)
-      .prepare(
-        transaction,
-        record.amount,
-        record.expiry,
-        transaction.sendingAssetId === constants.AddressZero ? { value: record.amount } : {},
-      );
+  const prepareTx = await instance
+    .connect(signer)
+    .prepare(
+      transaction,
+      record.amount,
+      record.expiry,
+      transaction.sendingAssetId === constants.AddressZero ? { value: record.amount } : {},
+    );
 
-    const prepareReceipt = await prepareTx.wait(1);
-    console.log(prepareReceipt);
-    if (prepareReceipt.status === 0) {
-      throw new Error("Transaction reverted onchain");
-    }
-  } catch (e) {
-    console.log(e);
-    throw e;
+  const prepareReceipt = await prepareTx.wait(1);
+  console.log(prepareReceipt);
+  if (prepareReceipt.status === 0) {
+    throw new Error("Transaction reverted onchain");
   }
 };
 
@@ -135,7 +131,7 @@ export const listenRouterPrepare = async (
   const event = await listener.waitFor(
     TransactionManagerEvents.TransactionPrepared,
     60_000,
-    (data) => data.txData.transactionId === params.txData.transactionId,
+    data => data.txData.transactionId === params.txData.transactionId,
   );
 
   // Generate signature
@@ -162,7 +158,7 @@ export const listenRouterFulfill = async (
   // Make sure user is on the receiving chain
   await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
 
-  await listener.waitFor(TransactionManagerEvents.TransactionFulfilled, 60_000, (data) => {
+  await listener.waitFor(TransactionManagerEvents.TransactionFulfilled, 60_000, data => {
     return data.txData.transactionId === params.txData.transactionId && data.caller === params.txData.router;
   });
 };
