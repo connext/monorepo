@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
+import { prepare, listenRouterPrepare, listenRouterFulfill } from "@connext/nxtp-sdk";
+import { Web3Provider } from "@ethersproject/providers";
+
+// FOR DEMO:
+import { AddressZero, One, Zero } from "@ethersproject/constants";
 
 import "./App.css";
 
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [web3Provider, setProvider] = useState<Web3Provider>();
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -15,6 +21,26 @@ function App() {
     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
     const account = accounts[0];
     console.log("account: ", account);
+    // TODO: is this right?
+    setProvider(new Web3Provider(account));
+  };
+
+  const transfer = async () => {
+    prepare(
+      {
+        userWebProvider: web3Provider,
+        routerAddress: "",
+        sendingChainId: 1337,
+        receivingChainId: 1338,
+        sendingAssetId: "",
+        receivingAssetId: "",
+        receivingAddress: "",
+        amount: Zero,
+        // 5 minute expiry ?
+        expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
+        // callData?: string;
+      }
+    )
   };
 
   return (
@@ -64,7 +90,7 @@ function App() {
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" onClick={transfer}>
                 Transfer
               </Button>
             </Form.Item>
