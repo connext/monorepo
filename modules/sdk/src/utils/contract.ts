@@ -4,8 +4,9 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import { constants } from "ethers";
 
 export const getTransactionManagerContract = (chainId: number): { address: string; abi: any } => {
-  const record = (contractDeployments as any)[chainId] ?? {};
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
+  console.log(record, name);
   if (!name) {
     throw new Error("Chain not supported yet, please contact connext team");
   }
