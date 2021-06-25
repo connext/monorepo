@@ -2,7 +2,8 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import { providers } from "ethers";
+import {BigNumber, constants, providers} from "ethers";
+import {getConfig} from "./config";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -14,9 +15,25 @@ export class TransactionManager {
     // read onchain
   }
 
-  async addLiquidity(): Promise<providers.TransactionReceipt> {
-    // encode and call tx service
-    throw new Error("Not implemented");
+  async addLiquidity(chainId:number, amount:string, assetId:string = constants.AddressZero): Promise<providers.TransactionReceipt>{
+    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress
+    const bnAmount = BigNumber.from(amount);
+
+    const addLiquidityData = this.txManagerInterface.encodeFunctionData('addLiquidity',[
+        bnAmount,
+        assetId
+    ])
+    try {
+      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+        chainId: chainId,
+        data: addLiquidityData,
+        to: nxtpContractAddress,
+        value: 0
+      })
+      return txRes;
+      } catch(e){
+      throw new Error(`Add liquidity error ${JSON.stringify(e)}`)
+      }
   }
 
   async fulfill(): Promise<providers.TransactionReceipt> {
@@ -29,8 +46,32 @@ export class TransactionManager {
     throw new Error("Not implemented");
   }
 
-  async removeLiquidity(): Promise<providers.TransactionReceipt> {
-    // encode and call tx service
+  async removeLiquidity(chainId:number, amount:string, assetId:string = constants.AddressZero, recipientAddress:string|undefined): Promise<providers.TransactionReceipt> {
+
+    if(!recipientAddress)
+      recipientAddress = await this.txService.getSigner(chainId).getAddress();
+
+    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress
+    const bnAmount = BigNumber.from(amount);
+
+
+    const addLiquidityData = this.txManagerInterface.encodeFunctionData('removeLiquidity',[
+      bnAmount,
+      assetId,
+      recipientAddress
+    ])
+
+    try {
+      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+        chainId: chainId,
+        data: addLiquidityData,
+        to: nxtpContractAddress,
+        value: 0
+      })
+      return txRes;
+    } catch(e){
+      throw new Error(`Add liquidity error ${JSON.stringify(e)}`)
+    }
     throw new Error("Not implemented");
   }
 }
