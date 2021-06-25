@@ -1,8 +1,4 @@
-import { Contract, providers } from "ethers";
-import { hexlify } from "@ethersproject/bytes";
-import { randomBytes } from "@ethersproject/random";
-import { BigNumber } from "@ethersproject/bignumber";
-import { AddressZero } from "@ethersproject/constants";
+import { Contract, providers, utils, BigNumber, constants } from "ethers";
 import { signFulfillTransactionPayload, InvariantTransactionData } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import {
@@ -10,6 +6,7 @@ import {
   validateAndParseAddress,
   TransactionManagerListener,
   getTransactionManagerContract,
+  getRandomBytes32,
 } from "./utils";
 import { PrepareParamType, ListenRouterPrepareParamType, ListenRouterFulfillParamType } from "./types";
 
@@ -49,7 +46,7 @@ const switchChainIfNeeded = async (expectedChain: number, web3Provider: provider
 
 export const prepare = async (params: PrepareParamType): Promise<void> => {
   const method = "prepare";
-  const methodId = hexlify(randomBytes(32));
+  const methodId = getRandomBytes32();
   console.log(method, methodId, params);
   // const validate = ajv.compile(PrepareParamSchema);
   // const valid = validate(params);
@@ -72,7 +69,7 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
     const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
     const receivingAddress = validateAndParseAddress(params.receivingAddress);
 
-    const transactionId = hexlify(randomBytes(32));
+    const transactionId = getRandomBytes32();
 
     // validate expiry
     const expiry = params.expiry;
@@ -90,7 +87,7 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
     };
 
     const record = {
-      amount: BigNumber.from(params.amount),
+      amount: utils.parseEther(params.amount),
       expiry,
     };
 
@@ -100,7 +97,7 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
         transaction,
         record.amount,
         record.expiry,
-        transaction.sendingAssetId === AddressZero ? { value: record.amount } : {},
+        transaction.sendingAssetId === constants.AddressZero ? { value: record.amount } : {},
       );
 
     const prepareReceipt = await prepareTx.wait(1);
@@ -127,7 +124,7 @@ export const listenRouterPrepare = async (
   listener: TransactionManagerListener,
 ): Promise<void> => {
   const method = "listenRouterPrepare";
-  const methodId = hexlify(randomBytes(32));
+  const methodId = getRandomBytes32();
   console.log(method, methodId, params.txData, params.relayerFee);
 
   // Make sure user is on the receiving chain
@@ -160,7 +157,7 @@ export const listenRouterFulfill = async (
   listener: TransactionManagerListener,
 ): Promise<void> => {
   const method = "listenRouterFulfill";
-  const methodId = hexlify(randomBytes(32));
+  const methodId = getRandomBytes32();
   console.log(method, methodId, params);
 
   // Make sure user is on the receiving chain
