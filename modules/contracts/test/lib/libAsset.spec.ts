@@ -87,7 +87,7 @@ describe("LibAsset", function () {
     });
     it.skip("should error if recipient call fails", async () => {});
 
-    it("happy case: transferEther", async () => {
+    it.skip("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
       const res = await libAssetTest.connect(wallet).transferEther(receiver.address, amount, { from: wallet.address });
       console.log(res);
@@ -95,7 +95,7 @@ describe("LibAsset", function () {
   });
 
   describe("#transferERC20", () => {
-    it("happy case: transferERC20", async () => {
+    it.skip("happy case: transferERC20", async () => {
       const balanceOfWallet = await token.balanceOf(wallet.address);
       console.log(balanceOfWallet.toString());
 

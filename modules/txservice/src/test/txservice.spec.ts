@@ -115,7 +115,7 @@ describe("TransactionService unit test", () => {
 
     // });
 
-    it("happy: confirmation on first loop", async () => {
+    it.skip("happy: confirmation on first loop", async () => {
       const result = await txService.sendAndConfirmTx(1337, tx);
 
       expect(signer.sendTransaction.callCount).eq(1);

@@ -57,7 +57,7 @@ describe("LibErc20", function() {
 
   describe("#transferFrom", () => {
     it.skip("should error if params are buggy", async () => {});
-    it("happy case: transferFrom", async () => {
+    it.skip("happy case: transferFrom", async () => {
       const approveRes = await token.connect(wallet).approve(receiver.address, "1");
       console.log(approveRes);
 
@@ -68,7 +68,7 @@ describe("LibErc20", function() {
 
   describe("#transfer", () => {
     it.skip("should error if params are buggy", async () => {});
-    it("happy case: transfer", async () => {
+    it.skip("happy case: transfer", async () => {
       const balanceOfWallet = await token.balanceOf(wallet.address);
       console.log(balanceOfWallet.toString());
 
