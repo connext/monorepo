@@ -2,7 +2,7 @@
   "name": "@connext/nxtp-test-ui",
   "version": "0.0.3",
   "dependencies": {
-    "@connext/nxtp-sdk": "^0.0.3",
+    "@connext/nxtp-sdk": "^0.0.4",
     "@types/node": "^15.12.4",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
