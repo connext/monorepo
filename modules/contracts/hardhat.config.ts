@@ -75,6 +75,16 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       url: urlOverride || "https://rpc-mumbai.matic.today",
     },
+    local_1337: {
+      accounts: { mnemonic },
+      chainId: 1337,
+      url: urlOverride || "http://localhost:8545",
+    },
+    local_1338: {
+      accounts: { mnemonic },
+      chainId: 1338,
+      url: urlOverride || "http://localhost:8546",
+    },
   },
 };
 

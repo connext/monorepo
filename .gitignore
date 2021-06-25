@@ -109,3 +109,4 @@ modules/**/build
 
 # Contracts
 artifacts
+ops/data/

@@ -7,11 +7,15 @@
     "build": "graph build",
     "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
     "prepare:rinkeby": "mustache config/rinkeby.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:local": "mustache config/local.json subgraph.template.yaml > subgraph.yaml",
     "deploy:goerli": "yarn prepare:goerli && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli",
     "deploy:rinkeby": "yarn prepare:rinkeby && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby",
-    "create-local": "graph create --node http://localhost:8020/ connext/nxtp",
-    "remove-local": "graph remove --node http://localhost:8020/ connext/nxtp",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp"
+    "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
+    "remove-local-1337": "graph remove --node http://localhost:8020/ connext/nxtp",
+    "deploy-local-1337": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp",
+    "create-local-1338": "graph create --node http://localhost:9020/ connext/nxtp",
+    "remove-local-1338": "graph remove --node http://localhost:9020/ connext/nxtp",
+    "deploy-local-1338": "graph deploy --node http://localhost:9020/ --ipfs http://localhost:5001 connext/nxtp"
   },
   "files": [
     "schema.graphql",

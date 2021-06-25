@@ -6,12 +6,12 @@ import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "
 import pino from "pino";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
+import { TransactionManager } from "@connext/nxtp-contracts";
 
 import {
   ReceiverFulfillData,
   SenderPrepareData,
-  SubgraphTransactionManagerListener
+  SubgraphTransactionManagerListener,
 } from "../transactionManagerListener";
 import { EXPIRY_DECREMENT, Handler } from "../handler";
 import * as config from "../config";
@@ -75,14 +75,14 @@ const senderPrepareData: SenderPrepareData = {
   user: mkAddress(),
 };
 
-const receiverFulfillDataMock:ReceiverFulfillData = {
+const receiverFulfillDataMock: ReceiverFulfillData = {
   ...senderPrepareData,
   relayerFee: "0",
   signature: "0xdeadbeef",
-}
+};
 
-const rinkebyTestTokenAddress = '0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9'
-const goerliTestTokenAddress = '0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'
+const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
+const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 
 describe("Handler", () => {
   let handler: Handler;
@@ -114,7 +114,6 @@ describe("Handler", () => {
       await handler.handleSenderPrepare(senderPrepareData);
 
       expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
-      txService.sendAndConfirmTx.getCall(0);
       const call = txService.sendAndConfirmTx.getCall(0);
       expect(call.args[0]).to.eq(1338);
 
@@ -146,12 +145,14 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-
-      let tokenPrepareData = {...senderPrepareData, sendingAssetId: rinkebyTestTokenAddress, receivingAssetId: goerliTestTokenAddress }
+      let tokenPrepareData = {
+        ...senderPrepareData,
+        sendingAssetId: rinkebyTestTokenAddress,
+        receivingAssetId: goerliTestTokenAddress,
+      };
 
       await handler.handleSenderPrepare(tokenPrepareData);
 
-      txService.sendAndConfirmTx.getCall(1);
       const call = txService.sendAndConfirmTx.getCall(1);
       expect(call.args[0]).to.eq(1338);
 
@@ -160,12 +161,11 @@ describe("Handler", () => {
 
       const encodedData = nxtpContract.encodeFunctionData("prepare", [
         {
-         ...tokenPrepareData
+          ...tokenPrepareData,
         },
         receiverAmount,
         receiverExpiry,
       ]);
-
 
       expect(call.args[1]).to.deep.eq({
         to: mkAddress("0xaaa"),
@@ -178,23 +178,20 @@ describe("Handler", () => {
 
       // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
       expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
-
     });
   });
-  describe("handleReceiverFulfill", ()=>{
-    it('should fulfill eth asset',async ()=>{
-
-      await handler.handleReceiverFulfill(receiverFulfillDataMock)
-      txService.sendAndConfirmTx.getCall(0);
+  describe("handleReceiverFulfill", () => {
+    it("should fulfill eth asset", async () => {
+      await handler.handleReceiverFulfill(receiverFulfillDataMock);
       const call = txService.sendAndConfirmTx.getCall(0);
       expect(call.args[0]).to.eq(1337);
 
       const encodedData = nxtpContract.encodeFunctionData("fulfill", [
         {
-          ...receiverFulfillDataMock
+          ...receiverFulfillDataMock,
         },
-          receiverFulfillDataMock.relayerFee,
-          receiverFulfillDataMock.signature
+        receiverFulfillDataMock.relayerFee,
+        receiverFulfillDataMock.signature,
       ]);
 
       expect(call.args[1]).to.deep.eq({
@@ -204,18 +201,17 @@ describe("Handler", () => {
         chainId: 1337,
         from: mkAddress("0xabc"),
       });
+    });
 
-    })
-
-    it(`should fulfill token asset`, async()=>{
+    it(`should fulfill token asset`, async () => {
       //change assetIds
-      const tokenRxFulfillDataMock =
-          { ...receiverFulfillDataMock,
-            sendingAssetId:rinkebyTestTokenAddress,
-            receivingAssetId:goerliTestTokenAddress}
+      const tokenRxFulfillDataMock = {
+        ...receiverFulfillDataMock,
+        sendingAssetId: rinkebyTestTokenAddress,
+        receivingAssetId: goerliTestTokenAddress,
+      };
 
-      await handler.handleReceiverFulfill(tokenRxFulfillDataMock)
-      txService.sendAndConfirmTx.getCall(0);
+      await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
       const call = txService.sendAndConfirmTx.getCall(0);
 
       expect(call.args[0]).to.eq(1337);
@@ -223,12 +219,12 @@ describe("Handler", () => {
       const encodedData = nxtpContract.encodeFunctionData("fulfill", [
         {
           ...tokenRxFulfillDataMock,
-          sendingAssetId:rinkebyTestTokenAddress,
-          receivingAssetId:goerliTestTokenAddress,
+          sendingAssetId: rinkebyTestTokenAddress,
+          receivingAssetId: goerliTestTokenAddress,
         },
         tokenRxFulfillDataMock.relayerFee,
-        tokenRxFulfillDataMock.signature
-      ])
+        tokenRxFulfillDataMock.signature,
+      ]);
 
       expect(call.args[1]).to.deep.eq({
         to: mkAddress("0xaaa"),
@@ -237,7 +233,6 @@ describe("Handler", () => {
         chainId: 1337,
         from: mkAddress("0xabc"),
       });
-
-    })
-  })
+    });
+  });
 });

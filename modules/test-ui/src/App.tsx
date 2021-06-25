@@ -12,7 +12,7 @@ import { PrepareParamType, TransactionManagerListener } from "@connext/nxtp-sdk"
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [web3Provider, setProvider] = useState<Web3Provider>();
-  const [routerAddress, setRouterAddress] = useState<string>(""); 
+  const [routerAddress, setRouterAddress] = useState<string>("");
   const [receivingAddress, setReceivingAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
@@ -93,12 +93,7 @@ function App() {
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input
-                addonBefore="Router Address"
-                type="number"
-                onChange={(event) => setAmount(event.target.value)}
-                value={amount}
-              />
+              <Input type="number" onChange={event => setAmount(event.target.value)} value={amount} />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -110,7 +105,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Router Address"
-                onChange={(event) => setRouterAddress(event.target.value)}
+                onChange={event => setRouterAddress(event.target.value)}
                 value={routerAddress}
               />
             </Form.Item>
@@ -118,7 +113,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Receiving Address"
-                onChange={(event) => setReceivingAddress(event.target.value)}
+                onChange={event => setReceivingAddress(event.target.value)}
                 value={receivingAddress}
               />
             </Form.Item>
