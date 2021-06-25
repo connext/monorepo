@@ -47,7 +47,7 @@ function App() {
         sendingAssetId: constants.AddressZero,
         receivingAssetId: constants.AddressZero,
         receivingAddress,
-        amount,
+        amount: parseEther(amount),
         // 5 minute expiry ?
         expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
         // callData?: string;
@@ -73,7 +73,7 @@ function App() {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             onFinish={(vals) => {
-              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount));
+              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), vals.amount);
             }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
           >

@@ -4,7 +4,7 @@ import { BigNumberish } from "ethers";
 
 export type PrepareParamType = Omit<InvariantTransactionData, "user" | "callData" | "transactionId"> & {
   userWebProvider: Web3Provider; // This has to be sending chain
-  amount: string;
+  amount: BigNumberish;
   expiry: string;
   callData?: string;
 };
