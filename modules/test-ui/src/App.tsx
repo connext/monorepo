@@ -23,15 +23,15 @@ function App() {
     }
     try {
       const provider = new Web3Provider((window as any).ethereum);
-      console.log(provider);
       const signer = provider.getSigner();
       const address = await signer.getAddress();
+      console.log("address: ", address);
       console.log(address);
-      // TODO: is this right?
       setReceivingAddress(address);
       setProvider(provider);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 
@@ -39,8 +39,8 @@ function App() {
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     try {
       await prepare({
-        userWebProvider: web3Provider,
-        router: constants.AddressZero,
+        userWebProvider: web3Provider!,
+        router: routerAddress,
         sendingChainId: sendingChain,
         receivingChainId: receivingChain,
         sendingAssetId: constants.AddressZero,
