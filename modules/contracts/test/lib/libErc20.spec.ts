@@ -36,8 +36,6 @@ describe("LibErc20", function() {
   });
 
   it("should deploy", async () => {
-    console.log("LibERC20 Address", libERC20Test.address);
-    console.log("TestERC20 Address", token.address);
     expect(libERC20Test.address).to.be.a("string");
     expect(token.address).to.be.a("string");
   });
@@ -50,8 +48,7 @@ describe("LibErc20", function() {
   describe("#approve", () => {
     it.skip("should error if params are buggy", async () => {});
     it("happy case:approve", async () => {
-      const res = await libERC20Test.connect(wallet).approve(token.address, other.address, "1");
-      console.log(res);
+      await libERC20Test.connect(wallet).approve(token.address, other.address, "1");
     });
   });
 
@@ -59,21 +56,20 @@ describe("LibErc20", function() {
     it.skip("should error if params are buggy", async () => {});
     it.skip("happy case: transferFrom", async () => {
       const approveRes = await token.connect(wallet).approve(receiver.address, "1");
-      console.log(approveRes);
+      await approveRes.wait();
 
       const res = await libERC20Test.connect(wallet).transferFrom(token.address, wallet.address, receiver.address, "1");
-      console.log(res);
+      await res.wait();
     });
   });
 
   describe("#transfer", () => {
     it.skip("should error if params are buggy", async () => {});
     it.skip("happy case: transfer", async () => {
-      const balanceOfWallet = await token.balanceOf(wallet.address);
-      console.log(balanceOfWallet.toString());
+      await token.balanceOf(wallet.address);
 
       const res = await libERC20Test.connect(wallet).transfer(token.address, receiver.address, "1");
-      console.log(res);
+      await res.wait();
     });
   });
 });

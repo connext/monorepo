@@ -1,11 +1,11 @@
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
-import { Contract, providers, utils, constants } from "ethers";
+import { Contract, providers, constants, BigNumberish } from "ethers";
 
 export const getTransactionManagerContract = (
   chainId: number,
-  userWebProvider: providers.Web3Provider,
+  userWebProvider?: providers.Web3Provider,
 ): { address: string; abi: any; instance: Contract } => {
   const record = (contractDeployments as any)[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
@@ -22,11 +22,32 @@ export const getTransactionManagerContract = (
   const abi = record[name]?.contracts?.TransactionManager?.abi;
   const address = record[name]?.contracts?.TransactionManager?.address;
 
-  const instance = new Contract(address, abi, userWebProvider);
+  let instance: Contract;
+  if (userWebProvider) {
+    instance = new Contract(address, abi, userWebProvider);
+  } else {
+    instance = new Contract(address, abi);
+  }
 
   return { address, abi, instance };
 };
 
-export const getRandomBytes32 = () => {
-  return utils.hexlify(utils.randomBytes(32));
+export type VariableTransactionData = {
+  user: string;
+  amount: BigNumberish;
+  expiry: string;
+  blockNumber: string;
+  digest: string;
+};
+
+export const getActiveTransactionsByUser = async (
+  chainId: number,
+  userAddress: string,
+): Promise<VariableTransactionData[]> => {
+  const { instance } = getTransactionManagerContract(chainId);
+
+  const res = await instance.getActiveTransactionsByUser(userAddress);
+  console.log(res);
+
+  return res;
 };
