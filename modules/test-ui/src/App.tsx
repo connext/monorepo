@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
 import { prepare, listenRouterPrepare, listenRouterFulfill } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
-import { Contract } from "ethers";
+import { Contract, constants } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { parseEther } from "ethers/lib/utils";
+
 // FOR DEMO:
-import { AddressZero } from "@ethersproject/constants";
 import "./App.css";
 
 function App() {
@@ -40,11 +41,11 @@ function App() {
     try {
       prepare({
         userWebProvider: web3Provider,
-        router: AddressZero,
+        router: constants.AddressZero,
         sendingChainId: sendingChain,
         receivingChainId: receivingChain,
-        sendingAssetId: AddressZero,
-        receivingAssetId: AddressZero,
+        sendingAssetId: constants.AddressZero,
+        receivingAssetId: constants.AddressZero,
         receivingAddress,
         amount,
         // 5 minute expiry ?
@@ -71,8 +72,8 @@ function App() {
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={(vals) => {
-              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), vals.amount);
+            onFinish={vals => {
+              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount));
             }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
           >
@@ -103,7 +104,7 @@ function App() {
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input type="number" onChange={(event) => setAmount(event.target.value)} value={amount} />
+              <Input type="number" onChange={event => setAmount(event.target.value)} value={amount} />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -115,7 +116,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Router Address"
-                onChange={(event) => setRouterAddress(event.target.value)}
+                onChange={event => setRouterAddress(event.target.value)}
                 value={routerAddress}
               />
             </Form.Item>
@@ -123,7 +124,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Receiving Address"
-                onChange={(event) => setReceivingAddress(event.target.value)}
+                onChange={event => setReceivingAddress(event.target.value)}
                 value={receivingAddress}
               />
             </Form.Item>

@@ -39,6 +39,12 @@ server.get("/ping", async () => {
   return "pong\n";
 });
 
+server.get("/config", async () => {
+  return {
+    signerAddress: wallet.address,
+  };
+});
+
 server.listen(8080, (err, address) => {
   if (err) {
     console.error(err);

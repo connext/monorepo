@@ -1,0 +1,4 @@
+@routerUrl = http://localhost:8080
+
+### CONFIG
+GET {{routerUrl}}/config
