@@ -14,7 +14,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
   /// @dev Maping of user address to blocks where active transfers
   ///      were created.
-  mapping(address => uint256[]) public activeTransferBlocks;
+  mapping(address => uint256[]) public activeTransactionBlocks;
 
   /// @dev Mapping of digests to variable parts of a transaction (i.e.
   ///      parts that change between sending and receiving chains)
@@ -100,6 +100,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     record.blockNumber = block.number;
     variableTransactionInformation[digest] = record;
 
+    // Store active blocks
+    activeTransactionBlocks[txData.user].push(block.number);
+
     // First determine if this is sender side or receiver side
     if (txData.sendingChainId == chainId) {
       // This is sender side prepare
@@ -171,6 +174,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Mark transaction as fulfilled
     record.expiry = 0;
     variableTransactionInformation[digest] = record;
+
+    // Remove active blocks
+    removeUserActiveBlocks(txData.user, record);
 
     if (txData.sendingChainId == chainId) {
       // Complete tx to router
@@ -265,6 +271,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     record.expiry = 0;
     variableTransactionInformation[digest] = record;
 
+    // Remove active blocks
+    removeUserActiveBlocks(txData.user, record);
+
     // Emit event
     emit TransactionCancelled(txData, record.amount, record.expiry, record.blockNumber, msg.sender);
 
@@ -273,6 +282,23 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   }
 
   // Private functions
+  function removeUserActiveBlocks(address user, VariableTransactionData memory record) internal {
+    // Remove active blocks
+    uint256 newLength = activeTransactionBlocks[user].length - 1;
+    uint256[] memory updated = new uint256[](newLength);
+    bool removed = false;
+    uint256 updatedIdx = 0;
+    for (uint256 i; i < newLength + 1; i++) {
+      if (!removed && activeTransactionBlocks[user][i] == record.blockNumber) {
+        removed = true;
+        continue;
+      }
+      updated[updatedIdx] = activeTransactionBlocks[user][i];
+      updatedIdx++;
+    }
+    activeTransactionBlocks[user] = updated;
+  }
+
   function recoverFulfillSignature(
     InvariantTransactionData calldata txData,
     uint256 relayerFee,
