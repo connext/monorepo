@@ -39,7 +39,7 @@ function App() {
   const transfer = async (sendingChain: number, receivingChain: number, amount: string) => {
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     try {
-      prepare({
+      await prepare({
         userWebProvider: web3Provider,
         router: constants.AddressZero,
         sendingChainId: sendingChain,
@@ -48,12 +48,13 @@ function App() {
         receivingAssetId: constants.AddressZero,
         receivingAddress,
         amount,
-        // 5 minute expiry ?
-        expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
+        expiry: (Date.now() + 3600 * 24 * 2).toString(), // 2 days
         // callData?: string;
       });
+      setStep(1);
     } catch (e) {
       console.log(e);
+      setStep(0);
       throw e;
     }
   };
@@ -73,12 +74,12 @@ function App() {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             onFinish={vals => {
-              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount));
+              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount).toString());
             }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
           >
             <Form.Item label=" ">
-              <Button type="primary" onClick={connectMetamask}>
+              <Button type="primary" onClick={connectMetamask} disabled={!!web3Provider}>
                 Connect Metamask
               </Button>
             </Form.Item>
