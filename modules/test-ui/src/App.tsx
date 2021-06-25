@@ -7,7 +7,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 // FOR DEMO:
 import { AddressZero } from "@ethersproject/constants";
 import "./App.css";
-import { PrepareParamType } from "@connext/nxtp-sdk/dist/types";
+import { PrepareParamType, TransactionManagerListener } from "@connext/nxtp-sdk";
 
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
