@@ -9,6 +9,10 @@ export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
   constructor(private readonly txService: TransactionService, private readonly signerAddress: string) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+    // TODO: remove when using for real, this is just to avoid breaking build
+    console.log("this.txManagerInterface", !!this.txManagerInterface);
+    console.log("this.txService", !!this.txService);
+    console.log("this.signerAddress", !!this.signerAddress);
   }
 
   getLiquidity() {
