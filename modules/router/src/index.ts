@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { NatsNxtpMessagingService } from "@connext/nxtp-utils";
+import { NatsNxtpMessagingService, TAddress, TChainId } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 
@@ -8,6 +8,7 @@ import { getConfig } from "./config";
 import { Handler } from "./handler";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { setupListeners } from "./listener";
+import { Type } from "@sinclair/typebox";
 
 const server = fastify();
 
@@ -30,6 +31,11 @@ const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.addres
 const txService = new TransactionService(logger, wallet, providers);
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
 
+// const AddLiquidityRequestSchema = Type.Object({
+//   chainId: TChainId,
+//   assetId: TAddress,
+// });
+
 server.addHook("onReady", async function() {
   await messaging.connect();
   await setupListeners(messaging, subgraph, handler, logger);
@@ -40,6 +46,12 @@ server.get("/ping", async () => {
 });
 
 server.get("/config", async () => {
+  return {
+    signerAddress: wallet.address,
+  };
+});
+
+server.get("/add-liquidity", async () => {
   return {
     signerAddress: wallet.address,
   };

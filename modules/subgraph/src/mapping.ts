@@ -47,6 +47,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // load user and router
   // router must necessarily exist at this point because it had to have provided liquidity
   let router = Router.load(event.params.txData.router.toHex());
+  if (router == null) {
+    router = new Router(event.params.txData.router.toHex());
+    router.save();
+  }
 
   let user = User.load(event.params.txData.router.toHex());
   if (user == null) {
