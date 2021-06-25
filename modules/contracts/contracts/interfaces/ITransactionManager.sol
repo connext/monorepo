@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
-
 struct VariableTransactionData {
   address user;
   uint256 amount;
@@ -39,18 +38,9 @@ interface ITransactionManager {
   }
 
   // Liquidity events
-  event LiquidityAdded(
-    address router,
-    address assetId,
-    uint256 amount
-  );
+  event LiquidityAdded(address router, address assetId, uint256 amount);
 
-  event LiquidityRemoved(
-    address router,
-    address assetId,
-    uint256 amount,
-    address recipient
-  );
+  event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
 
   // Transaction events
   // TODO: structure
@@ -86,12 +76,26 @@ interface ITransactionManager {
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;
 
-  function removeLiquidity(uint256 amount, address assetId, address payable recipient) external;
+  function removeLiquidity(
+    uint256 amount,
+    address assetId,
+    address payable recipient
+  ) external;
 
   // Transaction methods
-  function prepare(InvariantTransactionData calldata txData, uint256 amount, uint256 expiry) external payable returns (InvariantTransactionData memory);
+  function prepare(
+    InvariantTransactionData calldata txData,
+    uint256 amount,
+    uint256 expiry
+  ) external payable returns (InvariantTransactionData memory);
 
-  function fulfill(InvariantTransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (InvariantTransactionData memory);
+  function fulfill(
+    InvariantTransactionData calldata txData,
+    uint256 relayerFee,
+    bytes calldata signature
+  ) external returns (InvariantTransactionData memory);
 
-  function cancel(InvariantTransactionData calldata txData, bytes calldata signature) external returns (InvariantTransactionData memory);
+  function cancel(InvariantTransactionData calldata txData, bytes calldata signature)
+    external
+    returns (InvariantTransactionData memory);
 }
