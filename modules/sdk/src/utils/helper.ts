@@ -1,4 +1,4 @@
-import { getAddress } from '@ethersproject/address'
+import { utils } from "ethers";
 
 /**
  * Validates an address and returns the parsed (checksummed) version of that address
@@ -6,8 +6,12 @@ import { getAddress } from '@ethersproject/address'
  */
 export function validateAndParseAddress(address: string): string {
   try {
-    return getAddress(address)
+    return utils.getAddress(address);
   } catch (error) {
-    throw new Error(`${address} is not a valid address.`)
+    throw new Error(`${address} is not a valid address.`);
   }
 }
+
+export const getRandomBytes32 = () => {
+  return utils.hexlify(utils.randomBytes(32));
+};
