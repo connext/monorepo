@@ -289,6 +289,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bool removed = false;
     uint256 updatedIdx = 0;
     for (uint256 i; i < newLength + 1; i++) {
+      // Handle case where there could be more than one tx added in a block
+      // And only one should be removed
       if (!removed && activeTransactionBlocks[user][i] == record.blockNumber) {
         removed = true;
         continue;
