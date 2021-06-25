@@ -31,6 +31,7 @@ function App() {
       setProvider(provider);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 

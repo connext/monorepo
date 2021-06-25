@@ -8,7 +8,8 @@ import { getConfig } from "./config";
 import { Handler } from "./handler";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { setupListeners } from "./listener";
-import { Type } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
+import { TransactionManager } from "./contract";
 
 const server = fastify();
 
@@ -30,11 +31,26 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
 const txService = new TransactionService(logger, wallet, providers);
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
+const transactionManager = new TransactionManager(txService, wallet.address);
 
-// const AddLiquidityRequestSchema = Type.Object({
-//   chainId: TChainId,
-//   assetId: TAddress,
-// });
+export const AddLiquidityRequestSchema = Type.Object({
+  chainId: TChainId,
+  assetId: TAddress,
+});
+export type AddLiquidityRequest = Static<typeof AddLiquidityRequestSchema>;
+
+export const RemoveLiquidityRequestSchema = AddLiquidityRequestSchema;
+export type RemoveLiquidityRequest = Static<typeof RemoveLiquidityRequestSchema>;
+
+export const AddLiquidityResponseSchema = Type.Object({
+  transactionHash: Type.String(),
+});
+export type AddLiquidityResponse = Static<typeof AddLiquidityResponseSchema>;
+
+export const RemoveLiquidityResponseSchema = Type.Object({
+  transactionHash: Type.String(),
+});
+export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
 
 server.addHook("onReady", async function() {
   await messaging.connect();
@@ -51,11 +67,23 @@ server.get("/config", async () => {
   };
 });
 
-server.get("/add-liquidity", async () => {
-  return {
-    signerAddress: wallet.address,
-  };
-});
+server.get<{ Body: AddLiquidityRequest }>(
+  "/add-liquidity",
+  { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
+  async () => {
+    const result = await transactionManager.addLiquidity();
+    return { transactionHash: result.transactionHash };
+  },
+);
+
+server.get<{ Body: RemoveLiquidityRequest }>(
+  "/remove-liquidity",
+  { schema: { body: RemoveLiquidityRequestSchema, response: RemoveLiquidityResponseSchema } },
+  async () => {
+    const result = await transactionManager.addLiquidity();
+    return { transactionHash: result.transactionHash };
+  },
+);
 
 server.listen(8080, (err, address) => {
   if (err) {
