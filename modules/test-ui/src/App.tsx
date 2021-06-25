@@ -72,7 +72,7 @@ function App() {
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={vals => {
+            onFinish={(vals) => {
               transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount));
             }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
@@ -104,7 +104,7 @@ function App() {
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input type="number" onChange={event => setAmount(event.target.value)} value={amount} />
+              <Input type="number" onChange={(event) => setAmount(event.target.value)} value={amount} />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -116,7 +116,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Router Address"
-                onChange={event => setRouterAddress(event.target.value)}
+                onChange={(event) => setRouterAddress(event.target.value)}
                 value={routerAddress}
               />
             </Form.Item>
@@ -124,7 +124,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Receiving Address"
-                onChange={event => setReceivingAddress(event.target.value)}
+                onChange={(event) => setReceivingAddress(event.target.value)}
                 value={receivingAddress}
               />
             </Form.Item>

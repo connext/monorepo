@@ -1,4 +1,4 @@
-import { Contract, providers, utils, BigNumber, constants } from "ethers";
+import { providers, BigNumber, constants } from "ethers";
 import { signFulfillTransactionPayload, InvariantTransactionData } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import {
@@ -47,7 +47,7 @@ const switchChainIfNeeded = async (expectedChain: number, web3Provider: provider
 export const prepare = async (params: PrepareParamType): Promise<void> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
-  console.log(method, methodId, params);
+  console.log(method, methodId);
   // const validate = ajv.compile(PrepareParamSchema);
   // const valid = validate(params);
   // if (!valid) {
@@ -61,8 +61,7 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
 
     // await switchChainIfNeeded(params.sendingChainId, params.userWebProvider);
 
-    const { address, abi } = getTransactionManagerContract(params.sendingChainId);
-    const instance = new Contract(address, abi, params.userWebProvider);
+    const { instance } = getTransactionManagerContract(params.sendingChainId, params.userWebProvider);
 
     const router = validateAndParseAddress(params.router);
     const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
@@ -87,7 +86,7 @@ export const prepare = async (params: PrepareParamType): Promise<void> => {
     };
 
     const record = {
-      amount: utils.parseEther(params.amount),
+      amount: params.amount,
       expiry,
     };
 
