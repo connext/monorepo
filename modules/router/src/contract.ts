@@ -59,7 +59,7 @@ export class TransactionManager {
     const bnAmount = BigNumber.from(amount);
 
 
-    const addLiquidityData = this.txManagerInterface.encodeFunctionData('removeLiquidity',[
+    const removeLiquidityData = this.txManagerInterface.encodeFunctionData('removeLiquidity',[
       bnAmount,
       assetId,
       recipientAddress
@@ -68,13 +68,13 @@ export class TransactionManager {
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId: chainId,
-        data: addLiquidityData,
+        data: removeLiquidityData,
         to: nxtpContractAddress,
         value: 0
       })
       return txRes;
     } catch(e){
-      throw new Error(`Add liquidity error ${JSON.stringify(e)}`)
+      throw new Error(`remove liquidity error ${JSON.stringify(e)}`)
     }
     throw new Error("Not implemented");
   }
