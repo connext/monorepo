@@ -1,7 +1,7 @@
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
-import { constants } from "ethers";
+import { constants, utils } from "ethers";
 
 export const getTransactionManagerContract = (chainId: number): { address: string; abi: any } => {
   const record = (contractDeployments as any)[String(chainId)] ?? {};
@@ -20,4 +20,8 @@ export const getTransactionManagerContract = (chainId: number): { address: strin
   const address = record[name]?.contracts?.TransactionManager?.address;
 
   return { address, abi };
+};
+
+export const getRandomBytes32 = () => {
+  return utils.hexlify(utils.randomBytes(32));
 };
