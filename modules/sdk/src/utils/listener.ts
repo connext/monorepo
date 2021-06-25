@@ -57,11 +57,10 @@ export class TransactionManagerListener {
   static async connect(provider: providers.Web3Provider): Promise<TransactionManagerListener> {
     const { chainId } = await provider.getNetwork();
 
-    const { address, abi } = getTransactionManagerContract(chainId);
+    const { instance } = getTransactionManagerContract(chainId, provider);
     console.log("trying to create contract");
     console.log("");
-    const contract = new Contract(address, abi, provider);
-    const listener = new TransactionManagerListener(provider, contract);
+    const listener = new TransactionManagerListener(provider, instance);
     await listener.establishListeners();
     return listener;
   }
@@ -73,7 +72,7 @@ export class TransactionManagerListener {
   private async establishListeners(): Promise<void> {
     const { chainId } = await this.provider.getNetwork();
 
-    const { address, abi } = getTransactionManagerContract(chainId);
+    const { address, abi } = getTransactionManagerContract(chainId, this.provider);
     console.log("trying to create contract");
     console.log("");
     const contract = new Contract(address, abi, this.provider);
@@ -138,7 +137,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attach(...args);
   }
 
@@ -148,7 +147,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attachOnce(...args);
   }
 
@@ -157,7 +156,7 @@ export class TransactionManagerListener {
       this.evts[event].detach();
       return;
     }
-    Object.values(this.evts).forEach(evt => evt.detach());
+    Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
   public waitFor<T extends TransactionManagerEvent>(

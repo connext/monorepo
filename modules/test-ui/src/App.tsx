@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
-import { prepare, listenRouterPrepare, listenRouterFulfill } from "@connext/nxtp-sdk";
+import { prepare } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
-import { Contract, constants } from "ethers";
-import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
 // FOR DEMO:
