@@ -24,7 +24,7 @@ const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {})
   return transaction;
 };
 
-describe.only("prepare", () => {
+describe("prepare", () => {
   let transactionManager: SinonStubbedInstance<Contract>;
   let userWeb3Provider: SinonStubbedInstance<providers.Web3Provider>;
   let prepareStub: SinonStub;
