@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
 import { prepare, listenRouterPrepare, listenRouterFulfill } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
-
+import { Contract } from "ethers";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 // FOR DEMO:
-import { AddressZero, One, Zero } from "@ethersproject/constants";
-
+import { AddressZero } from "@ethersproject/constants";
 import "./App.css";
+import { PrepareParamType } from "@connext/nxtp-sdk/dist/types";
 
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -28,21 +29,24 @@ function App() {
   };
 
   const transfer = async () => {
+    // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+    const nxtpContract = new Contract(routerAddress, TransactionManagerArtifact.abi, web3Provider);
     prepare(
       {
         userWebProvider: web3Provider,
-        routerAddress,
+        // routerAddress,
         sendingChainId: 1337,
         receivingChainId: 1338,
         sendingAssetId: AddressZero,
         receivingAssetId: AddressZero,
         receivingAddress,
-        amount: Zero,
+        amount: "0",
         // 5 minute expiry ?
         expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
         // callData?: string;
-      }
-    )
+      } as PrepareParamType,
+      nxtpContract,
+    );
   };
 
   return (
@@ -98,11 +102,11 @@ function App() {
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input addonBefore="Router Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "router address") }} value={routerAddress} />
+              <Input addonBefore="Router Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "router address"); }} value={routerAddress} />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input addonBefore="Receiving Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "receiving address") }} value={receivingAddress} />
+              <Input addonBefore="Receiving Address" onChange={(event) => { setReceivingAddress(event.target.value);console.log(event.target.value, "receiving address"); }} value={receivingAddress} />
               {/* <Input addonBefore="Router Address" onChange={(event) => setRouterAddress(event.target.value)} value={routerAddress} /> */}
             </Form.Item>
           </Form>
