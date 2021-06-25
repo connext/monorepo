@@ -76,6 +76,5 @@ export class TransactionManager {
     } catch(e){
       throw new Error(`remove liquidity error ${JSON.stringify(e)}`)
     }
-    throw new Error("Not implemented");
   }
 }
