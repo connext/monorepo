@@ -7,7 +7,6 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 // FOR DEMO:
 import { AddressZero } from "@ethersproject/constants";
 import "./App.css";
-import { PrepareParamType, TransactionManagerListener } from "@connext/nxtp-sdk";
 
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -22,22 +21,28 @@ function App() {
       alert("Please install Metamask");
       return;
     }
-    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-    const account = accounts[0];
-    console.log("account: ", account);
-    // TODO: is this right?
-    setProvider(new Web3Provider(account));
+    try {
+      const provider = new Web3Provider((window as any).ethereum);
+      console.log(provider);
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      console.log(address);
+      // TODO: is this right?
+      setReceivingAddress(address);
+      setProvider(provider);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const transfer = async () => {
+  const transfer = async (sendingChain: number, receivingChain: number, amount: string) => {
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    const nxtpContract = new Contract(routerAddress, TransactionManagerArtifact.abi, web3Provider);
-    prepare(
-      {
+    try {
+      prepare({
         userWebProvider: web3Provider,
-        // routerAddress,
-        sendingChainId: 1337,
-        receivingChainId: 1338,
+        router: AddressZero,
+        sendingChainId: sendingChain,
+        receivingChainId: receivingChain,
         sendingAssetId: AddressZero,
         receivingAssetId: AddressZero,
         receivingAddress,
@@ -45,9 +50,11 @@ function App() {
         // 5 minute expiry ?
         expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
         // callData?: string;
-      } as PrepareParamType,
-      nxtpContract,
-    );
+      });
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   };
 
   return (
@@ -64,6 +71,9 @@ function App() {
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
+            onFinish={(vals) => {
+              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), vals.amount);
+            }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
           >
             <Form.Item label=" ">
@@ -93,11 +103,11 @@ function App() {
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input type="number" onChange={event => setAmount(event.target.value)} value={amount} />
+              <Input type="number" onChange={(event) => setAmount(event.target.value)} value={amount} />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit" onClick={transfer}>
+              <Button type="primary" htmlType="submit">
                 Transfer
               </Button>
             </Form.Item>
@@ -105,7 +115,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Router Address"
-                onChange={event => setRouterAddress(event.target.value)}
+                onChange={(event) => setRouterAddress(event.target.value)}
                 value={routerAddress}
               />
             </Form.Item>
@@ -113,7 +123,7 @@ function App() {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Input
                 addonBefore="Receiving Address"
-                onChange={event => setReceivingAddress(event.target.value)}
+                onChange={(event) => setReceivingAddress(event.target.value)}
                 value={receivingAddress}
               />
             </Form.Item>
