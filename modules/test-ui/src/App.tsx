@@ -11,6 +11,8 @@ import "./App.css";
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [web3Provider, setProvider] = useState<Web3Provider>();
+  const [routerAddress, setRouterAddress] = useState<string>(""); 
+  const [receivingAddress, setReceivingAddress] = useState<string>("");
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -29,12 +31,12 @@ function App() {
     prepare(
       {
         userWebProvider: web3Provider,
-        routerAddress: "",
+        routerAddress,
         sendingChainId: 1337,
         receivingChainId: 1338,
-        sendingAssetId: "",
-        receivingAssetId: "",
-        receivingAddress: "",
+        sendingAssetId: AddressZero,
+        receivingAssetId: AddressZero,
+        receivingAddress,
         amount: Zero,
         // 5 minute expiry ?
         expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
@@ -93,6 +95,15 @@ function App() {
               <Button type="primary" htmlType="submit" onClick={transfer}>
                 Transfer
               </Button>
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Input addonBefore="Router Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "router address") }} value={routerAddress} />
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Input addonBefore="Receiving Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "receiving address") }} value={receivingAddress} />
+              {/* <Input addonBefore="Router Address" onChange={(event) => setRouterAddress(event.target.value)} value={routerAddress} /> */}
             </Form.Item>
           </Form>
         </Col>
