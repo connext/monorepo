@@ -234,7 +234,7 @@ describe("LibIterableMapping.sol", function() {
     it("should revert if digest already exist", async () => {
       const mockTestParam = createVariableTransactionDataMock();
       const res = await libIterableMappingTest.addTransaction(mockTestParam);
-      console.log(res);
+      await res.wait();
 
       await expect(libIterableMappingTest.addTransaction(mockTestParam)).to.be.revertedWith(
         "LibIterableMapping: DIGEST_ALREADY_ADDED",
@@ -244,7 +244,7 @@ describe("LibIterableMapping.sol", function() {
     it("happy case: addTransaction", async () => {
       const mockTestParam = createVariableTransactionDataMock();
       const res = await libIterableMappingTest.addTransaction(mockTestParam);
-      console.log(res);
+      await res.wait();
     });
   });
 
@@ -264,10 +264,10 @@ describe("LibIterableMapping.sol", function() {
     it("happy case: removeTransaction", async () => {
       const mockTestParam = createVariableTransactionDataMock();
       const resAddTransaction = await libIterableMappingTest.addTransaction(mockTestParam);
-      console.log(resAddTransaction);
+      await resAddTransaction.wait();
 
       const res = await libIterableMappingTest.removeTransaction(mockTestParam.digest);
-      console.log(res);
+      await res.wait();
     });
   });
 });
