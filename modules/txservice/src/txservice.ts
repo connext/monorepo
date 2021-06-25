@@ -36,7 +36,7 @@ export class TransactionService {
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     Object.keys(chainProviders)
       .map(Number)
-      .forEach((chainId) => {
+      .forEach(chainId => {
         const urls = chainProviders[chainId];
         if (urls.length === 0) {
           throw new ChainError(ChainError.reasons.ProviderNotFound);
@@ -105,7 +105,7 @@ export class TransactionService {
           throw new ChainError(ChainError.reasons.InvalidResponse);
         }
         this.log.info(
-          { method, hash: response.hash, gas: response.gasPrice.toString(), nonce: response.nonce },
+          { method, hash: response.hash, gas: (response.gasPrice ?? "unknown").toString(), nonce: response.nonce },
           "Tx submitted",
         );
 
