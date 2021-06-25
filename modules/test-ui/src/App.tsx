@@ -14,6 +14,7 @@ function App() {
   const [web3Provider, setProvider] = useState<Web3Provider>();
   const [routerAddress, setRouterAddress] = useState<string>(""); 
   const [receivingAddress, setReceivingAddress] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -40,7 +41,7 @@ function App() {
         sendingAssetId: AddressZero,
         receivingAssetId: AddressZero,
         receivingAddress,
-        amount: "0",
+        amount,
         // 5 minute expiry ?
         expiry: (new Date().getTime() + 5 * 60 * 1000).toString(),
         // callData?: string;
@@ -92,7 +93,12 @@ function App() {
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input />
+              <Input
+                addonBefore="Router Address"
+                type="number"
+                onChange={(event) => setAmount(event.target.value)}
+                value={amount}
+              />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -102,12 +108,19 @@ function App() {
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input addonBefore="Router Address" onChange={(event) => { setRouterAddress(event.target.value);console.log(event.target.value, "router address"); }} value={routerAddress} />
+              <Input
+                addonBefore="Router Address"
+                onChange={(event) => setRouterAddress(event.target.value)}
+                value={routerAddress}
+              />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input addonBefore="Receiving Address" onChange={(event) => { setReceivingAddress(event.target.value);console.log(event.target.value, "receiving address"); }} value={receivingAddress} />
-              {/* <Input addonBefore="Router Address" onChange={(event) => setRouterAddress(event.target.value)} value={routerAddress} /> */}
+              <Input
+                addonBefore="Receiving Address"
+                onChange={(event) => setReceivingAddress(event.target.value)}
+                value={receivingAddress}
+              />
             </Form.Item>
           </Form>
         </Col>
