@@ -2,7 +2,7 @@ import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import { InvariantTransactionData } from "@connext/nxtp-utils";
 
-import { getSdk, Sdk } from "./graphqlsdk";
+import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
 export interface TransactionManagerListener {
   onSenderPrepare(handler: (data: SenderPrepareData) => any): Promise<void>;
@@ -11,17 +11,22 @@ export interface TransactionManagerListener {
   onReceiverFulfill(handler: (data: ReceiverFulfillData) => any): void;
 }
 
+// TODO: is this the right type?
+export type Transaction = SenderFulfillData;
+
 // TODO: how to get types from subgraph?
 export type SenderPrepareData = {
   amount: string;
   expiry: number;
   blockNumber: number;
   chainId: number;
+  status: TransactionStatus;
 } & InvariantTransactionData;
 
 export type ReceiverPrepareData = SenderPrepareData;
 
 export type SenderFulfillData = {
+  status: TransactionStatus;
   amount: string;
   expiry: number;
   blockNumber: number;
@@ -58,13 +63,14 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const query = await sdk.GetSenderPrepareTransactions({
-          routerId: this.routerAddress,
+          routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
 
         this.logger.info({ transactions: query.transactions, chainId }, "Queried senderPrepare transactions");
         query.transactions.forEach(transaction => {
           const data: SenderPrepareData = {
+            status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
             chainId: transaction.chainId,
@@ -94,13 +100,14 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const query = await sdk.GetReceiverPrepareTransactions({
-          routerId: this.routerAddress,
+          routerId: this.routerAddress.toLowerCase(),
           receivingChainId: chainId,
         });
 
         this.logger.info({ transactions: query.transactions, chainId }, "Queried receiverPrepare transactions");
         query.transactions.forEach(transaction => {
           const data: ReceiverPrepareData = {
+            status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
             chainId: transaction.chainId,
@@ -130,13 +137,14 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const query = await sdk.GetReceiverFulfillTransactions({
-          routerId: this.routerAddress,
+          routerId: this.routerAddress.toLowerCase(),
           receivingChainId: chainId,
         });
 
         this.logger.info({ transactions: query.transactions, chainId }, "Queried receiverFulfill transactions");
         query.transactions.forEach(transaction => {
           const data: ReceiverFulfillData = {
+            status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
             chainId: transaction.chainId,
@@ -168,13 +176,14 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const query = await sdk.GetSenderFulfillTransactions({
-          routerId: this.routerAddress,
+          routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
 
         this.logger.info({ transactions: query.transactions, chainId }, "Queried senderFulfill transactions");
         query.transactions.forEach(transaction => {
           const data: SenderFulfillData = {
+            status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
             chainId: transaction.chainId,
@@ -198,5 +207,63 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         });
       }, this.pollInterval);
     });
+  }
+
+  async getSenderTransaction(transactionId: string, sendingChainId: number): Promise<Transaction | undefined> {
+    const sdk: Sdk = this.sdks[sendingChainId];
+    const result = await sdk.GetSenderTransaction({
+      transactionId: transactionId.toLowerCase(),
+      sendingChainId,
+    });
+    console.log(`******** txs on ${sendingChainId}:`, result.transactions);
+    return result.transactions.map(transaction => {
+      return {
+        status: transaction.status,
+        amount: transaction.amount,
+        callData: transaction.callData,
+        chainId: transaction.chainId,
+        expiry: transaction.expiry,
+        receivingAddress: transaction.receivingAddress,
+        receivingAssetId: transaction.receivingAssetId,
+        receivingChainId: transaction.receivingChainId,
+        router: transaction.router.id,
+        sendingAssetId: transaction.sendingAssetId,
+        sendingChainId: transaction.sendingChainId,
+        transactionId: transaction.transactionId,
+        user: transaction.user.id,
+        blockNumber: transaction.blockNumber,
+        relayerFee: transaction.relayerFee,
+        signature: transaction.signature,
+      };
+    })[0];
+  }
+
+  async getReceiverTransaction(transactionId: string, receivingChainId: number): Promise<Transaction | undefined> {
+    const sdk: Sdk = this.sdks[receivingChainId];
+    const result = await sdk.GetReceiverTransaction({
+      transactionId: transactionId.toLowerCase(),
+      receivingChainId,
+    });
+    console.log(`******** txs on ${receivingChainId}:`, result.transactions);
+    return result.transactions.map(transaction => {
+      return {
+        status: transaction.status,
+        amount: transaction.amount,
+        callData: transaction.callData,
+        chainId: transaction.chainId,
+        expiry: transaction.expiry,
+        receivingAddress: transaction.receivingAddress,
+        receivingAssetId: transaction.receivingAssetId,
+        receivingChainId: transaction.receivingChainId,
+        router: transaction.router.id,
+        sendingAssetId: transaction.sendingAssetId,
+        sendingChainId: transaction.sendingChainId,
+        transactionId: transaction.transactionId,
+        user: transaction.user.id,
+        blockNumber: transaction.blockNumber,
+        relayerFee: transaction.relayerFee,
+        signature: transaction.signature,
+      };
+    })[0];
   }
 }

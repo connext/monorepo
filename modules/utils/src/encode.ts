@@ -47,18 +47,20 @@ export const encodeTxData = (txDataParams: InvariantTransactionData): string => 
   return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
 
-export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
+export const getTransactionDigest = (txDataParams: InvariantTransactionData): string => {
   const digest = solidityKeccak256(
     ["bytes"],
     [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
   );
+  return digest;
+};
+
+export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
+  const digest = getTransactionDigest(txDataParams);
   return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee: relayerFee }]);
 };
 
 export const encodeCancelData = (txDataParams: InvariantTransactionData): string => {
-  const digest = solidityKeccak256(
-    ["bytes"],
-    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
-  );
+  const digest = getTransactionDigest(txDataParams);
   return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, cancel: "cancel" }]);
 };

@@ -36,7 +36,7 @@ export class TransactionService {
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     Object.keys(chainProviders)
       .map(Number)
-      .forEach((chainId) => {
+      .forEach(chainId => {
         const urls = chainProviders[chainId];
         if (urls.length === 0) {
           throw new ChainError(ChainError.reasons.ProviderNotFound);
@@ -98,14 +98,19 @@ export class TransactionService {
           "Attempting to send transaction.",
         );
         // First, send tx and get back a response.
-        const response = await this.sendTx(chainId, tx, gasPrice, nonce);
+        const { response: _response, success } = await this.sendTx(chainId, tx, gasPrice, nonce);
+        if (!success) {
+          this.log.error({ error: _response }, "Failed to send tx");
+          throw _response;
+        }
+        const response = _response as providers.TransactionResponse;
         // Check to see if ethers returned undefined for the response; if so, handle as error case.
         if (!response) {
           this.log.error({ method, chainId, response }, "Received invalid response from sendTx.");
           throw new ChainError(ChainError.reasons.InvalidResponse);
         }
         this.log.info(
-          { method, hash: response.hash, gas: response.gasPrice.toString(), nonce: response.nonce },
+          { method, hash: response.hash, gas: (response.gasPrice ?? "unknown").toString(), nonce: response.nonce },
           "Tx submitted",
         );
 
@@ -166,10 +171,10 @@ export class TransactionService {
     tx: MinimalTransaction,
     gasPrice: BigNumber,
     nonce?: number,
-  ): Promise<providers.TransactionResponse> {
+  ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
     const { signer, queue } = this.chains.get(chainId)!;
     // Define task to send tx with proper nonce
-    const task = async (): Promise<providers.TransactionResponse> => {
+    const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
       try {
         // Send transaction using the passed in callback.
         // const stored = this.nonces.get(chainId);
@@ -192,10 +197,9 @@ export class TransactionService {
         // if (toCompare < pending || toCompare < incremented) {
         //   this.nonces.set(chainId, incremented > pending ? incremented : pending);
         // }
-        return response;
+        return { response, success: true };
       } catch (e) {
-        this.log.error(e);
-        return e;
+        return { response: e, success: false };
       }
     };
     // Queue up the execution of the transaction.

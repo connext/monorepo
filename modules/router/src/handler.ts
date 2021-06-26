@@ -1,20 +1,20 @@
-import { NxtpMessaging, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
+import { NxtpMessaging, calculateExchangeAmount, jsonifyError, getTransactionDigest } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { BigNumber, constants, Signer, utils } from "ethers";
+import { constants, Contract, providers, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
-import { TransactionManager, IERC20 } from "@connext/nxtp-contracts";
+import { TransactionManager } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import Erc20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 
 import {
   ReceiverFulfillData,
   ReceiverPrepareData,
   SenderFulfillData,
   SenderPrepareData,
-  TransactionManagerListener,
+  SubgraphTransactionManagerListener,
 } from "./transactionManagerListener";
 import { getConfig } from "./config";
+import { TransactionStatus } from "./graphqlsdk";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -83,14 +83,14 @@ export type MetaTxData = any;
 export class Handler implements Handler {
   constructor(
     private readonly messagingService: NxtpMessaging,
-    private readonly txManager: TransactionManagerListener,
+    private readonly subgraph: SubgraphTransactionManagerListener,
     private readonly signer: Signer,
     private readonly txService: TransactionService,
     private readonly logger: BaseLogger,
   ) {
     // log to get rid of unused build errors
     console.log(typeof this.messagingService);
-    console.log(typeof this.txManager);
+    console.log(typeof this.subgraph);
   }
 
   // HandleNewAuction
@@ -145,6 +145,43 @@ export class Handler implements Handler {
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
 
+    if (inboundData.status !== TransactionStatus.Prepared) {
+      this.logger.info({ method, methodId, status: inboundData.status }, "Receiver tx cannot be prepared");
+      return;
+    }
+
+    // Make sure we didnt *already* prepare receiver tx
+    // TODO: fix goerli transaction
+    // const receiverTransaction = await this.subgraph.getReceiverTransaction(
+    //   inboundData.transactionId,
+    //   inboundData.receivingChainId,
+    // );
+    // Generate params
+    const txParams = {
+      callData: inboundData.callData,
+      receivingAddress: inboundData.receivingAddress,
+      receivingAssetId: inboundData.receivingAssetId,
+      receivingChainId: inboundData.receivingChainId,
+      router: inboundData.router,
+      sendingAssetId: inboundData.sendingAssetId,
+      sendingChainId: inboundData.sendingChainId,
+      transactionId: inboundData.transactionId,
+      user: inboundData.user,
+    };
+    const transactions = await new Contract(
+      config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
+      TransactionManagerArtifact.abi,
+      new providers.JsonRpcProvider(config.chainConfig[inboundData.receivingChainId].provider[0]),
+    ).getActiveTransactionsByUser(inboundData.user);
+    const digest = getTransactionDigest(txParams);
+    const receiverTransaction = transactions.find((t: any) => t.digest === digest);
+    if (receiverTransaction) {
+      // Router receiverTransaction needs to `prepare` if the receiver
+      // transaction does not exist
+      this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Receiver transaction exists");
+      return;
+    }
+
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
     // that user is only sending stuff that makes sense is possibly ok since otherwise
@@ -171,31 +208,6 @@ export class Handler implements Handler {
       throw new Error("Expiry already happened");
     }
 
-    const receivingChainContractAddress = config.chainConfig[inboundData.receivingChainId].transactionManagerAddress;
-
-    let value = constants.Zero;
-    if (inboundData.receivingAssetId === constants.AddressZero) {
-      // if transaction.receivingAssetId === ethers.constants.AddressZero, add value
-      value = BigNumber.from(receiverAmount);
-    } else {
-      // approve tokens if transaction.receivingAssetId !== ethers.constants.AddressZero
-      const tokenContract = new utils.Interface(Erc20Artifact.abi) as IERC20["interface"];
-      const approveData = tokenContract.encodeFunctionData("approve", [receivingChainContractAddress, receiverAmount]);
-      try {
-        this.logger.info({ method, methodId }, "Approving tokens");
-        const approveRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
-          chainId: inboundData.receivingChainId,
-          data: approveData,
-          to: receivingChainContractAddress,
-          value: 0,
-        });
-        this.logger.info({ method, methodId, txHash: approveRes.transactionHash }, "Approved tokens");
-      } catch (e) {
-        this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending approve tx");
-        throw e;
-      }
-    }
-
     // Then prepare tx object
     // Note tx object must have:
     // - Prepare fn params
@@ -204,34 +216,26 @@ export class Handler implements Handler {
     // - AssetId
     // encode the data for contract call
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [
-      {
-        callData: inboundData.callData,
-        receivingAddress: inboundData.receivingAddress,
-        receivingAssetId: inboundData.receivingAssetId,
-        receivingChainId: inboundData.receivingChainId,
-        router: inboundData.router,
-        sendingAssetId: inboundData.sendingAssetId,
-        sendingChainId: inboundData.sendingChainId,
-        transactionId: inboundData.transactionId,
-        user: inboundData.user,
-      },
-      receiverAmount,
-      receiverExpiry,
-    ]);
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [txParams, receiverAmount, receiverExpiry]);
     // Send to txService
     try {
-      this.logger.info({ method, methodId }, "Sending receiver prepare tx");
+      this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
       const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
         to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
-        value,
+        value: constants.Zero,
         chainId: inboundData.receivingChainId,
         from: signerAddress,
       });
-      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Receiver prepare tx confirmed");
+      this.logger.info(
+        { method, methodId, txHash: txRes.transactionHash, transactionId: inboundData.transactionId },
+        "Receiver prepare tx confirmed",
+      );
     } catch (e) {
-      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending receiver prepare tx");
+      this.logger.error(
+        { methodId, method, error: jsonifyError(e), transactionId: inboundData.transactionId },
+        "Error sending receiver prepare tx",
+      );
       // TODO: cancel sender here?
       throw e;
     }
