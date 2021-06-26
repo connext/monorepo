@@ -8,6 +8,7 @@ import {
   TransactionPrepared,
 } from "../generated/TransactionManager/TransactionManager";
 import { Transaction, AssetBalance, Router, User } from "../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   let router = Router.load(event.params.router.toHex());
@@ -22,6 +23,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
     assetBalance.router = router.id;
+    assetBalance.amount = new BigInt(0);
   }
   // add new amount
   assetBalance.amount = assetBalance!.amount.plus(event.params.amount);

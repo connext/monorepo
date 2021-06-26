@@ -304,11 +304,11 @@ export type Transaction = {
   status: TransactionStatus;
   chainId: Scalars['Int'];
   blockNumber: Scalars['BigInt'];
-  relayerFee: Scalars['BigInt'];
-  signature: Scalars['Bytes'];
-  prepareCaller: Scalars['Bytes'];
-  fulfillCaller: Scalars['Bytes'];
-  cancelCaller: Scalars['Bytes'];
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  signature?: Maybe<Scalars['Bytes']>;
+  prepareCaller?: Maybe<Scalars['Bytes']>;
+  fulfillCaller?: Maybe<Scalars['Bytes']>;
+  cancelCaller?: Maybe<Scalars['Bytes']>;
 };
 
 export enum TransactionStatus {
