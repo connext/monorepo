@@ -2,14 +2,19 @@
 pragma solidity ^0.8.1;
 
 struct VariableTransactionData {
+  address user;
   uint256 amount;
   uint256 expiry;
   uint256 blockNumber;
+  bytes32 digest;
 }
 
 interface ITransactionManager {
   // Structs
   // TODO: Add bid data if needed?
+  // TODO: make this structure invariant *only* (consolidate with below)
+  // Then, we can pass in amount/expiry explicitly and use only the record values
+  // which will reduce duplication/confusion
   struct InvariantTransactionData {
     address user;
     address router;
@@ -66,6 +71,7 @@ interface ITransactionManager {
   );
 
   // Getters
+  function getActiveTransactionsByUser(address user) external view returns (VariableTransactionData[] memory);
 
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;
