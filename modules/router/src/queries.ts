@@ -86,6 +86,64 @@ export const getReceiverFulfillQuery = gql`
   }
 `;
 
+export const getSenderTransferQuery = gql`
+  query GetSenderTransaction($transactionId: Bytes!, $sendingChainId: Int!) {
+    transactions(where: { transactionId: $transactionId, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
+      id
+      user {
+        id
+      }
+      router {
+        id
+      }
+      amount
+      sendingAssetId
+      receivingAssetId
+      sendingChainId
+      receivingChainId
+      receivingAddress
+      callData
+      transactionId
+      expiry
+      status
+      chainId
+      blockNumber
+      relayerFee
+      signature
+    }
+  }
+`;
+
+export const getReceiverTransferQuery = gql`
+  query GetReceiverTransaction($transactionId: Bytes!, $receivingChainId: Int!) {
+    transactions(
+      where: { transactionId: $transactionId, receivingChainId: $receivingChainId, chainId: $receivingChainId }
+    ) {
+      id
+      user {
+        id
+      }
+      router {
+        id
+      }
+      amount
+      sendingAssetId
+      receivingAssetId
+      sendingChainId
+      receivingChainId
+      receivingAddress
+      callData
+      transactionId
+      expiry
+      status
+      chainId
+      blockNumber
+      relayerFee
+      signature
+    }
+  }
+`;
+
 export const getSenderFulfillQuery = gql`
   query GetSenderFulfillTransactions($routerId: String!, $sendingChainId: Int!) {
     transactions(
