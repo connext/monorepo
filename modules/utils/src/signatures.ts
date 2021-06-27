@@ -1,6 +1,7 @@
 import { Signer, Wallet } from "ethers";
 import { arrayify, solidityKeccak256, verifyMessage } from "ethers/lib/utils";
-import { encodeCancelData, encodeFulfillData, InvariantTransactionData } from "./encode";
+import { InvariantTransactionData } from "./basic";
+import { encodeCancelData, encodeFulfillData } from "./encode";
 
 export const signFulfillTransactionPayload = (
   data: InvariantTransactionData,
