@@ -1,109 +1,76 @@
-import { BigNumber, constants, providers } from "ethers";
+import { BigNumber, constants, Contract, providers } from "ethers";
 import { InvariantTransactionData, signFulfillTransactionPayload } from "@connext/nxtp-utils";
 import Ajv from "ajv";
+import { BaseLogger } from "pino";
 
-import {
-  TransactionManagerEvents,
-  validateAndParseAddress,
-  getTransactionManagerContract,
-  getRandomBytes32,
-  TransactionManagerListener,
-} from "./utils";
-import { PrepareParamType, ListenRouterPrepareParamType, ListenRouterFulfillParamType } from ".";
+import { validateAndParseAddress, getRandomBytes32 } from "./utils";
+import { PrepareParams, HandleReceiverPrepareParams } from "./types";
 
 export const ajv = new Ajv();
 
-const switchChainIfNeeded = async (expectedChain: number, web3Provider: providers.Web3Provider) => {
-  // Make sure user is on the receiving chain
-  try {
-    const { chainId } = await web3Provider.getNetwork();
-    console.log(chainId, expectedChain);
+const verifyCorrectChain = async (expectedChain: number, provider: providers.JsonRpcProvider) => {
+  // Make sure user is on the correct chain
+  const { chainId } = await provider.getNetwork();
 
-    // TODO: what if they arent using metamask
-    if (chainId !== expectedChain) {
-      throw new Error(`user is on ${chainId} and should be on ${expectedChain}`);
-      // const promise = new Promise<void>(resolve => {
-      //   web3Provider.on("chainChanged", chainId => {
-      //     if (chainId === receivingChainId) {
-      //       resolve();
-      //     }
-      //   });
-      // });
-
-      // const networkSwitch = new Promise<void>((resolve, reject) => {
-      //   web3Provider
-      //     .send("wallet_switchEthereumChain", [{ chainId: BigNumber.from(receivingChainId).toHexString() }])
-      //     .then(resolve)
-      //     .catch(reject);
-      // });
-
-      // await Promise.all([promise, networkSwitch]);
-    }
-  } catch (e) {
-    console.log(e);
-    throw e;
+  if (chainId !== expectedChain) {
+    throw new Error(`user is on ${chainId} and should be on ${expectedChain}`);
   }
 };
 
-export const prepare = async (params: PrepareParamType): Promise<void> => {
+export const prepare = async (
+  params: PrepareParams,
+  transactionManager: Contract,
+  logger: BaseLogger,
+): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
-  console.log(method, methodId);
-  // const validate = ajv.compile(PrepareParamSchema);
-  // const valid = validate(params);
-  // if (!valid) {
-  //   console.log(method, methodId, params);
-  //   throw new Error("Invalid Params");
-  // }
+  logger.info({ method, methodId, params }, "Method start");
 
-  const signer = params.userWebProvider.getSigner();
+  const { sendingProvider, signer, amount, expiry, callData, sendingChainId, receivingChainId, transactionId } = params;
+
   const user = await signer.getAddress();
 
-  // await switchChainIfNeeded(params.sendingChainId, params.userWebProvider);
+  await verifyCorrectChain(sendingChainId, sendingProvider);
 
-  const { instance } = getTransactionManagerContract(params.sendingChainId, params.userWebProvider);
-
+  // Properly checksum all addresses
   const router = validateAndParseAddress(params.router);
   const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
   const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
   const receivingAddress = validateAndParseAddress(params.receivingAddress);
 
-  const transactionId = getRandomBytes32();
-
-  // validate expiry
-  const expiry = params.expiry;
-
+  // TODO: validate expiry
   const transaction: InvariantTransactionData = {
     user,
     router,
     sendingAssetId,
     receivingAssetId,
     receivingAddress,
-    callData: params.callData ?? "0x",
+    callData: callData ?? "0x",
     transactionId,
-    sendingChainId: params.sendingChainId,
-    receivingChainId: params.receivingChainId,
+    sendingChainId,
+    receivingChainId,
   };
 
-  const record = {
-    amount: params.amount,
-    expiry,
-  };
+  logger.info({ method, methodId, transactionId }, "Preparing tx");
 
-  const prepareTx = await instance
+  const prepareTx = await transactionManager
     .connect(signer)
     .prepare(
       transaction,
-      record.amount,
-      record.expiry,
-      transaction.sendingAssetId === constants.AddressZero ? { value: record.amount } : {},
+      amount,
+      expiry,
+      transaction.sendingAssetId === constants.AddressZero ? { value: amount } : {},
     );
 
+  // TODO: fix block confs for chains
+  logger.info({ method, methodId, transactionId, transactionHash: prepareTx.hash }, "Submitted prepare tx");
   const prepareReceipt = await prepareTx.wait(1);
-  console.log(prepareReceipt);
   if (prepareReceipt.status === 0) {
-    throw new Error("Transaction reverted onchain");
+    throw new Error("Prepare transaction reverted onchain");
   }
+  logger.info({ method, methodId, transactionId, transactionHash: prepareReceipt.transactionHash }, "Mined prepare tx");
+  logger.info({ method, methodId }, "Method complete");
+  return prepareReceipt;
 };
 
 export type TransactionPrepareEvent = {
@@ -114,51 +81,37 @@ export type TransactionPrepareEvent = {
   caller: string;
 };
 
-export const listenRouterPrepare = async (
-  params: ListenRouterPrepareParamType,
-  listener: TransactionManagerListener,
+export const handleReceiverPrepare = async (
+  params: HandleReceiverPrepareParams,
+  transactionManager: Contract, // TODO: remove me
+  logger: BaseLogger,
 ): Promise<void> => {
-  const method = "listenRouterPrepare";
+  const method = "handleReceiverPrepare";
   const methodId = getRandomBytes32();
-  console.log(method, methodId, params.txData, params.relayerFee);
+  logger.info({ method, methodId, txData: params.txData, relayerFee: params.relayerFee }, "Method start");
 
-  // Make sure user is on the receiving chain
-  await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
-
-  const signer = params.userWebProvider.getSigner();
-
-  // Wait 1min for router event
-  const event = await listener.waitFor(
-    TransactionManagerEvents.TransactionPrepared,
-    60_000,
-    data => data.txData.transactionId === params.txData.transactionId,
-  );
+  const { txData, receivingProvider, relayerFee, signer } = params;
 
   // Generate signature
-  const signature = await signFulfillTransactionPayload(event.txData, params.relayerFee.toString(), signer);
+  logger.info({ method, methodId }, "Generating fulfill signature");
+  const signature = await signFulfillTransactionPayload(txData, relayerFee, signer);
+
+  // Make sure user is on the receiving chain
+  // TODO: remove this check when messaging in place
+  await verifyCorrectChain(txData.receivingChainId, receivingProvider);
+
+  // Submit fulfill to receiver chain
+  logger.info({ method, methodId }, "Preparing fulfill tx");
+
+  const fulfillTx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature);
+  logger.info({ method, methodId, transactionHash: fulfillTx.hash }, "Fulfill tx submitted");
+
+  const receipt = await fulfillTx.wait(1);
+  if (receipt.status === 0) {
+    throw new Error("Fulfill transaction reverted onchain");
+  }
+  logger.info({ method, methodId, transactionHash: receipt.transactionHash }, "Mined fulfill tx");
 
   // TODO: broadcast from messaging service here and add logic to wait
   // for relayer submission or submit it on our own before expiry
-  // Submit fulfill to receiver chain
-  const instance = listener.getTransactionManager().connect(signer);
-  const fulfillTx = await instance.fulfill(event.txData, params.relayerFee.toString(), signature);
-  await fulfillTx.wait();
-};
-
-// NOTE: once we have submitted the `Fulfill` we dont need to wait for the
-// router to do it
-export const listenRouterFulfill = async (
-  params: ListenRouterFulfillParamType,
-  listener: TransactionManagerListener,
-): Promise<void> => {
-  const method = "listenRouterFulfill";
-  const methodId = getRandomBytes32();
-  console.log(method, methodId, params);
-
-  // Make sure user is on the receiving chain
-  await switchChainIfNeeded(params.txData.receivingChainId, params.userWebProvider);
-
-  await listener.waitFor(TransactionManagerEvents.TransactionFulfilled, 60_000, data => {
-    return data.txData.transactionId === params.txData.transactionId && data.caller === params.txData.router;
-  });
 };

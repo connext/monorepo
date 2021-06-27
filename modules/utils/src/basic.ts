@@ -16,3 +16,21 @@ export const TUrl = Type.String({ format: "uri" });
 // Convenience types
 export const TChainId = Type.Number({ minimum: 1 });
 export const TDecimalString = Type.RegEx(/^[0-9]*\.?[0-9]*$/);
+
+export type InvariantTransactionData = {
+  user: string;
+  router: string;
+  sendingAssetId: string;
+  receivingAssetId: string;
+  receivingAddress: string;
+  sendingChainId: number;
+  receivingChainId: number;
+  callData: string;
+  transactionId: string;
+};
+
+export type VariantTransactionData = {
+  amount: string;
+  expiry: string;
+  blockNumber: string;
+};

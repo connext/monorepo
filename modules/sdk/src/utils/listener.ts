@@ -10,6 +10,7 @@ export type TransactionPreparedEvent = {
   expiry: string;
   blockNumber: number;
   caller: string;
+  chainId: number;
 };
 
 export type TransactionFulfilledEvent = {
@@ -20,6 +21,7 @@ export type TransactionFulfilledEvent = {
   signature: string;
   relayerFee: string;
   caller: string;
+  chainId: number;
 };
 
 export type TransactionCancelledEvent = {
@@ -28,6 +30,7 @@ export type TransactionCancelledEvent = {
   expiry: string;
   blockNumber: number;
   caller: string;
+  chainId: number;
 };
 
 export const TransactionManagerEvents = {
@@ -50,16 +53,14 @@ export class TransactionManagerListener {
   };
 
   private constructor(
-    private readonly provider: providers.Web3Provider,
+    private readonly provider: providers.JsonRpcProvider,
     private readonly transactionManager: Contract,
   ) {}
 
-  static async connect(provider: providers.Web3Provider): Promise<TransactionManagerListener> {
+  static async connect(provider: providers.JsonRpcProvider): Promise<TransactionManagerListener> {
     const { chainId } = await provider.getNetwork();
 
     const { instance } = getTransactionManagerContract(chainId, provider);
-    console.log("trying to create contract");
-    console.log("");
     const listener = new TransactionManagerListener(provider, instance);
     await listener.establishListeners();
     return listener;
@@ -71,12 +72,6 @@ export class TransactionManagerListener {
 
   private async establishListeners(): Promise<void> {
     const { chainId } = await this.provider.getNetwork();
-
-    const { address, abi } = getTransactionManagerContract(chainId, this.provider);
-    console.log("trying to create contract");
-    console.log("");
-    const contract = new Contract(address, abi, this.provider);
-    console.log("contract created");
 
     const processTxData = (txData: any): InvariantTransactionData => {
       return {
@@ -92,43 +87,52 @@ export class TransactionManagerListener {
       };
     };
 
-    contract.on(TransactionManagerEvents.TransactionPrepared, (txData, amount, expiry, block, caller) => {
-      const payload: TransactionPreparedEvent = {
-        caller,
-        blockNumber: block.toString(),
-        amount: amount.toString(),
-        expiry: expiry.toString(),
-        txData: processTxData(txData),
-      };
-      this.evts[TransactionManagerEvents.TransactionPrepared].post(payload);
-    });
+    this.transactionManager.on(
+      TransactionManagerEvents.TransactionPrepared,
+      (txData, amount, expiry, block, caller) => {
+        const payload: TransactionPreparedEvent = {
+          caller,
+          blockNumber: block.toNumber(),
+          amount: amount.toString(),
+          expiry: expiry.toString(),
+          txData: processTxData(txData),
+          chainId,
+        };
+        this.evts[TransactionManagerEvents.TransactionPrepared].post(payload);
+      },
+    );
 
-    contract.on(
+    this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
       (txData, amount, expiry, block, relayerFee, signature, caller) => {
         const payload: TransactionFulfilledEvent = {
           caller,
-          blockNumber: block.toString(),
+          blockNumber: block.toNumber(),
           amount: amount.toString(),
           expiry: expiry.toString(),
           relayerFee: relayerFee.toString(),
           signature: signature,
           txData: processTxData(txData),
+          chainId,
         };
         this.evts[TransactionManagerEvents.TransactionFulfilled].post(payload);
       },
     );
 
-    contract.on(TransactionManagerEvents.TransactionCancelled, (txData, amount, expiry, block, caller) => {
-      const payload: TransactionCancelledEvent = {
-        caller,
-        blockNumber: block.toString(),
-        amount: amount.toString(),
-        expiry: expiry.toString(),
-        txData: processTxData(txData),
-      };
-      this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
-    });
+    this.transactionManager.on(
+      TransactionManagerEvents.TransactionCancelled,
+      (txData, amount, expiry, block, caller) => {
+        const payload: TransactionCancelledEvent = {
+          caller,
+          blockNumber: block.toNumber(),
+          amount: amount.toString(),
+          expiry: expiry.toString(),
+          txData: processTxData(txData),
+          chainId,
+        };
+        this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
+      },
+    );
   }
 
   public attach<T extends TransactionManagerEvent>(
@@ -137,7 +141,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attach(...args);
   }
 
@@ -147,7 +151,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attachOnce(...args);
   }
 
@@ -156,7 +160,7 @@ export class TransactionManagerListener {
       this.evts[event].detach();
       return;
     }
-    Object.values(this.evts).forEach((evt) => evt.detach());
+    Object.values(this.evts).forEach(evt => evt.detach());
   }
 
   public waitFor<T extends TransactionManagerEvent>(

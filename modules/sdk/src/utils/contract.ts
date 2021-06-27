@@ -5,18 +5,21 @@ import { Contract, providers, constants, BigNumberish } from "ethers";
 
 export const getTransactionManagerContract = (
   chainId: number,
-  userWebProvider?: providers.Web3Provider,
+  userWebProvider?: providers.JsonRpcProvider,
 ): { address: string; abi: any; instance: Contract } => {
   const record = (contractDeployments as any)[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
-  console.log(record, name);
   if (!name) {
     throw new Error("Chain not supported yet, please contact connext team");
   }
 
   // TODO: fix me!
   if (name === "hardhat") {
-    return { address: constants.AddressZero, abi: TransactionManagerArtifact.abi, instance: {} as Contract };
+    return {
+      address: constants.AddressZero,
+      abi: TransactionManagerArtifact.abi,
+      instance: ({ test: "test" } as unknown) as Contract,
+    };
   }
 
   const abi = record[name]?.contracts?.TransactionManager?.abi;
@@ -47,7 +50,6 @@ export const getActiveTransactionsByUser = async (
   const { instance } = getTransactionManagerContract(chainId);
 
   const res = await instance.getActiveTransactionsByUser(userAddress);
-  console.log(res);
 
   return res;
 };

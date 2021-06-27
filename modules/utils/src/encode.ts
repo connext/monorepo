@@ -1,6 +1,8 @@
 import { defaultAbiCoder } from "ethers/lib/utils";
 import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
 
+import { InvariantTransactionData } from "./basic";
+
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 export const InvariantTransactionDataEncoding = tidy(`tuple(
@@ -24,24 +26,6 @@ export const CancelEncoding = tidy(`tuple(
   bytes32 txDigest,
   string cancel
 )`);
-
-export type InvariantTransactionData = {
-  user: string;
-  router: string;
-  sendingAssetId: string;
-  receivingAssetId: string;
-  receivingAddress: string;
-  sendingChainId: number;
-  receivingChainId: number;
-  callData: string;
-  transactionId: string;
-};
-
-export type VariantTransactionData = {
-  amount: string;
-  expiry: string;
-  blockNumber: string;
-};
 
 export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
   return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);

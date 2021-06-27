@@ -1,36 +1,23 @@
 import { InvariantTransactionData } from "@connext/nxtp-utils";
-import { Web3Provider } from "@ethersproject/providers";
-import { BigNumberish } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { Signer } from "ethers";
 
-export type PrepareParamType = Omit<InvariantTransactionData, "user" | "callData" | "transactionId"> & {
-  userWebProvider: Web3Provider; // This has to be sending chain
-  amount: BigNumberish;
+export type PrepareParams = Omit<InvariantTransactionData, "user" | "callData"> & {
+  signer: Signer;
+  sendingProvider: JsonRpcProvider;
+  amount: string;
   expiry: string;
   callData?: string;
 };
 
-export type ListenRouterPrepareParamType = {
+export type HandleReceiverPrepareParams = {
   txData: InvariantTransactionData;
-  userWebProvider: Web3Provider; // This has to be receiving chain
-  relayerFee: BigNumberish;
+  receivingProvider: JsonRpcProvider;
+  relayerFee: string;
+  signer: Signer;
 };
 
-export type ListenRouterFulfillParamType = {
+export type HandleReceiverFulfillParam = {
   txData: InvariantTransactionData;
-  userWebProvider: Web3Provider; // This has to be receiving chain
-};
-
-export type CrossChainParamType = {
-  userWebProvider: Web3Provider; // This has to be receiving chain
-  routerAddress: string;
-  sendingChainId: number;
-  receivingChainId: number;
-  sendingAssetId: string;
-  receivingAssetId: string;
-  sendingRpcProvider: URL;
-  receivingRpcProvider: URL;
-  receivingAddress: string;
-  amount: BigNumberish;
-  expiry: string;
-  callData?: string;
+  receivingProvider: JsonRpcProvider;
 };
