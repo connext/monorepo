@@ -1,6 +1,6 @@
-import { NxtpMessaging, calculateExchangeAmount, jsonifyError, getTransactionDigest } from "@connext/nxtp-utils";
+import { NxtpMessaging, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { constants, Contract, providers, Signer, utils } from "ethers";
+import { constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -18,21 +18,6 @@ import { TransactionStatus } from "./graphqlsdk";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
-
-export const TransactionDataParamsEncoding = tidy(`tuple(
-  address user,
-  address router,
-  address sendingAssetId,
-  address receivingAssetId,
-  address receivingAddress,
-  bytes callData,
-  bytes32 transactionId,
-  uint24 sendingChainId,
-  uint24 receivingChainId,
-  uint256 amount,
-  uint256 expiry,
-  uint256 blockNumber
-`);
 
 export interface TransactionDataParams {
   user: string;
@@ -151,11 +136,16 @@ export class Handler implements Handler {
     }
 
     // Make sure we didnt *already* prepare receiver tx
-    // TODO: fix goerli transaction
-    // const receiverTransaction = await this.subgraph.getReceiverTransaction(
-    //   inboundData.transactionId,
-    //   inboundData.receivingChainId,
-    // );
+    // NOTE: if subgraph is out of date here, worst case is that the tx is
+    // reverted. this is fine.
+    const receiverTransaction = await this.subgraph.getReceiverTransaction(
+      inboundData.transactionId,
+      inboundData.receivingChainId,
+    );
+    if (receiverTransaction) {
+      this.logger.info({ method, methodId }, "Receiver transaction prepared");
+      return;
+    }
     // Generate params
     const txParams = {
       callData: inboundData.callData,
@@ -168,19 +158,6 @@ export class Handler implements Handler {
       transactionId: inboundData.transactionId,
       user: inboundData.user,
     };
-    const transactions = await new Contract(
-      config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
-      TransactionManagerArtifact.abi,
-      new providers.JsonRpcProvider(config.chainConfig[inboundData.receivingChainId].provider[0]),
-    ).getActiveTransactionsByUser(inboundData.user);
-    const digest = getTransactionDigest(txParams);
-    const receiverTransaction = transactions.find((t: any) => t.digest === digest);
-    if (receiverTransaction) {
-      // Router receiverTransaction needs to `prepare` if the receiver
-      // transaction does not exist
-      this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Receiver transaction exists");
-      return;
-    }
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
