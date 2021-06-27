@@ -22,10 +22,10 @@
   "dependencies": {
     "@connext/nxtp-contracts": "^0.0.3",
     "@connext/nxtp-utils": "^0.0.3",
-    "@sinclair/typebox": "^0.16.7",
+    "@sinclair/typebox": "^0.17.1",
     "ajv": "^8.6.0",
     "ajv-formats": "^2.1.0",
-    "ethers": "^5.3.1",
+    "ethers": "^5.4.0",
     "evt": "^1.9.14",
     "pino": "^6.11.3"
   },

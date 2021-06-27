@@ -24,15 +24,15 @@
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "4.1.0",
-    "@sinclair/typebox": "^0.16.7",
+    "@sinclair/typebox": "^0.17.1",
     "@typechain/ethers-v5": "^7.0.1",
     "@typechain/hardhat": "^2.1.0",
     "@types/chai": "^4.2.19",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^15.12.4",
+    "@types/node": "^15.12.5",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.3.1",
+    "ethers": "^5.4.0",
     "hardhat": "^2.4.1",
     "sinclair": "^0.2.0",
     "sinon": "^11.1.1",
@@ -44,9 +44,9 @@
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
     "eslint": "^7.29.0",
-    "hardhat-deploy": "^0.8.8",
+    "hardhat-deploy": "^0.8.9",
     "hardhat-gas-reporter": "^1.0.4",
-    "typechain": "^5.1.0"
+    "typechain": "^5.1.1"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
 }

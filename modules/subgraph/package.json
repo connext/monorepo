@@ -22,7 +22,7 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "^5.3.1",
+    "ethers": "^5.4.0",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
