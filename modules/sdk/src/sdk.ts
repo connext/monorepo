@@ -25,6 +25,7 @@ export const CrossChainParamsSchema = Type.Object({
   receivingAddress: TAddress,
   amount: TIntegerString,
   expiry: TIntegerString,
+  transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{30}$/)),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -134,7 +135,7 @@ export class NxtpSdk {
     }
 
     // Create promise for completed tx
-    const transactionId = getRandomBytes32();
+    const transactionId = transferParams.transactionId ?? getRandomBytes32();
     const timeout = 300_000;
     const completed = this.evts.TransactionCompleted.pipe(data => data.txData.transactionId === transactionId).waitFor(
       timeout,
