@@ -131,7 +131,7 @@ export class Handler implements Handler {
     const config = getConfig();
 
     if (inboundData.status !== TransactionStatus.Prepared) {
-      this.logger.info({ method, methodId, status: inboundData.status }, "Receiver tx cannot be prepared");
+      this.logger.error({ method, methodId, status: inboundData.status }, "Receiver tx cannot be prepared");
       return;
     }
 
@@ -143,7 +143,7 @@ export class Handler implements Handler {
       inboundData.receivingChainId,
     );
     if (receiverTransaction) {
-      this.logger.info({ method, methodId }, "Receiver transaction prepared");
+      this.logger.warn({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
       return;
     }
     // Generate params
@@ -244,6 +244,12 @@ export class Handler implements Handler {
 
     const signerAddress = await this.signer.getAddress();
     const config = getConfig();
+
+    const senderTransaction = await this.subgraph.getSenderTransaction(data.transactionId, data.sendingChainId);
+    if (senderTransaction?.status === TransactionStatus.Fulfilled) {
+      this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
+      return;
+    }
 
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];

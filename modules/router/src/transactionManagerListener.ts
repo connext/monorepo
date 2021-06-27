@@ -215,7 +215,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       transactionId: transactionId.toLowerCase(),
       sendingChainId,
     });
-    console.log(`******** txs on ${sendingChainId}:`, result.transactions);
+    console.log(`******** getSenderTransaction txs on ${sendingChainId}:`, result.transactions);
     return result.transactions.map(transaction => {
       return {
         status: transaction.status,
@@ -244,7 +244,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       transactionId: transactionId.toLowerCase(),
       receivingChainId,
     });
-    console.log(`******** txs on ${receivingChainId}:`, result.transactions);
+    console.log(`******** getReceiverTransaction txs on ${receivingChainId}:`, result.transactions);
     return result.transactions.map(transaction => {
       return {
         status: transaction.status,

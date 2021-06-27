@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { NatsNxtpMessagingService, TAddress, TChainId } from "@connext/nxtp-utils";
+import { NatsNxtpMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 
@@ -9,7 +9,7 @@ import { Handler } from "./handler";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { setupListeners } from "./listener";
 import { Static, Type } from "@sinclair/typebox";
-// import { TransactionManager } from "./contract";
+import { TransactionManager } from "./contract";
 
 const server = fastify();
 
@@ -31,15 +31,21 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
 const txService = new TransactionService(logger, wallet, providers);
 const handler = new Handler(messaging, subgraph, wallet, txService, logger);
-// const transactionManager = new TransactionManager(txService, wallet.address);
+const transactionManager = new TransactionManager(txService, wallet.address);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
   assetId: TAddress,
+  amount: TDecimalString,
 });
 export type AddLiquidityRequest = Static<typeof AddLiquidityRequestSchema>;
 
-export const RemoveLiquidityRequestSchema = AddLiquidityRequestSchema;
+export const RemoveLiquidityRequestSchema = Type.Intersect([
+  AddLiquidityRequestSchema,
+  Type.Object({
+    recipientAddress: Type.Optional(TAddress),
+  }),
+]);
 export type RemoveLiquidityRequest = Static<typeof RemoveLiquidityRequestSchema>;
 
 export const AddLiquidityResponseSchema = Type.Object({
@@ -67,23 +73,28 @@ server.get("/config", async () => {
   };
 });
 
-// server.get<{ Body: AddLiquidityRequest }>(
-//   "/add-liquidity",
-//   { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
-//   async () => {
-//     const result = await transactionManager.addLiquidity();
-//     return { transactionHash: result.transactionHash };
-//   },
-// );
+server.get<{ Body: AddLiquidityRequest }>(
+  "/add-liquidity",
+  { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
+  async req => {
+    const result = await transactionManager.addLiquidity(req.body.chainId, req.body.amount, req.body.assetId);
+    return { transactionHash: result.transactionHash };
+  },
+);
 
-// server.get<{ Body: RemoveLiquidityRequest }>(
-//   "/remove-liquidity",
-//   { schema: { body: RemoveLiquidityRequestSchema, response: RemoveLiquidityResponseSchema } },
-//   async () => {
-//     const result = await transactionManager.addLiquidity();
-//     return { transactionHash: result.transactionHash };
-//   },
-// );
+server.get<{ Body: RemoveLiquidityRequest }>(
+  "/remove-liquidity",
+  { schema: { body: RemoveLiquidityRequestSchema, response: RemoveLiquidityResponseSchema } },
+  async req => {
+    const result = await transactionManager.removeLiquidity(
+      req.body.chainId,
+      req.body.amount,
+      req.body.assetId,
+      req.body.recipientAddress,
+    );
+    return { transactionHash: result.transactionHash };
+  },
+);
 
 server.listen(8080, (err, address) => {
   if (err) {
