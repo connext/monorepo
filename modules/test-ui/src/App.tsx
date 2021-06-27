@@ -29,7 +29,7 @@ function App() {
       const provider = new Web3Provider((window as any).ethereum);
       const _signer = provider.getSigner();
       setSigner(_signer);
-      const address = await signer.getAddress();
+      const address = await _signer.getAddress();
       console.log("address: ", address);
       console.log(address);
       setReceivingAddress(address);
