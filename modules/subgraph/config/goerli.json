@@ -1,4 +1,5 @@
 {
   "network": "goerli",
-  "address": "0xC9588465383d7d26001B536Ed2Ac7847a07BCA3D"
+  "address": "0xC9588465383d7d26001B536Ed2Ac7847a07BCA3D",
+  "startBlock": 5022997
 }
