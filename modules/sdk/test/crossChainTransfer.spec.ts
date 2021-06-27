@@ -1,11 +1,17 @@
 import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
-import Sinon, { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { TransactionManagerListener, TransactionPreparedEvent } from "../src/utils";
-import { InvariantTransactionData, isValidBytes32, recoverFulfilledTransactionPayload } from "@connext/nxtp-utils";
+import { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import {
+  getRandomBytes32,
+  InvariantTransactionData,
+  isValidBytes32,
+  recoverFulfilledTransactionPayload,
+} from "@connext/nxtp-utils";
 import { getAddress, hexlify, randomBytes } from "ethers/lib/utils";
 import { expect } from "chai";
-import { listenRouterPrepare, prepare, PrepareParamType } from "../src";
-import * as sdkUtils from "../src/utils";
+import pino from "pino";
+
+import { handleReceiverPrepare, prepare, PrepareParams } from "../src";
+import { TransactionPreparedEvent } from "../src/utils";
 
 const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
   const transaction = {
@@ -24,18 +30,18 @@ const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {})
   return transaction;
 };
 
+const logger = pino({ level: "error" });
+
 describe("prepare", () => {
   let transactionManager: SinonStubbedInstance<Contract>;
-  let userWeb3Provider: SinonStubbedInstance<providers.Web3Provider>;
+  let sendingProvider: SinonStubbedInstance<providers.Web3Provider>;
   let prepareStub: SinonStub;
-  let getTransactionManagerContractMock: Sinon.SinonStub;
 
   const user = Wallet.createRandom();
 
   beforeEach(async () => {
-    userWeb3Provider = createStubInstance(providers.Web3Provider);
+    sendingProvider = createStubInstance(providers.Web3Provider);
     transactionManager = createStubInstance(Contract);
-    getTransactionManagerContractMock = Sinon.stub(sdkUtils, "getTransactionManagerContract");
 
     prepareStub = stub();
   });
@@ -45,17 +51,19 @@ describe("prepare", () => {
     restore();
   });
 
-  const setupMocks = (overrides: Partial<PrepareParamType> = {}): PrepareParamType => {
+  const setupMocks = (overrides: Partial<PrepareParams> = {}): PrepareParams => {
     const params = {
-      userWebProvider: userWeb3Provider,
+      sendingProvider,
       amount: "100000",
       expiry: (Date.now() + 10_000).toString(),
       sendingAssetId: Wallet.createRandom().address,
       receivingAssetId: Wallet.createRandom().address,
       receivingAddress: Wallet.createRandom().address,
-      sendingChainId: 1337,
-      receivingChainId: 31337,
+      sendingChainId: 31337,
+      receivingChainId: 1337,
       router: Wallet.createRandom().address,
+      transactionId: getRandomBytes32(),
+      signer: user,
       ...overrides,
     };
 
@@ -67,17 +75,16 @@ describe("prepare", () => {
       },
     });
     transactionManager.connect.returns({ prepare: prepareStub } as any);
-    userWeb3Provider.getSigner.returns(user as any);
-    userWeb3Provider.getNetwork.resolves({ name: "test", chainId: params.sendingChainId });
+    sendingProvider.getSigner.returns(user as any);
+    sendingProvider.getNetwork.resolves({ name: "test", chainId: params.sendingChainId });
     return params;
   };
 
-  it.skip("should properly call prepare", async () => {
+  it("should properly call prepare", async () => {
     const params = setupMocks();
-    getTransactionManagerContractMock.onFirstCall().resolves({ instance: transactionManager });
 
-    const result = await prepare(params);
-    expect(result).to.be.undefined;
+    const result = await prepare(params, (transactionManager as unknown) as Contract, logger);
+    expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
     const [txData, amount, expiry, overrides] = prepareStub.firstCall.args;
     expect(txData).to.containSubset({
@@ -99,16 +106,13 @@ describe("prepare", () => {
   });
 });
 
-describe("listenRouterPrepare", () => {
-  let listener: SinonStubbedInstance<TransactionManagerListener>;
+describe("handleReceiverPrepare", () => {
   let contract: SinonStubbedInstance<Contract>;
-  let userWeb3Provider: SinonStubbedInstance<providers.Web3Provider>;
+  let receivingProvider: SinonStubbedInstance<providers.Web3Provider>;
   let fulfillStub: SinonStub;
 
   beforeEach(async () => {
-    userWeb3Provider = createStubInstance(providers.Web3Provider);
-
-    listener = createStubInstance(TransactionManagerListener);
+    receivingProvider = createStubInstance(providers.Web3Provider);
 
     contract = createStubInstance(Contract);
 
@@ -122,9 +126,9 @@ describe("listenRouterPrepare", () => {
 
   const setupMocks = (
     overrides: Partial<InvariantTransactionData> = {},
-    amount: string = "100000",
+    amount = "100000",
     expiry = (Date.now() + 10_000).toString(),
-    blockNumber: number = 10,
+    blockNumber = 10,
     user: Wallet = Wallet.createRandom(),
   ): { event: TransactionPreparedEvent; user: Wallet } => {
     const txData = getTransactionData({
@@ -134,23 +138,15 @@ describe("listenRouterPrepare", () => {
     });
 
     // Setup mocks
-    userWeb3Provider.getNetwork.resolves({ chainId: txData.receivingChainId, name: "test" });
-    userWeb3Provider.getSigner.returns(user as any);
+    receivingProvider.getNetwork.resolves({ chainId: txData.receivingChainId, name: "test" });
 
-    listener.waitFor.resolves({ txData, amount, expiry, blockNumber, caller: txData.router });
+    fulfillStub.resolves({ hash: "success", wait: () => Promise.resolve({ status: 1, transactionHash: "success" }) });
+    contract.connect.returns({ fulfill: fulfillStub } as any);
 
-    fulfillStub.resolves({ hash: "success", wait: () => Promise.resolve() });
-    contract.fulfill = fulfillStub;
-
-    const obj = {
-      fulfill: fulfillStub,
+    return {
+      event: { txData, amount, expiry, blockNumber, caller: txData.router, chainId: txData.receivingChainId },
+      user,
     };
-
-    listener.getTransactionManager.returns({
-      ...obj,
-      connect: ((_signer) => obj) as any,
-    } as any);
-    return { event: { txData, amount, expiry, blockNumber, caller: txData.router }, user };
   };
 
   it("should properly handle an emitted event with matching txId", async () => {
@@ -158,9 +154,15 @@ describe("listenRouterPrepare", () => {
     const { event, user } = setupMocks();
 
     // Make call
-    const response = await listenRouterPrepare(
-      { txData: event.txData, relayerFee, userWebProvider: userWeb3Provider },
-      (listener as unknown) as TransactionManagerListener,
+    const response = await handleReceiverPrepare(
+      {
+        txData: event.txData,
+        relayerFee,
+        receivingProvider,
+        signer: user,
+      },
+      (contract as unknown) as Contract,
+      logger,
     );
 
     // Verify sig is properly broadcast
