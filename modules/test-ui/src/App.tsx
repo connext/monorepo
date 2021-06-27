@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
 import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
-import { constants, Signer } from "ethers";
+import { constants, providers, Signer } from "ethers";
 import pino from "pino";
 import { parseEther } from "ethers/lib/utils";
 
@@ -45,19 +45,18 @@ function App() {
       if (!signer || !web3Provider) {
         return;
       }
-      const _sdk = await NxtpSdk.init(web3Provider, {} as any, signer, pino({ level: "info" }));
+      const _sdk = await NxtpSdk.init(
+        web3Provider,
+        new providers.JsonRpcProvider("https://rpc.goerli.mudit.blog/", 5),
+        signer,
+        pino({ level: "info" }),
+      );
       setSdk(_sdk);
     };
     init();
   }, [web3Provider, signer]);
 
   const transfer = async (sendingChain: number, receivingChain: number, amount: string) => {
-    // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    if (!sdk) {
-      console.error("No sdk");
-      return;
-    }
-
     // Create txid
     const transactionId = getRandomBytes32();
 
@@ -136,14 +135,14 @@ function App() {
             <Form.Item label="Sending Chain" name="sendingChain">
               <Select>
                 <Select.Option value="4">Rinkeby</Select.Option>
-                <Select.Option value="5">Goerli</Select.Option>
+                {/* <Select.Option value="5">Goerli</Select.Option> */}
               </Select>
             </Form.Item>
 
             <Form.Item label="Receiving Chain" name="receivingChain">
               <Select>
                 <Select.Option value="4">Rinkeby</Select.Option>
-                <Select.Option value="5">Goerli</Select.Option>
+                {/* <Select.Option value="5">Goerli</Select.Option> */}
               </Select>
             </Form.Item>
 
