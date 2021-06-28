@@ -7,6 +7,7 @@ import pino from "pino";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
+import { parseEther } from "@ethersproject/units";
 
 import {
   ReceiverFulfillData,
@@ -15,7 +16,6 @@ import {
 } from "../transactionManagerListener";
 import { EXPIRY_DECREMENT, Handler } from "../handler";
 import * as config from "../config";
-import { parseEther } from "@ethersproject/units";
 
 const logger = pino();
 
@@ -145,7 +145,7 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      let tokenPrepareData = {
+      const tokenPrepareData = {
         ...senderPrepareData,
         sendingAssetId: rinkebyTestTokenAddress,
         receivingAssetId: goerliTestTokenAddress,
