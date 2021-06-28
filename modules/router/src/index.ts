@@ -15,11 +15,12 @@ const server = fastify();
 
 const config = getConfig();
 const wallet = Wallet.fromMnemonic(config.mnemonic);
-const logger = pino({ name: wallet.address });
+const logger = pino({ name: wallet.address, level: config.logLevel });
 const messaging = new RouterNxtpNatsMessagingService({
   signer: wallet,
   authUrl: config.authUrl,
   natsUrl: config.natsUrl,
+  logger,
 });
 const subgraphs: { [chainId: number]: string } = {};
 const providers: { [chainId: number]: string[] } = {};
