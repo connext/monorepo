@@ -2,7 +2,13 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { providers, Signer } from "ethers";
 import { Evt } from "evt";
-import { getRandomBytes32, TIntegerString, TAddress } from "@connext/nxtp-utils";
+import {
+  getRandomBytes32,
+  TIntegerString,
+  TAddress,
+  NxtpMessaging,
+  NatsNxtpMessagingService,
+} from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
@@ -25,7 +31,7 @@ export const CrossChainParamsSchema = Type.Object({
   receivingAddress: TAddress,
   amount: TIntegerString,
   expiry: TIntegerString,
-  transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{30}$/)),
+  transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -88,6 +94,7 @@ export class NxtpSdk {
     private readonly sendingListener: TransactionManagerListener,
     private readonly receivingListener: TransactionManagerListener,
     private readonly signer: Signer,
+    private readonly messaging: NxtpMessaging,
     private readonly logger: BaseLogger,
   ) {}
 
@@ -96,8 +103,18 @@ export class NxtpSdk {
     sendingProvider: providers.JsonRpcProvider,
     receivingProvider: providers.JsonRpcProvider,
     signer: Signer,
+    messagingUrl: string,
     logger: BaseLogger,
   ): Promise<NxtpSdk> {
+    // Create messaging
+    const addr = await signer.getAddress();
+    const messaging = new NatsNxtpMessagingService({
+      signer,
+      messagingUrl,
+      logger: logger.child({ module: "NxtpMessaging", name: addr }),
+    });
+    await messaging.connect();
+
     // Start up transaction manager listeners
     const sendingListener = await TransactionManagerListener.connect(sendingProvider);
     const receivingListener = await TransactionManagerListener.connect(receivingProvider);
@@ -108,7 +125,8 @@ export class NxtpSdk {
       sendingListener,
       receivingListener,
       signer,
-      logger.child({ module: "NxtpSdk", name: await signer.getAddress() }),
+      messaging,
+      logger.child({ module: "NxtpSdk", name: addr }),
     );
 
     client.setupListeners();
@@ -172,6 +190,7 @@ export class NxtpSdk {
     this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async data => {
       // Always automatically broadcast signatures for recieving chain
       // TODO: how to handle relayer fees here? will need before signing
+      this.logger.info({ ...data }, "Handling receiver tx prepared event");
       await handleReceiverPrepare(
         {
           txData: data.txData,
@@ -180,6 +199,7 @@ export class NxtpSdk {
           relayerFee: "0",
         },
         this.receivingListener.getTransactionManager(),
+        this.messaging,
         this.logger,
       );
     });

@@ -3,12 +3,12 @@ import fastify from "fastify";
 import { NatsNxtpMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
+import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig } from "./config";
 import { Handler } from "./handler";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { setupListeners } from "./listener";
-import { Static, Type } from "@sinclair/typebox";
 import { TransactionManager } from "./contract";
 
 const server = fastify();

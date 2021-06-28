@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
 import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
-import { constants, providers, Signer } from "ethers";
+import { BigNumber, constants, providers, Signer } from "ethers";
 import pino from "pino";
 import { parseEther } from "ethers/lib/utils";
 
@@ -10,12 +10,17 @@ import { parseEther } from "ethers/lib/utils";
 import "./App.css";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
+// NOTE: infura urls ignore cors issues
+const receivingProviderUrl = "https://rpc.goerli.mudit.blog/";
+
+const messagingUrl = "https://messaging.connext.network";
+
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [web3Provider, setProvider] = useState<Web3Provider>();
-  const [routerAddress, setRouterAddress] = useState<string>("");
+  const [routerAddress, setRouterAddress] = useState<string>("0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6");
   const [receivingAddress, setReceivingAddress] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
+  const [amount, setAmount] = useState<string>("0.01");
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
 
@@ -47,33 +52,88 @@ function App() {
       }
       const _sdk = await NxtpSdk.init(
         web3Provider,
-        new providers.JsonRpcProvider("https://rpc.goerli.mudit.blog/", 5),
+        new providers.JsonRpcProvider(receivingProviderUrl, 5),
         signer,
+        messagingUrl,
         pino({ level: "info" }),
       );
       setSdk(_sdk);
+      _sdk.attach(NxtpSdkEvents.TransactionPrepared, data => {
+        console.log("tx prepared:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.TransactionCompleted, data => {
+        console.log("tx completed:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.TransactionFulfilled, data => {
+        console.log("tx fulfilled:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.TransactionCancelled, data => {
+        console.log("tx cancelled:", data);
+      });
     };
     init();
   }, [web3Provider, signer]);
+
+  const switchChains = async (targetChainId: number) => {
+    const { chainId: _chainId } = await signer.provider!.getNetwork();
+    if (_chainId === targetChainId) {
+      return;
+    }
+    const ethereum = (window as any).ethereum;
+    if (typeof ethereum === "undefined") {
+      alert("Please install Metamask");
+      return;
+    }
+    const chainId =
+      "0x" +
+      BigNumber.from(targetChainId)
+        ._hex.split("0x")[1]
+        .replace(/\b0+/g, "");
+    try {
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId }],
+      });
+      window.location.reload();
+    } catch (error) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (error.code === 4902) {
+        try {
+          await ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{ chainId, rpcUrl: receivingProviderUrl }],
+          });
+        } catch (addError) {
+          // handle "add" error
+          throw new Error(`Error adding chain ${targetChainId}: ${addError.message}`);
+        }
+      }
+      throw error;
+      // handle other "switch" errors
+    }
+  };
 
   const transfer = async (sendingChain: number, receivingChain: number, amount: string) => {
     // Create txid
     const transactionId = getRandomBytes32();
 
+    await switchChains(sendingChain);
+
     // Add listeners
     sdk.attachOnce(
       NxtpSdkEvents.TransactionPrepared,
-      data => {
-        console.log("tx prepared:", data);
+      async _data => {
         setStep(1);
       },
-      data => data.chainId === receivingChain && data.txData.transactionId === transactionId,
+      data => data.chainId === sendingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCompleted,
-      data => {
-        console.log("tx completed:", data);
+      _data => {
         setStep(2);
       },
       data => data.chainId === receivingChain && data.txData.transactionId === transactionId,
@@ -81,8 +141,7 @@ function App() {
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCancelled,
-      data => {
-        console.log("tx cancelled:", data);
+      _data => {
         setStep(0);
       },
       data => data.chainId === sendingChain && data.txData.transactionId === transactionId,
@@ -99,7 +158,7 @@ function App() {
         expiry: (Date.now() + 3600 * 24 * 2).toString(), // 2 days
         // callData?: string;
       });
-      setStep(1);
+      setStep(2);
     } catch (e) {
       console.log(e);
       setStep(0);

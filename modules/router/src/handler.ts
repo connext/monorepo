@@ -63,7 +63,12 @@ export interface Handler {
 }
 
 export type AuctionData = any;
-export type MetaTxData = any;
+export type MetaTxData = {
+  relayerFee: string;
+  to: string;
+  data: string;
+  chainId: number;
+};
 
 export class Handler implements Handler {
   constructor(
@@ -104,9 +109,15 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(_data: MetaTxData): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxData): Promise<void> {
     // First log
-    // TODO
+    const method = "handleSenderPrepare";
+    const methodId = v4();
+    this.logger.info({ method, methodId, data }, "Method start");
+
+    const { relayerFee, to, data: txData, chainId } = data;
+
+    // TODO:
     // Validate that metatx request matches with known data about fulfill
     // Is this needed? Can we just submit to chain without validating?
     // Technically this is ok, but perhaps we want to validate only for our own
@@ -118,7 +129,13 @@ export class Handler implements Handler {
     // - etc.
     // Send to txService
     // Update metrics
-    // TODO
+
+    this.logger.info({ method, methodId, chainId, relayerFee }, "Submitting tx");
+    const tx = await this.txService.sendAndConfirmTx(chainId, { to, value: "0", data: txData, chainId });
+    this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+
+    // TODO: publish response, whats the best way to do this? need a predictable
+    // inbox for this tx only
   }
 
   // HandleSenderPrepare
@@ -135,17 +152,12 @@ export class Handler implements Handler {
       return;
     }
 
-    // Make sure we didnt *already* prepare receiver tx
-    // NOTE: if subgraph is out of date here, worst case is that the tx is
-    // reverted. this is fine.
-    const receiverTransaction = await this.subgraph.getReceiverTransaction(
-      inboundData.transactionId,
-      inboundData.receivingChainId,
-    );
-    if (receiverTransaction) {
-      this.logger.warn({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
-      return;
-    }
+    // TODO: where should sender cancellation be handled / evaluated?
+    // TODO: what if theres never a fulfill, where does receiver cancellation
+    // get handled? sender + receiver cancellation?
+
+    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
+
     // Generate params
     const txParams = {
       callData: inboundData.callData,
@@ -158,6 +170,18 @@ export class Handler implements Handler {
       transactionId: inboundData.transactionId,
       user: inboundData.user,
     };
+
+    // Make sure we didnt *already* prepare receiver tx
+    // NOTE: if subgraph is out of date here, worst case is that the tx is
+    // reverted. this is fine.
+    const receiverTransaction = await this.subgraph.getReceiverTransaction(
+      inboundData.transactionId,
+      inboundData.receivingChainId,
+    );
+    if (receiverTransaction) {
+      this.logger.info({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
+      return;
+    }
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
@@ -192,7 +216,6 @@ export class Handler implements Handler {
     // - Amount
     // - AssetId
     // encode the data for contract call
-    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const encodedData = nxtpContract.encodeFunctionData("prepare", [txParams, receiverAmount, receiverExpiry]);
     // Send to txService
     try {
@@ -205,10 +228,23 @@ export class Handler implements Handler {
         from: signerAddress,
       });
       this.logger.info(
-        { method, methodId, txHash: txRes.transactionHash, transactionId: inboundData.transactionId },
+        {
+          method,
+          methodId,
+          txHash: txRes.transactionHash,
+          transactionId: inboundData.transactionId,
+          chainId: inboundData.receivingChainId,
+        },
         "Receiver prepare tx confirmed",
       );
     } catch (e) {
+      if (e.message.includes("DUPLICATE_DIGEST")) {
+        this.logger.warn(
+          { methodId, method, transactionId: inboundData.transactionId },
+          "Receiver tx already prepared, but resubmitted",
+        );
+        return;
+      }
       this.logger.error(
         { methodId, method, error: jsonifyError(e), transactionId: inboundData.transactionId },
         "Error sending receiver prepare tx",
@@ -271,7 +307,10 @@ export class Handler implements Handler {
 
     // Send to tx service
     try {
-      this.logger.info({ method, methodId }, "Sending sender fulfill tx");
+      this.logger.info(
+        { method, methodId, transactionId: data.transactionId, signature: data.signature },
+        "Sending sender fulfill tx",
+      );
       const txRes = await this.txService.sendAndConfirmTx(data.sendingChainId, {
         to: config.chainConfig[data.sendingChainId].transactionManagerAddress,
         data: encodedData,
@@ -279,10 +318,16 @@ export class Handler implements Handler {
         chainId: data.sendingChainId,
         from: signerAddress,
       });
-      this.logger.info({ method, methodId, txHash: txRes.transactionHash }, "Sender fulfill tx confirmed");
+      this.logger.info(
+        { method, methodId, txHash: txRes.transactionHash, transactionId: data.transactionId },
+        "Sender fulfill tx confirmed",
+      );
     } catch (e) {
       // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending sender fulfill tx");
+      this.logger.error(
+        { methodId, method, transactionId: data.transactionId, error: jsonifyError(e) },
+        "Error sending sender fulfill tx",
+      );
       // TODO discuss this case!!
       throw e;
     }

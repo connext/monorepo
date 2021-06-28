@@ -1,5 +1,5 @@
 import { BigNumber, constants, Contract, providers } from "ethers";
-import { InvariantTransactionData, signFulfillTransactionPayload } from "@connext/nxtp-utils";
+import { InvariantTransactionData, NxtpMessaging, signFulfillTransactionPayload } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 
@@ -83,7 +83,8 @@ export type TransactionPrepareEvent = {
 
 export const handleReceiverPrepare = async (
   params: HandleReceiverPrepareParams,
-  transactionManager: Contract, // TODO: remove me
+  transactionManager: Contract,
+  messaging: NxtpMessaging,
   logger: BaseLogger,
 ): Promise<void> => {
   const method = "handleReceiverPrepare";
@@ -93,25 +94,39 @@ export const handleReceiverPrepare = async (
   const { txData, receivingProvider, relayerFee, signer } = params;
 
   // Generate signature
-  logger.info({ method, methodId }, "Generating fulfill signature");
+  logger.info(
+    { method, methodId, transactionId: params.txData.transactionId, relayerFee },
+    "Generating fulfill signature",
+  );
   const signature = await signFulfillTransactionPayload(txData, relayerFee, signer);
+  logger.info({ method, methodId }, "Generated signature");
 
   // Make sure user is on the receiving chain
-  // TODO: remove this check when messaging in place
-  await verifyCorrectChain(txData.receivingChainId, receivingProvider);
 
   // Submit fulfill to receiver chain
-  logger.info({ method, methodId }, "Preparing fulfill tx");
+  logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
 
-  const fulfillTx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature);
-  logger.info({ method, methodId, transactionHash: fulfillTx.hash }, "Fulfill tx submitted");
+  const data = transactionManager.interface.encodeFunctionData("fulfill", [
+    {
+      ...txData,
+    },
+    relayerFee,
+    signature,
+  ]);
 
-  const receipt = await fulfillTx.wait(1);
-  if (receipt.status === 0) {
-    throw new Error("Fulfill transaction reverted onchain");
-  }
-  logger.info({ method, methodId, transactionHash: receipt.transactionHash }, "Mined fulfill tx");
-
-  // TODO: broadcast from messaging service here and add logic to wait
-  // for relayer submission or submit it on our own before expiry
+  // TODO: fix relaying messaging :(
+  const inbox = `${await signer.getAddress()}.metatx`;
+  await messaging.publishMetaTxRequest(
+    {
+      relayerFee,
+      to: transactionManager.address,
+      chainId: txData.receivingChainId,
+      data,
+    },
+    inbox,
+  );
+  logger.info({ method, methodId, inbox }, "Method complete");
+  // TODO: relayer responses?
+  // add logic to submit it on our own before expiry
+  // or some timeout
 };

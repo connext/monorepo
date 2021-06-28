@@ -31,9 +31,10 @@ export async function setupListeners(
   });
 
   // <from>.metatx
-  messagingService.subscribe("*.metatx", async data => {
+  messagingService.subscribeToMetaTxRequest("*.metatx", async data => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
+    logger.info({ ...data }, "Got metatx");
     await handler.handleMetaTxRequest(data);
   });
 

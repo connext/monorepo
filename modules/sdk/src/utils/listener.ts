@@ -80,8 +80,8 @@ export class TransactionManagerListener {
         sendingAssetId: txData.sendingAssetId,
         receivingAssetId: txData.receivingAssetId,
         receivingAddress: txData.receivingAddress,
-        sendingChainId: txData.sendingChainId.toNumber(),
-        receivingChainId: txData.receivingChainId.toNumber(),
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
         callData: txData.callData,
         transactionId: txData.transactionId,
       };
