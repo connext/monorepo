@@ -10,12 +10,10 @@ describe("publish / subscribe", () => {
   const signerB = Wallet.createRandom();
 
   beforeEach(async () => {
-    const messagingUrl = "https://messaging.connext.network";
-
-    messagingA = new NatsNxtpMessagingService({ messagingUrl, signer: signerA });
+    messagingA = new NatsNxtpMessagingService({ signer: signerA });
     await messagingA.connect();
 
-    messagingB = new NatsNxtpMessagingService({ messagingUrl, signer: signerB });
+    messagingB = new NatsNxtpMessagingService({ signer: signerB });
     await messagingB.connect();
   });
 
@@ -41,7 +39,8 @@ describe("publish / subscribe", () => {
     // expect(inbox).to.be.ok;
     // expect(inbox).to.be.eq(_inbox);
 
-    const result = await Promise.race([responsePromise, delay(5000)]);
+    const result = await responsePromise;
+    console.log("result: ", result);
     expect(result).to.be.ok;
   });
 });

@@ -91,7 +91,7 @@ export const handleReceiverPrepare = async (
   const methodId = getRandomBytes32();
   logger.info({ method, methodId, txData: params.txData, relayerFee: params.relayerFee }, "Method start");
 
-  const { txData, receivingProvider, relayerFee, signer } = params;
+  const { txData, relayerFee, signer } = params;
 
   // Generate signature
   logger.info(

@@ -35,7 +35,7 @@ export async function setupListeners(
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
     logger.info({ ...data }, "Got metatx");
-    await handler.handleMetaTxRequest(data);
+    await handler.handleMetaTxRequest(data.data);
   });
 
   // Setup Subgraph events

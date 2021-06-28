@@ -33,7 +33,6 @@ export const NATS_CLUSTER_URL =
 
 export type MessagingConfig = {
   signer: Signer;
-  messagingUrl?: string;
   authUrl?: string;
   natsUrl?: string;
   bearerToken?: string;
@@ -74,45 +73,18 @@ export class NatsBasicMessagingService implements BasicMessaging {
   constructor(config: MessagingConfig) {
     this.log = config.logger || pino();
 
-    // Either messagingUrl or authUrl+natsUrl must be specified
-    if (config.messagingUrl) {
-      this.authUrl = config.messagingUrl;
-      // backwards compatible config for new cluster
-      if (config.messagingUrl === "https://messaging.connext.network") {
-        config.authUrl = NATS_AUTH_URL;
-        config.natsUrl = isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
-      }
-      if (isNode()) {
-        this.natsUrl = `nats://${
-          // Remove protocol prefix and port+path suffix
-          config.messagingUrl
-            .replace(/^.*:\/\//, "")
-            .replace(/\//, "")
-            .replace(/:[0-9]+/, "")
-        }:4222`;
-      } else {
-        // Browser env
-        this.natsUrl = `${
-          // Replace "http" in the protocol with "ws" (preserving an "s" suffix if present)
-          config.messagingUrl.replace(/:\/\/.*/, "").replace("http", "ws")
-        }://${
-          // Remove protocol prefix & path suffix from messaging Url
-          config.messagingUrl.replace(/^.*:\/\//, "").replace(/\//, "")
-        }/ws-nats`;
-      }
-      this.log.info(`Derived natsUrl=${this.natsUrl} from messagingUrl=${config.messagingUrl}`);
-    } else if (!config.authUrl || !config.natsUrl) {
+    // default to live cluster
+    console.log("config: ", config);
+    if (!config.authUrl) {
       config.authUrl = NATS_AUTH_URL;
+    }
+
+    if (!config.natsUrl) {
       config.natsUrl = isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
     }
 
-    // Let authUrl and/or natsUrl overwrite messagingUrl if both are provided
-    if (config.authUrl) {
-      this.authUrl = config.authUrl;
-    }
-    if (config.natsUrl) {
-      this.natsUrl = config.natsUrl;
-    }
+    this.authUrl = config.authUrl;
+    this.natsUrl = config.natsUrl;
 
     this.log.info({ natsUrl: this.natsUrl, authUrl: this.authUrl }, "Messaging config generated");
 

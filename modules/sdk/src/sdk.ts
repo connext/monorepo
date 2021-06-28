@@ -103,15 +103,17 @@ export class NxtpSdk {
     sendingProvider: providers.JsonRpcProvider,
     receivingProvider: providers.JsonRpcProvider,
     signer: Signer,
-    messagingUrl: string,
     logger: BaseLogger,
+    natsUrl?: string,
+    authUrl?: string,
   ): Promise<NxtpSdk> {
     // Create messaging
     const addr = await signer.getAddress();
     const messaging = new NatsNxtpMessagingService({
       signer,
-      messagingUrl,
       logger: logger.child({ module: "NxtpMessaging", name: addr }),
+      natsUrl,
+      authUrl,
     });
     await messaging.connect();
 
