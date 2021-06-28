@@ -333,7 +333,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${AUCTION_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data);
     return { inbox };
   }
 
@@ -348,7 +348,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${METATX_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data);
     return { inbox };
   }
 
