@@ -74,7 +74,6 @@ export class NatsBasicMessagingService implements BasicMessaging {
     this.log = config.logger || pino();
 
     // default to live cluster
-    console.log("config: ", config);
     if (!config.authUrl) {
       config.authUrl = NATS_AUTH_URL;
     }

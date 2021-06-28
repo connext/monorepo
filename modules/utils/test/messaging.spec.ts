@@ -1,4 +1,4 @@
-import { delay, getRandomBytes32, MetaTxPayload, NatsNxtpMessagingService, NxtpMessaging } from "@connext/nxtp-utils";
+import { generateMessagingInbox, MetaTxPayload, NatsNxtpMessagingService, NxtpMessaging } from "@connext/nxtp-utils";
 import { constants, Wallet } from "ethers";
 import { expect } from "chai";
 
@@ -24,7 +24,7 @@ describe("publish / subscribe", () => {
 
   it("should properly subscribe to and send messages", async () => {
     // const subject = "*.metatx";
-    const _inbox = getRandomBytes32();
+    const _inbox = generateMessagingInbox();
     const responsePromise = new Promise(async resolve => {
       await messagingB.subscribe(_inbox, data => resolve(data));
     });
