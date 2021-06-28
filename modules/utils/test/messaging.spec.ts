@@ -1,4 +1,10 @@
-import { generateMessagingInbox, MetaTxPayload, NatsNxtpMessagingService, NxtpMessaging } from "@connext/nxtp-utils";
+import {
+  delay,
+  generateMessagingInbox,
+  MetaTxPayload,
+  NatsNxtpMessagingService,
+  NxtpMessaging,
+} from "@connext/nxtp-utils";
 import { constants, Wallet } from "ethers";
 import { expect } from "chai";
 
@@ -22,25 +28,35 @@ describe("publish / subscribe", () => {
     await messagingB.disconnect();
   });
 
-  it("should properly subscribe to and send messages", async () => {
-    // const subject = "*.metatx";
+  it.skip("should properly subscribe to and send messages", async () => {
+    const subject = "*.metatx";
     const _inbox = generateMessagingInbox();
-    const responsePromise = new Promise(async resolve => {
-      await messagingB.subscribe(_inbox, data => resolve(data));
-    });
+    console.log("_inbox: ", _inbox);
 
+    let count = 0;
+    const subscription = new Promise(async res => {
+      await messagingB.subscribe(_inbox, data => {
+        console.log(`Got data: ${JSON.stringify(data)}, count: ${count}`);
+        res(data);
+      });
+      await delay(5000);
+    });
     const payload: MetaTxPayload = {
       chainId: 1,
       to: constants.AddressZero,
       data: "0x",
       relayerFee: "0",
     };
-    await messagingA.publish(_inbox, payload);
+    console.log("subject: ", subject);
+    for (let index = 0; index < 5; index++) {
+      console.log(`publish ${index}`);
+      await messagingA.publish(_inbox, payload);
+      await delay(2500);
+    }
+    const data = await subscription;
+    console.log("data: ", data);
+    expect(true).to.be.true;
     // expect(inbox).to.be.ok;
     // expect(inbox).to.be.eq(_inbox);
-
-    const result = await responsePromise;
-    console.log("result: ", result);
-    expect(result).to.be.ok;
   });
 });
