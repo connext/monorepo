@@ -216,6 +216,8 @@ describe("TransactionManager", function() {
       expiry: record.expiry,
       blockNumber: receipt.blockNumber,
       caller: preparer.address,
+      bidSignature: "0x",
+      encodedBid: "0x",
     });
 
     // Verify amount has been deducted from preparer
