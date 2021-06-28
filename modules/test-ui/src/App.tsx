@@ -197,8 +197,8 @@ function App() {
 
             <Form.Item label="Receiving Chain" name="receivingChain">
               <Select>
-                <Select.Option value="4">Rinkeby</Select.Option>
-                {/* <Select.Option value="5">Goerli</Select.Option> */}
+                {/* <Select.Option value="4">Rinkeby</Select.Option> */}
+                <Select.Option value="5">Goerli</Select.Option>
               </Select>
             </Form.Item>
 
