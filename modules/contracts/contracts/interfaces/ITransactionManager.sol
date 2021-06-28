@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.1;
 
-struct VariableTransactionData {
-  uint256 amount;
-  uint256 expiry;
-  uint256 blockNumber;
-}
-
 interface ITransactionManager {
   // Structs
   struct InvariantTransactionData {
@@ -15,19 +9,40 @@ interface ITransactionManager {
     address sendingAssetId;
     address receivingAssetId;
     address receivingAddress;
-    uint24 sendingChainId;
-    uint24 receivingChainId;
+    uint256 sendingChainId;
+    uint256 receivingChainId;
     bytes callData;
     bytes32 transactionId;
   }
 
+  enum TransactionStatus {
+    Empty,
+    Pending,
+    Completed
+  }
+
+  struct TransactionData {
+    address user;
+    address router;
+    address sendingAssetId;
+    address receivingAssetId;
+    address receivingAddress;
+    bytes callData;
+    bytes32 transactionId;
+    uint256 amount;
+    uint256 expiry;
+    uint256 blockNumber;
+    uint256 sendingChainId;
+    uint256 receivingChainId;
+  }
+
   struct SignedCancelData {
-    bytes32 txDigest;
+    bytes32 invariantDigest;
     string cancel;
   }
 
   struct SignedFulfillData {
-    bytes32 txDigest;
+    bytes32 invariantDigest;
     uint256 relayerFee;
   }
 
@@ -38,33 +53,11 @@ interface ITransactionManager {
 
   // Transaction events
   // TODO: structure
-  event TransactionPrepared(
-    InvariantTransactionData txData,
-    uint256 amount,
-    uint256 expiry,
-    uint256 blockNumber,
-    address caller,
-    bytes encodedBid,
-    bytes bidSignature
-  );
+  event TransactionPrepared(TransactionData txData, address caller, bytes encodedBid, bytes bidSignature);
 
-  event TransactionFulfilled(
-    InvariantTransactionData txData,
-    uint256 amount,
-    uint256 expiry,
-    uint256 blockNumber,
-    uint256 relayerFee,
-    bytes signature,
-    address caller
-  );
+  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
 
-  event TransactionCancelled(
-    InvariantTransactionData txData,
-    uint256 amount,
-    uint256 expiry,
-    uint256 blockNumber,
-    address caller
-  );
+  event TransactionCancelled(TransactionData txData, address caller);
 
   // Getters
 
@@ -84,15 +77,13 @@ interface ITransactionManager {
     uint256 expiry,
     bytes calldata encodedBid,
     bytes calldata bidSignature
-  ) external payable returns (InvariantTransactionData memory);
+  ) external payable returns (TransactionData memory);
 
   function fulfill(
-    InvariantTransactionData calldata txData,
+    TransactionData calldata txData,
     uint256 relayerFee,
     bytes calldata signature
-  ) external returns (InvariantTransactionData memory);
+  ) external returns (TransactionData memory);
 
-  function cancel(InvariantTransactionData calldata txData, bytes calldata signature)
-    external
-    returns (InvariantTransactionData memory);
+  function cancel(TransactionData calldata txData, bytes calldata signature) external returns (TransactionData memory);
 }
