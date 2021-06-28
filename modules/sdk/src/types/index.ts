@@ -4,7 +4,6 @@ import { Signer } from "ethers";
 
 export type PrepareParams = Omit<InvariantTransactionData, "user" | "callData"> & {
   signer: Signer;
-  sendingProvider: JsonRpcProvider;
   amount: string;
   expiry: string;
   callData?: string;

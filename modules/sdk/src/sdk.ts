@@ -168,7 +168,6 @@ export class NxtpSdk {
     const { chainId: receivingChainId } = await this.receivingProvider.getNetwork();
     const params: PrepareParams = {
       signer: this.signer,
-      sendingProvider: this.sendingProvider,
       sendingChainId,
       receivingChainId,
       sendingAssetId,

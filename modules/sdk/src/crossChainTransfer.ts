@@ -8,7 +8,7 @@ import { PrepareParams, HandleReceiverPrepareParams } from "./types";
 
 export const ajv = new Ajv();
 
-const verifyCorrectChain = async (expectedChain: number, provider: providers.JsonRpcProvider) => {
+export const verifyCorrectChain = async (expectedChain: number, provider: providers.JsonRpcProvider) => {
   // Make sure user is on the correct chain
   const { chainId } = await provider.getNetwork();
 
@@ -26,11 +26,9 @@ export const prepare = async (
   const methodId = getRandomBytes32();
   logger.info({ method, methodId, params }, "Method start");
 
-  const { sendingProvider, signer, amount, expiry, callData, sendingChainId, receivingChainId, transactionId } = params;
+  const { signer, amount, expiry, callData, sendingChainId, receivingChainId, transactionId } = params;
 
   const user = await signer.getAddress();
-
-  await verifyCorrectChain(sendingChainId, sendingProvider);
 
   // Properly checksum all addresses
   const router = validateAndParseAddress(params.router);
