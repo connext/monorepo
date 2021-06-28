@@ -26,7 +26,7 @@ export class MessagingError extends NxtpError {
   }
 }
 
-export const NATS_AUTH_URL = ""; // TODO add this
+export const NATS_AUTH_URL = "https://auth.connext.network"; // TODO add this
 export const NATS_WS_URL = "wss://websocket.connext.provide.network";
 export const NATS_CLUSTER_URL =
   "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222";
@@ -251,7 +251,12 @@ export type NxtpMessageEnvelope<T> = {
 
 export type AuctionPayload = {};
 export type AuctionResponse = {};
-export type MetaTxPayload = {};
+export type MetaTxPayload = {
+  relayerFee: string;
+  to: string;
+  data: string;
+  chainId: number;
+};
 export type MetaTxResponse = {};
 
 export interface NxtpMessaging extends BasicMessaging {
@@ -259,18 +264,21 @@ export interface NxtpMessaging extends BasicMessaging {
   subscribeToAuctionRequest(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
-  ): void;
+  ): Promise<void>;
   subscribeToAuctionResponse(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
-  ): void;
+  ): Promise<void>;
 
-  publishMetaTxRequest(data: MetaTxPayload): Promise<{ inbox: string }>;
-  subscribeToMetaTxRequest(inbox: string, handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void): void;
+  publishMetaTxRequest(data: MetaTxPayload, inbox?: string): Promise<{ inbox: string }>;
+  subscribeToMetaTxRequest(
+    inbox: string,
+    handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void,
+  ): Promise<void>;
   subscribeToMetaTxResponse(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
-  ): void;
+  ): Promise<void>;
 }
 
 export const generateMessagingInbox = (): string => {
@@ -290,11 +298,11 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
     return { inbox };
   }
 
-  subscribeToAuctionRequest(
+  async subscribeToAuctionRequest(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
-  ): void {
-    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+  ): Promise<void> {
+    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
       if (err) {
@@ -310,11 +318,11 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
     });
   }
 
-  subscribeToAuctionResponse(
+  async subscribeToAuctionResponse(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
-  ): void {
-    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+  ): Promise<void> {
+    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
       if (err) {
@@ -342,11 +350,11 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
     return { inbox };
   }
 
-  subscribeToMetaTxRequest(
-    inbox: string,
+  async subscribeToMetaTxRequest(
+    subject: string,
     handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void,
-  ): void {
-    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<MetaTxResponse> }, err?: any) => {
+  ): Promise<void> {
+    await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<MetaTxPayload> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
       if (err) {
@@ -362,11 +370,11 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
     });
   }
 
-  subscribeToMetaTxResponse(
+  async subscribeToMetaTxResponse(
     inbox: string,
     handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
-  ): void {
-    this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
+  ): Promise<void> {
+    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<MetaTxResponse> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
       if (err) {
