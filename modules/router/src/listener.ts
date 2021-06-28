@@ -1,4 +1,4 @@
-import { NxtpMessaging } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
@@ -17,7 +17,7 @@ import {
     logic should be routed to handlers.ts. 
 */
 export async function setupListeners(
-  messagingService: NxtpMessaging,
+  messagingService: RouterNxtpNatsMessagingService,
   txManager: TransactionManagerListener,
   handler: Handler,
   logger: BaseLogger,
@@ -25,17 +25,17 @@ export async function setupListeners(
   logger.info("setupListeners");
   // Setup Messaging Service events
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
-  messagingService.subscribe("*.auction.>", async data => {
+  messagingService.subscribeToAuctionRequest(async data => {
     // On every new auction broadcast, route to the new auction handler
     await handler.handleNewAuction(data);
   });
 
   // <from>.metatx
-  messagingService.subscribeToMetaTxRequest("*.metatx", async data => {
+  messagingService.subscribeToMetaTxRequest(async data => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
     logger.info({ ...data }, "Got metatx");
-    await handler.handleMetaTxRequest(data.data);
+    await handler.handleMetaTxRequest(data);
   });
 
   // Setup Subgraph events

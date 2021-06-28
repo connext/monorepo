@@ -13,8 +13,6 @@ import { getRandomBytes32 } from "@connext/nxtp-utils";
 // NOTE: infura urls ignore cors issues
 const receivingProviderUrl = "https://rpc.goerli.mudit.blog/";
 
-const messagingUrl = "https://messaging.connext.network";
-
 function App() {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [web3Provider, setProvider] = useState<Web3Provider>();
@@ -54,7 +52,6 @@ function App() {
         web3Provider,
         new providers.JsonRpcProvider(receivingProviderUrl, 5),
         signer,
-        messagingUrl,
         pino({ level: "info" }),
       );
       setSdk(_sdk);

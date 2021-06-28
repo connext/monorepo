@@ -1,4 +1,4 @@
-import { NxtpMessaging, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
@@ -72,7 +72,7 @@ export type MetaTxData = {
 
 export class Handler implements Handler {
   constructor(
-    private readonly messagingService: NxtpMessaging,
+    private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: SubgraphTransactionManagerListener,
     private readonly signer: Signer,
     private readonly txService: TransactionService,

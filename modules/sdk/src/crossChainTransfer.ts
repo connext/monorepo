@@ -1,5 +1,9 @@
 import { BigNumber, constants, Contract, providers } from "ethers";
-import { InvariantTransactionData, NxtpMessaging, signFulfillTransactionPayload } from "@connext/nxtp-utils";
+import {
+  InvariantTransactionData,
+  signFulfillTransactionPayload,
+  UserNxtpNatsMessagingService,
+} from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 
@@ -82,7 +86,7 @@ export type TransactionPrepareEvent = {
 export const handleReceiverPrepare = async (
   params: HandleReceiverPrepareParams,
   transactionManager: Contract,
-  messaging: NxtpMessaging,
+  messaging: UserNxtpNatsMessagingService,
   logger: BaseLogger,
 ): Promise<void> => {
   const method = "handleReceiverPrepare";

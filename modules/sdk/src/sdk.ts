@@ -2,13 +2,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { providers, Signer } from "ethers";
 import { Evt } from "evt";
-import {
-  getRandomBytes32,
-  TIntegerString,
-  TAddress,
-  NxtpMessaging,
-  NatsNxtpMessagingService,
-} from "@connext/nxtp-utils";
+import { getRandomBytes32, TIntegerString, TAddress, UserNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
@@ -94,7 +88,7 @@ export class NxtpSdk {
     private readonly sendingListener: TransactionManagerListener,
     private readonly receivingListener: TransactionManagerListener,
     private readonly signer: Signer,
-    private readonly messaging: NxtpMessaging,
+    private readonly messaging: UserNxtpNatsMessagingService,
     private readonly logger: BaseLogger,
   ) {}
 
@@ -109,7 +103,7 @@ export class NxtpSdk {
   ): Promise<NxtpSdk> {
     // Create messaging
     const addr = await signer.getAddress();
-    const messaging = new NatsNxtpMessagingService({
+    const messaging = new UserNxtpNatsMessagingService({
       signer,
       logger: logger.child({ module: "NxtpMessaging", name: addr }),
       natsUrl,
