@@ -1,5 +1,6 @@
 import { BigNumber, constants, Contract, providers } from "ethers";
 import {
+  generateMessagingInbox,
   InvariantTransactionData,
   signFulfillTransactionPayload,
   UserNxtpNatsMessagingService,
@@ -116,8 +117,10 @@ export const handleReceiverPrepare = async (
     signature,
   ]);
 
-  // TODO: fix relaying messaging :(
-  const inbox = `${await signer.getAddress()}.metatx`;
+  const inbox = generateMessagingInbox();
+  await messaging.subscribeToMetaTxResponse(inbox, (data, err) => {
+    logger.info({ method, methodId, data, err }, "MetaTx response received");
+  });
   await messaging.publishMetaTxRequest(
     {
       relayerFee,
@@ -127,7 +130,7 @@ export const handleReceiverPrepare = async (
     },
     inbox,
   );
-  logger.info({ method, methodId, inbox }, "Method complete");
+  logger.info({ method, methodId, inbox }, "MetaTx request published");
   // TODO: relayer responses?
   // add logic to submit it on our own before expiry
   // or some timeout
