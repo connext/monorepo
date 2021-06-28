@@ -75,7 +75,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   function prepare(
     InvariantTransactionData calldata txData,
     uint256 amount,
-    uint256 expiry
+    uint256 expiry,
+    bytes calldata encodedBid,
+    bytes calldata bidSignature
   ) external payable override nonReentrant returns (InvariantTransactionData memory) {
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
@@ -143,7 +145,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionPrepared(txData, amount, expiry, block.number, msg.sender);
+    emit TransactionPrepared(txData, amount, expiry, block.number, msg.sender, encodedBid, bidSignature);
     return txData;
   }
 

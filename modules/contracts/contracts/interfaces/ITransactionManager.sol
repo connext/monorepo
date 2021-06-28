@@ -44,7 +44,9 @@ interface ITransactionManager {
     uint256 amount,
     uint256 expiry,
     uint256 blockNumber,
-    address caller
+    address caller,
+    bytes encodedBid,
+    bytes bidSignature
   );
 
   event TransactionFulfilled(
@@ -80,7 +82,9 @@ interface ITransactionManager {
   function prepare(
     InvariantTransactionData calldata txData,
     uint256 amount,
-    uint256 expiry
+    uint256 expiry,
+    bytes calldata encodedBid,
+    bytes calldata bidSignature
   ) external payable returns (InvariantTransactionData memory);
 
   function fulfill(

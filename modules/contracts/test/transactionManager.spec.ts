@@ -202,6 +202,8 @@ describe("TransactionManager", function() {
         transaction,
         record.amount,
         record.expiry,
+        "0x",
+        "0x",
         transaction.sendingAssetId === AddressZero && userSending ? { value: record.amount } : {},
       );
     const receipt = await prepareTx.wait();
