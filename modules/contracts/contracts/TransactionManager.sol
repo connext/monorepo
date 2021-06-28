@@ -4,25 +4,21 @@ pragma solidity ^0.8.1;
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
-import "./lib/LibIterableMapping.sol";
 import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
-  using LibIterableMapping for LibIterableMapping.IterableMapping;
-
-  /// @notice Mapping of router to balance specific to asset
+  /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
-  /// @notice  Contains all the variable parts of a transaction, and a block
-  ///          number to look up the rest of the data via events. The
-  ///          variable parts of the transaction data cannot be signed in the
-  ///          digest, since then the digest and signature would be different
-  ///          for sending and receiving chains. Must be iterable so user can
-  ///          always pull their pending transactions without knowing the
-  ///          digest.
-  LibIterableMapping.IterableMapping activeTransactions;
+  /// @dev Maping of user address to blocks where active transfers
+  ///      were created.
+  mapping(address => uint256[]) public activeTransactionBlocks;
+
+  /// @dev Mapping of digests to variable parts of a transaction (i.e.
+  ///      parts that change between sending and receiving chains)
+  mapping(bytes32 => VariableTransactionData) public variableTransactionInformation;
 
   /// @dev The chain id of the contract, is passed in to avoid any evm issues
   uint24 public immutable chainId;
@@ -36,11 +32,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   constructor(address _multisend, uint24 _chainId) {
     multisend = _multisend;
     chainId = _chainId;
-  }
-
-  /// @dev returns all active transactions for a given user
-  function getActiveTransactionsByUser(address user) external view override returns (VariableTransactionData[] memory) {
-    return activeTransactions.getTransactionsByUser(user);
   }
 
   /// @param amount The amount of liquidity to add for the router
@@ -100,7 +91,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Make sure the hash is not a duplicate
     bytes32 digest = hashTransactionData(txData);
-    require(!activeTransactions.digestExists(digest), "prepare: DUPLICATE_DIGEST");
+    VariableTransactionData memory record = variableTransactionInformation[digest];
+    require(record.amount == 0 && record.expiry == 0 && record.blockNumber == 0, "prepare: DIGEST_EXISTS");
+
+    // Store the transaction variants
+    record.amount = amount;
+    record.expiry = expiry;
+    record.blockNumber = block.number;
+    variableTransactionInformation[digest] = record;
+
+    // Store active blocks
+    activeTransactionBlocks[txData.user].push(block.number);
 
     // First determine if this is sender side or receiver side
     if (txData.sendingChainId == chainId) {
@@ -141,17 +142,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       routerBalances[txData.router][txData.receivingAssetId] -= amount;
     }
 
-    // Store the transaction variants
-    activeTransactions.addTransaction(
-      VariableTransactionData({
-        amount: amount,
-        expiry: expiry,
-        digest: digest,
-        user: txData.user,
-        blockNumber: block.number
-      })
-    );
-
     // Emit event
     emit TransactionPrepared(txData, amount, expiry, block.number, msg.sender);
     return txData;
@@ -170,7 +160,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Retrieving this will revert if the record does not exist by the
     // digest (which asserts all but tx.amount, tx.expiry)
-    VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
+    VariableTransactionData memory record = variableTransactionInformation[digest];
 
     require(record.expiry > block.timestamp, "fulfill: EXPIRED");
 
@@ -181,13 +171,16 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // TODO: Do we need this check? Safemath would catch it below
     require(relayerFee < record.amount, "fulfill: INVALID_RELAYER_FEE");
 
-    // Remove the active transaction
-    activeTransactions.removeTransaction(digest);
+    // Mark transaction as fulfilled
+    record.expiry = 0;
+    variableTransactionInformation[digest] = record;
+
+    // Remove active blocks
+    removeUserActiveBlocks(txData.user, record);
 
     if (txData.sendingChainId == chainId) {
       // Complete tx to router
       // NOTE: there is no fee taken on the sending side for the relayer
-      // TODO: require this to be router?
       routerBalances[txData.router][txData.sendingAssetId] += record.amount;
     } else {
       // Complete tx to user
@@ -250,7 +243,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Retrieving this will revert if the record does not exist by the
     // digest (which asserts all but tx.amount, tx.expiry)
-    VariableTransactionData memory record = activeTransactions.getTransactionByDigest(digest);
+    VariableTransactionData memory record = variableTransactionInformation[digest];
 
     if (txData.sendingChainId == chainId) {
       // Sender side --> funds go back to user
@@ -274,8 +267,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       routerBalances[txData.router][txData.receivingAssetId] += record.amount;
     }
 
-    // Remove the active transaction
-    activeTransactions.removeTransaction(digest);
+    // Mark transaction as inactive
+    record.expiry = 0;
+    variableTransactionInformation[digest] = record;
+
+    // Remove active blocks
+    removeUserActiveBlocks(txData.user, record);
 
     // Emit event
     emit TransactionCancelled(txData, record.amount, record.expiry, record.blockNumber, msg.sender);
@@ -285,6 +282,25 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   }
 
   // Private functions
+  function removeUserActiveBlocks(address user, VariableTransactionData memory record) internal {
+    // Remove active blocks
+    uint256 newLength = activeTransactionBlocks[user].length - 1;
+    uint256[] memory updated = new uint256[](newLength);
+    bool removed = false;
+    uint256 updatedIdx = 0;
+    for (uint256 i; i < newLength + 1; i++) {
+      // Handle case where there could be more than one tx added in a block
+      // And only one should be removed
+      if (!removed && activeTransactionBlocks[user][i] == record.blockNumber) {
+        removed = true;
+        continue;
+      }
+      updated[updatedIdx] = activeTransactionBlocks[user][i];
+      updatedIdx++;
+    }
+    activeTransactionBlocks[user] = updated;
+  }
+
   function recoverFulfillSignature(
     InvariantTransactionData calldata txData,
     uint256 relayerFee,

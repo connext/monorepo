@@ -10,12 +10,13 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt }
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { TestERC20 } from "../typechain/TestERC20";
+
 import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function () {
+describe("TransactionManager", function() {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -41,7 +42,7 @@ describe("TransactionManager", function () {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "1000";
@@ -87,7 +88,7 @@ describe("TransactionManager", function () {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map((k) => {
+    keys.map(k => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -99,7 +100,7 @@ describe("TransactionManager", function () {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -107,7 +108,7 @@ describe("TransactionManager", function () {
 
   const addAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
     const router = _router ?? transactionManager.signer;
-    transactionManager.on("LiquidityAdded", (data) => {
+    transactionManager.on("LiquidityAdded", data => {
       console.log("got liquidity added event", data);
     });
     // TODO: debug event emission wtf
