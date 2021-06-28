@@ -325,7 +325,7 @@ describe("TransactionManager", function() {
 
   it("constructor initialize", async () => {
     expect(await transactionManager.chainId()).to.eq(1337);
-    expect(await transactionManager.multisend()).to.eq(AddressZero);
+    expect(await transactionManager.iMultisend()).to.eq(AddressZero);
   });
 
   describe("#addLiquidity", () => {

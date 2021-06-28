@@ -9,7 +9,6 @@ struct VariableTransactionData {
 
 interface ITransactionManager {
   // Structs
-  // TODO: Add bid data if needed?
   struct InvariantTransactionData {
     address user;
     address router;

@@ -4,7 +4,7 @@ pragma solidity ^0.8.1;
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
-import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
+import "./interpreters/MultisendInterpreter.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -23,14 +23,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev The chain id of the contract, is passed in to avoid any evm issues
   uint24 public immutable chainId;
 
-  /// @dev Address of the deployed multisending helper contract
-  address public immutable multisend;
+  /// @dev Address of the deployed multisending interpreter contract
+  address public immutable iMultisend;
 
   // TODO: determine min timeout
   uint256 public constant MIN_TIMEOUT = 0;
 
-  constructor(address _multisend, uint24 _chainId) {
-    multisend = _multisend;
+  constructor(address _iMultisend, uint24 _chainId) {
+    iMultisend = _iMultisend;
     chainId = _chainId;
   }
 
@@ -208,7 +208,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // address
         // TODO: This would allow us to execute an arbitrary transfer to drain the contracts
         // We'll need to change this to use vector pattern with *explicit* amount.
-        try MultiSendCallOnly(multisend).multiSend(txData.callData) {} catch {
+        // If it is a token, approve the amount to the interpreter
+        try
+          MultisendInterpreter(iMultisend).execute{value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+            txData.receivingAssetId,
+            toSend,
+            txData.callData
+          )
+        {} catch {
           require(
             LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
             "fulfill: TRANSFER_FAILED"
