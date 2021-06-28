@@ -187,6 +187,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     if (txData.sendingChainId == chainId) {
       // Complete tx to router
       // NOTE: there is no fee taken on the sending side for the relayer
+      // TODO: require this to be router?
       routerBalances[txData.router][txData.sendingAssetId] += record.amount;
     } else {
       // Complete tx to user
