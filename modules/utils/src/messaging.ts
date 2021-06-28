@@ -295,7 +295,7 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    */
   async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
     await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
-      `*.${AUCTION_SUBJECT}`,
+      `*.*.${AUCTION_SUBJECT}`,
       (data: AuctionResponse, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
@@ -308,7 +308,7 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
 
   async subscribeToMetaTxRequest(handler: (data: MetaTxPayload, inbox: string, err?: any) => void): Promise<void> {
     await this.subscribeToNxtpMessageWithInbox(
-      `*.${METATX_SUBJECT}`,
+      `*.*.${METATX_SUBJECT}`,
       (data: MetaTxPayload, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
