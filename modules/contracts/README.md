@@ -56,4 +56,10 @@ npx hardhat deploy --network "<NETWORK_NAME_FOR_CHAIN_ID>" # e.g. npx hardhat de
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
 
+Once the contracts have been deployed, export them using:
+
+```sh
+yarn export
+```
+
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
