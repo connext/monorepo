@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
-import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumber, constants, providers, Signer } from "ethers";
 import pino from "pino";
 import { parseEther } from "ethers/lib/utils";
-
-// FOR DEMO:
 import "./App.css";
+import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
 // NOTE: infura urls ignore cors issues
 const receivingProviderUrl = "https://rpc.goerli.mudit.blog/";
 
-const messagingUrl = "https://messaging.connext.network";
-
-function App() {
+function App(): React.ReactElement | null {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [web3Provider, setProvider] = useState<Web3Provider>();
   const [routerAddress, setRouterAddress] = useState<string>("0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6");
@@ -54,7 +50,6 @@ function App() {
         web3Provider,
         new providers.JsonRpcProvider(receivingProviderUrl, 5),
         signer,
-        messagingUrl,
         pino({ level: "info" }),
       );
       setSdk(_sdk);
@@ -78,6 +73,9 @@ function App() {
   }, [web3Provider, signer]);
 
   const switchChains = async (targetChainId: number) => {
+    if (!signer || !web3Provider) {
+      return;
+    }
     const { chainId: _chainId } = await signer.provider!.getNetwork();
     if (_chainId === targetChainId) {
       return;
@@ -117,6 +115,10 @@ function App() {
   };
 
   const transfer = async (sendingChain: number, receivingChain: number, amount: string) => {
+    if (!sdk) {
+      return;
+    }
+
     // Create txid
     const transactionId = getRandomBytes32();
 
@@ -125,25 +127,19 @@ function App() {
     // Add listeners
     sdk.attachOnce(
       NxtpSdkEvents.TransactionPrepared,
-      async _data => {
-        setStep(1);
-      },
+      () => setStep(1),
       data => data.chainId === sendingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCompleted,
-      _data => {
-        setStep(2);
-      },
+      () => setStep(2),
       data => data.chainId === receivingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCancelled,
-      _data => {
-        setStep(0);
-      },
+      () => setStep(0),
       data => data.chainId === sendingChain && data.txData.transactionId === transactionId,
     );
 
@@ -200,8 +196,8 @@ function App() {
 
             <Form.Item label="Receiving Chain" name="receivingChain">
               <Select>
-                <Select.Option value="4">Rinkeby</Select.Option>
-                {/* <Select.Option value="5">Goerli</Select.Option> */}
+                {/* <Select.Option value="4">Rinkeby</Select.Option> */}
+                <Select.Option value="5">Goerli</Select.Option>
               </Select>
             </Form.Item>
 

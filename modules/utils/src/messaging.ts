@@ -230,82 +230,116 @@ export type MetaTxPayload = {
 };
 export type MetaTxResponse = {};
 
-export interface NxtpMessaging extends BasicMessaging {
-  publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }>;
-  subscribeToAuctionRequest(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
-  ): Promise<void>;
-  subscribeToAuctionResponse(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
-  ): Promise<void>;
-
-  publishMetaTxRequest(data: MetaTxPayload, inbox?: string): Promise<{ inbox: string }>;
-  subscribeToMetaTxRequest(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void,
-  ): Promise<void>;
-  subscribeToMetaTxResponse(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
-  ): Promise<void>;
-}
-
 export const generateMessagingInbox = (): string => {
   return `_INBOX.${v4()}`;
 };
 
-export class NatsNxtpMessagingService extends NatsBasicMessagingService implements NxtpMessaging {
+export const AUCTION_SUBJECT = "auction";
+export const METATX_SUBJECT = "metatx";
+
+export class NatsNxtpMessagingService extends NatsBasicMessagingService {
+  protected async publishNxtpMessage<T>(subject: string, data: T, inbox?: string): Promise<void> {
+    const payload: NxtpMessageEnvelope<T> = {
+      inbox,
+      data,
+      version: MESSAGING_VERSION,
+    };
+    await this.publish(subject, payload);
+  }
+
+  protected async subscribeToNxtpMessage<T>(subject: string, handler: (data: T, err?: any) => void): Promise<void> {
+    await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg?.data?.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+        return handler(msg?.data?.data, err);
+      }
+      return handler(msg?.data?.data, err);
+    });
+  }
+
+  protected async subscribeToNxtpMessageWithInbox<T>(
+    subject: string,
+    handler: (data: T, inbox: string, err?: any) => void,
+  ): Promise<void> {
+    await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
+      // TODO: validate data structure
+      // there was an error, run callback with error
+      if (err) {
+        return handler(msg?.data?.data, err);
+      }
+      if (!checkMessagingVersionValid(msg.data.version)) {
+        err = new MessagingError(MessagingError.reasons.VersionError, {
+          receivedVersion: msg.data.version,
+          ourVersion: MESSAGING_VERSION,
+        });
+        return handler(msg?.data?.data, err);
+      }
+      return handler(msg?.data?.data, msg.data.inbox!, err);
+    });
+  }
+}
+
+export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
+  /**
+   * subscribeToAuctionRequest
+   * @param handler
+   *
+   */
+  async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
+      `*.*.${AUCTION_SUBJECT}`,
+      (data: AuctionResponse, inbox: string, err?: any) => {
+        return handler(data, inbox, err);
+      },
+    );
+  }
+
+  async publishAuctionResponse(data: AuctionResponse, publishInbox: string): Promise<void> {
+    await this.publishNxtpMessage(publishInbox, data);
+  }
+
+  async subscribeToMetaTxRequest(handler: (data: MetaTxPayload, inbox: string, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessageWithInbox(
+      `*.*.${METATX_SUBJECT}`,
+      (data: MetaTxPayload, inbox: string, err?: any) => {
+        return handler(data, inbox, err);
+      },
+    );
+  }
+
+  async publishMetaTxResponse(data: MetaTxResponse, publishInbox: string): Promise<void> {
+    await this.publishNxtpMessage(publishInbox, data);
+  }
+}
+
+export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
+  /**
+   * publishAuctionRequest
+   * @param data
+   * @param inbox
+   * @returns
+   *
+   */
   async publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publish(`${signerAddress}.auction`, {
-      inbox,
-      data,
-    });
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data);
     return { inbox };
   }
 
-  async subscribeToAuctionRequest(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<AuctionPayload>, err?: any) => void,
-  ): Promise<void> {
-    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
-      // TODO: validate data structure
-      // there was an error, run callback with error
-      if (err) {
-        return handler(msg.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-      }
-      return handler(msg.data, err);
-    });
-  }
-
-  async subscribeToAuctionResponse(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<AuctionResponse>, err?: any) => void,
-  ): Promise<void> {
-    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<AuctionResponse> }, err?: any) => {
-      // TODO: validate data structure
-      // there was an error, run callback with error
-      if (err) {
-        return handler(msg.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-      }
-      return handler(msg.data, err);
+  async subscribeToAuctionResponse(inbox: string, handler: (data: AuctionResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessage(inbox, (data: AuctionResponse, err?: any) => {
+      return handler(data, err);
     });
   }
 
@@ -314,50 +348,13 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService implemen
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publish(`${signerAddress}.metatx`, {
-      inbox,
-      data,
-    });
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data);
     return { inbox };
   }
 
-  async subscribeToMetaTxRequest(
-    subject: string,
-    handler: (data: NxtpMessageEnvelope<MetaTxPayload>, err?: any) => void,
-  ): Promise<void> {
-    await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<MetaTxPayload> }, err?: any) => {
-      // TODO: validate data structure
-      // there was an error, run callback with error
-      if (err) {
-        return handler(msg.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-      }
-      return handler(msg.data, err);
-    });
-  }
-
-  async subscribeToMetaTxResponse(
-    inbox: string,
-    handler: (data: NxtpMessageEnvelope<MetaTxResponse>, err?: any) => void,
-  ): Promise<void> {
-    await this.subscribe(inbox, (msg: { data: NxtpMessageEnvelope<MetaTxResponse> }, err?: any) => {
-      // TODO: validate data structure
-      // there was an error, run callback with error
-      if (err) {
-        return handler(msg.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-      }
-      return handler(msg.data, err);
+  async subscribeToMetaTxResponse(inbox: string, handler: (data: MetaTxResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessage(inbox, (data: MetaTxResponse, err?: any) => {
+      return handler(data, err);
     });
   }
 }

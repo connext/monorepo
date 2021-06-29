@@ -34,17 +34,15 @@ export const TChainConfig = Type.Object({
 const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
   chainConfig: Type.Dict(TChainConfig),
-  logLevel: Type.Optional(
-    Type.Union([
-      Type.Literal("fatal"),
-      Type.Literal("error"),
-      Type.Literal("warn"),
-      Type.Literal("info"),
-      Type.Literal("debug"),
-      Type.Literal("trace"),
-      Type.Literal("silent"),
-    ]),
-  ),
+  logLevel: Type.Union([
+    Type.Literal("fatal"),
+    Type.Literal("error"),
+    Type.Literal("warn"),
+    Type.Literal("info"),
+    Type.Literal("debug"),
+    Type.Literal("trace"),
+    Type.Literal("silent"),
+  ]),
   natsUrl: Type.String(),
   authUrl: Type.String(),
   mnemonic: Type.String(),
@@ -93,7 +91,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
-    logLevel: process.env.NXTP_FEE_LOG_LEVEL || configJson.logLevel || configFile.logLevel,
+    logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
   };
 
   // add contract deployments if they exist

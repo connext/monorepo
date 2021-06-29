@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { NatsNxtpMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { Static, Type } from "@sinclair/typebox";
@@ -15,11 +15,12 @@ const server = fastify();
 
 const config = getConfig();
 const wallet = Wallet.fromMnemonic(config.mnemonic);
-const logger = pino({ name: wallet.address });
-const messaging = new NatsNxtpMessagingService({
+const logger = pino({ name: wallet.address, level: config.logLevel });
+const messaging = new RouterNxtpNatsMessagingService({
   signer: wallet,
   authUrl: config.authUrl,
   natsUrl: config.natsUrl,
+  logger,
 });
 const subgraphs: { [chainId: number]: string } = {};
 const providers: { [chainId: number]: string[] } = {};

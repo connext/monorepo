@@ -109,130 +109,167 @@ describe("Handler", () => {
     reset();
   });
 
-  describe("handleSenderPrepare", () => {
-    it("should send prepare for receiving chain with ETH asset", async () => {
-      await handler.handleSenderPrepare(senderPrepareData);
 
-      expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
-      const call = txService.sendAndConfirmTx.getCall(0);
-      expect(call.args[0]).to.eq(1338);
+  it("should send prepare for receiving chain with ETH asset", async () => {
+    await handler.handleSenderPrepare(senderPrepareData);
 
-      const receiverAmount = "99500000000000000000"; // based on input amount
-      const receiverExpiry = futureTime - EXPIRY_DECREMENT;
-      const encodedData = nxtpContract.encodeFunctionData("prepare", [
-        {
-          callData: senderPrepareData.callData,
-          receivingAddress: senderPrepareData.receivingAddress,
-          receivingAssetId: senderPrepareData.receivingAssetId,
-          receivingChainId: senderPrepareData.receivingChainId,
-          router: senderPrepareData.router,
-          sendingAssetId: senderPrepareData.sendingAssetId,
-          sendingChainId: senderPrepareData.sendingChainId,
-          transactionId: senderPrepareData.transactionId,
-          user: senderPrepareData.user,
-        },
-        receiverAmount,
-        receiverExpiry,
-      ]);
+    expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
+    const call = txService.sendAndConfirmTx.getCall(0);
+    expect(call.args[0]).to.eq(1338);
 
-      expect(call.args[1]).to.deep.eq({
-        to: mkAddress("0xaaa"),
-        value: BigNumber.from(receiverAmount),
-        data: encodedData,
-        chainId: 1338,
-        from: mkAddress("0xabc"),
-      });
-    });
+    const receiverAmount = "99500000000000000000"; // based on input amount
+    const receiverExpiry = futureTime - EXPIRY_DECREMENT;
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [
+      {
+        callData: senderPrepareData.callData,
+        receivingAddress: senderPrepareData.receivingAddress,
+        receivingAssetId: senderPrepareData.receivingAssetId,
+        receivingChainId: senderPrepareData.receivingChainId,
+        router: senderPrepareData.router,
+        sendingAssetId: senderPrepareData.sendingAssetId,
+        sendingChainId: senderPrepareData.sendingChainId,
+        transactionId: senderPrepareData.transactionId,
+        user: senderPrepareData.user,
+      },
+      receiverAmount,
+      receiverExpiry,
+    ]);
 
-    it("should send prepare for receiving chain with token asset", async () => {
-      const tokenPrepareData = {
-        ...senderPrepareData,
-        sendingAssetId: rinkebyTestTokenAddress,
-        receivingAssetId: goerliTestTokenAddress,
-      };
-
-      await handler.handleSenderPrepare(tokenPrepareData);
-
-      const call = txService.sendAndConfirmTx.getCall(1);
-      expect(call.args[0]).to.eq(1338);
-
-      const receiverAmount = "99500000000000000000"; // based on input amount
-      const receiverExpiry = futureTime - EXPIRY_DECREMENT;
-
-      const encodedData = nxtpContract.encodeFunctionData("prepare", [
-        {
-          ...tokenPrepareData,
-        },
-        receiverAmount,
-        receiverExpiry,
-      ]);
-
-      expect(call.args[1]).to.deep.eq({
-        to: mkAddress("0xaaa"),
-        //todo:this breaks
-        value: BigNumber.from(0),
-        data: encodedData,
-        chainId: 1338,
-        from: mkAddress("0xabc"),
-      });
-
-      // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
-      expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
+    expect(call.args[1]).to.deep.eq({
+      to: mkAddress("0xaaa"),
+      value: BigNumber.from(receiverAmount),
+      data: encodedData,
+      chainId: 1338,
+      from: mkAddress("0xabc"),
     });
   });
-  describe("handleReceiverFulfill", () => {
-    it("should fulfill eth asset", async () => {
-      await handler.handleReceiverFulfill(receiverFulfillDataMock);
-      const call = txService.sendAndConfirmTx.getCall(0);
-      expect(call.args[0]).to.eq(1337);
 
-      const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-        {
-          ...receiverFulfillDataMock,
-        },
-        receiverFulfillDataMock.relayerFee,
-        receiverFulfillDataMock.signature,
-      ]);
+  it("should send prepare for receiving chain with token asset", async () => {
+    const tokenPrepareData = {
+      ...senderPrepareData,
+      sendingAssetId: rinkebyTestTokenAddress,
+      receivingAssetId: goerliTestTokenAddress,
+    };
 
-      expect(call.args[1]).to.deep.eq({
-        to: mkAddress("0xaaa"),
-        value: 0,
-        data: encodedData,
-        chainId: 1337,
-        from: mkAddress("0xabc"),
-      });
+    await handler.handleSenderPrepare(tokenPrepareData);
+
+    const call = txService.sendAndConfirmTx.getCall(0);
+    expect(call.args[0]).to.eq(1338);
+
+    const receiverAmount = "99500000000000000000"; // based on input amount
+    const receiverExpiry = futureTime - EXPIRY_DECREMENT;
+
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [
+      {
+        ...tokenPrepareData,
+      },
+      receiverAmount,
+      receiverExpiry,
+    ]);
+
+    expect(call.args[1]).to.deep.eq({
+      to: mkAddress("0xaaa"),
+      //todo:this breaks
+      value: BigNumber.from(0),
+      data: encodedData,
+      chainId: 1338,
+      from: mkAddress("0xabc"),
     });
 
-    it(`should fulfill token asset`, async () => {
-      //change assetIds
-      const tokenRxFulfillDataMock = {
+    // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
+    expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
+  });
+
+  it("should fulfill eth asset", async () => {
+    await handler.handleReceiverFulfill(receiverFulfillDataMock);
+    const call = txService.sendAndConfirmTx.getCall(0);
+    expect(call.args[0]).to.eq(1337);
+
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
+      {
         ...receiverFulfillDataMock,
+      },
+      receiverFulfillDataMock.relayerFee,
+      receiverFulfillDataMock.signature,
+    ]);
+
+    expect(call.args[1]).to.deep.eq({
+      to: mkAddress("0xaaa"),
+      value: 0,
+      data: encodedData,
+      chainId: 1337,
+      from: mkAddress("0xabc"),
+    });
+  });
+
+  it(`should fulfill token asset`, async () => {
+    //change assetIds
+    const tokenRxFulfillDataMock = {
+      ...receiverFulfillDataMock,
+      sendingAssetId: rinkebyTestTokenAddress,
+      receivingAssetId: goerliTestTokenAddress,
+    };
+
+    await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
+    const call = txService.sendAndConfirmTx.getCall(0);
+
+    expect(call.args[0]).to.eq(1337);
+
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
+      {
+        ...tokenRxFulfillDataMock,
         sendingAssetId: rinkebyTestTokenAddress,
         receivingAssetId: goerliTestTokenAddress,
-      };
+      },
+      tokenRxFulfillDataMock.relayerFee,
+      tokenRxFulfillDataMock.signature,
+    ]);
 
-      await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
-      const call = txService.sendAndConfirmTx.getCall(0);
-
-      expect(call.args[0]).to.eq(1337);
-
-      const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-        {
-          ...tokenRxFulfillDataMock,
-          sendingAssetId: rinkebyTestTokenAddress,
-          receivingAssetId: goerliTestTokenAddress,
-        },
-        tokenRxFulfillDataMock.relayerFee,
-        tokenRxFulfillDataMock.signature,
-      ]);
-
-      expect(call.args[1]).to.deep.eq({
-        to: mkAddress("0xaaa"),
-        value: 0,
-        data: encodedData,
-        chainId: 1337,
-        from: mkAddress("0xabc"),
-      });
+    expect(call.args[1]).to.deep.eq({
+      to: mkAddress("0xaaa"),
+      value: 0,
+      data: encodedData,
+      chainId: 1337,
+      from: mkAddress("0xabc"),
     });
+  });
+
+
+  it(`should remove ETH liquidity`, async () => {
+
+    const chainId = 1337;
+    const amtRemove = BigNumber.from("1");
+
+    //@ts-ignore
+    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
+        amtRemove.toString(),
+        constants.AddressZero,
+    ]);
+    //check balances
+  });
+  it(`should remove token liquidity`, async () => {
+
+    const chainId = 1337;
+    const amtRemove = BigNumber.from("1");
+
+    //@ts-ignore
+    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
+      amtRemove.toString(),
+      rinkebyTestTokenAddress,
+    ]);
+    //check balances
+  });
+  it(`should cancel`, async () => {
+
+    const chainId = 1337;
+    //sign senderPrepareData
+    const signature = ``;
+    //@ts-ignore
+    const encodedData = nxtpContract.encodeFunctionData("cancel", [
+      senderPrepareData,
+      signature,
+    ]);
+
+
   });
 });
