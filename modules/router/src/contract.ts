@@ -36,7 +36,7 @@ export class TransactionManager {
         chainId: chainId,
         data: addLiquidityData,
         to: nxtpContractAddress,
-        value: 0,
+        value: assetId === constants.AddressZero ? bnAmount : constants.Zero,
       });
       return txRes;
     } catch (e) {

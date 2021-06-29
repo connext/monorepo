@@ -74,7 +74,7 @@ server.get("/config", async () => {
   };
 });
 
-server.get<{ Body: AddLiquidityRequest }>(
+server.post<{ Body: AddLiquidityRequest }>(
   "/add-liquidity",
   //  TODO: make these work!
   // { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
