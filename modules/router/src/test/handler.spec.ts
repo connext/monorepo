@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { BigNumber, constants, providers, Signer, utils } from "ethers";
+import { BigNumber, constants, providers, Signer, utils, Wallet } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import { parseEther } from "@ethersproject/units";
@@ -16,6 +16,7 @@ import {
 } from "../transactionManagerListener";
 import { EXPIRY_DECREMENT, Handler } from "../handler";
 import * as config from "../config";
+import { TransactionStatus } from "../graphqlsdk";
 
 const logger = pino();
 
@@ -73,6 +74,9 @@ const senderPrepareData: SenderPrepareData = {
   router: mkAddress(),
   transactionId: mkBytes32(),
   user: mkAddress(),
+  encodedBid: "0x",
+  bidSignature: "0x",
+  status: TransactionStatus.Prepared,
 };
 
 const receiverFulfillDataMock: ReceiverFulfillData = {
@@ -87,12 +91,13 @@ const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
+  let subgraph: SinonStubbedInstance<SubgraphTransactionManagerListener>;
   const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
   beforeEach(() => {
     const messaging = createStubInstance(NatsNxtpMessagingService);
 
-    const subgraph = createStubInstance(SubgraphTransactionManagerListener);
+    subgraph = createStubInstance(SubgraphTransactionManagerListener);
 
     const signer = createStubInstance(Signer);
     (signer as any).getAddress = () => Promise.resolve(mkAddress("0xabc")); // need to do this differently bc the function doesnt exist on the interface
@@ -101,14 +106,13 @@ describe("Handler", () => {
     txService.sendAndConfirmTx.resolves(fakeTxReceipt);
     stub(config, "getConfig").returns(fakeConfig);
 
-    handler = new Handler(messaging, subgraph, signer, txService as any, logger);
+    handler = new Handler(messaging, subgraph as any, signer, txService as any, logger);
   });
 
   afterEach(() => {
     restore();
     reset();
   });
-
 
   it("should send prepare for receiving chain with ETH asset", async () => {
     await handler.handleSenderPrepare(senderPrepareData);
@@ -133,11 +137,13 @@ describe("Handler", () => {
       },
       receiverAmount,
       receiverExpiry,
+      senderPrepareData.encodedBid, // encodedBid
+      senderPrepareData.bidSignature, // bid signature
     ]);
 
     expect(call.args[1]).to.deep.eq({
       to: mkAddress("0xaaa"),
-      value: BigNumber.from(receiverAmount),
+      value: BigNumber.from(0),
       data: encodedData,
       chainId: 1338,
       from: mkAddress("0xabc"),
@@ -165,6 +171,8 @@ describe("Handler", () => {
       },
       receiverAmount,
       receiverExpiry,
+      tokenPrepareData.encodedBid, // encodedBid
+      tokenPrepareData.bidSignature, // bid signature
     ]);
 
     expect(call.args[1]).to.deep.eq({
@@ -176,14 +184,16 @@ describe("Handler", () => {
       from: mkAddress("0xabc"),
     });
 
-    // assert that there are two txService.sendAndConfirmTx calls, one for approve, and one for prepare
-    expect(txService.sendAndConfirmTx.callCount).to.be.eq(2);
+    // assert the prepare call
+    expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
   });
 
   it("should fulfill eth asset", async () => {
+    subgraph.getSenderTransaction.resolves({ ...receiverFulfillDataMock });
     await handler.handleReceiverFulfill(receiverFulfillDataMock);
     const call = txService.sendAndConfirmTx.getCall(0);
-    expect(call.args[0]).to.eq(1337);
+    const [chainId, data] = call.args;
+    expect(chainId).to.eq(receiverFulfillDataMock.sendingChainId);
 
     const encodedData = nxtpContract.encodeFunctionData("fulfill", [
       {
@@ -193,7 +203,7 @@ describe("Handler", () => {
       receiverFulfillDataMock.signature,
     ]);
 
-    expect(call.args[1]).to.deep.eq({
+    expect(data).to.deep.eq({
       to: mkAddress("0xaaa"),
       value: 0,
       data: encodedData,
@@ -203,17 +213,19 @@ describe("Handler", () => {
   });
 
   it(`should fulfill token asset`, async () => {
-    //change assetIds
+    // change assetIds
     const tokenRxFulfillDataMock = {
       ...receiverFulfillDataMock,
       sendingAssetId: rinkebyTestTokenAddress,
       receivingAssetId: goerliTestTokenAddress,
     };
 
+    subgraph.getSenderTransaction.resolves({ ...tokenRxFulfillDataMock });
+
     await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
     const call = txService.sendAndConfirmTx.getCall(0);
 
-    expect(call.args[0]).to.eq(1337);
+    expect(call.args[0]).to.eq(tokenRxFulfillDataMock.sendingChainId);
 
     const encodedData = nxtpContract.encodeFunctionData("fulfill", [
       {
@@ -234,42 +246,35 @@ describe("Handler", () => {
     });
   });
 
-
   it(`should remove ETH liquidity`, async () => {
-
     const chainId = 1337;
     const amtRemove = BigNumber.from("1");
 
-    //@ts-ignore
+    // @ts-ignore
     const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
-        amtRemove.toString(),
-        constants.AddressZero,
+      amtRemove.toString(),
+      constants.AddressZero,
+      constants.AddressZero,
     ]);
     //check balances
   });
   it(`should remove token liquidity`, async () => {
-
     const chainId = 1337;
     const amtRemove = BigNumber.from("1");
 
-    //@ts-ignore
+    // @ts-ignore
     const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
       amtRemove.toString(),
       rinkebyTestTokenAddress,
+      constants.AddressZero,
     ]);
     //check balances
   });
   it(`should cancel`, async () => {
-
     const chainId = 1337;
     //sign senderPrepareData
-    const signature = ``;
-    //@ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("cancel", [
-      senderPrepareData,
-      signature,
-    ]);
-
-
+    const signature = await Wallet.createRandom().signMessage("msg");
+    // @ts-ignore
+    const encodedData = nxtpContract.encodeFunctionData("cancel", [senderPrepareData, signature]);
   });
 });
