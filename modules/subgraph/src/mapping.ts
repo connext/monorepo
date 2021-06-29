@@ -1,4 +1,6 @@
 /* eslint-disable prefer-const */
+import { BigInt } from "@graphprotocol/graph-ts";
+
 import {
   TransactionManager,
   LiquidityAdded,
@@ -8,7 +10,6 @@ import {
   TransactionPrepared,
 } from "../generated/TransactionManager/TransactionManager";
 import { Transaction, AssetBalance, Router, User } from "../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   let router = Router.load(event.params.router.toHex());
