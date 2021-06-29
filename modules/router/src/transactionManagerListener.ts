@@ -21,6 +21,8 @@ export type SenderPrepareData = {
   blockNumber: number;
   chainId: number;
   status: TransactionStatus;
+  encodedBid: string;
+  bidSignature: string;
 } & InvariantTransactionData;
 
 export type ReceiverPrepareData = SenderPrepareData;
@@ -30,6 +32,8 @@ export type SenderFulfillData = {
   amount: string;
   expiry: number;
   blockNumber: number;
+  encodedBid: string;
+  bidSignature: string;
   relayerFee: string;
   signature: string;
   receivingAddress: string;
@@ -84,6 +88,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             transactionId: transaction.transactionId,
             user: transaction.user.id,
             blockNumber: transaction.blockNumber,
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
           };
 
           // NOTE: this will call the handler every time the interval runs if the tx status is not changed
@@ -121,6 +127,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             transactionId: transaction.transactionId,
             user: transaction.user.id,
             blockNumber: transaction.blockNumber,
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
           };
 
           // NOTE: this will call the handler every time the interval runs if the tx status is not changed
@@ -158,6 +166,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             transactionId: transaction.transactionId,
             user: transaction.user.id,
             blockNumber: transaction.blockNumber,
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
             relayerFee: transaction.relayerFee,
             signature: transaction.signature,
           };
@@ -197,6 +207,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             transactionId: transaction.transactionId,
             user: transaction.user.id,
             blockNumber: transaction.blockNumber,
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
             relayerFee: transaction.relayerFee,
             signature: transaction.signature,
           };
@@ -231,6 +243,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         transactionId: transaction.transactionId,
         user: transaction.user.id,
         blockNumber: transaction.blockNumber,
+        encodedBid: transaction.encodedBid,
+        bidSignature: transaction.bidSignature,
         relayerFee: transaction.relayerFee,
         signature: transaction.signature,
       };
@@ -259,6 +273,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         transactionId: transaction.transactionId,
         user: transaction.user.id,
         blockNumber: transaction.blockNumber,
+        encodedBid: transaction.encodedBid,
+        bidSignature: transaction.bidSignature,
         relayerFee: transaction.relayerFee,
         signature: transaction.signature,
       };

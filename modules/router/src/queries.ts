@@ -1,7 +1,7 @@
 import { gql } from "graphql-request";
 
 export const getSenderPrepareQuery = gql`
-  query GetSenderPrepareTransactions($routerId: String!, $sendingChainId: Int!) {
+  query GetSenderPrepareTransactions($routerId: String!, $sendingChainId: BigInt!) {
     transactions(
       where: { router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Prepared }
     ) {
@@ -24,12 +24,14 @@ export const getSenderPrepareQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
     }
   }
 `;
 
 export const getReceiverPrepareQuery = gql`
-  query GetReceiverPrepareTransactions($routerId: String!, $receivingChainId: Int!) {
+  query GetReceiverPrepareTransactions($routerId: String!, $receivingChainId: BigInt!) {
     transactions(
       where: { router: $routerId, receivingChainId: $receivingChainId, chainId: $receivingChainId, status: Prepared }
     ) {
@@ -52,12 +54,14 @@ export const getReceiverPrepareQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
     }
   }
 `;
 
 export const getReceiverFulfillQuery = gql`
-  query GetReceiverFulfillTransactions($routerId: String!, $receivingChainId: Int!) {
+  query GetReceiverFulfillTransactions($routerId: String!, $receivingChainId: BigInt!) {
     transactions(
       where: { router: $routerId, receivingChainId: $receivingChainId, chainId: $receivingChainId, status: Fulfilled }
     ) {
@@ -80,6 +84,8 @@ export const getReceiverFulfillQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
       relayerFee
       signature
     }
@@ -87,7 +93,7 @@ export const getReceiverFulfillQuery = gql`
 `;
 
 export const getSenderTransferQuery = gql`
-  query GetSenderTransaction($transactionId: Bytes!, $sendingChainId: Int!) {
+  query GetSenderTransaction($transactionId: Bytes!, $sendingChainId: BigInt!) {
     transactions(where: { transactionId: $transactionId, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
       id
       user {
@@ -108,6 +114,8 @@ export const getSenderTransferQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
       relayerFee
       signature
     }
@@ -115,7 +123,7 @@ export const getSenderTransferQuery = gql`
 `;
 
 export const getReceiverTransferQuery = gql`
-  query GetReceiverTransaction($transactionId: Bytes!, $receivingChainId: Int!) {
+  query GetReceiverTransaction($transactionId: Bytes!, $receivingChainId: BigInt!) {
     transactions(
       where: { transactionId: $transactionId, receivingChainId: $receivingChainId, chainId: $receivingChainId }
     ) {
@@ -138,6 +146,8 @@ export const getReceiverTransferQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
       relayerFee
       signature
     }
@@ -145,7 +155,7 @@ export const getReceiverTransferQuery = gql`
 `;
 
 export const getSenderFulfillQuery = gql`
-  query GetSenderFulfillTransactions($routerId: String!, $sendingChainId: Int!) {
+  query GetSenderFulfillTransactions($routerId: String!, $sendingChainId: BigInt!) {
     transactions(
       where: { router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Fulfilled }
     ) {
@@ -168,6 +178,8 @@ export const getSenderFulfillQuery = gql`
       status
       chainId
       blockNumber
+      encodedBid
+      bidSignature
       relayerFee
       signature
     }

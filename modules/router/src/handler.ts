@@ -1,4 +1,10 @@
-import { RouterNxtpNatsMessagingService, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
+import {
+  RouterNxtpNatsMessagingService,
+  calculateExchangeAmount,
+  jsonifyError,
+  InvariantTransactionData,
+  TransactionData,
+} from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
@@ -158,19 +164,6 @@ export class Handler implements Handler {
 
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
-    // Generate params
-    const txParams = {
-      callData: inboundData.callData,
-      receivingAddress: inboundData.receivingAddress,
-      receivingAssetId: inboundData.receivingAssetId,
-      receivingChainId: inboundData.receivingChainId,
-      router: inboundData.router,
-      sendingAssetId: inboundData.sendingAssetId,
-      sendingChainId: inboundData.sendingChainId,
-      transactionId: inboundData.transactionId,
-      user: inboundData.user,
-    };
-
     // Make sure we didnt *already* prepare receiver tx
     // NOTE: if subgraph is out of date here, worst case is that the tx is
     // reverted. this is fine.
@@ -209,6 +202,19 @@ export class Handler implements Handler {
       throw new Error("Expiry already happened");
     }
 
+    // Generate params
+    const txParams: InvariantTransactionData = {
+      callData: inboundData.callData,
+      receivingAddress: inboundData.receivingAddress,
+      receivingAssetId: inboundData.receivingAssetId,
+      receivingChainId: inboundData.receivingChainId,
+      router: inboundData.router,
+      sendingAssetId: inboundData.sendingAssetId,
+      sendingChainId: inboundData.sendingChainId,
+      transactionId: inboundData.transactionId,
+      user: inboundData.user,
+    };
+
     // Then prepare tx object
     // Note tx object must have:
     // - Prepare fn params
@@ -216,7 +222,13 @@ export class Handler implements Handler {
     // - Amount
     // - AssetId
     // encode the data for contract call
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [txParams, receiverAmount, receiverExpiry]);
+    const encodedData = nxtpContract.encodeFunctionData("prepare", [
+      txParams,
+      receiverAmount,
+      receiverExpiry,
+      inboundData.encodedBid,
+      inboundData.bidSignature,
+    ]);
     // Send to txService
     try {
       this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
@@ -282,28 +294,39 @@ export class Handler implements Handler {
     const config = getConfig();
 
     const senderTransaction = await this.subgraph.getSenderTransaction(data.transactionId, data.sendingChainId);
-    if (senderTransaction?.status === TransactionStatus.Fulfilled) {
+    if (!senderTransaction) {
+      this.logger.error(
+        {
+          transactionId: data.transactionId,
+          sendingChainId: data.sendingChainId,
+          receivingChainId: data.receivingChainId,
+        },
+        "Failed to find sender tx on receiver fulfill",
+      );
+      return;
+    }
+    if (senderTransaction.status === TransactionStatus.Fulfilled) {
       this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
       return;
     }
 
     // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
     const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-      {
-        callData: data.callData,
-        receivingAddress: data.receivingAddress,
-        receivingAssetId: data.receivingAssetId,
-        receivingChainId: data.receivingChainId,
-        router: data.router,
-        sendingAssetId: data.sendingAssetId,
-        sendingChainId: data.sendingChainId,
-        transactionId: data.transactionId,
-        user: data.user,
-      },
-      data.relayerFee,
-      data.signature,
-    ]);
+    const fulfillData: TransactionData = {
+      callData: data.callData,
+      receivingAddress: data.receivingAddress,
+      receivingAssetId: data.receivingAssetId,
+      receivingChainId: data.receivingChainId,
+      router: data.router,
+      sendingAssetId: data.sendingAssetId,
+      sendingChainId: data.sendingChainId,
+      transactionId: data.transactionId,
+      user: data.user,
+      amount: senderTransaction.amount.toString(),
+      expiry: senderTransaction.expiry.toString(),
+      blockNumber: senderTransaction.blockNumber.toString(),
+    };
+    const encodedData = nxtpContract.encodeFunctionData("fulfill", [fulfillData, data.relayerFee, data.signature]);
 
     // Send to tx service
     try {

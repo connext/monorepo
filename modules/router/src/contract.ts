@@ -2,10 +2,10 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import {BigNumber, constants, providers} from "ethers";
-import {InvariantTransactionData} from "@connext/nxtp-utils";
+import { BigNumber, constants, providers } from "ethers";
+import { InvariantTransactionData } from "@connext/nxtp-utils";
 
-import {getConfig} from "./config";
+import { getConfig } from "./config";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -17,18 +17,20 @@ export class TransactionManager {
     console.log("this.signerAddress", !!this.signerAddress);
   }
 
-  getLiquidity(chainId: number, amount:string, assetId:string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getLiquidity(_chainId: number, _amount: string, _assetId: string) {
     //need Subgraph to read from chain.
   }
 
-  async addLiquidity(chainId:number, amount:string, assetId:string = constants.AddressZero): Promise<providers.TransactionReceipt>{
+  async addLiquidity(
+    chainId: number,
+    amount: string,
+    assetId: string = constants.AddressZero,
+  ): Promise<providers.TransactionReceipt> {
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount);
 
-    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity",[
-        bnAmount,
-        assetId,
-    ]);
+    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [bnAmount, assetId]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId: chainId,
@@ -37,15 +39,24 @@ export class TransactionManager {
         value: 0,
       });
       return txRes;
-      } catch(e){
+    } catch (e) {
       throw new Error(`Add liquidity error ${JSON.stringify(e)}`);
-      }
+    }
   }
 
-  async fulfill(chainId:number, txData:InvariantTransactionData , relayerFee:string, signature:string): Promise<providers.TransactionReceipt> {
+  async fulfill(
+    chainId: number,
+    txData: InvariantTransactionData,
+    relayerFee: string,
+    signature: string,
+  ): Promise<providers.TransactionReceipt> {
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     //wtd for uint 24 encoding below
-    const invarTxData = `tuple(address ${txData.user}, address ${txData.router}, address ${txData.sendingAssetId}, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(txData.sendingChainId)}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
+    const invarTxData = `tuple(address ${txData.user}, address ${txData.router}, address ${
+      txData.sendingAssetId
+    }, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(
+      txData.sendingChainId,
+    )}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
     const bnRelayerFee = BigNumber.from(relayerFee);
     //@ts-ignore
     const fufilData = this.txManagerInterface.encodeFunctionData("fulfill", [invarTxData, bnRelayerFee, signature]);
@@ -57,16 +68,24 @@ export class TransactionManager {
         value: 0,
       });
       return txRes;
-    } catch(e){
+    } catch (e) {
       throw new Error(`remove liquidity error ${JSON.stringify(e)}`);
     }
   }
 
-  async cancel(chainId:number, txData:InvariantTransactionData, signature:string): Promise<providers.TransactionReceipt> {
+  async cancel(
+    chainId: number,
+    txData: InvariantTransactionData,
+    signature: string,
+  ): Promise<providers.TransactionReceipt> {
     // encode and call tx service
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     //wtd for uint 24 encoding below
-    const invarTxData = `tuple(address ${txData.user}, address ${txData.router}, address ${txData.sendingAssetId}, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(txData.sendingChainId)}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
+    const invarTxData = `tuple(address ${txData.user}, address ${txData.router}, address ${
+      txData.sendingAssetId
+    }, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(
+      txData.sendingChainId,
+    )}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
     //@ts-ignore
     const fufilData = this.txManagerInterface.encodeFunctionData("cancel", [invarTxData, signature]);
     try {
@@ -77,25 +96,27 @@ export class TransactionManager {
         value: 0,
       });
       return txRes;
-    } catch(e){
+    } catch (e) {
       throw new Error(`cancel error ${JSON.stringify(e)}`);
     }
-
   }
 
-  async removeLiquidity(chainId:number, amount:string, assetId:string = constants.AddressZero, recipientAddress:string|undefined): Promise<providers.TransactionReceipt> {
-
+  async removeLiquidity(
+    chainId: number,
+    amount: string,
+    assetId: string = constants.AddressZero,
+    recipientAddress: string | undefined,
+  ): Promise<providers.TransactionReceipt> {
     //should we remove liquidity for self if there isn't another address specified?
-    if(!recipientAddress)
+    if (!recipientAddress)
       //@ts-ignore
       recipientAddress = await this.txService.chains.get(chainId).getAddress();
-
 
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount).toString();
 
     //@ts-ignore
-    const removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity",[
+    const removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity", [
       bnAmount,
       assetId,
       recipientAddress,
@@ -109,7 +130,7 @@ export class TransactionManager {
         value: 0,
       });
       return txRes;
-    } catch(e){
+    } catch (e) {
       throw new Error(`remove liquidity error ${JSON.stringify(e)}`);
     }
   }
