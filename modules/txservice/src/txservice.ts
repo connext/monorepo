@@ -165,11 +165,6 @@ export class TransactionService {
     return receipt;
   }
 
-  public async readContract(_chainId: number, _tx: MinimalTransaction):Promise<string>
-  {
-    throw new Error(`not implemented`);
-  }
-
   /// Helper method to wrap queuing up a transaction and waiting for response.
   private async sendTx(
     chainId: number,
@@ -257,6 +252,7 @@ export class TransactionService {
       return receipt;
     };
 
+
     // Poll for receipt.
     let receipt: providers.TransactionReceipt | undefined = await pollForReceipt();
     // NOTE: This loop won't execute if receipt is valid (not undefined).
@@ -275,6 +271,22 @@ export class TransactionService {
     }
 
     return receipt;
+  }
+
+  //create a non-state changing contract call returns hexdata that needs to be decoded
+  public async readTx(chainId: number, tx: MinimalTransaction):Promise<string>
+  {
+    const {signer} = this.chains.get(chainId)!;
+    try {
+      const readResult = await signer.call({
+        to: tx.to,
+        data: tx.data,
+      });
+      return readResult;
+
+    } catch(e) {
+      throw new Error(`Couldn't read from contract`);
+    }
   }
 
   private bumpGasPrice(gasPrice: BigNumber): BigNumber {
