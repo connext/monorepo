@@ -6,7 +6,7 @@ import {
   TransactionData,
 } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { constants, Signer, utils } from "ethers";
+import { BigNumber, constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -225,18 +225,18 @@ export class Handler implements Handler {
     const encodedData = nxtpContract.encodeFunctionData("prepare", [
       txParams,
       receiverAmount,
-      receiverExpiry,
+      receiverExpiry.toString(),
       inboundData.encodedBid,
       inboundData.bidSignature,
     ]);
     // Send to txService
     try {
       this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
-      const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
+      const txRes = await this.txService.sendAndConfirmTx(BigNumber.from(inboundData.receivingChainId).toNumber(), {
         to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
-        chainId: inboundData.receivingChainId,
+        chainId: BigNumber.from(inboundData.receivingChainId).toNumber(),
         from: signerAddress,
       });
       this.logger.info(
@@ -324,7 +324,7 @@ export class Handler implements Handler {
       user: data.user,
       amount: senderTransaction.amount.toString(),
       expiry: senderTransaction.expiry.toString(),
-      blockNumber: senderTransaction.blockNumber.toString(),
+      blockNumber: senderTransaction.blockNumber,
     };
     const encodedData = nxtpContract.encodeFunctionData("fulfill", [fulfillData, data.relayerFee, data.signature]);
 
