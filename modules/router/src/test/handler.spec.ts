@@ -235,41 +235,40 @@ describe("Handler", () => {
   });
 
 
-  it(`should remove ETH liquidity`, async () => {
-
-    const chainId = 1337;
-    const amtRemove = BigNumber.from("1");
-
-    //@ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
-        amtRemove.toString(),
-        constants.AddressZero,
-    ]);
-    //check balances
-  });
-  it(`should remove token liquidity`, async () => {
-
-    const chainId = 1337;
-    const amtRemove = BigNumber.from("1");
-
-    //@ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
-      amtRemove.toString(),
-      rinkebyTestTokenAddress,
-    ]);
-    //check balances
-  });
-  it(`should cancel`, async () => {
-
-    const chainId = 1337;
-    //sign senderPrepareData
-    const signature = ``;
-    //@ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("cancel", [
-      senderPrepareData,
-      signature,
-    ]);
-
-
-  });
+  // it(`should remove ETH liquidity`, async () => {
+  //
+  //   const chainId = 1337;
+  //   const amtRemove = BigNumber.from("1");
+  //
+  //   //@ts-ignore
+  //   const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
+  //       amtRemove.toString(),
+  //       constants.AddressZero,
+  //   ]);
+  //   //check balances
+  // });
+  // it(`should remove token liquidity`, async () => {
+  //
+  //   const chainId = 1337;
+  //   const amtRemove = BigNumber.from("1");
+  //
+  //   //@ts-ignore
+  //   const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
+  //     amtRemove.toString(),
+  //     rinkebyTestTokenAddress,
+  //   ]);
+  //   //check balances
+  // });
+  // it(`should cancel`, async () => {
+  //
+  //   const chainId = 1337;
+  //   //sign senderPrepareData
+  //   const signature = ``;
+  //   //@ts-ignore
+  //   const encodedData = nxtpContract.encodeFunctionData("cancel", [
+  //     senderPrepareData,
+  //     signature,
+  //   ]);
+  //
+  // });
 });

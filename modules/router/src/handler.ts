@@ -1,11 +1,16 @@
-import { RouterNxtpNatsMessagingService, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
+import {
+  RouterNxtpNatsMessagingService,
+  calculateExchangeAmount,
+  jsonifyError,
+  InvariantTransactionData,
+} from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
-import { TransactionManager } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
+import { TransactionManager } from "./contract";
 import {
   ReceiverFulfillData,
   ReceiverPrepareData,
@@ -77,6 +82,7 @@ export class Handler implements Handler {
     private readonly signer: Signer,
     private readonly txService: TransactionService,
     private readonly logger: BaseLogger,
+    private readonly txManager: TransactionManager,
   ) {
     // log to get rid of unused build errors
     console.log(typeof this.messagingService);
@@ -156,20 +162,7 @@ export class Handler implements Handler {
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
 
-    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-
     // Generate params
-    const txParams = {
-      callData: inboundData.callData,
-      receivingAddress: inboundData.receivingAddress,
-      receivingAssetId: inboundData.receivingAssetId,
-      receivingChainId: inboundData.receivingChainId,
-      router: inboundData.router,
-      sendingAssetId: inboundData.sendingAssetId,
-      sendingChainId: inboundData.sendingChainId,
-      transactionId: inboundData.transactionId,
-      user: inboundData.user,
-    };
 
     // Make sure we didnt *already* prepare receiver tx
     // NOTE: if subgraph is out of date here, worst case is that the tx is
@@ -202,12 +195,6 @@ export class Handler implements Handler {
     // - Recipient (callTo) and callData
 
     // amount and expiry need to be modified
-    const receiverAmount = calculateExchangeAmount(inboundData.amount, "0.995");
-    const receiverExpiry = inboundData.expiry - EXPIRY_DECREMENT;
-
-    if (receiverExpiry < Date.now() / 1000) {
-      throw new Error("Expiry already happened");
-    }
 
     // Then prepare tx object
     // Note tx object must have:
@@ -216,43 +203,21 @@ export class Handler implements Handler {
     // - Amount
     // - AssetId
     // encode the data for contract call
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [txParams, receiverAmount, receiverExpiry]);
     // Send to txService
-    try {
-      this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
-      const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
-        to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
-        data: encodedData,
-        value: constants.Zero,
-        chainId: inboundData.receivingChainId,
-        from: signerAddress,
-      });
+    this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
+    const txReceipt = await this.txManager.prepare(inboundData);
+    if(txReceipt) {
       this.logger.info(
-        {
-          method,
-          methodId,
-          txHash: txRes.transactionHash,
-          transactionId: inboundData.transactionId,
-          chainId: inboundData.receivingChainId,
-        },
-        "Receiver prepare tx confirmed",
+          {
+            method,
+            methodId,
+            txHash: txReceipt.transactionHash,
+            transactionId: inboundData.transactionId,
+            chainId: inboundData.receivingChainId,
+          },
+          "Receiver prepare tx confirmed",
       );
-    } catch (e) {
-      if (e.message.includes("DUPLICATE_DIGEST")) {
-        this.logger.warn(
-          { methodId, method, transactionId: inboundData.transactionId },
-          "Receiver tx already prepared, but resubmitted",
-        );
-        return;
-      }
-      this.logger.error(
-        { methodId, method, error: jsonifyError(e), transactionId: inboundData.transactionId },
-        "Error sending receiver prepare tx",
-      );
-      // TODO: cancel sender here?
-      throw e;
     }
-
     // If success, update metrics
   }
 
@@ -278,58 +243,28 @@ export class Handler implements Handler {
     const methodId = v4();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const signerAddress = await this.signer.getAddress();
-    const config = getConfig();
-
     const senderTransaction = await this.subgraph.getSenderTransaction(data.transactionId, data.sendingChainId);
     if (senderTransaction?.status === TransactionStatus.Fulfilled) {
       this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
       return;
     }
-
-    // const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-      {
-        callData: data.callData,
-        receivingAddress: data.receivingAddress,
-        receivingAssetId: data.receivingAssetId,
-        receivingChainId: data.receivingChainId,
-        router: data.router,
-        sendingAssetId: data.sendingAssetId,
-        sendingChainId: data.sendingChainId,
-        transactionId: data.transactionId,
-        user: data.user,
-      },
-      data.relayerFee,
-      data.signature,
-    ]);
-
     // Send to tx service
-    try {
-      this.logger.info(
+    this.logger.info(
         { method, methodId, transactionId: data.transactionId, signature: data.signature },
         "Sending sender fulfill tx",
       );
-      const txRes = await this.txService.sendAndConfirmTx(data.sendingChainId, {
-        to: config.chainConfig[data.sendingChainId].transactionManagerAddress,
-        data: encodedData,
-        value: 0,
-        chainId: data.sendingChainId,
-        from: signerAddress,
-      });
+    const txReceipt = await this.txManager.fulfill(data);
+    if(txReceipt) {
       this.logger.info(
-        { method, methodId, txHash: txRes.transactionHash, transactionId: data.transactionId },
-        "Sender fulfill tx confirmed",
+          {
+            method,
+            methodId,
+            txHash: txReceipt.transactionHash,
+            transactionId: data.transactionId,
+            chainId: data.receivingChainId,
+          },
+          "Receiver fulfill tx confirmed",
       );
-    } catch (e) {
-      // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-      this.logger.error(
-        { methodId, method, transactionId: data.transactionId, error: jsonifyError(e) },
-        "Error sending sender fulfill tx",
-      );
-      // TODO discuss this case!!
-      throw e;
     }
     // If success, update metrics
   }

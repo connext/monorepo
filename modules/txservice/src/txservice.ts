@@ -165,6 +165,11 @@ export class TransactionService {
     return receipt;
   }
 
+  public async readContract(_chainId: number, _tx: MinimalTransaction):Promise<string>
+  {
+    throw new Error(`not implemented`);
+  }
+
   /// Helper method to wrap queuing up a transaction and waiting for response.
   private async sendTx(
     chainId: number,
