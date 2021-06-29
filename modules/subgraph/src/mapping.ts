@@ -69,7 +69,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   let transaction = new Transaction(event.params.txData.transactionId.toHex());
   transaction.user = user.id;
   transaction.router = router!.id;
-  transaction.amount = event.params.amount;
+  transaction.amount = event.params.txData.amount;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainId = event.params.txData.sendingChainId;
@@ -77,8 +77,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingAddress = event.params.txData.receivingAddress;
   transaction.callData = event.params.txData.callData;
   transaction.transactionId = event.params.txData.transactionId;
-  transaction.expiry = event.params.expiry;
-  transaction.blockNumber = event.params.blockNumber;
+  transaction.expiry = event.params.txData.expiry;
+  transaction.blockNumber = event.params.txData.blockNumber;
+  transaction.encodedBid = event.params.encodedBid;
+  transaction.bidSignature = event.params.bidSignature;
   transaction.status = "Prepared";
   transaction.chainId = chainId;
   transaction.prepareCaller = event.params.caller;
