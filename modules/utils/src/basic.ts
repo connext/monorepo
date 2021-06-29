@@ -32,5 +32,5 @@ export type InvariantTransactionData = {
 export type TransactionData = InvariantTransactionData & {
   amount: string;
   expiry: string;
-  blockNumber: string;
+  blockNumber: number;
 };

@@ -86,7 +86,7 @@ describe("prepare", () => {
     const result = await prepare(params, (transactionManager as unknown) as Contract, logger);
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
-    const [txData, amount, expiry, overrides] = prepareStub.firstCall.args;
+    const [txData, amount, expiry, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
     expect(txData).to.containSubset({
       user: user.address,
       router: getAddress(params.router),
@@ -100,6 +100,8 @@ describe("prepare", () => {
     expect(isValidBytes32(txData.transactionId)).to.be.true;
     expect(amount.toString()).to.be.eq(params.amount);
     expect(expiry).to.be.eq(params.expiry);
+    expect(encodedBid).to.be.eq("0x");
+    expect(bidSignature).to.be.eq("0x");
     expect(overrides).to.be.deep.eq(
       params.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : {},
     );
@@ -144,7 +146,13 @@ describe("handleReceiverPrepare", () => {
     contract.connect.returns({ fulfill: fulfillStub } as any);
 
     return {
-      event: { txData, amount, expiry, blockNumber, caller: txData.router, chainId: txData.receivingChainId },
+      event: {
+        txData: { ...txData, amount, expiry, blockNumber },
+        encodedBid: "0x",
+        bidSignature: "0x",
+        caller: txData.router,
+        chainId: txData.receivingChainId,
+      },
       user,
     };
   };

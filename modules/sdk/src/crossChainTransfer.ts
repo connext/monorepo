@@ -54,6 +54,10 @@ export const prepare = async (
     receivingChainId,
   };
 
+  // TODO: bid stuff
+  const encodedBid = "0x";
+  const bidSignature = "0x";
+
   logger.info({ method, methodId, transactionId }, "Preparing tx");
 
   const prepareTx = await transactionManager
@@ -62,6 +66,8 @@ export const prepare = async (
       transaction,
       amount,
       expiry,
+      encodedBid,
+      bidSignature,
       transaction.sendingAssetId === constants.AddressZero ? { value: amount } : {},
     );
 

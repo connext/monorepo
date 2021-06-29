@@ -1,23 +1,19 @@
-import { InvariantTransactionData } from "@connext/nxtp-utils";
+import { TransactionData } from "@connext/nxtp-utils";
 import { Contract, providers } from "ethers";
 import { Evt } from "evt";
 import { getTransactionManagerContract } from "./contract";
 // Define event types
 // TODO: liquidity events?
 export type TransactionPreparedEvent = {
-  txData: InvariantTransactionData;
-  amount: string;
-  expiry: string;
-  blockNumber: number;
+  txData: TransactionData;
   caller: string;
+  encodedBid: string;
+  bidSignature: string;
   chainId: number;
 };
 
 export type TransactionFulfilledEvent = {
-  txData: InvariantTransactionData;
-  amount: string;
-  expiry: string;
-  blockNumber: number;
+  txData: TransactionData;
   signature: string;
   relayerFee: string;
   caller: string;
@@ -25,10 +21,7 @@ export type TransactionFulfilledEvent = {
 };
 
 export type TransactionCancelledEvent = {
-  txData: InvariantTransactionData;
-  amount: string;
-  expiry: string;
-  blockNumber: number;
+  txData: TransactionData;
   caller: string;
   chainId: number;
 };
@@ -73,7 +66,7 @@ export class TransactionManagerListener {
   private async establishListeners(): Promise<void> {
     const { chainId } = await this.provider.getNetwork();
 
-    const processTxData = (txData: any): InvariantTransactionData => {
+    const processTxData = (txData: any): TransactionData => {
       return {
         user: txData.user,
         router: txData.router,
@@ -84,19 +77,21 @@ export class TransactionManagerListener {
         receivingChainId: txData.receivingChainId,
         callData: txData.callData,
         transactionId: txData.transactionId,
+        blockNumber: txData.blockNumber.toNumber(),
+        amount: txData.amount.toString(),
+        expiry: txData.expiry.toString(),
       };
     };
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
-      (txData, amount, expiry, block, caller) => {
+      (txData, caller, encodedBid, bidSignature) => {
         const payload: TransactionPreparedEvent = {
           caller,
-          blockNumber: block.toNumber(),
-          amount: amount.toString(),
-          expiry: expiry.toString(),
           txData: processTxData(txData),
           chainId,
+          encodedBid,
+          bidSignature,
         };
         this.evts[TransactionManagerEvents.TransactionPrepared].post(payload);
       },
@@ -104,12 +99,9 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
-      (txData, amount, expiry, block, relayerFee, signature, caller) => {
+      (txData, relayerFee, signature, caller) => {
         const payload: TransactionFulfilledEvent = {
           caller,
-          blockNumber: block.toNumber(),
-          amount: amount.toString(),
-          expiry: expiry.toString(),
           relayerFee: relayerFee.toString(),
           signature: signature,
           txData: processTxData(txData),
@@ -119,20 +111,14 @@ export class TransactionManagerListener {
       },
     );
 
-    this.transactionManager.on(
-      TransactionManagerEvents.TransactionCancelled,
-      (txData, amount, expiry, block, caller) => {
-        const payload: TransactionCancelledEvent = {
-          caller,
-          blockNumber: block.toNumber(),
-          amount: amount.toString(),
-          expiry: expiry.toString(),
-          txData: processTxData(txData),
-          chainId,
-        };
-        this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
-      },
-    );
+    this.transactionManager.on(TransactionManagerEvents.TransactionCancelled, (txData, caller) => {
+      const payload: TransactionCancelledEvent = {
+        caller,
+        txData: processTxData(txData),
+        chainId,
+      };
+      this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
+    });
   }
 
   public attach<T extends TransactionManagerEvent>(
