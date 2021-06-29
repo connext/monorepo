@@ -29,7 +29,7 @@ export type InvariantTransactionData = {
   transactionId: string;
 };
 
-export type VariantTransactionData = {
+export type TransactionData = InvariantTransactionData & {
   amount: string;
   expiry: string;
   blockNumber: string;
