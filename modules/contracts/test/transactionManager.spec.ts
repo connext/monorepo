@@ -1,7 +1,12 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
-import { InvariantTransactionData, signFulfillTransactionPayload, VariantTransactionData } from "@connext/nxtp-utils";
+import {
+  InvariantTransactionData,
+  signCancelTransactionPayload,
+  signFulfillTransactionPayload,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 use(solidity);
 
 import { hexlify, randomBytes } from "ethers/lib/utils";
@@ -10,6 +15,7 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt }
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { TestERC20 } from "../typechain/TestERC20";
+import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
 
@@ -45,13 +51,17 @@ describe("TransactionManager", function() {
   beforeEach(async function() {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
-    const liq = "1000";
-    await tokenA.connect(wallet).transfer(router.address, liq);
-    await tokenB.connect(wallet).transfer(router.address, liq);
+    const liq = "10000";
+    let tx = await tokenA.connect(wallet).transfer(router.address, liq);
+    await tx.wait();
+    tx = await tokenB.connect(wallet).transfer(router.address, liq);
+    await tx.wait();
 
-    const prepareFunds = "100";
-    await tokenA.connect(wallet).transfer(user.address, prepareFunds);
-    await tokenB.connect(wallet).transfer(user.address, prepareFunds);
+    const prepareFunds = "10000";
+    tx = await tokenA.connect(wallet).transfer(user.address, prepareFunds);
+    await tx.wait();
+    tx = await tokenB.connect(wallet).transfer(user.address, prepareFunds);
+    await tx.wait();
   });
 
   const getTransactionData = async (
@@ -71,9 +81,10 @@ describe("TransactionManager", function() {
       ...txOverrides,
     };
 
+    const day = 24 * 60 * 60;
     const record = {
       amount: "10",
-      expiry: (Math.floor(Date.now() / 1000) + 5_000).toString(),
+      expiry: (Math.floor(Date.now() / 1000) + day + 5_000).toString(),
       blockNumber: "10",
       ...recordOverrides,
     };
@@ -81,9 +92,11 @@ describe("TransactionManager", function() {
     return { transaction, record };
   };
 
-  const approveTokens = async (amount: BigNumberish, approver: Wallet, token: Contract = tokenA) => {
-    const approveTx = await token.connect(approver).approve(transactionManager.address, amount);
+  const approveTokens = async (amount: BigNumberish, approver: Wallet, spender: string, token: ERC20 = tokenA) => {
+    const approveTx = await token.connect(approver).approve(spender, amount);
     await approveTx.wait();
+    const allowance = await token.allowance(approver.address, spender);
+    expect(allowance).to.be.at.least(amount);
   };
 
   const assertObject = (expected: any, returned: any) => {
@@ -106,19 +119,22 @@ describe("TransactionManager", function() {
     assertObject(expected, decoded);
   };
 
-  const addAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
-    const router = _router ?? transactionManager.signer;
-    transactionManager.on("LiquidityAdded", data => {
-      console.log("got liquidity added event", data);
-    });
-    // TODO: debug event emission wtf
-    // const event = new Promise(resolve => {
-    //   transactionManager.once("LiquidityAdded", data => {
-    //     return resolve(data);
-    //   });
-    // });
-    const tx = await transactionManager
-      .connect(router)
+  const addAndAssertLiquidity = async (
+    amount: BigNumberish,
+    assetId: string = AddressZero,
+    _router: Wallet = router,
+    instance: Contract = transactionManagerReceiverSide,
+  ) => {
+    // Get starting + expected  balance
+    const routerAddr = await _router.getAddress();
+    const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
+    const expectedBalance = startingBalance.sub(amount);
+
+    const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
+    const expectedLiquidity = startingLiquidity.add(amount);
+
+    const tx = await instance
+      .connect(_router)
       .addLiquidity(amount, assetId, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
 
     const receipt = await tx.wait();
@@ -127,28 +143,37 @@ describe("TransactionManager", function() {
 
     // Verify receipt + attached events
     expect(receipt.status).to.be.eq(1);
-    await assertReceiptEvent(receipt, "LiquidityAdded", { router: await router.getAddress(), assetId, amount });
+    await assertReceiptEvent(receipt, "LiquidityAdded", { router: routerAddr, assetId, amount });
 
     // Check liquidity
-    const liquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
-    expect(liquidity).to.be.eq(amount);
+    const liquidity = await instance.routerBalances(routerAddr, assetId);
+    expect(liquidity).to.be.eq(expectedLiquidity);
+
+    // Check balances
+    const balance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
+    expect(balance).to.be.eq(expectedBalance.sub(assetId === AddressZero ? tx.gasPrice.mul(receipt.gasUsed) : 0));
   };
 
-  const removeAndAssertLiquidity = async (amount: BigNumberish, assetId: string = AddressZero, _router?: Wallet) => {
-    const router = _router ?? transactionManager.signer;
+  const removeAndAssertLiquidity = async (
+    amount: BigNumberish,
+    assetId: string = AddressZero,
+    _router?: Wallet,
+    instance: Contract = transactionManagerReceiverSide,
+  ) => {
+    const router = _router ?? instance.signer;
 
     // Get starting + expected  balance
     const startingBalance = await getOnchainBalance(assetId, await router.getAddress(), ethers.provider);
     const expectedBalance = startingBalance.add(amount);
 
-    const startingLiquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
+    const startingLiquidity = await instance.routerBalances(await router.getAddress(), assetId);
     const expectedLiquidity = startingLiquidity.sub(amount);
 
     // TODO: debug event emission wtf
     // const event = new Promise(resolve => {
     //   transactionManager.once("LiquidityRemoved", data => resolve(data));
     // });
-    const tx = await transactionManager.connect(router).removeLiquidity(amount, assetId, await router.getAddress());
+    const tx = await instance.connect(router).removeLiquidity(amount, assetId, await router.getAddress());
 
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -165,7 +190,7 @@ describe("TransactionManager", function() {
     });
 
     // Check liquidity
-    const liquidity = await transactionManager.routerBalances(await router.getAddress(), assetId);
+    const liquidity = await instance.routerBalances(await router.getAddress(), assetId);
     expect(liquidity).to.be.eq(expectedLiquidity);
 
     // Check balance
@@ -179,7 +204,8 @@ describe("TransactionManager", function() {
     txOverrides: Partial<InvariantTransactionData>,
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
-  ) => {
+    instance: Contract = transactionManager,
+  ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
     // Check if its the user
@@ -188,15 +214,15 @@ describe("TransactionManager", function() {
     // Get initial balances
     const initialContractAmount = await getOnchainBalance(
       userSending ? transaction.sendingAssetId : transaction.receivingAssetId,
-      transactionManager.address,
+      instance.address,
       ethers.provider,
     );
     const initialPreparerAmount = userSending
       ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-      : await transactionManager.routerBalances(preparer.address, transaction.receivingAssetId);
+      : await instance.routerBalances(preparer.address, transaction.receivingAssetId);
 
     // Send tx
-    const prepareTx = await transactionManager
+    const prepareTx = await instance
       .connect(preparer)
       .prepare(
         transaction,
@@ -211,10 +237,7 @@ describe("TransactionManager", function() {
 
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
-      txData: transaction,
-      amount: record.amount,
-      expiry: record.expiry,
-      blockNumber: receipt.blockNumber,
+      txData: { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: receipt.blockNumber },
       caller: preparer.address,
       bidSignature: "0x",
       encodedBid: "0x",
@@ -223,7 +246,7 @@ describe("TransactionManager", function() {
     // Verify amount has been deducted from preparer
     const finalPreparerAmount = userSending
       ? await getOnchainBalance(transaction.sendingAssetId, await user.getAddress(), ethers.provider)
-      : await transactionManager.routerBalances(preparer.address, transaction.receivingAssetId);
+      : await instance.routerBalances(preparer.address, transaction.receivingAssetId);
     const expected = initialPreparerAmount.sub(record.amount);
     expect(finalPreparerAmount).to.be.eq(
       transaction.sendingAssetId === AddressZero && userSending
@@ -236,14 +259,12 @@ describe("TransactionManager", function() {
     // Verify amount has been added to contract
     if (!userSending) {
       // Router does not send funds
-      return;
+      return receipt;
     }
-    const finalContractAmount = await getOnchainBalance(
-      transaction.sendingAssetId,
-      transactionManager.address,
-      ethers.provider,
-    );
+    const finalContractAmount = await getOnchainBalance(transaction.sendingAssetId, instance.address, ethers.provider);
     expect(finalContractAmount).to.be.eq(initialContractAmount.add(record.amount));
+
+    return receipt;
   };
 
   const fulfillAndAssert = async (
@@ -252,13 +273,14 @@ describe("TransactionManager", function() {
     relayerFee: string,
     fulfillingForSender: boolean,
     submitter: Wallet,
+    instance: TransactionManager,
   ) => {
     // Get pre-fulfull balance. If fulfilling on sender side, router
     // liquidity of sender asset will increase. If fulfilling on receiving
     // side, user balance of receiving asset will increase + relayer paid
     const initialIncrease = fulfillingForSender
       ? await getOnchainBalance(transaction.receivingAssetId, transaction.receivingAddress, ethers.provider)
-      : await transactionManager.routerBalances(router.address, transaction.sendingAssetId);
+      : await instance.routerBalances(router.address, transaction.sendingAssetId);
     const expectedIncrease = initialIncrease.add(record.amount).sub(fulfillingForSender ? relayerFee : 0);
 
     // Check for relayer balances
@@ -266,20 +288,26 @@ describe("TransactionManager", function() {
 
     // Check for values that remain flat
     const initialFlat = fulfillingForSender
-      ? await transactionManager.routerBalances(router.address, transaction.receivingAssetId)
+      ? await instance.routerBalances(router.address, transaction.receivingAssetId)
       : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
 
     // Generate signature from user
     const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
 
     // Send tx
-    const tx = await transactionManager.connect(submitter).fulfill(transaction, relayerFee, signature);
+    const tx = await instance
+      .connect(submitter)
+      .fulfill(
+        { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
+        relayerFee,
+        signature,
+      );
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
 
     // Assert event
     await assertReceiptEvent(receipt, "TransactionFulfilled", {
-      txData: transaction,
+      txData: { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
       relayerFee,
       signature,
       caller: submitter.address,
@@ -288,10 +316,10 @@ describe("TransactionManager", function() {
     // Verify final balances
     const finalIncreased = fulfillingForSender
       ? await getOnchainBalance(transaction.receivingAssetId, transaction.receivingAddress, ethers.provider)
-      : await transactionManager.routerBalances(router.address, transaction.sendingAssetId);
+      : await instance.routerBalances(router.address, transaction.sendingAssetId);
 
     const finalFlat = fulfillingForSender
-      ? await transactionManager.routerBalances(router.address, transaction.receivingAssetId)
+      ? await instance.routerBalances(router.address, transaction.receivingAssetId)
       : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
 
     // Assert relayer fee if needed
@@ -319,6 +347,38 @@ describe("TransactionManager", function() {
     expect(finalFlat).to.be.eq(initialFlat);
   };
 
+  const cancelAndAssert = async (
+    transaction: InvariantTransactionData,
+    record: VariantTransactionData,
+    canceller: Wallet,
+    instance: Contract,
+  ): Promise<void> => {
+    const sendingSideCancel = (await instance.chainId()).toNumber() === transaction.sendingChainId;
+
+    const startingBalance = !sendingSideCancel
+      ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
+      : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
+    const expectedBalance = startingBalance.add(record.amount);
+
+    const signature = await signCancelTransactionPayload(transaction, user);
+    const tx = await transactionManagerReceiverSide
+      .connect(canceller)
+      .cancel(
+        { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
+        signature,
+      );
+    const receipt = await tx.wait();
+    await assertReceiptEvent(receipt, "TransactionCancelled", {
+      txData: { ...transaction, ...record },
+      caller: canceller.address,
+    });
+
+    const balance = !sendingSideCancel
+      ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
+      : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
+    expect(balance).to.be.eq(expectedBalance);
+  };
+
   it("should deploy", async () => {
     expect(transactionManager.address).to.be.a("string");
   });
@@ -333,14 +393,14 @@ describe("TransactionManager", function() {
     it("happy case: addLiquity ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
-      await approveTokens(amount, router);
-      await addAndAssertLiquidity(amount, assetId, router);
+      await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
+      await addAndAssertLiquidity(amount, assetId);
     });
 
     it("happy case: addLiquity Native/Ether token", async () => {
       const amount = "1";
       const assetId = AddressZero;
-      await addAndAssertLiquidity(amount, assetId, router);
+      await addAndAssertLiquidity(amount, assetId);
     });
   });
 
@@ -350,7 +410,7 @@ describe("TransactionManager", function() {
       const amount = "1";
       const assetId = AddressZero;
 
-      await addAndAssertLiquidity(amount, assetId, router);
+      await addAndAssertLiquidity(amount, assetId);
 
       await removeAndAssertLiquidity(amount, assetId, router);
     });
@@ -358,8 +418,8 @@ describe("TransactionManager", function() {
     it("happy case: addLiquity ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
-      await approveTokens(amount, router);
-      await addAndAssertLiquidity(amount, assetId, router);
+      await approveTokens(amount, router, transactionManagerReceiverSide.address);
+      await addAndAssertLiquidity(amount, assetId);
 
       await removeAndAssertLiquidity(amount, assetId, router);
     });
@@ -371,7 +431,7 @@ describe("TransactionManager", function() {
       const prepareAmount = "10";
       const assetId = tokenA.address;
 
-      await approveTokens(prepareAmount, user);
+      await approveTokens(prepareAmount, user, transactionManager.address);
 
       await prepareAndAssert(
         {
@@ -381,6 +441,8 @@ describe("TransactionManager", function() {
         {
           amount: prepareAmount,
         },
+        user,
+        transactionManager,
       );
     });
 
@@ -402,8 +464,8 @@ describe("TransactionManager", function() {
       const prepareAmount = "100";
       const assetId = tokenA.address;
 
-      await approveTokens(prepareAmount, router, tokenA);
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await approveTokens(prepareAmount, router, transactionManager.address, tokenA);
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManager);
 
       await prepareAndAssert(
         {
@@ -421,17 +483,18 @@ describe("TransactionManager", function() {
       const prepareAmount = "100";
       const assetId = AddressZero;
 
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
       await prepareAndAssert(
         {
-          sendingAssetId: tokenB.address,
+          sendingAssetId: assetId,
           receivingAssetId: assetId,
-          sendingChainId: 1338,
-          receivingChainId: 1337,
+          sendingChainId: 1337,
+          receivingChainId: 1338,
         },
         { amount: prepareAmount },
         router,
+        transactionManagerReceiverSide,
       );
     });
   });
@@ -444,22 +507,29 @@ describe("TransactionManager", function() {
       const relayerFee = "10";
 
       // Add receiving liquidity
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingAssetId: tokenB.address,
+          sendingAssetId: assetId,
           receivingAssetId: assetId,
         },
         { amount: prepareAmount },
       );
 
       // User prepares
-      await approveTokens(prepareAmount, user, tokenB);
-      await prepareAndAssert(transaction, record, user);
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address, tokenB);
+      const { blockNumber } = await prepareAndAssert(transaction, record, user);
 
       // Router fulfills
-      await fulfillAndAssert(transaction, record, relayerFee, false, router);
+      await fulfillAndAssert(
+        transaction,
+        { ...record, blockNumber: blockNumber.toString() },
+        relayerFee,
+        false,
+        router,
+        transactionManager,
+      );
     });
 
     it("happy case: router fulfills in ERC20", async () => {
@@ -468,23 +538,30 @@ describe("TransactionManager", function() {
       const relayerFee = "10";
 
       // Add receiving liquidity
-      await approveTokens(prepareAmount, router, tokenA);
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenA);
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingAssetId: tokenB.address,
+          sendingAssetId: AddressZero,
           receivingAssetId: assetId,
         },
         { amount: prepareAmount },
       );
 
       // User prepares
-      await approveTokens(prepareAmount, user, tokenB);
-      await prepareAndAssert(transaction, record, user);
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address, tokenB);
+      const { blockNumber } = await prepareAndAssert(transaction, record, user);
 
       // Router fulfills
-      await fulfillAndAssert(transaction, record, relayerFee, false, router);
+      await fulfillAndAssert(
+        transaction,
+        { ...record, blockNumber: blockNumber.toString() },
+        relayerFee,
+        false,
+        router,
+        transactionManager,
+      );
     });
 
     it("happy case: user fulfills in native asset", async () => {
@@ -493,23 +570,30 @@ describe("TransactionManager", function() {
       const relayerFee = "10";
 
       // Add receiving liquidity
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingChainId: 1338,
-          receivingChainId: 1337,
-          sendingAssetId: tokenB.address,
+          sendingChainId: (await transactionManager.chainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+          sendingAssetId: assetId,
           receivingAssetId: assetId,
         },
         { amount: prepareAmount },
       );
 
       // Router prepares
-      await prepareAndAssert(transaction, record, router);
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
       // User fulfills
-      await fulfillAndAssert(transaction, record, relayerFee, true, user);
+      await fulfillAndAssert(
+        transaction,
+        { ...record, blockNumber: blockNumber.toString() },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+      );
     });
 
     it("happy case: user fulfills in ERC20", async () => {
@@ -518,13 +602,13 @@ describe("TransactionManager", function() {
       const relayerFee = "10";
 
       // Add receiving liquidity
-      await approveTokens(prepareAmount, router, tokenA);
-      await addAndAssertLiquidity(prepareAmount, assetId, router);
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenA);
+      await addAndAssertLiquidity(prepareAmount, assetId);
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingChainId: 1338,
-          receivingChainId: 1337,
+          sendingChainId: (await transactionManager.chainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
           sendingAssetId: tokenB.address,
           receivingAssetId: assetId,
         },
@@ -532,14 +616,56 @@ describe("TransactionManager", function() {
       );
 
       // Router prepares
-      await prepareAndAssert(transaction, record, router);
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
       // User fulfills
-      await fulfillAndAssert(transaction, record, relayerFee, true, user);
+      await fulfillAndAssert(
+        transaction,
+        { ...record, blockNumber: blockNumber.toString() },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+      );
     });
   });
 
   describe("#cancel", () => {
-    it.skip("should do something right", async () => {});
+    it("happy case: user cancels ETH before expiry", async () => {
+      const prepareAmount = "10";
+      const ms = Date.now() - 10_000;
+      const expiry = Math.floor(ms / 100);
+      const assetId = AddressZero;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingChainId: (await transactionManager.chainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+          sendingAssetId: assetId,
+          receivingAssetId: assetId,
+        },
+        { amount: prepareAmount, expiry: expiry.toString() },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      await cancelAndAssert(
+        transaction,
+        { ...record, blockNumber: blockNumber.toString() },
+        receiver, // To avoid balance checks for eth
+        transactionManagerReceiverSide,
+      );
+    });
+
+    it.skip("happy case: user cancels ERC20 before expiry", async () => {});
+    it.skip("happy case: router cancels ETH before expiry", async () => {});
+    it.skip("happy case: router cancels ERC20 before expiry", async () => {});
+    it.skip("happy case: user cancels ETH after expiry", async () => {});
+    it.skip("happy case: user cancels ERC20 after expiry", async () => {});
+    it.skip("happy case: router cancels ETH after expiry", async () => {});
+    it.skip("happy case: router cancels ERC20 after expiry", async () => {});
   });
 });

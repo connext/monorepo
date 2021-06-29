@@ -46,5 +46,5 @@ export const encodeFulfillData = (txDataParams: InvariantTransactionData, relaye
 
 export const encodeCancelData = (txDataParams: InvariantTransactionData): string => {
   const digest = getTransactionDigest(txDataParams);
-  return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, cancel: "cancel" }]);
+  return defaultAbiCoder.encode([CancelEncoding], [{ txDigest: digest, cancel: "cancel" }]);
 };
