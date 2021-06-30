@@ -9,7 +9,7 @@ import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { SenderFulfillData } from "./transactionManagerListener";
+import { SenderFulfillData, SenderPrepareData } from "./transactionManagerListener";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -31,7 +31,7 @@ export class TransactionManager {
     console.log("this.signerAddress", !!this.signerAddress);
   }
 
-  async prepare(txData: SenderFulfillData): Promise<providers.TransactionReceipt> {
+  async prepare(txData: SenderPrepareData): Promise<providers.TransactionReceipt> {
     const method = "Contract::prepare ";
     const methodId = v4();
 
@@ -56,11 +56,15 @@ export class TransactionManager {
       transactionId: txData.transactionId,
       user: txData.user,
     };
-    const amount = mutateAmount(txData.amount);
-    const expiry = mutateExpiry(txData.expiry);
 
-    //@ts-ignore
-    const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [txParams, amount, expiry]);
+    // @ts-ignore
+    const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
+      txParams,
+      mutateAmount(txData.amount),
+      mutateExpiry(txData.expiry),
+      "0x", // TODO: encoded bid
+      "0x", // TODO: bid signature
+    ]);
 
     try {
       const txRes = await this.txService.sendAndConfirmTx(txParams.receivingChainId, {
@@ -106,7 +110,7 @@ export class TransactionManager {
     const relayerFee = BigNumber.from(txData.relayerFee);
     //will sig always be included (even on sender side)?
     const sig = txData.signature;
-    //@ts-ignore
+    // @ts-ignore
     const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txParams, relayerFee, sig]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(txData.sendingChainId, {
@@ -141,8 +145,8 @@ export class TransactionManager {
     }, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(
       txData.sendingChainId,
     )}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
-    //@ts-ignore
-    const fufilData = this.txManagerInterface.encodeFunctionData("cancel", [invarTxData, signature]);
+    // @ts-ignore
+    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [invarTxData, signature]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId: chainId,
@@ -156,7 +160,7 @@ export class TransactionManager {
       throw new Error(`cancel error ${JSON.stringify(e)}`);
     }
   }
-  getLiquidity(chainId: number, amount: string, assetId: string) {
+  getLiquidity(_chainId: number, _amount: string, _assetId: string) {
     //Implement txService.read
   }
 

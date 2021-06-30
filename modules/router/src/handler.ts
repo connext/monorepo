@@ -1,4 +1,4 @@
-import { RouterNxtpNatsMessagingService, InvariantTransactionData, MetaTxPayload } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, MetaTxPayload } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
@@ -12,7 +12,6 @@ import {
   SenderPrepareData,
   SubgraphTransactionManagerListener,
 } from "./transactionManagerListener";
-import { getConfig } from "./config";
 import { TransactionStatus } from "./graphqlsdk";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
@@ -75,6 +74,7 @@ export class Handler implements Handler {
     // log to get rid of unused build errors
     console.log(typeof this.messagingService);
     console.log(typeof this.subgraph);
+    console.log(typeof this.signer);
   }
 
   // HandleNewAuction
@@ -139,8 +139,6 @@ export class Handler implements Handler {
     const method = "handleSenderPrepare";
     const methodId = v4();
     this.logger.info({ method, methodId, inboundData }, "Method start");
-    const signerAddress = await this.signer.getAddress();
-    const config = getConfig();
 
     if (inboundData.status !== TransactionStatus.Prepared) {
       this.logger.error({ method, methodId, status: inboundData.status }, "Receiver tx cannot be prepared");
@@ -182,19 +180,6 @@ export class Handler implements Handler {
     // - Recipient (callTo) and callData
 
     // amount and expiry need to be modified
-
-    // Generate params
-    const txParams: InvariantTransactionData = {
-      callData: inboundData.callData,
-      receivingAddress: inboundData.receivingAddress,
-      receivingAssetId: inboundData.receivingAssetId,
-      receivingChainId: inboundData.receivingChainId,
-      router: inboundData.router,
-      sendingAssetId: inboundData.sendingAssetId,
-      sendingChainId: inboundData.sendingChainId,
-      transactionId: inboundData.transactionId,
-      user: inboundData.user,
-    };
 
     // Then prepare tx object
     // Note tx object must have:

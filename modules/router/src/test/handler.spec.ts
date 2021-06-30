@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { BigNumber, constants, providers, Signer, utils, Wallet } from "ethers";
+import { constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import { parseEther } from "@ethersproject/units";
@@ -14,13 +14,14 @@ import {
   SenderPrepareData,
   SubgraphTransactionManagerListener,
 } from "../transactionManagerListener";
-import { EXPIRY_DECREMENT, Handler } from "../handler";
+import { Handler } from "../handler";
 import * as config from "../config";
 import { TransactionStatus } from "../graphqlsdk";
+import { TransactionManager as TxManager } from "../contract";
 
 const logger = pino();
 
-const fakeTxReceipt: providers.TransactionReceipt = {
+const fakeTxReceipt = ({
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -34,7 +35,7 @@ const fakeTxReceipt: providers.TransactionReceipt = {
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-};
+} as unknown) as providers.TransactionReceipt;
 
 const fakeConfig: config.NxtpRouterConfig = {
   adminToken: "foo",
@@ -91,6 +92,7 @@ const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
+  let txManager: SinonStubbedInstance<TxManager>;
   let subgraph: SinonStubbedInstance<SubgraphTransactionManagerListener>;
   const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
@@ -102,11 +104,13 @@ describe("Handler", () => {
     const signer = createStubInstance(Signer);
     (signer as any).getAddress = () => Promise.resolve(mkAddress("0xabc")); // need to do this differently bc the function doesnt exist on the interface
 
+    txManager = createStubInstance(TxManager);
+
     txService = createStubInstance(TransactionService);
     txService.sendAndConfirmTx.resolves(fakeTxReceipt);
     stub(config, "getConfig").returns(fakeConfig);
 
-    handler = new Handler(messaging, subgraph as any, signer, txService as any, logger);
+    handler = new Handler(messaging, subgraph as any, signer, txService as any, logger, txManager as any);
   });
 
   afterEach(() => {
@@ -117,37 +121,9 @@ describe("Handler", () => {
   it("should send prepare for receiving chain with ETH asset", async () => {
     await handler.handleSenderPrepare(senderPrepareData);
 
-    expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
-    const call = txService.sendAndConfirmTx.getCall(0);
-    expect(call.args[0]).to.eq(1338);
-
-    const receiverAmount = "99500000000000000000"; // based on input amount
-    const receiverExpiry = futureTime - EXPIRY_DECREMENT;
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [
-      {
-        callData: senderPrepareData.callData,
-        receivingAddress: senderPrepareData.receivingAddress,
-        receivingAssetId: senderPrepareData.receivingAssetId,
-        receivingChainId: senderPrepareData.receivingChainId,
-        router: senderPrepareData.router,
-        sendingAssetId: senderPrepareData.sendingAssetId,
-        sendingChainId: senderPrepareData.sendingChainId,
-        transactionId: senderPrepareData.transactionId,
-        user: senderPrepareData.user,
-      },
-      receiverAmount,
-      receiverExpiry,
-      senderPrepareData.encodedBid, // encodedBid
-      senderPrepareData.bidSignature, // bid signature
-    ]);
-
-    expect(call.args[1]).to.deep.eq({
-      to: mkAddress("0xaaa"),
-      value: BigNumber.from(0),
-      data: encodedData,
-      chainId: 1338,
-      from: mkAddress("0xabc"),
-    });
+    expect(txManager.prepare.callCount).to.be.eq(1);
+    const call = txManager.prepare.getCall(0);
+    expect(call.args[0]).to.deep.eq(senderPrepareData);
   });
 
   it("should send prepare for receiving chain with token asset", async () => {
@@ -159,57 +135,17 @@ describe("Handler", () => {
 
     await handler.handleSenderPrepare(tokenPrepareData);
 
-    const call = txService.sendAndConfirmTx.getCall(0);
-    expect(call.args[0]).to.eq(1338);
-
-    const receiverAmount = "99500000000000000000"; // based on input amount
-    const receiverExpiry = futureTime - EXPIRY_DECREMENT;
-
-    const encodedData = nxtpContract.encodeFunctionData("prepare", [
-      {
-        ...tokenPrepareData,
-      },
-      receiverAmount,
-      receiverExpiry,
-      tokenPrepareData.encodedBid, // encodedBid
-      tokenPrepareData.bidSignature, // bid signature
-    ]);
-
-    expect(call.args[1]).to.deep.eq({
-      to: mkAddress("0xaaa"),
-      //todo:this breaks
-      value: BigNumber.from(0),
-      data: encodedData,
-      chainId: 1338,
-      from: mkAddress("0xabc"),
-    });
-
-    // assert the prepare call
-    expect(txService.sendAndConfirmTx.callCount).to.be.eq(1);
+    const call = txManager.prepare.getCall(0);
+    expect(call.args[0]).to.deep.eq(tokenPrepareData);
   });
 
   it("should fulfill eth asset", async () => {
     subgraph.getSenderTransaction.resolves({ ...receiverFulfillDataMock });
     await handler.handleReceiverFulfill(receiverFulfillDataMock);
-    const call = txService.sendAndConfirmTx.getCall(0);
-    const [chainId, data] = call.args;
-    expect(chainId).to.eq(receiverFulfillDataMock.sendingChainId);
+    const call = txManager.fulfill.getCall(0);
+    const [data] = call.args;
 
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-      {
-        ...receiverFulfillDataMock,
-      },
-      receiverFulfillDataMock.relayerFee,
-      receiverFulfillDataMock.signature,
-    ]);
-
-    expect(data).to.deep.eq({
-      to: mkAddress("0xaaa"),
-      value: 0,
-      data: encodedData,
-      chainId: 1337,
-      from: mkAddress("0xabc"),
-    });
+    expect(data).to.deep.eq(receiverFulfillDataMock);
   });
 
   it(`should fulfill token asset`, async () => {
@@ -223,58 +159,9 @@ describe("Handler", () => {
     subgraph.getSenderTransaction.resolves({ ...tokenRxFulfillDataMock });
 
     await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
-    const call = txService.sendAndConfirmTx.getCall(0);
+    const call = txManager.fulfill.getCall(0);
+    const [data] = call.args;
 
-    expect(call.args[0]).to.eq(tokenRxFulfillDataMock.sendingChainId);
-
-    const encodedData = nxtpContract.encodeFunctionData("fulfill", [
-      {
-        ...tokenRxFulfillDataMock,
-        sendingAssetId: rinkebyTestTokenAddress,
-        receivingAssetId: goerliTestTokenAddress,
-      },
-      tokenRxFulfillDataMock.relayerFee,
-      tokenRxFulfillDataMock.signature,
-    ]);
-
-    expect(call.args[1]).to.deep.eq({
-      to: mkAddress("0xaaa"),
-      value: 0,
-      data: encodedData,
-      chainId: 1337,
-      from: mkAddress("0xabc"),
-    });
-  });
-
-  it(`should remove ETH liquidity`, async () => {
-    const chainId = 1337;
-    const amtRemove = BigNumber.from("1");
-
-    // @ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
-      amtRemove.toString(),
-      constants.AddressZero,
-      constants.AddressZero,
-    ]);
-    //check balances
-  });
-  it(`should remove token liquidity`, async () => {
-    const chainId = 1337;
-    const amtRemove = BigNumber.from("1");
-
-    // @ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("removeLiquidity", [
-      amtRemove.toString(),
-      rinkebyTestTokenAddress,
-      constants.AddressZero,
-    ]);
-    //check balances
-  });
-  it(`should cancel`, async () => {
-    const chainId = 1337;
-    //sign senderPrepareData
-    const signature = await Wallet.createRandom().signMessage("msg");
-    // @ts-ignore
-    const encodedData = nxtpContract.encodeFunctionData("cancel", [senderPrepareData, signature]);
+    expect(data).to.deep.eq(tokenRxFulfillDataMock);
   });
 });
