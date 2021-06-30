@@ -10,8 +10,6 @@ import { BaseLogger } from "pino";
 
 import {getConfig, NxtpRouterConfig} from "./config";
 import {SenderFulfillData} from "./transactionManagerListener";
-import {TransactionStatus} from "./graphqlsdk";
-
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -125,17 +123,29 @@ export class TransactionManager {
   }
 
   async cancel(chainId:number, txData:InvariantTransactionData, signature:string): Promise<providers.TransactionReceipt> {
+    const method = "Contract::cancel";
+    const methodId = v4();
+    this.logger.info({ method, methodId, txData }, "Method start");
     // encode and call tx service
-    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
-    //wtd for uint 24 encoding below
-    const invarTxData = `tuple(address ${txData.user}, address ${txData.router}, address ${txData.sendingAssetId}, address ${txData.receivingAssetId}, address ${txData.receivingAddress}, uint24 ${BigNumber.from(txData.sendingChainId)}, uint24 ${BigNumber.from(txData.receivingChainId)}, bytes ${txData.callData}, bytes32 ${txData.transactionId}`;
+    const txParams = {
+      user: txData.user,
+      router: txData.router,
+      sendingAssetId: txData.sendingAssetId,
+      receivingAssetId: txData.receivingAssetId,
+      receivingAddress: txData.receivingAddress,
+      sendingChainId: txData.sendingChainId,
+      receivingChainId: txData.receivingChainId,
+      callData: txData.callData,
+      transactionId: txData.transactionId,
+    };
+
     //@ts-ignore
-    const fufilData = this.txManagerInterface.encodeFunctionData("cancel", [invarTxData, signature]);
+    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txParams, signature]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId: chainId,
-        data: invarTxData,
-        to: nxtpContractAddress,
+        data: cancelData,
+        to: this.config.chainConfig[chainId].transactionManagerAddress,
         value: 0,
         from: this.signerAddress,
       });
@@ -144,8 +154,15 @@ export class TransactionManager {
       throw new Error(`cancel error ${JSON.stringify(e)}`);
     }
   }
-  getLiquidity(chainId: number, amount:string, assetId:string) {
-    //Implement txService.read
+  getLiquidity(chainId: number, assetId:string): Promise<string>{
+    const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances",[this.signerAddress, assetId]);
+    const res = this.txService.readTx(chainId, {
+      chainId: chainId,
+      to: this.config.chainConfig[chainId].transactionManagerAddress,
+      value: 0,
+      data: getLiquidityData,
+    });
+    return res;
   }
 
   async addLiquidity(chainId:number, amount:string, assetId:string = constants.AddressZero): Promise<providers.TransactionReceipt>{
