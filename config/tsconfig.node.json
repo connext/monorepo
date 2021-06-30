@@ -1,0 +1,19 @@
+// This file contains shared TypeScript compilerOptions for *node* packages.
+// The tsconfig.json file in a package may extend this file.
+
+{
+  "extends": "./tsconfig.base.json",
+
+  "compilerOptions": {
+    "module": "commonjs",
+
+    // node >=12.x supports es2019.
+    // To work with node 10.x or 11.x, change these values to "es2017".
+    // See https://node.green for node versions' support of ecmascript
+    // versions and features.
+    "target": "es2019",
+    "lib": ["es2019"],
+
+    "types": ["node"]
+  }
+}

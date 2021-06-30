@@ -1,0 +1,80 @@
+{
+  "name": "@connext/nxtp-router",
+  "version": "0.0.3",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",
+    "start": "node dist/index.js'",
+    "lint": "eslint ./src --ext .ts --env node",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "build": "tsc --build ./tsconfig.build.json",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./coverage ./node_modules",
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "generate": "graphql-codegen"
+  },
+  "nodemonConfig": {
+    "exec": "node ./dist/index.js",
+    "delay": "500",
+    "ext": "js,json",
+    "watch": [
+      ".env",
+      "./dist",
+      "../@connext/nxtp-txservice/dist",
+      "../@connext/nxtp-contracts/dist",
+      "../@connext/nxtp-utils/dist"
+    ]
+  },
+  "author": "Connext",
+  "license": "ISC",
+  "dependencies": {
+    "@connext/nxtp-contracts": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
+    "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.17.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "adv": "^0.1.5",
+    "ajv": "^8.6.0",
+    "ajv-formats": "^2.1.0",
+    "ethers": "^5.4.0",
+    "fastify": "^3.18.0",
+    "graphql": "^15.5.1",
+    "graphql-request": "^3.4.0",
+    "pino": "^6.11.3",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.5",
+    "@graphql-codegen/typescript": "^1.22.3",
+    "@graphql-codegen/typescript-graphql-request": "^3.2.3",
+    "@graphql-codegen/typescript-operations": "^1.18.2",
+    "@types/chai": "^4.2.19",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/chai-subset": "^1.3.3",
+    "@types/mocha": "^8.2.2",
+    "@types/pino": "^6.3.8",
+    "@types/sinon": "^10.0.2",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "chai-subset": "^1.6.0",
+    "concurrently": "^5.2.0",
+    "eslint": "^6.8.0",
+    "mocha": "^9.0.1",
+    "nodemon": "^2.0.7",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "sinclair": "^0.2.0",
+    "sinon": "^11.1.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^10.0.0",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.4"
+  },
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+}

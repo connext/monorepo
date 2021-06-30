@@ -1,0 +1,40 @@
+// This file contains shared TypeScript compilerOptions for all packages,
+// including both node and browser packages.
+
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "moduleResolution": "node",
+
+    // Allow packages to be referenced by other packages.
+    "composite": true,
+
+    // Including "types" prevents auto-load of @types/* from all ancestor
+    // node_modules folders. tsc will always load types for modules you import from.
+    // For example:
+    //   "node" provides types for node built-in modules and globals (e.g., path, console).
+    // Any types listed here must have the corresponding "@types/..." package
+    // listed in the root package.json devDependencies.
+    // Do not add types here, override this option in extended tsconfig files.
+    "types": [],
+
+    // These are helpful for developer experience.
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+
+    // We want to be as strict as we can...
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "strict": true
+
+    // ...but you may want to disable some things if they cause pain.
+    // These are common sources of pain:
+    // "suppressImplicitAnyIndexErrors": true,
+    // "strictPropertyInitialization": false
+  }
+}

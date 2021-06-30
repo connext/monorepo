@@ -1,0 +1,36 @@
+{
+  "version": "0.0.1",
+  "name": "@connext/nxtp-subgraph",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "yarn codegen && graph build",
+    "clean": "rimraf ./build ./tsconfig.tsBuildInfo ./generated",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./node_modules",
+    "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:rinkeby": "mustache config/rinkeby.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:local": "mustache config/local.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:goerli": "yarn prepare:goerli && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli",
+    "deploy:rinkeby": "yarn prepare:rinkeby && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby",
+    "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
+    "remove-local-1337": "graph remove --node http://localhost:8020/ connext/nxtp",
+    "deploy-local-1337": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp",
+    "create-local-1338": "graph create --node http://localhost:9020/ connext/nxtp",
+    "remove-local-1338": "graph remove --node http://localhost:9020/ connext/nxtp",
+    "deploy-local-1338": "graph deploy --node http://localhost:9020/ --ipfs http://localhost:5001 connext/nxtp"
+  },
+  "files": [
+    "schema.graphql",
+    "generated"
+  ],
+  "dependencies": {
+    "ethers": "^5.4.0",
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "0.20.1",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "sinon": "^11.1.1"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "lib": ["es2017"],
+    "declaration": false,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "inlineSourceMap": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*.ts","test/**/*.ts"],
+  "references": [
+    {
+      "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../contracts/tsconfig.build.json"
+    }
+  ],
+}
