@@ -29,8 +29,10 @@ export type InvariantTransactionData = {
   transactionId: string;
 };
 
-export type TransactionData = InvariantTransactionData & {
+export type VariantTransactionData = {
   amount: string;
+  preparedBlockNumber: number;
   expiry: string;
-  blockNumber: number;
 };
+
+export type TransactionData = InvariantTransactionData & VariantTransactionData;

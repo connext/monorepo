@@ -5,6 +5,7 @@ import {
   InvariantTransactionData,
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
+  VariantTransactionData,
 } from "@connext/nxtp-utils";
 use(solidity);
 
@@ -19,12 +20,6 @@ import { ERC20 } from "../typechain/ERC20";
 import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
-
-type VariantTransactionData = {
-  amount: string;
-  preparedBlockNumber: number;
-  expiry: string;
-};
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function() {
