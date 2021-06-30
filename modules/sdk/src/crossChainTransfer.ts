@@ -58,7 +58,7 @@ export const prepare = async (
   const encodedBid = "0x";
   const bidSignature = "0x";
 
-  logger.info({ method, methodId, transactionId }, "Preparing tx");
+  logger.info({ method, methodId, transactionId, transactionManager: transactionManager.address }, "Preparing tx");
 
   const prepareTx = await transactionManager
     .connect(signer)
@@ -124,8 +124,14 @@ export const handleReceiverPrepare = async (
   ]);
 
   const inbox = generateMessagingInbox();
-  await messaging.subscribeToMetaTxResponse(inbox, (data, err) => {
-    logger.info({ method, methodId, data, err }, "MetaTx response received");
+  const response = new Promise(async (resolve, reject) => {
+    await messaging.subscribeToMetaTxResponse(inbox, (data, err) => {
+      logger.info({ method, methodId, data, err }, "MetaTx response received");
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    });
   });
   await messaging.publishMetaTxRequest(
     {
@@ -136,8 +142,10 @@ export const handleReceiverPrepare = async (
     },
     inbox,
   );
-  logger.info({ method, methodId, inbox }, "MetaTx request published");
+  logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
+
   // TODO: relayer responses?
+  await response;
   // add logic to submit it on our own before expiry
   // or some timeout
 };
