@@ -83,8 +83,9 @@ cache
 .nuxt
 dist
 
-modules/**/dist
-modules/**/build
+packages/**/dist
+packages/**/build
+packages/**/node_modules
 
 # Gatsby files
 .cache/
