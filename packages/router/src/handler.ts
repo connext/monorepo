@@ -1,4 +1,4 @@
-import { MetaTxPayload, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, MetaTxPayload } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
