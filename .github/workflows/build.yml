@@ -38,11 +38,11 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
-      - name: Test
-        run: yarn test:all
-
       - name: Build
         run: yarn build:all
+
+      - name: Test
+        run: yarn test:all
 
       - name: Lint
         run: yarn lint:all --max-warnings 0
