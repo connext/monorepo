@@ -16,5 +16,10 @@
     "./artifacts",
     "./deployments.json"
   ],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["test/**/*.ts"],
+  "references": [
+    {
+      "path": "../utils/tsconfig.build.json"
+    }
+  ]
 }

@@ -1,6 +1,4 @@
-import { defaultAbiCoder } from "ethers/lib/utils";
-import { keccak256 as solidityKeccak256 } from "@ethersproject/solidity";
-
+import { utils } from "ethers";
 import { InvariantTransactionData } from "./basic";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
@@ -28,23 +26,20 @@ export const CancelEncoding = tidy(`tuple(
 )`);
 
 export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
-  return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
+  return utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
 
 export const getTransactionDigest = (txDataParams: InvariantTransactionData): string => {
-  const digest = solidityKeccak256(
-    ["bytes"],
-    [defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams])],
-  );
+  const digest = utils.keccak256(utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]));
   return digest;
 };
 
 export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
   const digest = getTransactionDigest(txDataParams);
-  return defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee: relayerFee }]);
+  return utils.defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee: relayerFee }]);
 };
 
 export const encodeCancelData = (txDataParams: InvariantTransactionData): string => {
   const digest = getTransactionDigest(txDataParams);
-  return defaultAbiCoder.encode([CancelEncoding], [{ txDigest: digest, cancel: "cancel" }]);
+  return utils.defaultAbiCoder.encode([CancelEncoding], [{ txDigest: digest, cancel: "cancel" }]);
 };

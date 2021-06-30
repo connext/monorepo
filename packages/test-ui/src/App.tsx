@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Steps } from "antd";
-import { Web3Provider } from "@ethersproject/providers";
-import { BigNumber, constants, providers, Signer } from "ethers";
+import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import pino from "pino";
-import { parseEther } from "ethers/lib/utils";
 import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
@@ -14,7 +12,7 @@ const receivingProviderUrl = "https://rpc.goerli.mudit.blog/";
 
 function App(): React.ReactElement | null {
   const [step, setStep] = useState<0 | 1 | 2>(0);
-  const [web3Provider, setProvider] = useState<Web3Provider>();
+  const [web3Provider, setProvider] = useState<providers.Web3Provider>();
   const [routerAddress, setRouterAddress] = useState<string>("0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6");
   const [receivingAddress, setReceivingAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("0.01");
@@ -28,7 +26,7 @@ function App(): React.ReactElement | null {
       return;
     }
     try {
-      const provider = new Web3Provider((window as any).ethereum);
+      const provider = new providers.Web3Provider((window as any).ethereum);
       const _signer = provider.getSigner();
       setSigner(_signer);
       const address = await _signer.getAddress();
@@ -174,7 +172,11 @@ function App(): React.ReactElement | null {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             onFinish={(vals) => {
-              transfer(parseInt(vals.sendingChain), parseInt(vals.receivingChain), parseEther(vals.amount).toString());
+              transfer(
+                parseInt(vals.sendingChain),
+                parseInt(vals.receivingChain),
+                utils.parseEther(vals.amount).toString(),
+              );
             }}
             initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
           >

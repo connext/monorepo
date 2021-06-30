@@ -7,7 +7,6 @@ import pino from "pino";
 import { constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
-import { parseEther } from "@ethersproject/units";
 
 import {
   ReceiverFulfillData,
@@ -62,7 +61,7 @@ const fakeConfig: config.NxtpRouterConfig = {
 const futureTime = Date.now() + 3600 * 24 * 7; // 1 week
 
 const senderPrepareData: SenderPrepareData = {
-  amount: parseEther("100").toString(),
+  amount: utils.parseEther("100").toString(),
   blockNumber: 1,
   callData: "0x",
   chainId: 1337,
