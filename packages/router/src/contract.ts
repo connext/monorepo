@@ -1,4 +1,4 @@
-import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts";
+import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
@@ -57,7 +57,6 @@ export class TransactionManager {
       user: txData.user,
     };
 
-    // @ts-ignore
     const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
       txParams,
       mutateAmount(txData.amount),
@@ -116,7 +115,6 @@ export class TransactionManager {
     const relayerFee = BigNumber.from(receiverTxData.relayerFee);
     //will sig always be included (even on sender side)?
     const sig = receiverTxData.signature;
-    // @ts-ignore
     const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txParams, relayerFee, sig]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(receiverTxData.sendingChainId, {
@@ -159,7 +157,6 @@ export class TransactionManager {
       transactionId: txData.transactionId,
     };
 
-    //@ts-ignore
     const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txParams, signature]);
 
     try {
@@ -219,14 +216,13 @@ export class TransactionManager {
     recipientAddress: string | undefined,
   ): Promise<providers.TransactionReceipt> {
     //should we remove liquidity for self if there isn't another address specified?
-    if (!recipientAddress)
-      //@ts-ignore
-      recipientAddress = await this.txService.chains.get(chainId).getAddress();
+    if (!recipientAddress) {
+      recipientAddress = this.signerAddress;
+    }
 
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount).toString();
 
-    //@ts-ignore
     const removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity", [
       bnAmount,
       assetId,

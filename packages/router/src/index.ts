@@ -25,7 +25,6 @@ const messaging = new RouterNxtpNatsMessagingService({
 const subgraphs: { [chainId: number]: string } = {};
 const providers: { [chainId: number]: string[] } = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  // @ts-ignore
   subgraphs[parseInt(chainId)] = config.subgraph;
   providers[parseInt(chainId)] = config.provider;
 });
