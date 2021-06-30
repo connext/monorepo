@@ -1,4 +1,5 @@
 import { utils } from "ethers";
+
 import { InvariantTransactionData } from "./basic";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;

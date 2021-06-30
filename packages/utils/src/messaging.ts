@@ -107,7 +107,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
 
   async connect(): Promise<void> {
     if (!this.bearerToken) {
-      const token = await getBearerToken(this.authUrl!, this.signer!)();
+      const token = await getBearerToken(this.authUrl!, this.signer)();
       this.bearerToken = token;
     }
     // TODO: fail fast w sensible error message if bearer token is invalid #446
@@ -169,7 +169,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
   public async unsubscribe(subject: string): Promise<void> {
     this.assertConnected();
     const unsubscribeFrom = this.getSubjectsToUnsubscribeFrom(subject);
-    unsubscribeFrom.forEach(sub => {
+    unsubscribeFrom.forEach((sub) => {
       this.connection!.unsubscribe(sub);
     });
   }
@@ -189,9 +189,9 @@ export class NatsBasicMessagingService implements BasicMessaging {
     // `*` represents any set of characters
     // if no match for split, will return [subject]
     const substrsToMatch = subject.split(`>`)[0].split(`*`);
-    subscribedTo.forEach(subscribedSubject => {
+    subscribedTo.forEach((subscribedSubject) => {
       let subjectIncludesAllSubstrings = true;
-      substrsToMatch.forEach(match => {
+      substrsToMatch.forEach((match) => {
         if (!(subscribedSubject ?? "").includes(match) && match !== ``) {
           subjectIncludesAllSubstrings = false;
         }
@@ -220,8 +220,8 @@ export type NxtpMessageEnvelope<T> = {
   inbox?: string;
 };
 
-export type AuctionPayload = {};
-export type AuctionResponse = {};
+export type AuctionPayload = { [k: string]: never };
+export type AuctionResponse = { [k: string]: never };
 export type MetaTxPayload = {
   relayerFee: string;
   to: string;

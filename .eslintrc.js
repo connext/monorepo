@@ -52,6 +52,7 @@ module.exports = {
     "@typescript-eslint/no-unsafe-call": ["off"],
     "@typescript-eslint/no-unsafe-return": ["off"],
     "@typescript-eslint/restrict-template-expressions": ["off"],
+    "@typescript-eslint/explicit-module-boundary-types": ["off"],
     "no-empty": ["off"],
     "require-await": "off",
     "@typescript-eslint/require-await": "off",
