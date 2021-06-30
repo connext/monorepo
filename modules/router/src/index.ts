@@ -33,7 +33,8 @@ const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.addres
 const txService = new TransactionService(logger, wallet, providers);
 const transactionManager = new TransactionManager(txService, wallet.address, logger);
 
-const handler = new Handler(messaging, subgraph, wallet, txService, logger, transactionManager );
+const handler = new Handler(messaging, subgraph, wallet, txService, logger, transactionManager);
+
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
@@ -75,7 +76,7 @@ server.get("/config", async () => {
   };
 });
 
-server.get<{ Body: AddLiquidityRequest }>(
+server.post<{ Body: AddLiquidityRequest }>(
   "/add-liquidity",
   //  TODO: make these work!
   // { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },

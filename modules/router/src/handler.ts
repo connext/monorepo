@@ -55,7 +55,7 @@ export interface TransactionDataParams {
 
 export interface Handler {
   handleNewAuction(data: AuctionData): Promise<void>;
-  handleMetaTxRequest(data: MetaTxData): Promise<void>;
+  handleMetaTxRequest(data: MetaTxPayload): Promise<void>;
   handleSenderPrepare(inboundData: SenderPrepareData): Promise<void>;
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
@@ -63,12 +63,6 @@ export interface Handler {
 }
 
 export type AuctionData = any;
-export type MetaTxData = {
-  relayerFee: string;
-  to: string;
-  data: string;
-  chainId: number;
-};
 
 export class Handler implements Handler {
   constructor(
@@ -82,6 +76,7 @@ export class Handler implements Handler {
     // log to get rid of unused build errors
     console.log(typeof this.messagingService);
     console.log(typeof this.subgraph);
+    console.log(typeof this.signer);
   }
 
   // HandleNewAuction
@@ -110,13 +105,13 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(data: MetaTxData): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxPayload): Promise<void> {
     // First log
-    const method = "handleSenderPrepare";
+    const method = "handleMetaTxRequest";
     const methodId = v4();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { relayerFee, to, data: txData, chainId } = data;
+    const { relayerFee, to, data: txData, chainId, responseInbox } = data;
 
     // TODO:
     // Validate that metatx request matches with known data about fulfill
@@ -131,12 +126,13 @@ export class Handler implements Handler {
     // Send to txService
     // Update metrics
 
-    this.logger.info({ method, methodId, chainId, relayerFee }, "Submitting tx");
+    this.logger.info({ method, methodId, chainId, relayerFee, responseInbox }, "Submitting tx");
     const tx = await this.txService.sendAndConfirmTx(chainId, { to, value: "0", data: txData, chainId });
     this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
 
     // TODO: publish response, whats the best way to do this? need a predictable
     // inbox for this tx only
+    await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, responseInbox);
   }
 
   // HandleSenderPrepare
@@ -154,8 +150,6 @@ export class Handler implements Handler {
     // TODO: where should sender cancellation be handled / evaluated?
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
-
-    // Generate params
 
     // Make sure we didnt *already* prepare receiver tx
     // NOTE: if subgraph is out of date here, worst case is that the tx is
@@ -199,16 +193,16 @@ export class Handler implements Handler {
     // Send to txService
     this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
     const txReceipt = await this.txManager.prepare(inboundData);
-    if(txReceipt) {
+    if (txReceipt) {
       this.logger.info(
-          {
-            method,
-            methodId,
-            txHash: txReceipt.transactionHash,
-            transactionId: inboundData.transactionId,
-            chainId: inboundData.receivingChainId,
-          },
-          "Receiver prepare tx confirmed",
+        {
+          method,
+          methodId,
+          txHash: txReceipt.transactionHash,
+          transactionId: inboundData.transactionId,
+          chainId: inboundData.receivingChainId,
+        },
+        "Receiver prepare tx confirmed",
       );
     }
     // If success, update metrics
@@ -237,26 +231,37 @@ export class Handler implements Handler {
     this.logger.info({ method, methodId, data }, "Method start");
 
     const senderTransaction = await this.subgraph.getSenderTransaction(data.transactionId, data.sendingChainId);
-    if (senderTransaction?.status === TransactionStatus.Fulfilled) {
+    if (!senderTransaction) {
+      this.logger.error(
+        {
+          transactionId: data.transactionId,
+          sendingChainId: data.sendingChainId,
+          receivingChainId: data.receivingChainId,
+        },
+        "Failed to find sender tx on receiver fulfill",
+      );
+      return;
+    }
+    if (senderTransaction.status === TransactionStatus.Fulfilled) {
       this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
       return;
     }
     // Send to tx service
     this.logger.info(
-        { method, methodId, transactionId: data.transactionId, signature: data.signature },
-        "Sending sender fulfill tx",
-      );
-    const txReceipt = await this.txManager.fulfill(data);
-    if(txReceipt) {
+      { method, methodId, transactionId: data.transactionId, signature: data.signature },
+      "Sending sender fulfill tx",
+    );
+    const txReceipt = await this.txManager.fulfill(data, senderTransaction);
+    if (txReceipt) {
       this.logger.info(
-          {
-            method,
-            methodId,
-            txHash: txReceipt.transactionHash,
-            transactionId: data.transactionId,
-            chainId: data.receivingChainId,
-          },
-          "Receiver fulfill tx confirmed",
+        {
+          method,
+          methodId,
+          txHash: txReceipt.transactionHash,
+          transactionId: data.transactionId,
+          chainId: data.receivingChainId,
+        },
+        "Receiver fulfill tx confirmed",
       );
     }
     // If success, update metrics

@@ -295,15 +295,17 @@ export type Transaction = {
   amount: Scalars['BigInt'];
   sendingAssetId: Scalars['Bytes'];
   receivingAssetId: Scalars['Bytes'];
-  sendingChainId: Scalars['Int'];
-  receivingChainId: Scalars['Int'];
+  sendingChainId: Scalars['BigInt'];
+  receivingChainId: Scalars['BigInt'];
   receivingAddress: Scalars['Bytes'];
   callData: Scalars['Bytes'];
   transactionId: Scalars['Bytes'];
   expiry: Scalars['BigInt'];
   status: TransactionStatus;
-  chainId: Scalars['Int'];
+  chainId: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
+  encodedBid: Scalars['Bytes'];
+  bidSignature: Scalars['Bytes'];
   relayerFee?: Maybe<Scalars['BigInt']>;
   signature?: Maybe<Scalars['Bytes']>;
   prepareCaller?: Maybe<Scalars['Bytes']>;
@@ -374,22 +376,22 @@ export type Transaction_Filter = {
   receivingAssetId_not_in?: Maybe<Array<Scalars['Bytes']>>;
   receivingAssetId_contains?: Maybe<Scalars['Bytes']>;
   receivingAssetId_not_contains?: Maybe<Scalars['Bytes']>;
-  sendingChainId?: Maybe<Scalars['Int']>;
-  sendingChainId_not?: Maybe<Scalars['Int']>;
-  sendingChainId_gt?: Maybe<Scalars['Int']>;
-  sendingChainId_lt?: Maybe<Scalars['Int']>;
-  sendingChainId_gte?: Maybe<Scalars['Int']>;
-  sendingChainId_lte?: Maybe<Scalars['Int']>;
-  sendingChainId_in?: Maybe<Array<Scalars['Int']>>;
-  sendingChainId_not_in?: Maybe<Array<Scalars['Int']>>;
-  receivingChainId?: Maybe<Scalars['Int']>;
-  receivingChainId_not?: Maybe<Scalars['Int']>;
-  receivingChainId_gt?: Maybe<Scalars['Int']>;
-  receivingChainId_lt?: Maybe<Scalars['Int']>;
-  receivingChainId_gte?: Maybe<Scalars['Int']>;
-  receivingChainId_lte?: Maybe<Scalars['Int']>;
-  receivingChainId_in?: Maybe<Array<Scalars['Int']>>;
-  receivingChainId_not_in?: Maybe<Array<Scalars['Int']>>;
+  sendingChainId?: Maybe<Scalars['BigInt']>;
+  sendingChainId_not?: Maybe<Scalars['BigInt']>;
+  sendingChainId_gt?: Maybe<Scalars['BigInt']>;
+  sendingChainId_lt?: Maybe<Scalars['BigInt']>;
+  sendingChainId_gte?: Maybe<Scalars['BigInt']>;
+  sendingChainId_lte?: Maybe<Scalars['BigInt']>;
+  sendingChainId_in?: Maybe<Array<Scalars['BigInt']>>;
+  sendingChainId_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingChainId?: Maybe<Scalars['BigInt']>;
+  receivingChainId_not?: Maybe<Scalars['BigInt']>;
+  receivingChainId_gt?: Maybe<Scalars['BigInt']>;
+  receivingChainId_lt?: Maybe<Scalars['BigInt']>;
+  receivingChainId_gte?: Maybe<Scalars['BigInt']>;
+  receivingChainId_lte?: Maybe<Scalars['BigInt']>;
+  receivingChainId_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingChainId_not_in?: Maybe<Array<Scalars['BigInt']>>;
   receivingAddress?: Maybe<Scalars['Bytes']>;
   receivingAddress_not?: Maybe<Scalars['Bytes']>;
   receivingAddress_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -418,14 +420,14 @@ export type Transaction_Filter = {
   expiry_not_in?: Maybe<Array<Scalars['BigInt']>>;
   status?: Maybe<TransactionStatus>;
   status_not?: Maybe<TransactionStatus>;
-  chainId?: Maybe<Scalars['Int']>;
-  chainId_not?: Maybe<Scalars['Int']>;
-  chainId_gt?: Maybe<Scalars['Int']>;
-  chainId_lt?: Maybe<Scalars['Int']>;
-  chainId_gte?: Maybe<Scalars['Int']>;
-  chainId_lte?: Maybe<Scalars['Int']>;
-  chainId_in?: Maybe<Array<Scalars['Int']>>;
-  chainId_not_in?: Maybe<Array<Scalars['Int']>>;
+  chainId?: Maybe<Scalars['BigInt']>;
+  chainId_not?: Maybe<Scalars['BigInt']>;
+  chainId_gt?: Maybe<Scalars['BigInt']>;
+  chainId_lt?: Maybe<Scalars['BigInt']>;
+  chainId_gte?: Maybe<Scalars['BigInt']>;
+  chainId_lte?: Maybe<Scalars['BigInt']>;
+  chainId_in?: Maybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: Maybe<Array<Scalars['BigInt']>>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   blockNumber_not?: Maybe<Scalars['BigInt']>;
   blockNumber_gt?: Maybe<Scalars['BigInt']>;
@@ -434,6 +436,18 @@ export type Transaction_Filter = {
   blockNumber_lte?: Maybe<Scalars['BigInt']>;
   blockNumber_in?: Maybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  encodedBid?: Maybe<Scalars['Bytes']>;
+  encodedBid_not?: Maybe<Scalars['Bytes']>;
+  encodedBid_in?: Maybe<Array<Scalars['Bytes']>>;
+  encodedBid_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  encodedBid_contains?: Maybe<Scalars['Bytes']>;
+  encodedBid_not_contains?: Maybe<Scalars['Bytes']>;
+  bidSignature?: Maybe<Scalars['Bytes']>;
+  bidSignature_not?: Maybe<Scalars['Bytes']>;
+  bidSignature_in?: Maybe<Array<Scalars['Bytes']>>;
+  bidSignature_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  bidSignature_contains?: Maybe<Scalars['Bytes']>;
+  bidSignature_not_contains?: Maybe<Scalars['Bytes']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   relayerFee_not?: Maybe<Scalars['BigInt']>;
   relayerFee_gt?: Maybe<Scalars['BigInt']>;
@@ -484,6 +498,8 @@ export enum Transaction_OrderBy {
   Status = 'status',
   ChainId = 'chainId',
   BlockNumber = 'blockNumber',
+  EncodedBid = 'encodedBid',
+  BidSignature = 'bidSignature',
   RelayerFee = 'relayerFee',
   Signature = 'signature',
   PrepareCaller = 'prepareCaller',
@@ -555,7 +571,7 @@ export enum _SubgraphErrorPolicy_ {
 
 export type GetSenderPrepareTransactionsQueryVariables = Exact<{
   routerId: Scalars['String'];
-  sendingChainId: Scalars['Int'];
+  sendingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -563,7 +579,7 @@ export type GetSenderPrepareTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -576,7 +592,7 @@ export type GetSenderPrepareTransactionsQuery = (
 
 export type GetReceiverPrepareTransactionsQueryVariables = Exact<{
   routerId: Scalars['String'];
-  receivingChainId: Scalars['Int'];
+  receivingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -584,7 +600,7 @@ export type GetReceiverPrepareTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -597,7 +613,7 @@ export type GetReceiverPrepareTransactionsQuery = (
 
 export type GetReceiverFulfillTransactionsQueryVariables = Exact<{
   routerId: Scalars['String'];
-  receivingChainId: Scalars['Int'];
+  receivingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -605,7 +621,7 @@ export type GetReceiverFulfillTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'relayerFee' | 'signature'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -618,7 +634,7 @@ export type GetReceiverFulfillTransactionsQuery = (
 
 export type GetSenderTransactionQueryVariables = Exact<{
   transactionId: Scalars['Bytes'];
-  sendingChainId: Scalars['Int'];
+  sendingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -626,7 +642,7 @@ export type GetSenderTransactionQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'relayerFee' | 'signature'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -639,7 +655,7 @@ export type GetSenderTransactionQuery = (
 
 export type GetReceiverTransactionQueryVariables = Exact<{
   transactionId: Scalars['Bytes'];
-  receivingChainId: Scalars['Int'];
+  receivingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -647,7 +663,7 @@ export type GetReceiverTransactionQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'relayerFee' | 'signature'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -660,7 +676,7 @@ export type GetReceiverTransactionQuery = (
 
 export type GetSenderFulfillTransactionsQueryVariables = Exact<{
   routerId: Scalars['String'];
-  sendingChainId: Scalars['Int'];
+  sendingChainId: Scalars['BigInt'];
 }>;
 
 
@@ -668,7 +684,7 @@ export type GetSenderFulfillTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'relayerFee' | 'signature'>
+    & Pick<Transaction, 'id' | 'amount' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainId' | 'receivingChainId' | 'receivingAddress' | 'callData' | 'transactionId' | 'expiry' | 'status' | 'chainId' | 'blockNumber' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -681,7 +697,7 @@ export type GetSenderFulfillTransactionsQuery = (
 
 
 export const GetSenderPrepareTransactionsDocument = gql`
-    query GetSenderPrepareTransactions($routerId: String!, $sendingChainId: Int!) {
+    query GetSenderPrepareTransactions($routerId: String!, $sendingChainId: BigInt!) {
   transactions(
     where: {router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Prepared}
   ) {
@@ -704,11 +720,13 @@ export const GetSenderPrepareTransactionsDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
   }
 }
     `;
 export const GetReceiverPrepareTransactionsDocument = gql`
-    query GetReceiverPrepareTransactions($routerId: String!, $receivingChainId: Int!) {
+    query GetReceiverPrepareTransactions($routerId: String!, $receivingChainId: BigInt!) {
   transactions(
     where: {router: $routerId, receivingChainId: $receivingChainId, chainId: $receivingChainId, status: Prepared}
   ) {
@@ -731,11 +749,13 @@ export const GetReceiverPrepareTransactionsDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
   }
 }
     `;
 export const GetReceiverFulfillTransactionsDocument = gql`
-    query GetReceiverFulfillTransactions($routerId: String!, $receivingChainId: Int!) {
+    query GetReceiverFulfillTransactions($routerId: String!, $receivingChainId: BigInt!) {
   transactions(
     where: {router: $routerId, receivingChainId: $receivingChainId, chainId: $receivingChainId, status: Fulfilled}
   ) {
@@ -758,13 +778,15 @@ export const GetReceiverFulfillTransactionsDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
     relayerFee
     signature
   }
 }
     `;
 export const GetSenderTransactionDocument = gql`
-    query GetSenderTransaction($transactionId: Bytes!, $sendingChainId: Int!) {
+    query GetSenderTransaction($transactionId: Bytes!, $sendingChainId: BigInt!) {
   transactions(
     where: {transactionId: $transactionId, sendingChainId: $sendingChainId, chainId: $sendingChainId}
   ) {
@@ -787,13 +809,15 @@ export const GetSenderTransactionDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
     relayerFee
     signature
   }
 }
     `;
 export const GetReceiverTransactionDocument = gql`
-    query GetReceiverTransaction($transactionId: Bytes!, $receivingChainId: Int!) {
+    query GetReceiverTransaction($transactionId: Bytes!, $receivingChainId: BigInt!) {
   transactions(
     where: {transactionId: $transactionId, receivingChainId: $receivingChainId, chainId: $receivingChainId}
   ) {
@@ -816,13 +840,15 @@ export const GetReceiverTransactionDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
     relayerFee
     signature
   }
 }
     `;
 export const GetSenderFulfillTransactionsDocument = gql`
-    query GetSenderFulfillTransactions($routerId: String!, $sendingChainId: Int!) {
+    query GetSenderFulfillTransactions($routerId: String!, $sendingChainId: BigInt!) {
   transactions(
     where: {router: $routerId, sendingChainId: $sendingChainId, chainId: $sendingChainId, status: Fulfilled}
   ) {
@@ -845,6 +871,8 @@ export const GetSenderFulfillTransactionsDocument = gql`
     status
     chainId
     blockNumber
+    encodedBid
+    bidSignature
     relayerFee
     signature
   }

@@ -2,6 +2,7 @@ import { BigNumber, constants, Contract, providers } from "ethers";
 import {
   generateMessagingInbox,
   InvariantTransactionData,
+  MetaTxResponse,
   signFulfillTransactionPayload,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
@@ -54,7 +55,11 @@ export const prepare = async (
     receivingChainId,
   };
 
-  logger.info({ method, methodId, transactionId }, "Preparing tx");
+  // TODO: bid stuff
+  const encodedBid = "0x";
+  const bidSignature = "0x";
+
+  logger.info({ method, methodId, transactionId, transactionManager: transactionManager.address }, "Preparing tx");
 
   const prepareTx = await transactionManager
     .connect(signer)
@@ -62,6 +67,8 @@ export const prepare = async (
       transaction,
       amount,
       expiry,
+      encodedBid,
+      bidSignature,
       transaction.sendingAssetId === constants.AddressZero ? { value: amount } : {},
     );
 
@@ -118,8 +125,15 @@ export const handleReceiverPrepare = async (
   ]);
 
   const inbox = generateMessagingInbox();
-  await messaging.subscribeToMetaTxResponse(inbox, (data, err) => {
-    logger.info({ method, methodId, data, err }, "MetaTx response received");
+  const responseInbox = generateMessagingInbox();
+  const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
+    await messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
+      logger.info({ method, methodId, data, err }, "MetaTx response received");
+      if (err) {
+        return reject(err);
+      }
+      return resolve(data);
+    });
   });
   await messaging.publishMetaTxRequest(
     {
@@ -127,11 +141,16 @@ export const handleReceiverPrepare = async (
       to: transactionManager.address,
       chainId: txData.receivingChainId,
       data,
+      responseInbox,
     },
     inbox,
   );
-  logger.info({ method, methodId, inbox }, "MetaTx request published");
-  // TODO: relayer responses?
+  logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
+
+  // TODO: fix relayer responses?
+  responsePromise.then(response => {
+    logger.info({ method, methodId, inbox, response }, "Fulfill metaTx response received");
+  });
   // add logic to submit it on our own before expiry
   // or some timeout
 };

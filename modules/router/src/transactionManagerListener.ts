@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import { InvariantTransactionData } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
@@ -21,6 +22,8 @@ export type SenderPrepareData = {
   blockNumber: number;
   chainId: number;
   status: TransactionStatus;
+  encodedBid: string;
+  bidSignature: string;
 } & InvariantTransactionData;
 
 export type ReceiverPrepareData = SenderPrepareData;
@@ -30,6 +33,8 @@ export type SenderFulfillData = {
   amount: string;
   expiry: number;
   blockNumber: number;
+  encodedBid: string;
+  bidSignature: string;
   relayerFee: string;
   signature: string;
   receivingAddress: string;
@@ -73,17 +78,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
-            chainId: transaction.chainId,
+            chainId: BigNumber.from(transaction.chainId).toNumber(),
             expiry: transaction.expiry,
             receivingAddress: transaction.receivingAddress,
             receivingAssetId: transaction.receivingAssetId,
-            receivingChainId: transaction.receivingChainId,
+            receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
             router: transaction.router.id,
             sendingAssetId: transaction.sendingAssetId,
-            sendingChainId: transaction.sendingChainId,
+            sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
             transactionId: transaction.transactionId,
             user: transaction.user.id,
-            blockNumber: transaction.blockNumber,
+            blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
           };
 
           // NOTE: this will call the handler every time the interval runs if the tx status is not changed
@@ -110,17 +117,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
-            chainId: transaction.chainId,
+            chainId: BigNumber.from(transaction.chainId).toNumber(),
             expiry: transaction.expiry,
             receivingAddress: transaction.receivingAddress,
             receivingAssetId: transaction.receivingAssetId,
-            receivingChainId: transaction.receivingChainId,
+            receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
             router: transaction.router.id,
             sendingAssetId: transaction.sendingAssetId,
-            sendingChainId: transaction.sendingChainId,
+            sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
             transactionId: transaction.transactionId,
             user: transaction.user.id,
-            blockNumber: transaction.blockNumber,
+            blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
           };
 
           // NOTE: this will call the handler every time the interval runs if the tx status is not changed
@@ -147,17 +156,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
-            chainId: transaction.chainId,
+            chainId: BigNumber.from(transaction.chainId).toNumber(),
             expiry: transaction.expiry,
             receivingAddress: transaction.receivingAddress,
             receivingAssetId: transaction.receivingAssetId,
-            receivingChainId: transaction.receivingChainId,
+            receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
             router: transaction.router.id,
             sendingAssetId: transaction.sendingAssetId,
-            sendingChainId: transaction.sendingChainId,
+            sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
             transactionId: transaction.transactionId,
             user: transaction.user.id,
-            blockNumber: transaction.blockNumber,
+            blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
             relayerFee: transaction.relayerFee,
             signature: transaction.signature,
           };
@@ -186,17 +197,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             status: transaction.status,
             amount: transaction.amount,
             callData: transaction.callData,
-            chainId: transaction.chainId,
+            chainId: BigNumber.from(transaction.chainId).toNumber(),
             expiry: transaction.expiry,
             receivingAddress: transaction.receivingAddress,
             receivingAssetId: transaction.receivingAssetId,
-            receivingChainId: transaction.receivingChainId,
+            receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
             router: transaction.router.id,
             sendingAssetId: transaction.sendingAssetId,
-            sendingChainId: transaction.sendingChainId,
+            sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
             transactionId: transaction.transactionId,
             user: transaction.user.id,
-            blockNumber: transaction.blockNumber,
+            blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
             relayerFee: transaction.relayerFee,
             signature: transaction.signature,
           };
@@ -220,17 +233,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         status: transaction.status,
         amount: transaction.amount,
         callData: transaction.callData,
-        chainId: transaction.chainId,
+        chainId: BigNumber.from(transaction.chainId).toNumber(),
         expiry: transaction.expiry,
         receivingAddress: transaction.receivingAddress,
         receivingAssetId: transaction.receivingAssetId,
-        receivingChainId: transaction.receivingChainId,
+        receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
         router: transaction.router.id,
         sendingAssetId: transaction.sendingAssetId,
-        sendingChainId: transaction.sendingChainId,
+        sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
         transactionId: transaction.transactionId,
         user: transaction.user.id,
-        blockNumber: transaction.blockNumber,
+        blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+        encodedBid: transaction.encodedBid,
+        bidSignature: transaction.bidSignature,
         relayerFee: transaction.relayerFee,
         signature: transaction.signature,
       };
@@ -248,17 +263,19 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         status: transaction.status,
         amount: transaction.amount,
         callData: transaction.callData,
-        chainId: transaction.chainId,
+        chainId: BigNumber.from(transaction.chainId).toNumber(),
         expiry: transaction.expiry,
         receivingAddress: transaction.receivingAddress,
         receivingAssetId: transaction.receivingAssetId,
-        receivingChainId: transaction.receivingChainId,
+        receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
         router: transaction.router.id,
         sendingAssetId: transaction.sendingAssetId,
-        sendingChainId: transaction.sendingChainId,
+        sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
         transactionId: transaction.transactionId,
         user: transaction.user.id,
-        blockNumber: transaction.blockNumber,
+        blockNumber: BigNumber.from(transaction.blockNumber).toNumber(),
+        encodedBid: transaction.encodedBid,
+        bidSignature: transaction.bidSignature,
         relayerFee: transaction.relayerFee,
         signature: transaction.signature,
       };

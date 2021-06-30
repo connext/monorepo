@@ -25,15 +25,17 @@ type Transaction @entity {
   amount: BigInt!
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
-  sendingChainId: Int!
-  receivingChainId: Int!
+  sendingChainId: BigInt!
+  receivingChainId: BigInt!
   receivingAddress: Bytes!
   callData: Bytes!
   transactionId: Bytes!
   expiry: BigInt!
   status: TransactionStatus!
-  chainId: Int!
+  chainId: BigInt!
   blockNumber: BigInt!
+  encodedBid: Bytes!
+  bidSignature: Bytes!
   relayerFee: BigInt
   signature: Bytes
   prepareCaller: Bytes
