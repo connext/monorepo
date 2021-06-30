@@ -1,6 +1,7 @@
 import { TransactionData } from "@connext/nxtp-utils";
 import { Contract, providers } from "ethers";
 import { Evt } from "evt";
+
 import { getTransactionManagerContract } from "./contract";
 // Define event types
 // TODO: liquidity events?

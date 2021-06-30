@@ -1866,6 +1866,7 @@ __metadata:
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
     chai-subset: ^1.6.0
+    eslint: ^6.8.0
     ethers: ^5.4.0
     evt: ^1.9.14
     hardhat: ^2.4.1

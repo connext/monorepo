@@ -14,7 +14,7 @@ import { PrepareParams, HandleReceiverPrepareParams } from "./types";
 
 export const ajv = new Ajv();
 
-export const verifyCorrectChain = async (expectedChain: number, provider: providers.JsonRpcProvider) => {
+export const verifyCorrectChain = async (expectedChain: number, provider: providers.JsonRpcProvider): Promise<void> => {
   // Make sure user is on the correct chain
   const { chainId } = await provider.getNetwork();
 
@@ -80,7 +80,7 @@ export const prepare = async (
   }
   logger.info({ method, methodId, transactionId, transactionHash: prepareReceipt.transactionHash }, "Mined prepare tx");
   logger.info({ method, methodId }, "Method complete");
-  return prepareReceipt;
+  return prepareReceipt as providers.TransactionReceipt;
 };
 
 export type TransactionPrepareEvent = {
@@ -148,7 +148,7 @@ export const handleReceiverPrepare = async (
   logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
 
   // TODO: fix relayer responses?
-  responsePromise.then(response => {
+  responsePromise.then((response) => {
     logger.info({ method, methodId, inbox, response }, "Fulfill metaTx response received");
   });
   // add logic to submit it on our own before expiry

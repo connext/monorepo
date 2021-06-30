@@ -1,6 +1,5 @@
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-
 import { Contract, providers, constants, BigNumberish } from "ethers";
 
 export const getTransactionManagerContract = (

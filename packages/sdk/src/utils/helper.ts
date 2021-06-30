@@ -12,6 +12,6 @@ export function validateAndParseAddress(address: string): string {
   }
 }
 
-export const getRandomBytes32 = () => {
+export const getRandomBytes32 = (): string => {
   return utils.hexlify(utils.randomBytes(32));
 };

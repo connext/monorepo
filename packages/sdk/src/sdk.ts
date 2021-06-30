@@ -5,6 +5,7 @@ import { Evt } from "evt";
 import { getRandomBytes32, TIntegerString, TAddress, UserNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
+
 import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
 import { PrepareParams } from "./types";
 import {
@@ -145,17 +146,17 @@ export class NxtpSdk {
     const validate = ajv.compile(CrossChainParamsSchema);
     const valid = validate(transferParams);
     if (!valid) {
-      const error = validate.errors?.map(err => err.message).join(",");
+      const error = validate.errors?.map((err) => err.message).join(",");
       this.logger.error({ error, transferParams }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error}`);
+      throw new Error(`Invalid params - ${error!}`);
     }
 
     // Create promise for completed tx
     const transactionId = transferParams.transactionId ?? getRandomBytes32();
     const timeout = 300_000;
-    const completed = this.evts.TransactionCompleted.pipe(data => data.txData.transactionId === transactionId).waitFor(
-      timeout,
-    );
+    const completed = this.evts.TransactionCompleted.pipe(
+      (data) => data.txData.transactionId === transactionId,
+    ).waitFor(timeout);
 
     const { sendingAssetId, receivingAssetId, receivingAddress, router, amount, expiry, callData } = transferParams;
 
@@ -184,7 +185,7 @@ export class NxtpSdk {
 
   private setupListeners(): void {
     // Always broadcast signature when a receiver-side prepare event is emitted
-    this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async data => {
+    this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async (data) => {
       if (data.txData.receivingChainId !== data.chainId) {
         this.logger.debug(
           {
@@ -228,7 +229,7 @@ export class NxtpSdk {
     // TODO: what if this is an asynchronous event? i.e. happens when a tx is
     // fulfilled as you're switching between chains in the UI? (ie going from
     // matic to bsc then bsc to matic and router fulfills)
-    this.receivingListener.attach(TransactionManagerEvents.TransactionFulfilled, async data => {
+    this.receivingListener.attach(TransactionManagerEvents.TransactionFulfilled, async (data) => {
       this.evts[NxtpSdkEvents.TransactionCompleted].post(data);
     });
 
@@ -238,10 +239,10 @@ export class NxtpSdk {
         return;
       }
       const event = _event as TransactionManagerEvent;
-      this.sendingListener.attach(event as TransactionManagerEvent, data => {
+      this.sendingListener.attach(event, (data) => {
         this.evts[event].post(data as any);
       });
-      this.receivingListener.attach(event as TransactionManagerEvent, data => {
+      this.receivingListener.attach(event, (data) => {
         this.evts[event].post(data as any);
       });
     });
@@ -254,7 +255,7 @@ export class NxtpSdk {
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x);
+    const args = [timeout, callback].filter((x) => !!x);
     this.evts[event].pipe(filter).attach(...(args as [number, any]));
   }
 
@@ -264,7 +265,7 @@ export class NxtpSdk {
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x);
+    const args = [timeout, callback].filter((x) => !!x);
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }
 
@@ -273,7 +274,7 @@ export class NxtpSdk {
       this.evts[event].detach();
       return;
     }
-    Object.values(this.evts).forEach(evt => evt.detach());
+    Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
   public waitFor<T extends NxtpSdkEvent>(
@@ -281,6 +282,6 @@ export class NxtpSdk {
     timeout: number,
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
   ): Promise<NxtpSdkEventPayloads[T]> {
-    return this.evts[event].pipe(filter).waitFor(timeout) as any;
+    return this.evts[event].pipe(filter).waitFor(timeout) as Promise<NxtpSdkEventPayloads[T]>;
   }
 }

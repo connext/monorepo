@@ -50,6 +50,7 @@ module.exports = {
     "@typescript-eslint/no-unsafe-assignment": ["off"],
     "@typescript-eslint/no-unsafe-member-access": ["off"],
     "@typescript-eslint/no-unsafe-call": ["off"],
+    "@typescript-eslint/no-unsafe-return": ["off"],
     "no-empty": ["off"],
     "require-await": "off",
     "@typescript-eslint/require-await": "off",
@@ -57,6 +58,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "@typescript-eslint/no-floating-promises": ["off"],
     "@typescript-eslint/no-misused-promises": ["off"],
+    "no-async-promise-executor": "off",
     quotes: ["warn", "double", { allowTemplateLiterals: true, avoidEscape: true }],
     semi: ["error", "always"],
     "import/order": [
