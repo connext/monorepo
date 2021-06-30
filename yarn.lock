@@ -1887,11 +1887,13 @@ __metadata:
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@types/eslint": ^7
     "@types/node": ^15.12.5
     "@types/react": ^17.0.11
     "@types/react-dom": ^17.0.8
     antd: ^4.16.6
     axios: ^0.21.1
+    eslint: ^7.29.0
     ethers: ^5.4.0
     pino: ^6.11.3
     react: ^17.0.2
@@ -4059,7 +4061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^7.2.6":
+"@types/eslint@npm:^7, @types/eslint@npm:^7.2.6":
   version: 7.2.13
   resolution: "@types/eslint@npm:7.2.13"
   dependencies:
