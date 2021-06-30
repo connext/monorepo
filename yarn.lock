@@ -1916,6 +1916,7 @@ __metadata:
     "@types/pino": ^6.3.8
     "@types/sinon": ^10.0.2
     "@typescript-eslint/eslint-plugin": ^4.28.0
+    axios: ^0.21.1
     chai: 4.3.4
     chai-as-promised: 7.1.1
     chai-subset: ^1.6.0

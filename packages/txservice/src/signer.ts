@@ -20,7 +20,7 @@ export class TransactionSigner extends Signer {
   // https://github.com/ethers-io/ethers.js/issues/779
   private readonly _ethersType = "Signer";
 
-  constructor(private readonly privateKey: PrivateKey, provider: providers.Provider) {
+  constructor(private readonly privateKey: PrivateKey, _provider: providers.Provider) {
     super();
     this.privateKey = privateKey;
     // this.publicKey = getPublicKeyFromPrivateKey(privateKey);
@@ -30,7 +30,7 @@ export class TransactionSigner extends Signer {
 
   public connect(provider: providers.Provider): TransactionSigner {
     this.provider = provider;
-    return this
+    return this;
   }
 
   public getAddress(): Promise<string> {
@@ -38,12 +38,12 @@ export class TransactionSigner extends Signer {
     throw new Error("Method not implemented.");
   }
 
-  public async signMessage(message: string | Bytes): Promise<string> {
+  public async signMessage(_message: string | Bytes): Promise<string> {
     // return signChannelMessage(message, this.privateKey);
     throw new Error("Method not implemented.");
   }
 
-  public async signUtilityMessage(message: string): Promise<SignatureString> {
+  public async signUtilityMessage(_message: string): Promise<SignatureString> {
     // return signUtilityMessage(message, this.privateKey);
     throw new Error("Method not implemented.");
   }

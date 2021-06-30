@@ -36,7 +36,7 @@ export class TransactionService {
     // For each chain ID / provider, add a signer to our signers map and serialized queue to our queue map.
     Object.keys(chainProviders)
       .map(Number)
-      .forEach(chainId => {
+      .forEach((chainId) => {
         const urls = chainProviders[chainId];
         if (urls.length === 0) {
           throw new ChainError(ChainError.reasons.ProviderNotFound);
@@ -47,7 +47,7 @@ export class TransactionService {
         const confirmationsRequired =
           this.config.chainConfirmations.get(chainId) ?? this.config.defaultConfirmationsRequired;
         this.chains.set(chainId, {
-          signer: typeof signer === "string" ? new Wallet(signer, provider) : (signer.connect(provider) as Signer),
+          signer: typeof signer === "string" ? new Wallet(signer, provider) : signer.connect(provider),
           queue: new PriorityQueue({ concurrency: 1 }),
           provider,
           confirmationsRequired,
@@ -222,8 +222,8 @@ export class TransactionService {
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
       const receipt = await Promise.race<any>(
         responses
-          .map(response => {
-            return new Promise(async resolve => {
+          .map((response) => {
+            return new Promise(async (resolve) => {
               const r = await provider.getTransactionReceipt(response.hash);
               if (r) {
                 if (r.status === 0) {
@@ -241,7 +241,7 @@ export class TransactionService {
           // and/or none of them have the number of confirmations we want.
           .concat(delay(2_000)),
       );
-      if (!!receipt) {
+      if (receipt) {
         if (reverted.length === responses.length) {
           // We know every tx was reverted.
           // NOTE: The first reverted receipt in the array will be entirely arbitrary.
@@ -251,7 +251,6 @@ export class TransactionService {
       }
       return receipt;
     };
-
 
     // Poll for receipt.
     let receipt: providers.TransactionReceipt | undefined = await pollForReceipt();
@@ -274,17 +273,15 @@ export class TransactionService {
   }
 
   //create a non-state changing contract call returns hexdata that needs to be decoded
-  public async readTx(chainId: number, tx: MinimalTransaction):Promise<string>
-  {
-    const {signer} = this.chains.get(chainId)!;
+  public async readTx(chainId: number, tx: MinimalTransaction): Promise<string> {
+    const { signer } = this.chains.get(chainId)!;
     try {
       const readResult = await signer.call({
         to: tx.to,
         data: tx.data,
       });
       return readResult;
-
-    } catch(e) {
+    } catch (e) {
       throw new Error(`Couldn't read from contract`);
     }
   }
@@ -322,12 +319,8 @@ export class TransactionService {
       }
 
       if (!gasPrice) {
-        try {
-          gasPrice = await provider.getGasPrice();
-          gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
-        } catch (e) {
-          throw e;
-        }
+        gasPrice = await provider.getGasPrice();
+        gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
       }
       if (gasPrice.lt(gasPriceMinimum)) {
         gasPrice = BigNumber.from(gasPriceMinimum);
