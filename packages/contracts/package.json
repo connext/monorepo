@@ -47,6 +47,7 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
+    "@connext/nxtp-utils": "workspace:packages/utils",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "adv": "^0.1.5",
     "ajv": "^8.6.0",
