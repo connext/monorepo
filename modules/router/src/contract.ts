@@ -7,14 +7,8 @@ import { InvariantTransactionData, calculateExchangeAmount, jsonifyError } from 
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
-<<<<<<< HEAD
-
-import {getConfig, NxtpRouterConfig} from "./config";
-import {SenderFulfillData} from "./transactionManagerListener";
-=======
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ReceiverFulfillData, SenderFulfillData, SenderPrepareData } from "./transactionManagerListener";
->>>>>>> 38fdeae6c9f4d64248791a47f52a71166f58fc47
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
