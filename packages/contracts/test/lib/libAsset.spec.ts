@@ -1,5 +1,4 @@
 import { ethers, waffle } from "hardhat";
-// import { Signer } from "ethers";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 
