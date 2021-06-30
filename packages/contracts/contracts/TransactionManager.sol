@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.1;
+pragma solidity 0.8.4;
 
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
@@ -187,6 +187,13 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // TODO: Do we need this check? Safemath would catch it below
     require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
 
+    // Update the hash to prevent multiple `fulfill`s
+    variantTransactionData[digest] = keccak256(abi.encode(VariantTransactionData({
+      amount: txData.amount,
+      expiry: txData.expiry,
+      preparedBlockNumber: 0
+    })));
+
     // Remove active blocks
     removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
 
@@ -254,6 +261,13 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     require(variantTransactionData[digest] == hashVariantTransactionData(txData), "cancel: INVALID_VARIANT_DATA");
+
+    // Update the hash to prevent multiple `cancel`s
+    variantTransactionData[digest] = keccak256(abi.encode(VariantTransactionData({
+      amount: txData.amount,
+      expiry: txData.expiry,
+      preparedBlockNumber: 0
+    })));
 
     if (txData.sendingChainId == chainId) {
       // Sender side --> funds go back to user
