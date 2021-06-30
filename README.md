@@ -85,13 +85,15 @@ You should be able to do everything from the root and not need to go into the in
 
 `yarn workspace @connext/nxtp-txservice add ethers`
 
-## Running Things
+## First time setup
 
-Make sure you are on the latest yarn version if you have never used this before:
+Make sure you are on the latest yarn version:
 
 - `yarn set version berry`
 
-Basic tasks:
+Try running `yarn` to update everything. If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
+
+## Common Tasks
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
