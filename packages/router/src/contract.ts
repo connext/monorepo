@@ -98,24 +98,27 @@ export class TransactionManager {
     const methodId = v4();
     this.logger.info({ method, methodId, receiverTxData }, "Method start");
 
-    const txParams: Partial<SenderFulfillData> = {
-      callData: receiverTxData.callData,
-      receivingAddress: receiverTxData.receivingAddress,
-      receivingAssetId: receiverTxData.receivingAssetId,
-      receivingChainId: receiverTxData.receivingChainId,
-      router: receiverTxData.router,
-      sendingAssetId: receiverTxData.sendingAssetId,
-      sendingChainId: receiverTxData.sendingChainId,
-      transactionId: receiverTxData.transactionId,
-      user: receiverTxData.user,
-      amount: senderTxData.amount,
-      expiry: senderTxData.expiry,
-      blockNumber: senderTxData.blockNumber,
-    };
     const relayerFee = BigNumber.from(receiverTxData.relayerFee);
     //will sig always be included (even on sender side)?
     const sig = receiverTxData.signature;
-    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txParams, relayerFee, sig]);
+    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [
+      {
+        user: receiverTxData.user,
+        router: receiverTxData.router,
+        sendingAssetId: receiverTxData.sendingAssetId,
+        receivingAssetId: receiverTxData.receivingAssetId,
+        receivingAddress: receiverTxData.receivingAddress,
+        callData: receiverTxData.callData,
+        transactionId: receiverTxData.transactionId,
+        amount: senderTxData.amount,
+        expiry: senderTxData.expiry,
+        blockNumber: senderTxData.blockNumber,
+        sendingChainId: receiverTxData.sendingChainId,
+        receivingChainId: receiverTxData.receivingChainId,
+      },
+      relayerFee,
+      sig,
+    ]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(receiverTxData.sendingChainId, {
         chainId: receiverTxData.sendingChainId,
@@ -145,19 +148,25 @@ export class TransactionManager {
     const methodId = v4();
     this.logger.info({ method, methodId, txData }, "Method start");
     // encode and call tx service
-    const txParams = {
-      user: txData.user,
-      router: txData.router,
-      sendingAssetId: txData.sendingAssetId,
-      receivingAssetId: txData.receivingAssetId,
-      receivingAddress: txData.receivingAddress,
-      sendingChainId: txData.sendingChainId,
-      receivingChainId: txData.receivingChainId,
-      callData: txData.callData,
-      transactionId: txData.transactionId,
-    };
 
-    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txParams, signature]);
+    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [
+      {
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        receivingAddress: txData.receivingAddress,
+        callData: txData.callData,
+        transactionId: txData.transactionId,
+        // TODO: @marcus
+        amount: "0",
+        expiry: "0",
+        blockNumber: "0",
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
+      },
+      signature,
+    ]);
 
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
