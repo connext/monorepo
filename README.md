@@ -8,7 +8,7 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 
 ## Transaction Lifecycle
 
-![HighLevelFlow](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/HighLevelFlow.png)
+![HighLevelFlow](https://github.com/connext/nxtp/blob/main/packages/documentation/assets/HighLevelFlow.png)
 
 Transactions go through three phases:
 
@@ -40,16 +40,16 @@ Drawbacks/Risks:
 
 ## Architecture
 
-![Architecture](https://github.com/connext/nxtp/blob/main/modules/documentation/assets/Architecture.png)
+![Architecture](https://github.com/connext/nxtp/blob/main/packages/documentation/assets/Architecture.png)
 
 This monorepo contains the following pieces:
 
-- [Contracts](https://github.com/connext/nxtp/tree/main/modules/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
-- [Subgraph](https://github.com/connext/nxtp/tree/main/modules/subgraph) - enables scalable querying/responding by caching onchain data and events.
-- [TxService](https://github.com/connext/nxtp/tree/main/modules/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
-- [Messaging](https://github.com/connext/nxtp/blob/main/modules/utils/src/messaging.ts) - prepares, sends, and listens for message data over [nats](https://nats.io)
-- [Router](https://github.com/connext/nxtp/tree/main/modules/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
-- [SDK](https://github.com/connext/nxtp/tree/main/modules/sdk) - creates auctions, listens for events and creates transactions on the user side.
+- [Contracts](https://github.com/connext/nxtp/tree/main/packages/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
+- [Subgraph](https://github.com/connext/nxtp/tree/main/packages/subgraph) - enables scalable querying/responding by caching onchain data and events.
+- [TxService](https://github.com/connext/nxtp/tree/main/packages/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
+- [Messaging](https://github.com/connext/nxtp/blob/main/packages/utils/src/messaging.ts) - prepares, sends, and listens for message data over [nats](https://nats.io)
+- [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
+- [SDK](https://github.com/connext/nxtp/tree/main/packages/sdk) - creates auctions, listens for events and creates transactions on the user side.
 
 ## Internal Design Principles
 
@@ -106,12 +106,11 @@ Run test-ui:
 
 - `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
 
-
 ## Running Test
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
-or
+  or
 - `yarn workspace @connext/nxtp-contracts build`: Build the specific package.
 
 Run test:

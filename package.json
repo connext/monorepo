@@ -26,7 +26,7 @@
     "lint:all": "yarn workspaces foreach run lint",
     "test:all": "yarn workspaces foreach run test",
     "clean:all": "yarn workspaces foreach run clean",
-    "build:all": "yarn workspaces foreach run build",
+    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",

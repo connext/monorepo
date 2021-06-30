@@ -119,3 +119,4 @@ ops/data/
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+_tmp
