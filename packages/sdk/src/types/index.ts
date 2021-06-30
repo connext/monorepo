@@ -1,6 +1,5 @@
 import { InvariantTransactionData } from "@connext/nxtp-utils";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { Signer } from "ethers";
+import { Signer, providers } from "ethers";
 
 export type PrepareParams = Omit<InvariantTransactionData, "user" | "callData"> & {
   signer: Signer;
@@ -11,12 +10,12 @@ export type PrepareParams = Omit<InvariantTransactionData, "user" | "callData"> 
 
 export type HandleReceiverPrepareParams = {
   txData: InvariantTransactionData;
-  receivingProvider: JsonRpcProvider;
+  receivingProvider: providers.JsonRpcProvider;
   relayerFee: string;
   signer: Signer;
 };
 
 export type HandleReceiverFulfillParam = {
   txData: InvariantTransactionData;
-  receivingProvider: JsonRpcProvider;
+  receivingProvider: providers.JsonRpcProvider;
 };
