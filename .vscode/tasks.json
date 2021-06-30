@@ -1,0 +1,77 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "problemMatcher": [],
+  "type": "shell",
+  "options": { "cwd": "${workspaceFolder}" },
+  "inputs": [
+    {
+      "id": "createPackageName",
+      "type": "promptString",
+      "description": "What is the name of the package to create?"
+    },
+    {
+      "id": "createTemplate",
+      "type": "pickString",
+      "description": "Which template should the package be created with?",
+      "options": ["node-lib", "node-cli", "node-server", "browser-lib"],
+      "default": "node-lib"
+    },
+    {
+      "id": "addPackageName",
+      "type": "promptString",
+      "description": "What is the name of the dependency you are adding?"
+    },
+    {
+      "id": "addTo",
+      "type": "promptString",
+      "description": "To which package are you adding the dependency?"
+    },
+    {
+      "id": "removePackageName",
+      "type": "promptString",
+      "description": "What is the name of the dependency you are removing?"
+    },
+    {
+      "id": "removeFrom",
+      "type": "promptString",
+      "description": "From which package are you removing the dependency?"
+    }
+  ],
+  "tasks": [
+    // Sample task to run a server in dev mode. For a package named "my-server",
+    // created from the node-server template:
+    // {
+    //   "label": "Run my-server for dev",
+    //   "command": "yarn workspace my-server dev"
+    // },
+    {
+      "label": "Create a new package",
+      "command": "yarn tsp:dev create ${input:createPackageName} --template ${input:createTemplate}"
+    },
+    {
+      "label": "Add a dependency from one package to another",
+      "command": "yarn tsp:dev add ${input:addPackageName} --to ${input:addTo}"
+    },
+    {
+      "label": "Remove a reference from one package to another",
+      "command": "yarn tsp:dev remove ${input:removePackageName} --from ${input:removeFrom}"
+    },
+    { "label": "List all packages", "command": "yarn tsp list" },
+    {
+      "group": { "kind": "build", "isDefault": true },
+      "label": "Verify all packages",
+      "command": "yarn verify:all"
+    },
+    {
+      "group": { "kind": "test", "isDefault": true },
+      "label": "Test all packages",
+      "command": "yarn test:all"
+    },
+    { "label": "Build all packages", "command": "yarn build:all" },
+    { "label": "Lint all packages", "command": "yarn lint:all" },
+    { "label": "Clean all packages", "command": "yarn clean:all" },
+    { "label": "Purge all packages", "command": "yarn purge:all" }
+  ]
+}

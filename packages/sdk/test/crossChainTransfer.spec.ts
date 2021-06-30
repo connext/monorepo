@@ -1,4 +1,4 @@
-import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
+import { BigNumber, constants, Contract, providers, Wallet, utils } from "ethers";
 import { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
   getRandomBytes32,
@@ -6,7 +6,6 @@ import {
   isValidBytes32,
   recoverFulfilledTransactionPayload,
 } from "@connext/nxtp-utils";
-import { getAddress, hexlify, randomBytes } from "ethers/lib/utils";
 import { expect } from "chai";
 import pino from "pino";
 
@@ -83,16 +82,16 @@ describe("prepare", () => {
   it("should properly call prepare", async () => {
     const params = setupMocks();
 
-    const result = await prepare(params, (transactionManager as unknown) as Contract, logger);
+    const result = await prepare(params, transactionManager as unknown as Contract, logger);
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
     const [txData, amount, expiry, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
     expect(txData).to.deep.contain({
       user: user.address,
-      router: getAddress(params.router),
-      sendingAssetId: getAddress(params.sendingAssetId),
-      receivingAssetId: getAddress(params.receivingAssetId),
-      receivingAddress: getAddress(params.receivingAddress),
+      router: utils.getAddress(params.router),
+      sendingAssetId: utils.getAddress(params.sendingAssetId),
+      receivingAssetId: utils.getAddress(params.receivingAssetId),
+      receivingAddress: utils.getAddress(params.receivingAddress),
       callData: params.callData ?? "0x",
       sendingChainId: params.sendingChainId,
       receivingChainId: params.receivingChainId,

@@ -1,0 +1,43 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+
+  // Settings that apply to all configs.
+  // These can be overridden in individual configs.
+  "console": "integratedTerminal",
+  "internalConsoleOptions": "neverOpen",
+  "skipFiles": ["<node_internals>/**"],
+
+  // NOTE: Debugging requires that .js files exist on disk.
+  //       Build packages before debugging, or no breakpoints will be hit.
+
+  "configurations": [
+    // ========== Debug a server or cli package ==========
+    // Use this configuration to debug a server or cli.
+    // Replace __PACKAGE_NAME__ and __PACKAGE_DIR__ with their values.
+    // {
+    //   "name": "Debug __PACKAGE_NAME__",
+    //   "type": "node",
+    //   "request": "launch",
+    //   "cwd": "${workspaceFolder}",
+    //   "args": [
+    //     "${workspaceFolder}/packages/__PACKAGE_DIR__/lib/index.js"
+    //     // Add any arguments or flags to be passed to your CLI here.
+    //   ]
+    // },
+    //
+    // ========== Debug tests ==========
+    // Use this configuration to debug tests for a package.
+    // Replace __PACKAGE_NAME__ and __PACKAGE_DIR__ with their values.
+    // {
+    //   "name": "Debug __PACKAGE_NAME__ tests",
+    //   "type": "node",
+    //   "request": "launch",
+    //   "cwd": "${workspaceFolder}/packages/__PACKAGE_DIR__",
+    //   "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+    //   "args": ["--verbose", "-i", "--no-cache"]
+    // }
+  ]
+}
