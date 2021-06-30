@@ -22,12 +22,12 @@ const { AddressZero } = constants;
 
 type VariantTransactionData = {
   amount: string;
-  blockNumber: BigNumberish;
+  preparedBlockNumber: number;
   expiry: string;
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function () {
+describe("TransactionManager", function() {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -53,7 +53,7 @@ describe("TransactionManager", function () {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "10000";
@@ -90,7 +90,7 @@ describe("TransactionManager", function () {
     const record = {
       amount: "10",
       expiry: (Math.floor(Date.now() / 1000) + day + 5_000).toString(),
-      blockNumber: "10",
+      preparedBlockNumber: 10,
       ...recordOverrides,
     };
 
@@ -106,7 +106,7 @@ describe("TransactionManager", function () {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map((k) => {
+    keys.map(k => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -118,7 +118,7 @@ describe("TransactionManager", function () {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -242,7 +242,7 @@ describe("TransactionManager", function () {
 
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
-      txData: { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: receipt.blockNumber },
+      txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
       caller: preparer.address,
       bidSignature: "0x",
       encodedBid: "0x",
@@ -300,19 +300,20 @@ describe("TransactionManager", function () {
     const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
 
     // Send tx
-    const tx = await instance
-      .connect(submitter)
-      .fulfill(
-        { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
-        relayerFee,
-        signature,
-      );
+    const tx = await instance.connect(submitter).fulfill(
+      {
+        ...transaction,
+        ...record,
+      },
+      relayerFee,
+      signature,
+    );
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
 
     // Assert event
     await assertReceiptEvent(receipt, "TransactionFulfilled", {
-      txData: { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
+      txData: { ...transaction, ...record },
       relayerFee,
       signature,
       caller: submitter.address,
@@ -366,12 +367,7 @@ describe("TransactionManager", function () {
     const expectedBalance = startingBalance.add(record.amount);
 
     const signature = await signCancelTransactionPayload(transaction, user);
-    const tx = await transactionManagerReceiverSide
-      .connect(canceller)
-      .cancel(
-        { ...transaction, amount: record.amount, expiry: record.expiry, blockNumber: record.blockNumber },
-        signature,
-      );
+    const tx = await transactionManagerReceiverSide.connect(canceller).cancel({ ...transaction, ...record }, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
       txData: { ...transaction, ...record },
@@ -651,7 +647,7 @@ describe("TransactionManager", function () {
       // Router fulfills
       await fulfillAndAssert(
         transaction,
-        { ...record, blockNumber: blockNumber.toString() },
+        { ...record, preparedBlockNumber: blockNumber },
         relayerFee,
         false,
         router,
@@ -683,7 +679,7 @@ describe("TransactionManager", function () {
       // Router fulfills
       await fulfillAndAssert(
         transaction,
-        { ...record, blockNumber: blockNumber.toString() },
+        { ...record, preparedBlockNumber: blockNumber },
         relayerFee,
         false,
         router,
@@ -715,7 +711,7 @@ describe("TransactionManager", function () {
       // User fulfills
       await fulfillAndAssert(
         transaction,
-        { ...record, blockNumber: blockNumber.toString() },
+        { ...record, preparedBlockNumber: blockNumber },
         relayerFee,
         true,
         user,
@@ -748,7 +744,7 @@ describe("TransactionManager", function () {
       // User fulfills
       await fulfillAndAssert(
         transaction,
-        { ...record, blockNumber: blockNumber.toString() },
+        { ...record, preparedBlockNumber: blockNumber },
         relayerFee,
         true,
         user,
@@ -781,7 +777,7 @@ describe("TransactionManager", function () {
 
       await cancelAndAssert(
         transaction,
-        { ...record, blockNumber: blockNumber.toString() },
+        { ...record, preparedBlockNumber: blockNumber },
         receiver, // To avoid balance checks for eth
         transactionManagerReceiverSide,
       );
