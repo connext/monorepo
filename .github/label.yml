@@ -1,22 +1,22 @@
 sdk:
-  - modules/sdk/*
-  - modules/sdk/**/*
+  - packages/sdk/*
+  - packages/sdk/**/*
 
 txservice:
-  - modules/txservice/*
-  - modules/txservice/**/*
+  - packages/txservice/*
+  - packages/txservice/**/*
 
 contracts:
-  - modules/contracts/*
-  - modules/contracts/**/*
+  - packages/contracts/*
+  - packages/contracts/**/*
 
 router:
-  - modules/router/*
-  - modules/router/**/*
+  - packages/router/*
+  - packages/router/**/*
 
 utils:
-  - modules/utils/*
-  - modules/utils/**/*
+  - packages/utils/*
+  - packages/utils/**/*
 
 repo:
   - ./*
