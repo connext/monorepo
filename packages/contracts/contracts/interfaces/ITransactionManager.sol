@@ -15,12 +15,13 @@ interface ITransactionManager {
     bytes32 transactionId;
   }
 
-  enum TransactionStatus {
-    Empty,
-    Pending,
-    Completed
+  struct VariantTransactionData {
+    uint256 amount;
+    uint256 expiry;
+    uint256 preparedBlockNumber;
   }
 
+  // All Transaction data, constant and variable
   struct TransactionData {
     address user;
     address router;
@@ -29,11 +30,11 @@ interface ITransactionManager {
     address receivingAddress;
     bytes callData;
     bytes32 transactionId;
-    uint256 amount;
-    uint256 expiry;
-    uint256 blockNumber;
     uint256 sendingChainId;
     uint256 receivingChainId;
+    uint256 amount;
+    uint256 expiry;
+    uint256 preparedBlockNumber; // Needed for removal on fulfill/cancel
   }
 
   struct SignedCancelData {
