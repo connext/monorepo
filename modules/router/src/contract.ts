@@ -3,13 +3,12 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
-
 import { InvariantTransactionData, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { SenderFulfillData, SenderPrepareData } from "./transactionManagerListener";
+import { ReceiverFulfillData, SenderFulfillData, SenderPrepareData } from "./transactionManagerListener";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -43,6 +42,7 @@ export class TransactionManager {
       if (rxExpiry < Date.now() / 1000) {
         throw new Error("Expiration already happened, cant prepare");
       }
+      return rxExpiry;
     };
 
     const txParams = {
@@ -91,32 +91,38 @@ export class TransactionManager {
     }
   }
 
-  async fulfill(txData: SenderFulfillData): Promise<providers.TransactionReceipt> {
+  async fulfill(
+    receiverTxData: ReceiverFulfillData,
+    senderTxData: SenderFulfillData,
+  ): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
     const methodId = v4();
-    this.logger.info({ method, methodId, txData }, "Method start");
+    this.logger.info({ method, methodId, receiverTxData }, "Method start");
 
     const txParams: Partial<SenderFulfillData> = {
-      callData: txData.callData,
-      receivingAddress: txData.receivingAddress,
-      receivingAssetId: txData.receivingAssetId,
-      receivingChainId: txData.receivingChainId,
-      router: txData.router,
-      sendingAssetId: txData.sendingAssetId,
-      sendingChainId: txData.sendingChainId,
-      transactionId: txData.transactionId,
-      user: txData.user,
+      callData: receiverTxData.callData,
+      receivingAddress: receiverTxData.receivingAddress,
+      receivingAssetId: receiverTxData.receivingAssetId,
+      receivingChainId: receiverTxData.receivingChainId,
+      router: receiverTxData.router,
+      sendingAssetId: receiverTxData.sendingAssetId,
+      sendingChainId: receiverTxData.sendingChainId,
+      transactionId: receiverTxData.transactionId,
+      user: receiverTxData.user,
+      amount: senderTxData.amount,
+      expiry: senderTxData.expiry,
+      blockNumber: senderTxData.blockNumber,
     };
-    const relayerFee = BigNumber.from(txData.relayerFee);
+    const relayerFee = BigNumber.from(receiverTxData.relayerFee);
     //will sig always be included (even on sender side)?
-    const sig = txData.signature;
+    const sig = receiverTxData.signature;
     // @ts-ignore
     const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txParams, relayerFee, sig]);
     try {
-      const txRes = await this.txService.sendAndConfirmTx(txData.sendingChainId, {
-        chainId: txData.sendingChainId,
+      const txRes = await this.txService.sendAndConfirmTx(receiverTxData.sendingChainId, {
+        chainId: receiverTxData.sendingChainId,
         data: fulfilData,
-        to: this.config.chainConfig[txData.sendingChainId].transactionManagerAddress,
+        to: this.config.chainConfig[receiverTxData.sendingChainId].transactionManagerAddress,
         value: 0,
         from: this.signerAddress,
       });
@@ -124,7 +130,7 @@ export class TransactionManager {
     } catch (e) {
       // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
       this.logger.error(
-        { methodId, method, transactionId: txData.transactionId, error: jsonifyError(e) },
+        { methodId, method, transactionId: receiverTxData.transactionId, error: jsonifyError(e) },
         "Error sending sender fulfill tx",
       );
       // TODO discuss this case!!

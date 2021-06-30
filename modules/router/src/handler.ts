@@ -249,7 +249,7 @@ export class Handler implements Handler {
       { method, methodId, transactionId: data.transactionId, signature: data.signature },
       "Sending sender fulfill tx",
     );
-    const txReceipt = await this.txManager.fulfill(data);
+    const txReceipt = await this.txManager.fulfill(data, senderTransaction);
     if (txReceipt) {
       this.logger.info(
         {
