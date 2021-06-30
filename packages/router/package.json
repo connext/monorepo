@@ -49,6 +49,7 @@
     "fastify": "^3.18.0",
     "graphql": "^15.5.1",
     "graphql-request": "^3.4.0",
+    "graphql-tag": "^2.12.5",
     "pino": "^6.11.3",
     "uuid": "^8.3.2"
   },
