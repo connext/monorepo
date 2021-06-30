@@ -4,9 +4,10 @@ import {
   jsonifyError,
   InvariantTransactionData,
   TransactionData,
+  MetaTxPayload,
 } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { BigNumber, constants, Signer, utils } from "ethers";
+import { constants, Signer, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -61,7 +62,7 @@ export interface TransactionDataParams {
 
 export interface Handler {
   handleNewAuction(data: AuctionData): Promise<void>;
-  handleMetaTxRequest(data: MetaTxData): Promise<void>;
+  handleMetaTxRequest(data: MetaTxPayload): Promise<void>;
   handleSenderPrepare(inboundData: SenderPrepareData): Promise<void>;
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
@@ -69,12 +70,6 @@ export interface Handler {
 }
 
 export type AuctionData = any;
-export type MetaTxData = {
-  relayerFee: string;
-  to: string;
-  data: string;
-  chainId: number;
-};
 
 export class Handler implements Handler {
   constructor(
@@ -115,13 +110,13 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(data: MetaTxData): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxPayload): Promise<void> {
     // First log
-    const method = "handleSenderPrepare";
+    const method = "handleMetaTxRequest";
     const methodId = v4();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { relayerFee, to, data: txData, chainId } = data;
+    const { relayerFee, to, data: txData, chainId, responseInbox } = data;
 
     // TODO:
     // Validate that metatx request matches with known data about fulfill
@@ -136,12 +131,13 @@ export class Handler implements Handler {
     // Send to txService
     // Update metrics
 
-    this.logger.info({ method, methodId, chainId, relayerFee }, "Submitting tx");
+    this.logger.info({ method, methodId, chainId, relayerFee, responseInbox }, "Submitting tx");
     const tx = await this.txService.sendAndConfirmTx(chainId, { to, value: "0", data: txData, chainId });
     this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
 
     // TODO: publish response, whats the best way to do this? need a predictable
     // inbox for this tx only
+    await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, responseInbox);
   }
 
   // HandleSenderPrepare
@@ -232,11 +228,11 @@ export class Handler implements Handler {
     // Send to txService
     try {
       this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
-      const txRes = await this.txService.sendAndConfirmTx(BigNumber.from(inboundData.receivingChainId).toNumber(), {
+      const txRes = await this.txService.sendAndConfirmTx(inboundData.receivingChainId, {
         to: config.chainConfig[inboundData.receivingChainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
-        chainId: BigNumber.from(inboundData.receivingChainId).toNumber(),
+        chainId: inboundData.receivingChainId,
         from: signerAddress,
       });
       this.logger.info(

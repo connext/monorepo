@@ -227,8 +227,12 @@ export type MetaTxPayload = {
   to: string;
   data: string;
   chainId: number;
+  responseInbox: string;
 };
-export type MetaTxResponse = {};
+export type MetaTxResponse = {
+  transactionHash: string;
+  chainId: number;
+};
 
 export const generateMessagingInbox = (): string => {
   return `_INBOX.${v4()}`;

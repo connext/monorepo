@@ -185,6 +185,18 @@ export class NxtpSdk {
   private setupListeners(): void {
     // Always broadcast signature when a receiver-side prepare event is emitted
     this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async data => {
+      if (data.txData.receivingChainId !== data.chainId) {
+        this.logger.debug(
+          {
+            transaction: data.txData.transactionId,
+            sendingChain: data.txData.sendingChainId,
+            receivingChain: data.txData.receivingChainId,
+            chainId: data.chainId,
+          },
+          "Nothing to handle",
+        );
+        return;
+      }
       // Always automatically broadcast signatures for recieving chain
       if (this.fulfilling[data.txData.transactionId]) {
         // NOTE: this is more for debugging

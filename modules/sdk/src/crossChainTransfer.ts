@@ -2,6 +2,7 @@ import { BigNumber, constants, Contract, providers } from "ethers";
 import {
   generateMessagingInbox,
   InvariantTransactionData,
+  MetaTxResponse,
   signFulfillTransactionPayload,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
@@ -124,8 +125,9 @@ export const handleReceiverPrepare = async (
   ]);
 
   const inbox = generateMessagingInbox();
-  const response = new Promise(async (resolve, reject) => {
-    await messaging.subscribeToMetaTxResponse(inbox, (data, err) => {
+  const responseInbox = generateMessagingInbox();
+  const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
+    await messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
       logger.info({ method, methodId, data, err }, "MetaTx response received");
       if (err) {
         return reject(err);
@@ -139,13 +141,16 @@ export const handleReceiverPrepare = async (
       to: transactionManager.address,
       chainId: txData.receivingChainId,
       data,
+      responseInbox,
     },
     inbox,
   );
   logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
 
-  // TODO: relayer responses?
-  await response;
+  // TODO: fix relayer responses?
+  responsePromise.then(response => {
+    logger.info({ method, methodId, inbox, response }, "Fulfill metaTx response received");
+  });
   // add logic to submit it on our own before expiry
   // or some timeout
 };
