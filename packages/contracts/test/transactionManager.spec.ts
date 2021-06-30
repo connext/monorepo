@@ -131,7 +131,7 @@ describe("TransactionManager", function () {
     instance: Contract = transactionManagerReceiverSide,
   ) => {
     // Get starting + expected  balance
-    const routerAddr = await _router.getAddress();
+    const routerAddr = router.address;
     const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
     const expectedBalance = startingBalance.sub(amount);
 
@@ -418,18 +418,47 @@ describe("TransactionManager", function () {
   });
 
   describe("#addLiquidity", () => {
-    // TODO: revert and emit event test cases
-    // reentrant cases
-    it.skip("should error if value is not present for Ether/Native token", async () => {});
-    it.skip("should error if value is not equal to amount param for Ether/Native token", async () => {});
-    it.skip("should error if value is non-zero for ERC20 token", async () => {});
-    it.skip("should error if transaction manager isn't approve for respective amount", async () => {});
+    // TODO: reentrant cases
+    it("should error if value is not present for Ether/Native token", async () => {
+      // addLiquidity: VALUE_MISMATCH
+      const amount = "1";
+      const assetId = AddressZero;
 
-    it("happy case: addLiquity ERC20", async () => {
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId)).to.be.revertedWith(
+        "addLiquidity: VALUE_MISMATCH",
+      );
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    it("should error if value is not equal to amount param for Ether/Native token", async () => {
+      // addLiquidity: VALUE_MISMATCH
+      const amount = "1";
+      const falseValue = "2";
+      const assetId = AddressZero;
+
+      await expect(
+        transactionManager.connect(router).addLiquidity(amount, assetId, { value: falseValue }),
+      ).to.be.revertedWith("addLiquidity: VALUE_MISMATCH");
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    it("should error if value is non-zero for ERC20 token", async () => {
+      // addLiquidity: ETH_WITH_ERC_TRANSFER;
       const amount = "1";
       const assetId = tokenA.address;
-      await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
-      await addAndAssertLiquidity(amount, assetId);
+      await expect(
+        transactionManager.connect(router).addLiquidity(amount, assetId, { value: amount }),
+      ).to.be.revertedWith("addLiquidity: ETH_WITH_ERC_TRANSFER");
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    it("should error if transaction manager isn't approve for respective amount if ERC20", async () => {
+      const amount = "1";
+      const assetId = tokenA.address;
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId)).to.be.revertedWith(
+        "ERC20: transfer amount exceeds allowance",
+      );
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
     it("happy case: addLiquity Native/Ether token", async () => {
@@ -437,11 +466,26 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
       await addAndAssertLiquidity(amount, assetId);
     });
+
+    it("happy case: addLiquity ERC20", async () => {
+      const amount = "1";
+      const assetId = tokenA.address;
+      await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
+      await addAndAssertLiquidity(amount, assetId);
+    });
   });
 
   describe("#removeLiquidity", () => {
-    // TODO: revert and emit event test cases
-    it.skip("should error if router Balance is lower than amount", async () => {});
+    // TODO: reentrant cases
+    it("should error if router Balance is lower than amount", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      await expect(
+        transactionManager.connect(router).removeLiquidity(amount, assetId, router.address),
+      ).to.be.revertedWith("removeLiquidity: INSUFFICIENT_FUNDS");
+    });
+
     it.skip("should error if transfer fails", async () => {});
 
     it("happy case: removeLiquidity Native/Ether token", async () => {
@@ -466,9 +510,28 @@ describe("TransactionManager", function () {
   describe("#prepare", () => {
     // TODO: revert and emit event test cases
     // reentrant cases
-    it.skip("should revert if expiry is lower than min_timeout", async () => {});
-    it.skip("should revert if param sending and receiving chainId are same", async () => {});
-    it.skip("should revert if param sending or receiving chainId doesn't match chainId variable", async () => {});
+    it("should revert if expiry is lower than min_timeout", async () => {
+      const { transaction, record } = await getTransactionData();
+      const hours12 = 12 * 60 * 60;
+      const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, expiry, "0x", "0x", { value: record.amount }),
+      ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
+    });
+
+    it("should revert if param sending and receiving chainId are same", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainId: 1337, receivingChainId: 1337 });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, "0x", "0x", { value: record.amount }),
+      ).to.be.revertedWith("prepare: SAME_CHAINIDS");
+    });
+
+    it("should revert if param sending or receiving chainId doesn't match chainId variable", async () => {});
+
     it.skip("should revert if params receiving address is addressZero", async () => {});
     it.skip("should revert if digest already exist", async () => {});
     it.skip("should revert if value is not present for Ether/Native token", async () => {});
