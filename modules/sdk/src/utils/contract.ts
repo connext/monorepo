@@ -25,12 +25,7 @@ export const getTransactionManagerContract = (
   const abi = record[name]?.contracts?.TransactionManager?.abi;
   const address = record[name]?.contracts?.TransactionManager?.address;
 
-  let instance: Contract;
-  if (userWebProvider) {
-    instance = new Contract(address, abi, userWebProvider);
-  } else {
-    instance = new Contract(address, abi);
-  }
+  const instance = new Contract(address, abi, userWebProvider);
 
   return { address, abi, instance };
 };

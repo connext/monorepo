@@ -9,14 +9,15 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 // import { getOnchainBalance } from "./utils";
 
-import { prepare } from "../src";
 import pino from "pino";
+
+import { prepare } from "../src";
 
 const { AddressZero } = constants;
 const logger = pino({ level: "error" });
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function () {
+describe("TransactionManager", function() {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
 
   const sendingChainId = 31337;
@@ -53,7 +54,7 @@ describe("TransactionManager", function () {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "1000";
@@ -92,10 +93,9 @@ describe("TransactionManager", function () {
       signer: user,
     };
 
-    const prepapreApproveTx = await approveTokens(params.amount, user);
-    console.log(prepapreApproveTx);
+    await approveTokens(params.amount, user);
 
     const res = await prepare(params, transactionManager, logger);
-    console.log(res);
+    expect(res.status).to.be.eq(1);
   });
 });

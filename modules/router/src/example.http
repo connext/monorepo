@@ -1,4 +1,20 @@
 @routerUrl = http://localhost:8080
 
+@chainId = 4
+@assetId = 0x0000000000000000000000000000000000000000
+
+# 1 ETH
+@amount = 1000000000000000000
+
 ### CONFIG
 GET {{routerUrl}}/config
+
+### ADD LIQUIDITY
+POST {{routerUrl}}/add-liquidity
+Content-Type: application/json
+
+{
+  "chainId": 5,
+  "assetId": "{{assetId}}",
+  "amount": "{{amount}}" 
+}

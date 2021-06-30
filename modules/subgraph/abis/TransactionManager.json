@@ -3,13 +3,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_multisend",
+        "name": "_iMultisend",
         "type": "address"
       },
       {
-        "internalType": "uint24",
+        "internalType": "uint256",
         "name": "_chainId",
-        "type": "uint24"
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -102,16 +102,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -120,30 +110,37 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "expiry",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "blockNumber",
-        "type": "uint256"
       },
       {
         "indexed": false,
@@ -186,16 +183,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -204,30 +191,37 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "expiry",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "blockNumber",
-        "type": "uint256"
       },
       {
         "indexed": false,
@@ -282,16 +276,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -300,36 +284,55 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
         "indexed": false,
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "expiry",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "blockNumber",
-        "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "address",
         "name": "caller",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "encodedBid",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "bidSignature",
+        "type": "bytes"
       }
     ],
     "name": "TransactionPrepared",
@@ -338,6 +341,30 @@
   {
     "inputs": [],
     "name": "MIN_TIMEOUT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeTransactionBlocks",
     "outputs": [
       {
         "internalType": "uint256",
@@ -396,16 +423,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -414,9 +431,34 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
       },
@@ -456,16 +498,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -474,9 +506,34 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "",
         "type": "tuple"
       }
@@ -489,9 +546,9 @@
     "name": "chainId",
     "outputs": [
       {
-        "internalType": "uint24",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint24"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -527,16 +584,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -545,9 +592,34 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
       },
@@ -592,16 +664,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -610,32 +672,6 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getActiveTransactionsByUser",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
           },
           {
             "internalType": "uint256",
@@ -653,22 +689,27 @@
             "type": "uint256"
           },
           {
-            "internalType": "bytes32",
-            "name": "digest",
-            "type": "bytes32"
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct VariableTransactionData[]",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "",
-        "type": "tuple[]"
+        "type": "tuple"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "multisend",
+    "name": "iMultisend",
     "outputs": [
       {
         "internalType": "address",
@@ -709,14 +750,14 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
+            "internalType": "uint256",
             "name": "sendingChainId",
-            "type": "uint24"
+            "type": "uint256"
           },
           {
-            "internalType": "uint24",
+            "internalType": "uint256",
             "name": "receivingChainId",
-            "type": "uint24"
+            "type": "uint256"
           },
           {
             "internalType": "bytes",
@@ -730,7 +771,7 @@
           }
         ],
         "internalType": "struct ITransactionManager.InvariantTransactionData",
-        "name": "txData",
+        "name": "_txData",
         "type": "tuple"
       },
       {
@@ -742,6 +783,16 @@
         "internalType": "uint256",
         "name": "expiry",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "encodedBid",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "bidSignature",
+        "type": "bytes"
       }
     ],
     "name": "prepare",
@@ -774,16 +825,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint24",
-            "name": "sendingChainId",
-            "type": "uint24"
-          },
-          {
-            "internalType": "uint24",
-            "name": "receivingChainId",
-            "type": "uint24"
-          },
-          {
             "internalType": "bytes",
             "name": "callData",
             "type": "bytes"
@@ -792,9 +833,34 @@
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct ITransactionManager.InvariantTransactionData",
+        "internalType": "struct ITransactionManager.TransactionData",
         "name": "",
         "type": "tuple"
       }
@@ -844,6 +910,25 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "transactionStatus",
+    "outputs": [
+      {
+        "internalType": "enum ITransactionManager.TransactionStatus",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",

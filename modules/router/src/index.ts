@@ -31,8 +31,8 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
 });
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
 const txService = new TransactionService(logger, wallet, providers);
-const handler = new Handler(messaging, subgraph, wallet, txService, logger);
-const transactionManager = new TransactionManager(txService, wallet.address);
+const transactionManager = new TransactionManager(txService, wallet.address, logger);
+const handler = new Handler(messaging, subgraph, wallet, txService, logger, transactionManager);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
@@ -74,7 +74,7 @@ server.get("/config", async () => {
   };
 });
 
-server.get<{ Body: AddLiquidityRequest }>(
+server.post<{ Body: AddLiquidityRequest }>(
   "/add-liquidity",
   //  TODO: make these work!
   // { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },

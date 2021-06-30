@@ -82,6 +82,8 @@ export class NxtpSdk {
     [NxtpSdkEvents.TransactionCompleted]: Evt.create<TransactionCompletedEvent>(),
   };
 
+  private readonly fulfilling: { [id: string]: TransactionPreparedEvent } = {};
+
   private constructor(
     private readonly sendingProvider: providers.JsonRpcProvider,
     private readonly receivingProvider: providers.JsonRpcProvider,
@@ -183,9 +185,29 @@ export class NxtpSdk {
   private setupListeners(): void {
     // Always broadcast signature when a receiver-side prepare event is emitted
     this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async data => {
+      if (data.txData.receivingChainId !== data.chainId) {
+        this.logger.debug(
+          {
+            transaction: data.txData.transactionId,
+            sendingChain: data.txData.sendingChainId,
+            receivingChain: data.txData.receivingChainId,
+            chainId: data.chainId,
+          },
+          "Nothing to handle",
+        );
+        return;
+      }
       // Always automatically broadcast signatures for recieving chain
+      if (this.fulfilling[data.txData.transactionId]) {
+        // NOTE: this is more for debugging
+        // than anything, not harmful if
+        // metatxs are picked up 2x (other
+        // than relayers wasting gas)
+        this.logger.warn({ ...data }, "Already fulfilling, got an additional event");
+      }
       // TODO: how to handle relayer fees here? will need before signing
       this.logger.info({ ...data }, "Handling receiver tx prepared event");
+      this.fulfilling[data.txData.transactionId] = data;
       await handleReceiverPrepare(
         {
           txData: data.txData,
@@ -197,6 +219,8 @@ export class NxtpSdk {
         this.messaging,
         this.logger,
       );
+
+      delete this.fulfilling[data.txData.transactionId];
     });
 
     // Emit transaction completed event when receiver-side fulfill event is
