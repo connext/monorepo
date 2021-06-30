@@ -137,7 +137,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // Check that router has liquidity
       // TODO do we need explicit check vs implicit from safemath below?
       require(
-        routerBalances[msg.sender][txData.receivingAssetId] >= txData.amount,
+        routerBalances[txData.router][txData.receivingAssetId] >= txData.amount,
         "prepare: INSUFFICIENT_LIQUIDITY"
       );
 
@@ -152,7 +152,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // - 3rd party router could EITHER use original txData or replace txData.router with itself
       // - if original txData, 3rd party router would basically be paying for original router
       // - if relaced router address, user sig on digest would not unlock sender side
-      routerBalances[msg.sender][txData.receivingAssetId] -= txData.amount;
+      routerBalances[txData.router][txData.receivingAssetId] -= txData.amount;
     }
 
     // Emit event
