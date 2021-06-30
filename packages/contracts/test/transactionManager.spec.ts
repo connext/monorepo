@@ -27,7 +27,7 @@ type VariantTransactionData = {
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function() {
+describe("TransactionManager", function () {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -53,7 +53,7 @@ describe("TransactionManager", function() {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "10000";
@@ -106,7 +106,7 @@ describe("TransactionManager", function() {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map(k => {
+    keys.map((k) => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -118,7 +118,7 @@ describe("TransactionManager", function() {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -393,6 +393,13 @@ describe("TransactionManager", function() {
     expect(await transactionManager.iMultisend()).to.eq(AddressZero);
   });
 
+  describe("#routerBalances", () => {
+    // TODO: revert and emit event test cases
+    it.skip("should return null if router address doesn't have funds", async () => {});
+    it.skip("should return null if router address for respective address doesn't have funds", async () => {});
+    it.skip("should return null if router address for respective address doesn't have funds", async () => {});
+  });
+
   describe("#activeTransactionBlocks", () => {
     // TODO: revert and emit event test cases
     it.skip("should return activeTransactionBlocks if user creates prepare", async () => {});
@@ -412,10 +419,10 @@ describe("TransactionManager", function() {
 
   describe("#addLiquidity", () => {
     // TODO: revert and emit event test cases
+    // reentrant cases
     it.skip("should error if value is not present for Ether/Native token", async () => {});
     it.skip("should error if value is not equal to amount param for Ether/Native token", async () => {});
     it.skip("should error if value is non-zero for ERC20 token", async () => {});
-    it.skip("should error if transaction manager isn't approve for respective amount", async () => {});
     it.skip("should error if transaction manager isn't approve for respective amount", async () => {});
 
     it("happy case: addLiquity ERC20", async () => {
@@ -435,6 +442,7 @@ describe("TransactionManager", function() {
   describe("#removeLiquidity", () => {
     // TODO: revert and emit event test cases
     it.skip("should error if router Balance is lower than amount", async () => {});
+    it.skip("should error if transfer fails", async () => {});
 
     it("happy case: removeLiquidity Native/Ether token", async () => {
       const amount = "1";
@@ -457,7 +465,20 @@ describe("TransactionManager", function() {
 
   describe("#prepare", () => {
     // TODO: revert and emit event test cases
-    it.skip("should error if router Balance is lower than amount", async () => {});
+    // reentrant cases
+    it.skip("should revert if expiry is lower than min_timeout", async () => {});
+    it.skip("should revert if param sending and receiving chainId are same", async () => {});
+    it.skip("should revert if param sending or receiving chainId doesn't match chainId variable", async () => {});
+    it.skip("should revert if params receiving address is addressZero", async () => {});
+    it.skip("should revert if digest already exist", async () => {});
+    it.skip("should revert if value is not present for Ether/Native token", async () => {});
+    it.skip("should revert if value is not equal to amount param for Ether/Native token", async () => {});
+    it.skip("should revert if value is non-zero for ERC20 token", async () => {});
+    it.skip("should revert if transaction manager isn't approve for respective amount", async () => {});
+
+    it.skip("should revert iff senderChainId not equal to chainId and sender is diff from router", async () => {});
+    it.skip("should revert iff senderChainId not equal to chainId and router liquidity is lower than amount", async () => {});
+    it.skip("should revert iff senderChainId not equal to chainId and msg.value is non-zero", async () => {});
 
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
@@ -533,6 +554,13 @@ describe("TransactionManager", function() {
 
   describe("#fulfill", () => {
     // TODO: revert and emit event test cases
+    // reentrant cases
+    it.skip("should revert if transactionStatus for respective digest isn't pending", async () => {});
+    it.skip("should revert if expiry of transaction is behind current blockstamp", async () => {});
+    it.skip("should revert if param user didn't sign the signature", async () => {});
+    it.skip("should revert if relayer fee is higher than amount", async () => {});
+    it.skip("should revert if relayer fee is higher than amount", async () => {});
+
     it("happy case: router fulfills in native asset", async () => {
       const prepareAmount = "100";
       const assetId = AddressZero;
