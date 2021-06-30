@@ -112,7 +112,7 @@ packages/**/node_modules
 artifacts*
 ops/data/
 
-.yarn/*
+.yarn
 !.yarn/patches
 !.yarn/releases
 !.yarn/plugins

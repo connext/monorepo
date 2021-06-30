@@ -36,7 +36,7 @@ Benefits:
 Drawbacks/Risks:
 
 1. Nxtp is _only_ a protocol for (generalized) xchain transactions. It does not use channels (i.e. does not utilize offchain state). This means it cannot be used to do batched conditional transfers for the purposes of scalable micropayments.
-2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same liveness requirement, but it exists on both the user *and* router.
+2. While there is great crash tolerance, there is a strong requirement that the router must reclaim its funds within a certain time window (we can set this how we like... presumably 48-96 hours). Note that the pessimistic channel case actually has this same liveness requirement, but it exists on both the user _and_ router.
 
 ## Architecture
 
@@ -65,9 +65,57 @@ These are **important** and everyone must adhere to them:
 
 # Local Dev
 
+We are using a Yarn 2 Workspace-based monorepo structure. The individual workspaces are within the `packages/` directory. This repo structure was heavily inspired by [create-ts-project](https://github.com/jtbennett/create-ts-project). The goal is to minimize 3rd party dependencies, and expose the configurations so that they can be transparently managed.
+
+There are a few top-level scripts that can be used:
+
+- `lint:all` - Lints all packages.
+- `test:all` - Tests all packages.
+- `clean:all` - Removes build artifacts.
+- `build:all` - Builds all packages.
+- `verify:all` - Tests, builds, and lints all packages.
+- `version:all` - Sets versions for packages.
+- `purge:all` - Cleans and removes node_modules, etc.
+
+Individual commands can be run against workspaces as so (example for `nxtp-utils` package):
+
+`yarn workspace @connext/nxtp-utils test`
+
+You should be able to do everything from the root and not need to go into the individual package dirs. For example, adding an npm package:
+
+`yarn workspace @connext/nxtp-txservice add ethers`
+
 ## Running Things
 
-From root, run:
+Make sure you are on the latest yarn version if you have never used this before:
+
+- `yarn set version berry`
+
+Basic tasks:
 
 - `yarn`: Install deps, create symlinks, hoist packages.
-- `yarn watch`: Watch modules for changes and hot reload.
+- `yarn build:all`: Build all packages.
+
+Run router:
+
+- `yarn workspace @connext/nxtp-router dev` - Runs router in hot-reload mode.
+
+Run test-ui:
+
+- `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
+
+## Adding Packages
+
+To add a new package that can be shared by the rest of the repo, you can use some convenience scripts that we have installed:
+
+`yarn tsp create @connext/test-lib --template node-lib`
+
+Note: The `tsp` tool is not required, it just makes boilerplate generation easier. If you want, you can copy paste stuff from other packages. Documentation on the tool is [here](https://github.com/jtbennett/create-ts-project/blob/main/docs/tsp-commands.md).
+
+To add the lib to be a dependency of a consuming app (i.e. the router):
+
+`yarn tsp add @connext/test-lib --cwd packages/router`
+
+Again, this can all be done without the tool, all it does is add some files and make some config changes.
+
+Note: We use `node-lib` as the template for all the packages. There are some other included templates like `browser-lib` which didn't work with our bundling. We might need to revisit things for bundling reqs.
