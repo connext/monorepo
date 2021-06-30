@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach run lint",
-    "test:all": "yarn build:all && yarn workspaces foreach run test",
+    "test:all": "yarn workspaces foreach run test",
     "clean:all": "yarn workspaces foreach run clean",
     "build:all": "yarn workspaces foreach run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",

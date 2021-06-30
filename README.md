@@ -106,6 +106,18 @@ Run test-ui:
 
 - `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
 
+
+## Running Test
+
+- `yarn`: Install deps, create symlinks, hoist packages.
+- `yarn build:all`: Build all packages.
+or
+- `yarn workspace @connext/nxtp-contracts build`: Build the specific package.
+
+Run test:
+
+- `yarn workspace @connext/nxtp-contracts test` - Runs test.
+
 ## Adding Packages
 
 To add a new package that can be shared by the rest of the repo, you can use some convenience scripts that we have installed:
