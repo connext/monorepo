@@ -26,7 +26,7 @@ env:
 
   # Comment out the following line to skip pushing the image to your GitHub repo.
   DOCKER_REPO: ghcr.io
-  COMMIT_HASH: $(git rev-parse --short=7 ${{ github.sha }})
+  # COMMIT_HASH: $(git rev-parse --short=7 ${{ github.sha }})
 
 jobs:
   build:
@@ -47,6 +47,9 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+
+      - name: Add COMMIT_HASH env property with commit short sha
+        run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
       - name: Build and push docker image to GitHub repo
         run: |
