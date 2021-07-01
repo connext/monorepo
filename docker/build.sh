@@ -22,13 +22,13 @@ fi
 # Set variable values.
 
 APP_FULL_NAME="$APP_NAME"
-APP_NAME=$(echo $APP_NAME | sed s/".*\/"//) # remove scope like "@my-org/", if any.
+APP_NAME=$(echo "$APP_NAME" | sed s/".*\/"//) # remove scope like "@my-org/", if any.
 
 if [ -z "$APP_DIR" ]; then
   APP_DIR="$APP_NAME"
 fi
 
-SHORT_APP_DIR=$(echo $APP_DIR | sed s/".*\/"//) # i.e. packages/router to /router
+SHORT_APP_DIR=$(echo "$APP_DIR" | sed s/".*\/"//) # i.e. packages/router to /router
 
 if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
@@ -46,53 +46,54 @@ export TEMP_DEPS_DIR="./_tmp/deps"
 rm -rf ${TEMP_DEPS_DIR}
 find "./packages" -name "package.json" -maxdepth 2 | \
   sed "s|/package.json||g" | \
-  xargs -I % bash -c 'mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/'
+  xargs -I % bash -c "mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/"
 
 # Pull the latest build stage image, if it exists.
 if [ -n "$DOCKER_REPO" ]; then
-  docker pull ${BUILD_IMAGE}:latest || \
+  docker pull "${BUILD_IMAGE}":latest || \
     echo "No existing image found for ${BUILD_IMAGE}:latest"
 fi
 
 # Build the build stage image.
 docker build \
   --target build \
-  --cache-from ${BUILD_IMAGE}:latest \
-  --tag ${BUILD_IMAGE}:latest \
+  --cache-from "${BUILD_IMAGE}":latest \
+  --tag "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
-  --build-arg APP_NAME=${APP_FULL_NAME} \
-  --build-arg APP_DIR=${APP_DIR} \
-  --build-arg COMMIT_HASH=${COMMIT_HASH} \
-  --build-arg SHORT_APP_DIR=${SHORT_APP_DIR} \
+  --build-arg APP_NAME="${APP_FULL_NAME}" \
+  --build-arg APP_DIR="${APP_DIR}" \
+  --build-arg COMMIT_HASH="${COMMIT_HASH}" \
+  --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
   --file ./docker/Dockerfile \
   .
 
+docker image ls
 # Push the build stage image to the working repo.
 if [ -n "$DOCKER_REPO" ]; then
-  docker push ${BUILD_IMAGE}:latest
+  docker push "${BUILD_IMAGE}":latest
 fi
 
 # Pull the latest app image, if it exists.
 if [ -n "$DOCKER_REPO" ]; then
-  docker pull ${APP_IMAGE}:latest || \
+  docker pull "${APP_IMAGE}":latest || \
     echo "No existing image found for ${APP_IMAGE}:latest"
 fi
 
 # Build the app image.
 docker build \
-  --cache-from ${APP_IMAGE}:latest \
-  --cache-from ${BUILD_IMAGE}:latest \
-  --tag ${APP_IMAGE}:latest \
-  --tag ${APP_IMAGE}:${COMMIT_HASH} \
+  --cache-from "${APP_IMAGE}":latest \
+  --cache-from "${BUILD_IMAGE}":latest \
+  --tag "${APP_IMAGE}":latest \
+  --tag "${APP_IMAGE}":"${COMMIT_HASH}" \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
-  --build-arg APP_NAME=${APP_FULL_NAME} \
-  --build-arg APP_DIR=${APP_DIR} \
-  --build-arg COMMIT_HASH=${COMMIT_HASH} \
-  --build-arg SHORT_APP_DIR=${SHORT_APP_DIR} \
+  --build-arg APP_NAME="${APP_FULL_NAME}" \
+  --build-arg APP_DIR="${APP_DIR}" \
+  --build-arg COMMIT_HASH="${COMMIT_HASH}" \
+  --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
   --file ./docker/Dockerfile \
   .
 
 # Push the app image to the working repo.
 if [ -n "$DOCKER_REPO" ]; then
-  docker push ${APP_IMAGE}:latest
+  docker push "${APP_IMAGE}":latest
 fi
