@@ -12,7 +12,7 @@ import { BigNumber, constants } from "ethers";
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("LibAsset", function() {
+describe("LibAsset", function () {
   const [wallet, other, receiver] = waffle.provider.getWallets();
 
   let libAssetTest: LibAssetTest;
@@ -32,7 +32,7 @@ describe("LibAsset", function() {
     loadFixture = createFixtureLoader([wallet, other]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     ({ libAssetTest, token } = await loadFixture(fixture));
   });
 
@@ -71,8 +71,8 @@ describe("LibAsset", function() {
       expect(BigNumber.isBigNumber(res)).to.be.true;
     });
 
-    it.skip("should return Erc20 asset balance if Non-AddressZero", async () => {
-      const Erc20TokenAddress = "";
+    it("should return Erc20 asset balance if Non-AddressZero", async () => {
+      const Erc20TokenAddress = token.address;
       const res = await libAssetTest.getOwnBalance(Erc20TokenAddress);
       expect(BigNumber.isBigNumber(res)).to.be.true;
     });
@@ -82,21 +82,22 @@ describe("LibAsset", function() {
     it("should error if param recipient is not payable", async () => {
       await expect(libAssetTest.transferEther(AddressZero, "1")).to.be.reverted;
     });
-    it.skip("should error if recipient call fails", async () => {});
 
     it.skip("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
-      await libAssetTest.connect(wallet).transferEther(receiver.address, amount, { from: wallet.address });
+      await libAssetTest.connect(wallet).transferEther(receiver.address, amount);
     });
   });
 
   describe("#transferERC20", () => {
     it.skip("happy case: transferERC20", async () => {
+      const amount = BigNumber.from(1);
       await token.balanceOf(wallet.address);
 
-      const res = await libAssetTest
-        .connect(wallet)
-        .transferERC20(token.address, receiver.address, BigNumber.from(1), { from: wallet.address });
+      const approveRes = await token.connect(wallet).approve(libAssetTest.address, amount);
+      await approveRes.wait();
+
+      const res = await libAssetTest.connect(wallet).transferERC20(token.address, receiver.address, amount);
       await res.wait();
     });
   });
