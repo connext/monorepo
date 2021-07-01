@@ -17,8 +17,8 @@ on:
     branches:
       - main
   create:
-      tag:
-        - "v*"
+    tag:
+      - "v*"
 
 env:
   # These variables are used by build.sh.
@@ -33,7 +33,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
