@@ -28,7 +28,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
-  /// @dev Maping of user address to blocks where active transfers
+  /// @dev Mapping of user address to blocks where active transfers
   ///      were created.
   mapping(address => uint256[]) public activeTransactionBlocks;
 
