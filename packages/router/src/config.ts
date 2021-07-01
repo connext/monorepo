@@ -57,6 +57,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
   try {
     let json: string;
+
     if (process.env.NXTP_CONFIG_FILE) {
       console.log("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
       json = readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
@@ -69,7 +70,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       console.log("Found configFile");
     }
   } catch (e) {
-    console.warn("No config file available...");
+    console.warn("No config file available, trying env vars...", e);
   }
   // return configFile;
 

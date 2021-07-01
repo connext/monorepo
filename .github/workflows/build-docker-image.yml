@@ -1,0 +1,75 @@
+# A GitHub Actions workflow to build a docker image for an app.
+#
+# One-time setup to use this workflow:
+# 1. Move this file into ./.github/workflows
+# 2. Change APP_NAME variable below to the name of the app.
+#
+# The image will be built on each push to or pull request on main.
+# It will be pushed to the current GitHub repo's Packages.
+
+name: Build docker image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  runs-on: ubuntu-18.04
+  run:
+    shell: bash
+
+env:
+  # These variables are used by build.sh.
+
+  # Value should be the name from package.json of the app.
+  APP_NAME: "@foo/bar"
+
+  # Comment out the following line to skip pushing the image to your GitHub repo.
+  DOCKER_REPO: docker.pkg.github.com/${{ github.owner }}/${{ github.repo }}
+  COMMIT_HASH: $(git rev-parse --short=7 ${{ github.sha }})
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up docker buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          install: true
+
+      - name: Cache docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push docker image to GitHub repo
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+          chmod +x ./docker/build.sh
+          ./docker/build.sh
+      # -------------------------------------------------------------------------
+      # EXAMPLE: DEPLOYING THE DOCKER IMAGE TO HEROKU
+      # -------------------------------------------------------------------------
+      # This step will deploy a web server to heroku by pushing the image.
+      # You need to create a secret in your GitHub repo named HEROKU_API_KEY
+      # and set the CI_HEROKU_APP_NAME variable below.
+      # -------------------------------------------------------------------------
+      # - name: Deploy to CI
+      #   env:
+      #     CI_HEROKU_APP_NAME: ** set me to the name of your CI app at heroku **
+      #     HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      #   run: |
+      #     echo "${{ secrets.HEROKU_API_KEY }}" | docker login registry.heroku.com -u _ --password-stdin
+      #     docker tag ${{ env.DOCKER_REPO }}/${{ env.APP_NAME }}:${{ env.COMMIT_HASH }} registry.heroku.com/${{ env.CI_HEROKU_APP_NAME }}/web:latest
+      #     docker push registry.heroku.com/${{ env.CI_HEROKU_APP_NAME }}/web:latest
+      #     heroku container:release web --app ${{ env.CI_HEROKU_APP_NAME }}
