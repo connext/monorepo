@@ -3,7 +3,7 @@ set -eo pipefail
 IFS=$'\n\t'
 
 # This script is called from the GitHub action defined in build-docker-image.yml.
-# It expects the working directory to be the repo root and 
+# It expects the working directory to be the repo root and
 # uses the following environment variables:
 # DOCKER_REPO - if not present, the image will be built, but not pushed.
 # APP_NAME - *required*, name as in package.json.
@@ -44,7 +44,7 @@ export TEMP_DEPS_DIR="./_tmp/deps"
 # while maintaining directory structure.
 # We do this so we can take advantage of Docker caching.
 rm -rf ${TEMP_DEPS_DIR}
-find "./packages" -name "package.json" -maxdepth 2 | \
+find "./packages" -maxdepth 2 -name "package.json" | \
   sed "s|/package.json||g" | \
   xargs -I % bash -c "mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/"
 
