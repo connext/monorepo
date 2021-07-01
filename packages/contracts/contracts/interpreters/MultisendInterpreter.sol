@@ -6,6 +6,13 @@ import "../lib/LibAsset.sol";
 import "../lib/LibERC20.sol";
 import "@gnosis.pm/safe-contracts/contracts/libraries/MultiSendCallOnly.sol";
 
+/// @title MultisendInterpreter
+/// @author Connext <support@connext.network>
+/// @notice This contract uses the @gnosis.pm MultiSendCallOnly helper function
+///         to safely execute any calldata included in crosschain transfers.
+/// @dev Should always be handled with a try-catch in nxtp to prevent funds
+///      funds from being indefinitely locked.
+
 contract MultisendInterpreter is IMultisendInterpreter {
   /// @dev Address of the deployed multisending helper contract
   address public immutable multisend;

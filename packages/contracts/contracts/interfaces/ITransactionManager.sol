@@ -3,6 +3,10 @@ pragma solidity 0.8.4;
 
 interface ITransactionManager {
   // Structs
+
+  // Holds all data that is constant between sending and
+  // receiving chains. The hash of this is what gets signed
+  // to ensure the signature can be used on both chains.
   struct InvariantTransactionData {
     address user;
     address router;
@@ -15,6 +19,9 @@ interface ITransactionManager {
     bytes32 transactionId;
   }
 
+  // Holds all data that varies between sending and receiving
+  // chains. The hash of this is stored onchain to ensure the
+  // information passed in is valid.
   struct VariantTransactionData {
     uint256 amount;
     uint256 expiry;
@@ -34,15 +41,17 @@ interface ITransactionManager {
     uint256 receivingChainId;
     uint256 amount;
     uint256 expiry;
-    uint256 preparedBlockNumber; // Needed for removal on fulfill/cancel
+    uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
   }
 
+  // The structure of the signed data for cancellations
   struct SignedCancelData {
     bytes32 invariantDigest;
     uint256 relayerFee;
-    string cancel;
+    string cancel; // just the string "cancel"
   }
 
+  // The structure of the signed data for cancellations
   struct SignedFulfillData {
     bytes32 invariantDigest;
     uint256 relayerFee;
@@ -54,14 +63,11 @@ interface ITransactionManager {
   event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
 
   // Transaction events
-  // TODO: structure
   event TransactionPrepared(TransactionData txData, address caller, bytes encodedBid, bytes bidSignature);
 
   event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
 
   event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
-
-  // Getters
 
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;
@@ -72,7 +78,12 @@ interface ITransactionManager {
     address payable recipient
   ) external;
 
-  // Transaction methods
+  // Methods for crosschain transfers
+  // called in the following order (in happy case)
+  // 1. prepare by user on sending chain
+  // 2. prepare by router on receiving chain
+  // 3. fulfill by user on receiving chain
+  // 4. fulfill by router on sending chain
   function prepare(
     InvariantTransactionData calldata txData,
     uint256 amount,

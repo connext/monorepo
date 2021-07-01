@@ -6,7 +6,7 @@ pragma solidity 0.8.4;
 /// @notice Contains a helper to revert if a call was not successfully
 ///         made
 library LibUtils {
-    // If success is false, reverts and passes on the revert string.
+    /// @notice If success is false, reverts and passes on the revert string.
     function revertIfCallFailed(bool success, bytes memory returnData)
         internal
         pure

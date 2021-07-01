@@ -19,8 +19,11 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 //   relayer? would that break bidding?
 
 
+/// @title TransactionManager
+/// @author Connext <support@connext.network>
 /// @notice This contract holds the logic to facilitate crosschain transactions.
 ///         TODO: better overview here
+
 contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
