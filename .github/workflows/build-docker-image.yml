@@ -62,7 +62,9 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           file: ./docker/Dockerfile
           target: build
-          build-args: TEMP_DEPS_DIR=/tmp/.buildx-cache,APP_NAME=${APP_NAME}
+          build-args: |
+            "TEMP_DEPS_DIR=/tmp/.buildx-cache"
+            "APP_NAME=${APP_NAME}"
           push: true
           pull: true
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -75,7 +77,9 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           file: ./docker/Dockerfile
           target: runtime
-          build-args: COMMIT_HASH=${COMMIT_HASH},SHORT_APP_DIR=/router
+          build-args: |
+            "COMMIT_HASH=${COMMIT_HASH}"
+            "SHORT_APP_DIR=/router"
           push: true
           pull: true
           tags: ghcr.io/connext/nxtp-router:latest,ghcr.io/connext/nxtp-router:${COMMIT_HASH}
