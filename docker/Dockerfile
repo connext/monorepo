@@ -46,23 +46,23 @@ RUN yarn dlx -p @jtbennett/ts-project-scripts tsp bundle $APP_NAME --out-dir /tm
 # Copy files to the deployment image.
 # ----------------------------------------
 
-FROM node
+FROM node as runtime
 
-ENV NODE_ENV=production
-ENV PORT=8001
-EXPOSE 8001
-
-# This user is created in the base image with uid and gid = 1000.
-USER node
-
-# ----- Copy files required at runtime by the app -----
-# COPY --from=build --chown=1000:1000 /tmp/build/node_modules /home/node/node_modules/
-COPY --from=build --chown=1000:1000 /tmp/bundle /home/node
+ENV NODE_ENV=production \
+    PORT=8001
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
+# ----- Copy files required at runtime by the app -----
+COPY --from=build --chown=node:node /tmp/bundle /home/node
+
+# This user is created in the base image with uid and gid = 1000.
+USER node
+
 ARG SHORT_APP_DIR
 WORKDIR /home/node/${SHORT_APP_DIR}
+
+EXPOSE 8001
 
 CMD ["node", "dist/index.js"]
