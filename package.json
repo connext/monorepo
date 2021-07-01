@@ -16,13 +16,18 @@
     "typescript": "^4.3.4"
   },
   "workspaces": [
-    "packages/*"
+    "packages/contracts",
+    "packages/router",
+    "packages/sdk",
+    "packages/test-ui",
+    "packages/txservice",
+    "packages/utils"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run test",
-    "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
+    "lint:all": "yarn workspaces foreach run lint",
+    "test:all": "yarn workspaces foreach run test",
+    "clean:all": "yarn workspaces foreach run clean",
+    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
