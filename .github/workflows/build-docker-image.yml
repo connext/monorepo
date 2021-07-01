@@ -35,60 +35,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up docker buildx
-        uses: docker/setup-buildx-action@master
-        with:
-          install: true
-          buildkitd-flags: --debug
-
-      - name: Cache docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Add COMMIT_HASH env property with commit short sha
         run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
-      - name: Login to Github docker registry
+      - name: Build and push docker image to GitHub repo
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          chmod +x ./docker/build.sh
+          ./docker/build.sh
 
-      - name: Build and push docker image to GitHub registry
-        uses: docker/build-push-action@v2
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          file: ./docker/Dockerfile
-          target: build
-          build-args: |
-            "TEMP_DEPS_DIR=/tmp/.buildx-cache"
-            "APP_NAME=${APP_NAME}"
-          push: true
-          pull: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
-          tags: ghcr.io/connext/nxtp-router-build:latest
-
-      - name: Build and push docker image to GitHub registry
-        uses: docker/build-push-action@v2
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          file: ./docker/Dockerfile
-          target: runtime
-          build-args: |
-            "COMMIT_HASH=${COMMIT_HASH}"
-            "SHORT_APP_DIR=/router"
-          push: true
-          pull: true
-          tags: ghcr.io/connext/nxtp-router:latest,ghcr.io/connext/nxtp-router:${COMMIT_HASH}
-
-      # - name: Build and push docker image to GitHub repo
-      #   run: |
-      #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      #     chmod +x ./docker/build.sh
-      #     ./docker/build.sh
       # -------------------------------------------------------------------------
       # EXAMPLE: DEPLOYING THE DOCKER IMAGE TO HEROKU
       # -------------------------------------------------------------------------
