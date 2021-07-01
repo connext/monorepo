@@ -96,9 +96,8 @@ if [ -n "$DOCKER_REPO" ]; then
 fi
 
 # Get tag if available
-FULL_TAG=$(git tag --contains $COMMIT_HASH | grep $APP_NAME | tail -n1)
+FULL_TAG=$(git tag --contains $COMMIT_HASH | tail -n1)
 echo "Full tag: $FULL_TAG"
-SHORT_TAG=$(echo $FULL_TAG | sed s/".*\@"//)
 
 # Build the app image.
 echo "====="
@@ -111,7 +110,7 @@ if [ -n "$FULL_TAG" ]; then
     --cache-from "${BUILD_IMAGE}":latest \
     --tag "${APP_IMAGE}":latest \
     --tag "${APP_IMAGE}":"${COMMIT_HASH}" \
-    --tag "${APP_IMAGE}":"${SHORT_TAG}" \
+    --tag "${APP_IMAGE}":"${FULL_TAG}" \
     --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
     --build-arg APP_NAME="${APP_FULL_NAME}" \
     --build-arg APP_DIR="${APP_DIR}" \
@@ -147,7 +146,7 @@ if [ -n "$DOCKER_REPO" ]; then
   if [ -n "$FULL_TAG" ]; then
     docker push "${APP_IMAGE}":latest
     docker push "${APP_IMAGE}":"${COMMIT_HASH}"
-    docker push "${APP_IMAGE}":"${SHORT_TAG}"
+    docker push "${APP_IMAGE}":"${FULL_TAG}"
   else
     docker push "${APP_IMAGE}":latest
     docker push "${APP_IMAGE}":"${COMMIT_HASH}"
