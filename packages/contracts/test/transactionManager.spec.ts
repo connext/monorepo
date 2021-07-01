@@ -353,6 +353,7 @@ describe("TransactionManager", function() {
     record: VariantTransactionData,
     canceller: Wallet,
     instance: Contract,
+    relayerFee: BigNumber = constants.Zero,
   ): Promise<void> => {
     const sendingSideCancel = (await instance.chainId()).toNumber() === transaction.sendingChainId;
 
@@ -361,8 +362,10 @@ describe("TransactionManager", function() {
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
     const expectedBalance = startingBalance.add(record.amount);
 
-    const signature = await signCancelTransactionPayload(transaction, user);
-    const tx = await transactionManagerReceiverSide.connect(canceller).cancel({ ...transaction, ...record }, signature);
+    const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
+    const tx = await transactionManagerReceiverSide
+      .connect(canceller)
+      .cancel({ ...transaction, ...record }, relayerFee, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
       txData: { ...transaction, ...record },

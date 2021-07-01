@@ -25,14 +25,22 @@ export const recoverFulfilledTransactionPayload = (
   return verifyMessage(arrayify(hashed), signature);
 };
 
-export const signCancelTransactionPayload = async (data: InvariantTransactionData, signer: Signer): Promise<string> => {
-  const payload = encodeCancelData(data);
+export const signCancelTransactionPayload = async (
+  data: InvariantTransactionData,
+  relayerFee: string,
+  signer: Signer,
+): Promise<string> => {
+  const payload = encodeCancelData(data, relayerFee);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return signer.signMessage(arrayify(hashed));
 };
 
-export const recoverCancelTransactionPayload = (data: InvariantTransactionData, signature: string): string => {
-  const payload = encodeCancelData(data);
+export const recoverCancelTransactionPayload = (
+  data: InvariantTransactionData,
+  relayerFee: string,
+  signature: string,
+): string => {
+  const payload = encodeCancelData(data, relayerFee);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return verifyMessage(arrayify(hashed), signature);
 };

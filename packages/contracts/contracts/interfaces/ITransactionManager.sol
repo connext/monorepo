@@ -39,6 +39,7 @@ interface ITransactionManager {
 
   struct SignedCancelData {
     bytes32 invariantDigest;
+    uint256 relayerFee;
     string cancel;
   }
 
@@ -58,7 +59,7 @@ interface ITransactionManager {
 
   event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
 
-  event TransactionCancelled(TransactionData txData, address caller);
+  event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
 
   // Getters
 
@@ -86,5 +87,5 @@ interface ITransactionManager {
     bytes calldata signature
   ) external returns (TransactionData memory);
 
-  function cancel(TransactionData calldata txData, bytes calldata signature) external returns (TransactionData memory);
+  function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);
 }
