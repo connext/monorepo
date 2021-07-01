@@ -23,8 +23,12 @@ import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
 
+const advanceBlockTime = async (desiredTimestamp: number) => {
+  await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
+};
+
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function () {
+describe("TransactionManager", function() {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -50,7 +54,7 @@ describe("TransactionManager", function () {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "10000";
@@ -103,7 +107,7 @@ describe("TransactionManager", function () {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map((k) => {
+    keys.map(k => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -115,7 +119,7 @@ describe("TransactionManager", function () {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -764,23 +768,24 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: INVALID_VARIANT_DATA");
     });
 
-    it.only("should revert if expiry of transaction is behind current blockstamp", async () => {
-      const hours12 = 12 * 60 * 60;
-      const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
+    it("should revert if expiry of transaction is behind current blockstamp", async () => {
       const { transaction, record } = await getTransactionData();
 
       const relayerFee = "10";
 
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-      const invariantDigest = await getInvariantTransactionDigest(transaction);
-      const variantDigestBeforeFulfill = await getVariantTransactionDigest({
+      const invariantDigest = getInvariantTransactionDigest(transaction);
+      const variant = {
         amount: record.amount,
         expiry: record.expiry,
         preparedBlockNumber: blockNumber,
-      });
+      };
+      const variantDigestBeforeFulfill = getVariantTransactionDigest(variant);
 
       expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(variantDigestBeforeFulfill);
+
+      await advanceBlockTime(+record.expiry + 1_000);
 
       const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
 
@@ -788,9 +793,7 @@ describe("TransactionManager", function () {
         transactionManager.connect(router).fulfill(
           {
             ...transaction,
-            amount: record.amount,
-            expiry: expiry,
-            preparedBlockNumber: blockNumber,
+            ...variant,
           },
           relayerFee,
           signature,
