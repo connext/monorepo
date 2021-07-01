@@ -312,8 +312,13 @@ describe("TransactionManager", function () {
     const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
 
     const invariantDigest = await getInvariantTransactionDigest(transaction);
+    const variantDigestBeforeFulfill = await getVariantTransactionDigest({
+      amount: record.amount,
+      expiry: record.expiry,
+      preparedBlockNumber: record.preparedBlockNumber,
+    });
 
-    expect(await instance.variantTransactionData(invariantDigest)).to.be.not.eq(utils.formatBytes32String(""));
+    expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigestBeforeFulfill);
     // Send tx
     const tx = await instance.connect(submitter).fulfill(
       {
@@ -738,10 +743,60 @@ describe("TransactionManager", function () {
   });
 
   describe("#fulfill", () => {
-    // TODO: revert and emit event test cases
-    // reentrant cases
-    it.skip("should revert if transactionStatus for respective digest isn't pending", async () => {});
-    it.skip("should revert if expiry of transaction is behind current blockstamp", async () => {});
+    // TODO: reentrant cases
+    it("should revert if transactionStatus for respective digest isn't pending", async () => {
+      const { transaction, record } = await getTransactionData();
+      const relayerFee = "10";
+
+      const invariantDigest = await getInvariantTransactionDigest(transaction);
+      expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(utils.formatBytes32String(""));
+
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      await expect(
+        transactionManager.connect(router).fulfill(
+          {
+            ...transaction,
+            ...record,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: INVALID_VARIANT_DATA");
+    });
+
+    it.only("should revert if expiry of transaction is behind current blockstamp", async () => {
+      const hours12 = 12 * 60 * 60;
+      const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
+      const { transaction, record } = await getTransactionData();
+
+      const relayerFee = "10";
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      const invariantDigest = await getInvariantTransactionDigest(transaction);
+      const variantDigestBeforeFulfill = await getVariantTransactionDigest({
+        amount: record.amount,
+        expiry: record.expiry,
+        preparedBlockNumber: blockNumber,
+      });
+
+      expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(variantDigestBeforeFulfill);
+
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+
+      await expect(
+        transactionManager.connect(router).fulfill(
+          {
+            ...transaction,
+            amount: record.amount,
+            expiry: expiry,
+            preparedBlockNumber: blockNumber,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: EXPIRED");
+    });
     it.skip("should revert if param user didn't sign the signature", async () => {});
     it.skip("should revert if relayer fee is higher than amount", async () => {});
 
