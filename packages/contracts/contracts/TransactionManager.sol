@@ -86,7 +86,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     address payable recipient
   ) external override nonReentrant {
     // Sanity check: nonzero amounts
-    require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
+    require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
 
     // Sanity check: amount can be deducted for the router
     require(routerBalances[msg.sender][assetId] >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
@@ -104,7 +104,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @notice This function creates a crosschain transaction. When called on
   ///         the sending chain, the user is expected to lock up funds. When
   ///         called on the receiving chain, the router deducts the transfer
-  ///         amount from the available liquidity. The majorify of the
+  ///         amount from the available liquidity. The majority of the
   ///         information about a given transfer does not change between chains,
   ///         with three notable exceptions: `amount`, `expiry`, and 
   ///         `preparedBlock`. The `amount` and `expiry` are decremented
@@ -115,8 +115,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param invariantData The data for a crosschain transaction that will
   ///                      not change between sending and receiving chains.
   ///                      The hash of this data is used as the key to store 
-  ///                      the data does change between chains (amount, expiry,
-  ///                      preparedBlock) for verification
+  ///                      the inforamtion that does change between chains 
+  ///                      (amount, expiry,preparedBlock) for verification
   /// @param amount The amount of the transaction on this chain
   /// @param expiry The block.timestamp when the transaction will no longer be
   ///               fulfillable and is freely cancellable on this chain
