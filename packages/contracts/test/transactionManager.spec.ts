@@ -6,6 +6,8 @@ import {
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
   VariantTransactionData,
+  getInvariantTransactionDigest,
+  getVariantTransactionDigest,
 } from "@connext/nxtp-utils";
 use(solidity);
 
@@ -22,7 +24,7 @@ import { getOnchainBalance } from "./utils";
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function() {
+describe("TransactionManager", function () {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -48,7 +50,7 @@ describe("TransactionManager", function() {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "10000";
@@ -101,7 +103,7 @@ describe("TransactionManager", function() {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map(k => {
+    keys.map((k) => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -113,7 +115,7 @@ describe("TransactionManager", function() {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -235,6 +237,19 @@ describe("TransactionManager", function() {
     const receipt = await prepareTx.wait();
     expect(receipt.status).to.be.eq(1);
 
+    const invariantDigest = await getInvariantTransactionDigest(transaction);
+    const variantDigest = await getVariantTransactionDigest({
+      amount: record.amount,
+      expiry: record.expiry,
+      preparedBlockNumber: receipt.blockNumber,
+    });
+
+    expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
+    // expect(await instance.activeTransactionBlocks(preparer.address));
+
+    const activeBlock = await instance.activeTransactionBlocks(transaction.user, 0);
+
+    console.log(activeBlock);
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
       txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
@@ -306,6 +321,14 @@ describe("TransactionManager", function() {
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
 
+    const invariantDigest = await getInvariantTransactionDigest(transaction);
+    const variantDigest = await getVariantTransactionDigest({
+      amount: record.amount,
+      expiry: record.expiry,
+      preparedBlockNumber: 0,
+    });
+
+    expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
     // Assert event
     await assertReceiptEvent(receipt, "TransactionFulfilled", {
       txData: { ...transaction, ...record },
