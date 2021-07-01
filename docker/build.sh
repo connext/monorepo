@@ -48,15 +48,6 @@ find "./packages" -maxdepth 2 -name "package.json" | \
   sed "s|/package.json||g" | \
   xargs -I % bash -c "mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/"
 
-# # Pull the latest build stage image, if it exists.
-# echo "====="
-# echo "= Pull the latest build stage image"
-# echo "====="
-# if [ -n "$DOCKER_REPO" ]; then
-#   docker pull "${BUILD_IMAGE}":latest || \
-#     echo "No existing image found for ${BUILD_IMAGE}:latest"
-# fi
-
 # Build the build stage image.
 echo "====="
 echo "= Build the build stage image and push to registry"
@@ -75,20 +66,10 @@ docker build \
   --push \
   .
 
-
 echo "====="
 echo "= Check images list"
 echo "====="
 docker image ls
-
-# # Pull the latest app image, if it exists.
-# echo "====="
-# echo "= Pull the latest app image"
-# echo "====="
-# if [ -n "$DOCKER_REPO" ]; then
-#   docker pull "${APP_IMAGE}":latest || \
-#     echo "No existing image found for ${APP_IMAGE}:latest"
-# fi
 
 # Build the app image.
 echo "====="
