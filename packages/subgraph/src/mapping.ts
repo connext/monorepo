@@ -75,7 +75,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.sendingChainId = event.params.txData.sendingChainId;
   transaction.receivingChainId = event.params.txData.receivingChainId;
   transaction.receivingAddress = event.params.txData.receivingAddress;
-  transaction.callData = event.params.txData.callData;
+  transaction.callData = event.params.txData.callData.toHexString();
   transaction.transactionId = event.params.txData.transactionId;
   transaction.expiry = event.params.txData.expiry;
   transaction.blockNumber = event.params.txData.blockNumber;
