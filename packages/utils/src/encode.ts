@@ -1,6 +1,6 @@
 import { utils } from "ethers";
 
-import { InvariantTransactionData } from "./basic";
+import { InvariantTransactionData, VariantTransactionData } from "./basic";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
@@ -14,6 +14,12 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   uint24 receivingChainId,
   bytes callData,
   bytes32 transactionId
+)`);
+
+export const VariantTransactionDataEncoding = tidy(`tuple(
+  uint256 amount,
+  uint256 expiry,
+  uint256 preparedBlockNumber
 )`);
 
 export const FulfillEncoding = tidy(`tuple(
@@ -31,17 +37,22 @@ export const encodeTxData = (txDataParams: InvariantTransactionData): string => 
   return utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
 
-export const getTransactionDigest = (txDataParams: InvariantTransactionData): string => {
+export const getInvariantTransactionDigest = (txDataParams: InvariantTransactionData): string => {
   const digest = utils.keccak256(utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]));
   return digest;
 };
 
+export const getVariantTransactionDigest = (txDataParams: VariantTransactionData): string => {
+  const digest = utils.keccak256(utils.defaultAbiCoder.encode([VariantTransactionDataEncoding], [txDataParams]));
+  return digest;
+};
+
 export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
-  const digest = getTransactionDigest(txDataParams);
+  const digest = getInvariantTransactionDigest(txDataParams);
   return utils.defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee }]);
 };
 
 export const encodeCancelData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
-  const digest = getTransactionDigest(txDataParams);
+  const digest = getInvariantTransactionDigest(txDataParams);
   return utils.defaultAbiCoder.encode([CancelEncoding], [{ txDigest: digest, cancel: "cancel", relayerFee }]);
 };
