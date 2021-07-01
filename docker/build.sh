@@ -49,12 +49,18 @@ find "./packages" -maxdepth 2 -name "package.json" | \
   xargs -I % bash -c "mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/"
 
 # Pull the latest build stage image, if it exists.
+echo "====="
+echo "= Pull the latest build stage image"
+echo "====="
 if [ -n "$DOCKER_REPO" ]; then
   docker pull "${BUILD_IMAGE}":latest || \
     echo "No existing image found for ${BUILD_IMAGE}:latest"
 fi
 
 # Build the build stage image.
+echo "====="
+echo "= Build the build stage image"
+echo "====="
 docker build \
   --target build \
   --cache-from "${BUILD_IMAGE}":latest \
@@ -69,17 +75,26 @@ docker build \
 
 docker image ls
 # Push the build stage image to the working repo.
+echo "====="
+echo "= Push the build stage image"
+echo "====="
 if [ -n "$DOCKER_REPO" ]; then
   docker push "${BUILD_IMAGE}":latest
 fi
 
 # Pull the latest app image, if it exists.
+echo "====="
+echo "= Pull the latest app image"
+echo "====="
 if [ -n "$DOCKER_REPO" ]; then
   docker pull "${APP_IMAGE}":latest || \
     echo "No existing image found for ${APP_IMAGE}:latest"
 fi
 
 # Build the app image.
+echo "====="
+echo "= Build the app image"
+echo "====="
 docker build \
   --cache-from "${APP_IMAGE}":latest \
   --cache-from "${BUILD_IMAGE}":latest \
@@ -94,6 +109,10 @@ docker build \
   .
 
 # Push the app image to the working repo.
+echo "====="
+echo "= Push the app image"
+echo "====="
 if [ -n "$DOCKER_REPO" ]; then
   docker push "${APP_IMAGE}":latest
+  docker push "${APP_IMAGE}":"${COMMIT_HASH}"
 fi
