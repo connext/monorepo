@@ -16,6 +16,9 @@ on:
   pull_request:
     branches:
       - main
+  create:
+      tag:
+        - "v*"
 
 env:
   # These variables are used by build.sh.
