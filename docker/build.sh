@@ -73,7 +73,12 @@ docker build \
   --file ./docker/Dockerfile \
   .
 
+
+echo "====="
+echo "= Check images list"
+echo "====="
 docker image ls
+
 # Push the build stage image to the working repo.
 echo "====="
 echo "= Push the build stage image"
@@ -106,7 +111,13 @@ docker build \
   --build-arg COMMIT_HASH="${COMMIT_HASH}" \
   --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
   --file ./docker/Dockerfile \
+  --push \
   .
+
+echo "====="
+echo "= Check images list"
+echo "====="
+docker image ls
 
 # Push the app image to the working repo.
 echo "====="
