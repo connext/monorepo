@@ -7,7 +7,7 @@
 # The image will be built on each push to or pull request on main.
 # It will be pushed to the current GitHub repo's Packages.
 
-name: Build Docker Image
+name: Build Docker Image - Router
 
 on:
   push:
@@ -21,10 +21,11 @@ env:
   # These variables are used by build.sh.
 
   # Value should be the name from package.json of the app.
-  APP_NAME: "@foo/bar"
+  APP_NAME: "@connext/nxtp-router"
+  APP_DIR: "packages/router"
 
   # Comment out the following line to skip pushing the image to your GitHub repo.
-  DOCKER_REPO: docker.pkg.github.com/${{ github.owner }}/${{ github.repo }}
+  DOCKER_REPO: ghcr.io
   COMMIT_HASH: $(git rev-parse --short=7 ${{ github.sha }})
 
 jobs:
@@ -49,7 +50,7 @@ jobs:
 
       - name: Build and push docker image to GitHub repo
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           chmod +x ./docker/build.sh
           ./docker/build.sh
       # -------------------------------------------------------------------------
