@@ -311,6 +311,9 @@ describe("TransactionManager", function () {
     // Generate signature from user
     const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
 
+    const invariantDigest = await getInvariantTransactionDigest(transaction);
+
+    expect(await instance.variantTransactionData(invariantDigest)).to.be.not.eq(utils.formatBytes32String(""));
     // Send tx
     const tx = await instance.connect(submitter).fulfill(
       {
@@ -323,7 +326,6 @@ describe("TransactionManager", function () {
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
 
-    const invariantDigest = await getInvariantTransactionDigest(transaction);
     const variantDigest = await getVariantTransactionDigest({
       amount: record.amount,
       expiry: record.expiry,
