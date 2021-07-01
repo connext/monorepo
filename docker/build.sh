@@ -34,7 +34,7 @@ if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
   APP_IMAGE="$APP_NAME"
 else
-  APP_IMAGE="$DOCKER_REPO/$APP_NAME"
+  APP_IMAGE="$DOCKER_REPO/connext/$APP_NAME"
 fi
 
 BUILD_IMAGE=$APP_IMAGE-build

@@ -7,7 +7,7 @@
 # The image will be built on each push to or pull request on main.
 # It will be pushed to the current GitHub repo's Packages.
 
-name: Build Docker Image - Router
+name: Build and Push Docker Image - Router
 
 on:
   push:
