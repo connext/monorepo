@@ -140,26 +140,11 @@ export class Handler implements Handler {
     const methodId = v4();
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
-    if (inboundData.status !== TransactionStatus.Prepared) {
-      this.logger.error({ method, methodId, status: inboundData.status }, "Receiver tx cannot be prepared");
-      return;
-    }
-
     // TODO: where should sender cancellation be handled / evaluated?
+    // RS: sender cannot cancel the tx, only the receiver (router) can
+
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
-
-    // Make sure we didnt *already* prepare receiver tx
-    // NOTE: if subgraph is out of date here, worst case is that the tx is
-    // reverted. this is fine.
-    const receiverTransaction = await this.subgraph.getReceiverTransaction(
-      inboundData.transactionId,
-      inboundData.receivingChainId,
-    );
-    if (receiverTransaction) {
-      this.logger.info({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
-      return;
-    }
 
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
@@ -205,6 +190,7 @@ export class Handler implements Handler {
     }
     // If success, update metrics
   }
+  // if the prepare tx fails, cancel the sender
 
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
