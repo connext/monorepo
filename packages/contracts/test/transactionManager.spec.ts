@@ -419,23 +419,6 @@ describe("TransactionManager", function () {
     it.skip("should return null if router address for respective address doesn't have funds", async () => {});
   });
 
-  describe("#activeTransactionBlocks", () => {
-    // TODO: revert and emit event test cases
-    it.skip("should return activeTransactionBlocks if user creates prepare", async () => {});
-  });
-
-  describe("#transactionStatus", () => {
-    it.skip("should return status empty", async () => {});
-    it.skip("should return status pending", async () => {});
-    it.skip("should return status completed", async () => {});
-  });
-
-  describe("#transactionStatus", () => {
-    it.skip("should return status empty", async () => {});
-    it.skip("should return status pending", async () => {});
-    it.skip("should return status completed", async () => {});
-  });
-
   describe("#addLiquidity", () => {
     // TODO: reentrant cases
     it("should error if value is not present for Ether/Native token", async () => {
@@ -626,13 +609,59 @@ describe("TransactionManager", function () {
         transactionManager.connect(user).prepare(transaction, record.amount, record.expiry, "0x", "0x"),
       ).to.be.revertedWith("prepare: VALUE_MISMATCH");
     });
-    it.skip("should revert if value is not equal to amount param for Ether/Native token", async () => {});
-    it.skip("should revert if value is non-zero for ERC20 token", async () => {});
-    it.skip("should revert if transaction manager isn't approve for respective amount", async () => {});
 
-    it.skip("should revert iff senderChainId not equal to chainId and sender is diff from router", async () => {});
-    it.skip("should revert iff senderChainId not equal to chainId and router liquidity is lower than amount", async () => {});
-    it.skip("should revert iff senderChainId not equal to chainId and msg.value is non-zero", async () => {});
+    it("should revert if value is not equal to amount param for Ether/Native token", async () => {
+      const { transaction, record } = await getTransactionData();
+      const falseAmount = "20";
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, "0x", "0x", { value: falseAmount }),
+      ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+    });
+
+    it("should revert if value is non-zero for ERC20 token", async () => {
+      const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, "0x", "0x", { value: record.amount }),
+      ).to.be.revertedWith("prepare: ETH_WITH_ERC_TRANSFER");
+    });
+    it("should revert if transaction manager isn't approve for respective amount", async () => {
+      const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+
+      await expect(
+        transactionManager.connect(user).prepare(transaction, record.amount, record.expiry, "0x", "0x"),
+      ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+    });
+
+    it("should revert iff senderChainId not equal to chainId and sender is diff from router", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      await expect(
+        transactionManagerReceiverSide.connect(user).prepare(transaction, record.amount, record.expiry, "0x", "0x"),
+      ).to.be.revertedWith("prepare: ROUTER_MISMATCH");
+    });
+
+    it("should revert iff senderChainId not equal to chainId and msg.value is non-zero", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      await expect(
+        transactionManagerReceiverSide
+          .connect(router)
+          .prepare(transaction, record.amount, record.expiry, "0x", "0x", { value: record.amount }),
+      ).to.be.revertedWith("prepare: ETH_WITH_ROUTER_PREPARE");
+    });
+
+    it("should revert iff senderChainId not equal to chainId and router liquidity is lower than amount", async () => {
+      const { transaction, record } = await getTransactionData({}, { amount: "1000000" });
+
+      await expect(
+        transactionManagerReceiverSide.connect(router).prepare(transaction, record.amount, record.expiry, "0x", "0x"),
+      ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
+    });
 
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
