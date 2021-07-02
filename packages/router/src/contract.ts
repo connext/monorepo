@@ -158,18 +158,23 @@ export class TransactionManager {
     }
   }
 
-  getLiquidity(chainId: number, assetId: string): Promise<string> {
+
+  async getLiquidity(chainId: number, assetId: string): Promise<any> {
     const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [
       this.signerAddress,
       assetId,
     ]);
-    const liquidity = this.txService.readTx(chainId, {
+    const liquidity = await this.txService.readTx(chainId, {
       chainId: chainId,
       to: this.config.chainConfig[chainId].transactionManagerAddress,
       value: 0,
       data: getLiquidityData,
     });
-    return liquidity;
+    //decode hex data
+    const liquidityHex = this.txManagerInterface.decodeFunctionResult("routerBalances", liquidity);
+
+    console.log(`Liquidity Hex::Contract ${liquidityHex[0]}`);
+    return liquidityHex[0];
   }
 
   async addLiquidity(
