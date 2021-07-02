@@ -3,7 +3,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
-import { InvariantTransactionData, calculateExchangeAmount, jsonifyError, FulfillParams } from "@connext/nxtp-utils";
+import { calculateExchangeAmount, jsonifyError, FulfillParams, TransactionData } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
@@ -119,11 +119,7 @@ export class TransactionManager {
     }
   }
 
-  async cancel(
-    chainId: number,
-    txData: InvariantTransactionData,
-    signature: string,
-  ): Promise<providers.TransactionReceipt> {
+  async cancel(chainId: number, txData: TransactionData, signature: string): Promise<providers.TransactionReceipt> {
     const method = "Contract::cancel";
     const methodId = v4();
     this.logger.info({ method, methodId, txData }, "Method start");
@@ -139,9 +135,9 @@ export class TransactionManager {
         callData: txData.callData,
         transactionId: txData.transactionId,
         // TODO: @marcus
-        amount: "0",
-        expiry: "0",
-        blockNumber: "0",
+        amount: txData.amount,
+        expiry: txData.expiry,
+        blockNumber: txData.blockNumber,
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,
       },
