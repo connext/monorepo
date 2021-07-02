@@ -3,12 +3,12 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
-import { InvariantTransactionData, calculateExchangeAmount, jsonifyError } from "@connext/nxtp-utils";
+import { InvariantTransactionData, calculateExchangeAmount, jsonifyError, FulfillParams } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { ReceiverFulfillData, SenderFulfillData, SenderPrepareData } from "./transactionManagerListener";
+import { SenderPrepareData } from "./transactionManagerListener";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -90,40 +90,20 @@ export class TransactionManager {
     }
   }
 
-  async fulfill(
-    receiverTxData: ReceiverFulfillData,
-    senderTxData: SenderFulfillData,
-  ): Promise<providers.TransactionReceipt> {
+  async fulfill(chainId: number, fulfillData: FulfillParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
     const methodId = v4();
-    this.logger.info({ method, methodId, receiverTxData }, "Method start");
+    this.logger.info({ method, methodId, fulfillData }, "Method start");
 
-    const relayerFee = BigNumber.from(receiverTxData.relayerFee);
-    //will sig always be included (even on sender side)?
-    const sig = receiverTxData.signature;
-    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [
-      {
-        user: receiverTxData.user,
-        router: receiverTxData.router,
-        sendingAssetId: receiverTxData.sendingAssetId,
-        receivingAssetId: receiverTxData.receivingAssetId,
-        receivingAddress: receiverTxData.receivingAddress,
-        callData: receiverTxData.callData,
-        transactionId: receiverTxData.transactionId,
-        amount: senderTxData.amount,
-        expiry: senderTxData.expiry,
-        blockNumber: senderTxData.blockNumber,
-        sendingChainId: receiverTxData.sendingChainId,
-        receivingChainId: receiverTxData.receivingChainId,
-      },
-      relayerFee,
-      sig,
-    ]);
+    const relayerFee = BigNumber.from(fulfillData.relayerFee);
+    // will sig always be included (even on sender side)? RS: yes
+    const sig = fulfillData.signature;
+    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [fulfillData.txData, relayerFee, sig]);
     try {
-      const txRes = await this.txService.sendAndConfirmTx(receiverTxData.sendingChainId, {
-        chainId: receiverTxData.sendingChainId,
+      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+        chainId,
         data: fulfilData,
-        to: this.config.chainConfig[receiverTxData.sendingChainId].transactionManagerAddress,
+        to: this.config.chainConfig[chainId].transactionManagerAddress,
         value: 0,
         from: this.signerAddress,
       });
@@ -131,7 +111,7 @@ export class TransactionManager {
     } catch (e) {
       // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
       this.logger.error(
-        { methodId, method, transactionId: receiverTxData.transactionId, error: jsonifyError(e) },
+        { methodId, method, transactionId: fulfillData.txData.transactionId, error: jsonifyError(e) },
         "Error sending sender fulfill tx",
       );
       // TODO discuss this case!!

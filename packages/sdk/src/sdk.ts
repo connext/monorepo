@@ -2,21 +2,25 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { providers, Signer } from "ethers";
 import { Evt } from "evt";
-import { getRandomBytes32, TIntegerString, TAddress, UserNxtpNatsMessagingService } from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
-import { Type, Static } from "@sinclair/typebox";
-
-import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
-import { PrepareParams } from "./types";
 import {
+  getRandomBytes32,
+  TIntegerString,
+  TAddress,
+  UserNxtpNatsMessagingService,
+  PrepareParams,
   TransactionCancelledEvent,
   TransactionFulfilledEvent,
   TransactionManagerEvent,
   TransactionManagerEventPayloads,
   TransactionManagerEvents,
-  TransactionManagerListener,
   TransactionPreparedEvent,
-} from "./utils";
+} from "@connext/nxtp-utils";
+import { BaseLogger } from "pino";
+import { Type, Static } from "@sinclair/typebox";
+
+import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
+
+import { TransactionManagerListener } from ".";
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
@@ -160,23 +164,33 @@ export class NxtpSdk {
 
     const { sendingAssetId, receivingAssetId, receivingAddress, router, amount, expiry, callData } = transferParams;
 
+    const user = await this.signer.getAddress();
     // Prepare sender side tx
     const { chainId: sendingChainId } = await this.sendingProvider.getNetwork();
     const { chainId: receivingChainId } = await this.receivingProvider.getNetwork();
     const params: PrepareParams = {
-      signer: this.signer,
-      sendingChainId,
-      receivingChainId,
-      sendingAssetId,
-      receivingAssetId,
-      receivingAddress,
-      router,
+      bidSignature: "",
+      encodedBid: "",
+      txData: {
+        callData: callData || "0x",
+        receivingAddress,
+        receivingAssetId,
+        receivingChainId,
+        router,
+        sendingAssetId,
+        sendingChainId,
+        transactionId,
+        user,
+      },
       amount,
       expiry,
-      callData,
-      transactionId,
     };
-    const prepareReceipt = await prepare(params, this.sendingListener.getTransactionManager(), this.logger);
+    const prepareReceipt = await prepare(
+      params,
+      this.sendingListener.getTransactionManager(),
+      this.signer,
+      this.logger,
+    );
 
     // wait for completed event
     const event = await completed;
@@ -186,20 +200,21 @@ export class NxtpSdk {
   private setupListeners(): void {
     // Always broadcast signature when a receiver-side prepare event is emitted
     this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async (data) => {
-      if (data.txData.receivingChainId !== data.chainId) {
+      const { txData, encodedBid, caller, bidSignature } = data;
+      if (txData.receivingChainId !== this.receivingListener.chainId!) {
         this.logger.debug(
           {
-            transaction: data.txData.transactionId,
-            sendingChain: data.txData.sendingChainId,
-            receivingChain: data.txData.receivingChainId,
-            chainId: data.chainId,
+            transaction: txData.transactionId,
+            sendingChain: txData.sendingChainId,
+            receivingChain: txData.receivingChainId,
+            chainId: this.receivingListener.chainId!,
           },
           "Nothing to handle",
         );
         return;
       }
       // Always automatically broadcast signatures for recieving chain
-      if (this.fulfilling[data.txData.transactionId]) {
+      if (this.fulfilling[txData.transactionId]) {
         // NOTE: this is more for debugging
         // than anything, not harmful if
         // metatxs are picked up 2x (other
@@ -208,20 +223,21 @@ export class NxtpSdk {
       }
       // TODO: how to handle relayer fees here? will need before signing
       this.logger.info({ ...data }, "Handling receiver tx prepared event");
-      this.fulfilling[data.txData.transactionId] = data;
+      this.fulfilling[txData.transactionId] = data;
       await handleReceiverPrepare(
         {
-          txData: data.txData,
-          signer: this.signer,
-          receivingProvider: this.receivingProvider,
-          relayerFee: "0",
+          bidSignature,
+          caller,
+          encodedBid,
+          txData,
         },
         this.receivingListener.getTransactionManager(),
+        this.signer,
         this.messaging,
         this.logger,
       );
 
-      delete this.fulfilling[data.txData.transactionId];
+      delete this.fulfilling[txData.transactionId];
     });
 
     // Emit transaction completed event when receiver-side fulfill event is

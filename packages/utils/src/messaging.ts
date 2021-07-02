@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, Values } from "./error";
-import { TransactionData } from "./transactionManager";
+import { FulfillParams } from "./transactionManager";
 
 export { AuthService } from "ts-natsutil";
 
@@ -228,12 +228,11 @@ export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
 };
 
-export type MetaTxFulfillPayload = {
-  txData: TransactionData;
-  signature: string;
-};
+export type MetaTxFulfillPayload = FulfillParams;
 
-export type MetaTxPayload<T extends "Fulfill"> = {
+export type MetaTxTypes = "Fulfill";
+
+export type MetaTxPayload<T extends MetaTxTypes> = {
   type: T; // can expand to more types
   relayerFee: string;
   to: string;
@@ -359,7 +358,10 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
     });
   }
 
-  async publishMetaTxRequest(data: MetaTxPayload<any>, inbox?: string): Promise<{ inbox: string }> {
+  async publishMetaTxRequest<T extends MetaTxTypes>(
+    data: MetaTxPayload<T>,
+    inbox?: string,
+  ): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }
