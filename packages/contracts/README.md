@@ -2,7 +2,13 @@
 
 ## System Overview
 
+### High Level Architecture
+
 ### Flow
+
+The more detailed flow can be seen below:
+
+[flow](https://whimsical.com/contracts-flow-ByhtnAsv4EN58yWD1pJ5kd)
 
 There are two key functions in the contract, `prepare` and `fulfill`.
 
