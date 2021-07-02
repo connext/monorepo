@@ -28,7 +28,7 @@ const advanceBlockTime = async (desiredTimestamp: number) => {
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("TransactionManager", function() {
+describe("TransactionManager", function () {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
@@ -54,7 +54,7 @@ describe("TransactionManager", function() {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     const liq = "10000";
@@ -107,7 +107,7 @@ describe("TransactionManager", function() {
 
   const assertObject = (expected: any, returned: any) => {
     const keys = Object.keys(expected);
-    keys.map(k => {
+    keys.map((k) => {
       if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
         expect(typeof returned[k] === "object");
         assertObject(expected[k], returned[k]);
@@ -119,7 +119,7 @@ describe("TransactionManager", function() {
 
   const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
     expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex(e => e.event === eventName) ?? -1;
+    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
     expect(idx).to.not.be.eq(-1);
     const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
     assertObject(expected, decoded);
@@ -499,8 +499,6 @@ describe("TransactionManager", function() {
       ).to.be.revertedWith("removeLiquidity: INSUFFICIENT_FUNDS");
     });
 
-    it.skip("should error if transfer fails", async () => {});
-
     it("happy case: removeLiquidity Native/Ether token", async () => {
       const amount = "1";
       const assetId = AddressZero;
@@ -800,10 +798,112 @@ describe("TransactionManager", function() {
         ),
       ).to.be.revertedWith("fulfill: EXPIRED");
     });
-    it.skip("should revert if param user didn't sign the signature", async () => {});
-    it.skip("should revert if relayer fee is higher than amount", async () => {});
 
-    it.skip("should revert iff it's receiving chain and relayer fee is non zero and transfer failed", async () => {});
+    it("should revert if transaction is already fulfilled", async () => {
+      const { transaction, record } = await getTransactionData();
+      const relayerFee = "1";
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        false,
+        router,
+        transactionManager,
+      );
+
+      await expect(
+        transactionManager.connect(router).fulfill(
+          {
+            ...transaction,
+            amount: record.amount,
+            expiry: record.expiry,
+            preparedBlockNumber: 0,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: ALREADY_COMPLETED");
+    });
+
+    it("should revert if param user didn't sign the signature", async () => {
+      const { transaction, record } = await getTransactionData();
+      const relayerFee = "10";
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      const variant = {
+        amount: record.amount,
+        expiry: record.expiry,
+        preparedBlockNumber: blockNumber,
+      };
+
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, router);
+
+      await expect(
+        transactionManager.connect(router).fulfill(
+          {
+            ...transaction,
+            ...variant,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: INVALID_SIGNATURE");
+    });
+
+    it("should revert if relayer fee is higher than amount", async () => {
+      const { transaction, record } = await getTransactionData();
+      const relayerFee = "10";
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      const variant = {
+        amount: record.amount,
+        expiry: record.expiry,
+        preparedBlockNumber: blockNumber,
+      };
+
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+
+      await expect(
+        transactionManager.connect(router).fulfill(
+          {
+            ...transaction,
+            ...variant,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: INVALID_RELAYER_FEE");
+    });
+
+    it("should revert iff it's sending chain and interacting party is not router", async () => {
+      const { transaction, record } = await getTransactionData();
+      const relayerFee = "1";
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      const variant = {
+        amount: record.amount,
+        expiry: record.expiry,
+        preparedBlockNumber: blockNumber,
+      };
+
+      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+
+      await expect(
+        transactionManager.connect(user).fulfill(
+          {
+            ...transaction,
+            ...variant,
+          },
+          relayerFee,
+          signature,
+        ),
+      ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
+    });
+
     it.skip("should revert iff it's receiving chain and calldata is non zero bytes and transfer failed", async () => {});
     it.skip("should revert iff it's receiving chain and calldata is zero bytes and MultisendInterpreter failed", async () => {});
     it.skip("should revert iff it's receiving chain and calldata is zero bytes and Interpreter isn't approved for respective amount when asset ERC20", async () => {});
