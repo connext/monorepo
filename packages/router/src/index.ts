@@ -32,7 +32,7 @@ const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.addres
 const txService = new TransactionService(logger, wallet, providers);
 const transactionManager = new TransactionManager(txService, wallet.address, logger);
 
-const handler = new Handler(messaging, subgraph, wallet, txService, logger, transactionManager);
+const handler = new Handler(messaging, subgraph, transactionManager, logger);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,

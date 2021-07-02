@@ -1,8 +1,6 @@
 import { RouterNxtpNatsMessagingService, MetaTxPayload, MetaTxFulfillPayload, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { TransactionService } from "@connext/nxtp-txservice";
 
 import { TransactionManager } from "./contract";
 import {
@@ -66,15 +64,10 @@ export class Handler implements Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: SubgraphTransactionManagerListener,
-    private readonly signer: Signer,
-    private readonly txService: TransactionService,
-    private readonly logger: BaseLogger,
     private readonly txManager: TransactionManager,
+    private readonly logger: BaseLogger,
   ) {
     // log to get rid of unused build errors
-    console.log(typeof this.messagingService);
-    console.log(typeof this.subgraph);
-    console.log(typeof this.signer);
   }
 
   // HandleNewAuction
