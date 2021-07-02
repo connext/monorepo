@@ -895,9 +895,8 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
     });
 
-    it.skip("should revert iff it's receiving chain and calldata is non zero bytes and transfer failed", async () => {});
-    it.skip("should revert iff it's receiving chain and calldata is zero bytes and MultisendInterpreter failed", async () => {});
-    it.skip("should revert iff it's receiving chain and calldata is zero bytes and Interpreter isn't approved for respective amount when asset ERC20", async () => {});
+    it.skip("should revert iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter failed", async () => {});
+    it.skip("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter success", async () => {});
 
     it("happy case: router fulfills in native asset", async () => {
       const prepareAmount = "100";
