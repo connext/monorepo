@@ -28,7 +28,7 @@ type Transaction @entity {
   sendingChainId: BigInt!
   receivingChainId: BigInt!
   receivingAddress: Bytes!
-  callData: Bytes!
+  callData: String! # store as string because of Bytes bug https://github.com/graphprotocol/graph-node/issues/2287
   transactionId: Bytes!
   expiry: BigInt!
   status: TransactionStatus!

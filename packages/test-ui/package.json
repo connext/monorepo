@@ -20,7 +20,7 @@
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --passWithNoTests",
+    "test": "react-scripts test --passWithNoTests --watchAll=false",
     "eject": "react-scripts eject",
     "dev": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "lint": "eslint ./src --ext .ts,.tsx --env browser",

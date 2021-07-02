@@ -2,6 +2,7 @@ import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import { InvariantTransactionData } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { v4 } from "uuid";
 
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
@@ -62,7 +63,16 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
 
   // handler methods need to listen to the subgraph and call handler on any new results that come in
   // we will need to keep track of which txs we have already handled and only call handlers on new results
+
+  /**
+   * onSenderPrepare
+   * @param handler
+   *
+   * Queries subgraph to get prepared txs which have not been handled on the receiver side.
+   */
   async onSenderPrepare(handler: (data: SenderPrepareData) => Promise<void>): Promise<void> {
+    const method = "onSenderPrepare";
+    const methodId = v4();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
@@ -72,8 +82,23 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           sendingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.transactions, chainId }, "Queried senderPrepare transactions");
-        query.transactions.forEach((transaction) => {
+        this.logger.info(
+          { method, methodId, transactions: query.transactions, chainId },
+          "Queried senderPrepare transactions",
+        );
+        query.transactions.forEach(async (transaction) => {
+          // Make sure we didnt *already* prepare receiver tx
+          // NOTE: if subgraph is out of date here, worst case is that the tx is
+          // reverted. this is fine.
+          const receiverTransaction = await this.getReceiverTransaction(
+            transaction.transactionId,
+            transaction.receivingChainId,
+          );
+          if (receiverTransaction) {
+            this.logger.info({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
+            return;
+          }
+
           const data: SenderPrepareData = {
             status: transaction.status,
             amount: transaction.amount,
