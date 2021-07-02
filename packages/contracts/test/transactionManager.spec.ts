@@ -253,9 +253,9 @@ describe("TransactionManager", function () {
     expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
     // expect(await instance.activeTransactionBlocks(preparer.address));
 
-    const activeBlock = await instance.activeTransactionBlocks(transaction.user, 0);
+    // const activeBlock = await instance.activeTransactionBlocks(transaction.user, 0);
 
-    console.log(activeBlock);
+    // console.log(activeBlock);
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
       txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
@@ -399,9 +399,7 @@ describe("TransactionManager", function () {
     const expectedBalance = startingBalance.add(record.amount);
 
     const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
-    const tx = await transactionManagerReceiverSide
-      .connect(canceller)
-      .cancel({ ...transaction, ...record }, relayerFee, signature);
+    const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
       txData: { ...transaction, ...record },
@@ -1030,7 +1028,145 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe.only("#cancel", () => {
+  describe("#cancel", () => {
+    it("should error if invalid txData", async () => {
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+      const relayerFee = constants.Zero;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
+      await expect(
+        transactionManagerReceiverSide
+          .connect(user)
+          .cancel(
+            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 },
+            relayerFee,
+            signature,
+          ),
+      ).to.be.revertedWith("cancel: INVALID_VARIANT_DATA");
+    });
+
+    it("should error if transaction is already fulfilled/cancelled", async () => {
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+      const relayerFee = constants.Zero;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee.toString(),
+        true,
+        user,
+        transactionManagerReceiverSide,
+      );
+
+      const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
+      await expect(
+        transactionManagerReceiverSide
+          .connect(user)
+          .cancel(
+            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 },
+            relayerFee,
+            signature,
+          ),
+      ).to.be.revertedWith("cancel: ALREADY_COMPLETED");
+    });
+
+    it("should error iff it's sendingChainId and expiry didn't pass yet & cancellation initiator isn't router", async () => {
+      const relayerFee = constants.Zero;
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
+      await expect(
+        transactionManager
+          .connect(receiver)
+          .cancel(
+            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
+            relayerFee,
+            signature,
+          ),
+      ).to.be.revertedWith("cancel: ROUTER_MUST_CANCEL");
+    });
+
+    it("should error iff it's sendingChainId & expiry is pass & relayer fee is provided & signature is invalid", async () => {
+      const relayerFee = BigNumber.from(1);
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      await advanceBlockTime(+record.expiry + 1_000);
+      const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), receiver);
+      await expect(
+        transactionManager
+          .connect(receiver)
+          .cancel(
+            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
+            relayerFee,
+            signature,
+          ),
+      ).to.be.revertedWith("cancel: INVALID_SIGNATURE");
+    });
+
+    it("should error iff it's receivingChainId & within expiry & signature is invalid", async () => {
+      const relayerFee = BigNumber.from(1);
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), receiver);
+      await expect(
+        transactionManagerReceiverSide
+          .connect(receiver)
+          .cancel(
+            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
+            relayerFee,
+            signature,
+          ),
+      ).to.be.revertedWith("cancel: INVALID_SIGNATURE");
+    });
+
     it("happy case: user cancels ETH before expiry", async () => {
       const prepareAmount = "10";
       const assetId = AddressZero;
@@ -1076,8 +1212,6 @@ describe("TransactionManager", function () {
     });
 
     it("happy case: router cancels ETH before expiry", async () => {
-      // const ms = Date.now() - 10_000;
-      // const expiry = Math.floor(ms / 100);
       const prepareAmount = "10";
 
       const { transaction, record } = await getTransactionData(
@@ -1100,10 +1234,109 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: router cancels ERC20 before expiry", async () => {});
-    it.skip("happy case: user cancels ETH after expiry", async () => {});
-    it.skip("happy case: user cancels ERC20 after expiry", async () => {});
-    it.skip("happy case: router cancels ETH after expiry", async () => {});
-    it.skip("happy case: router cancels ERC20 after expiry", async () => {});
+    it("happy case: router cancels ERC20 before expiry", async () => {
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: tokenA.address,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      await approveTokens(prepareAmount, user, transactionManager.address, tokenA);
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      await cancelAndAssert(transaction, { ...record, preparedBlockNumber: blockNumber }, router, transactionManager);
+    });
+
+    it("happy case: user cancels ETH after expiry", async () => {
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      await advanceBlockTime(+record.expiry + 1_000);
+
+      await cancelAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        user,
+        transactionManagerReceiverSide,
+      );
+    });
+
+    it("happy case: user cancels ERC20 after expiry", async () => {
+      const prepareAmount = "10";
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, tokenB.address, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: tokenA.address,
+          receivingAssetId: tokenB.address,
+        },
+        { amount: prepareAmount },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      await advanceBlockTime(+record.expiry + 1_000);
+      await cancelAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        user,
+        transactionManagerReceiverSide,
+      );
+    });
+
+    it("happy case: router cancels ETH after expiry", async () => {
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      await advanceBlockTime(+record.expiry + 1_000);
+      await cancelAndAssert(transaction, { ...record, preparedBlockNumber: blockNumber }, router, transactionManager);
+    });
+
+    it("happy case: router cancels ERC20 after expiry", async () => {
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: tokenA.address,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      await approveTokens(prepareAmount, user, transactionManager.address, tokenA);
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      await advanceBlockTime(+record.expiry + 1_000);
+      await cancelAndAssert(transaction, { ...record, preparedBlockNumber: blockNumber }, router, transactionManager);
+    });
   });
 });
