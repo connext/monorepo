@@ -2,7 +2,7 @@ import { Contract, providers } from "ethers";
 
 import artifact from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-describe("Sample", function () {
+describe.skip("Sample Script", function () {
   const BscUSDC = "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d";
 
   const rpcUrl = "https://bsc-dataseed.binance.org";
