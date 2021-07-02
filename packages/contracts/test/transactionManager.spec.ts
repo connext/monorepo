@@ -82,8 +82,8 @@ describe("TransactionManager", function () {
       receivingAddress: receiver.address,
       callData: "0x",
       transactionId: hexlify(randomBytes(32)),
-      sendingChainId: 1337,
-      receivingChainId: 1338,
+      sendingChainId: (await transactionManager.chainId()).toNumber(),
+      receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
       ...txOverrides,
     };
 
@@ -421,13 +421,6 @@ describe("TransactionManager", function () {
   it("constructor initialize", async () => {
     expect(await transactionManager.chainId()).to.eq(1337);
     expect(await transactionManager.iMultisend()).to.eq(AddressZero);
-  });
-
-  describe("#routerBalances", () => {
-    // TODO: revert and emit event test cases
-    it.skip("should return null if router address doesn't have funds", async () => {});
-    it.skip("should return null if router address for respective address doesn't have funds", async () => {});
-    it.skip("should return null if router address for respective address doesn't have funds", async () => {});
   });
 
   describe("#addLiquidity", () => {
@@ -1037,24 +1030,39 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("#cancel", () => {
+  describe.only("#cancel", () => {
     it("happy case: user cancels ETH before expiry", async () => {
       const prepareAmount = "10";
-      const ms = Date.now() - 10_000;
-      const expiry = Math.floor(ms / 100);
       const assetId = AddressZero;
 
       // Add receiving liquidity
       await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
+      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      await cancelAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        user, // To avoid balance checks for eth
+        transactionManagerReceiverSide,
+      );
+    });
+
+    it("happy case: user cancels ERC20 before expiry", async () => {
+      const prepareAmount = "10";
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, tokenB.address, router, transactionManagerReceiverSide);
+
       const { transaction, record } = await getTransactionData(
         {
-          sendingChainId: (await transactionManager.chainId()).toNumber(),
-          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
-          sendingAssetId: assetId,
-          receivingAssetId: assetId,
+          sendingAssetId: tokenA.address,
+          receivingAssetId: tokenB.address,
         },
-        { amount: prepareAmount, expiry: expiry.toString() },
+        { amount: prepareAmount },
       );
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
@@ -1062,13 +1070,36 @@ describe("TransactionManager", function () {
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
-        receiver, // To avoid balance checks for eth
+        user, // To avoid balance checks for eth
         transactionManagerReceiverSide,
       );
     });
 
-    it.skip("happy case: user cancels ERC20 before expiry", async () => {});
-    it.skip("happy case: router cancels ETH before expiry", async () => {});
+    it("happy case: router cancels ETH before expiry", async () => {
+      // const ms = Date.now() - 10_000;
+      // const expiry = Math.floor(ms / 100);
+      const prepareAmount = "10";
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: tokenB.address,
+        },
+        {
+          amount: prepareAmount,
+        },
+      );
+
+      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+      await cancelAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        router, // To avoid balance checks for eth
+        transactionManager,
+      );
+    });
+
     it.skip("happy case: router cancels ERC20 before expiry", async () => {});
     it.skip("happy case: user cancels ETH after expiry", async () => {});
     it.skip("happy case: user cancels ERC20 after expiry", async () => {});
