@@ -297,7 +297,16 @@ describe("TransactionManager", function () {
       : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
 
     // Generate signature from user
-    const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+    const signature = await signFulfillTransactionPayload(
+      {
+        ...transaction,
+        amount: record.amount,
+        expiry: record.expiry,
+        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+      },
+      relayerFee,
+      user,
+    );
 
     // Send tx
     const tx = await instance
@@ -365,7 +374,15 @@ describe("TransactionManager", function () {
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
     const expectedBalance = startingBalance.add(record.amount);
 
-    const signature = await signCancelTransactionPayload(transaction, user);
+    const signature = await signCancelTransactionPayload(
+      {
+        ...transaction,
+        amount: record.amount,
+        expiry: record.expiry,
+        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+      },
+      user,
+    );
     const tx = await transactionManagerReceiverSide
       .connect(canceller)
       .cancel(
