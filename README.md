@@ -4,7 +4,7 @@
 
 **Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (i.e. it does **not** rely on any external validator set).
 
-The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transctions.
+The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transactions.
 
 ## Transaction Lifecycle
 
