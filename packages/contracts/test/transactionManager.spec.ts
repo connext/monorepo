@@ -81,6 +81,7 @@ describe("TransactionManager", function () {
       router: router.address,
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
+      sendingChainFallback: user.address,
       receivingAddress: receiver.address,
       callDataHash: EmptyCallDataHash,
       transactionId: hexlify(randomBytes(32)),

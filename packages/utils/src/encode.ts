@@ -9,6 +9,7 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   address router,
   address sendingAssetId,
   address receivingAssetId,
+  address sendingChainFallback,
   address receivingAddress,
   uint24 sendingChainId,
   uint24 receivingChainId,

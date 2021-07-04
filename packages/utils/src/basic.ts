@@ -22,6 +22,7 @@ export type InvariantTransactionData = {
   router: string;
   sendingAssetId: string;
   receivingAssetId: string;
+  sendingChainFallback: string;
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;

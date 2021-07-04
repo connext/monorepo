@@ -266,6 +266,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       router: invariantData.router,
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
+      sendingChainFallback: invariantData.sendingChainFallback,
       receivingAddress: invariantData.receivingAddress,
       callDataHash: invariantData.callDataHash,
       transactionId: invariantData.transactionId,
@@ -462,9 +463,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // fulfill-able window
         require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
 
-        // Return totality of locked funds to user
+        // Return totality of locked funds to provided fallbacl
         require(
-          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), txData.amount),
+          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount),
           "cancel: TRANSFER_FAILED"
         );
       } else {
@@ -482,9 +483,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Get the amount to refund the user
         uint256 toRefund = txData.amount - relayerFee;
 
-        // Return locked funds to user
+        // Return locked funds to sending chain fallback
         require(
-          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.user), toRefund),
+          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund),
           "cancel: TRANSFER_FAILED"
         );
       }
@@ -590,6 +591,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       router: txData.router,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
+      sendingChainFallback: txData.sendingChainFallback,
       receivingAddress: txData.receivingAddress,
       sendingChainId: txData.sendingChainId,
       receivingChainId: txData.receivingChainId,
