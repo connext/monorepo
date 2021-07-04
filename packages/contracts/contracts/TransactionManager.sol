@@ -153,6 +153,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param amount The amount of the transaction on this chain
   /// @param expiry The block.timestamp when the transaction will no longer be
   ///               fulfillable and is freely cancellable on this chain
+  /// @param encryptedCallData The calldata to be executed when the tx is
+  ///                          fulfilled. Used in the function to allow the user
+  ///                          to reconstruct the tx from events. Hash is stored
+  ///                          onchain to prevent shenanigans.
   /// @param encodedBid The encoded bid that was accepted by the user for this
   ///                   crosschain transfer. It is supplied as a param to the
   ///                   function but is only used in event emission
@@ -164,6 +168,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     InvariantTransactionData calldata invariantData,
     uint256 amount,
     uint256 expiry,
+    bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
   ) external payable override nonReentrant returns (TransactionData memory) {
@@ -262,7 +267,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
       receivingAddress: invariantData.receivingAddress,
-      callData: invariantData.callData,
+      callDataHash: invariantData.callDataHash,
       transactionId: invariantData.transactionId,
       sendingChainId: invariantData.sendingChainId,
       receivingChainId: invariantData.receivingChainId,
@@ -270,7 +275,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       expiry: expiry,
       preparedBlockNumber: block.number
     });
-    emit TransactionPrepared(txData, msg.sender, encodedBid, bidSignature);
+    emit TransactionPrepared(txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
     return txData;
   }
 
@@ -296,7 +301,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   function fulfill(
     TransactionData calldata txData,
     uint256 relayerFee,
-    bytes calldata signature // signature on fee + digest
+    bytes calldata signature, // signature on fee + digest
+    bytes calldata callData
   ) external override nonReentrant returns (TransactionData memory) {
     // Get the hash of the invariant tx data. This hash is the same
     // between sending and receiving chains. The variant data is stored
@@ -317,6 +323,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Sanity check: fee < amount
     require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
+
+    // Check provided callData matches stored hash
+    require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -360,7 +369,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       }
 
       // Handle receiver chain external calls if needed
-      if (keccak256(txData.callData) == keccak256(new bytes(0))) {
+      if (txData.callDataHash == keccak256(new bytes(0))) {
         // No external calls, send directly to receiving address
         require(
           LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
@@ -374,7 +383,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
           MultisendInterpreter(iMultisend).execute{value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
             txData.receivingAssetId,
             toSend,
-            txData.callData
+            callData
           )
         {} catch {
           // Regardless of error within the callData execution, send funds
@@ -584,7 +593,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       receivingAddress: txData.receivingAddress,
       sendingChainId: txData.sendingChainId,
       receivingChainId: txData.receivingChainId,
-      callData: txData.callData,
+      callDataHash: txData.callDataHash,
       transactionId: txData.transactionId
     });
     return keccak256(abi.encode(invariant));

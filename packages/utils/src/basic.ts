@@ -25,7 +25,7 @@ export type InvariantTransactionData = {
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;
-  callData: string;
+  callDataHash: string;
   transactionId: string;
 };
 

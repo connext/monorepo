@@ -15,7 +15,7 @@ interface ITransactionManager {
     address receivingAddress;
     uint256 sendingChainId;
     uint256 receivingChainId;
-    bytes callData;
+    bytes32 callDataHash;
     bytes32 transactionId;
   }
 
@@ -35,7 +35,7 @@ interface ITransactionManager {
     address sendingAssetId;
     address receivingAssetId;
     address receivingAddress;
-    bytes callData;
+    bytes32 callDataHash; // hashed to prevent free option
     bytes32 transactionId;
     uint256 sendingChainId;
     uint256 receivingChainId;
@@ -63,7 +63,7 @@ interface ITransactionManager {
   event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
 
   // Transaction events
-  event TransactionPrepared(TransactionData txData, address caller, bytes encodedBid, bytes bidSignature);
+  event TransactionPrepared(TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
 
   event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
 
@@ -88,6 +88,7 @@ interface ITransactionManager {
     InvariantTransactionData calldata txData,
     uint256 amount,
     uint256 expiry,
+    bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
   ) external payable returns (TransactionData memory);
@@ -95,7 +96,8 @@ interface ITransactionManager {
   function fulfill(
     TransactionData calldata txData,
     uint256 relayerFee,
-    bytes calldata signature
+    bytes calldata signature,
+    bytes calldata callData
   ) external returns (TransactionData memory);
 
   function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);

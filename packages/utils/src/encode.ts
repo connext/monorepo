@@ -12,7 +12,7 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   address receivingAddress,
   uint24 sendingChainId,
   uint24 receivingChainId,
-  bytes callData,
+  bytes32 callDataHash,
   bytes32 transactionId
 )`);
 
