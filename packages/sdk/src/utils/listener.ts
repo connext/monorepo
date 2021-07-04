@@ -78,7 +78,7 @@ export class TransactionManagerListener {
         receivingChainId: txData.receivingChainId.toNumber(),
         callData: txData.callData,
         transactionId: txData.transactionId,
-        blockNumber: txData.blockNumber.toNumber(),
+        preparedBlockNumber: txData.blockNumber.toNumber(),
         amount: txData.amount.toString(),
         expiry: txData.expiry.toString(),
       };
@@ -128,7 +128,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attach(...args);
   }
 
@@ -138,7 +138,7 @@ export class TransactionManagerListener {
     filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter(x => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attachOnce(...args);
   }
 
@@ -147,7 +147,7 @@ export class TransactionManagerListener {
       this.evts[event].detach();
       return;
     }
-    Object.values(this.evts).forEach(evt => evt.detach());
+    Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
   public waitFor<T extends TransactionManagerEvent>(

@@ -112,7 +112,7 @@ export class TransactionManager {
         transactionId: receiverTxData.transactionId,
         amount: senderTxData.amount,
         expiry: senderTxData.expiry,
-        blockNumber: senderTxData.blockNumber,
+        preparedBlockNumber: senderTxData.blockNumber,
         sendingChainId: receiverTxData.sendingChainId,
         receivingChainId: receiverTxData.receivingChainId,
       },
@@ -149,6 +149,7 @@ export class TransactionManager {
     this.logger.info({ method, methodId, txData }, "Method start");
     // encode and call tx service
 
+    const relayerFee = BigNumber.from(0);
     const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [
       {
         user: txData.user,
@@ -161,10 +162,11 @@ export class TransactionManager {
         // TODO: @marcus
         amount: "0",
         expiry: "0",
-        blockNumber: "0",
+        preparedBlockNumber: "0",
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,
       },
+      relayerFee,
       signature,
     ]);
 
@@ -182,7 +184,7 @@ export class TransactionManager {
     }
   }
 
-  getLiquidity(chainId: number, assetId: string): Promise<string> {
+  async getLiquidity(chainId: number, assetId: string): Promise<string> {
     const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [
       this.signerAddress,
       assetId,

@@ -4,14 +4,14 @@
 
 ### Updating the Subgraph
 
-If contract changes have been made, first update the requisite `abi` in the `abis` directory. You can pull the correct `abi` from the `modules/contracts/artifacts/**.json` files, using only the `abi` field.
+If contract changes have been made, first update the requisite `abi` in the `abis` directory. You can pull the correct `abi` from the `packages/contracts/artifacts/**.json` files, using only the `abi` field.
 
 #### Contract Event changes
 
-When changes have been made to the `TransactionManager.sol` events, first update the [sugraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running:
+When changes have been made to the `TransactionManager.sol` events, first update the [sugraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running the following from the root directory:
 
 ```sh
-yarn prepare:local
+yarn workspace @connext/nxtp-contracts prepare:local
 ```
 
 which will ensure a `subgraph.yaml` gets generated from the template.
@@ -19,13 +19,13 @@ which will ensure a `subgraph.yaml` gets generated from the template.
 Then, regenerate the typings by running:
 
 ```sh
-yarn codegen
+yarn workspace @connext/nxtp-contracts codegen
 ```
 
 From there, you can update the `mapping.ts` as needed to conform to the new event structures. Once the `mapping.ts` is updated, run:
 
 ```sh
-yarn build
+yarn workspace @connext/nxtp-contracts build
 ```
 
 #### Subgraph Schema Changes
@@ -33,13 +33,13 @@ yarn build
 If you would like to change the schema of the subgraph, make the requisite changes in the `schema.graphql` and regenerate the typings by running:
 
 ```sh
-yarn codegen
+yarn workspace @connext/nxtp-contracts codegen
 ```
 
 Then, update the `mapping.ts` as needed to properly account for the schema changes and run:
 
 ```sh
-yarn build
+yarn workspace @connext/nxtp-contracts build
 ```
 
 ### Deploying Subgraph
@@ -49,12 +49,12 @@ Before deploying a subgraph, update the `.json` files for the supported chains i
 - `address` to be the deployed `TransactionManager.sol` address
 - `startBlock` to match the block the deploy transaction was mined
 
-You can find the correct values in the `modules/contracts/deployments` directory for each supported chain.
+You can find the correct values in the `packages/contracts/deployments` directory for each supported chain.
 
 Then, prepare and deploy the subgraph for the appropriate chain. For example, for a rinkeby subgraph deployment, run:
 
 ```sh
-yarn prepare:rinkeby && yarn deploy:rinkeby
+yarn workspace @connext/nxtp-contracts deploy:rinkeby
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.

@@ -3,16 +3,18 @@
   "version": "0.0.4",
   "description": "",
   "scripts": {
-    "test": "npx hardhat test",
-    "build": "npx hardhat compile",
+    "test": "hardhat test",
+    "build": "hardhat compile",
     "prepublish": "yarn build",
-    "export": "npx hardhat export --export-all ./deployments.json",
+    "export": "hardhat export --export-all ./deployments.json",
     "dev": "yarn build --watch --preserveWatchOutput",
     "lint": "eslint ./src --ext .ts --env node",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts ./typechain",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "deploy": "hardhat deploy",
+    "etherscan-verify": "hardhat etherscan-verify"
   },
   "main": "dist/index.js",
   "types": "typechain/index.ts",
@@ -20,7 +22,6 @@
     "src",
     "typechain",
     "artifacts",
-    "deployments",
     "deployments.json"
   ],
   "author": "Connext",

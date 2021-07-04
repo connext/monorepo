@@ -1,34 +1,39 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, getChainId, getUnnamedAccounts } = hre;
-  const { deploy } = deployments;
-
-  const chainId = await getChainId();
+const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
+  const chainId = await hre.getChainId();
 
   let deployer;
-  ({ deployer } = await getNamedAccounts());
+  ({ deployer } = await hre.getNamedAccounts());
   if (!deployer) {
-    [deployer] = await getUnnamedAccounts();
+    [deployer] = await hre.getUnnamedAccounts();
   }
   console.log("deployer: ", deployer);
 
-  const multisend = await deploy("MultiSendCallOnly", {
+  const multisend = await hre.deployments.deploy("MultiSendCallOnly", {
     from: deployer,
     log: true,
   });
 
-  const interpreter = await deploy("MultisendInterpreter", {
+  const interpreter = await hre.deployments.deploy("MultisendInterpreter", {
     from: deployer,
     args: [multisend.address],
     log: true,
   });
 
-  await deploy("TransactionManager", {
+  await hre.deployments.deploy("TransactionManager", {
     from: deployer,
     args: [interpreter.address, chainId],
     log: true,
   });
+
+  if (chainId !== "1") {
+    console.log("Deploying test token on non-mainnet chain");
+    await hre.deployments.deploy("TestERC20", {
+      from: deployer,
+      log: true,
+    });
+  }
 };
 export default func;
