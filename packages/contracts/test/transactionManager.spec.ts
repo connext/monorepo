@@ -625,25 +625,8 @@ describe("TransactionManager", function () {
 
     it("should revert if digest already exist", async () => {
       const { transaction, record } = await getTransactionData();
-      const invariantDigest = getInvariantTransactionDigest(transaction);
 
-      expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(utils.formatBytes32String(""));
-      // Send tx
-      const prepareTx = await transactionManager
-        .connect(user)
-        .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-          value: record.amount,
-        });
-      const receipt = await prepareTx.wait();
-      expect(receipt.status).to.be.eq(1);
-
-      const variantDigest = getVariantTransactionDigest({
-        amount: record.amount,
-        expiry: record.expiry,
-        preparedBlockNumber: receipt.blockNumber,
-      });
-
-      expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
+      await prepareAndAssert(transaction, record, user, transactionManager);
 
       await expect(
         transactionManager
