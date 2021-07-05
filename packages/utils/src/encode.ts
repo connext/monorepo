@@ -24,12 +24,12 @@ export const VariantTransactionDataEncoding = tidy(`tuple(
 )`);
 
 export const FulfillEncoding = tidy(`tuple(
-  bytes32 txDigest,
+  bytes32 transactionId,
   uint256 relayerFee
 )`);
 
 export const CancelEncoding = tidy(`tuple(
-  bytes32 txDigest,
+  bytes32 transactionId,
   uint256 relayerFee,
   string cancel
 )`);
@@ -48,12 +48,10 @@ export const getVariantTransactionDigest = (txDataParams: VariantTransactionData
   return digest;
 };
 
-export const encodeFulfillData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
-  const digest = getInvariantTransactionDigest(txDataParams);
-  return utils.defaultAbiCoder.encode([FulfillEncoding], [{ txDigest: digest, relayerFee }]);
+export const encodeFulfillData = (transactionId: string, relayerFee: string): string => {
+  return utils.defaultAbiCoder.encode([FulfillEncoding], [{ transactionId, relayerFee }]);
 };
 
-export const encodeCancelData = (txDataParams: InvariantTransactionData, relayerFee: string): string => {
-  const digest = getInvariantTransactionDigest(txDataParams);
-  return utils.defaultAbiCoder.encode([CancelEncoding], [{ txDigest: digest, cancel: "cancel", relayerFee }]);
+export const encodeCancelData = (transactionId: string, relayerFee: string): string => {
+  return utils.defaultAbiCoder.encode([CancelEncoding], [{ transactionId, cancel: "cancel", relayerFee }]);
 };
