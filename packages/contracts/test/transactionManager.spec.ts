@@ -1,5 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
+import pino from "pino";
 import { solidity } from "ethereum-waffle";
 import {
   InvariantTransactionData,
@@ -20,6 +21,8 @@ import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
+import { TransactionService } from "@connext/nxtp-txservice";
+import { TransactionRequest } from "@ethersproject/providers";
 
 const { AddressZero, HashZero } = constants;
 const EmptyBytes = "0x";
@@ -138,6 +141,27 @@ describe("TransactionManager", function () {
     const routerAddr = router.address;
     const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
     const expectedBalance = startingBalance.sub(amount);
+
+    const encodedBalances = transactionManager.interface.encodeFunctionData("routerBalances", [
+      await instance.signer.getAddress(),
+      assetId,
+    ]);
+
+    const txn: TransactionRequest = {
+      chainId: 4,
+      to: transactionManager.address,
+      data: encodedBalances,
+      from: await instance.signer.getAddress(),
+      value: 0,
+    };
+
+    const test_call = await instance.signer.call(txn);
+
+    const decodeBalances = transactionManager.interface.decodeFunctionResult("routerBalances", test_call);
+
+    console.log(`DECODED READ RESULT: ${decodeBalances}`);
+
+    console.log(`READ RESULT: ${test_call}`);
 
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
@@ -317,7 +341,16 @@ describe("TransactionManager", function () {
       : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
 
     // Generate signature from user
-    const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+    const signature = await signFulfillTransactionPayload(
+      {
+        ...transaction,
+        amount: record.amount,
+        expiry: record.expiry,
+        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+      },
+      relayerFee,
+      user,
+    );
 
     const invariantDigest = getInvariantTransactionDigest(transaction);
     const variantDigestBeforeFulfill = getVariantTransactionDigest({

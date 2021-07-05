@@ -1,26 +1,28 @@
-import { BigNumber, constants, Contract, providers, Wallet, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
 import { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
-  getRandomBytes32,
   InvariantTransactionData,
   isValidBytes32,
+  mkAddress,
+  mkBytes32,
+  PrepareParams,
   recoverFulfilledTransactionPayload,
+  TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import pino from "pino";
 
-import { prepare, PrepareParams } from "../src";
-import { TransactionPreparedEvent } from "../src/utils";
+import { prepare } from "../src";
 
 const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
   const transaction = {
-    user: Wallet.createRandom().address,
-    router: Wallet.createRandom().address,
-    sendingAssetId: constants.AddressZero,
-    receivingAssetId: constants.AddressZero,
-    receivingAddress: Wallet.createRandom().address,
+    user: mkAddress("0xa"),
+    router: mkAddress("0xb"),
+    sendingAssetId: mkAddress("0xc"),
+    receivingAssetId: mkAddress("0xd"),
+    receivingAddress: mkAddress("0xe"),
     callData: "0x",
-    transactionId: hexlify(randomBytes(32)),
+    transactionId: mkBytes32("0xa"),
     sendingChainId: 1337,
     receivingChainId: 31337,
     ...txOverrides,
@@ -51,18 +53,22 @@ describe("prepare", () => {
   });
 
   const setupMocks = (overrides: Partial<PrepareParams> = {}): PrepareParams => {
-    const params = {
-      sendingProvider,
-      amount: "100000",
+    const params: PrepareParams = {
+      bidSignature: "0x",
+      encodedBid: "0x",
       expiry: (Date.now() + 10_000).toString(),
-      sendingAssetId: Wallet.createRandom().address,
-      receivingAssetId: Wallet.createRandom().address,
-      receivingAddress: Wallet.createRandom().address,
-      sendingChainId: 31337,
-      receivingChainId: 1337,
-      router: Wallet.createRandom().address,
-      transactionId: getRandomBytes32(),
-      signer: user,
+      amount: "100000",
+      txData: {
+        user: mkAddress("0xa"),
+        router: mkAddress("0xb"),
+        sendingAssetId: mkAddress("0xc"),
+        receivingAssetId: mkAddress("0xd"),
+        receivingAddress: mkAddress("0xe"),
+        callData: "0x",
+        transactionId: mkBytes32("0xa"),
+        sendingChainId: 1337,
+        receivingChainId: 31337,
+      },
       ...overrides,
     };
 
@@ -75,26 +81,26 @@ describe("prepare", () => {
     });
     transactionManager.connect.returns({ prepare: prepareStub } as any);
     sendingProvider.getSigner.returns(user as any);
-    sendingProvider.getNetwork.resolves({ name: "test", chainId: params.sendingChainId });
+    sendingProvider.getNetwork.resolves({ name: "test", chainId: params.txData.sendingChainId });
     return params;
   };
 
   it("should properly call prepare", async () => {
     const params = setupMocks();
 
-    const result = await prepare(params, transactionManager as unknown as Contract, logger);
+    const result = await prepare(params, transactionManager as unknown as Contract, user, logger);
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
     const [txData, amount, expiry, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
     expect(txData).to.deep.contain({
-      user: user.address,
-      router: utils.getAddress(params.router),
-      sendingAssetId: utils.getAddress(params.sendingAssetId),
-      receivingAssetId: utils.getAddress(params.receivingAssetId),
-      receivingAddress: utils.getAddress(params.receivingAddress),
-      callData: params.callData ?? "0x",
-      sendingChainId: params.sendingChainId,
-      receivingChainId: params.receivingChainId,
+      user: params.txData.user,
+      router: params.txData.router,
+      sendingAssetId: params.txData.sendingAssetId,
+      receivingAssetId: params.txData.receivingAssetId,
+      receivingAddress: params.txData.receivingAddress,
+      callData: params.txData.callData ?? "0x",
+      sendingChainId: params.txData.sendingChainId,
+      receivingChainId: params.txData.receivingChainId,
     });
     expect(isValidBytes32(txData.transactionId)).to.be.true;
     expect(amount.toString()).to.be.eq(params.amount);
@@ -102,7 +108,7 @@ describe("prepare", () => {
     expect(encodedBid).to.be.eq("0x");
     expect(bidSignature).to.be.eq("0x");
     expect(overrides).to.be.deep.eq(
-      params.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : {},
+      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : {},
     );
   });
 });
@@ -150,7 +156,6 @@ describe("handleReceiverPrepare", () => {
         encodedBid: "0x",
         bidSignature: "0x",
         caller: txData.router,
-        chainId: txData.receivingChainId,
       },
       user,
     };

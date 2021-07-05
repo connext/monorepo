@@ -1,10 +1,9 @@
-import { mkAddress, mkBytes32, NatsNxtpMessagingService } from "@connext/nxtp-utils";
+import { FulfillParams, mkAddress, mkBytes32, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
-import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import {BigNumber, constants, providers, Signer, utils} from "ethers";
+import { constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
 
@@ -96,7 +95,7 @@ describe("Handler", () => {
   const nxtpContract = new utils.Interface(TransactionManagerArtifact.abi) as TransactionManager["interface"];
 
   beforeEach(() => {
-    const messaging = createStubInstance(NatsNxtpMessagingService);
+    const messaging = createStubInstance(RouterNxtpNatsMessagingService);
 
     subgraph = createStubInstance(SubgraphTransactionManagerListener);
 
@@ -109,7 +108,7 @@ describe("Handler", () => {
     txService.sendAndConfirmTx.resolves(fakeTxReceipt);
     stub(config, "getConfig").returns(fakeConfig);
 
-    handler = new Handler(messaging, subgraph as any, signer, txService as any, logger, txManager as any);
+    handler = new Handler(messaging as any, subgraph as any, txManager as any, logger);
   });
 
   afterEach(() => {
@@ -142,9 +141,25 @@ describe("Handler", () => {
     subgraph.getSenderTransaction.resolves({ ...receiverFulfillDataMock });
     await handler.handleReceiverFulfill(receiverFulfillDataMock);
     const call = txManager.fulfill.getCall(0);
-    const [data] = call.args;
-
-    expect(data).to.deep.eq(receiverFulfillDataMock);
+    const [, data] = call.args;
+    expect(data).to.deep.eq({
+      relayerFee: receiverFulfillDataMock.relayerFee,
+      signature: receiverFulfillDataMock.signature,
+      txData: {
+        amount: receiverFulfillDataMock.amount,
+        callData: receiverFulfillDataMock.callData,
+        receivingAddress: receiverFulfillDataMock.receivingAddress,
+        receivingAssetId: receiverFulfillDataMock.receivingAssetId,
+        sendingAssetId: receiverFulfillDataMock.sendingAssetId,
+        router: receiverFulfillDataMock.router,
+        user: receiverFulfillDataMock.user,
+        expiry: receiverFulfillDataMock.expiry.toString(),
+        transactionId: receiverFulfillDataMock.transactionId,
+        blockNumber: receiverFulfillDataMock.blockNumber,
+        receivingChainId: receiverFulfillDataMock.receivingChainId,
+        sendingChainId: receiverFulfillDataMock.sendingChainId,
+      },
+    } as FulfillParams);
   });
 
   it(`should fulfill token asset`, async () => {
@@ -159,13 +174,30 @@ describe("Handler", () => {
 
     await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
     const call = txManager.fulfill.getCall(0);
-    const [data] = call.args;
+    const [, data] = call.args;
 
-    expect(data).to.deep.eq(tokenRxFulfillDataMock);
+    expect(data).to.deep.eq({
+      relayerFee: receiverFulfillDataMock.relayerFee,
+      signature: receiverFulfillDataMock.signature,
+      txData: {
+        amount: receiverFulfillDataMock.amount,
+        callData: receiverFulfillDataMock.callData,
+        receivingAddress: receiverFulfillDataMock.receivingAddress,
+        receivingAssetId: goerliTestTokenAddress,
+        sendingAssetId: rinkebyTestTokenAddress,
+        router: receiverFulfillDataMock.router,
+        user: receiverFulfillDataMock.user,
+        expiry: receiverFulfillDataMock.expiry.toString(),
+        transactionId: receiverFulfillDataMock.transactionId,
+        blockNumber: receiverFulfillDataMock.blockNumber,
+        receivingChainId: receiverFulfillDataMock.receivingChainId,
+        sendingChainId: receiverFulfillDataMock.sendingChainId,
+      },
+    } as FulfillParams);
   });
 
   it(`should get liquidity`, async () => {
-    const mockLiquidity = "169.00"
+    const mockLiquidity = "169.00";
     txManager.getLiquidity.resolves(mockLiquidity);
     await txManager.getLiquidity(4, constants.AddressZero);
     const call = txManager.getLiquidity.getCall(0);
@@ -179,6 +211,4 @@ describe("Handler", () => {
 
     console.log(call);
   });
-
-
 });

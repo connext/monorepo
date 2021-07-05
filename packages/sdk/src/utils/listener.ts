@@ -1,61 +1,34 @@
-import { TransactionData } from "@connext/nxtp-utils";
+import {
+  TransactionCancelledEvent,
+  TransactionData,
+  TransactionFulfilledEvent,
+  TransactionManagerEvent,
+  TransactionManagerEventPayloads,
+  TransactionManagerEvents,
+  TransactionPreparedEvent,
+} from "@connext/nxtp-utils";
 import { Contract, providers } from "ethers";
 import { Evt } from "evt";
 
 import { getTransactionManagerContract } from "./contract";
 // Define event types
-// TODO: liquidity events?
-export type TransactionPreparedEvent = {
-  txData: TransactionData;
-  caller: string;
-  encodedBid: string;
-  bidSignature: string;
-  chainId: number;
-};
-
-export type TransactionFulfilledEvent = {
-  txData: TransactionData;
-  signature: string;
-  relayerFee: string;
-  caller: string;
-  chainId: number;
-};
-
-export type TransactionCancelledEvent = {
-  txData: TransactionData;
-  caller: string;
-  chainId: number;
-};
-
-export const TransactionManagerEvents = {
-  TransactionPrepared: "TransactionPrepared",
-  TransactionFulfilled: "TransactionFulfilled",
-  TransactionCancelled: "TransactionCancelled",
-} as const;
-export type TransactionManagerEvent = typeof TransactionManagerEvents[keyof typeof TransactionManagerEvents];
-export interface TransactionManagerEventPayloads {
-  [TransactionManagerEvents.TransactionPrepared]: TransactionPreparedEvent;
-  [TransactionManagerEvents.TransactionFulfilled]: TransactionFulfilledEvent;
-  [TransactionManagerEvents.TransactionCancelled]: TransactionCancelledEvent;
-}
 
 export class TransactionManagerListener {
-  private readonly evts: { [K in TransactionManagerEvent]: Evt<TransactionManagerEventPayloads[K]> } = {
+  private readonly evts = {
     [TransactionManagerEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
+  public chainId?: number;
 
-  private constructor(
-    private readonly provider: providers.JsonRpcProvider,
-    private readonly transactionManager: Contract,
-  ) {}
+  private constructor(private readonly transactionManager: Contract) {}
 
   static async connect(provider: providers.JsonRpcProvider): Promise<TransactionManagerListener> {
     const { chainId } = await provider.getNetwork();
 
     const { instance } = getTransactionManagerContract(chainId, provider);
-    const listener = new TransactionManagerListener(provider, instance);
+    const listener = new TransactionManagerListener(instance);
+    listener.chainId = chainId;
     await listener.establishListeners();
     return listener;
   }
@@ -65,8 +38,6 @@ export class TransactionManagerListener {
   }
 
   private async establishListeners(): Promise<void> {
-    const { chainId } = await this.provider.getNetwork();
-
     const processTxData = (txData: any): TransactionData => {
       return {
         user: txData.user,
@@ -90,7 +61,6 @@ export class TransactionManagerListener {
         const payload: TransactionPreparedEvent = {
           caller,
           txData: processTxData(txData),
-          chainId,
           encodedBid,
           bidSignature,
         };
@@ -106,7 +76,6 @@ export class TransactionManagerListener {
           relayerFee: relayerFee.toString(),
           signature: signature,
           txData: processTxData(txData),
-          chainId,
         };
         this.evts[TransactionManagerEvents.TransactionFulfilled].post(payload);
       },
@@ -116,7 +85,6 @@ export class TransactionManagerListener {
       const payload: TransactionCancelledEvent = {
         caller,
         txData: processTxData(txData),
-        chainId,
       };
       this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
     });

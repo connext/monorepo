@@ -1,8 +1,6 @@
-import { RouterNxtpNatsMessagingService, MetaTxPayload } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, MetaTxPayload, MetaTxFulfillPayload, jsonifyError } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
-import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { TransactionService } from "@connext/nxtp-txservice";
 
 import { TransactionManager } from "./contract";
 import {
@@ -53,7 +51,7 @@ export interface TransactionDataParams {
 
 export interface Handler {
   handleNewAuction(data: AuctionData): Promise<void>;
-  handleMetaTxRequest(data: MetaTxPayload): Promise<void>;
+  handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void>;
   handleSenderPrepare(inboundData: SenderPrepareData): Promise<void>;
   handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
   handleSenderFulfill(data: SenderFulfillData): Promise<void>;
@@ -66,15 +64,10 @@ export class Handler implements Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: SubgraphTransactionManagerListener,
-    private readonly signer: Signer,
-    private readonly txService: TransactionService,
-    private readonly logger: BaseLogger,
     private readonly txManager: TransactionManager,
+    private readonly logger: BaseLogger,
   ) {
     // log to get rid of unused build errors
-    console.log(typeof this.messagingService);
-    console.log(typeof this.subgraph);
-    console.log(typeof this.signer);
   }
 
   // HandleNewAuction
@@ -103,34 +96,48 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(data: MetaTxPayload): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void> {
     // First log
     const method = "handleMetaTxRequest";
     const methodId = v4();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { relayerFee, to, data: txData, chainId, responseInbox } = data;
+    const { chainId, responseInbox } = data;
 
-    // TODO:
-    // Validate that metatx request matches with known data about fulfill
-    // Is this needed? Can we just submit to chain without validating?
-    // Technically this is ok, but perhaps we want to validate only for our own
-    // logging purposes.
-    // Would also be bad if router had no gas here
-    // Next, prepare the tx object
-    // - Get chainId from data
-    // - Get fulfill fee from data and validate it covers gas
-    // - etc.
-    // Send to txService
-    // Update metrics
+    if (data.type === "Fulfill") {
+      const fulfillData: MetaTxFulfillPayload = data.data;
+      // Validate that metatx request matches with known data about fulfill
+      // Is this needed? Can we just submit to chain without validating?
+      // Technically this is ok, but perhaps we want to validate only for our own
+      // logging purposes.
+      // Would also be bad if router had no gas here
+      // Next, prepare the tx object
+      // - Get chainId from data
+      // - Get fulfill fee from data and validate it covers gas
+      // - etc.
+      // Send to txService
+      // Update metrics
 
-    this.logger.info({ method, methodId, chainId, relayerFee, responseInbox }, "Submitting tx");
-    const tx = await this.txService.sendAndConfirmTx(chainId, { to, value: "0", data: txData, chainId });
-    this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+      // TODO: make sure fee is something we want to accept
 
-    // TODO: publish response, whats the best way to do this? need a predictable
-    // inbox for this tx only
-    await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, responseInbox);
+      this.logger.info({ method, methodId, chainId, responseInbox, data }, "Submitting tx");
+      try {
+        const tx = await this.txManager.fulfill(chainId, {
+          relayerFee: fulfillData.relayerFee,
+          signature: fulfillData.signature,
+          txData: fulfillData.txData,
+        });
+        this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+        await this.messagingService.publishMetaTxResponse(
+          { transactionHash: tx.transactionHash, chainId },
+          responseInbox,
+        );
+      } catch (e) {
+        this.logger.error({ method, methodId, e: jsonifyError(e) }, "Error relaying transaction");
+        // TODO: error response
+        await this.messagingService.publishMetaTxResponse({ transactionHash: "", chainId }, responseInbox);
+      }
+    }
   }
 
   // HandleSenderPrepare
@@ -235,7 +242,24 @@ export class Handler implements Handler {
       { method, methodId, transactionId: data.transactionId, signature: data.signature },
       "Sending sender fulfill tx",
     );
-    const txReceipt = await this.txManager.fulfill(data, senderTransaction);
+    const txReceipt = await this.txManager.fulfill(data.sendingChainId, {
+      relayerFee: data.relayerFee,
+      signature: data.signature,
+      txData: {
+        amount: data.amount,
+        blockNumber: data.blockNumber,
+        callData: data.callData,
+        user: data.user,
+        transactionId: data.transactionId,
+        sendingChainId: data.sendingChainId,
+        sendingAssetId: data.sendingAssetId,
+        router: data.router,
+        receivingChainId: data.receivingChainId,
+        receivingAssetId: data.receivingAssetId,
+        receivingAddress: data.receivingAddress,
+        expiry: data.expiry.toString(),
+      },
+    });
     if (txReceipt) {
       this.logger.info(
         {

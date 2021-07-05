@@ -1,16 +1,17 @@
-import { BigNumber, constants, Contract, providers } from "ethers";
+import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import {
   generateMessagingInbox,
   InvariantTransactionData,
   MetaTxResponse,
+  PrepareParams,
   signFulfillTransactionPayload,
+  TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 
-import { validateAndParseAddress, getRandomBytes32 } from "./utils";
-import { PrepareParams, HandleReceiverPrepareParams } from "./types";
+import { getRandomBytes32 } from "./utils";
 
 export const ajv = new Ajv();
 
@@ -26,21 +27,35 @@ export const verifyCorrectChain = async (expectedChain: number, provider: provid
 export const prepare = async (
   params: PrepareParams,
   transactionManager: Contract,
+  signer: Signer,
   logger: BaseLogger,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
   logger.info({ method, methodId, params }, "Method start");
 
-  const { signer, amount, expiry, callData, sendingChainId, receivingChainId, transactionId } = params;
-
-  const user = await signer.getAddress();
+  const {
+    amount,
+    expiry,
+    txData: {
+      callData,
+      sendingChainId,
+      receivingChainId,
+      transactionId,
+      user,
+      router,
+      sendingAssetId,
+      receivingAssetId,
+      receivingAddress,
+    },
+  } = params;
 
   // Properly checksum all addresses
-  const router = validateAndParseAddress(params.router);
-  const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
-  const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
-  const receivingAddress = validateAndParseAddress(params.receivingAddress);
+  // Everything should come checksummed from the contract, this should be handled at the external interface anyways, one level above
+  // const router = validateAndParseAddress(params.router);
+  // const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
+  // const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
+  // const receivingAddress = validateAndParseAddress(params.receivingAddress);
 
   // TODO: validate expiry
   const transaction: InvariantTransactionData = {
@@ -92,22 +107,23 @@ export type TransactionPrepareEvent = {
 };
 
 export const handleReceiverPrepare = async (
-  params: HandleReceiverPrepareParams,
+  params: TransactionPreparedEvent,
   transactionManager: Contract,
+  signer: Signer,
   messaging: UserNxtpNatsMessagingService,
   logger: BaseLogger,
 ): Promise<void> => {
   const method = "handleReceiverPrepare";
   const methodId = getRandomBytes32();
-  logger.info({ method, methodId, txData: params.txData, relayerFee: params.relayerFee }, "Method start");
+  logger.info({ method, methodId, txData: params.txData }, "Method start");
 
-  const { txData, relayerFee, signer } = params;
+  const { txData } = params;
+
+  // TODO
+  const relayerFee = "0";
 
   // Generate signature
-  logger.info(
-    { method, methodId, transactionId: params.txData.transactionId, relayerFee },
-    "Generating fulfill signature",
-  );
+  logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
   const signature = await signFulfillTransactionPayload(txData, relayerFee, signer);
   logger.info({ method, methodId }, "Generated signature");
 
@@ -115,14 +131,6 @@ export const handleReceiverPrepare = async (
 
   // Submit fulfill to receiver chain
   logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
-
-  const data = transactionManager.interface.encodeFunctionData("fulfill", [
-    {
-      ...txData,
-    },
-    relayerFee,
-    signature,
-  ]);
 
   const inbox = generateMessagingInbox();
   const responseInbox = generateMessagingInbox();
@@ -137,10 +145,15 @@ export const handleReceiverPrepare = async (
   });
   await messaging.publishMetaTxRequest(
     {
+      type: "Fulfill",
       relayerFee,
       to: transactionManager.address,
       chainId: txData.receivingChainId,
-      data,
+      data: {
+        relayerFee,
+        signature,
+        txData,
+      },
       responseInbox,
     },
     inbox,

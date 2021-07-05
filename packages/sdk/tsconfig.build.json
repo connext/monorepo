@@ -15,5 +15,5 @@
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": ["src/**/*.spec.ts"]
+  "exclude": ["test/**/*.ts"]
 }
