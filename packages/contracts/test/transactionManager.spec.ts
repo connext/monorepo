@@ -1,5 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
+import pino from 'pino';
 import { solidity } from "ethereum-waffle";
 import {
   InvariantTransactionData,
@@ -9,7 +10,7 @@ import {
 use(solidity);
 
 import { hexlify, randomBytes } from "ethers/lib/utils";
-import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt } from "ethers";
+import {Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, logger} from "ethers";
 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
@@ -17,6 +18,8 @@ import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
+import {TransactionService} from "@connext/nxtp-txservice";
+import {TransactionRequest} from "@ethersproject/providers";
 
 const { AddressZero } = constants;
 
@@ -134,6 +137,27 @@ describe("TransactionManager", function () {
     const routerAddr = router.address;
     const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
     const expectedBalance = startingBalance.sub(amount);
+
+    const encodedBalances = transactionManager.interface.encodeFunctionData("routerBalances", [
+      await instance.signer.getAddress(),
+      assetId,
+    ]);
+
+    const txn:TransactionRequest = {
+      chainId: 4,
+      to: transactionManager.address,
+      data: encodedBalances,
+      from: await instance.signer.getAddress(),
+      value: 0
+    }
+
+    const test_call = await instance.signer.call(txn);
+
+    const decodeBalances = transactionManager.interface.decodeFunctionResult("routerBalances", test_call);
+
+    console.log(`DECODED READ RESULT: ${decodeBalances}`)
+
+    console.log(`READ RESULT: ${test_call}`)
 
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
@@ -297,7 +321,16 @@ describe("TransactionManager", function () {
       : await getOnchainBalance(transaction.sendingAssetId, user.address, ethers.provider);
 
     // Generate signature from user
-    const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+    const signature = await signFulfillTransactionPayload(
+      {
+        ...transaction,
+        amount: record.amount,
+        expiry: record.expiry,
+        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+      },
+      relayerFee,
+      user,
+    );
 
     // Send tx
     const tx = await instance
@@ -365,7 +398,15 @@ describe("TransactionManager", function () {
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
     const expectedBalance = startingBalance.add(record.amount);
 
-    const signature = await signCancelTransactionPayload(transaction, user);
+    const signature = await signCancelTransactionPayload(
+      {
+        ...transaction,
+        amount: record.amount,
+        expiry: record.expiry,
+        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+      },
+      user,
+    );
     const tx = await transactionManagerReceiverSide
       .connect(canceller)
       .cancel(

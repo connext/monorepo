@@ -1,6 +1,3 @@
-import { expect } from "chai";
-import { describe } from "mocha";
-
 describe("Config", () => {
   it("should read config from default filepath", () => {});
   it("should read config from specified filepath", () => {});

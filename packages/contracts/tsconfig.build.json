@@ -12,7 +12,7 @@
     "./scripts",
     "./deploy",
     "./typechain",
-    "src/**/*",
+    "src/**/*.ts",
     "./artifacts",
     "./deployments.json"
   ],

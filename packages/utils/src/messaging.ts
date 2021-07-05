@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, Values } from "./error";
+import { FulfillParams } from "./transactionManager";
 
 export { AuthService } from "ts-natsutil";
 
@@ -222,10 +223,20 @@ export type NxtpMessageEnvelope<T> = {
 
 export type AuctionPayload = { [k: string]: never };
 export type AuctionResponse = { [k: string]: never };
-export type MetaTxPayload = {
+
+export type MetaTxPayloads = {
+  Fulfill: MetaTxFulfillPayload;
+};
+
+export type MetaTxFulfillPayload = FulfillParams;
+
+export type MetaTxTypes = "Fulfill";
+
+export type MetaTxPayload<T extends MetaTxTypes> = {
+  type: T; // can expand to more types
   relayerFee: string;
   to: string;
-  data: string;
+  data: MetaTxPayloads[T];
   chainId: number;
   responseInbox: string;
 };
@@ -310,10 +321,10 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
     await this.publishNxtpMessage(publishInbox, data);
   }
 
-  async subscribeToMetaTxRequest(handler: (data: MetaTxPayload, inbox: string, err?: any) => void): Promise<void> {
+  async subscribeToMetaTxRequest(handler: (data: MetaTxPayload<any>, inbox: string, err?: any) => void): Promise<void> {
     await this.subscribeToNxtpMessageWithInbox(
       `*.*.${METATX_SUBJECT}`,
-      (data: MetaTxPayload, inbox: string, err?: any) => {
+      (data: MetaTxPayload<any>, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
     );
@@ -347,7 +358,10 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
     });
   }
 
-  async publishMetaTxRequest(data: MetaTxPayload, inbox?: string): Promise<{ inbox: string }> {
+  async publishMetaTxRequest<T extends MetaTxTypes>(
+    data: MetaTxPayload<T>,
+    inbox?: string,
+  ): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }
