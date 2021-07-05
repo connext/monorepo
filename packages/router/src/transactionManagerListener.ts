@@ -232,8 +232,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
         encryptedCallData: string;
         encodedBid: string;
         bidSignature: string;
-        signature: string;
-        relayerFee: string;
+        signature?: string; // only there when fulfilled
+        relayerFee?: string; // only there when fulfilled
       }
     | undefined
   > {

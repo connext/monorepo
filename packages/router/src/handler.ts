@@ -52,11 +52,11 @@ export interface TransactionDataParams {
 // TODO should this be a class? Would be much easier to test, and remove the need
 // to pass in dependencies into every single function from the listener.
 
-const mutateAmount = (amount: string) => {
+export const mutateAmount = (amount: string) => {
   return calculateExchangeAmount(amount, SWAP_RATE);
 };
 
-const mutateExpiry = (expiry: number) => {
+export const mutateExpiry = (expiry: number) => {
   const rxExpiry = expiry - EXPIRY_DECREMENT;
   if (rxExpiry < Date.now() / 1000) {
     throw new Error("Expiration already happened, cant prepare");
