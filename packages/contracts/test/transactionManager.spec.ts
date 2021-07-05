@@ -1,6 +1,5 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
-import pino from "pino";
 import { solidity } from "ethereum-waffle";
 import {
   InvariantTransactionData,
@@ -21,7 +20,6 @@ import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
-import { TransactionService } from "@connext/nxtp-txservice";
 import { TransactionRequest } from "@ethersproject/providers";
 
 const { AddressZero, HashZero } = constants;
@@ -346,7 +344,7 @@ describe("TransactionManager", function () {
         ...transaction,
         amount: record.amount,
         expiry: record.expiry,
-        blockNumber: BigNumber.from(record.blockNumber).toNumber(),
+        preparedBlockNumber: BigNumber.from(record.preparedBlockNumber).toNumber(),
       },
       relayerFee,
       user,
@@ -812,7 +810,14 @@ describe("TransactionManager", function () {
       const invariantDigest = getInvariantTransactionDigest(transaction);
       expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(utils.formatBytes32String(""));
 
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
       await expect(
         transactionManager.connect(router).fulfill(
           {
@@ -845,7 +850,14 @@ describe("TransactionManager", function () {
 
       await advanceBlockTime(+record.expiry + 1_000);
 
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
 
       await expect(
         transactionManager.connect(router).fulfill(
@@ -864,7 +876,14 @@ describe("TransactionManager", function () {
       const { transaction, record } = await getTransactionData();
       const relayerFee = "1";
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
 
       // User fulfills
       await fulfillAndAssert(
@@ -902,7 +921,15 @@ describe("TransactionManager", function () {
         preparedBlockNumber: blockNumber,
       };
 
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, router);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          user: receiver.address,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
 
       await expect(
         transactionManager.connect(router).fulfill(
@@ -928,7 +955,14 @@ describe("TransactionManager", function () {
         preparedBlockNumber: blockNumber,
       };
 
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
 
       await expect(
         transactionManager.connect(router).fulfill(
@@ -954,7 +988,14 @@ describe("TransactionManager", function () {
         preparedBlockNumber: blockNumber,
       };
 
-      const signature = await signFulfillTransactionPayload(transaction, relayerFee, user);
+      const signature = await signFulfillTransactionPayload(
+        {
+          ...transaction,
+          ...record,
+        },
+        relayerFee,
+        user,
+      );
 
       await expect(
         transactionManager.connect(user).fulfill(
