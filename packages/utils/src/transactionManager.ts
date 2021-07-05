@@ -17,7 +17,7 @@ export type InvariantTransactionData = {
 export type VariantTransactionData = {
   amount: string;
   expiry: string;
-  blockNumber: number;
+  preparedBlockNumber: number;
 };
 export type TransactionData = InvariantTransactionData & VariantTransactionData;
 

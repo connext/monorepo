@@ -98,18 +98,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -123,17 +138,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -141,6 +146,12 @@
         "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "relayerFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -179,18 +190,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -204,17 +230,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -272,18 +288,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -297,17 +328,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -321,6 +342,12 @@
         "internalType": "address",
         "name": "caller",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "encryptedCallData",
+        "type": "bytes"
       },
       {
         "indexed": false,
@@ -419,18 +446,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -444,23 +486,18 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
         "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "relayerFee",
+        "type": "uint256"
       },
       {
         "internalType": "bytes",
@@ -494,18 +531,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -519,17 +571,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -580,18 +622,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -605,17 +662,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -631,6 +678,11 @@
       {
         "internalType": "bytes",
         "name": "signature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "callData",
         "type": "bytes"
       }
     ],
@@ -660,18 +712,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -685,17 +752,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -746,6 +803,11 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
@@ -760,9 +822,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
@@ -771,7 +833,7 @@
           }
         ],
         "internalType": "struct ITransactionManager.InvariantTransactionData",
-        "name": "_txData",
+        "name": "invariantData",
         "type": "tuple"
       },
       {
@@ -783,6 +845,11 @@
         "internalType": "uint256",
         "name": "expiry",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "encryptedCallData",
+        "type": "bytes"
       },
       {
         "internalType": "bytes",
@@ -821,18 +888,33 @@
           },
           {
             "internalType": "address",
+            "name": "sendingChainFallback",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "receivingAddress",
             "type": "address"
           },
           {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
+            "internalType": "bytes32",
+            "name": "callDataHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "transactionId",
             "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sendingChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "receivingChainId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -846,17 +928,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "sendingChainId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "receivingChainId",
+            "name": "preparedBlockNumber",
             "type": "uint256"
           }
         ],
@@ -923,12 +995,12 @@
         "type": "bytes32"
       }
     ],
-    "name": "transactionStatus",
+    "name": "variantTransactionData",
     "outputs": [
       {
-        "internalType": "enum ITransactionManager.TransactionStatus",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint8"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
