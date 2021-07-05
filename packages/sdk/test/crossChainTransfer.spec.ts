@@ -1,7 +1,6 @@
-import { BigNumber, constants, Contract, providers, Wallet, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
 import { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
-  getRandomBytes32,
   InvariantTransactionData,
   isValidBytes32,
   mkAddress,

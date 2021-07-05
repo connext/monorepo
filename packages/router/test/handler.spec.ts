@@ -1,16 +1,9 @@
-import {
-  FulfillParams,
-  mkAddress,
-  mkBytes32,
-  NatsNxtpMessagingService,
-  RouterNxtpNatsMessagingService,
-} from "@connext/nxtp-utils";
+import { FulfillParams, mkAddress, mkBytes32, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
-import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import {BigNumber, constants, providers, Signer, utils} from "ethers";
+import { constants, providers, Signer, utils } from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
 
@@ -204,7 +197,7 @@ describe("Handler", () => {
   });
 
   it(`should get liquidity`, async () => {
-    const mockLiquidity = "169.00"
+    const mockLiquidity = "169.00";
     txManager.getLiquidity.resolves(mockLiquidity);
     await txManager.getLiquidity(4, constants.AddressZero);
     const call = txManager.getLiquidity.getCall(0);
@@ -218,6 +211,4 @@ describe("Handler", () => {
 
     console.log(call);
   });
-
-
 });
