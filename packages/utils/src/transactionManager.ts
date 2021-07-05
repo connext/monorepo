@@ -37,11 +37,19 @@ export type PrepareParams = {
   txData: InvariantTransactionData;
   amount: string;
   expiry: string;
+  encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
 };
 
 export type FulfillParams = {
+  txData: TransactionData;
+  relayerFee: string;
+  signature: string;
+  callData: string;
+};
+
+export type CancelParams = {
   txData: TransactionData;
   relayerFee: string;
   signature: string;

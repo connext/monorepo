@@ -40,7 +40,7 @@ type Transaction @entity {
   preparedBlockNumber: BigInt!
 
   # TransactionPrepared
-  encryptedCalldata: String!
+  encryptedCallData: String!
   prepareCaller: Bytes
   bidSignature: Bytes!
   encodedBid: Bytes!

@@ -84,7 +84,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
   // TransactionPrepared specific
   transaction.prepareCaller = event.params.caller;
-  transaction.encryptedCalldata = event.params.encryptedCallData.toHexString();
+  transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
   transaction.encodedBid = event.params.encodedBid;
   transaction.bidSignature = event.params.bidSignature;
 

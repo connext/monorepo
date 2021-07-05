@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { providers, Signer } from "ethers";
+import { constants, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -10,9 +10,6 @@ import {
   PrepareParams,
   TransactionCancelledEvent,
   TransactionFulfilledEvent,
-  TransactionManagerEvent,
-  TransactionManagerEventPayloads,
-  TransactionManagerEvents,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
@@ -39,7 +36,9 @@ export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 // i.e. SenderTransactionPrepared, ReceiverTransactionPrepared,
 // etc.
 export const NxtpSdkEvents = {
-  ...TransactionManagerEvents,
+  TransactionPrepared: "TransactionPrepared",
+  TransactionFulfilled: "TransactionFulfilled",
+  TransactionCancelled: "TransactionCancelled",
   TransactionCompleted: "TransactionCompleted",
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
@@ -47,7 +46,10 @@ export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 // TODO: is this the event payload we want? anything else?
 export type TransactionCompletedEvent = TransactionFulfilledEvent;
 
-export interface NxtpSdkEventPayloads extends TransactionManagerEventPayloads {
+export interface NxtpSdkEventPayloads {
+  [NxtpSdkEvents.TransactionPrepared]: TransactionPreparedEvent;
+  [NxtpSdkEvents.TransactionFulfilled]: TransactionFulfilledEvent;
+  [NxtpSdkEvents.TransactionCancelled]: TransactionCancelledEvent;
   [NxtpSdkEvents.TransactionCompleted]: TransactionCompletedEvent;
 }
 
@@ -163,25 +165,28 @@ export class NxtpSdk {
     ).waitFor(timeout);
 
     const { sendingAssetId, receivingAssetId, receivingAddress, router, amount, expiry, callData } = transferParams;
+    const callDataHash = callData ? utils.keccak256(callData) : constants.HashZero;
 
     const user = await this.signer.getAddress();
     // Prepare sender side tx
     const { chainId: sendingChainId } = await this.sendingProvider.getNetwork();
     const { chainId: receivingChainId } = await this.receivingProvider.getNetwork();
     const params: PrepareParams = {
-      bidSignature: "",
-      encodedBid: "",
       txData: {
-        callData: callData || "0x",
-        receivingAddress,
-        receivingAssetId,
-        receivingChainId,
+        user,
         router,
         sendingAssetId,
+        receivingAssetId,
+        sendingChainFallback: receivingAddress, // TODO: for now
+        receivingAddress,
         sendingChainId,
+        receivingChainId,
+        callDataHash,
         transactionId,
-        user,
       },
+      encryptedCallData: "0x", // TODO
+      bidSignature: "", // TODO
+      encodedBid: "", // TODO
       amount,
       expiry,
     };
@@ -199,8 +204,8 @@ export class NxtpSdk {
 
   private setupListeners(): void {
     // Always broadcast signature when a receiver-side prepare event is emitted
-    this.receivingListener.attach(TransactionManagerEvents.TransactionPrepared, async (data) => {
-      const { txData, encodedBid, caller, bidSignature } = data;
+    this.receivingListener.attach(NxtpSdkEvents.TransactionPrepared, async (data) => {
+      const { txData, encodedBid, caller, bidSignature, encryptedCallData } = data;
       if (txData.receivingChainId !== this.receivingListener.chainId!) {
         this.logger.debug(
           {
@@ -226,10 +231,11 @@ export class NxtpSdk {
       this.fulfilling[txData.transactionId] = data;
       await handleReceiverPrepare(
         {
-          bidSignature,
-          caller,
-          encodedBid,
           txData,
+          caller,
+          encryptedCallData,
+          bidSignature,
+          encodedBid,
         },
         this.receivingListener.getTransactionManager(),
         this.signer,
@@ -245,7 +251,7 @@ export class NxtpSdk {
     // TODO: what if this is an asynchronous event? i.e. happens when a tx is
     // fulfilled as you're switching between chains in the UI? (ie going from
     // matic to bsc then bsc to matic and router fulfills)
-    this.receivingListener.attach(TransactionManagerEvents.TransactionFulfilled, async (data) => {
+    this.receivingListener.attach(NxtpSdkEvents.TransactionFulfilled, async (data) => {
       this.evts[NxtpSdkEvents.TransactionCompleted].post(data);
     });
 
@@ -254,7 +260,7 @@ export class NxtpSdk {
       if (_event === NxtpSdkEvents.TransactionCompleted) {
         return;
       }
-      const event = _event as TransactionManagerEvent;
+      const event = _event as NxtpSdkEvent;
       this.sendingListener.attach(event, (data) => {
         this.evts[event].post(data as any);
       });

@@ -1,14 +1,12 @@
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import {
+  RouterNxtpNatsMessagingService,
+  TransactionFulfilledEvent,
+  TransactionPreparedEvent,
+} from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
-import {
-  ReceiverFulfillData,
-  ReceiverPrepareData,
-  SenderFulfillData,
-  SenderPrepareData,
-  TransactionManagerListener,
-} from "./transactionManagerListener";
+import { TransactionManagerListener } from "./transactionManagerListener";
 
 /*
     Listener.ts
@@ -39,22 +37,22 @@ export async function setupListeners(
   });
 
   // Setup Subgraph events
-  txManager.onSenderPrepare(async (data: SenderPrepareData) => {
+  txManager.onSenderPrepare(async (data: TransactionPreparedEvent) => {
     // On sender prepare, route to sender prepare handler
     await handler.handleSenderPrepare(data);
   });
 
-  txManager.onReceiverPrepare(async (data: ReceiverPrepareData) => {
+  txManager.onReceiverPrepare(async (data: TransactionPreparedEvent) => {
     // On receiver prepare, route to receiver prepare handler
     await handler.handleReceiverPrepare(data);
   });
 
-  txManager.onSenderFulfill(async (data: SenderFulfillData) => {
+  txManager.onSenderFulfill(async (data: TransactionFulfilledEvent) => {
     // On sender fulfill, route to sender fulfill handler
     await handler.handleSenderFulfill(data);
   });
 
-  txManager.onReceiverFulfill(async (data: ReceiverFulfillData) => {
+  txManager.onReceiverFulfill(async (data: TransactionFulfilledEvent) => {
     // On receiver fulfill, route to receiver fulfill handler
     await handler.handleReceiverFulfill(data);
   });
