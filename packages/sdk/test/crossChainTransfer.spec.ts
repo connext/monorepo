@@ -58,13 +58,15 @@ describe("prepare", () => {
       encodedBid: "0x",
       expiry: (Date.now() + 10_000).toString(),
       amount: "100000",
+      encryptedCallData: "0xabc",
       txData: {
         user: mkAddress("0xa"),
         router: mkAddress("0xb"),
         sendingAssetId: mkAddress("0xc"),
         receivingAssetId: mkAddress("0xd"),
         receivingAddress: mkAddress("0xe"),
-        callData: "0x",
+        sendingChainFallback: mkAddress("0xf"),
+        callDataHash: "0x",
         transactionId: mkBytes32("0xa"),
         sendingChainId: 1337,
         receivingChainId: 31337,
@@ -98,7 +100,7 @@ describe("prepare", () => {
       sendingAssetId: params.txData.sendingAssetId,
       receivingAssetId: params.txData.receivingAssetId,
       receivingAddress: params.txData.receivingAddress,
-      callData: params.txData.callData ?? "0x",
+      callDataHash: params.txData.callDataHash ?? "0x",
       sendingChainId: params.txData.sendingChainId,
       receivingChainId: params.txData.receivingChainId,
     });
@@ -135,7 +137,8 @@ describe("handleReceiverPrepare", () => {
     overrides: Partial<InvariantTransactionData> = {},
     amount = "100000",
     expiry = (Date.now() + 10_000).toString(),
-    blockNumber = 10,
+    preparedBlockNumber = 10,
+    encryptedCallData = "0xabc",
     user: Wallet = Wallet.createRandom(),
   ): { event: TransactionPreparedEvent; user: Wallet } => {
     const txData = getTransactionData({
@@ -152,7 +155,8 @@ describe("handleReceiverPrepare", () => {
 
     return {
       event: {
-        txData: { ...txData, amount, expiry, blockNumber },
+        encryptedCallData,
+        txData: { ...txData, amount, expiry, preparedBlockNumber },
         encodedBid: "0x",
         bidSignature: "0x",
         caller: txData.router,
