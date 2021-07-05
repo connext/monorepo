@@ -35,19 +35,22 @@ export const prepare = async (
   logger.info({ method, methodId, params }, "Method start");
 
   const {
-    amount,
-    expiry,
     txData: {
-      callData,
-      sendingChainId,
-      receivingChainId,
-      transactionId,
       user,
       router,
       sendingAssetId,
       receivingAssetId,
+      sendingChainFallback,
       receivingAddress,
+      sendingChainId,
+      receivingChainId,
+      callDataHash,
+      transactionId,
     },
+    amount,
+    expiry,
+    encodedBid,
+    bidSignature,
   } = params;
 
   // Properly checksum all addresses
@@ -63,16 +66,15 @@ export const prepare = async (
     router,
     sendingAssetId,
     receivingAssetId,
+    sendingChainFallback,
     receivingAddress,
-    callData: callData ?? "0x",
-    transactionId,
     sendingChainId,
     receivingChainId,
+    callDataHash,
+    transactionId,
   };
 
-  // TODO: bid stuff
-  const encodedBid = "0x";
-  const bidSignature = "0x";
+  // TODO: validate bid stuff
 
   logger.info({ method, methodId, transactionId, transactionManager: transactionManager.address }, "Preparing tx");
 
@@ -153,6 +155,7 @@ export const handleReceiverPrepare = async (
         relayerFee,
         signature,
         txData,
+        callData: "0x", // TODO
       },
       responseInbox,
     },

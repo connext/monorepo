@@ -67,23 +67,30 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = new Transaction(event.params.txData.transactionId.toHex());
+  // TransactionData
   transaction.user = user.id;
   transaction.router = router!.id;
-  transaction.amount = event.params.txData.amount;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
+  transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
+  transaction.receivingAddress = event.params.txData.receivingAddress;
+  transaction.callDataHash = event.params.txData.callDataHash;
+  transaction.transactionId = event.params.txData.transactionId;
   transaction.sendingChainId = event.params.txData.sendingChainId;
   transaction.receivingChainId = event.params.txData.receivingChainId;
-  transaction.receivingAddress = event.params.txData.receivingAddress;
-  transaction.callData = event.params.txData.callData.toHexString();
-  transaction.transactionId = event.params.txData.transactionId;
+  transaction.amount = event.params.txData.amount;
   transaction.expiry = event.params.txData.expiry;
-  transaction.blockNumber = event.params.txData.blockNumber;
+  transaction.preparedBlockNumber = event.params.txData.preparedBlockNumber;
+
+  // TransactionPrepared specific
+  transaction.prepareCaller = event.params.caller;
+  transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
   transaction.encodedBid = event.params.encodedBid;
   transaction.bidSignature = event.params.bidSignature;
+
+  // Meta
   transaction.status = "Prepared";
   transaction.chainId = chainId;
-  transaction.prepareCaller = event.params.caller;
 
   transaction.save();
 }
@@ -92,9 +99,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Fulfilled";
-  transaction!.fulfillCaller = event.params.caller;
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
+  transaction!.fulfillCaller = event.params.caller;
 
   transaction!.save();
 }
@@ -103,6 +110,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transaction = Transaction.load(event.params.txData.transactionId.toHex());
   transaction!.status = "Cancelled";
+  transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
 
   transaction!.save();

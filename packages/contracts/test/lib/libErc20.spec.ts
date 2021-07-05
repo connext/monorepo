@@ -2,6 +2,7 @@ import { ethers, waffle } from "hardhat";
 // import { Signer } from "ethers";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
+import { BigNumber } from "ethers";
 
 use(solidity);
 
@@ -11,7 +12,7 @@ import { TestERC20 } from "../../typechain/TestERC20";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 
-describe("LibErc20", function() {
+describe("LibErc20", () => {
   const [wallet, other, receiver] = waffle.provider.getWallets();
 
   let libERC20Test: LibERC20Test;
@@ -31,7 +32,7 @@ describe("LibErc20", function() {
     loadFixture = createFixtureLoader([wallet, other, receiver]);
   });
 
-  beforeEach(async function() {
+  beforeEach(async () => {
     ({ libERC20Test, token } = await loadFixture(fixture));
   });
 
@@ -40,36 +41,45 @@ describe("LibErc20", function() {
     expect(token.address).to.be.a("string");
   });
 
-  describe("#wrapCall", () => {
-    it.skip("should error if asset doesn't exist", async () => {});
-    it.skip("should error if params are buggy", async () => {});
-  });
-
   describe("#approve", () => {
-    it.skip("should error if params are buggy", async () => {});
     it("happy case:approve", async () => {
-      await libERC20Test.connect(wallet).approve(token.address, other.address, "1");
+      const amount = BigNumber.from(1);
+      const res = await libERC20Test.connect(wallet).approve(token.address, other.address, amount);
+      await res.wait();
+
+      const allowance = await token.connect(wallet).allowance(libERC20Test.address, other.address);
+      expect(allowance).to.be.at.least(amount);
     });
   });
 
   describe("#transferFrom", () => {
-    it.skip("should error if params are buggy", async () => {});
-    it.skip("happy case: transferFrom", async () => {
-      const approveRes = await token.connect(wallet).approve(receiver.address, "1");
+    it("happy case: transferFrom", async () => {
+      const amount = BigNumber.from(1);
+      const approveRes = await token.connect(wallet).approve(libERC20Test.address, amount);
       await approveRes.wait();
 
-      const res = await libERC20Test.connect(wallet).transferFrom(token.address, wallet.address, receiver.address, "1");
+      expect(await token.balanceOf(receiver.address)).to.be.eq(0);
+
+      const res = await libERC20Test
+        .connect(wallet)
+        .transferFrom(token.address, wallet.address, receiver.address, amount);
       await res.wait();
+
+      expect(await token.balanceOf(receiver.address)).to.be.eq(amount);
     });
   });
 
   describe("#transfer", () => {
-    it.skip("should error if params are buggy", async () => {});
-    it.skip("happy case: transfer", async () => {
-      await token.balanceOf(wallet.address);
+    it("happy case: transfer", async () => {
+      const amount = BigNumber.from(1);
 
-      const res = await libERC20Test.connect(wallet).transfer(token.address, receiver.address, "1");
+      await token.connect(wallet).transfer(libERC20Test.address, amount);
+
+      expect(await token.balanceOf(receiver.address)).to.be.eq(0);
+      const res = await libERC20Test.connect(wallet).transfer(token.address, receiver.address, amount);
       await res.wait();
+
+      expect(await token.balanceOf(receiver.address)).to.be.eq(amount);
     });
   });
 });

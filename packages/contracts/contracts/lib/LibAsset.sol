@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.1;
+pragma solidity 0.8.4;
 
 import "./LibERC20.sol";
 import "./LibUtils.sol";
@@ -9,9 +9,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @title LibAsset
 /// @author Connext <support@connext.network>
 /// @notice This library contains helpers for dealing with onchain transfers
-///         of in-channel assets. It is designed to safely handle all asset
-///         transfers out of channel in the event of an onchain dispute. Also
-///         safely handles ERC20 transfers that may be non-compliant
+///         of assets, including accounting for the native asset `assetId`
+///         conventions and any noncompliant ERC20 transfers
+
 library LibAsset {
     address constant ETHER_ASSETID = address(0);
 

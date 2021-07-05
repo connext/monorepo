@@ -6,17 +6,30 @@ export type InvariantTransactionData = {
   router: string;
   sendingAssetId: string;
   receivingAssetId: string;
+  sendingChainFallback: string;
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;
-  callData: string;
+  callDataHash: string;
   transactionId: string;
 };
 
-export type TransactionData = InvariantTransactionData & {
+export type VariantTransactionData = {
   amount: string;
   expiry: string;
-  blockNumber: number;
+  preparedBlockNumber: number;
+};
+export type TransactionData = InvariantTransactionData & VariantTransactionData;
+
+export type SignedCancelData = {
+  invariantDigest: string;
+  relayerFee: string;
+  cancel: "cancel"; // just the string "cancel"
+};
+
+export type SignedFulfillData = {
+  invariantDigest: string;
+  relayerFee: string;
 };
 
 // Functions
@@ -24,11 +37,19 @@ export type PrepareParams = {
   txData: InvariantTransactionData;
   amount: string;
   expiry: string;
+  encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
 };
 
 export type FulfillParams = {
+  txData: TransactionData;
+  relayerFee: string;
+  signature: string;
+  callData: string;
+};
+
+export type CancelParams = {
   txData: TransactionData;
   relayerFee: string;
   signature: string;
@@ -38,6 +59,7 @@ export type FulfillParams = {
 export type TransactionPreparedEvent = {
   txData: TransactionData;
   caller: string;
+  encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
 };
@@ -51,17 +73,6 @@ export type TransactionFulfilledEvent = {
 
 export type TransactionCancelledEvent = {
   txData: TransactionData;
+  relayerFee: string;
   caller: string;
 };
-
-export const TransactionManagerEvents = {
-  TransactionPrepared: "TransactionPrepared",
-  TransactionFulfilled: "TransactionFulfilled",
-  TransactionCancelled: "TransactionCancelled",
-} as const;
-export type TransactionManagerEvent = typeof TransactionManagerEvents[keyof typeof TransactionManagerEvents];
-export interface TransactionManagerEventPayloads {
-  [TransactionManagerEvents.TransactionPrepared]: TransactionPreparedEvent;
-  [TransactionManagerEvents.TransactionFulfilled]: TransactionFulfilledEvent;
-  [TransactionManagerEvents.TransactionCancelled]: TransactionCancelledEvent;
-}

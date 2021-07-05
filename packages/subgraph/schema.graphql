@@ -20,26 +20,37 @@ enum TransactionStatus {
 # Transaction represents a transaction
 type Transaction @entity {
   id: ID!
-  user: User!
-  router: Router!
-  amount: BigInt!
-  sendingAssetId: Bytes!
-  receivingAssetId: Bytes!
-  sendingChainId: BigInt!
-  receivingChainId: BigInt!
-  receivingAddress: Bytes!
-  callData: String! # store as string because of Bytes bug https://github.com/graphprotocol/graph-node/issues/2287
-  transactionId: Bytes!
-  expiry: BigInt!
+  # Subgraph Meta
   status: TransactionStatus!
   chainId: BigInt!
-  blockNumber: BigInt!
-  encodedBid: Bytes!
+
+  # TransactionData
+  user: User!
+  router: Router!
+  sendingAssetId: Bytes!
+  receivingAssetId: Bytes!
+  sendingChainFallback: Bytes!
+  receivingAddress: Bytes!
+  callDataHash: Bytes!
+  transactionId: Bytes!
+  sendingChainId: BigInt!
+  receivingChainId: BigInt!
+  amount: BigInt!
+  expiry: BigInt!
+  preparedBlockNumber: BigInt!
+
+  # TransactionPrepared
+  encryptedCallData: String!
+  prepareCaller: Bytes
   bidSignature: Bytes!
+  encodedBid: Bytes!
+
+  # TransactionFulfilled
   relayerFee: BigInt
   signature: Bytes
-  prepareCaller: Bytes
   fulfillCaller: Bytes
+
+  # TransactionCancelled
   cancelCaller: Bytes
 }
 

@@ -1,19 +1,22 @@
-import { RouterNxtpNatsMessagingService, MetaTxPayload, MetaTxFulfillPayload, jsonifyError } from "@connext/nxtp-utils";
+import {
+  RouterNxtpNatsMessagingService,
+  MetaTxPayload,
+  MetaTxFulfillPayload,
+  jsonifyError,
+  TransactionPreparedEvent,
+  TransactionFulfilledEvent,
+  calculateExchangeAmount,
+} from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
-import {
-  ReceiverFulfillData,
-  ReceiverPrepareData,
-  SenderFulfillData,
-  SenderPrepareData,
-  SubgraphTransactionManagerListener,
-} from "./transactionManagerListener";
+import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { TransactionStatus } from "./graphqlsdk";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
+export const SWAP_RATE = "0.995";
 
 export interface TransactionDataParams {
   user: string;
@@ -49,13 +52,25 @@ export interface TransactionDataParams {
 // TODO should this be a class? Would be much easier to test, and remove the need
 // to pass in dependencies into every single function from the listener.
 
+export const mutateAmount = (amount: string) => {
+  return calculateExchangeAmount(amount, SWAP_RATE);
+};
+
+export const mutateExpiry = (expiry: number) => {
+  const rxExpiry = expiry - EXPIRY_DECREMENT;
+  if (rxExpiry < Date.now() / 1000) {
+    throw new Error("Expiration already happened, cant prepare");
+  }
+  return rxExpiry;
+};
+
 export interface Handler {
   handleNewAuction(data: AuctionData): Promise<void>;
   handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void>;
-  handleSenderPrepare(inboundData: SenderPrepareData): Promise<void>;
-  handleReceiverPrepare(data: ReceiverPrepareData): Promise<void>;
-  handleSenderFulfill(data: SenderFulfillData): Promise<void>;
-  handleReceiverFulfill(data: ReceiverFulfillData): Promise<void>;
+  handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void>;
+  handleReceiverPrepare(data: TransactionPreparedEvent): Promise<void>;
+  handleSenderFulfill(data: TransactionFulfilledEvent): Promise<void>;
+  handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void>;
 }
 
 export type AuctionData = any;
@@ -123,9 +138,10 @@ export class Handler implements Handler {
       this.logger.info({ method, methodId, chainId, responseInbox, data }, "Submitting tx");
       try {
         const tx = await this.txManager.fulfill(chainId, {
+          txData: fulfillData.txData,
           relayerFee: fulfillData.relayerFee,
           signature: fulfillData.signature,
-          txData: fulfillData.txData,
+          callData: fulfillData.callData,
         });
         this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
         await this.messagingService.publishMetaTxResponse(
@@ -142,10 +158,12 @@ export class Handler implements Handler {
 
   // HandleSenderPrepare
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
-  public async handleSenderPrepare(inboundData: SenderPrepareData): Promise<void> {
+  public async handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void> {
     const method = "handleSenderPrepare";
     const methodId = v4();
     this.logger.info({ method, methodId, inboundData }, "Method start");
+
+    const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
 
     // TODO: where should sender cancellation be handled / evaluated?
     // RS: sender cannot cancel the tx, only the receiver (router) can
@@ -181,16 +199,37 @@ export class Handler implements Handler {
     // - AssetId
     // encode the data for contract call
     // Send to txService
-    this.logger.info({ method, methodId, transactionId: inboundData.transactionId }, "Sending receiver prepare tx");
-    const txReceipt = await this.txManager.prepare(inboundData);
+    this.logger.info(
+      { method, methodId, transactionId: inboundData.txData.transactionId },
+      "Sending receiver prepare tx",
+    );
+    const txReceipt = await this.txManager.prepare(inboundData.txData.receivingChainId, {
+      txData: {
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        receivingAddress: txData.receivingAddress,
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
+        callDataHash: txData.callDataHash,
+        transactionId: txData.transactionId,
+      },
+      amount: mutateAmount(txData.amount),
+      expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
+      bidSignature,
+      encodedBid,
+      encryptedCallData,
+    });
     if (txReceipt) {
       this.logger.info(
         {
           method,
           methodId,
           txHash: txReceipt.transactionHash,
-          transactionId: inboundData.transactionId,
-          chainId: inboundData.receivingChainId,
+          transactionId: inboundData.txData.transactionId,
+          chainId: inboundData.txData.receivingChainId,
         },
         "Receiver prepare tx confirmed",
       );
@@ -202,32 +241,34 @@ export class Handler implements Handler {
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
   // metrics
-  public async handleReceiverPrepare(_data: ReceiverPrepareData): Promise<void> {
+  public async handleReceiverPrepare(_data: TransactionPreparedEvent): Promise<void> {
     // First log
     // Update metrics
   }
 
   // HandleSenderFulfill
   // Purpose: No action is needed here from router except to update metrics
-  public async handleSenderFulfill(_data: SenderFulfillData): Promise<void> {
+  public async handleSenderFulfill(_data: TransactionFulfilledEvent): Promise<void> {
     // First log
     // Update metrics
   }
 
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
-  public async handleReceiverFulfill(data: ReceiverFulfillData): Promise<void> {
+  public async handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void> {
     const method = "handleSenderPrepare";
     const methodId = v4();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const senderTransaction = await this.subgraph.getSenderTransaction(data.transactionId, data.sendingChainId);
+    const { txData, signature, relayerFee } = data;
+
+    const senderTransaction = await this.subgraph.getTransactionForChain(txData.transactionId, txData.sendingChainId);
     if (!senderTransaction) {
       this.logger.error(
         {
-          transactionId: data.transactionId,
-          sendingChainId: data.sendingChainId,
-          receivingChainId: data.receivingChainId,
+          transactionId: txData.transactionId,
+          sendingChainId: txData.sendingChainId,
+          receivingChainId: txData.receivingChainId,
         },
         "Failed to find sender tx on receiver fulfill",
       );
@@ -238,27 +279,12 @@ export class Handler implements Handler {
       return;
     }
     // Send to tx service
-    this.logger.info(
-      { method, methodId, transactionId: data.transactionId, signature: data.signature },
-      "Sending sender fulfill tx",
-    );
-    const txReceipt = await this.txManager.fulfill(data.sendingChainId, {
-      relayerFee: data.relayerFee,
-      signature: data.signature,
-      txData: {
-        amount: data.amount,
-        blockNumber: data.blockNumber,
-        callData: data.callData,
-        user: data.user,
-        transactionId: data.transactionId,
-        sendingChainId: data.sendingChainId,
-        sendingAssetId: data.sendingAssetId,
-        router: data.router,
-        receivingChainId: data.receivingChainId,
-        receivingAssetId: data.receivingAssetId,
-        receivingAddress: data.receivingAddress,
-        expiry: data.expiry.toString(),
-      },
+    this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
+    const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
+      txData,
+      signature,
+      relayerFee,
+      callData: "0x", // TODO: where does this come from??
     });
     if (txReceipt) {
       this.logger.info(
@@ -266,8 +292,8 @@ export class Handler implements Handler {
           method,
           methodId,
           txHash: txReceipt.transactionHash,
-          transactionId: data.transactionId,
-          chainId: data.receivingChainId,
+          transactionId: txData.transactionId,
+          chainId: txData.receivingChainId,
         },
         "Receiver fulfill tx confirmed",
       );

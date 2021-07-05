@@ -3,18 +3,15 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
-import { calculateExchangeAmount, jsonifyError, FulfillParams, TransactionData } from "@connext/nxtp-utils";
+import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
 import { v4 } from "uuid";
 import { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { SenderPrepareData } from "./transactionManagerListener";
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
   private readonly config: NxtpRouterConfig;
-  private readonly EXPIRY_DECREMENT = 3600 * 24;
-  private readonly SWAP_RATE = "0.995";
 
   constructor(
     private readonly txService: TransactionService,
@@ -23,82 +20,67 @@ export class TransactionManager {
   ) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
     this.config = getConfig();
-
-    // TODO: remove when using for real, this is just to avoid breaking build
-    console.log("this.txManagerInterface", !!this.txManagerInterface);
-    console.log("this.txService", !!this.txService);
-    console.log("this.signerAddress", !!this.signerAddress);
   }
 
-  async prepare(txData: SenderPrepareData): Promise<providers.TransactionReceipt> {
+  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::prepare ";
     const methodId = v4();
+    this.logger.info({ method, methodId, prepareParams }, "Method start");
 
-    const mutateAmount = (amount: string) => {
-      return calculateExchangeAmount(amount, this.SWAP_RATE);
-    };
-    const mutateExpiry = (expiry: number) => {
-      const rxExpiry = expiry - this.EXPIRY_DECREMENT;
-      if (rxExpiry < Date.now() / 1000) {
-        throw new Error("Expiration already happened, cant prepare");
-      }
-      return rxExpiry;
-    };
-
-    const txParams = {
-      callData: txData.callData,
-      receivingAddress: txData.receivingAddress,
-      receivingAssetId: txData.receivingAssetId,
-      receivingChainId: txData.receivingChainId,
-      router: txData.router,
-      sendingAssetId: txData.sendingAssetId,
-      sendingChainId: txData.sendingChainId,
-      transactionId: txData.transactionId,
-      user: txData.user,
-    };
+    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
     const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
-      txParams,
-      mutateAmount(txData.amount),
-      mutateExpiry(txData.expiry),
-      "0x", // TODO: encoded bid
-      "0x", // TODO: bid signature
+      {
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        receivingAddress: txData.receivingAddress,
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
+        callDataHash: txData.callDataHash,
+        transactionId: txData.transactionId,
+      },
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
     ]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(txParams.receivingChainId, {
-        to: this.config.chainConfig[txParams.receivingChainId].transactionManagerAddress,
+      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+        to: this.config.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
-        chainId: txParams.receivingChainId,
+        chainId: chainId,
         from: this.signerAddress,
       });
       return txRes;
     } catch (e) {
       if (e.message.includes("DUPLICATE_DIGEST")) {
         this.logger.warn(
-          { methodId, method, transactionId: txParams.transactionId },
+          { methodId, method, transactionId: txData.transactionId },
           "Receiver tx already prepared, but resubmitted",
         );
       }
       this.logger.error(
-        { methodId, method, error: jsonifyError(e), transactionId: txParams.transactionId },
-        // "Error sending receiver prepare tx",
+        { methodId, method, error: jsonifyError(e), transactionId: txData.transactionId },
+        "Error sending receiver prepare tx",
       );
-      // TODO: cancel sender here?
       throw e;
     }
   }
 
-  async fulfill(chainId: number, fulfillData: FulfillParams): Promise<providers.TransactionReceipt> {
+  async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
     const methodId = v4();
-    this.logger.info({ method, methodId, fulfillData }, "Method start");
+    this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
-    const relayerFee = BigNumber.from(fulfillData.relayerFee);
-    // will sig always be included (even on sender side)? RS: yes
-    const sig = fulfillData.signature;
-    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [fulfillData.txData, relayerFee, sig]);
+    const { txData, relayerFee, signature, callData } = fulfillParams;
+
+    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId,
@@ -111,7 +93,7 @@ export class TransactionManager {
     } catch (e) {
       // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
       this.logger.error(
-        { methodId, method, transactionId: fulfillData.txData.transactionId, error: jsonifyError(e) },
+        { methodId, method, transactionId: fulfillParams.txData.transactionId, error: jsonifyError(e) },
         "Error sending sender fulfill tx",
       );
       // TODO discuss this case!!
@@ -119,30 +101,15 @@ export class TransactionManager {
     }
   }
 
-  async cancel(chainId: number, txData: TransactionData, signature: string): Promise<providers.TransactionReceipt> {
+  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::cancel";
     const methodId = v4();
-    this.logger.info({ method, methodId, txData }, "Method start");
+    this.logger.info({ method, methodId, cancelParams }, "Method start");
     // encode and call tx service
 
-    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [
-      {
-        user: txData.user,
-        router: txData.router,
-        sendingAssetId: txData.sendingAssetId,
-        receivingAssetId: txData.receivingAssetId,
-        receivingAddress: txData.receivingAddress,
-        callData: txData.callData,
-        transactionId: txData.transactionId,
-        // TODO: @marcus
-        amount: txData.amount,
-        expiry: txData.expiry,
-        blockNumber: txData.blockNumber,
-        sendingChainId: txData.sendingChainId,
-        receivingChainId: txData.receivingChainId,
-      },
-      signature,
-    ]);
+    const { txData, relayerFee, signature } = cancelParams;
+
+    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
 
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
