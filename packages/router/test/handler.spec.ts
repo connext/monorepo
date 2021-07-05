@@ -10,7 +10,7 @@ import { expect } from "chai";
 import { describe } from "mocha";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { constants, providers, Signer, utils } from "ethers";
+import {BigNumber, constants, providers, Signer, utils} from "ethers";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts";
 
@@ -202,4 +202,22 @@ describe("Handler", () => {
       },
     } as FulfillParams);
   });
+
+  it(`should get liquidity`, async () => {
+    const mockLiquidity = "169.00"
+    txManager.getLiquidity.resolves(mockLiquidity);
+    await txManager.getLiquidity(4, constants.AddressZero);
+    const call = txManager.getLiquidity.getCall(0);
+
+    expect(await call.returnValue).to.eq("169.00");
+  });
+
+  it(`should add liquidity`, async () => {
+    await txManager.addLiquidity(4, constants.AddressZero);
+    const call = txManager.addLiquidity.getCall(0);
+
+    console.log(call);
+  });
+
+
 });

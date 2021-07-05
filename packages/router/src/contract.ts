@@ -158,8 +158,7 @@ export class TransactionManager {
     }
   }
 
-
-  async getLiquidity(chainId: number, assetId: string): Promise<any> {
+  async getLiquidity(chainId: number, assetId: string): Promise<string> {
     const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [
       this.signerAddress,
       assetId,
