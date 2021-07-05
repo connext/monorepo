@@ -1,5 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import { expect, use } from "chai";
+import { utils } from "ethers";
 import { solidity } from "ethereum-waffle";
 
 use(solidity);
@@ -12,7 +13,7 @@ import { BigNumber, constants } from "ethers";
 const { AddressZero } = constants;
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("LibAsset", function () {
+describe("LibAsset", () => {
   const [wallet, other, receiver] = waffle.provider.getWallets();
 
   let libAssetTest: LibAssetTest;
@@ -32,7 +33,7 @@ describe("LibAsset", function () {
     loadFixture = createFixtureLoader([wallet, other]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     ({ libAssetTest, token } = await loadFixture(fixture));
   });
 
@@ -42,10 +43,6 @@ describe("LibAsset", function () {
   });
 
   describe("#isEther", () => {
-    it("should error if params is not address", async () => {
-      await expect(libAssetTest.isEther("0x")).to.be.reverted;
-    });
-
     it("should return true if assetId is AddressZero", async () => {
       const res = await libAssetTest.isEther(AddressZero);
       expect(res).to.be.true;
@@ -58,47 +55,66 @@ describe("LibAsset", function () {
   });
 
   describe("#getOwnBalance", () => {
-    it("should error if params is not address", async () => {
-      await expect(libAssetTest.getOwnBalance("0x")).to.be.reverted;
-    });
-
     it("should error if erc20 contract doesn't exist", async () => {
       await expect(libAssetTest.getOwnBalance("0x0f5d2fb29fb7d3cfee444a200298f468908cc940")).to.be.reverted;
     });
 
-    it("should return native asset balance if AddressZero", async () => {
+    it.skip("should return native asset balance if AddressZero", async () => {
+      const amount = BigNumber.from(1);
+      // const signer = await wallet.getSigner();
+
+      await wallet.sendTransaction({
+        to: libAssetTest.address,
+        value: utils.parseEther(amount.toString()),
+        gasLimit: 21000,
+      });
+
       const res = await libAssetTest.getOwnBalance(AddressZero);
       expect(BigNumber.isBigNumber(res)).to.be.true;
+      expect(res).to.be.eq(BigNumber.from(amount));
     });
 
     it("should return Erc20 asset balance if Non-AddressZero", async () => {
+      const amount = BigNumber.from(1);
       const Erc20TokenAddress = token.address;
-      const res = await libAssetTest.getOwnBalance(Erc20TokenAddress);
+
+      await token.connect(wallet).transfer(libAssetTest.address, amount);
+      const res = await libAssetTest.connect(other).getOwnBalance(Erc20TokenAddress);
+
       expect(BigNumber.isBigNumber(res)).to.be.true;
+      expect(res).to.be.eq(amount);
     });
   });
 
   describe("#transferEther", () => {
-    it("should error if param recipient is not payable", async () => {
-      await expect(libAssetTest.transferEther(AddressZero, "1")).to.be.reverted;
-    });
-
     it.skip("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
+
+      await wallet.sendTransaction({
+        to: libAssetTest.address,
+        value: utils.parseEther(amount.toString()),
+        gasLimit: 21000,
+      });
+
       await libAssetTest.connect(wallet).transferEther(receiver.address, amount);
     });
   });
 
   describe("#transferERC20", () => {
-    it.skip("happy case: transferERC20", async () => {
+    it("happy case: transferERC20", async () => {
       const amount = BigNumber.from(1);
-      await token.balanceOf(wallet.address);
+
+      await token.connect(wallet).transfer(libAssetTest.address, amount);
 
       const approveRes = await token.connect(wallet).approve(libAssetTest.address, amount);
       await approveRes.wait();
 
+      expect(await token.balanceOf(receiver.address)).to.be.eq(0);
+
       const res = await libAssetTest.connect(wallet).transferERC20(token.address, receiver.address, amount);
       await res.wait();
+
+      expect(await token.balanceOf(receiver.address)).to.be.eq(amount);
     });
   });
 });
