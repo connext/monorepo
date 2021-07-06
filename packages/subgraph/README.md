@@ -11,7 +11,7 @@ If contract changes have been made, first update the requisite `abi` in the `abi
 When changes have been made to the `TransactionManager.sol` events, first update the [sugraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts prepare:local
+yarn workspace @connext/nxtp-subgraph prepare:local
 ```
 
 which will ensure a `subgraph.yaml` gets generated from the template.
@@ -19,13 +19,13 @@ which will ensure a `subgraph.yaml` gets generated from the template.
 Then, regenerate the typings by running:
 
 ```sh
-yarn workspace @connext/nxtp-contracts codegen
+yarn workspace @connext/nxtp-subgraph codegen
 ```
 
 From there, you can update the `mapping.ts` as needed to conform to the new event structures. Once the `mapping.ts` is updated, run:
 
 ```sh
-yarn workspace @connext/nxtp-contracts build
+yarn workspace @connext/nxtp-subgraph build
 ```
 
 #### Subgraph Schema Changes
@@ -33,13 +33,13 @@ yarn workspace @connext/nxtp-contracts build
 If you would like to change the schema of the subgraph, make the requisite changes in the `schema.graphql` and regenerate the typings by running:
 
 ```sh
-yarn workspace @connext/nxtp-contracts codegen
+yarn workspace @connext/nxtp-subgraph codegen
 ```
 
 Then, update the `mapping.ts` as needed to properly account for the schema changes and run:
 
 ```sh
-yarn workspace @connext/nxtp-contracts build
+yarn workspace @connext/nxtp-subgraph build
 ```
 
 ### Deploying Subgraph
@@ -54,7 +54,7 @@ You can find the correct values in the `packages/contracts/deployments` director
 Then, prepare and deploy the subgraph for the appropriate chain. For example, for a rinkeby subgraph deployment, run:
 
 ```sh
-yarn workspace @connext/nxtp-contracts deploy:rinkeby
+yarn workspace @connext/nxtp-subgraph deploy:rinkeby
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.
