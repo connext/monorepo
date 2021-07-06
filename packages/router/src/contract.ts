@@ -26,7 +26,7 @@ export class TransactionManager {
 
   async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::prepare ";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
