@@ -14,10 +14,10 @@ import { getTransactionManagerContract } from "./contract";
 
 export class TransactionManagerListener {
   private readonly evts = {
-    [NxtpSdkEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [NxtpSdkEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [NxtpSdkEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
-    [NxtpSdkEvents.TransactionCompleted]: Evt.create<TransactionCompletedEvent>(),
+    [NxtpSdkEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent & { chainId: number }>(),
+    [NxtpSdkEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent & { chainId: number }>(),
+    [NxtpSdkEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent & { chainId: number }>(),
+    [NxtpSdkEvents.TransactionCompleted]: Evt.create<TransactionCompletedEvent & { chainId: number }>(),
   };
   public chainId?: number;
 
@@ -66,7 +66,7 @@ export class TransactionManagerListener {
           encodedBid,
           bidSignature,
         };
-        this.evts[NxtpSdkEvents.TransactionPrepared].post(payload);
+        this.evts[NxtpSdkEvents.TransactionPrepared].post({ ...payload, chainId: this.chainId! });
       },
     );
 
@@ -77,7 +77,7 @@ export class TransactionManagerListener {
         relayerFee: relayerFee.toString(),
         caller,
       };
-      this.evts[NxtpSdkEvents.TransactionFulfilled].post(payload);
+      this.evts[NxtpSdkEvents.TransactionFulfilled].post({ ...payload, chainId: this.chainId! });
     });
 
     this.transactionManager.on(NxtpSdkEvents.TransactionCancelled, (txData, relayerFee, caller) => {
@@ -86,7 +86,7 @@ export class TransactionManagerListener {
         relayerFee: relayerFee.toString(),
         caller,
       };
-      this.evts[NxtpSdkEvents.TransactionCancelled].post(payload);
+      this.evts[NxtpSdkEvents.TransactionCancelled].post({ ...payload, chainId: this.chainId! });
     });
   }
 
