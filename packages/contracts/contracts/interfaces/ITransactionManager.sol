@@ -103,4 +103,7 @@ interface ITransactionManager {
   ) external returns (TransactionData memory);
 
   function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);
+  
+  // Getters
+  function getActiveTransactionBlocks(address user) external view returns (uint256[] memory);
 }

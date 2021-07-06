@@ -513,6 +513,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     return txData;
   }
 
+  function getActiveTransactionBlocks(address user) external override view returns (uint256[] memory) {
+    return activeTransactionBlocks[user];
+  }
+
   //////////////////////////
   /// Private functions ///
   //////////////////////////

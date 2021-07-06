@@ -153,14 +153,6 @@ describe("TransactionManager", function () {
       value: 0,
     };
 
-    const test_call = await instance.signer.call(txn);
-
-    const decodeBalances = transactionManager.interface.decodeFunctionResult("routerBalances", test_call);
-
-    console.log(`DECODED READ RESULT: ${decodeBalances}`);
-
-    console.log(`READ RESULT: ${test_call}`);
-
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
@@ -235,7 +227,7 @@ describe("TransactionManager", function () {
     txOverrides: Partial<InvariantTransactionData>,
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
-    instance: Contract = transactionManager,
+    instance: TransactionManager = transactionManager,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
@@ -712,7 +704,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
-    it("happy case: prepare by Bob for ERC20", async () => {
+    it.only("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
       const assetId = tokenA.address;
 

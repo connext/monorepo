@@ -1,50 +1,35 @@
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
+import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { Contract, providers, constants, BigNumberish } from "ethers";
+import { Interface } from "ethers/lib/utils";
+import { BigNumber, constants, providers } from "ethers";
+import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
+import hyperid from "hyperid";
+import { BaseLogger } from "pino";
 
-export const getTransactionManagerContract = (
-  chainId: number,
-  userWebProvider?: providers.JsonRpcProvider,
-): { address: string; abi: any; instance: TransactionManager } => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    throw new Error("Chain not supported yet, please contact connext team");
+const hId = hyperid();
+
+export class TransactionManager {
+  private readonly txManagerInterface: TTransactionManager["interface"];
+
+  constructor(
+    private readonly txService: TransactionService,
+    private readonly signerAddress: string,
+    private readonly logger: BaseLogger,
+  ) {
+    this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
   }
 
-  // TODO: fix me!
-  if (name === "hardhat") {
-    return {
-      address: constants.AddressZero,
-      abi: TransactionManagerArtifact.abi,
-      instance: { test: "test" } as unknown as TransactionManager,
-    };
+  async getActiveTransactionBlocks(chainId: number) {
+    const getLiquidityData = this.txManagerInterface.encodeFunctionData("activeTransactionBlocks", [
+      this.signerAddress,
+      0,
+    ]);
+    const liquidity = await this.txService.readTx(chainId, {
+      chainId: chainId,
+      to: this.config.chainConfig[chainId].transactionManagerAddress,
+      value: 0,
+      data: getLiquidityData,
+    });
   }
-
-  const abi = record[name]?.contracts?.TransactionManager?.abi;
-  const address = record[name]?.contracts?.TransactionManager?.address;
-
-  const instance = new Contract(address, abi, userWebProvider) as TransactionManager;
-
-  return { address, abi, instance };
-};
-
-export type VariableTransactionData = {
-  user: string;
-  amount: BigNumberish;
-  expiry: string;
-  blockNumber: string;
-  digest: string;
-};
-
-export const getActiveTransactionsByUser = async (
-  _chainId: number,
-  _userAddress: string,
-): Promise<VariableTransactionData[]> => {
-  // const { instance } = getTransactionManagerContract(chainId);
-
-  // const res = await instance.getActiveTransactionsByUser(userAddress);
-
-  return [];
-};
+}

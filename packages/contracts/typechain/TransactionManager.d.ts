@@ -28,6 +28,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getActiveTransactionBlocks(address)": FunctionFragment;
     "iMultisend()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -94,6 +95,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getActiveTransactionBlocks",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "iMultisend",
     values?: undefined
   ): string;
@@ -147,6 +152,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getActiveTransactionBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "iMultisend", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
@@ -280,6 +289,11 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     iMultisend(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
@@ -380,6 +394,11 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getActiveTransactionBlocks(
+    user: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   iMultisend(overrides?: CallOverrides): Promise<string>;
 
@@ -541,6 +560,11 @@ export class TransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
 
     iMultisend(overrides?: CallOverrides): Promise<string>;
 
@@ -923,6 +947,11 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     iMultisend(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
@@ -1023,6 +1052,11 @@ export class TransactionManager extends BaseContract {
       signature: BytesLike,
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     iMultisend(overrides?: CallOverrides): Promise<PopulatedTransaction>;
