@@ -67,7 +67,7 @@ interface ITransactionManager {
   // Transaction events
   event TransactionPrepared(TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
 
-  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
+  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, bytes callData, address caller);
 
   event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
 
