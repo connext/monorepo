@@ -371,7 +371,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       }
 
       // Handle receiver chain external calls if needed
-      if (txData.callDataHash == keccak256(new bytes(0))) {
+      if (txData.callTo == address(0)) {
         // No external calls, send directly to receiving address
         require(
           LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
@@ -383,27 +383,29 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // locked.
 
         // First, approve the funds to the helper if needed
-        if (LibAsset.isEther(txData.receivingAssetId)) {
+        if (LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
           require(LibERC20.approve(txData.receivingAssetId, txData.callTo, toSend), "fulfill: APPROVAL_FAILED");
         }
 
         // Next, call `addFunds` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx
-        try
-          IMultisendInterpreter(iMultisend).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
-            txData.user,
-            txData.transactionId,
-            txData.receivingAssetId,
-            toSend
-          )
-        {} catch {
-          // Regardless of error within the callData execution, send funds
-          // to the predetermined fallback address
-          require(
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
-            "fulfill: TRANSFER_FAILED"
-          );
+        if (toSend > 0) {
+          try
+            IMultisendInterpreter(iMultisend).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+              txData.user,
+              txData.transactionId,
+              txData.receivingAssetId,
+              toSend
+            )
+          {} catch {
+            // Regardless of error within the callData execution, send funds
+            // to the predetermined fallback address
+            require(
+              LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
+              "fulfill: TRANSFER_FAILED"
+            );
+          }
         }
 
         // Call `execute` on the helper
