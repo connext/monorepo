@@ -17,6 +17,7 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
 import { TestERC20 } from "../typechain/TestERC20";
+import TestERC20Artifact from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
@@ -32,7 +33,7 @@ const advanceBlockTime = async (desiredTimestamp: number) => {
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
-  const [wallet, router, user, receiver] = waffle.provider.getWallets();
+  const [wallet, router, user, receiver, other] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
   let tokenA: TestERC20;
@@ -54,7 +55,7 @@ describe("TransactionManager", function () {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, user, receiver]);
+    loadFixture = createFixtureLoader([wallet, router, user, receiver, other]);
   });
 
   beforeEach(async function () {
@@ -321,6 +322,7 @@ describe("TransactionManager", function () {
     fulfillingForSender: boolean,
     submitter: Wallet,
     instance: TransactionManager,
+    callData: string = EmptyBytes,
   ) => {
     // Get pre-fulfull balance. If fulfilling on sender side, router
     // liquidity of sender asset will increase. If fulfilling on receiving
@@ -366,9 +368,10 @@ describe("TransactionManager", function () {
       },
       relayerFee,
       signature,
-      EmptyBytes,
+      callData,
     );
     const receipt = await tx.wait();
+    console.log(receipt);
     expect(receipt.status).to.be.eq(1);
 
     const variantDigest = getVariantTransactionDigest({
@@ -993,7 +996,46 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
     });
 
-    it.skip("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter failed", async () => {});
+    it.only("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter failed", async () => {
+      const prepareAmount = "100";
+      const assetId = AddressZero;
+      const relayerFee = "1";
+
+      const iface = new utils.Interface(TestERC20Artifact.abi);
+      const calldata = iface.encodeFunctionData("transfer", [other.address, prepareAmount]);
+      const callDataHash = keccak256(calldata);
+
+      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(0));
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: assetId,
+          receivingAssetId: assetId,
+          callDataHash: callDataHash,
+        },
+        { amount: prepareAmount },
+      );
+
+      // User prepares
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address, tokenB);
+      const { blockNumber } = await prepareAndAssert(transaction, record, user);
+
+      // Router fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        false,
+        router,
+        transactionManager,
+        calldata,
+      );
+
+      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(prepareAmount));
+    });
+
     it.skip("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter success", async () => {});
 
     it("happy case: router fulfills in native asset", async () => {
