@@ -170,7 +170,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             },
             signature: transaction.signature,
             relayerFee: transaction.relayerFee,
-            callData: transaction.callData,
+            callData: transaction.callData ?? "",
             caller: transaction.fulfillCaller,
           };
 
@@ -212,7 +212,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             },
             signature: transaction.signature,
             relayerFee: transaction.relayerFee,
-            callData: transaction.callData,
+            callData: transaction.callData ?? "",
             caller: transaction.fulfillCaller,
           };
 
