@@ -77,7 +77,7 @@ export class Transaction {
             gasPrice: fullTransaction.gasPrice.toString(),
             error: error.message,
           },
-          "Nonce already used.",
+          "Tx reverted: nonce already used.",
         );
       } else {
         this.log.error({ method, error }, "Failed to send tx");
@@ -89,8 +89,18 @@ export class Transaction {
     // Save nonce if applicable.
     if (this.nonce === undefined) {
       this.nonce = response.nonce;
+    } else if (this.nonce !== response.nonce) {
+      // This should never happen, but we are logging just in case.
+      this.log.warn(
+        {
+          method,
+          currentNonce: this.nonce,
+          responseNonce: response.nonce,
+          tx: fullTransaction,
+        },
+        "NONCE WAS CHANGED DURING TX SEND LOOP."
+      );
     }
-    // TODO: Should we be checking for wild case where this.nonce !== response.nonce?
 
     // Add this response to our local response history.
     this.responses.push(response);

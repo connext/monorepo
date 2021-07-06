@@ -178,6 +178,9 @@ export class ChainRpcProvider {
 
   private async isReady(): Promise<boolean> {
     // TODO: Do we need both ready and the check below, or is this redundant?
+    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
+    // errors due to the target node not being active yet. This will ensure we wait until the node is up
+    // and running smoothly.
     const ready = await this.provider.ready;
     if (!ready) {
       // Error out, not enough providers are ready.
