@@ -1,6 +1,7 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { NonceManager } from "@ethersproject/experimental";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
@@ -16,7 +17,7 @@ export class ChainRpcProvider {
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private _providers: providers.JsonRpcProvider[];
   private provider: providers.JsonRpcProvider | providers.FallbackProvider;
-  private signer: Signer;
+  private signer: NonceManager;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
 
@@ -61,42 +62,37 @@ export class ChainRpcProvider {
       this._providers = fallbackProviderConfigs.map((p) => p.provider);
     }
 
-    this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+    // Using experimental NonceManager to wrap signer here.
+    this.signer = new NonceManager(typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider));
   }
 
   public async sendTransaction(
     tx: FullTransaction
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
     this.isReady();
-
+    const method = this.sendTransaction.name;
     // Define task to send tx with proper nonce
     const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
       try {
         // Send transaction using the passed in callback.
-        // const stored = this.nonces.get(chainId);
-        // const nonceToUse: number = nonce ?? stored ?? (await signer.getTransactionCount("pending"));
-        const pending: number = await this.signer.getTransactionCount("pending");
-        const { to, data, chainId, value, gasPrice, nonce } = tx;
+        const { to, data, chainId, value, gasPrice } = tx;
+        let { nonce } = tx;
+        if (typeof nonce === "undefined") {
+          // Nonce hasn't been defined yet for the tx, indicating this is the first time it's being sent.
+          // NOTE: This signer is a NonceManager, and will manage its nonce internally.
+          nonce = await this.signer.getTransactionCount("pending");
+        }
         const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({
           to,
           data,
           chainId,
           gasPrice,
-          nonce: nonce ?? pending,
+          nonce: nonce,
           value: BigNumber.from(value || 0),
         });
-        // After calling tx fn, set nonce to the greatest of
-        // stored, pending, or incremented
-        // const pending = await signer.getTransactionCount("pending");
-        // const incremented = (response?.nonce ?? nonceToUse) + 1;
-        // Ensure the nonce you store is *always* the greatest of the values
-        // const toCompare = stored ?? 0;
-        // if (toCompare < pending || toCompare < incremented) {
-        //   this.nonces.set(chainId, incremented > pending ? incremented : pending);
-        // }
         // Check to see if ethers returned undefined for the response; if so, handle as error case.
-        if (!response) {
-          throw new ChainError(ChainError.reasons.FailedToSendTx);
+        if (typeof response === "undefined") {
+          throw new ChainError(ChainError.reasons.FailedToSendTx, { method, ...tx, nonce });
         }
         return { response, success: true };
       } catch (e) {
@@ -110,6 +106,7 @@ export class ChainRpcProvider {
   public async confirmTransaction(
     transactionHash: string,
   ) {
+    this.isReady();
     // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
     // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
     // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)
@@ -118,6 +115,7 @@ export class ChainRpcProvider {
   }
 
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
+    this.isReady();
     const method = this.readTransaction.name;
     return await this.retryWrapper(this.chainId, method, async () => {
       try {
@@ -179,6 +177,7 @@ export class ChainRpcProvider {
   }
 
   private async isReady(): Promise<boolean> {
+    // TODO: Do we need both ready and the check below, or is this redundant?
     const ready = await this.provider.ready;
     if (!ready) {
       // Error out, not enough providers are ready.

@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@ethersproject/experimental": "^5.4.0",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "axios": "^0.21.1",
     "eslint": "^7.30.0",
