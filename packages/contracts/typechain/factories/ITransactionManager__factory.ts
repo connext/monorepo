@@ -248,6 +248,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",

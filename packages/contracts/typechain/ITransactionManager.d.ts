@@ -121,7 +121,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "LiquidityAdded(address,address,uint256)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
     "TransactionCancelled(tuple,uint256,address)": EventFragment;
-    "TransactionFulfilled(tuple,uint256,bytes,address)": EventFragment;
+    "TransactionFulfilled(tuple,uint256,bytes,bytes,address)": EventFragment;
     "TransactionPrepared(tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
@@ -597,6 +597,7 @@ export class ITransactionManager extends BaseContract {
       txData?: null,
       relayerFee?: null,
       signature?: null,
+      callData?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -630,6 +631,7 @@ export class ITransactionManager extends BaseContract {
           preparedBlockNumber: BigNumber;
         },
         BigNumber,
+        string,
         string,
         string
       ],
@@ -665,6 +667,7 @@ export class ITransactionManager extends BaseContract {
         };
         relayerFee: BigNumber;
         signature: string;
+        callData: string;
         caller: string;
       }
     >;
