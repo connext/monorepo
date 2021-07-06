@@ -123,19 +123,19 @@ function App(): React.ReactElement | null {
     sdk.attachOnce(
       NxtpSdkEvents.TransactionPrepared,
       () => setStep(1),
-      (data) => data.chainId === sendingChain && data.txData.transactionId === transactionId,
+      (data) => data.txData.sendingChainId === sendingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCompleted,
       () => setStep(2),
-      (data) => data.chainId === receivingChain && data.txData.transactionId === transactionId,
+      (data) => data.txData.sendingChainId === receivingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCancelled,
       () => setStep(0),
-      (data) => data.chainId === sendingChain && data.txData.transactionId === transactionId,
+      (data) => data.txData.sendingChainId === sendingChain && data.txData.transactionId === transactionId,
     );
 
     try {
