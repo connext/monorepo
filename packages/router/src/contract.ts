@@ -6,8 +6,10 @@ import { BigNumber, constants, providers } from "ethers";
 import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { getConfig, NxtpRouterConfig } from "./config";
+
 
 const hId = hyperid();
 
@@ -52,8 +54,17 @@ export class TransactionManager {
     ]);
 
     try {
+      //todo:ask Rahul??
+      const getTxManagerAddress = () => {
+        if(this.config.chainConfig[chainId]){
+          return this.config.chainConfig[chainId].transactionManagerAddress;
+        }else{
+          //check that the deployment for chainIdx exists
+          return contractDeployments[4].rinkeby.contracts.TransactionManager.address;
+        }
+      };
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
+        to: getTxManagerAddress(),
         data: encodedData,
         value: constants.Zero,
         chainId: chainId,
