@@ -1834,6 +1834,7 @@ __metadata:
     graphql: ^15.5.1
     graphql-request: ^3.4.0
     graphql-tag: ^2.12.5
+    hyperid: ^2.3.1
     mocha: ^9.0.2
     nodemon: ^2.0.9
     nyc: ^15.1.0
@@ -1845,7 +1846,6 @@ __metadata:
     ts-node: ^10.0.0
     tslib: ^2.3.0
     typescript: ^4.3.5
-    uuid: ^8.3.2
   languageName: unknown
   linkType: soft
 
@@ -1958,7 +1958,6 @@ __metadata:
     "@types/mocha": ^8.2.2
     "@types/pino": ^6.3.8
     "@types/sinon": ^10.0.2
-    "@types/uuid": ^8.3.1
     "@typescript-eslint/eslint-plugin": ^4.28.2
     axios: ^0.21.1
     chai: 4.3.4
@@ -1966,6 +1965,7 @@ __metadata:
     chai-subset: ^1.6.0
     eslint: ^7.30.0
     ethers: ^5.4.1
+    hyperid: ^2.3.1
     mocha: ^9.0.2
     nyc: ^15.1.0
     pino: ^6.11.3
@@ -1975,7 +1975,6 @@ __metadata:
     ts-natsutil: ^1.1.1
     tslib: ^2.3.0
     typescript: ^4.3.5
-    uuid: ^8.3.2
   languageName: unknown
   linkType: soft
 
@@ -4609,13 +4608,6 @@ __metadata:
   version: 1.11.3
   resolution: "@types/underscore@npm:1.11.3"
   checksum: e7eddb1f49ab5b19a45b38cde913b29875816c68b0012a9eabb9511467bede0001d3967ed2d667393b52d8ba498391b8516c39b0dbe89be09fa9a0152317a213
-  languageName: node
-  linkType: hard
-
-"@types/uuid@npm:^8.3.1":
-  version: 8.3.1
-  resolution: "@types/uuid@npm:8.3.1"
-  checksum: 5864be83031f5836be985187ecebb2769936bf223bad896dac381f1a0fdd2ae239f448263196f752d62a4ecc8563817d6d94e329eb2099a28e743ab206e7bfea
   languageName: node
   linkType: hard
 
@@ -13808,6 +13800,16 @@ fsevents@~2.1.1:
   dependencies:
     ms: ^2.0.0
   checksum: 4a08769434132a229a6153e77c869a9fe7132dc003d90119d54958e7b75feb65a3c4eca19fb18921568878ac455b6f399013279ad33248d94bd61a25def1fdda
+  languageName: node
+  linkType: hard
+
+"hyperid@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "hyperid@npm:2.3.1"
+  dependencies:
+    uuid: ^8.3.2
+    uuid-parse: ^1.1.0
+  checksum: 3844c6b54ed441c8d7d5359456e4972085679dc656332f5fc7c0f5db8dd920b148d28c8187448aab4f105db6bf2c7f87d8c419a6a7163479af3b342c0f38d68c
   languageName: node
   linkType: hard
 
@@ -26338,6 +26340,13 @@ resolve@^2.0.0-next.3:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: a457956ebc09efbda05da8bf213ab89140bb9dffa3c42b3315dd8fc3c45d67a1b802741f58b7bba4872113201fc275fc86470289d8bd32b74297b5e5b5980705
+  languageName: node
+  linkType: hard
+
+"uuid-parse@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "uuid-parse@npm:1.1.0"
+  checksum: 553175532fe9726fdbb00c000b1f0566de0a77f9f489b88406c96da5cf8a56b903231a5567dfe1c06f6dae8de3920f10e6d6231e1344d6ebfa9dfdf754cabf0b
   languageName: node
   linkType: hard
 
