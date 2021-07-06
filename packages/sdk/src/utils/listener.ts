@@ -4,24 +4,34 @@ import {
   TransactionFulfilledEvent,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
-import { Contract, providers } from "ethers";
+import { TransactionManager } from "@connext/nxtp-contracts/typechain";
+import { providers } from "ethers";
 import { Evt } from "evt";
 
-import { NxtpSdkEvent, NxtpSdkEvents, TransactionCompletedEvent, NxtpSdkEventPayloads } from "../sdk";
-
 import { getTransactionManagerContract } from "./contract";
-// Define event types
+
+export const TransactionManagerEvents = {
+  TransactionPrepared: "TransactionPrepared",
+  TransactionFulfilled: "TransactionFulfilled",
+  TransactionCancelled: "TransactionCancelled",
+} as const;
+export type TransactionManagerEvent = typeof TransactionManagerEvents[keyof typeof TransactionManagerEvents];
+
+export interface TransactionManagerEventPayloads {
+  [TransactionManagerEvents.TransactionPrepared]: TransactionPreparedEvent;
+  [TransactionManagerEvents.TransactionFulfilled]: TransactionFulfilledEvent;
+  [TransactionManagerEvents.TransactionCancelled]: TransactionCancelledEvent;
+}
 
 export class TransactionManagerListener {
   private readonly evts = {
-    [NxtpSdkEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent & { chainId: number }>(),
-    [NxtpSdkEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent & { chainId: number }>(),
-    [NxtpSdkEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent & { chainId: number }>(),
-    [NxtpSdkEvents.TransactionCompleted]: Evt.create<TransactionCompletedEvent & { chainId: number }>(),
+    [TransactionManagerEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
+    [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
+    [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
   public chainId?: number;
 
-  private constructor(private readonly transactionManager: Contract) {}
+  private constructor(private readonly transactionManager: TransactionManager) {}
 
   static async connect(provider: providers.JsonRpcProvider): Promise<TransactionManagerListener> {
     const { chainId } = await provider.getNetwork();
@@ -33,7 +43,7 @@ export class TransactionManagerListener {
     return listener;
   }
 
-  public getTransactionManager(): Contract {
+  public getTransactionManager(): TransactionManager {
     return this.transactionManager;
   }
 
@@ -57,7 +67,7 @@ export class TransactionManagerListener {
     };
 
     this.transactionManager.on(
-      NxtpSdkEvents.TransactionPrepared,
+      TransactionManagerEvents.TransactionPrepared,
       (txData, caller, encryptedCallData, encodedBid, bidSignature) => {
         const payload: TransactionPreparedEvent = {
           txData: processTxData(txData),
@@ -66,51 +76,54 @@ export class TransactionManagerListener {
           encodedBid,
           bidSignature,
         };
-        this.evts[NxtpSdkEvents.TransactionPrepared].post({ ...payload, chainId: this.chainId! });
+        this.evts[TransactionManagerEvents.TransactionPrepared].post(payload);
       },
     );
 
-    this.transactionManager.on(NxtpSdkEvents.TransactionFulfilled, (txData, relayerFee, signature, caller) => {
-      const payload: TransactionFulfilledEvent = {
-        txData: processTxData(txData),
-        signature: signature,
-        relayerFee: relayerFee.toString(),
-        caller,
-      };
-      this.evts[NxtpSdkEvents.TransactionFulfilled].post({ ...payload, chainId: this.chainId! });
-    });
+    this.transactionManager.on(
+      TransactionManagerEvents.TransactionFulfilled,
+      (txData, relayerFee, signature, caller) => {
+        const payload: TransactionFulfilledEvent = {
+          txData: processTxData(txData),
+          signature: signature,
+          relayerFee: relayerFee.toString(),
+          caller,
+        };
+        this.evts[TransactionManagerEvents.TransactionFulfilled].post(payload);
+      },
+    );
 
-    this.transactionManager.on(NxtpSdkEvents.TransactionCancelled, (txData, relayerFee, caller) => {
+    this.transactionManager.on(TransactionManagerEvents.TransactionCancelled, (txData, relayerFee, caller) => {
       const payload: TransactionCancelledEvent = {
         txData: processTxData(txData),
         relayerFee: relayerFee.toString(),
         caller,
       };
-      this.evts[NxtpSdkEvents.TransactionCancelled].post({ ...payload, chainId: this.chainId! });
+      this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
     });
   }
 
-  public attach<T extends NxtpSdkEvent>(
+  public attach<T extends TransactionManagerEvent>(
     event: T,
-    callback: (data: NxtpSdkEventPayloads[T]) => void,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
+    callback: (data: TransactionManagerEventPayloads[T]) => void,
+    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter((x) => !!x) as [number, (data: NxtpSdkEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attach(...args);
   }
 
-  public attachOnce<T extends NxtpSdkEvent>(
+  public attachOnce<T extends TransactionManagerEvent>(
     event: T,
-    callback: (data: NxtpSdkEventPayloads[T]) => void,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
+    callback: (data: TransactionManagerEventPayloads[T]) => void,
+    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
     timeout?: number,
   ): void {
-    const args = [timeout, callback].filter((x) => !!x) as [number, (data: NxtpSdkEventPayloads[T]) => void];
+    const args = [timeout, callback].filter((x) => !!x) as [number, (data: TransactionManagerEventPayloads[T]) => void];
     this.evts[event].pipe(filter).attachOnce(...args);
   }
 
-  public detach<T extends NxtpSdkEvent>(event?: T): void {
+  public detach<T extends TransactionManagerEvent>(event?: T): void {
     if (event) {
       this.evts[event].detach();
       return;
@@ -118,11 +131,11 @@ export class TransactionManagerListener {
     Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
-  public waitFor<T extends NxtpSdkEvent>(
+  public waitFor<T extends TransactionManagerEvent>(
     event: T,
     timeout: number,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
-  ): Promise<NxtpSdkEventPayloads[T]> {
+    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
+  ): Promise<TransactionManagerEventPayloads[T]> {
     return this.evts[event].pipe(filter).waitFor(timeout);
   }
 }
