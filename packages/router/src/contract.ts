@@ -38,6 +38,7 @@ export class TransactionManager {
         sendingAssetId: txData.sendingAssetId,
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
         receivingAddress: txData.receivingAddress,
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,

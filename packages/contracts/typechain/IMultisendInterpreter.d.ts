@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -21,14 +22,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IMultisendInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "execute(address,uint256,bytes)": FunctionFragment;
+    "addFunds(address,bytes32,address,uint256)": FunctionFragment;
+    "execute(address,bytes32,address,uint256,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
+    functionFragment: "addFunds",
+    values: [string, BytesLike, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "execute",
-    values: [string, BigNumberish, BytesLike]
+    values: [string, BytesLike, string, BigNumberish, BytesLike]
   ): string;
 
+  decodeFunctionResult(functionFragment: "addFunds", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
 
   events: {};
@@ -78,23 +85,53 @@ export class IMultisendInterpreter extends BaseContract {
   interface: IMultisendInterpreterInterface;
 
   functions: {
+    addFunds(
+      user: string,
+      transactionId: BytesLike,
+      assetId: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     execute(
+      user: string,
+      transactionId: BytesLike,
       assetId: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  execute(
+  addFunds(
+    user: string,
+    transactionId: BytesLike,
     assetId: string,
     amount: BigNumberish,
-    callData: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  execute(
+    user: string,
+    transactionId: BytesLike,
+    assetId: string,
+    amount: BigNumberish,
+    callData: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    addFunds(
+      user: string,
+      transactionId: BytesLike,
+      assetId: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     execute(
+      user: string,
+      transactionId: BytesLike,
       assetId: string,
       amount: BigNumberish,
       callData: BytesLike,
@@ -105,20 +142,40 @@ export class IMultisendInterpreter extends BaseContract {
   filters: {};
 
   estimateGas: {
+    addFunds(
+      user: string,
+      transactionId: BytesLike,
+      assetId: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     execute(
+      user: string,
+      transactionId: BytesLike,
       assetId: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addFunds(
+      user: string,
+      transactionId: BytesLike,
+      assetId: string,
+      amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     execute(
+      user: string,
+      transactionId: BytesLike,
       assetId: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

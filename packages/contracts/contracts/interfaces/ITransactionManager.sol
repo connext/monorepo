@@ -14,6 +14,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback; // funds sent here on cancel
     address receivingAddress;
+    address callTo;
     uint256 sendingChainId;
     uint256 receivingChainId;
     bytes32 callDataHash; // hashed to prevent free option
@@ -37,6 +38,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback;
     address receivingAddress;
+    address callTo;
     bytes32 callDataHash;
     bytes32 transactionId;
     uint256 sendingChainId;

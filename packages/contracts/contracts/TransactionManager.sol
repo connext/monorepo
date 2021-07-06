@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
+import "./interfaces/IMultisendInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
-import "./interpreters/MultisendInterpreter.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -267,6 +267,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
       sendingChainFallback: invariantData.sendingChainFallback,
+      callTo: invariantData.callTo,
       receivingAddress: invariantData.receivingAddress,
       callDataHash: invariantData.callDataHash,
       transactionId: invariantData.transactionId,
@@ -380,8 +381,36 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Handle external calls with a fallback to the receiving
         // address in case the call fails so the funds dont remain
         // locked.
+
+        // First, approve the funds to the helper if needed
+        if (LibAsset.isEther(txData.receivingAssetId)) {
+          require(LibERC20.approve(txData.receivingAssetId, txData.callTo, toSend), "fulfill: APPROVAL_FAILED");
+        }
+
+        // Next, call `addFunds` on the helper. Helpers should internally
+        // track funds to make sure no one user is able to take all funds
+        // for tx
         try
-          MultisendInterpreter(iMultisend).execute{value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          IMultisendInterpreter(iMultisend).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+            txData.user,
+            txData.transactionId,
+            txData.receivingAssetId,
+            toSend
+          )
+        {} catch {
+          // Regardless of error within the callData execution, send funds
+          // to the predetermined fallback address
+          require(
+            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
+            "fulfill: TRANSFER_FAILED"
+          );
+        }
+
+        // Call `execute` on the helper
+        try
+          IMultisendInterpreter(iMultisend).execute(
+            txData.user,
+            txData.transactionId,
             txData.receivingAssetId,
             toSend,
             callData
@@ -592,6 +621,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,
+      callTo: txData.callTo,
       receivingAddress: txData.receivingAddress,
       sendingChainId: txData.sendingChainId,
       receivingChainId: txData.receivingChainId,

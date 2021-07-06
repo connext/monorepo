@@ -107,6 +107,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "callTo",
+            "type": "address"
+          },
+          {
             "internalType": "bytes32",
             "name": "callDataHash",
             "type": "bytes32"
@@ -196,6 +201,11 @@
           {
             "internalType": "address",
             "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "callTo",
             "type": "address"
           },
           {
@@ -294,6 +304,11 @@
           {
             "internalType": "address",
             "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "callTo",
             "type": "address"
           },
           {
@@ -455,6 +470,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "callTo",
+            "type": "address"
+          },
+          {
             "internalType": "bytes32",
             "name": "callDataHash",
             "type": "bytes32"
@@ -537,6 +557,11 @@
           {
             "internalType": "address",
             "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "callTo",
             "type": "address"
           },
           {
@@ -631,6 +656,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "callTo",
+            "type": "address"
+          },
+          {
             "internalType": "bytes32",
             "name": "callDataHash",
             "type": "bytes32"
@@ -718,6 +748,11 @@
           {
             "internalType": "address",
             "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "callTo",
             "type": "address"
           },
           {
@@ -812,6 +847,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "callTo",
+            "type": "address"
+          },
+          {
             "internalType": "uint256",
             "name": "sendingChainId",
             "type": "uint256"
@@ -894,6 +934,11 @@
           {
             "internalType": "address",
             "name": "receivingAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "callTo",
             "type": "address"
           },
           {

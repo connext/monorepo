@@ -83,6 +83,7 @@ describe("TransactionManager", function () {
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
       sendingChainFallback: user.address,
+      callTo: AddressZero,
       receivingAddress: receiver.address,
       callDataHash: EmptyCallDataHash,
       transactionId: hexlify(randomBytes(32)),

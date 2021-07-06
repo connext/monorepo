@@ -28,10 +28,10 @@ dataSources:
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(address,address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: TransactionPrepared((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
+        - event: TransactionPrepared((address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
           handler: handleTransactionPrepared
-        - event: TransactionFulfilled((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,address)
+        - event: TransactionFulfilled((address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,address)
           handler: handleTransactionFulfilled
-        - event: TransactionCancelled((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,address)
+        - event: TransactionCancelled((address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,address)
           handler: handleTransactionCancelled
       file: ./src/mapping.ts

@@ -11,6 +11,7 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   address receivingAssetId,
   address sendingChainFallback,
   address receivingAddress,
+  address callTo,
   uint24 sendingChainId,
   uint24 receivingChainId,
   bytes32 callDataHash,
