@@ -7,12 +7,14 @@ import {
   TransactionFulfilledEvent,
   calculateExchangeAmount,
 } from "@connext/nxtp-utils";
-import { v4 } from "uuid";
+import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { TransactionStatus } from "./graphqlsdk";
+
+const hId = hyperid();
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -114,7 +116,7 @@ export class Handler implements Handler {
   public async handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void> {
     // First log
     const method = "handleMetaTxRequest";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
     const { chainId, responseInbox } = data;
@@ -160,7 +162,7 @@ export class Handler implements Handler {
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
   public async handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void> {
     const method = "handleSenderPrepare";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
@@ -257,7 +259,7 @@ export class Handler implements Handler {
   // Purpose: Router should mirror the receiver fulfill data back to sender side
   public async handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void> {
     const method = "handleSenderPrepare";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
     const { txData, signature, relayerFee } = data;
