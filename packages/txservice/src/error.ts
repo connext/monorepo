@@ -24,7 +24,7 @@ export class ChainError extends NxtpError {
     NonceExpired: "Failed to confirm a tx whose nonce had expired.",
     InvalidResponse: "Did not receive valid tx response from ethers.",
     RpcFailure: "Could not execute RPC method.",
-    ProviderNotReady: "No provider(s) network were ready for execution.",
+    ProviderNotSynced: "No provider(s) network were ready for execution.",
     ContractReadFailure: "Could not read from contract.",
   };
 

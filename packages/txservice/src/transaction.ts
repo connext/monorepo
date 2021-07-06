@@ -107,7 +107,7 @@ export class Transaction {
   }
 
   public async confirm() {
-    const { confirmationTimeout, confirmationTimeoutExtensionMultiplier } = this.config;
+    const { confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
     // if this is the case.
     let receivedConfirmation = false;
@@ -125,7 +125,7 @@ export class Transaction {
         this.responses
           .map((response) => {
             return new Promise(async (resolve) => {
-              const r = await this.provider.confirmTransaction(response.hash, confirmationTimeout);
+              const r = await this.provider.confirmTransaction(response.hash);
               if (r) {
                 if (r.status === 0) {
                   reverted.push(r);
@@ -140,7 +140,7 @@ export class Transaction {
           // Add a promise returning undefined with a delay of <timeout> to the pool.
           // This will execute in the event that none of the provider.getTransactionReceipt calls work,
           // and/or none of them have the number of confirmations we want.
-          .concat(delay(confirmationTimeout)),
+          .concat(delay(this.provider.confirmationTimeout)),
       );
       if (!receivedConfirmation && reverted.length === this.responses.length) {
         // We know every tx was reverted.

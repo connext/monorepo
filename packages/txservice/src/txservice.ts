@@ -13,7 +13,7 @@ export class TransactionService {
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
-  private static _instances: Map<string, TransactionService> = new Map();
+  // private static _instances: Map<string, TransactionService> = new Map();
 
   private config: TransactionServiceConfig;
   private providers: Map<number, ChainRpcProvider> = new Map();
@@ -112,5 +112,4 @@ export class TransactionService {
     }
     return this.providers.get(chainId)!;
   }
-
 }

@@ -12,12 +12,16 @@ const { JsonRpcProvider, FallbackProvider } = providers;
 
 /// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
 export class ChainRpcProvider {
+  // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
+  // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
+  private _providers: providers.JsonRpcProvider[];
   private provider: providers.JsonRpcProvider | providers.FallbackProvider;
-  private config: { gasInitialBumpPercent: number; gasPriceMinimum: BigNumber; rpcProviderMaxRetries: number; };
   private signer: Signer;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+  private readonly quorum: number;
 
   public confirmationsRequired: number;
+  public confirmationTimeout: number;
   public chainId: number;
 
   constructor(
@@ -25,18 +29,21 @@ export class ChainRpcProvider {
     chainId: number,
     signer: string | Signer,
     providerConfigs: ProviderConfig[],
-    config: TransactionServiceConfig,
+    private readonly config: TransactionServiceConfig,
   ) {
-    const { gasInitialBumpPercent, gasPriceMinimum, rpcProviderMaxRetries } = config;
-    this.config = { gasInitialBumpPercent, gasPriceMinimum, rpcProviderMaxRetries };
     this.confirmationsRequired = config.chainConfirmations.get(chainId) ?? config.defaultConfirmationsRequired;
+    this.confirmationTimeout = config.confirmationTimeouts.get(chainId) ?? config.defaultConfirmationTimeout;
     this.chainId = chainId;
+    // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
+    // which might be okay in our case, but for now we have a low bar.
+    this.quorum = 1;
     
     // Register a provider for each url.
     // Make sure all providers are ready()
 
     if (providerConfigs.length === 1) {
       this.provider = new JsonRpcProvider(providerConfigs[0]);
+      this._providers = [this.provider];
     } else {
       const fallbackProviderConfigs = providerConfigs.map((config) => ({
         provider: new JsonRpcProvider(
@@ -50,9 +57,8 @@ export class ChainRpcProvider {
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
-      // which might be okay in our case, but for now we have a low bar.
-      this.provider = new FallbackProvider(fallbackProviderConfigs, 1);
+      this.provider = new FallbackProvider(fallbackProviderConfigs, this.quorum);
+      this._providers = fallbackProviderConfigs.map((p) => p.provider);
     }
 
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
@@ -61,12 +67,7 @@ export class ChainRpcProvider {
   public async sendTransaction(
     tx: FullTransaction
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
-    const ready = await this.provider.ready;
-    if (!ready) {
-      // Error out, no providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotReady);
-    }
-    // TODO: Check getBlockNumber() > 0.
+    this.isReady();
 
     // Define task to send tx with proper nonce
     const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
@@ -108,25 +109,27 @@ export class ChainRpcProvider {
 
   public async confirmTransaction(
     transactionHash: string,
-    timeout: number,
   ) {
     // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
     // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
     // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)
-    await this.provider.waitForTransaction(transactionHash, this.confirmationsRequired, timeout);
+    await this.provider.waitForTransaction(transactionHash, this.confirmationsRequired);
     return await this.provider.getTransactionReceipt(transactionHash);
   }
 
-  public async readTransaction(tx: MinimalTransaction) {
-    try {
-      const readResult = await this.signer.call({
-        to: tx.to,
-        data: tx.data,
-      });
-      return readResult;
-    } catch (e) {
-      throw new ChainError(ChainError.reasons.ContractReadFailure, { error: jsonifyError(e) });
-    }
+  public async readTransaction(tx: MinimalTransaction): Promise<string> {
+    const method = this.readTransaction.name;
+    return await this.retryWrapper(this.chainId, method, async () => {
+      try {
+        const readResult = await this.signer.call({
+          to: tx.to,
+          data: tx.data,
+        });
+        return readResult;
+      } catch (e) {
+        throw new ChainError(ChainError.reasons.ContractReadFailure, { error: jsonifyError(e) });
+      }
+    });
   }
 
   // TODO: Cache gas prices.
@@ -173,5 +176,29 @@ export class ChainRpcProvider {
       chainId,
       errors,
     });
+  }
+
+  private async isReady(): Promise<boolean> {
+    const ready = await this.provider.ready;
+    if (!ready) {
+      // Error out, not enough providers are ready.
+      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    }
+    // Ensure that provider(s) are synced.
+    const outOfSync = [];
+    await Promise.all(this._providers.map(async (provider) => {
+      try {
+        return await provider.send("eth_syncing", []);
+      } catch(e) {
+        outOfSync.push(e);
+      }
+    }));
+    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
+    // we may necessarily need >1 provider to be in sync.
+    if (this._providers.length - outOfSync.length < this.quorum) {
+      // Error out, not enough providers are ready.
+      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    }
+    return true;
   }
 }

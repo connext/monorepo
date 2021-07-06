@@ -16,13 +16,15 @@ export type TransactionServiceConfig = {
   chainInitialGas: Map<number, BigNumber>;
 
   /// CONFIRMATIONS
-  // The amount of time (ms) to wait before a confirmation polling period times out,
-  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
-  confirmationTimeout: number;
   // The multiplier by which we extend our timeout period if a tx has at least 1 confirmation.
   confirmationTimeoutExtensionMultiplier: number;
   // Default number of confirmations we require for a tx.
   defaultConfirmationsRequired: number;
+  // Default amount of time (ms) to wait before a confirmation polling period times out.
+  defaultConfirmationTimeout: number;
+  // The amount of time (ms) to wait before a confirmation polling period times out,
+  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
+  confirmationTimeouts: Map<number, number>;
   // Number of confirmations needed for each chain, specified by chain Id.
   chainConfirmations: Map<number, number>;
 
@@ -41,9 +43,10 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasPriceMinimum: parseUnits("5", "gwei"),
   chainInitialGas: new Map<number, BigNumber>(),
 
-  confirmationTimeout: 45_000,
+  defaultConfirmationTimeout: 45_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
+  confirmationTimeouts: new Map<number, number>(),
   chainConfirmations: new Map<number, number>(),
 
   rpcProviderMaxRetries: 5,
