@@ -168,9 +168,9 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   events: {
     "LiquidityAdded(address,address,uint256)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
-    "TransactionCancelled(tuple,uint256,address)": EventFragment;
-    "TransactionFulfilled(tuple,uint256,bytes,address)": EventFragment;
-    "TransactionPrepared(tuple,address,bytes,bytes,bytes)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,address)": EventFragment;
+    "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
@@ -653,11 +653,17 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
           string,
           string,
@@ -693,6 +699,9 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
           string,
           string,
@@ -730,12 +739,18 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
           string,
           string,
@@ -772,6 +787,9 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
           string,
           string,
@@ -810,6 +828,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
@@ -817,6 +838,9 @@ export class TransactionManager extends BaseContract {
       bidSignature?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
           string,
           string,
@@ -854,6 +878,9 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
           string,
           string,

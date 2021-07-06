@@ -67,11 +67,11 @@ interface ITransactionManager {
   event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
 
   // Transaction events
-  event TransactionPrepared(TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
+  event TransactionPrepared(address user, address router, bytes32 transactionId, TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
 
-  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
+  event TransactionFulfilled(address user, address router, bytes32 transactionId, TransactionData txData, uint256 relayerFee, bytes signature, address caller);
 
-  event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
+  event TransactionCancelled(address user, address router, bytes32 transactionId, TransactionData txData, uint256 relayerFee, address caller);
 
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;

@@ -277,7 +277,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       expiry: expiry,
       preparedBlockNumber: block.number
     });
-    emit TransactionPrepared(txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
+    emit TransactionPrepared(txData.user, txData.router, txData.transactionId, txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
     return txData;
   }
 
@@ -429,7 +429,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionFulfilled(txData, relayerFee, signature, msg.sender);
+    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, msg.sender);
 
     return txData;
   }
@@ -538,7 +538,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionCancelled(txData, relayerFee, msg.sender);
+    emit TransactionCancelled(txData.user, txData.router, txData.transactionId, txData, relayerFee, msg.sender);
 
     // Return
     return txData;

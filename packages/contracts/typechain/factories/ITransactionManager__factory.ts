@@ -70,6 +70,24 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
+      {
         components: [
           {
             internalType: "address",
@@ -166,6 +184,24 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         components: [
           {
@@ -269,6 +305,24 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         components: [
           {

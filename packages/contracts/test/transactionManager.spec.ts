@@ -285,6 +285,9 @@ describe("TransactionManager", function () {
     // console.log(activeBlock);
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
       caller: preparer.address,
       bidSignature: EmptyBytes,
@@ -381,6 +384,9 @@ describe("TransactionManager", function () {
     expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
     // Assert event
     await assertReceiptEvent(receipt, "TransactionFulfilled", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record },
       relayerFee,
       signature,
@@ -439,6 +445,9 @@ describe("TransactionManager", function () {
     const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record },
       caller: canceller.address,
     });
