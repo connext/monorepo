@@ -311,6 +311,7 @@ export type Transaction = {
   encodedBid: Scalars['Bytes'];
   relayerFee?: Maybe<Scalars['BigInt']>;
   signature?: Maybe<Scalars['Bytes']>;
+  callData?: Maybe<Scalars['String']>;
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
 };
@@ -490,6 +491,20 @@ export type Transaction_Filter = {
   signature_not_in?: Maybe<Array<Scalars['Bytes']>>;
   signature_contains?: Maybe<Scalars['Bytes']>;
   signature_not_contains?: Maybe<Scalars['Bytes']>;
+  callData?: Maybe<Scalars['String']>;
+  callData_not?: Maybe<Scalars['String']>;
+  callData_gt?: Maybe<Scalars['String']>;
+  callData_lt?: Maybe<Scalars['String']>;
+  callData_gte?: Maybe<Scalars['String']>;
+  callData_lte?: Maybe<Scalars['String']>;
+  callData_in?: Maybe<Array<Scalars['String']>>;
+  callData_not_in?: Maybe<Array<Scalars['String']>>;
+  callData_contains?: Maybe<Scalars['String']>;
+  callData_not_contains?: Maybe<Scalars['String']>;
+  callData_starts_with?: Maybe<Scalars['String']>;
+  callData_not_starts_with?: Maybe<Scalars['String']>;
+  callData_ends_with?: Maybe<Scalars['String']>;
+  callData_not_ends_with?: Maybe<Scalars['String']>;
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   fulfillCaller_not?: Maybe<Scalars['Bytes']>;
   fulfillCaller_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -527,6 +542,7 @@ export enum Transaction_OrderBy {
   EncodedBid = 'encodedBid',
   RelayerFee = 'relayerFee',
   Signature = 'signature',
+  CallData = 'callData',
   FulfillCaller = 'fulfillCaller',
   CancelCaller = 'cancelCaller'
 }
@@ -659,7 +675,7 @@ export type GetReceiverFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -686,7 +702,7 @@ export type GetSenderFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -824,6 +840,7 @@ export const GetReceiverFulfillTransactionsDocument = gql`
       preparedBlockNumber
       relayerFee
       signature
+      callData
       fulfillCaller
     }
     assetBalances {
@@ -861,6 +878,7 @@ export const GetSenderFulfillTransactionsDocument = gql`
       preparedBlockNumber
       relayerFee
       signature
+      callData
       fulfillCaller
     }
     assetBalances {
