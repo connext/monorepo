@@ -319,8 +319,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Validate the user has signed
     require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
-    // Sanity check: fee < amount
-    require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
+    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
+    // 0-value crosschain tx, so only providing the fee amount
+    require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
 
     // Check provided callData matches stored hash
     require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
@@ -465,6 +466,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Make sure the transaction wasn't already completed
     require(txData.preparedBlockNumber > 0, "cancel: ALREADY_COMPLETED");
 
+    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
+    // 0-value crosschain tx, so only providing the fee amount
+    require(relayerFee <= txData.amount, "cancel: INVALID_RELAYER_FEE");
+
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
     // mapping is explicitly *not* zeroed out so users who come online without
@@ -511,10 +516,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         uint256 toRefund = txData.amount - relayerFee;
 
         // Return locked funds to sending chain fallback
-        require(
-          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund),
-          "cancel: TRANSFER_FAILED"
-        );
+        if (toRefund > 0) {
+          require(
+            LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund),
+            "cancel: TRANSFER_FAILED"
+          );
+        }
       }
 
     } else {
