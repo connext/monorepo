@@ -68,9 +68,9 @@ interface ITransactionManager {
 
   // Transaction events
   event TransactionPrepared(
-    address user,
-    address router,
-    bytes32 transactionId,
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
     TransactionData txData,
     address caller,
     bytes encryptedCallData,
@@ -79,9 +79,9 @@ interface ITransactionManager {
   );
 
   event TransactionFulfilled(
-    address user,
-    address router,
-    bytes32 transactionId,
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
     TransactionData txData,
     uint256 relayerFee,
     bytes signature,
@@ -90,9 +90,9 @@ interface ITransactionManager {
   );
 
   event TransactionCancelled(
-    address user,
-    address router,
-    bytes32 transactionId,
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
     TransactionData txData,
     uint256 relayerFee,
     address caller

@@ -665,9 +665,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       caller?: null
@@ -751,9 +751,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
@@ -843,9 +843,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
