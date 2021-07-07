@@ -705,7 +705,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
-    it.only("happy case: prepare by Bob for ERC20", async () => {
+    it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
       const assetId = tokenA.address;
 
