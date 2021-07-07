@@ -2,10 +2,10 @@ import { Type, Static } from "@sinclair/typebox";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { parseUnits } from "ethers/lib/utils";
-import {
-  TIntegerString,
-  TUrl,
-} from "@connext/nxtp-utils";
+
+// TODO: TIntegerString and TUrl from utils/basic.ts not working!
+const TIntegerString = Type.RegEx(/^([0-9])*$/);
+const TUrl = Type.String({ format: "uri" });
 
 const ajv = addFormats(new Ajv(), [
   "date-time",
@@ -33,12 +33,10 @@ const TransactionServiceConfigSchema = Type.Object({
   // % to bump gas by when tx confirmation times out.
   gasReplacementBumpPercent: Type.Number(),
   // Gas shouldn't ever exceed this amount.
+
   gasLimit: TIntegerString,
   // Minimum gas price.
   gasMinimum: TIntegerString,
-  // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
-  // in the event that a gas station is malfunctioning.
-  chainInitialGas: Type.Dict(TIntegerString),
 
   /// CONFIRMATIONS
   // The multiplier by which we extend our timeout period if a tx has at least 1 confirmation.
@@ -47,11 +45,6 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultConfirmationsRequired: Type.Number(),
   // Default amount of time (ms) to wait before a confirmation polling period times out.
   defaultConfirmationTimeout: Type.Number(),
-  // The amount of time (ms) to wait before a confirmation polling period times out,
-  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
-  confirmationTimeouts: Type.Dict(Type.Number()),
-  // Number of confirmations needed for each chain, specified by chain Id.
-  chainConfirmations: Type.Dict(Type.Number()),
 
   /// RPC PROVIDERS
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
@@ -70,13 +63,10 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasReplacementBumpPercent: 20,
   gasLimit: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
-  chainInitialGas: {},
 
   defaultConfirmationTimeout: 45_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
-  confirmationTimeouts: {},
-  chainConfirmations: {},
 
   rpcProviderMaxRetries: 5,
 } as TransactionServiceConfig;
@@ -115,6 +105,16 @@ export const ProviderConfigSchema = Type.Object({
     * Lower values will result in more network traffic, but may reduce the response time of requests.
     */
   stallTimeout: Type.Optional(Type.Number()),
+
+  // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
+  // in the event that a gas station is malfunctioning.
+  defaultInitialGas: Type.Optional(TIntegerString),
+
+  // The amount of time (ms) to wait before a confirmation polling period times out,
+  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
+  confirmationTimeout: Type.Dict(Type.Number()),
+  // Number of confirmations needed for each chain, specified by chain Id.
+  confirmations: Type.Dict(Type.Number()),
 });
 
 export type ProviderConfig = Static<typeof ProviderConfigSchema>;
