@@ -48,20 +48,28 @@ function App(): React.ReactElement | null {
       );
       const _sdk = await NxtpSdk.init(chainProviders, signer, pino({ level: "info" }));
       setSdk(_sdk);
-      _sdk.attach(NxtpSdkEvents.TransactionPrepared, (data) => {
-        console.log("tx prepared:", data);
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
+        console.log("SenderTransactionPrepared:", data);
       });
 
-      _sdk.attach(NxtpSdkEvents.TransactionCompleted, (data) => {
-        console.log("tx completed:", data);
+      _sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, (data) => {
+        console.log("SenderTransactionFulfilled:", data);
       });
 
-      _sdk.attach(NxtpSdkEvents.TransactionFulfilled, (data) => {
-        console.log("tx fulfilled:", data);
+      _sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, (data) => {
+        console.log("SenderTransactionCancelled:", data);
       });
 
-      _sdk.attach(NxtpSdkEvents.TransactionCancelled, (data) => {
-        console.log("tx cancelled:", data);
+      _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, (data) => {
+        console.log("ReceiverTransactionPrepared:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
+        console.log("ReceiverTransactionFulfilled:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
+        console.log("ReceiverTransactionCancelled:", data);
       });
     };
     init();
