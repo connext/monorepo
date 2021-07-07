@@ -22,46 +22,9 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
+import { fakeConfig, fakeTxReceipt } from "./utils";
 
-const logger = pino()
-
-const fakeTxReceipt = {
-  blockHash: "foo",
-  blockNumber: 1,
-  byzantium: true,
-  confirmations: 1,
-  contractAddress: mkAddress(),
-  cumulativeGasUsed: constants.One,
-  from: mkAddress(),
-  transactionHash: mkBytes32(),
-  gasUsed: constants.One,
-  to: mkAddress(),
-  logs: [],
-  logsBloom: "",
-  transactionIndex: 1,
-} as unknown as providers.TransactionReceipt;
-
-const fakeConfig: config.NxtpRouterConfig = {
-  adminToken: "foo",
-  authUrl: "http://example.com",
-  chainConfig: {
-    1337: {
-      confirmations: 1,
-      provider: ["http://example.com"],
-      subgraph: "http://example.com",
-      transactionManagerAddress: mkAddress("0xaaa"),
-    },
-    1338: {
-      confirmations: 1,
-      provider: ["http://example.com"],
-      subgraph: "http://example.com",
-      transactionManagerAddress: mkAddress("0xaaa"),
-    },
-  },
-  mnemonic: "hello world",
-  natsUrl: "http://example.com",
-  logLevel: "info",
-};
+const logger = pino();
 
 const invariantDataMock: InvariantTransactionData = {
   user: mkAddress("0xa"),
@@ -167,14 +130,17 @@ describe("Handler", () => {
       encryptedCallData: ethPrepareDataMock.encryptedCallData,
     } as PrepareParams);
   });
-  it("should approve token", async()=>{
+  it("should approve token", async () => {
     //simple approve
     const tokenPrepareData = senderPrepareData;
     txManager.approve.resolves(fakeTxReceipt);
-    const approve_call = await txManager.approve(tokenPrepareData.txData.sendingChainId, senderPrepareData.txData.router, rinkebyTestTokenAddress);
-    console.log(approve_call)
-
-  })
+    const approve_call = await txManager.approve(
+      tokenPrepareData.txData.sendingChainId,
+      senderPrepareData.txData.router,
+      rinkebyTestTokenAddress,
+    );
+    console.log(approve_call);
+  });
   it("should send prepare for receiving chain with token asset", async () => {
     const tokenPrepareData = senderPrepareData;
     tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
@@ -296,6 +262,5 @@ describe("Handler", () => {
   it(`should add liquidity`, async () => {
     await txManager.addLiquidity(4, constants.AddressZero);
     const call = txManager.addLiquidity.getCall(0);
-
   });
 });

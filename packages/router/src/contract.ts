@@ -1,4 +1,7 @@
-import { TransactionManager as TTransactionManager , IERC20Minimal as TTIERC20} from "@connext/nxtp-contracts/typechain";
+import {
+  TransactionManager as TTransactionManager,
+  IERC20Minimal as TTIERC20,
+} from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
@@ -6,12 +9,9 @@ import { BigNumber, constants, providers } from "ethers";
 import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import IERC20MinimalArtifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import { assertType } from "graphql";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-
 
 const hId = hyperid();
 
@@ -58,17 +58,8 @@ export class TransactionManager {
     ]);
 
     try {
-      //todo: is this what was meant by defaulting to the deployments then config??
-      const getTxManagerAddress = () => {
-        if(this.config.chainConfig[chainId]){
-          return this.config.chainConfig[chainId].transactionManagerAddress;
-        }else{
-          //check that the deployment for chainIdx exists
-          return contractDeployments[4].rinkeby.contracts.TransactionManager.address;
-        }
-      };
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        to: getTxManagerAddress(),
+        to: this.config.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
         chainId: chainId,
@@ -90,7 +81,7 @@ export class TransactionManager {
     }
   }
 
-  async approve(chainId: number, receieverAddress: string, assetId:string): Promise<providers.TransactionReceipt> {
+  async approve(chainId: number, receieverAddress: string, assetId: string): Promise<providers.TransactionReceipt> {
     const method = "ERC20::approve";
     const methodId = hId();
 
@@ -107,15 +98,12 @@ export class TransactionManager {
       return txRes;
     } catch (e) {
       // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-      this.logger.error(
-        { methodId, method, error: jsonifyError(e) },
-        "Error sending approve token tx",
-      );
+      this.logger.error({ methodId, method, error: jsonifyError(e) }, "Error sending approve token tx");
       // TODO discuss this case!!
       throw e;
     }
   }
-  
+
   async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
     const methodId = hId();
