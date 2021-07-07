@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  IMultisendInterpreter,
-  IMultisendInterpreterInterface,
-} from "../IMultisendInterpreter";
+  IFulfillHelper,
+  IFulfillHelperInterface,
+} from "../IFulfillHelper";
 
 const _abi = [
   {
@@ -73,19 +73,15 @@ const _abi = [
   },
 ];
 
-export class IMultisendInterpreter__factory {
+export class IFulfillHelper__factory {
   static readonly abi = _abi;
-  static createInterface(): IMultisendInterpreterInterface {
-    return new utils.Interface(_abi) as IMultisendInterpreterInterface;
+  static createInterface(): IFulfillHelperInterface {
+    return new utils.Interface(_abi) as IFulfillHelperInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IMultisendInterpreter {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IMultisendInterpreter;
+  ): IFulfillHelper {
+    return new Contract(address, _abi, signerOrProvider) as IFulfillHelper;
   }
 }

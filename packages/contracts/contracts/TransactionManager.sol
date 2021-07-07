@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "./interfaces/IMultisendInterpreter.sol";
+import "./interfaces/IFulfillHelper.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
@@ -72,14 +72,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev The chain id of the contract, is passed in to avoid any evm issues
   uint256 public immutable chainId;
 
-  /// @dev Address of the deployed multisending interpreter contract
-  address public immutable iMultisend;
-
   /// @dev Minimum timeout (will be the lowest on the receiving chain)
   uint256 public constant MIN_TIMEOUT = 24 hours;
 
-  constructor(address _iMultisend, uint256 _chainId) {
-    iMultisend = _iMultisend;
+  constructor(uint256 _chainId) {
     chainId = _chainId;
   }
 
@@ -392,7 +388,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // for tx
         if (toSend > 0) {
           try
-            IMultisendInterpreter(iMultisend).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+            IFulfillHelper(txData.callTo).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
               txData.user,
               txData.transactionId,
               txData.receivingAssetId,
@@ -410,7 +406,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         // Call `execute` on the helper
         try
-          IMultisendInterpreter(iMultisend).execute(
+          IFulfillHelper(txData.callTo).execute(
             txData.user,
             txData.transactionId,
             txData.receivingAssetId,

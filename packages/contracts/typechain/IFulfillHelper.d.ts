@@ -20,7 +20,7 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IMultisendInterpreterInterface extends ethers.utils.Interface {
+interface IFulfillHelperInterface extends ethers.utils.Interface {
   functions: {
     "addFunds(address,bytes32,address,uint256)": FunctionFragment;
     "execute(address,bytes32,address,uint256,bytes)": FunctionFragment;
@@ -41,7 +41,7 @@ interface IMultisendInterpreterInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class IMultisendInterpreter extends BaseContract {
+export class IFulfillHelper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,7 +82,7 @@ export class IMultisendInterpreter extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IMultisendInterpreterInterface;
+  interface: IFulfillHelperInterface;
 
   functions: {
     addFunds(

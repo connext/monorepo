@@ -9,7 +9,7 @@
     "export": "hardhat export --export-all ./deployments.json",
     "dev": "yarn build --watch --preserveWatchOutput",
     "lint": "eslint ./src --ext .ts --env node",
-    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts ./typechain",
+    "clean": "hardhat clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts ./typechain",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
