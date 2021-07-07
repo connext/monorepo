@@ -43,6 +43,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -65,6 +66,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -88,6 +90,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -120,9 +123,9 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   events: {
     "LiquidityAdded(address,address,uint256)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
-    "TransactionCancelled(tuple,uint256,address)": EventFragment;
-    "TransactionFulfilled(tuple,uint256,bytes,bytes,address)": EventFragment;
-    "TransactionPrepared(tuple,address,bytes,bytes,bytes)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
+    "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
@@ -190,6 +193,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -211,6 +215,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -233,6 +238,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -268,6 +274,7 @@ export class ITransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
@@ -289,6 +296,7 @@ export class ITransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
@@ -311,6 +319,7 @@ export class ITransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
       callDataHash: BytesLike;
@@ -346,6 +355,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -367,6 +377,7 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -379,6 +390,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -397,6 +409,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -419,6 +432,7 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -431,6 +445,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -449,6 +464,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -470,6 +486,7 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -482,6 +499,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -521,12 +539,19 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -547,6 +572,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -559,7 +585,11 @@ export class ITransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -580,6 +610,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -594,6 +625,9 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
@@ -601,7 +635,11 @@ export class ITransactionManager extends BaseContract {
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -622,6 +660,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -636,7 +675,11 @@ export class ITransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -657,6 +700,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -673,6 +717,9 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
@@ -680,7 +727,11 @@ export class ITransactionManager extends BaseContract {
       bidSignature?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -701,6 +752,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -715,7 +767,11 @@ export class ITransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -736,6 +792,7 @@ export class ITransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -767,6 +824,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -788,6 +846,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -810,6 +869,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -846,6 +906,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -867,6 +928,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -889,6 +951,7 @@ export class ITransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;

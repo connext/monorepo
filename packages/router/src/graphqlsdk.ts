@@ -297,6 +297,7 @@ export type Transaction = {
   sendingAssetId: Scalars['Bytes'];
   receivingAssetId: Scalars['Bytes'];
   sendingChainFallback: Scalars['Bytes'];
+  callTo: Scalars['Bytes'];
   receivingAddress: Scalars['Bytes'];
   callDataHash: Scalars['Bytes'];
   transactionId: Scalars['Bytes'];
@@ -387,6 +388,12 @@ export type Transaction_Filter = {
   sendingChainFallback_not_in?: Maybe<Array<Scalars['Bytes']>>;
   sendingChainFallback_contains?: Maybe<Scalars['Bytes']>;
   sendingChainFallback_not_contains?: Maybe<Scalars['Bytes']>;
+  callTo?: Maybe<Scalars['Bytes']>;
+  callTo_not?: Maybe<Scalars['Bytes']>;
+  callTo_in?: Maybe<Array<Scalars['Bytes']>>;
+  callTo_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  callTo_contains?: Maybe<Scalars['Bytes']>;
+  callTo_not_contains?: Maybe<Scalars['Bytes']>;
   receivingAddress?: Maybe<Scalars['Bytes']>;
   receivingAddress_not?: Maybe<Scalars['Bytes']>;
   receivingAddress_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -528,6 +535,7 @@ export enum Transaction_OrderBy {
   SendingAssetId = 'sendingAssetId',
   ReceivingAssetId = 'receivingAssetId',
   SendingChainFallback = 'sendingChainFallback',
+  CallTo = 'callTo',
   ReceivingAddress = 'receivingAddress',
   CallDataHash = 'callDataHash',
   TransactionId = 'transactionId',
@@ -621,7 +629,7 @@ export type GetSenderPrepareTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -648,7 +656,7 @@ export type GetReceiverPrepareTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -675,7 +683,7 @@ export type GetReceiverFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -702,7 +710,7 @@ export type GetSenderFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -726,7 +734,7 @@ export type GetTransactionQuery = (
   { __typename?: 'Query' }
   & { transaction?: Maybe<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -756,10 +764,11 @@ export const GetSenderPrepareTransactionsDocument = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber
@@ -793,10 +802,11 @@ export const GetReceiverPrepareTransactionsDocument = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber
@@ -831,10 +841,11 @@ export const GetReceiverFulfillTransactionsDocument = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber
@@ -869,10 +880,11 @@ export const GetSenderFulfillTransactionsDocument = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber
@@ -904,10 +916,11 @@ export const GetTransactionDocument = gql`
     receivingAssetId
     sendingChainFallback
     receivingAddress
-    callDataHash
-    transactionId
+    callTo
     sendingChainId
     receivingChainId
+    callDataHash
+    transactionId
     amount
     expiry
     preparedBlockNumber

@@ -14,6 +14,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback; // funds sent here on cancel
     address receivingAddress;
+    address callTo;
     uint256 sendingChainId;
     uint256 receivingChainId;
     bytes32 callDataHash; // hashed to prevent free option
@@ -37,6 +38,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback;
     address receivingAddress;
+    address callTo;
     bytes32 callDataHash;
     bytes32 transactionId;
     uint256 sendingChainId;
@@ -65,11 +67,36 @@ interface ITransactionManager {
   event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
 
   // Transaction events
-  event TransactionPrepared(TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
+  event TransactionPrepared(
+    address user,
+    address router,
+    bytes32 transactionId,
+    TransactionData txData,
+    address caller,
+    bytes encryptedCallData,
+    bytes encodedBid,
+    bytes bidSignature
+  );
 
-  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, bytes callData, address caller);
+  event TransactionFulfilled(
+    address user,
+    address router,
+    bytes32 transactionId,
+    TransactionData txData,
+    uint256 relayerFee,
+    bytes signature,
+    bytes callData,
+    address caller
+  );
 
-  event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
+  event TransactionCancelled(
+    address user,
+    address router,
+    bytes32 transactionId,
+    TransactionData txData,
+    uint256 relayerFee,
+    address caller
+  );
 
   // Router only methods
   function addLiquidity(uint256 amount, address assetId) external payable;

@@ -28,7 +28,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
-    "iMultisend()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -57,6 +56,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -80,6 +80,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -94,10 +95,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "iMultisend",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "prepare",
     values: [
       {
@@ -107,6 +104,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -147,7 +145,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "iMultisend", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeLiquidity",
@@ -165,9 +162,9 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   events: {
     "LiquidityAdded(address,address,uint256)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
-    "TransactionCancelled(tuple,uint256,address)": EventFragment;
-    "TransactionFulfilled(tuple,uint256,bytes,bytes,address)": EventFragment;
-    "TransactionPrepared(tuple,address,bytes,bytes,bytes)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
+    "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
@@ -243,6 +240,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -266,6 +264,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -280,8 +279,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    iMultisend(overrides?: CallOverrides): Promise<[string]>;
-
     prepare(
       invariantData: {
         user: string;
@@ -290,6 +287,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -344,6 +342,7 @@ export class TransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
@@ -367,6 +366,7 @@ export class TransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
@@ -381,8 +381,6 @@ export class TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  iMultisend(overrides?: CallOverrides): Promise<string>;
-
   prepare(
     invariantData: {
       user: string;
@@ -391,6 +389,7 @@ export class TransactionManager extends BaseContract {
       receivingAssetId: string;
       sendingChainFallback: string;
       receivingAddress: string;
+      callTo: string;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
       callDataHash: BytesLike;
@@ -445,6 +444,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -466,6 +466,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -478,6 +479,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -498,6 +500,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -520,6 +523,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -532,6 +536,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -542,8 +547,6 @@ export class TransactionManager extends BaseContract {
       }
     >;
 
-    iMultisend(overrides?: CallOverrides): Promise<string>;
-
     prepare(
       invariantData: {
         user: string;
@@ -552,6 +555,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -573,6 +577,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -585,6 +590,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: string;
         transactionId: string;
         sendingChainId: BigNumber;
@@ -635,12 +641,19 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -661,6 +674,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -673,7 +687,11 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -694,6 +712,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -708,6 +727,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
@@ -715,7 +737,11 @@ export class TransactionManager extends BaseContract {
       caller?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -736,6 +762,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -750,7 +777,11 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -771,6 +802,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -787,6 +819,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
+      user?: null,
+      router?: null,
+      transactionId?: null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
@@ -794,7 +829,11 @@ export class TransactionManager extends BaseContract {
       bidSignature?: null
     ): TypedEventFilter<
       [
+        string,
+        string,
+        string,
         [
+          string,
           string,
           string,
           string,
@@ -815,6 +854,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -829,7 +869,11 @@ export class TransactionManager extends BaseContract {
         string
       ],
       {
+        user: string;
+        router: string;
+        transactionId: string;
         txData: [
+          string,
           string,
           string,
           string,
@@ -850,6 +894,7 @@ export class TransactionManager extends BaseContract {
           receivingAssetId: string;
           sendingChainFallback: string;
           receivingAddress: string;
+          callTo: string;
           callDataHash: string;
           transactionId: string;
           sendingChainId: BigNumber;
@@ -889,6 +934,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -912,6 +958,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -926,8 +973,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    iMultisend(overrides?: CallOverrides): Promise<BigNumber>;
-
     prepare(
       invariantData: {
         user: string;
@@ -936,6 +981,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
@@ -991,6 +1037,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -1014,6 +1061,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
@@ -1028,8 +1076,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    iMultisend(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     prepare(
       invariantData: {
         user: string;
@@ -1038,6 +1084,7 @@ export class TransactionManager extends BaseContract {
         receivingAssetId: string;
         sendingChainFallback: string;
         receivingAddress: string;
+        callTo: string;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;

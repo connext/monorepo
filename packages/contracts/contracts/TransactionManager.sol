@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
+import "./interfaces/IFulfillHelper.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
 import "./lib/LibERC20.sol";
-import "./interpreters/MultisendInterpreter.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -72,14 +72,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev The chain id of the contract, is passed in to avoid any evm issues
   uint256 public immutable chainId;
 
-  /// @dev Address of the deployed multisending interpreter contract
-  address public immutable iMultisend;
-
   /// @dev Minimum timeout (will be the lowest on the receiving chain)
   uint256 public constant MIN_TIMEOUT = 24 hours;
 
-  constructor(address _iMultisend, uint256 _chainId) {
-    iMultisend = _iMultisend;
+  constructor(uint256 _chainId) {
     chainId = _chainId;
   }
 
@@ -267,6 +263,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
       sendingChainFallback: invariantData.sendingChainFallback,
+      callTo: invariantData.callTo,
       receivingAddress: invariantData.receivingAddress,
       callDataHash: invariantData.callDataHash,
       transactionId: invariantData.transactionId,
@@ -276,7 +273,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       expiry: expiry,
       preparedBlockNumber: block.number
     });
-    emit TransactionPrepared(txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
+    emit TransactionPrepared(txData.user, txData.router, txData.transactionId, txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
     return txData;
   }
 
@@ -370,7 +367,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       }
 
       // Handle receiver chain external calls if needed
-      if (txData.callDataHash == keccak256(new bytes(0))) {
+      if (txData.callTo == address(0)) {
         // No external calls, send directly to receiving address
         require(
           LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
@@ -380,8 +377,38 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Handle external calls with a fallback to the receiving
         // address in case the call fails so the funds dont remain
         // locked.
+
+        // First, approve the funds to the helper if needed
+        if (LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+          require(LibERC20.approve(txData.receivingAssetId, txData.callTo, toSend), "fulfill: APPROVAL_FAILED");
+        }
+
+        // Next, call `addFunds` on the helper. Helpers should internally
+        // track funds to make sure no one user is able to take all funds
+        // for tx
+        if (toSend > 0) {
+          try
+            IFulfillHelper(txData.callTo).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+              txData.user,
+              txData.transactionId,
+              txData.receivingAssetId,
+              toSend
+            )
+          {} catch {
+            // Regardless of error within the callData execution, send funds
+            // to the predetermined fallback address
+            require(
+              LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
+              "fulfill: TRANSFER_FAILED"
+            );
+          }
+        }
+
+        // Call `execute` on the helper
         try
-          MultisendInterpreter(iMultisend).execute{value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          IFulfillHelper(txData.callTo).execute(
+            txData.user,
+            txData.transactionId,
             txData.receivingAssetId,
             toSend,
             callData
@@ -398,7 +425,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionFulfilled(txData, relayerFee, signature, callData, msg.sender);
+    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, callData, msg.sender);
 
     return txData;
   }
@@ -507,7 +534,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionCancelled(txData, relayerFee, msg.sender);
+    emit TransactionCancelled(txData.user, txData.router, txData.transactionId, txData, relayerFee, msg.sender);
 
     // Return
     return txData;
@@ -592,6 +619,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,
+      callTo: txData.callTo,
       receivingAddress: txData.receivingAddress,
       sendingChainId: txData.sendingChainId,
       receivingChainId: txData.receivingChainId,

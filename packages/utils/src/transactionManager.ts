@@ -7,6 +7,7 @@ export type InvariantTransactionData = {
   sendingAssetId: string;
   receivingAssetId: string;
   sendingChainFallback: string;
+  callTo: string;
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;

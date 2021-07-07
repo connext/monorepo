@@ -73,6 +73,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
+  transaction.callTo = event.params.txData.callTo;
   transaction.receivingAddress = event.params.txData.receivingAddress;
   transaction.callDataHash = event.params.txData.callDataHash;
   transaction.transactionId = event.params.txData.transactionId;

@@ -17,7 +17,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "generate": "graphql-codegen"
+    "codegen": "graphql-codegen"
   },
   "nodemonConfig": {
     "exec": "node ./dist/index.js",

@@ -213,6 +213,7 @@ export class Handler implements Handler {
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
         receivingAddress: txData.receivingAddress,
+        callTo: txData.callTo,
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,
         callDataHash: txData.callDataHash,

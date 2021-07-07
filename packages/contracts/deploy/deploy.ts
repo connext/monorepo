@@ -11,20 +11,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
   console.log("deployer: ", deployer);
 
-  const multisend = await hre.deployments.deploy("MultiSendCallOnly", {
-    from: deployer,
-    log: true,
-  });
-
-  const interpreter = await hre.deployments.deploy("MultisendInterpreter", {
-    from: deployer,
-    args: [multisend.address],
-    log: true,
-  });
-
   await hre.deployments.deploy("TransactionManager", {
     from: deployer,
-    args: [interpreter.address, chainId],
+    args: [chainId],
     log: true,
   });
 

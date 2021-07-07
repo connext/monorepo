@@ -45,6 +45,7 @@ export class TransactionManagerListener {
         sendingAssetId: txData.sendingAssetId,
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
         receivingAddress: txData.receivingAddress,
         sendingChainId: txData.sendingChainId.toNumber(),
         receivingChainId: txData.receivingChainId.toNumber(),

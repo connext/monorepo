@@ -30,6 +30,7 @@ type Transaction @entity {
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
   sendingChainFallback: Bytes!
+  callTo: Bytes!
   receivingAddress: Bytes!
   callDataHash: Bytes!
   transactionId: Bytes!
