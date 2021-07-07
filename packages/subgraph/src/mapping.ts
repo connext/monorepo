@@ -102,6 +102,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.status = "Fulfilled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
+  transaction!.callData = event.params.callData.toHexString();
   transaction!.fulfillCaller = event.params.caller;
 
   transaction!.save();

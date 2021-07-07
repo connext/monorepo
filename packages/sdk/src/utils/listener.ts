@@ -71,15 +71,19 @@ export class TransactionManagerListener {
       },
     );
 
-    this.transactionManager.on(NxtpSdkEvents.TransactionFulfilled, (txData, relayerFee, signature, caller) => {
-      const payload: TransactionFulfilledEvent = {
-        txData: processTxData(txData),
-        signature: signature,
-        relayerFee: relayerFee.toString(),
-        caller,
-      };
-      this.evts[NxtpSdkEvents.TransactionFulfilled].post(payload);
-    });
+    this.transactionManager.on(
+      NxtpSdkEvents.TransactionFulfilled,
+      (txData, relayerFee, signature, callData, caller) => {
+        const payload: TransactionFulfilledEvent = {
+          txData: processTxData(txData),
+          signature: signature,
+          relayerFee: relayerFee.toString(),
+          callData: callData,
+          caller,
+        };
+        this.evts[NxtpSdkEvents.TransactionFulfilled].post(payload);
+      },
+    );
 
     this.transactionManager.on(NxtpSdkEvents.TransactionCancelled, (txData, relayerFee, caller) => {
       const payload: TransactionCancelledEvent = {

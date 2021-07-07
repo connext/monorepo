@@ -69,6 +69,7 @@ export type TransactionFulfilledEvent = {
   txData: TransactionData;
   signature: string;
   relayerFee: string;
+  callData: string;
   caller: string;
 };
 

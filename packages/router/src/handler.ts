@@ -262,7 +262,7 @@ export class Handler implements Handler {
     const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { txData, signature, relayerFee } = data;
+    const { txData, signature, callData, relayerFee } = data;
 
     const senderTransaction = await this.subgraph.getTransactionForChain(txData.transactionId, txData.sendingChainId);
     if (!senderTransaction) {
@@ -286,7 +286,7 @@ export class Handler implements Handler {
       txData,
       signature,
       relayerFee,
-      callData: "0x", // TODO: where does this come from??
+      callData,
     });
     if (txReceipt) {
       this.logger.info(

@@ -98,6 +98,7 @@ export const getReceiverFulfillQuery = gql`
         preparedBlockNumber
         relayerFee
         signature
+        callData
         fulfillCaller
       }
       assetBalances {
@@ -134,6 +135,7 @@ export const getSenderFulfillQuery = gql`
         preparedBlockNumber
         relayerFee
         signature
+        callData
         fulfillCaller
       }
       assetBalances {

@@ -49,6 +49,7 @@ type Transaction @entity {
   # TransactionFulfilled
   relayerFee: BigInt
   signature: Bytes
+  callData: String
   fulfillCaller: Bytes
 
   # TransactionCancelled

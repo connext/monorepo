@@ -675,7 +675,7 @@ export type GetReceiverFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -702,7 +702,7 @@ export type GetSenderFulfillTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'fulfillCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callDataHash' | 'transactionId' | 'sendingChainId' | 'receivingChainId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -840,6 +840,7 @@ export const GetReceiverFulfillTransactionsDocument = gql`
       preparedBlockNumber
       relayerFee
       signature
+      callData
       fulfillCaller
     }
     assetBalances {
@@ -877,6 +878,7 @@ export const GetSenderFulfillTransactionsDocument = gql`
       preparedBlockNumber
       relayerFee
       signature
+      callData
       fulfillCaller
     }
     assetBalances {
