@@ -200,21 +200,6 @@ function App(): React.ReactElement | null {
     }
   };
 
-  const dataSource = [
-    {
-      key: "1",
-      name: "Mike",
-      age: 32,
-      address: "10 Downing Street",
-    },
-    {
-      key: "2",
-      name: "John",
-      age: 42,
-      address: "10 Downing Street",
-    },
-  ];
-
   const columns = [
     {
       title: "Transaction Id",
@@ -267,19 +252,23 @@ function App(): React.ReactElement | null {
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col span={3}></Col>
-        <Col span={8}>
-          <Typography.Title level={2}>Active Transfers</Typography.Title>
-        </Col>
-      </Row>
-      <Row>
-        <Col span={3}></Col>
-        <Col span={20}>
-          <Table columns={columns} dataSource={dataSource} />
-        </Col>
-        <Col span={3}></Col>
-      </Row>
+      {activeTransferTableColumns.length > 0 && (
+        <>
+          <Row gutter={16}>
+            <Col span={3}></Col>
+            <Col span={8}>
+              <Typography.Title level={2}>Active Transfers</Typography.Title>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={3}></Col>
+            <Col span={20}>
+              <Table columns={columns} dataSource={activeTransferTableColumns} />
+            </Col>
+            <Col span={3}></Col>
+          </Row>
+        </>
+      )}
 
       <Row gutter={16}>
         <Col span={3}></Col>
