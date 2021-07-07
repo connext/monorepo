@@ -55,6 +55,7 @@ export class TransactionManagerListener {
         sendingAssetId: txData.sendingAssetId,
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
         receivingAddress: txData.receivingAddress,
         sendingChainId: txData.sendingChainId.toNumber(),
         receivingChainId: txData.receivingChainId.toNumber(),
@@ -82,11 +83,12 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
-      (txData, relayerFee, signature, caller) => {
+      (txData, relayerFee, signature, callData, caller) => {
         const payload: TransactionFulfilledEvent = {
           txData: processTxData(txData),
           signature: signature,
           relayerFee: relayerFee.toString(),
+          callData,
           caller,
         };
         this.evts[TransactionManagerEvents.TransactionFulfilled].post(payload);

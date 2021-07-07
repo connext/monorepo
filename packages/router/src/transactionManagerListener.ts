@@ -81,6 +81,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               sendingAssetId: transaction.sendingAssetId,
               receivingAssetId: transaction.receivingAssetId,
               sendingChainFallback: transaction.sendingChainFallback,
+              callTo: transaction.callTo,
               receivingAddress: transaction.receivingAddress,
               callDataHash: transaction.callDataHash,
               transactionId: transaction.transactionId,
@@ -119,6 +120,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               sendingAssetId: transaction.sendingAssetId,
               receivingAssetId: transaction.receivingAssetId,
               sendingChainFallback: transaction.sendingChainFallback,
+              callTo: transaction.callTo,
               receivingAddress: transaction.receivingAddress,
               callDataHash: transaction.callDataHash,
               transactionId: transaction.transactionId,
@@ -161,6 +163,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               sendingAssetId: transaction.sendingAssetId,
               receivingAssetId: transaction.receivingAssetId,
               sendingChainFallback: transaction.sendingChainFallback,
+              callTo: transaction.callTo,
               receivingAddress: transaction.receivingAddress,
               callDataHash: transaction.callDataHash,
               transactionId: transaction.transactionId,
@@ -172,6 +175,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             },
             signature: transaction.signature,
             relayerFee: transaction.relayerFee,
+            callData: transaction.callData ?? "0x",
             caller: transaction.fulfillCaller,
           };
 
@@ -202,6 +206,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               sendingAssetId: transaction.sendingAssetId,
               receivingAssetId: transaction.receivingAssetId,
               sendingChainFallback: transaction.sendingChainFallback,
+              callTo: transaction.callTo,
               receivingAddress: transaction.receivingAddress,
               callDataHash: transaction.callDataHash,
               transactionId: transaction.transactionId,
@@ -213,6 +218,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             },
             signature: transaction.signature,
             relayerFee: transaction.relayerFee,
+            callData: transaction.callData ?? "0x",
             caller: transaction.fulfillCaller,
           };
 
@@ -252,6 +258,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             sendingAssetId: transaction.sendingAssetId,
             receivingAssetId: transaction.receivingAssetId,
             sendingChainFallback: transaction.sendingChainFallback,
+            callTo: transaction.callTo,
             receivingAddress: transaction.receivingAddress,
             callDataHash: transaction.callDataHash,
             transactionId: transaction.transactionId,

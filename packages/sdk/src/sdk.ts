@@ -26,6 +26,7 @@ export const CrossChainParamsSchema = Type.Object({
   sendingAssetId: TAddress,
   receivingChainId: TChainId,
   receivingAssetId: TAddress,
+  callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
   expiry: TIntegerString,
@@ -179,6 +180,7 @@ export class NxtpSdk {
       callData,
       sendingChainId,
       receivingChainId,
+      callTo,
     } = transferParams;
     if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
@@ -202,6 +204,7 @@ export class NxtpSdk {
         sendingAssetId,
         receivingAssetId,
         sendingChainFallback: receivingAddress, // TODO: for now
+        callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
         receivingChainId,
