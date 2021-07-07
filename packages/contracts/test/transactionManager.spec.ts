@@ -255,15 +255,6 @@ describe("TransactionManager", function () {
     const receipt = await prepareTx.wait();
     expect(receipt.status).to.be.eq(1);
 
-    const activeBlocks = await instance.connect(preparer).getActiveTransactionBlocks(preparer.address);
-    console.log("activeBlocks: ", activeBlocks);
-    const event = await instance.queryFilter(
-      instance.filters.TransactionPrepared(preparer.address),
-      activeBlocks[0].toNumber(),
-      activeBlocks[0].toNumber(),
-    );
-    console.log("event: ", event[0].args);
-
     const variantDigest = getVariantTransactionDigest({
       amount: record.amount,
       expiry: record.expiry,
