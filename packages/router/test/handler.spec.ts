@@ -25,7 +25,7 @@ import * as handlerUtils from "../src/handler";
 
 const logger = pino();
 
-const fakeTxReceipt = {
+const fakeTxReceipt = ({
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -39,7 +39,7 @@ const fakeTxReceipt = {
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown as providers.TransactionReceipt;
+} as unknown) as providers.TransactionReceipt;
 
 const fakeConfig: config.NxtpRouterConfig = {
   adminToken: "foo",
@@ -99,6 +99,7 @@ const receiverFulfillDataMock: TransactionFulfilledEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
   relayerFee: "5678",
+  callData: "0x",
   signature: "0xdeadbeef",
 };
 
@@ -217,7 +218,7 @@ describe("Handler", () => {
     expect(data).to.deep.eq({
       relayerFee: receiverFulfillDataMock.relayerFee,
       signature: receiverFulfillDataMock.signature,
-      callData: "0x",
+      callData: receiverFulfillDataMock.callData,
       txData: {
         user: receiverFulfillDataMock.txData.user,
         router: receiverFulfillDataMock.txData.router,
@@ -259,7 +260,7 @@ describe("Handler", () => {
     expect(data).to.deep.eq({
       relayerFee: receiverFulfillDataMock.relayerFee,
       signature: receiverFulfillDataMock.signature,
-      callData: "0x",
+      callData: receiverFulfillDataMock.callData,
       txData: {
         user: receiverFulfillDataMock.txData.user,
         router: receiverFulfillDataMock.txData.router,
