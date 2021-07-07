@@ -1,7 +1,7 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
 import { RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { Static, Type } from "@sinclair/typebox";
 
@@ -23,13 +23,16 @@ const messaging = new RouterNxtpNatsMessagingService({
   logger,
 });
 const subgraphs: { [chainId: number]: string } = {};
-const providers: { [chainId: number]: string[] } = {};
+const chains: { [chainId: string]: ChainConfig } = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   subgraphs[parseInt(chainId)] = config.subgraph;
-  providers[parseInt(chainId)] = config.provider;
+  chains[chainId] = {
+    confirmations: config.confirmations,
+    providers: config.providers.map((url) => ({ url })),
+  } as ChainConfig;
 });
 const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TransactionService(logger, wallet, providers);
+const txService = new TransactionService(logger, wallet, { chains });
 const transactionManager = new TransactionManager(txService, wallet.address, logger);
 
 const handler = new Handler(messaging, subgraph, transactionManager, logger);
