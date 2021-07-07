@@ -62,9 +62,9 @@ interface ITransactionManager {
   }
 
   // Liquidity events
-  event LiquidityAdded(address router, address assetId, uint256 amount);
+  event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount);
 
-  event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
+  event LiquidityRemoved(address indexed router, address indexed assetId, uint256 amount, address recipient);
 
   // Transaction events
   event TransactionPrepared(
