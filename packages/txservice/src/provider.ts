@@ -5,7 +5,7 @@ import { NonceManager } from "@ethersproject/experimental";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig, ProviderConfig, validateProviderConfig } from "./config";
+import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { ChainError } from "./error";
 import { FullTransaction, MinimalTransaction } from "./types";
 
@@ -27,13 +27,14 @@ export class ChainRpcProvider {
 
   constructor(
     private readonly log: BaseLogger,
-    chainId: number,
     signer: string | Signer,
+    chainId: number,
+    private readonly chainConfig: ChainConfig,
     providerConfigs: ProviderConfig[],
     private readonly config: TransactionServiceConfig,
   ) {
-    this.confirmationsRequired = config.chainConfirmations.get(chainId) ?? config.defaultConfirmationsRequired;
-    this.confirmationTimeout = config.confirmationTimeouts.get(chainId) ?? config.defaultConfirmationTimeout;
+    this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
+    this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
     this.chainId = chainId;
     // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
@@ -165,14 +166,67 @@ export class ChainRpcProvider {
       }
 
       if (!gasPrice) {
-        gasPrice = await this.provider.getGasPrice();
+        try {
+          gasPrice = await this.provider.getGasPrice();
+        } catch (e) {
+          this.log.error(
+            { chainId: this.chainId, error: jsonifyError(e) },
+            "getGasPrice failure, attempting to default to backup gas value."
+          );
+          // Default to initial gas price, if available. Otherwise, throw.
+          gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
+          if (!gasPrice) {
+            throw e;
+          }
+        }
         gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
       }
+
+      // If the gas price is less than the gas minimum, bump it up to minimum.
       if (gasPrice.lt(gasMinimum)) {
         gasPrice = BigNumber.from(gasMinimum);
       }
+
       return gasPrice;
     });
+  }
+
+  private async isReady(): Promise<boolean> {
+    // TODO: Do we need both ready and the check below, or is this redundant?
+    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
+    // errors due to the target node not being active yet. This will ensure we wait until the node is up
+    // and running smoothly.
+    const ready = await this.provider.ready;
+    if (!ready) {
+      // Error out, not enough providers are ready.
+      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    }
+    // Ensure that provider(s) are synced.
+    let outOfSync = 0;
+    await Promise.all(this._providers.map(async (provider) => {
+      try {
+        /* If not syncing, will return something like:
+         * {
+         *   "id": 1,
+         *   "jsonrpc": "2.0",
+         *   "result": false
+         * }
+         */
+        const result = await provider.send("eth_syncing", []);
+        if (result.result) {
+          outOfSync++;
+        }
+      } catch(e) {
+        outOfSync++;
+      }
+    }));
+    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
+    // we may necessarily need >1 provider to be in sync.
+    if (this._providers.length - outOfSync < this.quorum) {
+      // Error out, not enough providers are ready.
+      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    }
+    return true;
   }
 
   private async retryWrapper<T>(chainId: number, method: string, targetMethod: () => Promise<T>): Promise<T> {
@@ -190,33 +244,5 @@ export class ChainRpcProvider {
       chainId,
       errors,
     });
-  }
-
-  private async isReady(): Promise<boolean> {
-    // TODO: Do we need both ready and the check below, or is this redundant?
-    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
-    // errors due to the target node not being active yet. This will ensure we wait until the node is up
-    // and running smoothly.
-    const ready = await this.provider.ready;
-    if (!ready) {
-      // Error out, not enough providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotSynced);
-    }
-    // Ensure that provider(s) are synced.
-    const outOfSync = [];
-    await Promise.all(this._providers.map(async (provider) => {
-      try {
-        return await provider.send("eth_syncing", []);
-      } catch(e) {
-        outOfSync.push(e);
-      }
-    }));
-    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
-    // we may necessarily need >1 provider to be in sync.
-    if (this._providers.length - outOfSync.length < this.quorum) {
-      // Error out, not enough providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotSynced);
-    }
-    return true;
   }
 }

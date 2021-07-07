@@ -6,7 +6,7 @@ import {
   TransactionServiceConfig,
   validateTransactionServiceConfig,
   DEFAULT_CONFIG,
-  ProviderConfig,
+  ChainConfig,
 } from "./config";
 import { ChainError } from "./error";
 import { MinimalTransaction } from "./types";
@@ -26,8 +26,7 @@ export class TransactionService {
   constructor(
     private readonly log: BaseLogger,
     signer: string | Signer,
-    chainProviders: { [chainId: number]: ProviderConfig[] },
-    config: Partial<TransactionServiceConfig> = {} as TransactionServiceConfig,
+    config: Partial<TransactionServiceConfig>,
   ) {
     // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
@@ -37,23 +36,26 @@ export class TransactionService {
     this.config = Object.assign(DEFAULT_CONFIG, config);
     validateTransactionServiceConfig(this.config);
     // For each chain ID / provider, map out all the utils needed for each chain.
-    Object.keys(chainProviders)
-      .map(Number)
+    const chains = this.config.chains;
+    Object.keys(chains)
       .forEach((chainId) => {
-        const configs = chainProviders[chainId];
-        if (configs.length === 0) {
+        // Get this chain's config.
+        const chain: ChainConfig = chains[chainId];
+        // Retrieve provider configs and ensure at least one provider is configured.
+        const providers = chain.providers;
+        if (providers.length === 0) {
           // TODO: This should be a config parser error (i.e. thrown in config parse).
-          this.log.error({ chainId, configs }, `Provider configurations not found for chainID: ${chainId}`);
+          this.log.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
           throw new ChainError(ChainError.reasons.ProviderNotFound);
         }
-        this.providers.set(chainId, new ChainRpcProvider(this.log, chainId, signer, configs, this.config));
+        const chainIdNumber = parseInt(chainId);
+        this.providers.set(chainIdNumber, new ChainRpcProvider(this.log, signer, chainIdNumber, chain, providers, this.config));
       });
   }
 
   public async sendAndConfirmTx(
     chainId: number,
     tx: MinimalTransaction,
-    presetGasPrice?: BigNumber,
   ): Promise<providers.TransactionReceipt> {
     const method = this.sendAndConfirmTx.name;
     let receipt: providers.TransactionReceipt | undefined;
@@ -63,7 +65,6 @@ export class TransactionService {
       this.getProvider(chainId),
       tx,
       this.config,
-      presetGasPrice
     );
 
     while (!receipt) {

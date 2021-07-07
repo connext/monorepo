@@ -26,6 +26,61 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("kind")
   .addKeyword("modifier");
 
+/// PROVIDER CONFIG
+export const ProviderConfigSchema = Type.Object({
+  // URL string.
+  url: TUrl,
+
+  // Auth header params, if needed.
+  user: Type.Optional(Type.String()),
+  password: Type.Optional(Type.String()),
+
+  /* From ethers:
+   * The priority used for the provider. Lower-value priorities are favoured over higher-value priorities. If
+   * multiple providers share the same priority, they are chosen at random.
+   * 
+   * Defaults to 1.
+   */
+  priority: Type.Optional(Type.Number()),
+
+  /* From ethers:
+   * The weight a response from this provider provides. This can be used if a given Provider is more trusted, for example.
+   * 
+   * Defaults to 1.
+   */
+  weight: Type.Optional(Type.Number()),
+
+  /* From ethers:
+   * The timeout (in ms) after which another Provider will be attempted. This does not affect the current Provider; 
+   * if it returns a result it is counted as part of the quorum.
+   * Lower values will result in more network traffic, but may reduce the response time of requests.
+   */
+  stallTimeout: Type.Optional(Type.Number()),
+});
+
+export type ProviderConfig = Static<typeof ProviderConfigSchema>;
+export const validateProviderConfig = ajv.compile(ProviderConfigSchema);
+
+/// CHAIN CONFIG
+export const ChainConfigSchema = Type.Object({
+  // List of configurations for providers for this chain.
+  providers: Type.Array(ProviderConfigSchema),
+
+  // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
+  // in the event that a gas station is malfunctioning.
+  defaultInitialGas: Type.Optional(TIntegerString),
+
+  // The amount of time (ms) to wait before a confirmation polling period times out,
+  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
+  confirmationTimeout: Type.Optional(Type.Number()),
+  // Number of confirmations needed for each chain, specified by chain Id.
+  confirmations: Type.Optional(Type.Number()),
+});
+
+export type ChainConfig = Static<typeof ChainConfigSchema>;
+export const validateChainConfig = ajv.compile(ChainConfigSchema);
+
+/// TX SERVICE CONFIG
 const TransactionServiceConfigSchema = Type.Object({
   /// GAS
   // % to bump gas by from gas station quote.
@@ -33,7 +88,6 @@ const TransactionServiceConfigSchema = Type.Object({
   // % to bump gas by when tx confirmation times out.
   gasReplacementBumpPercent: Type.Number(),
   // Gas shouldn't ever exceed this amount.
-
   gasLimit: TIntegerString,
   // Minimum gas price.
   gasMinimum: TIntegerString,
@@ -47,8 +101,15 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultConfirmationTimeout: Type.Number(),
 
   /// RPC PROVIDERS
+  // The timeout (in ms) after which another Provider will be attempted. Optional, as we will
+  // default to ethers' default value for this item.
+  defaultStallTimeout: Type.Optional(Type.Number()),
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
   rpcProviderMaxRetries: Type.Number(),
+
+  /// CHAINS
+  // Configuration for each chain that this txservice will be supporting.
+  chains: Type.Dict(ChainConfigSchema),
 });
 
 export type TransactionServiceConfig = Static<typeof TransactionServiceConfigSchema>;
@@ -75,47 +136,3 @@ if (!valid) {
   console.error(`Default configuration for txservice is invalid: ${JSON.stringify(DEFAULT_CONFIG, null, 2)}`);
   throw new Error(validateTransactionServiceConfig.errors?.map((err) => err.message).join(","));
 }
-
-export const ProviderConfigSchema = Type.Object({
-  // URL string.
-  url: TUrl,
-
-  // Auth header params, if needed.
-  user: Type.Optional(Type.String()),
-  password: Type.Optional(Type.String()),
-
-  /* From ethers:
-    * The priority used for the provider. Lower-value priorities are favoured over higher-value priorities. If
-    * multiple providers share the same priority, they are chosen at random.
-    * 
-    * Defaults to 1.
-    */
-  priority: Type.Optional(Type.Number()),
-
-  /* From ethers:
-    * The weight a response from this provider provides. This can be used if a given Provider is more trusted, for example.
-    * 
-    * Defaults to 1.
-    */
-  weight: Type.Optional(Type.Number()),
-
-  /* From ethers:
-    * The timeout (in ms) after which another Provider will be attempted. This does not affect the current Provider; 
-    * if it returns a result it is counted as part of the quorum.
-    * Lower values will result in more network traffic, but may reduce the response time of requests.
-    */
-  stallTimeout: Type.Optional(Type.Number()),
-
-  // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
-  // in the event that a gas station is malfunctioning.
-  defaultInitialGas: Type.Optional(TIntegerString),
-
-  // The amount of time (ms) to wait before a confirmation polling period times out,
-  // indicating we should resubmit tx with higher gas if the tx is not confirmed.
-  confirmationTimeout: Type.Dict(Type.Number()),
-  // Number of confirmations needed for each chain, specified by chain Id.
-  confirmations: Type.Dict(Type.Number()),
-});
-
-export type ProviderConfig = Static<typeof ProviderConfigSchema>;
-export const validateProviderConfig = ajv.compile(ProviderConfigSchema);

@@ -2,7 +2,7 @@ import { delay, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig } from "./config";
+import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, MinimalTransaction } from "./types";
@@ -176,27 +176,11 @@ export class Transaction {
     return receipt;
   }
 
-  // TODO: Move to pure getter.
   private async getGasPrice(): Promise<BigNumber> {
     if (this._gasPrice) {
       return this._gasPrice;
     } else {
-      let price: BigNumber | undefined;
-      try {
-        price = await this.provider.getGasPrice();
-      } catch (e) {
-        // NOTE: This should be a VectorError thrown here by this.getGasPrice.
-        this.log.error(
-          { chainId: this.provider.chainId, error: jsonifyError(e) },
-          "getGasPrice failure, attempting to default to backup gas value."
-        );
-        price = this.config.chainInitialGas.get(this.provider.chainId);
-        // Default to initial gas price, if available. Otherwise, throw.
-        if (!price) {
-          throw e;
-        }
-      }
-      return price;
+      return await this.provider.getGasPrice();
     }
   }
 
