@@ -15,6 +15,18 @@ function App(): React.ReactElement | null {
   const [amount, setAmount] = useState<string>("0.01");
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
+  const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
+    {
+      key: string;
+      txId: string;
+      sendingChain: string;
+      sendingAsset: string;
+      receivingChain: string;
+      receivingAsset: string;
+      amountReceived: string;
+      status: string;
+    }[]
+  >([]);
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -51,28 +63,68 @@ function App(): React.ReactElement | null {
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
+        const { txData } = data;
+        const table = activeTransferTableColumns;
+        table.push({
+          amountReceived: txData.amount,
+          key: txData.transactionId,
+          receivingAsset: txData.receivingAssetId,
+          receivingChain: txData.receivingChainId.toString(),
+          sendingAsset: txData.sendingAssetId,
+          sendingChain: txData.sendingChainId.toString(),
+          status: NxtpSdkEvents.SenderTransactionPrepared,
+          txId: txData.transactionId,
+        });
+        setActiveTransferTableColumns(table);
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, (data) => {
         console.log("SenderTransactionFulfilled:", data);
+        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, (data) => {
         console.log("SenderTransactionCancelled:", data);
+        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, (data) => {
         console.log("ReceiverTransactionPrepared:", data);
+        const { txData } = data;
+        const index = activeTransferTableColumns.findIndex((col) => col.txId === txData.transactionId);
+        activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
+        setActiveTransferTableColumns(activeTransferTableColumns);
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
+        const { txData } = data;
+        const index = activeTransferTableColumns.findIndex((col) => col.txId === txData.transactionId);
+        activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionFulfilled;
+        setActiveTransferTableColumns(activeTransferTableColumns);
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
         console.log("ReceiverTransactionCancelled:", data);
+        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
       });
       const activeTxs = await _sdk.getActiveTransactions();
+
+      // TODO: race condition with the event listeners
+      setActiveTransferTableColumns(
+        activeTxs.map((tx) => {
+          return {
+            amountReceived: tx.txData.amount,
+            status: tx.status,
+            sendingChain: tx.txData.sendingChainId.toString(),
+            sendingAsset: tx.txData.sendingAssetId,
+            receivingChain: tx.txData.receivingChainId.toString(),
+            receivingAsset: tx.txData.receivingAssetId,
+            key: tx.txData.transactionId,
+            txId: tx.txData.transactionId,
+          };
+        }),
+      );
       console.log("activeTxs: ", activeTxs);
     };
     init();

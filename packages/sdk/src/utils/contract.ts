@@ -33,13 +33,18 @@ export const getTransactionManagerContract = (
   return { address, abi, instance };
 };
 
-export const getActiveTransactionsByUser = async (chainId: number, userAddress: string): Promise<TransactionData[]> => {
+export const getActiveTransactionsByUser = async (
+  chainId: number,
+  userAddress: string,
+  provider: providers.JsonRpcProvider,
+): Promise<TransactionData[]> => {
   const { instance } = getTransactionManagerContract(chainId);
-  const blocks = await instance.getActiveTransactionBlocks(userAddress);
+  const txManager = instance.connect(provider);
+  const blocks = await txManager.getActiveTransactionBlocks(userAddress);
   const events = await Promise.all(
     blocks.map(async (block) => {
-      const e = await instance.queryFilter(
-        instance.filters.TransactionPrepared(userAddress),
+      const e = await txManager.queryFilter(
+        txManager.filters.TransactionPrepared(userAddress),
         block.toNumber(),
         block.toNumber(),
       );
@@ -74,10 +79,12 @@ export const getActiveTransactionsByUser = async (chainId: number, userAddress: 
 export const getVariantHashByInvariantData = async (
   chainId: number,
   data: InvariantTransactionData,
+  provider: providers.JsonRpcProvider,
 ): Promise<string> => {
   const { instance } = getTransactionManagerContract(chainId);
+  const txManager = instance.connect(provider);
   const invariantDigest = getInvariantTransactionDigest(data);
-  const hash = await instance.variantTransactionData(invariantDigest);
+  const hash = await txManager.variantTransactionData(invariantDigest);
   // will be bytes0 if it doesnt exist
   // TODO: is there a better way to construct the variant hash
   return hash;

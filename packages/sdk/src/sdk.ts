@@ -239,9 +239,10 @@ export class NxtpSdk {
   public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
     const signerAddress = await this.signer.getAddress();
     const transactionsForChains = await Promise.all(
-      Object.keys(this.chains).map(async (chainId): Promise<[chainId: number, txs: TransactionData[]]> => {
-        const active = await getActiveTransactionsByUser(parseInt(chainId), signerAddress);
-        return [parseInt(chainId), active];
+      Object.keys(this.chains).map(async (c): Promise<[chainId: number, txs: TransactionData[]]> => {
+        const chainId = parseInt(c);
+        const active = await getActiveTransactionsByUser(chainId, signerAddress, this.chains[chainId].provider);
+        return [chainId, active];
       }),
     );
 
@@ -252,19 +253,23 @@ export class NxtpSdk {
           txs.map(async (tx): Promise<{ txData: TransactionData; status: NxtpSdkEvent } | undefined> => {
             // only handle sender txs
             if (tx.sendingChainId === chainId) {
-              const hash = await getVariantHashByInvariantData(tx.receivingChainId, {
-                user: tx.user,
-                router: tx.router,
-                sendingAssetId: tx.sendingAssetId,
-                receivingAssetId: tx.receivingAssetId,
-                sendingChainFallback: tx.sendingChainFallback,
-                callTo: tx.callTo,
-                receivingAddress: tx.receivingAddress,
-                sendingChainId: tx.sendingChainId,
-                receivingChainId: tx.receivingChainId,
-                callDataHash: tx.callDataHash,
-                transactionId: tx.transactionId,
-              });
+              const hash = await getVariantHashByInvariantData(
+                tx.receivingChainId,
+                {
+                  user: tx.user,
+                  router: tx.router,
+                  sendingAssetId: tx.sendingAssetId,
+                  receivingAssetId: tx.receivingAssetId,
+                  sendingChainFallback: tx.sendingChainFallback,
+                  callTo: tx.callTo,
+                  receivingAddress: tx.receivingAddress,
+                  sendingChainId: tx.sendingChainId,
+                  receivingChainId: tx.receivingChainId,
+                  callDataHash: tx.callDataHash,
+                  transactionId: tx.transactionId,
+                },
+                this.chains[tx.receivingChainId].provider,
+              );
               // default to receiver fulfilled
               let status: NxtpSdkEvent = NxtpSdkEvents.ReceiverTransactionFulfilled;
               if (hash === constants.HashZero) {
