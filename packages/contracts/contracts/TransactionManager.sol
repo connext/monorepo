@@ -425,7 +425,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, msg.sender);
+    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, callData, msg.sender);
 
     return txData;
   }
