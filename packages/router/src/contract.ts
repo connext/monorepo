@@ -1,4 +1,4 @@
-import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
+import { TransactionManager as TTransactionManager , IERC20Minimal as TTIERC20} from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
@@ -7,6 +7,8 @@ import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@conne
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import IERC20MinimalArtifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
+import { assertType } from "graphql";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 
@@ -15,6 +17,7 @@ const hId = hyperid();
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
+  private readonly erc20Interface: TTIERC20["interface"];
   private readonly config: NxtpRouterConfig;
 
   constructor(
@@ -23,6 +26,7 @@ export class TransactionManager {
     private readonly logger: BaseLogger,
   ) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+    this.erc20Interface = new Interface(IERC20MinimalArtifact.abi) as TTIERC20["interface"];
     this.config = getConfig();
   }
 
@@ -54,7 +58,7 @@ export class TransactionManager {
     ]);
 
     try {
-      //todo:ask Rahul??
+      //todo: is this what was meant by defaulting to the deployments then config??
       const getTxManagerAddress = () => {
         if(this.config.chainConfig[chainId]){
           return this.config.chainConfig[chainId].transactionManagerAddress;
@@ -86,6 +90,32 @@ export class TransactionManager {
     }
   }
 
+  async approve(chainId: number, receieverAddress: string, assetId:string): Promise<providers.TransactionReceipt> {
+    const method = "ERC20::approve";
+    const methodId = hId();
+
+    const approveData = this.erc20Interface.encodeFunctionData("approve", [receieverAddress, constants.MaxUint256]);
+
+    try {
+      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+        chainId,
+        data: approveData,
+        to: assetId,
+        value: 0,
+        from: this.signerAddress,
+      });
+      return txRes;
+    } catch (e) {
+      // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
+      this.logger.error(
+        { methodId, method, error: jsonifyError(e) },
+        "Error sending approve token tx",
+      );
+      // TODO discuss this case!!
+      throw e;
+    }
+  }
+  
   async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
     const methodId = hId();
@@ -151,8 +181,6 @@ export class TransactionManager {
     });
     //decode hex data
     const liquidityHex = this.txManagerInterface.decodeFunctionResult("routerBalances", liquidity);
-
-    console.log(`Liquidity Hex::Contract ${liquidityHex[0]}`);
     return liquidityHex[0];
   }
 

@@ -23,7 +23,7 @@ import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
 
-const logger = pino();
+const logger = pino()
 
 const fakeTxReceipt = {
   blockHash: "foo",
@@ -167,13 +167,19 @@ describe("Handler", () => {
       encryptedCallData: ethPrepareDataMock.encryptedCallData,
     } as PrepareParams);
   });
+  it("should approve token", async()=>{
+    //simple approve
+    const tokenPrepareData = senderPrepareData;
+    txManager.approve.resolves(fakeTxReceipt);
+    const approve_call = await txManager.approve(tokenPrepareData.txData.sendingChainId, senderPrepareData.txData.router, rinkebyTestTokenAddress);
+    console.log(approve_call)
 
+  })
   it("should send prepare for receiving chain with token asset", async () => {
     const tokenPrepareData = senderPrepareData;
     tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
     tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
-    // TODO: where is approve??
     await handler.handleSenderPrepare(tokenPrepareData);
 
     expect(txManager.prepare.callCount).to.be.eq(1);
@@ -291,6 +297,5 @@ describe("Handler", () => {
     await txManager.addLiquidity(4, constants.AddressZero);
     const call = txManager.addLiquidity.getCall(0);
 
-    console.log(call);
   });
 });

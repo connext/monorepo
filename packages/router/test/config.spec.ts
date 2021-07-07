@@ -1,3 +1,5 @@
+import {getConfig, getEnvConfig, NxtpRouterConfig} from "../src/config";
+
 describe("Config", () => {
   it("should read config from default filepath", () => {});
   it("should read config from specified filepath", () => {});
