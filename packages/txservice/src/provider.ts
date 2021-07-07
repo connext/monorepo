@@ -5,9 +5,9 @@ import { NonceManager } from "@ethersproject/experimental";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig } from "./config";
+import { TransactionServiceConfig, ProviderConfig, validateProviderConfig } from "./config";
 import { ChainError } from "./error";
-import { FullTransaction, MinimalTransaction, ProviderConfig } from "./types";
+import { FullTransaction, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
@@ -37,32 +37,48 @@ export class ChainRpcProvider {
     this.chainId = chainId;
     // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
+    // NOTE: This only applies to fallback provider case below.
     this.quorum = 1;
     
     // Register a provider for each url.
     // Make sure all providers are ready()
-
+    const filteredConfigs = providerConfigs.filter((config) => {
+      const valid = validateProviderConfig(config);
+      if (!valid) {
+        this.log.error(
+          config,
+          "Configuration was invalid for provider."
+        );
+      }
+      return valid;
+    });
     if (providerConfigs.length === 1) {
       this.provider = new JsonRpcProvider(providerConfigs[0]);
       this._providers = [this.provider];
+    } else if (providerConfigs.length > 1) {
+      const hydratedConfigs = filteredConfigs.map((config) => (
+        {
+          provider: new JsonRpcProvider(
+            {
+              url: config.url,
+              user: config.user,
+              password: config.password,
+            }
+          ),
+          priority: config.priority ?? 1,
+          weight: config.weight ?? 1,
+          stallTimeout: config.stallTimeout,
+        }
+      ));
+      this.provider = new FallbackProvider(hydratedConfigs, this.quorum);
+      this._providers = hydratedConfigs.map((p) => p.provider);
     } else {
-      const fallbackProviderConfigs = providerConfigs.map((config) => ({
-        provider: new JsonRpcProvider(
-          {
-            url: config.url,
-            user: config.user,
-            password: config.password,
-          }
-        ),
-        priority: config.priority ?? 1,
-        weight: config.weight ?? 1,
-        stallTimeout: config.stallTimeout,
-      }));
-      this.provider = new FallbackProvider(fallbackProviderConfigs, this.quorum);
-      this._providers = fallbackProviderConfigs.map((p) => p.provider);
+      // Not enough valid providers were found in configuration.
+      // We must throw here, as the router won't be able to support this chain without valid provider configs.
+      throw new ChainError(ChainError.reasons.ProviderNotFound);
     }
 
-    // Using experimental NonceManager to wrap signer here.
+    // Using NonceManager to wrap signer here.
     this.signer = new NonceManager(typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider));
   }
 
@@ -134,7 +150,7 @@ export class ChainRpcProvider {
   public async getGasPrice(): Promise<BigNumber> {
     const method = this.getGasPrice.name;
 
-    const { gasInitialBumpPercent, gasPriceMinimum } = this.config;
+    const { gasInitialBumpPercent, gasMinimum } = this.config;
     return await this.retryWrapper<BigNumber>(this.chainId, method, async () => {
       let gasPrice: BigNumber | undefined = undefined;
 
@@ -152,8 +168,8 @@ export class ChainRpcProvider {
         gasPrice = await this.provider.getGasPrice();
         gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
       }
-      if (gasPrice.lt(gasPriceMinimum)) {
-        gasPrice = BigNumber.from(gasPriceMinimum);
+      if (gasPrice.lt(gasMinimum)) {
+        gasPrice = BigNumber.from(gasMinimum);
       }
       return gasPrice;
     });

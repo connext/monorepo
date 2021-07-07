@@ -2,9 +2,14 @@ import { BigNumber, Signer, providers } from "ethers";
 import { BaseLogger } from "pino";
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import { TransactionServiceConfig, DEFAULT_CONFIG } from "./config";
+import {
+  TransactionServiceConfig,
+  validateTransactionServiceConfig,
+  DEFAULT_CONFIG,
+  ProviderConfig,
+} from "./config";
 import { ChainError } from "./error";
-import { MinimalTransaction, ProviderConfig } from "./types";
+import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 
@@ -30,6 +35,7 @@ export class TransactionService {
 
     // Set up the config.
     this.config = Object.assign(DEFAULT_CONFIG, config);
+    validateTransactionServiceConfig(this.config);
     // For each chain ID / provider, map out all the utils needed for each chain.
     Object.keys(chainProviders)
       .map(Number)

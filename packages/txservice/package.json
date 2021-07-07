@@ -23,7 +23,10 @@
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
     "@ethersproject/experimental": "^5.4.0",
+    "@sinclair/typebox": "^0.17.7",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "ajv": "^8.6.1",
+    "ajv-formats": "^2.1.0",
     "axios": "^0.21.1",
     "eslint": "^7.30.0",
     "ethers": "^5.4.1",
