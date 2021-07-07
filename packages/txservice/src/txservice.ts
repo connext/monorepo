@@ -1,4 +1,4 @@
-import { BigNumber, Signer, providers } from "ethers";
+import { Signer, providers } from "ethers";
 import { BaseLogger } from "pino";
 import { jsonifyError } from "@connext/nxtp-utils";
 

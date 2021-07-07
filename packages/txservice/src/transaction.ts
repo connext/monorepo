@@ -1,8 +1,8 @@
-import { delay, jsonifyError } from "@connext/nxtp-utils";
+import { delay } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 
-import { ChainConfig, TransactionServiceConfig } from "./config";
+import { TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, MinimalTransaction } from "./types";
