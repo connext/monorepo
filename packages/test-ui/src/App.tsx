@@ -23,7 +23,8 @@ function App(): React.ReactElement | null {
       return;
     }
     try {
-      const provider = new providers.Web3Provider((window as any).ethereum);
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new providers.Web3Provider(ethereum);
       const _signer = provider.getSigner();
       setSigner(_signer);
       const address = await _signer.getAddress();
@@ -71,6 +72,8 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
         console.log("ReceiverTransactionCancelled:", data);
       });
+      const activeTxs = await _sdk.getActiveTransactions();
+      console.log("activeTxs: ", activeTxs);
     };
     init();
   }, [web3Provider, signer]);

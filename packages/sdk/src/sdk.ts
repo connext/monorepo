@@ -134,7 +134,6 @@ export class NxtpSdk {
       natsUrl,
       authUrl,
     });
-    await messaging.connect();
 
     // Start up transaction manager listeners
     const listeners = await Promise.all(
@@ -171,6 +170,11 @@ export class NxtpSdk {
       const error = validate.errors?.map((err) => err.message).join(",");
       this.logger.error({ error, transferParams }, "Invalid transfer params");
       throw new Error(`Invalid params - ${error!}`);
+    }
+
+    // only need to connect messaging on transfer
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
     }
 
     const {

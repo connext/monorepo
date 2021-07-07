@@ -55,6 +55,8 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
 };
 
 export interface BasicMessaging {
+  isConnected(): boolean;
+  assertConnected(): void;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   publish(subject: string, data: any): Promise<void>;
@@ -98,7 +100,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
     this.signer = config.signer;
   }
 
-  private isConnected(): boolean {
+  public isConnected(): boolean {
     return !!this.connection?.isConnected();
   }
 
