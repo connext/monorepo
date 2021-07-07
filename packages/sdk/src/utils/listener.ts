@@ -30,21 +30,13 @@ export class TransactionManagerListener {
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
   public chainId?: number;
+  public transactionManager: TransactionManager;
 
-  private constructor(private readonly transactionManager: TransactionManager) {}
-
-  static async connect(provider: providers.JsonRpcProvider): Promise<TransactionManagerListener> {
-    const { chainId } = await provider.getNetwork();
-
+  constructor(provider: providers.JsonRpcProvider, chainId: number) {
     const { instance } = getTransactionManagerContract(chainId, provider);
-    const listener = new TransactionManagerListener(instance);
-    listener.chainId = chainId;
-    listener.establishListeners();
-    return listener;
-  }
-
-  public getTransactionManager(): TransactionManager {
-    return this.transactionManager;
+    this.chainId = chainId;
+    this.transactionManager = instance;
+    this.establishListeners();
   }
 
   private establishListeners(): void {

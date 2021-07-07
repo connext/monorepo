@@ -139,7 +139,7 @@ export class NxtpSdk {
     // Start up transaction manager listeners
     const listeners = await Promise.all(
       Object.entries(chainProviders).map(async ([chainId, chainProvider]) => {
-        const listener = await TransactionManagerListener.connect(chainProvider);
+        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId));
         return { chainId, listener, chainProvider };
       }),
     );
@@ -222,7 +222,7 @@ export class NxtpSdk {
     };
     const prepareReceipt = await prepare(
       params,
-      this.chains[sendingChainId].listener.getTransactionManager(),
+      this.chains[sendingChainId].listener.transactionManager,
       this.signer,
       this.logger,
     );
@@ -323,7 +323,7 @@ export class NxtpSdk {
             bidSignature,
             encodedBid,
           },
-          listener.getTransactionManager(),
+          listener.transactionManager,
           this.signer,
           this.messaging,
           this.logger,
