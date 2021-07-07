@@ -58,6 +58,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           "Queried senderPrepare transactions",
         );
         query.router?.transactions.forEach(async (transaction) => {
+          // user prepares sender -> router prepares receiver -> user broadcasts sig -> router fulfills receiver -> router fulfills sender
           // Make sure we didnt *already* prepare receiver tx
           // NOTE: if subgraph is out of date here, worst case is that the tx is
           // reverted. this is fine.
