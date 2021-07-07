@@ -129,7 +129,7 @@ function App(): React.ReactElement | null {
     sdk.attachOnce(
       NxtpSdkEvents.TransactionCompleted,
       () => setStep(2),
-      (data) => data.txData.sendingChainId === receivingChain && data.txData.transactionId === transactionId,
+      (data) => data.txData.receivingChainId === receivingChain && data.txData.transactionId === transactionId,
     );
 
     sdk.attachOnce(
