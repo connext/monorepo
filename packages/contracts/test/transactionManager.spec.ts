@@ -43,9 +43,9 @@ describe("TransactionManager", function () {
 
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
-    transactionManager = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(1337)) as TransactionManager;
 
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(AddressZero, 1338)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(1338)) as TransactionManager;
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
 
@@ -145,22 +145,6 @@ describe("TransactionManager", function () {
       await instance.signer.getAddress(),
       assetId,
     ]);
-
-    const txn: TransactionRequest = {
-      chainId: 4,
-      to: transactionManager.address,
-      data: encodedBalances,
-      from: await instance.signer.getAddress(),
-      value: 0,
-    };
-
-    const test_call = await instance.signer.call(txn);
-
-    const decodeBalances = transactionManager.interface.decodeFunctionResult("routerBalances", test_call);
-
-    console.log(`DECODED READ RESULT: ${decodeBalances}`);
-
-    console.log(`READ RESULT: ${test_call}`);
 
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
@@ -464,7 +448,6 @@ describe("TransactionManager", function () {
 
   it("constructor initialize", async () => {
     expect(await transactionManager.chainId()).to.eq(1337);
-    expect(await transactionManager.iMultisend()).to.eq(AddressZero);
   });
 
   describe("#addLiquidity", () => {
