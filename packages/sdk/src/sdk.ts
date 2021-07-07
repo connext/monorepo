@@ -12,12 +12,18 @@ import {
   TransactionFulfilledEvent,
   TransactionPreparedEvent,
   TChainId,
+  TransactionData,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
 import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
-import { TransactionManagerEvents, TransactionManagerListener } from "./utils";
+import {
+  getActiveTransactionsByUser,
+  getVariantHashByInvariantData,
+  TransactionManagerEvents,
+  TransactionManagerListener,
+} from "./utils";
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
@@ -35,9 +41,6 @@ export const CrossChainParamsSchema = Type.Object({
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
-// TODO: do we want to make these more specific?
-// i.e. SenderTransactionPrepared, ReceiverTransactionPrepared,
-// etc.
 export const NxtpSdkEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
   SenderTransactionFulfilled: "SenderTransactionFulfilled",
@@ -227,6 +230,61 @@ export class NxtpSdk {
     // wait for completed event
     const event = await completed;
     return { prepareReceipt, completed: event };
+  }
+
+  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+    const signerAddress = await this.signer.getAddress();
+    const transactionsForChains = await Promise.all(
+      Object.keys(this.chains).map(async (chainId): Promise<[chainId: number, txs: TransactionData[]]> => {
+        const active = await getActiveTransactionsByUser(parseInt(chainId), signerAddress);
+        return [parseInt(chainId), active];
+      }),
+    );
+
+    // active transaction is determined by the combo of sender and receiver txs
+    const activeWithStatus = await Promise.all(
+      transactionsForChains.map(async ([chainId, txs]) => {
+        return await Promise.all(
+          txs.map(async (tx): Promise<{ txData: TransactionData; status: NxtpSdkEvent } | undefined> => {
+            // only handle sender txs
+            if (tx.sendingChainId === chainId) {
+              const hash = await getVariantHashByInvariantData(tx.receivingChainId, {
+                user: tx.user,
+                router: tx.router,
+                sendingAssetId: tx.sendingAssetId,
+                receivingAssetId: tx.receivingAssetId,
+                sendingChainFallback: tx.sendingChainFallback,
+                callTo: tx.callTo,
+                receivingAddress: tx.receivingAddress,
+                sendingChainId: tx.sendingChainId,
+                receivingChainId: tx.receivingChainId,
+                callDataHash: tx.callDataHash,
+                transactionId: tx.transactionId,
+              });
+              // default to receiver fulfilled
+              let status: NxtpSdkEvent = NxtpSdkEvents.ReceiverTransactionFulfilled;
+              if (hash === constants.HashZero) {
+                // if hash is empty, transfer has not been created on receiver side
+                status = NxtpSdkEvents.SenderTransactionPrepared;
+              } else {
+                // else check if its in active transfers, if so, its prepared
+                const receivingActiveTxs = transactionsForChains.find(([cId]) => cId === tx.receivingChainId);
+                if (receivingActiveTxs) {
+                  const activeReceiving = receivingActiveTxs[1].find((t) => t.transactionId === tx.transactionId);
+                  if (activeReceiving) {
+                    status = NxtpSdkEvents.ReceiverTransactionPrepared;
+                  }
+                }
+              }
+              return { txData: tx, status };
+            }
+            return undefined;
+          }),
+        );
+      }),
+    );
+    const filtered = activeWithStatus.flat().filter((x) => !!x);
+    return filtered as { txData: TransactionData; status: NxtpSdkEvent }[];
   }
 
   private setupListeners(): void {
