@@ -39,7 +39,7 @@ export class TransactionManagerListener {
     const { instance } = getTransactionManagerContract(chainId, provider);
     const listener = new TransactionManagerListener(instance);
     listener.chainId = chainId;
-    await listener.establishListeners();
+    listener.establishListeners();
     return listener;
   }
 
@@ -47,7 +47,7 @@ export class TransactionManagerListener {
     return this.transactionManager;
   }
 
-  private async establishListeners(): Promise<void> {
+  private establishListeners(): void {
     const processTxData = (txData: any): TransactionData => {
       return {
         user: txData.user,
