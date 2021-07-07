@@ -70,6 +70,24 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
+      {
         components: [
           {
             internalType: "address",
@@ -99,6 +117,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -162,6 +185,24 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
+      {
         components: [
           {
             internalType: "address",
@@ -191,6 +232,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -248,6 +294,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -259,6 +311,24 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         components: [
           {
@@ -289,6 +359,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -413,6 +488,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -498,6 +578,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -573,6 +658,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -666,6 +756,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -712,6 +807,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getActiveTransactionBlocks",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "address",
@@ -741,6 +855,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -826,6 +945,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {

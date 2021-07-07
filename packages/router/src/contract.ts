@@ -4,10 +4,12 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
 import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
-import { v4 } from "uuid";
+import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
+
+const hId = hyperid();
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -24,7 +26,7 @@ export class TransactionManager {
 
   async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::prepare ";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
@@ -36,6 +38,7 @@ export class TransactionManager {
         sendingAssetId: txData.sendingAssetId,
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
         receivingAddress: txData.receivingAddress,
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,
@@ -75,7 +78,7 @@ export class TransactionManager {
 
   async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::fulfill";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
@@ -103,7 +106,7 @@ export class TransactionManager {
 
   async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionReceipt> {
     const method = "Contract::cancel";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, cancelParams }, "Method start");
     // encode and call tx service
 

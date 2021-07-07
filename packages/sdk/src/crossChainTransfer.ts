@@ -41,6 +41,7 @@ export const prepare = async (
       sendingAssetId,
       receivingAssetId,
       sendingChainFallback,
+      callTo,
       receivingAddress,
       sendingChainId,
       receivingChainId,
@@ -67,6 +68,7 @@ export const prepare = async (
     sendingAssetId,
     receivingAssetId,
     sendingChainFallback,
+    callTo,
     receivingAddress,
     sendingChainId,
     receivingChainId,
@@ -76,7 +78,19 @@ export const prepare = async (
 
   // TODO: validate bid stuff
 
-  logger.info({ method, methodId, transactionId, transactionManager: transactionManager.address }, "Preparing tx");
+  logger.info(
+    {
+      method,
+      methodId,
+      transaction: transaction,
+      amount,
+      expiry,
+      encodedBid,
+      bidSignature,
+      transactionManager: transactionManager.address,
+    },
+    "Preparing tx",
+  );
 
   const prepareTx = await transactionManager
     .connect(signer)

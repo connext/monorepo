@@ -4,18 +4,18 @@
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@types/node": "^15.12.5",
-    "@types/react": "^17.0.11",
+    "@types/node": "^15.14.1",
+    "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
     "antd": "^4.16.6",
     "axios": "^0.21.1",
-    "ethers": "^5.4.0",
+    "ethers": "^5.4.1",
     "pino": "^6.11.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "^4.0.3",
     "rimraf": "^3.0.2",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
@@ -42,7 +42,7 @@
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "devDependencies": {
-    "@types/eslint": "^7",
-    "eslint": "^7.29.0"
+    "@types/eslint": "^7.2.13",
+    "eslint": "^7.30.0"
   }
 }

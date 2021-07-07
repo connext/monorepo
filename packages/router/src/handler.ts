@@ -7,12 +7,14 @@ import {
   TransactionFulfilledEvent,
   calculateExchangeAmount,
 } from "@connext/nxtp-utils";
-import { v4 } from "uuid";
+import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { TransactionStatus } from "./graphqlsdk";
+
+const hId = hyperid();
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
@@ -114,7 +116,7 @@ export class Handler implements Handler {
   public async handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void> {
     // First log
     const method = "handleMetaTxRequest";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
     const { chainId, responseInbox } = data;
@@ -144,6 +146,8 @@ export class Handler implements Handler {
           callData: fulfillData.callData,
         });
         this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+
+        // TODO: this will wait for conformation, we should respond before tx is fully confirmed, i.e. in flight
         await this.messagingService.publishMetaTxResponse(
           { transactionHash: tx.transactionHash, chainId },
           responseInbox,
@@ -160,13 +164,10 @@ export class Handler implements Handler {
   // Purpose: On sender PREPARE, router should mirror the data to receiver chain
   public async handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void> {
     const method = "handleSenderPrepare";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
-
-    // TODO: where should sender cancellation be handled / evaluated?
-    // RS: sender cannot cancel the tx, only the receiver (router) can
 
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
@@ -211,6 +212,7 @@ export class Handler implements Handler {
         receivingAssetId: txData.receivingAssetId,
         sendingChainFallback: txData.sendingChainFallback,
         receivingAddress: txData.receivingAddress,
+        callTo: txData.callTo,
         sendingChainId: txData.sendingChainId,
         receivingChainId: txData.receivingChainId,
         callDataHash: txData.callDataHash,
@@ -257,10 +259,10 @@ export class Handler implements Handler {
   // Purpose: Router should mirror the receiver fulfill data back to sender side
   public async handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void> {
     const method = "handleSenderPrepare";
-    const methodId = v4();
+    const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { txData, signature, relayerFee } = data;
+    const { txData, signature, callData, relayerFee } = data;
 
     const senderTransaction = await this.subgraph.getTransactionForChain(txData.transactionId, txData.sendingChainId);
     if (!senderTransaction) {
@@ -284,7 +286,7 @@ export class Handler implements Handler {
       txData,
       signature,
       relayerFee,
-      callData: "0x", // TODO: where does this come from??
+      callData,
     });
     if (txReceipt) {
       this.logger.info(

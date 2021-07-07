@@ -7,6 +7,7 @@ export type InvariantTransactionData = {
   sendingAssetId: string;
   receivingAssetId: string;
   sendingChainFallback: string;
+  callTo: string;
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;
@@ -68,6 +69,7 @@ export type TransactionFulfilledEvent = {
   txData: TransactionData;
   signature: string;
   relayerFee: string;
+  callData: string;
   caller: string;
 };
 

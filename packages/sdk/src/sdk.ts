@@ -11,19 +11,28 @@ import {
   TransactionCancelledEvent,
   TransactionFulfilledEvent,
   TransactionPreparedEvent,
+  TChainId,
+  TransactionData,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
 import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
-
-import { TransactionManagerListener } from ".";
+import {
+  getActiveTransactionsByUser,
+  getVariantHashByInvariantData,
+  TransactionManagerEvents,
+  TransactionManagerListener,
+} from "./utils";
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
   router: TAddress,
+  sendingChainId: TChainId,
   sendingAssetId: TAddress,
+  receivingChainId: TChainId,
   receivingAssetId: TAddress,
+  callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
   expiry: TIntegerString,
@@ -32,14 +41,13 @@ export const CrossChainParamsSchema = Type.Object({
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
-// TODO: do we want to make these more specific?
-// i.e. SenderTransactionPrepared, ReceiverTransactionPrepared,
-// etc.
 export const NxtpSdkEvents = {
-  TransactionPrepared: "TransactionPrepared",
-  TransactionFulfilled: "TransactionFulfilled",
-  TransactionCancelled: "TransactionCancelled",
-  TransactionCompleted: "TransactionCompleted",
+  SenderTransactionPrepared: "SenderTransactionPrepared",
+  SenderTransactionFulfilled: "SenderTransactionFulfilled",
+  SenderTransactionCancelled: "SenderTransactionCancelled",
+  ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
+  ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
+  ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
@@ -47,10 +55,12 @@ export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 export type TransactionCompletedEvent = TransactionFulfilledEvent;
 
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.TransactionPrepared]: TransactionPreparedEvent;
-  [NxtpSdkEvents.TransactionFulfilled]: TransactionFulfilledEvent;
-  [NxtpSdkEvents.TransactionCancelled]: TransactionCancelledEvent;
-  [NxtpSdkEvents.TransactionCompleted]: TransactionCompletedEvent;
+  [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
+  [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
+  [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
+  [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
+  [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
+  [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
 }
 
 // TODO: stronger types
@@ -81,30 +91,36 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("kind")
   .addKeyword("modifier");
 
+export type SdkChains = {
+  [chainId: number]: {
+    provider: providers.JsonRpcProvider;
+    listener: TransactionManagerListener;
+  };
+};
+
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = {
-    [NxtpSdkEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [NxtpSdkEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [NxtpSdkEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
-    [NxtpSdkEvents.TransactionCompleted]: Evt.create<TransactionCompletedEvent>(),
+    [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
+    [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
+    [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
+    [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
+    [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
 
-  private readonly fulfilling: { [id: string]: TransactionPreparedEvent } = {};
+  private readonly fulfilling: { [id: string]: TransactionPreparedEvent & { chainId: number } } = {};
 
   private constructor(
-    private readonly sendingProvider: providers.JsonRpcProvider,
-    private readonly receivingProvider: providers.JsonRpcProvider,
-    private readonly sendingListener: TransactionManagerListener,
-    private readonly receivingListener: TransactionManagerListener,
+    private readonly chains: SdkChains,
     private readonly signer: Signer,
     private readonly messaging: UserNxtpNatsMessagingService,
     private readonly logger: BaseLogger,
   ) {}
 
-  // TODO: handle messaging service
   static async init(
-    sendingProvider: providers.JsonRpcProvider,
-    receivingProvider: providers.JsonRpcProvider,
+    chainProviders: {
+      [chainId: number]: providers.JsonRpcProvider;
+    },
     signer: Signer,
     logger: BaseLogger,
     natsUrl?: string,
@@ -118,21 +134,20 @@ export class NxtpSdk {
       natsUrl,
       authUrl,
     });
-    await messaging.connect();
 
     // Start up transaction manager listeners
-    const sendingListener = await TransactionManagerListener.connect(sendingProvider);
-    const receivingListener = await TransactionManagerListener.connect(receivingProvider);
-
-    const client = new NxtpSdk(
-      sendingProvider,
-      receivingProvider,
-      sendingListener,
-      receivingListener,
-      signer,
-      messaging,
-      logger.child({ module: "NxtpSdk", name: addr }),
+    const listeners = await Promise.all(
+      Object.entries(chainProviders).map(async ([chainId, chainProvider]) => {
+        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId));
+        return { chainId, listener, chainProvider };
+      }),
     );
+    const chains: SdkChains = listeners.reduce((c, l) => {
+      c[parseInt(l.chainId)] = { listener: l.listener, provider: l.chainProvider };
+      return c;
+    }, {} as SdkChains);
+
+    const client = new NxtpSdk(chains, signer, messaging, logger.child({ module: "NxtpSdk", name: addr }));
 
     client.setupListeners();
 
@@ -157,20 +172,38 @@ export class NxtpSdk {
       throw new Error(`Invalid params - ${error!}`);
     }
 
+    // only need to connect messaging on transfer
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
+    }
+
+    const {
+      sendingAssetId,
+      receivingAssetId,
+      receivingAddress,
+      router,
+      amount,
+      expiry,
+      callData,
+      sendingChainId,
+      receivingChainId,
+      callTo,
+    } = transferParams;
+    if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
+      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
+    }
+
     // Create promise for completed tx
     const transactionId = transferParams.transactionId ?? getRandomBytes32();
     const timeout = 300_000;
-    const completed = this.evts.TransactionCompleted.pipe(
+    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
       (data) => data.txData.transactionId === transactionId,
     ).waitFor(timeout);
 
-    const { sendingAssetId, receivingAssetId, receivingAddress, router, amount, expiry, callData } = transferParams;
     const callDataHash = callData ? utils.keccak256(callData) : constants.HashZero;
 
     const user = await this.signer.getAddress();
     // Prepare sender side tx
-    const { chainId: sendingChainId } = await this.sendingProvider.getNetwork();
-    const { chainId: receivingChainId } = await this.receivingProvider.getNetwork();
     const params: PrepareParams = {
       txData: {
         user,
@@ -178,6 +211,7 @@ export class NxtpSdk {
         sendingAssetId,
         receivingAssetId,
         sendingChainFallback: receivingAddress, // TODO: for now
+        callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
         receivingChainId,
@@ -192,7 +226,7 @@ export class NxtpSdk {
     };
     const prepareReceipt = await prepare(
       params,
-      this.sendingListener.getTransactionManager(),
+      this.chains[sendingChainId].listener.transactionManager,
       this.signer,
       this.logger,
     );
@@ -202,70 +236,140 @@ export class NxtpSdk {
     return { prepareReceipt, completed: event };
   }
 
-  private setupListeners(): void {
-    // Always broadcast signature when a receiver-side prepare event is emitted
-    this.receivingListener.attach(NxtpSdkEvents.TransactionPrepared, async (data) => {
-      const { txData, encodedBid, caller, bidSignature, encryptedCallData } = data;
-      if (txData.receivingChainId !== this.receivingListener.chainId!) {
-        this.logger.debug(
-          {
-            transaction: txData.transactionId,
-            sendingChain: txData.sendingChainId,
-            receivingChain: txData.receivingChainId,
-            chainId: this.receivingListener.chainId!,
-          },
-          "Nothing to handle",
+  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+    const signerAddress = await this.signer.getAddress();
+    const transactionsForChains = await Promise.all(
+      Object.keys(this.chains).map(async (c): Promise<[chainId: number, txs: TransactionData[]]> => {
+        const chainId = parseInt(c);
+        const active = await getActiveTransactionsByUser(chainId, signerAddress, this.chains[chainId].provider);
+        return [chainId, active];
+      }),
+    );
+
+    // active transaction is determined by the combo of sender and receiver txs
+    const activeWithStatus = await Promise.all(
+      transactionsForChains.map(async ([chainId, txs]) => {
+        return await Promise.all(
+          txs.map(async (tx): Promise<{ txData: TransactionData; status: NxtpSdkEvent } | undefined> => {
+            // only handle sender txs
+            if (tx.sendingChainId === chainId) {
+              const hash = await getVariantHashByInvariantData(
+                tx.receivingChainId,
+                {
+                  user: tx.user,
+                  router: tx.router,
+                  sendingAssetId: tx.sendingAssetId,
+                  receivingAssetId: tx.receivingAssetId,
+                  sendingChainFallback: tx.sendingChainFallback,
+                  callTo: tx.callTo,
+                  receivingAddress: tx.receivingAddress,
+                  sendingChainId: tx.sendingChainId,
+                  receivingChainId: tx.receivingChainId,
+                  callDataHash: tx.callDataHash,
+                  transactionId: tx.transactionId,
+                },
+                this.chains[tx.receivingChainId].provider,
+              );
+              // default to receiver fulfilled
+              let status: NxtpSdkEvent = NxtpSdkEvents.ReceiverTransactionFulfilled;
+              if (hash === constants.HashZero) {
+                // if hash is empty, transfer has not been created on receiver side
+                status = NxtpSdkEvents.SenderTransactionPrepared;
+              } else {
+                // else check if its in active transfers, if so, its prepared
+                const receivingActiveTxs = transactionsForChains.find(([cId]) => cId === tx.receivingChainId);
+                if (receivingActiveTxs) {
+                  const activeReceiving = receivingActiveTxs[1].find((t) => t.transactionId === tx.transactionId);
+                  if (activeReceiving) {
+                    status = NxtpSdkEvents.ReceiverTransactionPrepared;
+                  }
+                }
+              }
+              return { txData: tx, status };
+            }
+            return undefined;
+          }),
         );
-        return;
-      }
-      // Always automatically broadcast signatures for recieving chain
-      if (this.fulfilling[txData.transactionId]) {
-        // NOTE: this is more for debugging
-        // than anything, not harmful if
-        // metatxs are picked up 2x (other
-        // than relayers wasting gas)
-        this.logger.warn({ ...data }, "Already fulfilling, got an additional event");
-      }
-      // TODO: how to handle relayer fees here? will need before signing
-      this.logger.info({ ...data }, "Handling receiver tx prepared event");
-      this.fulfilling[txData.transactionId] = data;
-      await handleReceiverPrepare(
-        {
-          txData,
-          caller,
-          encryptedCallData,
-          bidSignature,
-          encodedBid,
-        },
-        this.receivingListener.getTransactionManager(),
-        this.signer,
-        this.messaging,
-        this.logger,
-      );
+      }),
+    );
+    const filtered = activeWithStatus.flat().filter((x) => !!x);
+    return filtered as { txData: TransactionData; status: NxtpSdkEvent }[];
+  }
 
-      delete this.fulfilling[txData.transactionId];
-    });
+  private setupListeners(): void {
+    Object.values(this.chains).forEach(({ listener }) => {
+      // Always broadcast signature when a receiver-side prepare event is emitted
+      this.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
+        const { txData, encodedBid, caller, bidSignature, encryptedCallData } = data;
+        if (txData.receivingChainId !== listener.chainId!) {
+          this.logger.debug(
+            {
+              transaction: txData.transactionId,
+              sendingChain: txData.sendingChainId,
+              receivingChain: txData.receivingChainId,
+              chainId: listener.chainId!,
+            },
+            "Nothing to handle",
+          );
+          return;
+        }
+        // Always automatically broadcast signatures for recieving chain
+        if (this.fulfilling[txData.transactionId]) {
+          // NOTE: this is more for debugging
+          // than anything, not harmful if
+          // metatxs are picked up 2x (other
+          // than relayers wasting gas)
+          this.logger.warn({ ...data }, "Already fulfilling, got an additional event");
+        }
+        // TODO: how to handle relayer fees here? will need before signing
+        this.logger.info({ ...data }, "Handling receiver tx prepared event");
+        this.fulfilling[txData.transactionId] = { ...data, chainId: listener.chainId };
+        await handleReceiverPrepare(
+          {
+            txData,
+            caller,
+            encryptedCallData,
+            bidSignature,
+            encodedBid,
+          },
+          listener.transactionManager,
+          this.signer,
+          this.messaging,
+          this.logger,
+        );
 
-    // Emit transaction completed event when receiver-side fulfill event is
-    // emitted
-    // TODO: what if this is an asynchronous event? i.e. happens when a tx is
-    // fulfilled as you're switching between chains in the UI? (ie going from
-    // matic to bsc then bsc to matic and router fulfills)
-    this.receivingListener.attach(NxtpSdkEvents.TransactionFulfilled, async (data) => {
-      this.evts[NxtpSdkEvents.TransactionCompleted].post(data);
-    });
-
-    // Parrot all sending and receiving chain events
-    Object.keys(this.evts).forEach((_event: string) => {
-      if (_event === NxtpSdkEvents.TransactionCompleted) {
-        return;
-      }
-      const event = _event as NxtpSdkEvent;
-      this.sendingListener.attach(event, (data) => {
-        this.evts[event].post(data as any);
+        delete this.fulfilling[txData.transactionId];
       });
-      this.receivingListener.attach(event, (data) => {
-        this.evts[event].post(data as any);
+
+      // Translate chain events to SDK external events
+      listener.attach(TransactionManagerEvents.TransactionPrepared, (data) => {
+        if (listener.chainId === data.txData.sendingChainId) {
+          return this.evts[NxtpSdkEvents.SenderTransactionPrepared].post(data);
+        }
+        if (listener.chainId === data.txData.receivingChainId) {
+          return this.evts[NxtpSdkEvents.ReceiverTransactionPrepared].post(data);
+        }
+        return;
+      });
+
+      listener.attach(TransactionManagerEvents.TransactionFulfilled, (data) => {
+        if (listener.chainId === data.txData.sendingChainId) {
+          return this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
+        }
+        if (listener.chainId === data.txData.receivingChainId) {
+          return this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
+        }
+        return;
+      });
+
+      listener.attach(TransactionManagerEvents.TransactionCancelled, (data) => {
+        if (listener.chainId === data.txData.sendingChainId) {
+          return this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
+        }
+        if (listener.chainId === data.txData.receivingChainId) {
+          return this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
+        }
+        return;
       });
     });
   }

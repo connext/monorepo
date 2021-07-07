@@ -43,9 +43,9 @@ describe("TransactionManager", function () {
 
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
-    transactionManager = (await transactionManagerFactory.deploy(AddressZero, 1337)) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(1337)) as TransactionManager;
 
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(AddressZero, 1338)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(1338)) as TransactionManager;
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
 
@@ -83,6 +83,7 @@ describe("TransactionManager", function () {
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
       sendingChainFallback: user.address,
+      callTo: AddressZero,
       receivingAddress: receiver.address,
       callDataHash: EmptyCallDataHash,
       transactionId: hexlify(randomBytes(32)),
@@ -214,7 +215,7 @@ describe("TransactionManager", function () {
     txOverrides: Partial<InvariantTransactionData>,
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
-    instance: Contract = transactionManager,
+    instance: TransactionManager = transactionManager,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
@@ -263,6 +264,9 @@ describe("TransactionManager", function () {
     // console.log(activeBlock);
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
       caller: preparer.address,
       bidSignature: EmptyBytes,
@@ -359,6 +363,9 @@ describe("TransactionManager", function () {
     expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
     // Assert event
     await assertReceiptEvent(receipt, "TransactionFulfilled", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record },
       relayerFee,
       signature,
@@ -417,6 +424,9 @@ describe("TransactionManager", function () {
     const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
+      user: transaction.user,
+      router: transaction.router,
+      transactionId: transaction.transactionId,
       txData: { ...transaction, ...record },
       caller: canceller.address,
     });
@@ -433,7 +443,6 @@ describe("TransactionManager", function () {
 
   it("constructor initialize", async () => {
     expect(await transactionManager.chainId()).to.eq(1337);
-    expect(await transactionManager.iMultisend()).to.eq(AddressZero);
   });
 
   describe("#addLiquidity", () => {

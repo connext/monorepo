@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
-import { v4 } from "uuid";
+import hyperid from "hyperid";
 
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
@@ -10,6 +10,8 @@ import { NxtpError, Values } from "./error";
 import { FulfillParams } from "./transactionManager";
 
 export { AuthService } from "ts-natsutil";
+
+const hId = hyperid();
 
 export class MessagingError extends NxtpError {
   static readonly type = "MessagingError";
@@ -53,6 +55,8 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
 };
 
 export interface BasicMessaging {
+  isConnected(): boolean;
+  assertConnected(): void;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   publish(subject: string, data: any): Promise<void>;
@@ -96,7 +100,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
     this.signer = config.signer;
   }
 
-  private isConnected(): boolean {
+  public isConnected(): boolean {
     return !!this.connection?.isConnected();
   }
 
@@ -246,7 +250,7 @@ export type MetaTxResponse = {
 };
 
 export const generateMessagingInbox = (): string => {
-  return `_INBOX.${v4()}`;
+  return `_INBOX.${hId()}`;
 };
 
 export const AUCTION_SUBJECT = "auction";

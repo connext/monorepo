@@ -16,10 +16,11 @@ export const getSenderPrepareQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
@@ -52,10 +53,11 @@ export const getReceiverPrepareQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
@@ -89,15 +91,17 @@ export const getReceiverFulfillQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
         relayerFee
         signature
+        callData
         fulfillCaller
       }
       assetBalances {
@@ -125,15 +129,17 @@ export const getSenderFulfillQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
         relayerFee
         signature
+        callData
         fulfillCaller
       }
       assetBalances {
@@ -160,10 +166,11 @@ export const getTransactionByIdQuery = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber

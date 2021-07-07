@@ -30,6 +30,7 @@ type Transaction @entity {
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
   sendingChainFallback: Bytes!
+  callTo: Bytes!
   receivingAddress: Bytes!
   callDataHash: Bytes!
   transactionId: Bytes!
@@ -48,6 +49,7 @@ type Transaction @entity {
   # TransactionFulfilled
   relayerFee: BigInt
   signature: Bytes
+  callData: String
   fulfillCaller: Bytes
 
   # TransactionCancelled
