@@ -62,9 +62,9 @@ interface ITransactionManager {
   }
 
   // Liquidity events
-  event LiquidityAdded(address router, address assetId, uint256 amount);
+  event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
 
-  event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
+  event LiquidityRemoved(address indexed router, address indexed assetId, uint256 amount, address recipient);
 
   // Transaction events
   event TransactionPrepared(
@@ -99,7 +99,7 @@ interface ITransactionManager {
   );
 
   // Router only methods
-  function addLiquidity(uint256 amount, address assetId) external payable;
+  function addLiquidity(uint256 amount, address assetId, address router) external payable;
 
   function removeLiquidity(
     uint256 amount,
