@@ -25,4 +25,3 @@ report.*.json
 
 ops/data
 **/*/.nyc_output/*
-packages/router/config.json
