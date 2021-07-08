@@ -115,8 +115,7 @@ describe("prepare", () => {
     );
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
-    console.log("prepareStub.firstCall.args: ", prepareStub.firstCall.args);
-    const [txData, amount, expiry, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
+    const [txData, amount, expiry, encryptedCallData, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
     expect(txData).to.deep.contain({
       user: params.txData.user,
       router: params.txData.router,
@@ -132,8 +131,9 @@ describe("prepare", () => {
     expect(expiry).to.be.eq(params.expiry);
     expect(encodedBid).to.be.eq("0x");
     expect(bidSignature).to.be.eq("0x");
+    expect(encryptedCallData).to.be.eq("0x");
     expect(overrides).to.be.deep.eq(
-      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : {},
+      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : { value: 0 },
     );
   });
 });
