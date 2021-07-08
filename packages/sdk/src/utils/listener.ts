@@ -7,6 +7,7 @@ import {
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { providers } from "ethers";
 import { Evt } from "evt";
+import { BaseLogger } from "pino";
 
 import { getTransactionManagerContract } from "./contract";
 
@@ -32,7 +33,7 @@ export class TransactionManagerListener {
   public chainId?: number;
   public transactionManager: TransactionManager;
 
-  constructor(provider: providers.JsonRpcProvider, chainId: number) {
+  constructor(provider: providers.JsonRpcProvider, chainId: number, private readonly logger: BaseLogger) {
     const { instance } = getTransactionManagerContract(chainId, provider);
     this.chainId = chainId;
     this.transactionManager = instance;
@@ -53,7 +54,7 @@ export class TransactionManagerListener {
         receivingChainId: txData.receivingChainId.toNumber(),
         callDataHash: txData.callDataHash,
         transactionId: txData.transactionId,
-        preparedBlockNumber: txData.blockNumber.toNumber(),
+        preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
         amount: txData.amount.toString(),
         expiry: txData.expiry.toString(),
       };
@@ -62,6 +63,10 @@ export class TransactionManagerListener {
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
       (txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+        this.logger.info(
+          { txData, caller, encryptedCallData, encodedBid, bidSignature },
+          "TransactionManagerEvents.TransactionPrepared",
+        );
         const payload: TransactionPreparedEvent = {
           txData: processTxData(txData),
           caller,
@@ -76,6 +81,10 @@ export class TransactionManagerListener {
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
       (txData, relayerFee, signature, callData, caller) => {
+        this.logger.info(
+          { txData, relayerFee, signature, callData, caller },
+          "TransactionManagerEvents.TransactionFulfilled",
+        );
         const payload: TransactionFulfilledEvent = {
           txData: processTxData(txData),
           signature: signature,
@@ -88,6 +97,7 @@ export class TransactionManagerListener {
     );
 
     this.transactionManager.on(TransactionManagerEvents.TransactionCancelled, (txData, relayerFee, caller) => {
+      this.logger.info({ txData, relayerFee, caller }, "TransactionManagerEvents.TransactionCancelled");
       const payload: TransactionCancelledEvent = {
         txData: processTxData(txData),
         relayerFee: relayerFee.toString(),

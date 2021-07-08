@@ -94,6 +94,14 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.chainId = chainId;
 
   transaction.save();
+
+  // router is providing liquidity on receiver prepare
+  if (chainId == transaction.receivingChainId) {
+    let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.save();
+  }
 }
 
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
@@ -106,6 +114,14 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.fulfillCaller = event.params.caller;
 
   transaction!.save();
+
+  // router receives liquidity back on sender fulfill
+  if (transaction.chainId == transaction.sendingChainId) {
+    let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.save();
+  }
 }
 
 export function handleTransactionCancelled(event: TransactionCancelled): void {
@@ -116,4 +132,12 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.cancelCaller = event.params.caller;
 
   transaction!.save();
+
+  // router receives liquidity back on receiver cancel
+  if (transaction.chainId == transaction.receivingChainId) {
+    let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.save();
+  }
 }
