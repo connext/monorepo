@@ -207,8 +207,6 @@ function App(): React.ReactElement | null {
     // Create txid
     const transactionId = getRandomBytes32();
 
-    await switchChains(sendingChainId);
-
     try {
       await sdk.transfer({
         router: routerAddress,
@@ -359,6 +357,9 @@ function App(): React.ReactElement | null {
                 vals.receivingAddress,
               );
             }}
+            onFieldsChange={(changed) => {
+              console.log("changed: ", changed);
+            }}
             initialValues={{
               sendingChain: "4",
               receivingChain: "5",
@@ -378,19 +379,15 @@ function App(): React.ReactElement | null {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item
-                    shouldUpdate={(prevValues, curValues) => {
-                      console.log("curValues: ", curValues);
-                      console.log("prevValues: ", prevValues);
-                      return prevValues.sendingChain !== curValues.sendingChain;
-                    }}
-                  >
-                    <Button
-                      onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
-                      disabled={injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
-                    >
-                      Switch To Chain {form.getFieldValue("sendingChain")}
-                    </Button>
+                  <Form.Item dependencies={["sendingChain"]}>
+                    {() => (
+                      <Button
+                        onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
+                        disabled={injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
+                      >
+                        Switch To Chain {form.getFieldValue("sendingChain")}
+                      </Button>
+                    )}
                   </Form.Item>
                 </Col>
               </Row>
@@ -443,7 +440,13 @@ function App(): React.ReactElement | null {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Button type="link">Balance: {utils.formatEther(userBalance ?? 0)}</Button>
+                  Balance:{" "}
+                  <Button
+                    onClick={() => form.setFieldsValue({ amount: utils.formatEther(userBalance ?? 0) })}
+                    type="link"
+                  >
+                    {utils.formatEther(userBalance ?? 0)}
+                  </Button>
                 </Col>
               </Row>
             </Form.Item>
@@ -456,14 +459,16 @@ function App(): React.ReactElement | null {
               <Input />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button
-                disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
-                type="primary"
-                htmlType="submit"
-              >
-                Transfer
-              </Button>
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
+              {() => (
+                <Button
+                  disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
+                  type="primary"
+                  htmlType="submit"
+                >
+                  Transfer
+                </Button>
+              )}
             </Form.Item>
           </Form>
         </Col>

@@ -193,12 +193,7 @@ export class NxtpSdk {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
     }
 
-    // Create promise for completed tx
     const transactionId = transferParams.transactionId ?? getRandomBytes32();
-    const timeout = 300_000;
-    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
-      (data) => data.txData.transactionId === transactionId,
-    ).waitFor(timeout);
 
     const callDataHash = callData ? utils.keccak256(callData) : constants.HashZero;
 
@@ -232,6 +227,10 @@ export class NxtpSdk {
     );
 
     // wait for completed event
+    const timeout = 300_000;
+    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
+      (data) => data.txData.transactionId === transactionId,
+    ).waitFor(timeout);
     const event = await completed;
     return { prepareReceipt, completed: event };
   }
