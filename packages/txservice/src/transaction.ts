@@ -1,4 +1,4 @@
-import { delay } from "@connext/nxtp-utils";
+import { delay, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
@@ -91,7 +91,8 @@ export class Transaction {
           method,
           currentNonce: this.nonce,
           responseNonce: response.nonce,
-          tx: fullTransaction,
+          transactionId: this.id,
+          transactionData: data,
         },
         "NONCE WAS CHANGED DURING TX SEND LOOP.",
       );
@@ -103,7 +104,8 @@ export class Transaction {
   }
 
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
-    this.logInfo("Confirming transaction.", this.confirm.name);
+    const method = this.confirm.name;
+    this.logInfo("Confirming transaction...", method);
     const { confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
     // if this is the case.
@@ -122,14 +124,24 @@ export class Transaction {
         this.responses
           .map((response) => {
             return new Promise(async (resolve) => {
-              const r = await this.provider.confirmTransaction(response.hash);
-              if (r) {
+              const result = await this.provider.confirmTransaction(response.hash);
+              if (result.success) {
+                const r = result.receipt as providers.TransactionReceipt;
                 if (r.status === 0) {
                   reverted.push(r);
                 } else if (r.confirmations >= this.provider.confirmationsRequired) {
                   return resolve(r);
                 } else if (r.confirmations >= 1) {
                   receivedConfirmation = true;
+                }
+              } else {
+                // Check if we received an expected error.
+                const e = result.receipt as Error;
+                // TODO: Should this be moved somewhere? Like to a constants file or something?
+                const expected = ["transaction was replaced", "timeout exceeded"];
+                if (expected.every((value) => !e.message.includes(value))) {
+                  // If the error wasn't any of the expected errors, we should log it.
+                  this.log.error({ method, error: jsonifyError(e) });
                 }
               }
             });
@@ -195,6 +207,7 @@ export class Transaction {
         transactionData: {
           ...data,
           gasPrice: (data.gasPrice ?? "none").toString(),
+          value: data.value.toString(),
         },
         ...info,
       },

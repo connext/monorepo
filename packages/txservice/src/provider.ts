@@ -14,7 +14,7 @@ const { JsonRpcProvider, FallbackProvider } = providers;
 type CachedGas = {
   price: BigNumber;
   timestamp: number;
-}
+};
 
 /// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
 export class ChainRpcProvider {
@@ -25,7 +25,7 @@ export class ChainRpcProvider {
   private signer: NonceManager;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
-  private cachedGasPrice?: CachedGas;
+  private cachedGas?: CachedGas;
 
   public confirmationsRequired: number;
   public confirmationTimeout: number;
@@ -46,16 +46,13 @@ export class ChainRpcProvider {
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
     this.quorum = 1;
-    
+
     // Register a provider for each url.
     // Make sure all providers are ready()
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
-        this.log.error(
-          { config },
-          "Configuration was invalid for provider."
-        );
+        this.log.error({ config }, "Configuration was invalid for provider.");
       }
       return valid;
     });
@@ -63,20 +60,16 @@ export class ChainRpcProvider {
       this.provider = new JsonRpcProvider(providerConfigs[0]);
       this._providers = [this.provider];
     } else if (filteredConfigs.length > 1) {
-      const hydratedConfigs = filteredConfigs.map((config) => (
-        {
-          provider: new JsonRpcProvider(
-            {
-              url: config.url,
-              user: config.user,
-              password: config.password,
-            }
-          ),
-          priority: config.priority ?? 1,
-          weight: config.weight ?? 1,
-          stallTimeout: config.stallTimeout,
-        }
-      ));
+      const hydratedConfigs = filteredConfigs.map((config) => ({
+        provider: new JsonRpcProvider({
+          url: config.url,
+          user: config.user,
+          password: config.password,
+        }),
+        priority: config.priority ?? 1,
+        weight: config.weight ?? 1,
+        stallTimeout: config.stallTimeout,
+      }));
       this.provider = new FallbackProvider(hydratedConfigs, this.quorum);
       this._providers = hydratedConfigs.map((p) => p.provider);
     } else {
@@ -86,11 +79,13 @@ export class ChainRpcProvider {
     }
 
     // Using NonceManager to wrap signer here.
-    this.signer = new NonceManager(typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider));
+    this.signer = new NonceManager(
+      typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider),
+    );
   }
 
   public async sendTransaction(
-    tx: FullTransaction
+    tx: FullTransaction,
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
     this.isReady();
     const method = this.sendTransaction.name;
@@ -129,13 +124,17 @@ export class ChainRpcProvider {
 
   public async confirmTransaction(
     transactionHash: string,
-  ) {
+  ): Promise<{ receipt: providers.TransactionReceipt | Error; success: boolean }> {
     this.isReady();
-    // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
-    // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
-    // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)
-    await this.provider.waitForTransaction(transactionHash, this.confirmationsRequired);
-    return await this.provider.getTransactionReceipt(transactionHash);
+    try {
+      // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
+      // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
+      // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)
+      const receipt = await this.provider.waitForTransaction(transactionHash, this.confirmationsRequired);
+      return { receipt, success: true };
+    } catch (e) {
+      return { receipt: e, success: false };
+    }
   }
 
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
@@ -154,9 +153,13 @@ export class ChainRpcProvider {
     });
   }
 
-  // TODO: Cache gas prices.
   public async getGasPrice(): Promise<BigNumber> {
     const method = this.getGasPrice.name;
+
+    // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
+    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
+      return this.cachedGas.price;
+    }
 
     const { gasInitialBumpPercent, gasMinimum } = this.config;
     return await this.retryWrapper<BigNumber>(this.chainId, method, async () => {
@@ -178,7 +181,7 @@ export class ChainRpcProvider {
         } catch (e) {
           this.log.error(
             { chainId: this.chainId, error: jsonifyError(e) },
-            "getGasPrice failure, attempting to default to backup gas value."
+            "getGasPrice failure, attempting to default to backup gas value.",
           );
           // Default to initial gas price, if available. Otherwise, throw.
           gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
@@ -194,6 +197,8 @@ export class ChainRpcProvider {
         gasPrice = BigNumber.from(gasMinimum);
       }
 
+      // Cache the latest gas price.
+      this.cachedGas = { price: gasPrice, timestamp: Date.now() };
       return gasPrice;
     });
   }
@@ -210,23 +215,25 @@ export class ChainRpcProvider {
     }
     // Ensure that provider(s) are synced.
     let outOfSync = 0;
-    await Promise.all(this._providers.map(async (provider) => {
-      try {
-        /* If not syncing, will return something like:
-         * {
-         *   "id": 1,
-         *   "jsonrpc": "2.0",
-         *   "result": false
-         * }
-         */
-        const result = await provider.send("eth_syncing", []);
-        if (result.result) {
+    await Promise.all(
+      this._providers.map(async (provider) => {
+        try {
+          /* If not syncing, will return something like:
+           * {
+           *   "id": 1,
+           *   "jsonrpc": "2.0",
+           *   "result": false
+           * }
+           */
+          const result = await provider.send("eth_syncing", []);
+          if (result.result) {
+            outOfSync++;
+          }
+        } catch (e) {
           outOfSync++;
         }
-      } catch(e) {
-        outOfSync++;
-      }
-    }));
+      }),
+    );
     // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
     // we may necessarily need >1 provider to be in sync.
     if (this._providers.length - outOfSync < this.quorum) {
