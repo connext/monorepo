@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
+import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 
 import { getRandomBytes32 } from "./utils";
 
@@ -26,7 +27,7 @@ export const verifyCorrectChain = async (expectedChain: number, provider: provid
 
 export const prepare = async (
   params: PrepareParams,
-  transactionManager: Contract,
+  transactionManager: TransactionManager,
   signer: Signer,
   logger: BaseLogger,
 ): Promise<providers.TransactionReceipt> => {
@@ -52,6 +53,7 @@ export const prepare = async (
     expiry,
     encodedBid,
     bidSignature,
+    encryptedCallData,
   } = params;
 
   // Properly checksum all addresses
@@ -89,7 +91,7 @@ export const prepare = async (
       bidSignature,
       transactionManager: transactionManager.address,
     },
-    "Preparing tx",
+    "Preparing tx!",
   );
 
   const prepareTx = await transactionManager
@@ -98,9 +100,10 @@ export const prepare = async (
       transaction,
       amount,
       expiry,
+      encryptedCallData,
       encodedBid,
       bidSignature,
-      transaction.sendingAssetId === constants.AddressZero ? { value: amount } : {},
+      transaction.sendingAssetId === constants.AddressZero ? { value: amount } : { value: 0 },
     );
 
   // TODO: fix block confs for chains

@@ -204,6 +204,11 @@ function App(): React.ReactElement | null {
       return;
     }
 
+    if (injectedProviderChainId !== sendingChainId) {
+      alert("Please switch chains to the sending chain!");
+      throw new Error("Wrong chain");
+    }
+
     // Create txid
     const transactionId = getRandomBytes32();
 
@@ -383,7 +388,7 @@ function App(): React.ReactElement | null {
                     {() => (
                       <Button
                         onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
-                        disabled={injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
+                        disabled={injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))}
                       >
                         Switch To Chain {form.getFieldValue("sendingChain")}
                       </Button>
