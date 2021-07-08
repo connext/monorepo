@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils } from "ethers";
+import { constants, Contract, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -17,6 +17,8 @@ import {
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
+import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
+import { IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 
 import { cancel, handleReceiverPrepare, prepare } from "./crossChainTransfer";
 import {
@@ -211,11 +213,16 @@ export class NxtpSdk {
       amount,
       expiry,
     };
+    let erc20;
+    if (sendingAssetId !== constants.AddressZero) {
+      erc20 = new Contract(sendingAssetId, ERC20.abi, this.signer) as IERC20Minimal;
+    }
     const prepareReceipt = await prepare(
       params,
       this.chains[sendingChainId].listener.transactionManager,
       this.signer,
       this.logger,
+      erc20,
     );
 
     // wait for completed event

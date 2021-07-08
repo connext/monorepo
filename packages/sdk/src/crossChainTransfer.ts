@@ -12,7 +12,6 @@ import {
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
-import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 
 import { getRandomBytes32 } from "./utils";
 
@@ -32,6 +31,7 @@ export const prepare = async (
   transactionManager: TransactionManager,
   signer: Signer,
   logger: BaseLogger,
+  erc20Contract?: IERC20Minimal,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
@@ -90,14 +90,16 @@ export const prepare = async (
   );
 
   if (transaction.sendingAssetId !== constants.AddressZero) {
+    if (!erc20Contract) {
+      throw new Error("No ERC20 contract provided");
+    }
     const signerAddress = await signer.getAddress();
     logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
-    const erc20 = new Contract(transaction.sendingAssetId, ERC20.abi, signer) as IERC20Minimal;
-    const approved = await erc20.allowance(signerAddress, transactionManager.address);
+    const approved = await erc20Contract.connect(signer).allowance(signerAddress, transactionManager.address);
     logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
 
     if (approved.lt(amount)) {
-      const approveTx = await erc20.approve(transactionManager.address, amount);
+      const approveTx = await erc20Contract.connect(signer).approve(transactionManager.address, amount);
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {

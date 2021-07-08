@@ -54,7 +54,7 @@ export class TransactionManagerListener {
         receivingChainId: txData.receivingChainId.toNumber(),
         callDataHash: txData.callDataHash,
         transactionId: txData.transactionId,
-        preparedBlockNumber: txData.blockNumber.toNumber(),
+        preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
         amount: txData.amount.toString(),
         expiry: txData.expiry.toString(),
       };
