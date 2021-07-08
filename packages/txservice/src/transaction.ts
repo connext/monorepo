@@ -40,7 +40,7 @@ export class Transaction {
     this._gasPrice = initialGasPrice;
   }
 
-  public async send() {
+  public async send(): Promise<providers.TransactionResponse> {
     const method = this.send.name;
 
     // Sanity check to make sure nonce is not expired.
@@ -104,19 +104,10 @@ export class Transaction {
 
     // Add this response to our local response history.
     this.responses.push(response);
-
-    this.log.info(
-      {
-        method,
-        hash: response.hash,
-        gas: (response.gasPrice ?? "unknown").toString(),
-        nonce: response.nonce,
-      },
-      "Tx submitted",
-    );
+    return response;
   }
 
-  public async confirm() {
+  public async confirm(): Promise<providers.TransactionReceipt | undefined> {
     const { confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
     // if this is the case.
@@ -154,9 +145,7 @@ export class Transaction {
       );
       if (!receivedConfirmation && reverted.length === this.responses.length) {
         // We know every tx was reverted.
-        // NOTE: The first reverted receipt in the array will be entirely arbitrary.
-        // TODO: Should we return the reverted receipt belonging to the latest (i.e. last sent) tx instead?
-        return reverted[0];
+        throw new ChainError(ChainError.reasons.TxReverted, { revertedReceipts: reverted });
       }
       return receipt;
     };
