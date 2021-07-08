@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
-import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { getRandomBytes32 } from "@connext/nxtp-utils";
+import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
+import { getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { providerUrls, swapConfig } from "./constants";
@@ -15,16 +15,7 @@ function App(): React.ReactElement | null {
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
-    {
-      key: string;
-      txId: string;
-      sendingChain: string;
-      sendingAsset: string;
-      receivingChain: string;
-      receivingAsset: string;
-      amount: string;
-      status: string;
-    }[]
+    { txData: TransactionData; status: NxtpSdkEvent }[]
   >([]);
 
   const [userBalance, setUserBalance] = useState<BigNumber>();
@@ -51,8 +42,8 @@ function App(): React.ReactElement | null {
         throw new Error("Bad configuration for swap");
       }
       const _balance = await getBalance(_signer, sendingAssetId);
-      setUserBalance(_balance);
 
+      setUserBalance(_balance);
       setSigner(_signer);
       setProvider(provider);
       form.setFieldsValue({ receivingAddress: address });
@@ -86,32 +77,30 @@ function App(): React.ReactElement | null {
         const { txData } = data;
         const table = activeTransferTableColumns;
         table.push({
-          amount: txData.amount,
-          key: txData.transactionId,
-          receivingAsset: txData.receivingAssetId,
-          receivingChain: txData.receivingChainId.toString(),
-          sendingAsset: txData.sendingAssetId,
-          sendingChain: txData.sendingChainId.toString(),
+          txData,
           status: NxtpSdkEvents.SenderTransactionPrepared,
-          txId: txData.transactionId,
         });
         setActiveTransferTableColumns(table);
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, (data) => {
         console.log("SenderTransactionFulfilled:", data);
-        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
+        setActiveTransferTableColumns(
+          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+        );
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, (data) => {
         console.log("SenderTransactionCancelled:", data);
-        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
+        setActiveTransferTableColumns(
+          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+        );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, (data) => {
         console.log("ReceiverTransactionPrepared:", data);
         const { txData } = data;
-        const index = activeTransferTableColumns.findIndex((col) => col.txId === txData.transactionId);
+        const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
         activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
         setActiveTransferTableColumns(activeTransferTableColumns);
       });
@@ -119,32 +108,21 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
         const { txData } = data;
-        const index = activeTransferTableColumns.findIndex((col) => col.txId === txData.transactionId);
+        const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
         activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionFulfilled;
         setActiveTransferTableColumns(activeTransferTableColumns);
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
         console.log("ReceiverTransactionCancelled:", data);
-        setActiveTransferTableColumns(activeTransferTableColumns.filter((t) => t.txId !== data.txData.transactionId));
+        setActiveTransferTableColumns(
+          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+        );
       });
       const activeTxs = await _sdk.getActiveTransactions();
 
       // TODO: race condition with the event listeners
-      setActiveTransferTableColumns(
-        activeTxs.map((tx) => {
-          return {
-            amount: tx.txData.amount,
-            status: tx.status,
-            sendingChain: tx.txData.sendingChainId.toString(),
-            sendingAsset: tx.txData.sendingAssetId,
-            receivingChain: tx.txData.receivingChainId.toString(),
-            receivingAsset: tx.txData.receivingAssetId,
-            key: tx.txData.transactionId,
-            txId: tx.txData.transactionId,
-          };
-        }),
-      );
+      setActiveTransferTableColumns(activeTxs);
       console.log("activeTxs: ", activeTxs);
     };
     init();
@@ -222,7 +200,7 @@ function App(): React.ReactElement | null {
         receivingAddress,
         amount,
         transactionId,
-        expiry: (Date.now() + 3600 * 24 * 2).toString(), // 2 days
+        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 2).toString(), // 2 days
         // callData?: string;
       });
     } catch (e) {
@@ -243,19 +221,14 @@ function App(): React.ReactElement | null {
       key: "sendingChain",
     },
     {
-      title: "Sending Asset",
-      dataIndex: "sendingAsset",
-      key: "sendingAsset",
-    },
-    {
       title: "Receiving Chain",
       dataIndex: "receivingChain",
       key: "receivingChain",
     },
     {
-      title: "Receiving Asset",
-      dataIndex: "receivingAsset",
-      key: "receivingAsset",
+      title: "Asset",
+      dataIndex: "asset",
+      key: "asset",
     },
     {
       title: "Amount",
@@ -266,6 +239,32 @@ function App(): React.ReactElement | null {
       title: "Status",
       dataIndex: "status",
       key: "status",
+    },
+    {
+      title: "Expires",
+      dataIndex: "expires",
+      key: "expires",
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (action: TransactionData) => {
+        if (Date.now() / 1000 > parseInt(action.expiry)) {
+          return (
+            <Button
+              type="link"
+              onClick={() =>
+                sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData: action }, action.sendingChainId)
+              }
+            >
+              Cancel
+            </Button>
+          );
+        } else {
+          return <></>;
+        }
+      },
     },
   ];
 
@@ -328,13 +327,23 @@ function App(): React.ReactElement | null {
             <Col span={20}>
               <Table
                 columns={columns}
-                dataSource={activeTransferTableColumns.map((c) => {
+                dataSource={activeTransferTableColumns.map((tx) => {
                   return {
-                    ...c,
-                    receivingAsset: "TEST",
-                    sendingAsset: "TEST",
-                    txId: `${c.txId.substr(0, 6)}...${c.txId.substr(c.txId.length - 5, c.txId.length - 1)}`,
-                    amount: utils.formatEther(c.amount),
+                    amount: tx.txData.amount,
+                    status: tx.status,
+                    sendingChain: tx.txData.sendingChainId.toString(),
+                    receivingChain: tx.txData.receivingChainId.toString(),
+                    asset: "TEST",
+                    key: tx.txData.transactionId,
+                    txId: `${tx.txData.transactionId.substr(0, 6)}...${tx.txData.transactionId.substr(
+                      tx.txData.transactionId.length - 5,
+                      tx.txData.transactionId.length - 1,
+                    )}`,
+                    expires:
+                      parseInt(tx.txData.expiry) > Date.now() / 1000
+                        ? `${((parseInt(tx.txData.expiry) - Date.now() / 1000) / 3600).toFixed(2)} hours`
+                        : "Expired",
+                    action: tx.txData,
                   };
                 })}
               />

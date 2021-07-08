@@ -13,11 +13,12 @@ import {
   TransactionPreparedEvent,
   TChainId,
   TransactionData,
+  CancelParams,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
+import { cancel, handleReceiverPrepare, prepare } from "./crossChainTransfer";
 import {
   getActiveTransactionsByUser,
   getVariantHashByInvariantData,
@@ -61,15 +62,6 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
-}
-
-// TODO: stronger types
-export interface NxtpSdk {
-  transfer(
-    params: CrossChainParams,
-  ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }>;
-  // getTransferQuote(): Promise<any>;
-  // getTransferHistory(): Promise<any>;
 }
 
 const ajv = addFormats(new Ajv(), [
@@ -293,6 +285,11 @@ export class NxtpSdk {
     );
     const filtered = activeWithStatus.flat().filter((x) => !!x);
     return filtered as { txData: TransactionData; status: NxtpSdkEvent }[];
+  }
+
+  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
+    const tx = await cancel(cancelParams, this.chains[chainId].listener.transactionManager, this.signer, this.logger);
+    return tx;
   }
 
   private setupListeners(): void {

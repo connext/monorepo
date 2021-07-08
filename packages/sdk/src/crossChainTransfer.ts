@@ -1,5 +1,6 @@
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import {
+  CancelParams,
   generateMessagingInbox,
   InvariantTransactionData,
   MetaTxResponse,
@@ -130,6 +131,49 @@ export const prepare = async (
   logger.info({ method, methodId, transactionId, transactionHash: prepareReceipt.transactionHash }, "Mined prepare tx");
   logger.info({ method, methodId }, "Method complete");
   return prepareReceipt as providers.TransactionReceipt;
+};
+
+export const cancel = async (
+  params: CancelParams,
+  transactionManager: TransactionManager,
+  signer: Signer,
+  logger: BaseLogger,
+): Promise<providers.TransactionReceipt> => {
+  const method = "cancel";
+  const methodId = getRandomBytes32();
+  logger.info({ method, methodId, params }, "Method start");
+
+  const { txData, relayerFee, signature } = params;
+
+  // TODO: validate bid stuff
+
+  logger.info(
+    {
+      method,
+      methodId,
+      txData,
+      transactionManager: transactionManager.address,
+    },
+    "Cancelling tx!",
+  );
+
+  const cancelTx = await transactionManager.connect(signer).cancel(txData, relayerFee, signature);
+
+  // TODO: fix block confs for chains
+  logger.info(
+    { method, methodId, transactionId: txData.transactionId, transactionHash: cancelTx.hash },
+    "Submitted cancel tx",
+  );
+  const cancelReceipt = await cancelTx.wait(1);
+  if (cancelReceipt.status === 0) {
+    throw new Error("cancel transaction reverted onchain");
+  }
+  logger.info(
+    { method, methodId, transactionId: txData.transactionId, transactionHash: cancelReceipt.transactionHash },
+    "Mined cancel tx",
+  );
+  logger.info({ method, methodId }, "Method complete");
+  return cancelReceipt as providers.TransactionReceipt;
 };
 
 export type TransactionPrepareEvent = {
