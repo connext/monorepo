@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
-import { BigNumber, constants, providers, Signer, utils } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
 import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
 import "./App.css";
-import { providerUrls } from "./constants";
+import { providerUrls, swapConfig } from "./constants";
+import { mintTokens as _mintTokens } from "./utils";
 
 function App(): React.ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
-  const [routerAddress, setRouterAddress] = useState<string>("0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6");
-  const [receivingAddress, setReceivingAddress] = useState<string>("");
-  const [amount, setAmount] = useState<string>("0.01");
+  const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
@@ -28,6 +27,8 @@ function App(): React.ReactElement | null {
     }[]
   >([]);
 
+  const [form] = Form.useForm();
+
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
     if (typeof ethereum === "undefined") {
@@ -38,12 +39,17 @@ function App(): React.ReactElement | null {
       await ethereum.request({ method: "eth_requestAccounts" });
       const provider = new providers.Web3Provider(ethereum);
       const _signer = provider.getSigner();
-      setSigner(_signer);
       const address = await _signer.getAddress();
       console.log("address: ", address);
-      console.log(address);
-      setReceivingAddress(address);
+      setSigner(_signer);
+      form.setFieldsValue({ receivingAddress: address });
       setProvider(provider);
+
+      // metamask events
+      ethereum.on("chainChanged", (_chainId: string) => {
+        console.log("_chainId: ", _chainId);
+        window.location.reload();
+      });
     } catch (e) {
       console.error(e);
       throw e;
@@ -55,6 +61,8 @@ function App(): React.ReactElement | null {
       if (!signer || !web3Provider) {
         return;
       }
+      const { chainId } = await signer.provider!.getNetwork();
+      setInjectedProviderChainId(chainId);
       const chainProviders: { [chainId: number]: providers.JsonRpcProvider } = {};
       Object.entries(providerUrls).forEach(
         ([chainId, url]) => (chainProviders[parseInt(chainId)] = new providers.JsonRpcProvider(url, parseInt(chainId))),
@@ -134,8 +142,9 @@ function App(): React.ReactElement | null {
     if (!signer || !web3Provider) {
       return;
     }
-    const { chainId: _chainId } = await signer.provider!.getNetwork();
-    if (_chainId === targetChainId) {
+    if (injectedProviderChainId === targetChainId) {
+      console.log("targetChainId: ", targetChainId);
+      console.log("injectedProviderChainId: ", injectedProviderChainId);
       return;
     }
     if (!providerUrls[targetChainId]) {
@@ -152,7 +161,6 @@ function App(): React.ReactElement | null {
         method: "wallet_switchEthereumChain",
         params: [{ chainId }],
       });
-      window.location.reload();
     } catch (error) {
       // This error code indicates that the chain has not been added to MetaMask.
       if (error.code === 4902) {
@@ -171,7 +179,15 @@ function App(): React.ReactElement | null {
     }
   };
 
-  const transfer = async (sendingChainId: number, receivingChainId: number, amount: string) => {
+  const transfer = async (
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+    amount: string,
+    routerAddress: string,
+    receivingAddress: string,
+  ) => {
     if (!sdk) {
       return;
     }
@@ -184,10 +200,10 @@ function App(): React.ReactElement | null {
     try {
       await sdk.transfer({
         router: routerAddress,
-        sendingAssetId: constants.AddressZero,
+        sendingAssetId,
         sendingChainId,
         receivingChainId,
-        receivingAssetId: constants.AddressZero,
+        receivingAssetId,
         receivingAddress,
         amount,
         transactionId,
@@ -238,6 +254,38 @@ function App(): React.ReactElement | null {
     },
   ];
 
+  const mintTokens = async () => {
+    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
+      injectedProviderChainId!
+    ];
+    if (!testToken) {
+      throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
+    }
+    const resp = await _mintTokens(signer!, testToken);
+    console.log("resp: ", resp);
+  };
+
+  const addToMetamask = async () => {
+    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
+      injectedProviderChainId!
+    ];
+    if (!testToken) {
+      throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
+    }
+    const resp = await (window as any).ethereum.request({
+      method: "wallet_watchAsset",
+      params: {
+        type: "ERC20",
+        options: {
+          address: testToken,
+          symbol: "TEST",
+          decimals: 18,
+        },
+      },
+    });
+    console.log("resp: ", resp);
+  };
+
   return (
     <div style={{ marginTop: 36, marginLeft: 12, marginRight: 12 }}>
       <Row gutter={16}>
@@ -279,56 +327,107 @@ function App(): React.ReactElement | null {
       <Row gutter={16}>
         <Col span={16}>
           <Form
+            form={form}
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             onFinish={(vals) => {
+              const sendingAssetId = swapConfig.find((sc) => sc.name === vals.asset)?.assets[vals.sendingChain];
+              const receivingAssetId = swapConfig.find((sc) => sc.name === vals.asset)?.assets[vals.receivingChain];
+              if (!sendingAssetId || !receivingAssetId) {
+                throw new Error("Configuration doesn't support selected swap");
+              }
               transfer(
                 parseInt(vals.sendingChain),
+                sendingAssetId,
                 parseInt(vals.receivingChain),
+                receivingAssetId,
                 utils.parseEther(vals.amount).toString(),
+                vals.routerAddress,
+                vals.receivingAddress,
               );
             }}
-            initialValues={{ sendingChain: "4", receivingChain: "5", asset: "TEST", amount: "1" }}
+            onFieldsChange={(changed, all) => {
+              console.log("all: ", all);
+              console.log("changed: ", changed);
+            }}
+            initialValues={{
+              sendingChain: "4",
+              receivingChain: "5",
+              asset: "TEST",
+              amount: "1",
+              routerAddress: "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6",
+            }}
           >
             <Form.Item label="Sending Chain" name="sendingChain">
-              <Select>
-                <Select.Option value="4">Rinkeby</Select.Option>
-                {/* <Select.Option value="5">Goerli</Select.Option> */}
-              </Select>
+              <Row gutter={16}>
+                <Col span={16}>
+                  <Form.Item name="sendingChain">
+                    <Select>
+                      <Select.Option value="4">Rinkeby</Select.Option>
+                      <Select.Option value="5">Goerli</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  {web3Provider && injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain")) && (
+                    <Button onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}>
+                      Switch To Chain {form.getFieldValue("sendingChain")}
+                    </Button>
+                  )}
+                </Col>
+              </Row>
             </Form.Item>
 
-            <Form.Item label="Receiving Chain" name="receivingChain">
-              <Select>
-                {/* <Select.Option value="4">Rinkeby</Select.Option> */}
-                <Select.Option value="5">Goerli</Select.Option>
-              </Select>
+            <Form.Item label="Receiving Chain">
+              <Row gutter={16}>
+                <Col span={16}>
+                  <Form.Item name="receivingChain">
+                    <Select>
+                      <Select.Option value="4">Rinkeby</Select.Option>
+                      <Select.Option value="5">Goerli</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
             </Form.Item>
 
             <Form.Item label="Asset" name="asset">
-              <Select>
-                <Select.Option value="TEST">Test Token</Select.Option>
-              </Select>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="asset">
+                    <Select>
+                      <Select.Option value="TEST">Test Token</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                {form.getFieldValue("asset") === "TEST" && (
+                  <>
+                    <Col span={6}>
+                      <Button block onClick={() => mintTokens()}>
+                        Get TEST
+                      </Button>
+                    </Col>
+                    <Col span={6}>
+                      <Button type="link" onClick={() => addToMetamask()}>
+                        Add to Metamask
+                      </Button>
+                    </Col>
+                  </>
+                )}
+              </Row>
             </Form.Item>
 
             <Form.Item label="Amount" name="amount">
-              <Input type="number" onChange={(event) => setAmount(event.target.value)} value={amount} />
+              <Input type="number" />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input
-                addonBefore="Router Address"
-                onChange={(event) => setRouterAddress(event.target.value)}
-                value={routerAddress}
-              />
+            <Form.Item label="Router Address" name="routerAddress">
+              <Input />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Input
-                addonBefore="Receiving Address"
-                onChange={(event) => setReceivingAddress(event.target.value)}
-                value={receivingAddress}
-              />
+            <Form.Item label="Receiving Address" name="receivingAddress">
+              <Input />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
