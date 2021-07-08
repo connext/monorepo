@@ -1,5 +1,6 @@
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import {
+  CancelParams,
   generateMessagingInbox,
   InvariantTransactionData,
   MetaTxResponse,
@@ -10,6 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
+import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 
 import { getRandomBytes32 } from "./utils";
 
@@ -26,9 +28,10 @@ export const verifyCorrectChain = async (expectedChain: number, provider: provid
 
 export const prepare = async (
   params: PrepareParams,
-  transactionManager: Contract,
+  transactionManager: TransactionManager,
   signer: Signer,
   logger: BaseLogger,
+  erc20Contract?: IERC20Minimal,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
@@ -52,14 +55,8 @@ export const prepare = async (
     expiry,
     encodedBid,
     bidSignature,
+    encryptedCallData,
   } = params;
-
-  // Properly checksum all addresses
-  // Everything should come checksummed from the contract, this should be handled at the external interface anyways, one level above
-  // const router = validateAndParseAddress(params.router);
-  // const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
-  // const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
-  // const receivingAddress = validateAndParseAddress(params.receivingAddress);
 
   // TODO: validate expiry
   const transaction: InvariantTransactionData = {
@@ -82,15 +79,38 @@ export const prepare = async (
     {
       method,
       methodId,
-      transaction: transaction,
+      transaction,
       amount,
       expiry,
       encodedBid,
       bidSignature,
       transactionManager: transactionManager.address,
     },
-    "Preparing tx",
+    "Preparing tx!",
   );
+
+  if (transaction.sendingAssetId !== constants.AddressZero) {
+    if (!erc20Contract) {
+      throw new Error("No ERC20 contract provided");
+    }
+    const signerAddress = await signer.getAddress();
+    logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
+    const approved = await erc20Contract.connect(signer).allowance(signerAddress, transactionManager.address);
+    logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
+
+    if (approved.lt(amount)) {
+      const approveTx = await erc20Contract.connect(signer).approve(transactionManager.address, amount);
+      logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
+      const approveReceipt = await approveTx.wait(1);
+      if (approveReceipt.status === 0) {
+        throw new Error("Approve transaction reverted onchain");
+      }
+      logger.info(
+        { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
+        "Mined approve tx",
+      );
+    }
+  }
 
   const prepareTx = await transactionManager
     .connect(signer)
@@ -98,9 +118,10 @@ export const prepare = async (
       transaction,
       amount,
       expiry,
+      encryptedCallData,
       encodedBid,
       bidSignature,
-      transaction.sendingAssetId === constants.AddressZero ? { value: amount } : {},
+      transaction.sendingAssetId === constants.AddressZero ? { value: amount } : { value: 0 },
     );
 
   // TODO: fix block confs for chains
@@ -112,6 +133,49 @@ export const prepare = async (
   logger.info({ method, methodId, transactionId, transactionHash: prepareReceipt.transactionHash }, "Mined prepare tx");
   logger.info({ method, methodId }, "Method complete");
   return prepareReceipt as providers.TransactionReceipt;
+};
+
+export const cancel = async (
+  params: CancelParams,
+  transactionManager: TransactionManager,
+  signer: Signer,
+  logger: BaseLogger,
+): Promise<providers.TransactionReceipt> => {
+  const method = "cancel";
+  const methodId = getRandomBytes32();
+  logger.info({ method, methodId, params }, "Method start");
+
+  const { txData, relayerFee, signature } = params;
+
+  // TODO: validate bid stuff
+
+  logger.info(
+    {
+      method,
+      methodId,
+      txData,
+      transactionManager: transactionManager.address,
+    },
+    "Cancelling tx!",
+  );
+
+  const cancelTx = await transactionManager.connect(signer).cancel(txData, relayerFee, signature);
+
+  // TODO: fix block confs for chains
+  logger.info(
+    { method, methodId, transactionId: txData.transactionId, transactionHash: cancelTx.hash },
+    "Submitted cancel tx",
+  );
+  const cancelReceipt = await cancelTx.wait(1);
+  if (cancelReceipt.status === 0) {
+    throw new Error("cancel transaction reverted onchain");
+  }
+  logger.info(
+    { method, methodId, transactionId: txData.transactionId, transactionHash: cancelReceipt.transactionHash },
+    "Mined cancel tx",
+  );
+  logger.info({ method, methodId }, "Method complete");
+  return cancelReceipt as providers.TransactionReceipt;
 };
 
 export type TransactionPrepareEvent = {
