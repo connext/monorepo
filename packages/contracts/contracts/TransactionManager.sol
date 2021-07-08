@@ -187,9 +187,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
 
-    // Sanity check: amount is sensible
-    require(amount > 0, "prepare: AMOUNT_IS_ZERO");
-
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
     require(variantTransactionData[digest] == bytes32(0), "prepare: DIGEST_EXISTS");
@@ -213,6 +210,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
+      // Sanity check: amount is sensible
+      // Only check on sending chain to enforce router fees. Transactions could
+      // be 0-valued on receiving chain if it is just a value-less call to some
+      // `IFulfillHelper`
+      require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
       // lock their funds in the contract for the router to claim after
@@ -381,7 +384,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // locked.
 
         // First, approve the funds to the helper if needed
-        if (LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
           require(LibERC20.approve(txData.receivingAssetId, txData.callTo, toSend), "fulfill: APPROVAL_FAILED");
         }
 
