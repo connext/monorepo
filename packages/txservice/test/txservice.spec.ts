@@ -68,14 +68,15 @@ describe("TransactionService unit test", () => {
 
     const _chainProvider = createStubInstance(ChainRpcProvider);
     Object.setPrototypeOf(ChainRpcProvider, Sinon.stub().callsFake(() => _chainProvider));
-    const _coreProvider = createStubInstance(JsonRpcProvider);
-    (_chainProvider as any).provider = _coreProvider;
-    _coreProvider.sendTransaction.resolves(txResponse);
-    _coreProvider.waitForTransaction.resolves(txReceipt);
-    provider1337 = _coreProvider;
+    // const _coreProvider = createStubInstance(JsonRpcProvider);
+    // (_chainProvider as any).provider = _coreProvider;
+    // _coreProvider.sendTransaction.resolves(txResponse);
+    // _coreProvider.waitForTransaction.resolves(txReceipt);
+    // provider1337 = _coreProvider;
 
+    _chainProvider.getGasPrice.resolves(txResponse.gasPrice);
     _chainProvider.sendTransaction.resolves({ response: txResponse, success: true });
-    _chainProvider.readTransaction.resolves({ receipt: txReceipt, success: true });
+    _chainProvider.confirmTransaction.resolves({ receipt: txReceipt, success: true });
 
     const chains = {
       "1337": {
@@ -94,7 +95,7 @@ describe("TransactionService unit test", () => {
     txService = new TransactionService(log, signer, { chains });
     (signer as any).provider = provider1337;
     signer.sendTransaction.resolves(txResponse);
-    (txService as any).getProvider = () => _chainProvider;
+    (txService as any).getProvider = (chainId: number) => _chainProvider;
   });
 
   afterEach(() => {

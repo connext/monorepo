@@ -79,6 +79,7 @@ export class TransactionService {
     });
   }
 
+  /// Send specified transaction on specified chain.
   public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     let receipt: providers.TransactionReceipt | undefined;
@@ -131,6 +132,44 @@ export class TransactionService {
     return provider.readTransaction(tx);
   }
 
+  /// LISTENER METHODS
+  public attach<T extends NxtpTxServiceEvent>(
+    event: T,
+    callback: (data: NxtpTxServiceEventPayloads[T]) => void,
+    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
+    timeout?: number,
+  ): void {
+    const args = [timeout, callback].filter((x) => !!x);
+    this.evts[event].pipe(filter).attach(...(args as [number, any]));
+  }
+
+  public attachOnce<T extends NxtpTxServiceEvent>(
+    event: T,
+    callback: (data: NxtpTxServiceEventPayloads[T]) => void,
+    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
+    timeout?: number,
+  ): void {
+    const args = [timeout, callback].filter((x) => !!x);
+    this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
+  }
+
+  public detach<T extends NxtpTxServiceEvent>(event?: T): void {
+    if (event) {
+      this.evts[event].detach();
+      return;
+    }
+    Object.values(this.evts).forEach((evt) => evt.detach());
+  }
+
+  public waitFor<T extends NxtpTxServiceEvent>(
+    event: T,
+    timeout: number,
+    filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
+  ): Promise<NxtpTxServiceEventPayloads[T]> {
+    return this.evts[event].pipe(filter).waitFor(timeout) as Promise<NxtpTxServiceEventPayloads[T]>;
+  }
+
+  /// HELPERS
   /// Helper to wrap getting provider for specified chain ID.
   private getProvider(chainId: number): ChainRpcProvider {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
@@ -140,6 +179,7 @@ export class TransactionService {
     return this.providers.get(chainId)!;
   }
 
+  /// Handle logging and event emitting on tx submit attempt.
   private handleSubmit(response: providers.TransactionResponse) {
     const method = this.sendTx.name;
     this.log.info(
@@ -154,12 +194,14 @@ export class TransactionService {
     this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
   }
 
+  /// Handle logging and event emitting on tx confirmation.
   private handleConfirm(receipt: providers.TransactionReceipt) {
     const method = this.sendTx.name;
     this.log.info({ method, receipt }, "Tx mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
+  /// Handle logging and event emitting on tx failure.
   private handleFail(error: ChainError, receipt?: providers.TransactionReceipt) {
     const method = this.sendTx.name;
     this.log.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
