@@ -84,7 +84,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param amount The amount of liquidity to add for the router
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
-  function addLiquidity(uint256 amount, address assetId) external payable override nonReentrant {
+  /// @param router The router you are adding liquidity on behalf of
+  function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
 
@@ -93,14 +94,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
-      require(LibERC20.transferFrom(assetId, msg.sender, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
+      require(LibERC20.transferFrom(assetId, router, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
     }
 
     // Update the router balances
-    routerBalances[msg.sender][assetId] += amount;
+    routerBalances[router][assetId] += amount;
 
     // Emit event
-    emit LiquidityAdded(msg.sender, assetId, amount);
+    emit LiquidityAdded(router, assetId, amount, msg.sender);
   }
 
   /// @notice This is used by any router to decrease their available
