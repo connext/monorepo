@@ -89,18 +89,24 @@ export const prepare = async (
   );
 
   if (transaction.sendingAssetId !== constants.AddressZero) {
+    const signerAddress = await signer.getAddress();
     logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
     const erc20 = new Contract(transaction.sendingAssetId, ERC20.abi, signer) as IERC20Minimal;
-    const approveTx = await erc20.approve(transactionManager.address, amount);
-    logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
-    const approveReceipt = await approveTx.wait(1);
-    if (approveReceipt.status === 0) {
-      throw new Error("Approve transaction reverted onchain");
+    const approved = await erc20.allowance(signerAddress, transactionManager.address);
+    logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
+
+    if (approved.lt(amount)) {
+      const approveTx = await erc20.approve(transactionManager.address, amount);
+      logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
+      const approveReceipt = await approveTx.wait(1);
+      if (approveReceipt.status === 0) {
+        throw new Error("Approve transaction reverted onchain");
+      }
+      logger.info(
+        { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
+        "Mined approve tx",
+      );
     }
-    logger.info(
-      { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
-      "Mined approve tx",
-    );
   }
 
   const prepareTx = await transactionManager
