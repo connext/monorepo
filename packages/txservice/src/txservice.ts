@@ -3,12 +3,7 @@ import { BaseLogger } from "pino";
 import { Evt } from "evt";
 import { jsonifyError } from "@connext/nxtp-utils";
 
-import {
-  TransactionServiceConfig,
-  validateTransactionServiceConfig,
-  DEFAULT_CONFIG,
-  ChainConfig,
-} from "./config";
+import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ChainError } from "./error";
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
@@ -16,16 +11,16 @@ import { Transaction } from "./transaction";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
-}
+};
 
 export type TxServiceConfirmedEvent = {
   receipt: providers.TransactionReceipt;
-}
+};
 
 export type TxServiceFailedEvent = {
   error: ChainError;
   receipt?: providers.TransactionReceipt;
-}
+};
 
 export const NxtpTxServiceEvents = {
   TransactionAttemptSubmitted: "TransactionAttemptSubmitted",
@@ -51,16 +46,12 @@ export class TransactionService {
     [NxtpTxServiceEvents.TransactionAttemptSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
     [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
     [NxtpTxServiceEvents.TransactionFailed]: Evt.create<TxServiceFailedEvent>(),
-  }
+  };
 
   private config: TransactionServiceConfig;
   private providers: Map<number, ChainRpcProvider> = new Map();
 
-  constructor(
-    private readonly log: BaseLogger,
-    signer: string | Signer,
-    config: Partial<TransactionServiceConfig>,
-  ) {
+  constructor(private readonly log: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
     // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
@@ -70,35 +61,29 @@ export class TransactionService {
     validateTransactionServiceConfig(this.config);
     // For each chain ID / provider, map out all the utils needed for each chain.
     const chains = this.config.chains;
-    Object.keys(chains)
-      .forEach((chainId) => {
-        // Get this chain's config.
-        const chain: ChainConfig = chains[chainId];
-        // Retrieve provider configs and ensure at least one provider is configured.
-        const providers = chain.providers;
-        if (providers.length === 0) {
-          // TODO: This should be a config parser error (i.e. thrown in config parse).
-          this.log.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
-          throw new ChainError(ChainError.reasons.ProviderNotFound);
-        }
-        const chainIdNumber = parseInt(chainId);
-        this.providers.set(chainIdNumber, new ChainRpcProvider(this.log, signer, chainIdNumber, chain, providers, this.config));
-      });
+    Object.keys(chains).forEach((chainId) => {
+      // Get this chain's config.
+      const chain: ChainConfig = chains[chainId];
+      // Retrieve provider configs and ensure at least one provider is configured.
+      const providers = chain.providers;
+      if (providers.length === 0) {
+        // TODO: This should be a config parser error (i.e. thrown in config parse).
+        this.log.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
+        throw new ChainError(ChainError.reasons.ProviderNotFound);
+      }
+      const chainIdNumber = parseInt(chainId);
+      this.providers.set(
+        chainIdNumber,
+        new ChainRpcProvider(this.log, signer, chainIdNumber, chain, providers, this.config),
+      );
+    });
   }
 
-  public async sendAndConfirmTx(
-    chainId: number,
-    tx: MinimalTransaction,
-  ): Promise<providers.TransactionReceipt> {
+  public async sendAndConfirmTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendAndConfirmTx.name;
     let receipt: providers.TransactionReceipt | undefined;
 
-    const transaction = new Transaction(
-      this.log,
-      this.getProvider(chainId),
-      tx,
-      this.config,
-    );
+    const transaction = new Transaction(this.log, this.getProvider(chainId), tx, this.config);
 
     while (!receipt) {
       try {
@@ -176,5 +161,5 @@ export class TransactionService {
     const method = this.sendAndConfirmTx.name;
     this.log.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
-  } 
+  }
 }

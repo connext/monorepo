@@ -76,6 +76,7 @@ describe("TransactionService unit test", () => {
     signer.sendTransaction.resolves(txResponse);
     stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
     stub(txService, "confirmTx").resolves(txReceipt);
+    (txService as any).getProvider = () => _provider;
   });
 
   afterEach(() => {
