@@ -146,6 +146,8 @@ export class Handler implements Handler {
           callData: fulfillData.callData,
         });
         this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+
+        // TODO: this will wait for conformation, we should respond before tx is fully confirmed, i.e. in flight
         await this.messagingService.publishMetaTxResponse(
           { transactionHash: tx.transactionHash, chainId },
           responseInbox,
@@ -166,9 +168,6 @@ export class Handler implements Handler {
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
-
-    // TODO: where should sender cancellation be handled / evaluated?
-    // RS: sender cannot cancel the tx, only the receiver (router) can
 
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?

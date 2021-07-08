@@ -223,7 +223,7 @@ describe("TransactionManager", function () {
     txOverrides: Partial<InvariantTransactionData>,
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
-    instance: Contract = transactionManager,
+    instance: TransactionManager = transactionManager,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 

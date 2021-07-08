@@ -25,6 +25,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "addLiquidity(uint256,address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getActiveTransactionBlocks(address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
   };
@@ -81,6 +82,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getActiveTransactionBlocks",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "prepare",
     values: [
       {
@@ -114,6 +119,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getActiveTransactionBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeLiquidity",
@@ -230,6 +239,11 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     prepare(
       txData: {
         user: string;
@@ -310,6 +324,11 @@ export class ITransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getActiveTransactionBlocks(
+    user: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   prepare(
     txData: {
@@ -456,6 +475,11 @@ export class ITransactionManager extends BaseContract {
       }
     >;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
     prepare(
       txData: {
         user: string;
@@ -539,9 +563,9 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       caller?: null
@@ -625,9 +649,9 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
@@ -717,9 +741,9 @@ export class ITransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
@@ -861,6 +885,11 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     prepare(
       txData: {
         user: string;
@@ -941,6 +970,11 @@ export class ITransactionManager extends BaseContract {
       signature: BytesLike,
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     prepare(

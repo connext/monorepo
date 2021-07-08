@@ -13,7 +13,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "deploy": "hardhat deploy",
+    "deploy": "hardhat deploy && yarn export",
     "etherscan-verify": "hardhat etherscan-verify"
   },
   "main": "dist/index.js",

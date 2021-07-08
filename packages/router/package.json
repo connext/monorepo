@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",

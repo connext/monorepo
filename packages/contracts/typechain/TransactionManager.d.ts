@@ -28,6 +28,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getActiveTransactionBlocks(address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -95,6 +96,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getActiveTransactionBlocks",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "prepare",
     values: [
       {
@@ -145,6 +150,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getActiveTransactionBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeLiquidity",
@@ -279,6 +288,11 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     prepare(
       invariantData: {
         user: string;
@@ -380,6 +394,11 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getActiveTransactionBlocks(
+    user: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   prepare(
     invariantData: {
@@ -547,6 +566,11 @@ export class TransactionManager extends BaseContract {
       }
     >;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
     prepare(
       invariantData: {
         user: string;
@@ -641,9 +665,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionCancelled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       caller?: null
@@ -727,9 +751,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionFulfilled(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
       signature?: null,
@@ -819,9 +843,9 @@ export class TransactionManager extends BaseContract {
     >;
 
     TransactionPrepared(
-      user?: null,
-      router?: null,
-      transactionId?: null,
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
       txData?: null,
       caller?: null,
       encryptedCallData?: null,
@@ -973,6 +997,11 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     prepare(
       invariantData: {
         user: string;
@@ -1074,6 +1103,11 @@ export class TransactionManager extends BaseContract {
       signature: BytesLike,
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getActiveTransactionBlocks(
+      user: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     prepare(
