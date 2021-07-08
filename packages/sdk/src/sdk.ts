@@ -138,7 +138,7 @@ export class NxtpSdk {
     // Start up transaction manager listeners
     const listeners = await Promise.all(
       Object.entries(chainProviders).map(async ([chainId, chainProvider]) => {
-        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId));
+        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId), logger);
         return { chainId, listener, chainProvider };
       }),
     );
@@ -214,8 +214,8 @@ export class NxtpSdk {
         transactionId,
       },
       encryptedCallData: "0x", // TODO
-      bidSignature: "", // TODO
-      encodedBid: "", // TODO
+      bidSignature: "0x", // TODO
+      encodedBid: "0x", // TODO
       amount,
       expiry,
     };

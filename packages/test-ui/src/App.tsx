@@ -22,7 +22,7 @@ function App(): React.ReactElement | null {
       sendingAsset: string;
       receivingChain: string;
       receivingAsset: string;
-      amountReceived: string;
+      amount: string;
       status: string;
     }[]
   >([]);
@@ -86,7 +86,7 @@ function App(): React.ReactElement | null {
         const { txData } = data;
         const table = activeTransferTableColumns;
         table.push({
-          amountReceived: txData.amount,
+          amount: txData.amount,
           key: txData.transactionId,
           receivingAsset: txData.receivingAssetId,
           receivingChain: txData.receivingChainId.toString(),
@@ -134,7 +134,7 @@ function App(): React.ReactElement | null {
       setActiveTransferTableColumns(
         activeTxs.map((tx) => {
           return {
-            amountReceived: tx.txData.amount,
+            amount: tx.txData.amount,
             status: tx.status,
             sendingChain: tx.txData.sendingChainId.toString(),
             sendingAsset: tx.txData.sendingAssetId,
@@ -258,9 +258,9 @@ function App(): React.ReactElement | null {
       key: "receivingAsset",
     },
     {
-      title: "Amount Received",
-      dataIndex: "amountReceived",
-      key: "amountReceived",
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
     },
     {
       title: "Status",
@@ -326,7 +326,18 @@ function App(): React.ReactElement | null {
           <Row>
             <Col span={3}></Col>
             <Col span={20}>
-              <Table columns={columns} dataSource={activeTransferTableColumns} />
+              <Table
+                columns={columns}
+                dataSource={activeTransferTableColumns.map((c) => {
+                  return {
+                    ...c,
+                    receivingAsset: "TEST",
+                    sendingAsset: "TEST",
+                    txId: `${c.txId.substr(0, 6)}...${c.txId.substr(c.txId.length - 5, c.txId.length - 1)}`,
+                    amount: utils.formatEther(c.amount),
+                  };
+                })}
+              />
             </Col>
             <Col span={3}></Col>
           </Row>

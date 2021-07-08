@@ -10,7 +10,8 @@ import {
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
-import { TransactionManager } from "@connext/nxtp-contracts/typechain";
+import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
+import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 
 import { getRandomBytes32 } from "./utils";
 
@@ -56,13 +57,6 @@ export const prepare = async (
     encryptedCallData,
   } = params;
 
-  // Properly checksum all addresses
-  // Everything should come checksummed from the contract, this should be handled at the external interface anyways, one level above
-  // const router = validateAndParseAddress(params.router);
-  // const sendingAssetId = validateAndParseAddress(params.sendingAssetId);
-  // const receivingAssetId = validateAndParseAddress(params.receivingAssetId);
-  // const receivingAddress = validateAndParseAddress(params.receivingAddress);
-
   // TODO: validate expiry
   const transaction: InvariantTransactionData = {
     user,
@@ -84,7 +78,7 @@ export const prepare = async (
     {
       method,
       methodId,
-      transaction: transaction,
+      transaction,
       amount,
       expiry,
       encodedBid,
@@ -93,6 +87,21 @@ export const prepare = async (
     },
     "Preparing tx!",
   );
+
+  if (transaction.sendingAssetId !== constants.AddressZero) {
+    logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
+    const erc20 = new Contract(transaction.sendingAssetId, ERC20.abi, signer) as IERC20Minimal;
+    const approveTx = await erc20.approve(transactionManager.address, amount);
+    logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
+    const approveReceipt = await approveTx.wait(1);
+    if (approveReceipt.status === 0) {
+      throw new Error("Approve transaction reverted onchain");
+    }
+    logger.info(
+      { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
+      "Mined approve tx",
+    );
+  }
 
   const prepareTx = await transactionManager
     .connect(signer)
