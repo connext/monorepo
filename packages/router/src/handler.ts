@@ -200,45 +200,57 @@ export class Handler implements Handler {
     // - AssetId
     // encode the data for contract call
     // Send to txService
-    this.logger.info(
-      { method, methodId, transactionId: inboundData.txData.transactionId },
-      "Sending receiver prepare tx",
-    );
-    const txReceipt = await this.txManager.prepare(inboundData.txData.receivingChainId, {
-      txData: {
-        user: txData.user,
-        router: txData.router,
-        sendingAssetId: txData.sendingAssetId,
-        receivingAssetId: txData.receivingAssetId,
-        sendingChainFallback: txData.sendingChainFallback,
-        receivingAddress: txData.receivingAddress,
-        callTo: txData.callTo,
-        sendingChainId: txData.sendingChainId,
-        receivingChainId: txData.receivingChainId,
-        callDataHash: txData.callDataHash,
-        transactionId: txData.transactionId,
-      },
-      amount: mutateAmount(txData.amount),
-      expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
-      bidSignature,
-      encodedBid,
-      encryptedCallData,
-    });
-    if (txReceipt) {
+    this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
+    try {
+      const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
+        txData,
+        amount: mutateAmount(txData.amount),
+        expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      });
+      if (txReceipt) {
+        this.logger.info(
+          {
+            method,
+            methodId,
+            txHash: txReceipt.transactionHash,
+            transactionId: txData.transactionId,
+            chainId: txData.receivingChainId,
+          },
+          "Receiver prepare tx confirmed",
+        );
+      }
+    } catch (e) {
+      // if the prepare tx fails, cancel the sender
+      this.logger.warn(
+        {
+          method,
+          methodId,
+          transactionId: txData.transactionId,
+          prepareError: jsonifyError(e),
+        },
+        "Could not prepare tx, cancelling",
+      );
+      const cancelReceipt = await this.txManager.cancel(txData.sendingChainId, {
+        txData,
+        signature: "0x",
+        relayerFee: "0",
+      });
       this.logger.info(
         {
           method,
           methodId,
-          txHash: txReceipt.transactionHash,
-          transactionId: inboundData.txData.transactionId,
-          chainId: inboundData.txData.receivingChainId,
+          txHash: cancelReceipt.transactionHash,
+          transactionId: txData.transactionId,
+          chainId: txData.receivingChainId,
         },
-        "Receiver prepare tx confirmed",
+        "Sender cancel tx confirmed",
       );
     }
     // If success, update metrics
   }
-  // if the prepare tx fails, cancel the sender
 
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
