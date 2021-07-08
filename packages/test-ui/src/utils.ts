@@ -1,4 +1,4 @@
-import { Contract, providers, Signer, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -16,4 +16,16 @@ export const mintTokens = async (signer: Signer, assetId: string): Promise<provi
   const contract = new Contract(assetId, TestTokenABI, signer);
   const response = await contract.mint(signerAddress, utils.parseEther("1000"));
   return response;
+};
+
+export const getBalance = async (signer: Signer, assetId: string): Promise<BigNumber> => {
+  const signerAddress = await signer.getAddress();
+  let balance;
+  if (assetId === constants.AddressZero) {
+    balance = await signer.getBalance(signerAddress);
+  } else {
+    const contract = new Contract(assetId, TestTokenABI, signer);
+    balance = await contract.balanceOf(signerAddress);
+  }
+  return balance;
 };

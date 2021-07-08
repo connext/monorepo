@@ -7,7 +7,7 @@ import { getRandomBytes32 } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { providerUrls, swapConfig } from "./constants";
-import { mintTokens as _mintTokens } from "./utils";
+import { getBalance, mintTokens as _mintTokens } from "./utils";
 
 function App(): React.ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
@@ -27,6 +27,8 @@ function App(): React.ReactElement | null {
     }[]
   >([]);
 
+  const [userBalance, setUserBalance] = useState<BigNumber>();
+
   const [form] = Form.useForm();
 
   const connectMetamask = async () => {
@@ -41,9 +43,19 @@ function App(): React.ReactElement | null {
       const _signer = provider.getSigner();
       const address = await _signer.getAddress();
       console.log("address: ", address);
+
+      const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
+        form.getFieldValue("sendingChain")
+      ];
+      if (!sendingAssetId) {
+        throw new Error("Bad configuration for swap");
+      }
+      const _balance = await getBalance(_signer, sendingAssetId);
+      setUserBalance(_balance);
+
       setSigner(_signer);
-      form.setFieldsValue({ receivingAddress: address });
       setProvider(provider);
+      form.setFieldsValue({ receivingAddress: address });
 
       // metamask events
       ethereum.on("chainChanged", (_chainId: string) => {
@@ -347,10 +359,6 @@ function App(): React.ReactElement | null {
                 vals.receivingAddress,
               );
             }}
-            onFieldsChange={(changed, all) => {
-              console.log("all: ", all);
-              console.log("changed: ", changed);
-            }}
             initialValues={{
               sendingChain: "4",
               receivingChain: "5",
@@ -370,11 +378,20 @@ function App(): React.ReactElement | null {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  {web3Provider && injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain")) && (
-                    <Button onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}>
+                  <Form.Item
+                    shouldUpdate={(prevValues, curValues) => {
+                      console.log("curValues: ", curValues);
+                      console.log("prevValues: ", prevValues);
+                      return prevValues.sendingChain !== curValues.sendingChain;
+                    }}
+                  >
+                    <Button
+                      onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
+                      disabled={injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
+                    >
                       Switch To Chain {form.getFieldValue("sendingChain")}
                     </Button>
-                  )}
+                  </Form.Item>
                 </Col>
               </Row>
             </Form.Item>
@@ -418,8 +435,17 @@ function App(): React.ReactElement | null {
               </Row>
             </Form.Item>
 
-            <Form.Item label="Amount" name="amount">
-              <Input type="number" />
+            <Form.Item label="Amount">
+              <Row gutter={16}>
+                <Col span={16}>
+                  <Form.Item name="amount">
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Button type="link">Balance: {utils.formatEther(userBalance ?? 0)}</Button>
+                </Col>
+              </Row>
             </Form.Item>
 
             <Form.Item label="Router Address" name="routerAddress">
@@ -431,7 +457,11 @@ function App(): React.ReactElement | null {
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
+              <Button
+                disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
+                type="primary"
+                htmlType="submit"
+              >
                 Transfer
               </Button>
             </Form.Item>
