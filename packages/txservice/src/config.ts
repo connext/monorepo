@@ -125,7 +125,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasLimit: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
 
-  defaultConfirmationTimeout: 45_000,
+  defaultConfirmationTimeout: 60_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
 

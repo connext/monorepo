@@ -17,7 +17,7 @@ type TransactionResponse = providers.TransactionResponse;
 
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
-let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
+let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
 
 const tx: MinimalTransaction = {
   chainId: 1337,
@@ -66,17 +66,18 @@ describe("TransactionService unit test", () => {
     signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
 
-    const _chainProvider = createStubInstance(ChainRpcProvider);
-    Object.setPrototypeOf(ChainRpcProvider, Sinon.stub().callsFake(() => _chainProvider));
-    // const _coreProvider = createStubInstance(JsonRpcProvider);
+    chainProvider = createStubInstance(ChainRpcProvider);
+    chainProvider.confirmationTimeout = 60_000;
+    chainProvider.confirmationsRequired = txReceipt.confirmations;
+    // Object.setPrototypeOf(JsonRpcProvider, Sinon.stub().callsFake(() => _chainProvider));
+    const _coreProvider = createStubInstance(JsonRpcProvider);
     // (_chainProvider as any).provider = _coreProvider;
-    // _coreProvider.sendTransaction.resolves(txResponse);
-    // _coreProvider.waitForTransaction.resolves(txReceipt);
-    // provider1337 = _coreProvider;
+    _coreProvider.sendTransaction.resolves(txResponse);
+    _coreProvider.waitForTransaction.resolves(txReceipt);
 
-    _chainProvider.getGasPrice.resolves(txResponse.gasPrice);
-    _chainProvider.sendTransaction.resolves({ response: txResponse, success: true });
-    _chainProvider.confirmTransaction.resolves({ receipt: txReceipt, success: true });
+    chainProvider.getGasPrice.resolves(txResponse.gasPrice);
+    chainProvider.sendTransaction.resolves({ response: txResponse, success: true });
+    chainProvider.confirmTransaction.resolves({ receipt: txReceipt, success: true });
 
     const chains = {
       "1337": {
@@ -93,15 +94,17 @@ describe("TransactionService unit test", () => {
     };
 
     txService = new TransactionService(log, signer, { chains });
-    (signer as any).provider = provider1337;
-    signer.sendTransaction.resolves(txResponse);
-    (txService as any).getProvider = (chainId: number) => _chainProvider;
+    // (signer as any).provider = _coreProvider;
+    // signer.sendTransaction.resolves(txResponse);
+    (txService as any).getProvider = (chainId: number) => chainProvider;
   });
 
   afterEach(() => {
     restore();
     reset();
   });
+
+  // TODO: Test read and events/listeners.
 
   describe("sendTx", () => {
     // beforeEach(() => {
@@ -114,7 +117,7 @@ describe("TransactionService unit test", () => {
     // no providers are in sync
     // reaches max gas price
     // nonce is expired
-    //
+    // invalid data ?
 
     // it("errors if cannot get a signer", async () => {
 
@@ -139,9 +142,16 @@ describe("TransactionService unit test", () => {
     it("happy: confirmation on first loop", async () => {
       const result = await txService.sendTx(1337, tx);
 
-      expect(signer.sendTransaction.callCount).eq(1);
-      const sendTransactionCall = signer.sendTransaction.getCall(0);
-      expect(sendTransactionCall.args[0]).eq(tx);
+      console.log(result, chainProvider.sendTransaction.callCount)
+
+      expect(chainProvider.sendTransaction.callCount).eq(1);
+      const sendTransactionCall = chainProvider.sendTransaction.getCall(0);
+      console.log(sendTransactionCall);
+      expect(sendTransactionCall.args[0]).to.deep.eq({
+        ...tx,
+        nonce: undefined,
+        gasPrice: txResponse.gasPrice,
+      });
 
       expect(result).to.deep.eq(txReceipt);
     });

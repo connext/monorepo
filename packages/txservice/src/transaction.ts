@@ -117,6 +117,7 @@ export class Transaction {
     // that it's the previous one, any of them could have been confirmed.
     const waitForReceipt = async (): Promise<providers.TransactionReceipt | undefined> => {
       confirmationAttempts++;
+      this.logInfo(`Attempt ${confirmationAttempts}. Timeout ${this.provider.confirmationTimeout}`, method);
       // Save all reverted receipts for a check in case our Promise.race evaluates to be undefined.
       const reverted: providers.TransactionReceipt[] = [];
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
