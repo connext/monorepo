@@ -591,11 +591,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     uint256 relayerFee,
     bytes calldata signature
   ) internal pure returns (address) {
-    // Create the digest
-    bytes32 invariantDigest = hashInvariantTransactionData(txData);
-
     // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({invariantDigest: invariantDigest, relayerFee: relayerFee});
+    SignedFulfillData memory payload = SignedFulfillData({transactionId: txData.transactionId, relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
@@ -612,11 +609,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     pure
     returns (address)
   {
-    // Create the digest
-    bytes32 invariantDigest = hashInvariantTransactionData(txData);
-
     // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({invariantDigest: invariantDigest, cancel: "cancel", relayerFee: relayerFee});
+    SignedCancelData memory payload = SignedCancelData({transactionId: txData.transactionId, cancel: "cancel", relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);

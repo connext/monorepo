@@ -50,14 +50,14 @@ interface ITransactionManager {
 
   // The structure of the signed data for cancellations
   struct SignedCancelData {
-    bytes32 invariantDigest;
+    bytes32 transactionId;
     uint256 relayerFee;
     string cancel; // just the string "cancel"
   }
 
   // The structure of the signed data for cancellations
   struct SignedFulfillData {
-    bytes32 invariantDigest;
+    bytes32 transactionId;
     uint256 relayerFee;
   }
 

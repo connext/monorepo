@@ -141,11 +141,6 @@ describe("TransactionManager", function () {
     const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
     const expectedBalance = startingBalance.sub(amount);
 
-    const encodedBalances = transactionManager.interface.encodeFunctionData("routerBalances", [
-      await instance.signer.getAddress(),
-      assetId,
-    ]);
-
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
@@ -900,11 +895,10 @@ describe("TransactionManager", function () {
       const signature = await signFulfillTransactionPayload(
         {
           ...transaction,
-          user: receiver.address,
           ...record,
         },
         relayerFee,
-        user,
+        Wallet.createRandom(),
       );
 
       await expect(
