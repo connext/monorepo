@@ -11,6 +11,11 @@ import { FullTransaction, MinimalTransaction } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
+type CachedGas = {
+  price: BigNumber;
+  timestamp: number;
+}
+
 /// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
@@ -20,6 +25,7 @@ export class ChainRpcProvider {
   private signer: NonceManager;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
+  private cachedGasPrice?: CachedGas;
 
   public confirmationsRequired: number;
   public confirmationTimeout: number;
@@ -47,16 +53,16 @@ export class ChainRpcProvider {
       const valid = validateProviderConfig(config);
       if (!valid) {
         this.log.error(
-          config,
+          { config },
           "Configuration was invalid for provider."
         );
       }
       return valid;
     });
-    if (providerConfigs.length === 1) {
+    if (filteredConfigs.length === 1) {
       this.provider = new JsonRpcProvider(providerConfigs[0]);
       this._providers = [this.provider];
-    } else if (providerConfigs.length > 1) {
+    } else if (filteredConfigs.length > 1) {
       const hydratedConfigs = filteredConfigs.map((config) => (
         {
           provider: new JsonRpcProvider(
@@ -88,7 +94,7 @@ export class ChainRpcProvider {
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
     this.isReady();
     const method = this.sendTransaction.name;
-    // Define task to send tx with proper nonce
+    // Define task to send tx with proper nonce.
     const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
       try {
         // Send transaction using the passed in callback.
@@ -96,7 +102,8 @@ export class ChainRpcProvider {
         let { nonce } = tx;
         if (typeof nonce === "undefined") {
           // Nonce hasn't been defined yet for the tx, indicating this is the first time it's being sent.
-          // NOTE: This signer is a NonceManager, and will manage its nonce internally.
+          // NOTE: This signer is a NonceManager, and will manage its nonce internally. Thus, this method
+          // should always return the correct nonce.
           nonce = await this.signer.getTransactionCount("pending");
         }
         const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({

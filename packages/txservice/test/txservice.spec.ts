@@ -4,19 +4,18 @@ import { mkHash, mkAddress } from "@connext/nxtp-utils";
 import { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
-import { parseUnits } from "ethers/lib/utils";
 
 import { TransactionService } from "../src/txservice";
 import { MinimalTransaction } from "../src/types";
 import { TransactionSigner } from "../src/signer";
+import { ChainRpcProvider } from "../src/provider";
 
-const { JsonRpcProvider } = providers;
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
 
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
-let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
+let provider1337: SinonStubbedInstance<ChainRpcProvider>;
 
 const tx: MinimalTransaction = {
   chainId: 1337,
@@ -65,17 +64,30 @@ describe("TransactionService unit test", () => {
     signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
 
-    const _provider = createStubInstance(JsonRpcProvider);
-    _provider.getTransaction.resolves(txResponse);
-    _provider.sendTransaction.resolves(txResponse);
+    const _provider = createStubInstance(ChainRpcProvider);
+    _provider.sendTransaction.resolves({ response: txResponse, success: true });
     provider1337 = _provider;
     (signer as any).provider = provider1337;
 
-    txService = new TransactionService(log, signer, { 1337: [""], 1338: [""] }, {}, () => provider1337);
+    const chains = {
+      "1337": {
+        providers: [
+          { url: "https://fakeurl.com" },
+          // { url: "" },
+        ],
+        confirmations: 1,
+      },
+      "1338": {
+        providers: [
+          { url: "https://fakeurl.com" },
+        ],
+        confirmations: 1,
+      },
+    };
+
+    txService = new TransactionService(log, signer, { chains });
 
     signer.sendTransaction.resolves(txResponse);
-    stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
-    stub(txService, "confirmTx").resolves(txReceipt);
     (txService as any).getProvider = () => _provider;
   });
 
@@ -84,10 +96,18 @@ describe("TransactionService unit test", () => {
     reset();
   });
 
-  describe("sendAndConfirmTx", () => {
+  describe("sendTx", () => {
     // beforeEach(() => {
 
     // });
+
+    // Error cases to handle:
+    // rpc failure
+    // provider stops responding
+    // no providers are in sync
+    // reaches max gas price
+    // nonce is expired
+    // 
 
     // it("errors if cannot get a signer", async () => {
 
@@ -109,8 +129,8 @@ describe("TransactionService unit test", () => {
 
     // });
 
-    it.skip("happy: confirmation on first loop", async () => {
-      const result = await txService.sendAndConfirmTx(1337, tx);
+    it("happy: confirmation on first loop", async () => {
+      const result = await txService.sendTx(1337, tx);
 
       expect(signer.sendTransaction.callCount).eq(1);
       const sendTransactionCall = signer.sendTransaction.getCall(0);
@@ -118,5 +138,17 @@ describe("TransactionService unit test", () => {
 
       expect(result).to.deep.eq(txReceipt);
     });
+  });
+
+  describe("readTx", () => {
+    // it.skip("happy: confirmation on first loop", async () => {
+    //   const result = await txService.sendTx(1337, tx);
+
+    //   expect(signer.sendTransaction.callCount).eq(1);
+    //   const sendTransactionCall = signer.sendTransaction.getCall(0);
+    //   expect(sendTransactionCall.args[0]).eq(tx);
+
+    //   expect(result).to.deep.eq(txReceipt);
+    // });
   });
 });

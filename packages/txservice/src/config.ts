@@ -131,8 +131,3 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
 
   rpcProviderMaxRetries: 5,
 } as TransactionServiceConfig;
-const valid = validateTransactionServiceConfig(DEFAULT_CONFIG);
-if (!valid) {
-  console.error(`Default configuration for txservice is invalid: ${JSON.stringify(DEFAULT_CONFIG, null, 2)}`);
-  throw new Error(validateTransactionServiceConfig.errors?.map((err) => err.message).join(","));
-}

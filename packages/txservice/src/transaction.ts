@@ -1,6 +1,7 @@
 import { delay } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
+import hyperid from "hyperid";
 
 import { TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
@@ -8,26 +9,35 @@ import { ChainRpcProvider } from "./provider";
 import { FullTransaction, MinimalTransaction } from "./types";
 
 export class Transaction {
-
+  // We use a unique ID to internally track a transaction through logs.
+  public id: hyperid.Instance = hyperid();
   public responses: providers.TransactionResponse[] = [];
   public receipt?: providers.TransactionReceipt;
   public nonce?: number;
   public nonceExpired = false;
 
-  // TODO: Not a fan of this arrangement, this code could be tightened up a bit.
-  public get gasPrice(): Promise<BigNumber> {
-    return this.getGasPrice();
+  private _attempt = 0;
+  public get attempt(): number {
+    return this._attempt;
   }
-  private _gasPrice?: BigNumber;
 
-  public get fullTransaction(): Promise<FullTransaction> {
-    return new Promise(async (resolve) => 
+  private _gasPrice?: BigNumber;
+  public get gasPrice(): Promise<BigNumber> {
+    return new Promise(async (resolve) => {
+      const gasPrice = this._gasPrice ?? (await this.provider.getGasPrice());
+      resolve(gasPrice);
+    });
+  }
+
+  public get data(): Promise<FullTransaction> {
+    return new Promise(async (resolve) => {
+      const gasPrice = await this.gasPrice;
       resolve({
         ...this.minTx,
-        gasPrice: await this.gasPrice,
+        gasPrice,
         nonce: this.nonce,
-      })
-    );
+      });
+    });
   }
 
   constructor(
@@ -47,17 +57,10 @@ export class Transaction {
     if (this.nonceExpired) {
       throw new ChainError(ChainError.reasons.NonceExpired, { method });
     }
-    
-    const fullTransaction = await this.fullTransaction;
-    this.log.info(
-      {
-        method,
-        ...fullTransaction,
-        gasPrice: fullTransaction.gasPrice.toString(),
-      },
-      "Attempting to send transaction.",
-    );
-    const { response: _response, success } = await this.provider.sendTransaction(await this.fullTransaction);
+
+    const data = await this.data;
+    this.logInfo("Sending transaction...", this.confirm.name);
+    const { response: _response, success } = await this.provider.sendTransaction(data);
     if (!success) {
       const error = _response as Error;
       if (
@@ -70,15 +73,7 @@ export class Transaction {
           error.message.includes("There is another transaction with same nonce in the queue."))
       ) {
         this.nonceExpired = true;
-        this.log.info(
-          {
-            method,
-            ...fullTransaction,
-            gasPrice: fullTransaction.gasPrice.toString(),
-            error: error.message,
-          },
-          "Tx reverted: nonce already used.",
-        );
+        this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
       } else {
         this.log.error({ method, error }, "Failed to send tx");
         throw _response;
@@ -98,7 +93,7 @@ export class Transaction {
           responseNonce: response.nonce,
           tx: fullTransaction,
         },
-        "NONCE WAS CHANGED DURING TX SEND LOOP."
+        "NONCE WAS CHANGED DURING TX SEND LOOP.",
       );
     }
 
@@ -108,17 +103,18 @@ export class Transaction {
   }
 
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
+    this.logInfo("Confirming transaction.", this.confirm.name);
     const { confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
     // if this is the case.
     let receivedConfirmation = false;
-    let attempts = 0;
+    let confirmationAttempts = 0;
 
     // An anon fn to get the tx receipts for all responses.
     // We must check for confirmation in all previous transactions. Although it's most likely
     // that it's the previous one, any of them could have been confirmed.
     const waitForReceipt = async (): Promise<providers.TransactionReceipt | undefined> => {
-      attempts += 1;
+      confirmationAttempts++;
       // Save all reverted receipts for a check in case our Promise.race evaluates to be undefined.
       const reverted: providers.TransactionReceipt[] = [];
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
@@ -153,7 +149,7 @@ export class Transaction {
     // Initial poll for receipt.
     let receipt: providers.TransactionReceipt | undefined = await waitForReceipt();
     // If we received confirmation, wait for X more iterations.
-    while (!receipt && receivedConfirmation && attempts <= confirmationTimeoutExtensionMultiplier) {
+    while (!receipt && receivedConfirmation && confirmationAttempts <= confirmationTimeoutExtensionMultiplier) {
       receipt = await waitForReceipt();
     }
 
@@ -163,14 +159,6 @@ export class Transaction {
     }
 
     return receipt;
-  }
-
-  private async getGasPrice(): Promise<BigNumber> {
-    if (this._gasPrice) {
-      return this._gasPrice;
-    } else {
-      return await this.provider.getGasPrice();
-    }
   }
 
   public async bumpGasPrice() {
@@ -194,6 +182,23 @@ export class Transaction {
         newGasPrice: bumpedGasPrice.toString(),
       },
       "Bumping tx gas price for reattempt.",
+    );
+  }
+
+  /// This helper exists to ensure we are always logging the full transaction data and ID whenever we log info.
+  private async logInfo(message: string, method: string, info: any = {}) {
+    const data = await this.data;
+    this.log.info(
+      {
+        method,
+        transactionId: this.id,
+        transactionData: {
+          ...data,
+          gasPrice: (data.gasPrice ?? "none").toString(),
+        },
+        ...info,
+      },
+      message,
     );
   }
 }

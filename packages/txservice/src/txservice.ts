@@ -79,8 +79,8 @@ export class TransactionService {
     });
   }
 
-  public async sendAndConfirmTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
-    const method = this.sendAndConfirmTx.name;
+  public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
+    const method = this.sendTx.name;
     let receipt: providers.TransactionReceipt | undefined;
 
     const transaction = new Transaction(this.log, this.getProvider(chainId), tx, this.config);
@@ -98,9 +98,12 @@ export class TransactionService {
       } catch (e) {
         // Check if the error was a confirmation timeout.
         if (e.message === ChainError.reasons.ConfirmationTimeout) {
+          // If nonce expired, and we were unable to confirm, something went wrong and there's
+          // no reason to continue.
           if (transaction.nonceExpired) {
             throw new ChainError(ChainError.reasons.NonceExpired, { method });
           }
+          // Bump the gas price up a bit for the next transaction attempt.
           transaction.bumpGasPrice();
         } else {
           // Coerce error to be a ChainError.
@@ -138,7 +141,7 @@ export class TransactionService {
   }
 
   private handleSubmit(response: providers.TransactionResponse) {
-    const method = this.sendAndConfirmTx.name;
+    const method = this.sendTx.name;
     this.log.info(
       {
         method,
@@ -152,13 +155,13 @@ export class TransactionService {
   }
 
   private handleConfirm(receipt: providers.TransactionReceipt) {
-    const method = this.sendAndConfirmTx.name;
+    const method = this.sendTx.name;
     this.log.info({ method, receipt }, "Tx mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
   private handleFail(error: ChainError, receipt?: providers.TransactionReceipt) {
-    const method = this.sendAndConfirmTx.name;
+    const method = this.sendTx.name;
     this.log.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }

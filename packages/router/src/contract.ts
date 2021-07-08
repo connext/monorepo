@@ -53,7 +53,7 @@ export class TransactionManager {
     ]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.txService.sendTx(chainId, {
         to: this.config.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
@@ -85,7 +85,7 @@ export class TransactionManager {
 
     const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.txService.sendTx(chainId, {
         chainId,
         data: fulfilData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -115,7 +115,7 @@ export class TransactionManager {
     const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.txService.sendTx(chainId, {
         chainId: chainId,
         data: cancelData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -156,7 +156,7 @@ export class TransactionManager {
 
     const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [bnAmount, assetId]);
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.txService.sendTx(chainId, {
         chainId: chainId,
         data: addLiquidityData,
         to: nxtpContractAddress,
@@ -189,7 +189,7 @@ export class TransactionManager {
     ]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.txService.sendTx(chainId, {
         chainId: chainId,
         data: removeLiquidityData,
         to: nxtpContractAddress,

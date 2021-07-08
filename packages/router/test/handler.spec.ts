@@ -127,7 +127,7 @@ describe("Handler", () => {
     txManager = createStubInstance(TxManager);
 
     txService = createStubInstance(TransactionService);
-    txService.sendAndConfirmTx.resolves(fakeTxReceipt);
+    txService.sendTx.resolves(fakeTxReceipt);
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
