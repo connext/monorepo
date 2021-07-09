@@ -1839,6 +1839,7 @@ __metadata:
     nodemon: ^2.0.10
     nyc: ^15.1.0
     pino: ^6.11.3
+    pino-pretty: ^5.1.1
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^11.1.1
@@ -3139,6 +3140,13 @@ __metadata:
   version: 1.3.2
   resolution: "@hapi/bourne@npm:1.3.2"
   checksum: bc23796d94afbca6bf691161d181bf005e86eac3f16fa4a11c38ca1acc9ffabf4e83791a98e9234bd09539ac013675bb53ea2de119373f9e9349f3b94312b76d
+  languageName: node
+  linkType: hard
+
+"@hapi/bourne@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@hapi/bourne@npm:2.0.0"
+  checksum: 97a3e6d44c63debbb170f5966a8076022e2855f1c4fa81edc8c6fd255ba56ce047c3dcce5055858188610eafd77e6420c67ece7fd17e3192830e2fbca7766fd0
   languageName: node
   linkType: hard
 
@@ -5757,6 +5765,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"args@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "args@npm:5.0.1"
+  dependencies:
+    camelcase: 5.0.0
+    chalk: 2.4.2
+    leven: 2.1.0
+    mri: 1.1.4
+  checksum: 2c322bff707f140744c4296fe5fb38b0111fc67f9e2433d6a4e5685b2697ec25ac6d9afe1938f8947b1badd89db870d99cbfeb1376d37b41081fe96d082613df
+  languageName: node
+  linkType: hard
+
 "aria-query@npm:^4.2.2":
   version: 4.2.2
   resolution: "aria-query@npm:4.2.2"
@@ -7884,6 +7904,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"camelcase@npm:5.0.0":
+  version: 5.0.0
+  resolution: "camelcase@npm:5.0.0"
+  checksum: 73567fa11f981cf6b6f282bf87197172771dccef7a8b1574115058e3f5266f8e0523541b629ba14ee05c269e743f516238862d32812afd6759dbb5fa5080da8e
+  languageName: node
+  linkType: hard
+
 "camelcase@npm:5.3.1, camelcase@npm:^5.0.0, camelcase@npm:^5.3.1":
   version: 5.3.1
   resolution: "camelcase@npm:5.3.1"
@@ -9457,6 +9484,13 @@ __metadata:
   version: 1.30.1
   resolution: "date-fns@npm:1.30.1"
   checksum: 351fc19b04d79de77823a90213b87039392528fdd44a42e3e87f28333e76a48f99e4fbb37c9823b6284f7eb0ef88368fafe61749d6eff173241170977751fa47
+  languageName: node
+  linkType: hard
+
+"dateformat@npm:^4.5.1":
+  version: 4.5.1
+  resolution: "dateformat@npm:4.5.1"
+  checksum: d5d08fd36f0987570cacada467145c722b4051285fae32969d62ef4bfc3c392f310bf6982a3ecbe62f0b42a944846d94a2bff53b8051ad1540bcaf118732fbf4
   languageName: node
   linkType: hard
 
@@ -15804,6 +15838,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"jmespath@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "jmespath@npm:0.15.0"
+  checksum: b3edb0b9773571d72dc1aa2d5590fa0f82419a0a04d5a0d09aee93219f41d046ea9cf3c36931fc48d9430348ca575530beab5968923544136cc8ddcd49ff7a47
+  languageName: node
+  linkType: hard
+
+"joycon@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "joycon@npm:3.0.1"
+  checksum: db64c93cf05d6f99ea832708ac9ec10e8bbb92d767e3cc38f8c5111b513dbce4b1419b0fe42620e664998639b455dd943e8dd493d8753c5034837501f8e823c4
+  languageName: node
+  linkType: hard
+
 "js-sha3@npm:0.5.7, js-sha3@npm:^0.5.7":
   version: 0.5.7
   resolution: "js-sha3@npm:0.5.7"
@@ -16652,6 +16700,13 @@ fsevents@~2.1.1:
     level-supports: ~1.0.0
     xtend: ~4.0.0
   checksum: 7cc5b84c29baeae52ee81c5d6f56a03557ec0eed4b95b1a7f22c82d8a0ebe4cea537166d2823e0cf45125dff86f119c058ccd824b5c5f2c2c8041df745b6dd39
+  languageName: node
+  linkType: hard
+
+"leven@npm:2.1.0":
+  version: 2.1.0
+  resolution: "leven@npm:2.1.0"
+  checksum: fcd39dd4d7cf26e0144641fd44293e6721d3ef785b5b1e97e8f179eaabbaf3a4aeb794ad6b8ba81de41183905f4f573ac21e783ec1375b6936cc46178087264e
   languageName: node
   linkType: hard
 
@@ -18039,6 +18094,13 @@ fsevents@~2.1.1:
     rimraf: ^2.5.4
     run-queue: ^1.0.3
   checksum: 0761308ddbaf75291fff3ca26c0297a781d545e76aa34b7c985780d251f75e422433947dc9091d464ca7febef86fe6ecaa60746eb7076adac4a0c620b83540f5
+  languageName: node
+  linkType: hard
+
+"mri@npm:1.1.4":
+  version: 1.1.4
+  resolution: "mri@npm:1.1.4"
+  checksum: 5ea30a4f587afeb69bf51c27fa8bcf9aee96ccb6091bc933a9be78e925d2f823e453f3c3752d89f616658c469882519d6d275babd366f89c209ab8bcd627fdbd
   languageName: node
   linkType: hard
 
@@ -19858,6 +19920,28 @@ fsevents@~2.1.1:
   version: 2.0.4
   resolution: "pinkie@npm:2.0.4"
   checksum: 2cb484c9da47b2f420fddffe7cbfeac950106a848343d147c2b2668d12b71aa3d09297bfe37ec32539a27c6dc7db414414f5ee166d6b2ca0d95f6dfe9dde60d7
+  languageName: node
+  linkType: hard
+
+"pino-pretty@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "pino-pretty@npm:5.1.1"
+  dependencies:
+    "@hapi/bourne": ^2.0.0
+    args: ^5.0.1
+    chalk: ^4.0.0
+    dateformat: ^4.5.1
+    fast-safe-stringify: ^2.0.7
+    jmespath: ^0.15.0
+    joycon: ^3.0.0
+    pump: ^3.0.0
+    readable-stream: ^3.6.0
+    rfdc: ^1.3.0
+    split2: ^3.1.1
+    strip-json-comments: ^3.1.1
+  bin:
+    pino-pretty: bin.js
+  checksum: bfd277d582ef16e7898c6ac360c118bab6f2badb2db1df7f74d1716f6efe6fe46fe888577fc6b450729b89febb8699529aad3684775af817fd99e39935f20698
   languageName: node
   linkType: hard
 
@@ -22898,7 +22982,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"rfdc@npm:^1.1.4, rfdc@npm:^1.2.0":
+"rfdc@npm:^1.1.4, rfdc@npm:^1.2.0, rfdc@npm:^1.3.0":
   version: 1.3.0
   resolution: "rfdc@npm:1.3.0"
   checksum: 34dd5c5acf95c1248a81a539b899490e3b2a73373f2fa4187ce0e555581b64c4d08619f022970d6aabe9e044cfa4d4f6118939dfd640c01da68c36d89f118807
@@ -24156,7 +24240,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"split2@npm:^3.1.0":
+"split2@npm:^3.1.0, split2@npm:^3.1.1":
   version: 3.2.2
   resolution: "split2@npm:3.2.2"
   dependencies:

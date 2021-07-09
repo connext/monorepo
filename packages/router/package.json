@@ -21,7 +21,7 @@
     "codegen": "graphql-codegen"
   },
   "nodemonConfig": {
-    "exec": "node --enable-source-maps ./dist/index.js",
+    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
     "delay": "500",
     "ext": "js,json",
     "watch": [
@@ -73,6 +73,7 @@
     "mocha": "^9.0.2",
     "nodemon": "^2.0.10",
     "nyc": "^15.1.0",
+    "pino-pretty": "^5.1.1",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^11.1.1",
