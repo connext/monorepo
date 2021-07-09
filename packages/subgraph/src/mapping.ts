@@ -66,7 +66,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   let chainId = contract.chainId();
 
   // cannot use only transactionId because of multipath routing, this below combo will be unique for active txs
-  let transactionId = event.params.txData.transactionId.toHex() + "-" + user.id + "-" + router.id;
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
   // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
@@ -114,7 +115,9 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
+  let transaction = Transaction.load(transactionId);
   transaction!.status = "Fulfilled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
@@ -134,7 +137,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
 export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
+  let transaction = Transaction.load(transactionId);
   transaction!.status = "Cancelled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
