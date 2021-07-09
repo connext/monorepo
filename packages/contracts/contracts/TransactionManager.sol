@@ -94,7 +94,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
-      require(LibERC20.transferFrom(assetId, router, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
+      require(LibERC20.transferFrom(assetId, msg.sender, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
     }
 
     // Update the router balances
