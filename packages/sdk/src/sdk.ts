@@ -195,10 +195,10 @@ export class NxtpSdk {
 
     const user = await this.signer.getAddress();
 
-    let callData = "0x";
+    const callData = _callData ?? "0x";
     let encryptedCallData = "0x";
-    let callDataHash = constants.HashZero;
-    if (_callData) {
+    const callDataHash = utils.keccak256(callData);
+    if (callData !== "0x") {
       let encryptionPublicKey;
 
       try {
@@ -216,9 +216,7 @@ export class NxtpSdk {
         throw error;
       }
 
-      encryptedCallData = await encrypt(_callData, encryptionPublicKey);
-      callDataHash = utils.keccak256(callData);
-      callData = _callData;
+      encryptedCallData = await encrypt(callData, encryptionPublicKey);
     }
 
     let router = transferParams.router;
