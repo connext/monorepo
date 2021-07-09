@@ -14,13 +14,13 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "assetId",
         type: "address",
@@ -31,6 +31,12 @@ const _abi = [
         name: "amount",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
     ],
     name: "LiquidityAdded",
     type: "event",
@@ -39,13 +45,13 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "assetId",
         type: "address",
@@ -445,6 +451,11 @@ const _abi = [
       {
         internalType: "address",
         name: "assetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "router",
         type: "address",
       },
     ],

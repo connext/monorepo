@@ -3,7 +3,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
-import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@connext/nxtp-utils";
+import { jsonifyError, FulfillParams, PrepareParams, CancelParams, validateAndParseAddress } from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
@@ -148,13 +148,19 @@ export class TransactionManager {
 
   async addLiquidity(
     chainId: number,
+    router: string,
     amount: string,
     assetId: string = constants.AddressZero,
   ): Promise<providers.TransactionReceipt> {
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount);
+    const routerAddress = validateAndParseAddress(router);
 
-    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [bnAmount, assetId]);
+    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [
+      bnAmount,
+      assetId,
+      routerAddress,
+    ]);
     try {
       const txRes = await this.txService.sendAndConfirmTx(chainId, {
         chainId: chainId,
