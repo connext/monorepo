@@ -5,14 +5,15 @@ applications:
         preBuild:
           commands:
             - yarn
+            - yarn build:all
+            - yarn workspaces focus --production @connext/nxtp-test-ui
         build:
           commands:
-            - yarn build
+            - yarn workspace @connext/nxtp-test-ui build
       artifacts:
-        baseDirectory: build
+        baseDirectory: packages/test-ui/build
         files:
           - "**/*"
       cache:
         paths:
           - node_modules/**/*
-    appRoot: packages/test-ui
