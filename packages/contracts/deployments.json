@@ -321,7 +321,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xf816EFD6E202aC8E6fE0A8AFf887409FCDE9e162",
+          "address": "0xe6ea5A9448F1EaB08831ecd04F3566E1e9696427",
           "abi": [
             {
               "inputs": [
@@ -1774,7 +1774,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0x090795470A112E5015242F81DE0317049181cE11",
+          "address": "0x9d97a217656108228b45Cfb9B707aab66Db1fE37",
           "abi": [
             {
               "inputs": [
