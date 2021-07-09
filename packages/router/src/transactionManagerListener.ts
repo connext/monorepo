@@ -53,10 +53,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           sendingChainId: chainId,
         });
 
-        this.logger.info(
-          { method, methodId, transactions: query.router?.transactions, chainId },
-          "Queried senderPrepare transactions",
-        );
+        if (query.router?.transactions.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: query.router?.transactions, chainId },
+            "Queried senderPrepare transactions",
+          );
+        }
         query.router?.transactions.forEach(async (transaction) => {
           // user prepares sender -> router prepares receiver -> user broadcasts sig -> router fulfills receiver -> router fulfills sender
           // Make sure we didnt *already* prepare receiver tx
@@ -112,7 +114,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           receivingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried receiverPrepare transactions");
+        if (query.router?.transactions.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: query.router?.transactions, chainId },
+            "Queried receiverPrepare transactions",
+          );
+        }
         query.router?.transactions.forEach((transaction) => {
           const data: TransactionPreparedEvent = {
             txData: {
@@ -155,8 +162,25 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           receivingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried receiverFulfill transactions");
-        query.router?.transactions.forEach((transaction) => {
+        const queries = await Promise.all(
+          Object.entries(txIds).map(async ([cId, txIds]) => {
+            const _sdk = this.sdks[Number(cId)];
+            if (!_sdk) {
+              this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
+              return [];
+            }
+            const query = await _sdk.GetFulfilledTransactions({ transactionIds: txIds });
+            return query.transactions;
+          }),
+        );
+        const receiverFulfilled = queries.flat();
+        if (receiverFulfilled.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: receiverFulfilled, chainId },
+            "Queried receiverFulfill transactions",
+          );
+        }
+        receiverFulfilled.forEach(async (transaction) => {
           const data: TransactionFulfilledEvent = {
             txData: {
               user: transaction.user.id,
@@ -197,8 +221,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
-
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried senderFulfill transactions");
+        if (query.router?.transactions.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: query.router?.transactions, chainId },
+            "Queried senderFulfill transactions",
+          );
+        }
         query.router?.transactions.forEach((transaction) => {
           const data: TransactionFulfilledEvent = {
             txData: {
