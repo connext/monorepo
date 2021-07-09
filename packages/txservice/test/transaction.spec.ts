@@ -105,6 +105,7 @@ describe("TransactionService unit test", () => {
   describe("confirm", async () => {
     it("throws if you have not submitted yet", async () => {
       await expect(transaction.confirm()).to.be.rejectedWith(ChainError.reasons.TxNotFound);
+      // expect(async () => await transaction.confirm()).to.throw();
     });
 
     it("happy: confirmation on first loop", async () => {
