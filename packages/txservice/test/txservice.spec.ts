@@ -69,10 +69,6 @@ describe("TransactionService unit test", () => {
   // TODO: Test read and events/listeners.
 
   describe("sendTx", () => {
-    // beforeEach(() => {
-
-    // });
-
     // Error cases to handle:
     // rpc failure
     // provider stops responding
@@ -80,31 +76,13 @@ describe("TransactionService unit test", () => {
     // nonce is expired
     // invalid data ?
 
-    // it("errors if cannot get a signer", async () => {
-
-    // });
-
     it("errors if cannot get provider", async () => {
       (txService as any).getProvider = (TransactionService as any).getProvider;
-      expect(async () => await txService.sendTx(99999, tx)).to.throw(ChainError.reasons.ProviderNotFound);
+      await expect(txService.sendTx(99999, tx)).to.be.rejectedWith(ChainError.reasons.ProviderNotFound);
     });
-
-    // it("if receipt status == 0, errors out", async () => {
-
-    // });
 
     // it("retries transaction with higher gas price", async () => {
 
-    // });
-
-    // it("stops trying to send if at max gas price", async () => {
-    //   chainProvider.getGasPrice.resolves((txService as any).config.gasLimit);
-    //   chainProvider.confirmTransaction.onCall(0).resolves({
-    //     receipt: new Error("timeout exceeded"),
-    //     success: false,
-    //   });
-    //   chainProvider.confirmTransaction.onCall(1).resolves({ receipt: txReceipt, success: true });
-    //   expect(async () => await txService.sendTx(1337, tx)).to.throw(ChainError.reasons.MaxGasPriceReached);
     // });
 
     it("happy: tx sent and confirmed", async () => {
@@ -114,12 +92,5 @@ describe("TransactionService unit test", () => {
   });
 
   describe("readTx", () => {
-    // it.skip("happy: confirmation on first loop", async () => {
-    //   const result = await txService.sendTx(1337, tx);
-    //   expect(signer.sendTransaction.callCount).eq(1);
-    //   const sendTransactionCall = signer.sendTransaction.getCall(0);
-    //   expect(sendTransactionCall.args[0]).eq(tx);
-    //   expect(result).to.deep.eq(txReceipt);
-    // });
   });
 });

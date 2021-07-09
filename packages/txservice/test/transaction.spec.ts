@@ -40,10 +40,6 @@ describe("TransactionService unit test", () => {
   });
 
   describe("send", () => {
-    // beforeEach(() => {
-
-    // });
-
     // Error cases to handle:
     // rpc failure
     // provider stops responding
@@ -57,14 +53,6 @@ describe("TransactionService unit test", () => {
         success: false,
       });
     });
-
-    // it("errors if cannot get a signer", async () => {
-
-    // });
-
-    // it("errors if cannot get provider", async () => {
-
-    // });
 
     // it("if receipt status == 0, errors out", async () => {
 
