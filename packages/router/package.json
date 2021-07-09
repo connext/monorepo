@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",
-    "start": "node dist/index.js'",
+    "start": "node --enable-source-maps dist/index.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -21,7 +21,7 @@
     "codegen": "graphql-codegen"
   },
   "nodemonConfig": {
-    "exec": "node ./dist/index.js",
+    "exec": "node --enable-source-maps ./dist/index.js",
     "delay": "500",
     "ext": "js,json",
     "watch": [
