@@ -77,9 +77,12 @@ export interface Handler {
 export type AuctionData = any;
 
 export class Handler implements Handler {
+  // keep track of what we are preparing so that we don't error and cancel
+  private preparingReceiver: Map<string, boolean> = new Map();
+
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly subgraph: SubgraphTransactionManagerListener,
+    private readonly _subgraph: SubgraphTransactionManagerListener,
     private readonly txManager: TransactionManager,
     private readonly logger: BaseLogger,
   ) {
@@ -200,6 +203,10 @@ export class Handler implements Handler {
     // encode the data for contract call
     // Send to txService
     this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
+    if (this.preparingReceiver.has(txData.transactionId)) {
+      this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Already preparing, doing nothing");
+    }
+    this.preparingReceiver.set(txData.transactionId, true);
     try {
       const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
         txData,
@@ -232,22 +239,35 @@ export class Handler implements Handler {
         },
         "Could not prepare tx, cancelling",
       );
-      const cancelReceipt = await this.txManager.cancel(txData.sendingChainId, {
-        txData,
-        signature: "0x",
-        relayerFee: "0",
-      });
-      this.logger.info(
-        {
-          method,
-          methodId,
-          txHash: cancelReceipt.transactionHash,
-          transactionId: txData.transactionId,
-          chainId: txData.receivingChainId,
-        },
-        "Sender cancel tx confirmed",
-      );
+      try {
+        const cancelReceipt = await this.txManager.cancel(txData.sendingChainId, {
+          txData,
+          signature: "0x",
+          relayerFee: "0",
+        });
+        this.logger.info(
+          {
+            method,
+            methodId,
+            txHash: cancelReceipt.transactionHash,
+            transactionId: txData.transactionId,
+            chainId: txData.receivingChainId,
+          },
+          "Sender cancel tx confirmed",
+        );
+      } catch (e) {
+        this.logger.error(
+          {
+            method,
+            methodId,
+            transactionId: txData.transactionId,
+            prepareError: jsonifyError(e),
+          },
+          "Could not cancel tx",
+        );
+      }
     }
+    this.preparingReceiver.delete(txData.transactionId);
     // If success, update metrics
   }
 
