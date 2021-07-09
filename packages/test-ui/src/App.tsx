@@ -200,7 +200,7 @@ function App(): React.ReactElement | null {
         receivingAddress,
         amount,
         transactionId,
-        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 2).toString(), // 2 days
+        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(), // 3 days
         // callData?: string;
       });
     } catch (e) {
