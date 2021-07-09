@@ -162,6 +162,9 @@ describe("Handler", () => {
         receivingChainId: ethPrepareDataMock.txData.receivingChainId,
         callDataHash: ethPrepareDataMock.txData.callDataHash,
         transactionId: ethPrepareDataMock.txData.transactionId,
+        amount: ethPrepareDataMock.txData.amount,
+        expiry: ethPrepareDataMock.txData.expiry,
+        preparedBlockNumber: ethPrepareDataMock.txData.preparedBlockNumber,
       },
       amount: MUTATED_AMOUNT,
       expiry: MUTATED_EXPIRY.toString(),
@@ -195,6 +198,9 @@ describe("Handler", () => {
         receivingChainId: tokenPrepareData.txData.receivingChainId,
         callDataHash: tokenPrepareData.txData.callDataHash,
         transactionId: tokenPrepareData.txData.transactionId,
+        amount: tokenPrepareData.txData.amount,
+        expiry: tokenPrepareData.txData.expiry,
+        preparedBlockNumber: tokenPrepareData.txData.preparedBlockNumber,
       },
       amount: MUTATED_AMOUNT,
       expiry: MUTATED_EXPIRY.toString(),
@@ -294,7 +300,7 @@ describe("Handler", () => {
   });
 
   it(`should add liquidity`, async () => {
-    await txManager.addLiquidity(4, constants.AddressZero);
+    await txManager.addLiquidity(4, invariantDataMock.router, "100", constants.AddressZero);
     const call = txManager.addLiquidity.getCall(0);
 
     console.log(call);

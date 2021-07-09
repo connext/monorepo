@@ -11,8 +11,8 @@ import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 import { TransactionStatus } from "./graphqlsdk";
+import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 
 const hId = hyperid();
 
@@ -200,45 +200,80 @@ export class Handler implements Handler {
     // - AssetId
     // encode the data for contract call
     // Send to txService
-    this.logger.info(
-      { method, methodId, transactionId: inboundData.txData.transactionId },
-      "Sending receiver prepare tx",
-    );
-    const txReceipt = await this.txManager.prepare(inboundData.txData.receivingChainId, {
-      txData: {
-        user: txData.user,
-        router: txData.router,
-        sendingAssetId: txData.sendingAssetId,
-        receivingAssetId: txData.receivingAssetId,
-        sendingChainFallback: txData.sendingChainFallback,
-        receivingAddress: txData.receivingAddress,
-        callTo: txData.callTo,
-        sendingChainId: txData.sendingChainId,
-        receivingChainId: txData.receivingChainId,
-        callDataHash: txData.callDataHash,
-        transactionId: txData.transactionId,
-      },
-      amount: mutateAmount(txData.amount),
-      expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
-      bidSignature,
-      encodedBid,
-      encryptedCallData,
-    });
-    if (txReceipt) {
-      this.logger.info(
-        {
-          method,
-          methodId,
-          txHash: txReceipt.transactionHash,
-          transactionId: inboundData.txData.transactionId,
-          chainId: inboundData.txData.receivingChainId,
-        },
-        "Receiver prepare tx confirmed",
-      );
+    this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
+    try {
+      const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
+        txData,
+        amount: mutateAmount(txData.amount),
+        expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      });
+      if (txReceipt) {
+        this.logger.info(
+          {
+            method,
+            methodId,
+            txHash: txReceipt.transactionHash,
+            transactionId: txData.transactionId,
+            chainId: txData.receivingChainId,
+          },
+          "Receiver prepare tx confirmed",
+        );
+      }
+    } catch (e) {
+      if ((e.message as string).includes("DIGEST_EXISTS")) {
+        this.logger.warn(
+          {
+            method,
+            methodId,
+            transactionId: txData.transactionId,
+          },
+          "Tx Failed because it was already prepared, do not cancel",
+        );
+      } else {
+        // if the prepare tx fails, cancel the sender
+        this.logger.warn(
+          {
+            method,
+            methodId,
+            transactionId: txData.transactionId,
+            prepareError: jsonifyError(e),
+          },
+          "Could not prepare tx, cancelling",
+        );
+        try {
+          const cancelReceipt = await this.txManager.cancel(txData.sendingChainId, {
+            txData,
+            signature: "0x",
+            relayerFee: "0",
+          });
+          this.logger.info(
+            {
+              method,
+              methodId,
+              txHash: cancelReceipt.transactionHash,
+              transactionId: txData.transactionId,
+              chainId: txData.receivingChainId,
+            },
+            "Sender cancel tx confirmed",
+          );
+        } catch (e) {
+          this.logger.error(
+            {
+              method,
+              methodId,
+              transactionId: txData.transactionId,
+              prepareError: jsonifyError(e),
+            },
+            "Could not cancel tx",
+          );
+        }
+      }
     }
     // If success, update metrics
   }
-  // if the prepare tx fails, cancel the sender
 
   // HandleReceiverPrepare
   // Purpose: On this method, no action is needed from the router except to update
@@ -264,7 +299,14 @@ export class Handler implements Handler {
 
     const { txData, signature, callData, relayerFee } = data;
 
-    const senderTransaction = await this.subgraph.getTransactionForChain(txData.transactionId, txData.sendingChainId);
+    // Send to tx service
+    this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
+    const senderTransaction = await this.subgraph.getTransactionForChain(
+      txData.transactionId,
+      txData.user,
+      txData.router,
+      txData.sendingChainId,
+    );
     if (!senderTransaction) {
       this.logger.error(
         {
@@ -276,14 +318,12 @@ export class Handler implements Handler {
       );
       return;
     }
-    if (senderTransaction.status === TransactionStatus.Fulfilled) {
+    if (senderTransaction.status !== TransactionStatus.Prepared) {
       this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
       return;
     }
-    // Send to tx service
-    this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
     const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
-      txData,
+      txData: senderTransaction.txData,
       signature,
       relayerFee,
       callData,

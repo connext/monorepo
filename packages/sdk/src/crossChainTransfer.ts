@@ -1,4 +1,4 @@
-import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
+import { constants, Contract, providers, Signer } from "ethers";
 import {
   CancelParams,
   generateMessagingInbox,
@@ -33,6 +33,7 @@ export const prepare = async (
   signer: Signer,
   logger: BaseLogger,
   erc20Contract?: IERC20Minimal,
+  infiniteApprove = false,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
@@ -100,7 +101,9 @@ export const prepare = async (
     logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
 
     if (approved.lt(amount)) {
-      const approveTx = await erc20Contract.connect(signer).approve(transactionManager.address, amount);
+      const approveTx = await erc20Contract
+        .connect(signer)
+        .approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {
@@ -179,14 +182,6 @@ export const cancel = async (
   return cancelReceipt as providers.TransactionReceipt;
 };
 
-export type TransactionPrepareEvent = {
-  txData: InvariantTransactionData;
-  amount: BigNumber;
-  expiry: BigNumber;
-  blockNumber: BigNumber;
-  caller: string;
-};
-
 export const handleReceiverPrepare = async (
   params: TransactionPreparedEvent,
   transactionManager: Contract,
@@ -226,17 +221,11 @@ export const handleReceiverPrepare = async (
   });
 
   let callData = "0x";
-
-  if (txData.callDataHash !== utils.keccak256(callData)) {
-    try {
-      callData = await ethereum.request({
-        method: "eth_decrypt",
-        params: [encryptedCallData, txData.user],
-      });
-    } catch (error) {
-      console.log(error.message);
-      throw error;
-    }
+  if (txData.callDataHash !== constants.HashZero) {
+    callData = await ethereum.request({
+      method: "eth_decrypt",
+      params: [encryptedCallData, txData.user],
+    });
   }
 
   await messaging.publishMetaTxRequest(
@@ -249,7 +238,7 @@ export const handleReceiverPrepare = async (
         relayerFee,
         signature,
         txData,
-        callData: callData,
+        callData,
       },
       responseInbox,
     },
