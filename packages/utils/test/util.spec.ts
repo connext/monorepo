@@ -1,4 +1,4 @@
-import { validateAndParseAddress } from "../../src/utils";
+import { validateAndParseAddress } from "../src/util";
 import { expect } from "chai";
 
 describe("#validateAndParseAddress", () => {
