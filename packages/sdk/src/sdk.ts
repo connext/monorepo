@@ -193,28 +193,33 @@ export class NxtpSdk {
 
     const transactionId = transferParams.transactionId ?? getRandomBytes32();
 
-    const callData = _callData ?? "0x";
-    const callDataHash = utils.keccak256(callData);
-
     const user = await this.signer.getAddress();
-    let encryptionPublicKey;
 
-    try {
-      encryptionPublicKey = await ethereum.request({
-        method: "eth_getEncryptionPublicKey",
-        params: [user], // you must have access to the specified account
-      });
-    } catch (error) {
-      if (error.code === 4001) {
-        // EIP-1193 userRejectedRequest error
-        console.log("We can't encrypt anything without the key.");
-      } else {
-        console.error(error);
+    let callData = "0x";
+    let encryptedCallData = "0x";
+    let callDataHash = constants.HashZero;
+    if (_callData) {
+      let encryptionPublicKey;
+
+      try {
+        encryptionPublicKey = await ethereum.request({
+          method: "eth_getEncryptionPublicKey",
+          params: [user], // you must have access to the specified account
+        });
+      } catch (error) {
+        if (error.code === 4001) {
+          // EIP-1193 userRejectedRequest error
+          console.log("We can't encrypt anything without the key.");
+        } else {
+          console.error(error);
+        }
+        throw error;
       }
-      throw error;
-    }
 
-    const encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      encryptedCallData = await encrypt(_callData, encryptionPublicKey);
+      callDataHash = utils.keccak256(callData);
+      callData = _callData;
+    }
 
     let router = transferParams.router;
     if (!router) {
@@ -237,7 +242,7 @@ export class NxtpSdk {
         callDataHash,
         transactionId,
       },
-      encryptedCallData: encryptedCallData,
+      encryptedCallData,
       bidSignature: "0x", // TODO
       encodedBid: "0x", // TODO
       amount,
