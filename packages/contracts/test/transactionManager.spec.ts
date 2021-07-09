@@ -141,17 +141,12 @@ describe("TransactionManager", function () {
     const startingBalance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
     const expectedBalance = startingBalance.sub(amount);
 
-    const encodedBalances = transactionManager.interface.encodeFunctionData("routerBalances", [
-      await instance.signer.getAddress(),
-      assetId,
-    ]);
-
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
     const tx = await instance
       .connect(_router)
-      .addLiquidity(amount, assetId, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
+      .addLiquidity(amount, assetId, router.address, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
 
     const receipt = await tx.wait();
     // const [receipt, payload] = await Promise.all([tx.wait(), event]);
@@ -457,7 +452,7 @@ describe("TransactionManager", function () {
       const amount = "1";
       const assetId = AddressZero;
 
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId)).to.be.revertedWith(
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
         "addLiquidity: VALUE_MISMATCH",
       );
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
@@ -470,7 +465,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(
-        transactionManager.connect(router).addLiquidity(amount, assetId, { value: falseValue }),
+        transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: falseValue }),
       ).to.be.revertedWith("addLiquidity: VALUE_MISMATCH");
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -480,7 +475,7 @@ describe("TransactionManager", function () {
       const amount = "1";
       const assetId = tokenA.address;
       await expect(
-        transactionManager.connect(router).addLiquidity(amount, assetId, { value: amount }),
+        transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: amount }),
       ).to.be.revertedWith("addLiquidity: ETH_WITH_ERC_TRANSFER");
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -488,7 +483,7 @@ describe("TransactionManager", function () {
     it("should error if transaction manager isn't approve for respective amount if ERC20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId)).to.be.revertedWith(
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
         "ERC20: transfer amount exceeds allowance",
       );
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
@@ -900,11 +895,10 @@ describe("TransactionManager", function () {
       const signature = await signFulfillTransactionPayload(
         {
           ...transaction,
-          user: receiver.address,
           ...record,
         },
         relayerFee,
-        user,
+        Wallet.createRandom(),
       );
 
       await expect(
@@ -922,7 +916,7 @@ describe("TransactionManager", function () {
 
     it("should revert if relayer fee is higher than amount", async () => {
       const { transaction, record } = await getTransactionData();
-      const relayerFee = "10";
+      const relayerFee = "10000000000";
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
       const variant = {

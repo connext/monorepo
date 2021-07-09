@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils } from "ethers";
+import { constants, Contract, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -13,11 +13,14 @@ import {
   TransactionPreparedEvent,
   TChainId,
   TransactionData,
+  CancelParams,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
+import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
+import { IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 
-import { handleReceiverPrepare, prepare } from "./crossChainTransfer";
+import { cancel, handleReceiverPrepare, prepare } from "./crossChainTransfer";
 import {
   getActiveTransactionsByUser,
   getVariantHashByInvariantData,
@@ -61,15 +64,6 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
-}
-
-// TODO: stronger types
-export interface NxtpSdk {
-  transfer(
-    params: CrossChainParams,
-  ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }>;
-  // getTransferQuote(): Promise<any>;
-  // getTransferHistory(): Promise<any>;
 }
 
 const ajv = addFormats(new Ajv(), [
@@ -138,7 +132,7 @@ export class NxtpSdk {
     // Start up transaction manager listeners
     const listeners = await Promise.all(
       Object.entries(chainProviders).map(async ([chainId, chainProvider]) => {
-        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId));
+        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId), logger);
         return { chainId, listener, chainProvider };
       }),
     );
@@ -193,12 +187,7 @@ export class NxtpSdk {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
     }
 
-    // Create promise for completed tx
     const transactionId = transferParams.transactionId ?? getRandomBytes32();
-    const timeout = 300_000;
-    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
-      (data) => data.txData.transactionId === transactionId,
-    ).waitFor(timeout);
 
     const callDataHash = callData ? utils.keccak256(callData) : constants.HashZero;
 
@@ -219,19 +208,28 @@ export class NxtpSdk {
         transactionId,
       },
       encryptedCallData: "0x", // TODO
-      bidSignature: "", // TODO
-      encodedBid: "", // TODO
+      bidSignature: "0x", // TODO
+      encodedBid: "0x", // TODO
       amount,
       expiry,
     };
+    let erc20;
+    if (sendingAssetId !== constants.AddressZero) {
+      erc20 = new Contract(sendingAssetId, ERC20.abi, this.signer) as IERC20Minimal;
+    }
     const prepareReceipt = await prepare(
       params,
       this.chains[sendingChainId].listener.transactionManager,
       this.signer,
       this.logger,
+      erc20,
     );
 
     // wait for completed event
+    const timeout = 300_000;
+    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
+      (data) => data.txData.transactionId === transactionId,
+    ).waitFor(timeout);
     const event = await completed;
     return { prepareReceipt, completed: event };
   }
@@ -294,6 +292,11 @@ export class NxtpSdk {
     );
     const filtered = activeWithStatus.flat().filter((x) => !!x);
     return filtered as { txData: TransactionData; status: NxtpSdkEvent }[];
+  }
+
+  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
+    const tx = await cancel(cancelParams, this.chains[chainId].listener.transactionManager, this.signer, this.logger);
+    return tx;
   }
 
   private setupListeners(): void {
