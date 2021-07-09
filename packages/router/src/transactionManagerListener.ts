@@ -164,7 +164,10 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           receivingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried receiverFulfill transactions");
+        this.logger.info(
+          { method, methodId, transactions: query.router?.transactions, chainId },
+          "Queried receiverFulfill transactions",
+        );
         query.router?.transactions.forEach(async (transaction) => {
           const senderTransaction = await this.getTransactionForChain(
             transaction.transactionId,
@@ -219,7 +222,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   }
 
   onSenderFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
-    const method = "onReceiverFulfill";
+    const method = "onSenderFulfill";
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
