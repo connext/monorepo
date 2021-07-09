@@ -41,7 +41,12 @@ function App(): React.ReactElement | null {
       if (!sendingAssetId) {
         throw new Error("Bad configuration for swap");
       }
-      const _balance = await getBalance(_signer, sendingAssetId);
+      console.log("sendingAssetId: ", sendingAssetId);
+      const _balance = await getBalance(
+        address,
+        sendingAssetId,
+        new providers.JsonRpcProvider(providerUrls[form.getFieldValue("sendingChain")]),
+      );
 
       setUserBalance(_balance);
       setSigner(_signer);

@@ -18,14 +18,17 @@ export const mintTokens = async (signer: Signer, assetId: string): Promise<provi
   return response;
 };
 
-export const getBalance = async (signer: Signer, assetId: string): Promise<BigNumber> => {
-  const signerAddress = await signer.getAddress();
+export const getBalance = async (
+  address: string,
+  assetId: string,
+  provider: providers.Provider,
+): Promise<BigNumber> => {
   let balance;
   if (assetId === constants.AddressZero) {
-    balance = await signer.getBalance(signerAddress);
+    balance = await provider.getBalance(address);
   } else {
-    const contract = new Contract(assetId, TestTokenABI, signer);
-    balance = await contract.balanceOf(signerAddress);
+    const contract = new Contract(assetId, TestTokenABI, provider);
+    balance = await contract.balanceOf(address);
   }
   return balance;
 };
