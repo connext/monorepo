@@ -43,11 +43,11 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
    */
   async onSenderPrepare(handler: (data: TransactionPreparedEvent) => Promise<void>): Promise<void> {
     const method = "onSenderPrepare";
-    const methodId = hId();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
+        const methodId = hId();
         const query = await sdk.GetSenderPrepareTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
@@ -106,11 +106,11 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
 
   onReceiverPrepare(handler: (data: TransactionPreparedEvent) => void): void {
     const method = "onReceiverPrepare";
-    const methodId = hId();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
+        const methodId = hId();
         const query = await sdk.GetReceiverPrepareTransactions({
           routerId: this.routerAddress.toLowerCase(),
           receivingChainId: chainId,
@@ -154,11 +154,11 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
 
   onReceiverFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
     const method = "onReceiverFulfill";
-    const methodId = hId();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
+        const methodId = hId();
         const query = await sdk.GetReceiverFulfillTransactions({
           routerId: this.routerAddress.toLowerCase(),
           receivingChainId: chainId,
@@ -219,16 +219,21 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   }
 
   onSenderFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
+    const method = "onReceiverFulfill";
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
+        const methodId = hId();
         const query = await sdk.GetSenderFulfillTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried senderFulfill transactions");
+        this.logger.info(
+          { method, methodId, transactions: query.router?.transactions, chainId },
+          "Queried senderFulfill transactions",
+        );
         query.router?.transactions.forEach((transaction) => {
           const data: TransactionFulfilledEvent = {
             txData: {
