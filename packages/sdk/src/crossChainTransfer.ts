@@ -1,4 +1,4 @@
-import { constants, Contract, providers, Signer } from "ethers";
+import { constants, Contract, providers, Signer, utils } from "ethers";
 import {
   CancelParams,
   generateMessagingInbox,
@@ -221,7 +221,7 @@ export const handleReceiverPrepare = async (
   });
 
   let callData = "0x";
-  if (txData.callDataHash !== constants.HashZero) {
+  if (txData.callDataHash !== utils.keccak256(callData)) {
     callData = await ethereum.request({
       method: "eth_decrypt",
       params: [encryptedCallData, txData.user],
