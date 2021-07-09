@@ -20,7 +20,6 @@ import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
-import { TransactionRequest } from "@ethersproject/providers";
 
 const { AddressZero, HashZero } = constants;
 const EmptyBytes = "0x";

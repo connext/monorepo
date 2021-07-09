@@ -55,7 +55,7 @@ interface ITransactionManager {
     string cancel; // just the string "cancel"
   }
 
-  // The structure of the signed data for cancellations
+  // The structure of the signed data for fulfill
   struct SignedFulfillData {
     bytes32 transactionId;
     uint256 relayerFee;
