@@ -127,8 +127,6 @@ export class ChainRpcProvider {
   ): Promise<{ receipt: providers.TransactionReceipt | Error; success: boolean }> {
     this.isReady();
     try {
-      this.log.info("hello");
-      console.log("hello");
       // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
       // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
       // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)

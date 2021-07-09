@@ -16,6 +16,8 @@ export class Transaction {
   public nonce?: number;
   public nonceExpired = false;
 
+  private didSubmit = false;
+
   private _attempt = 0;
   public get attempt(): number {
     return this._attempt;
@@ -59,8 +61,9 @@ export class Transaction {
     }
 
     const data = await this.data;
-    this.logInfo("Sending transaction...", this.confirm.name);
+    await this.logInfo("Sending transaction...", this.confirm.name);
     const { response: _response, success } = await this.provider.sendTransaction(data);
+    this._attempt += 1;
     if (!success) {
       const error = _response as Error;
       if (
@@ -73,7 +76,7 @@ export class Transaction {
           error.message.includes("There is another transaction with same nonce in the queue."))
       ) {
         this.nonceExpired = true;
-        this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
+        await this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
       } else {
         this.log.error({ method, error }, "Failed to send tx");
         throw _response;
@@ -100,12 +103,20 @@ export class Transaction {
 
     // Add this response to our local response history.
     this.responses.push(response);
+    // Raise this flag to enable confirmation step.
+    this.didSubmit = true;
     return response;
   }
 
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
+    this.log.info({ didSubmit: this.didSubmit }, "CONFIRM CALLED");
+    if (!this.didSubmit) {
+      this.log.info("THROWING");
+      throw new ChainError(ChainError.reasons.TxNotFound);
+    }
+
     const method = this.confirm.name;
-    this.logInfo("Confirming transaction...", method);
+    await this.logInfo("Confirming transaction...", method);
     const { confirmationTimeoutExtensionMultiplier } = this.config;
     // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
     // if this is the case.
@@ -117,7 +128,7 @@ export class Transaction {
     // that it's the previous one, any of them could have been confirmed.
     const waitForReceipt = async (): Promise<providers.TransactionReceipt | undefined> => {
       confirmationAttempts++;
-      this.logInfo(`Attempt ${confirmationAttempts}. Timeout ${this.provider.confirmationTimeout}`, method);
+      await this.logInfo(`confirmation attempt: ${confirmationAttempts}`, method);
       // Save all reverted receipts for a check in case our Promise.race evaluates to be undefined.
       const reverted: providers.TransactionReceipt[] = [];
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
@@ -126,6 +137,13 @@ export class Transaction {
           .map((response) => {
             return new Promise(async (resolve) => {
               const result = await this.provider.confirmTransaction(response.hash);
+              this.log.info(
+                {
+                  success: result.success,
+                  receipt: result.success ? result.receipt : (result.receipt as Error).message,
+                },
+                "RESULT",
+              );
               if (result.success) {
                 const r = result.receipt as providers.TransactionReceipt;
                 if (r.status === 0) {
@@ -142,7 +160,7 @@ export class Transaction {
                 const expected = ["transaction was replaced", "timeout exceeded"];
                 if (expected.every((value) => !e.message.includes(value))) {
                   // If the error wasn't any of the expected errors, we should log it.
-                  this.log.error({ method, error: jsonifyError(e) });
+                  this.log.error({ method, error: jsonifyError(e) }, "Unexpected error while polling to confirm.");
                 }
               }
             });
@@ -179,6 +197,7 @@ export class Transaction {
     // Scale up gas by percentage as specified by config.
     const bumpedGasPrice = currentPrice.add(currentPrice.mul(this.config.gasReplacementBumpPercent).div(100)).add(1);
     const { gasLimit } = this.config;
+    console.log("BUMPED THE GAS PRICE", currentPrice.toString(), bumpedGasPrice.toString(), gasLimit.toString());
     // if the gas price is past the max, throw.
     if (bumpedGasPrice.gt(gasLimit)) {
       const error = new ChainError(ChainError.reasons.MaxGasPriceReached, {

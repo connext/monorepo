@@ -84,7 +84,7 @@ export class TransactionService {
     const method = this.sendTx.name;
     let receipt: providers.TransactionReceipt | undefined;
 
-    const transaction = new Transaction(this.log, this.getProvider(chainId), tx, this.config);
+    const transaction = this.createTx(chainId, tx);
 
     while (!receipt) {
       try {
@@ -170,6 +170,12 @@ export class TransactionService {
   }
 
   /// HELPERS
+  /// Helper method to generate a transaction instance. Stubbed in unit tests in order to
+  /// solely test the interface.
+  private createTx(chainId: number, tx: MinimalTransaction) {
+    return new Transaction(this.log, this.getProvider(chainId), tx, this.config);
+  }
+
   /// Helper to wrap getting provider for specified chain ID.
   private getProvider(chainId: number): ChainRpcProvider {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
