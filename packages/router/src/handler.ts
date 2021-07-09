@@ -12,7 +12,6 @@ import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
-import { TransactionStatus } from "./graphqlsdk";
 
 const hId = hyperid();
 
