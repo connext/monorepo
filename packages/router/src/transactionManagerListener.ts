@@ -169,27 +169,6 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           "Queried receiverFulfill transactions",
         );
         query.router?.transactions.forEach(async (transaction) => {
-          const senderTransaction = await this.getTransactionForChain(
-            transaction.transactionId,
-            transaction.user.id,
-            transaction.router.id,
-            transaction.sendingChainId,
-          );
-          if (!senderTransaction) {
-            this.logger.error(
-              {
-                transactionId: transaction.transactionId,
-                sendingChainId: transaction.sendingChainId,
-                receivingChainId: transaction.receivingChainId,
-              },
-              "Failed to find sender tx on receiver fulfill",
-            );
-            return;
-          }
-          if (senderTransaction.status === TransactionStatus.Fulfilled) {
-            this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
-            return;
-          }
           const data: TransactionFulfilledEvent = {
             txData: {
               user: transaction.user.id,

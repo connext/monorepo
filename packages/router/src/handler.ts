@@ -11,6 +11,7 @@ import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 import { TransactionManager } from "./contract";
+import { TransactionStatus } from "./graphqlsdk";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 
 const hId = hyperid();
@@ -82,7 +83,7 @@ export class Handler implements Handler {
 
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly _subgraph: SubgraphTransactionManagerListener,
+    private readonly subgraph: SubgraphTransactionManagerListener,
     private readonly txManager: TransactionManager,
     private readonly logger: BaseLogger,
   ) {
@@ -297,8 +298,29 @@ export class Handler implements Handler {
 
     // Send to tx service
     this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
+    const senderTransaction = await this.subgraph.getTransactionForChain(
+      txData.transactionId,
+      txData.user,
+      txData.router,
+      txData.sendingChainId,
+    );
+    if (!senderTransaction) {
+      this.logger.error(
+        {
+          transactionId: txData.transactionId,
+          sendingChainId: txData.sendingChainId,
+          receivingChainId: txData.receivingChainId,
+        },
+        "Failed to find sender tx on receiver fulfill",
+      );
+      return;
+    }
+    if (senderTransaction.status !== TransactionStatus.Prepared) {
+      this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
+      return;
+    }
     const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
-      txData,
+      txData: senderTransaction.txData,
       signature,
       relayerFee,
       callData,
