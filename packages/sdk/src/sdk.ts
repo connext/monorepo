@@ -29,6 +29,8 @@ import {
   TransactionManagerListener,
 } from "./utils";
 
+declare const ethereum: any;
+
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
   router: TAddress,

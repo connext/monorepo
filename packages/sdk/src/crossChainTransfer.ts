@@ -14,6 +14,7 @@ import { BaseLogger } from "pino";
 import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 
 import { getRandomBytes32 } from "./utils";
+declare const ethereum: any;
 
 export const ajv = new Ajv();
 
