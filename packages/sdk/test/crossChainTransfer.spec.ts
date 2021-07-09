@@ -13,16 +13,19 @@ import { expect } from "chai";
 import pino from "pino";
 
 import { prepare } from "../src";
+import { IERC20Minimal, TransactionManager } from "../../contracts/typechain";
 
 const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
-  const transaction = {
+  const transaction: InvariantTransactionData = {
     user: mkAddress("0xa"),
     router: mkAddress("0xb"),
     sendingAssetId: mkAddress("0xc"),
     receivingAssetId: mkAddress("0xd"),
     receivingAddress: mkAddress("0xe"),
-    callData: "0x",
     transactionId: mkBytes32("0xa"),
+    callDataHash: mkBytes32("0xb"),
+    callTo: mkAddress("0xf"),
+    sendingChainFallback: mkAddress("0xaa"),
     sendingChainId: 1337,
     receivingChainId: 31337,
     ...txOverrides,
@@ -35,6 +38,7 @@ const logger = pino({ level: "error" });
 
 describe("prepare", () => {
   let transactionManager: SinonStubbedInstance<Contract>;
+  let erc20: SinonStubbedInstance<Contract>;
   let sendingProvider: SinonStubbedInstance<providers.Web3Provider>;
   let prepareStub: SinonStub;
 
@@ -43,6 +47,7 @@ describe("prepare", () => {
   beforeEach(async () => {
     sendingProvider = createStubInstance(providers.Web3Provider);
     transactionManager = createStubInstance(Contract);
+    erc20 = createStubInstance(Contract);
 
     prepareStub = stub();
   });
@@ -58,16 +63,17 @@ describe("prepare", () => {
       encodedBid: "0x",
       expiry: (Date.now() + 10_000).toString(),
       amount: "100000",
-      encryptedCallData: "0xabc",
+      encryptedCallData: "0x",
       txData: {
         user: mkAddress("0xa"),
         router: mkAddress("0xb"),
         sendingAssetId: mkAddress("0xc"),
         receivingAssetId: mkAddress("0xd"),
         receivingAddress: mkAddress("0xe"),
-        sendingChainFallback: mkAddress("0xf"),
-        callDataHash: "0x",
+        callTo: mkAddress("0xf"),
+        sendingChainFallback: mkAddress("0xaa"),
         transactionId: mkBytes32("0xa"),
+        callDataHash: mkBytes32("0xb"),
         sendingChainId: 1337,
         receivingChainId: 31337,
       },
@@ -82,6 +88,16 @@ describe("prepare", () => {
       },
     });
     transactionManager.connect.returns({ prepare: prepareStub } as any);
+    erc20.connect.returns({
+      allowance: () => Promise.resolve(constants.Zero),
+      approve: () =>
+        Promise.resolve({
+          hash: "success",
+          wait: (_confs: number) => {
+            return { status: 1 };
+          },
+        }),
+    } as any);
     sendingProvider.getSigner.returns(user as any);
     sendingProvider.getNetwork.resolves({ name: "test", chainId: params.txData.sendingChainId });
     return params;
@@ -90,10 +106,16 @@ describe("prepare", () => {
   it("should properly call prepare", async () => {
     const params = setupMocks();
 
-    const result = await prepare(params, transactionManager as unknown as Contract, user, logger);
+    const result = await prepare(
+      params,
+      transactionManager as unknown as TransactionManager,
+      user,
+      logger,
+      erc20 as unknown as IERC20Minimal,
+    );
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
-    const [txData, amount, expiry, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
+    const [txData, amount, expiry, encryptedCallData, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
     expect(txData).to.deep.contain({
       user: params.txData.user,
       router: params.txData.router,
@@ -109,8 +131,9 @@ describe("prepare", () => {
     expect(expiry).to.be.eq(params.expiry);
     expect(encodedBid).to.be.eq("0x");
     expect(bidSignature).to.be.eq("0x");
+    expect(encryptedCallData).to.be.eq("0x");
     expect(overrides).to.be.deep.eq(
-      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : {},
+      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : { value: 0 },
     );
   });
 });
@@ -138,7 +161,7 @@ describe("handleReceiverPrepare", () => {
     amount = "100000",
     expiry = (Date.now() + 10_000).toString(),
     preparedBlockNumber = 10,
-    encryptedCallData = "0xabc",
+    encryptedCallData = "0x",
     user: Wallet = Wallet.createRandom(),
   ): { event: TransactionPreparedEvent; user: Wallet } => {
     const txData = getTransactionData({

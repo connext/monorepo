@@ -84,7 +84,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param amount The amount of liquidity to add for the router
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
-  function addLiquidity(uint256 amount, address assetId) external payable override nonReentrant {
+  /// @param router The router you are adding liquidity on behalf of
+  function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
 
@@ -93,14 +94,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
-      require(LibERC20.transferFrom(assetId, msg.sender, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
+      require(LibERC20.transferFrom(assetId, router, address(this), amount), "addLiquidity: ERC20_TRANSFER_FAILED");
     }
 
     // Update the router balances
-    routerBalances[msg.sender][assetId] += amount;
+    routerBalances[router][assetId] += amount;
 
     // Emit event
-    emit LiquidityAdded(msg.sender, assetId, amount);
+    emit LiquidityAdded(router, assetId, amount, msg.sender);
   }
 
   /// @notice This is used by any router to decrease their available
@@ -186,9 +187,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
 
-    // Sanity check: amount is sensible
-    require(amount > 0, "prepare: AMOUNT_IS_ZERO");
-
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
     require(variantTransactionData[digest] == bytes32(0), "prepare: DIGEST_EXISTS");
@@ -212,6 +210,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
+      // Sanity check: amount is sensible
+      // Only check on sending chain to enforce router fees. Transactions could
+      // be 0-valued on receiving chain if it is just a value-less call to some
+      // `IFulfillHelper`
+      require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
       // lock their funds in the contract for the router to claim after
@@ -319,8 +323,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Validate the user has signed
     require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
-    // Sanity check: fee < amount
-    require(relayerFee < txData.amount, "fulfill: INVALID_RELAYER_FEE");
+    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
+    // 0-value crosschain tx, so only providing the fee amount
+    require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
 
     // Check provided callData matches stored hash
     require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
@@ -379,7 +384,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // locked.
 
         // First, approve the funds to the helper if needed
-        if (LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
           require(LibERC20.approve(txData.receivingAssetId, txData.callTo, toSend), "fulfill: APPROVAL_FAILED");
         }
 
@@ -465,6 +470,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Make sure the transaction wasn't already completed
     require(txData.preparedBlockNumber > 0, "cancel: ALREADY_COMPLETED");
 
+    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
+    // 0-value crosschain tx, so only providing the fee amount
+    require(relayerFee <= txData.amount, "cancel: INVALID_RELAYER_FEE");
+
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
     // mapping is explicitly *not* zeroed out so users who come online without
@@ -511,10 +520,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         uint256 toRefund = txData.amount - relayerFee;
 
         // Return locked funds to sending chain fallback
-        require(
-          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund),
-          "cancel: TRANSFER_FAILED"
-        );
+        if (toRefund > 0) {
+          require(
+            LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund),
+            "cancel: TRANSFER_FAILED"
+          );
+        }
       }
 
     } else {
@@ -583,11 +594,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     uint256 relayerFee,
     bytes calldata signature
   ) internal pure returns (address) {
-    // Create the digest
-    bytes32 invariantDigest = hashInvariantTransactionData(txData);
-
     // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({invariantDigest: invariantDigest, relayerFee: relayerFee});
+    SignedFulfillData memory payload = SignedFulfillData({transactionId: txData.transactionId, relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
@@ -604,11 +612,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     pure
     returns (address)
   {
-    // Create the digest
-    bytes32 invariantDigest = hashInvariantTransactionData(txData);
-
     // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({invariantDigest: invariantDigest, cancel: "cancel", relayerFee: relayerFee});
+    SignedCancelData memory payload = SignedCancelData({transactionId: txData.transactionId, cancel: "cancel", relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
