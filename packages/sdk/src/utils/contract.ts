@@ -2,7 +2,12 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { Contract, providers, constants } from "ethers";
-import { getInvariantTransactionDigest, InvariantTransactionData, TransactionData } from "@connext/nxtp-utils";
+import {
+  getInvariantTransactionDigest,
+  InvariantTransactionData,
+  TransactionData,
+  TransactionPreparedEvent,
+} from "@connext/nxtp-utils";
 
 // TODO: refactor to use tx service
 
@@ -37,7 +42,7 @@ export const getActiveTransactionsByUser = async (
   chainId: number,
   userAddress: string,
   provider: providers.JsonRpcProvider,
-): Promise<TransactionData[]> => {
+): Promise<TransactionPreparedEvent[]> => {
   const { instance } = getTransactionManagerContract(chainId);
   const txManager = instance.connect(provider);
   const blocks = await txManager.getActiveTransactionBlocks(userAddress);
@@ -54,24 +59,30 @@ export const getActiveTransactionsByUser = async (
   const flattenedEvents = events.flat();
   const mappedEvents = flattenedEvents.map((event) => {
     const {
-      args: { txData },
+      args: { txData, bidSignature, caller, encryptedCallData, encodedBid },
     } = event;
     return {
-      user: txData.user,
-      router: txData.router,
-      sendingAssetId: txData.sendingAssetId,
-      receivingAssetId: txData.receivingAssetId,
-      sendingChainFallback: txData.sendingChainFallback,
-      callTo: txData.callTo,
-      receivingAddress: txData.receivingAddress,
-      sendingChainId: txData.sendingChainId.toNumber(),
-      receivingChainId: txData.receivingChainId.toNumber(),
-      callDataHash: txData.callDataHash,
-      transactionId: txData.transactionId,
-      amount: txData.amount.toString(),
-      expiry: txData.expiry.toString(),
-      preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
-    } as TransactionData;
+      txData: {
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
+        receivingAddress: txData.receivingAddress,
+        sendingChainId: txData.sendingChainId.toNumber(),
+        receivingChainId: txData.receivingChainId.toNumber(),
+        callDataHash: txData.callDataHash,
+        transactionId: txData.transactionId,
+        amount: txData.amount.toString(),
+        expiry: txData.expiry.toString(),
+        preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
+      } as TransactionData,
+      bidSignature,
+      caller,
+      encryptedCallData,
+      encodedBid,
+    };
   });
   return mappedEvents;
 };

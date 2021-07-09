@@ -1,0 +1,18 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - yarn
+        build:
+          commands:
+            - yarn build
+      artifacts:
+        baseDirectory: build
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+    appRoot: packages/test-ui

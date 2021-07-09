@@ -48,7 +48,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 
 export function handleTransactionPrepared(event: TransactionPrepared): void {
   // load user and router
-  // router must necessarily exist at this point because it had to have provided liquidity
+  // router should have liquidity but it may not
   let router = Router.load(event.params.txData.router.toHex());
   if (router == null) {
     router = new Router(event.params.txData.router.toHex());
@@ -65,11 +65,20 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   let contract = TransactionManager.bind(event.address);
   let chainId = contract.chainId();
 
+  // cannot use only transactionId because of multipath routing, this below combo will be unique for active txs
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  let transaction = new Transaction(event.params.txData.transactionId.toHex());
+  // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
+  // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
+  let transaction = Transaction.load(transactionId);
+  if (transaction == null) {
+    transaction = new Transaction(transactionId);
+  }
+
   // TransactionData
   transaction.user = user.id;
-  transaction.router = router!.id;
+  transaction.router = router.id;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
@@ -106,7 +115,9 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
+  let transaction = Transaction.load(transactionId);
   transaction!.status = "Fulfilled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
@@ -119,14 +130,21 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   if (transaction.chainId == transaction.sendingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    if (assetBalance == null) {
+      assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.router = event.params.router.toHex();
+      assetBalance.amount = new BigInt(0);
+    }
+    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
 }
 
 export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
-  let transaction = Transaction.load(event.params.txData.transactionId.toHex());
+  let transactionId =
+    event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
+  let transaction = Transaction.load(transactionId);
   transaction!.status = "Cancelled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
@@ -137,7 +155,12 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   if (transaction.chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    if (assetBalance == null) {
+      assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.router = event.params.router.toHex();
+      assetBalance.amount = new BigInt(0);
+    }
+    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
 }

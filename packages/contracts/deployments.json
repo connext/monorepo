@@ -5,7 +5,7 @@
       "chainId": "4",
       "contracts": {
         "TestERC20": {
-          "address": "0x82800cFeBC6bE8D65F69deA383B227e16cf70791",
+          "address": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
           "abi": [
             {
               "inputs": [],
@@ -321,7 +321,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0x03c6EBb00B6293cF0B6A74c3745397bEf662f958",
+          "address": "0x0Eb3EF7E5AbB021F791589E6a4f7a0F169f6c293",
           "abi": [
             {
               "inputs": [
@@ -338,13 +338,13 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
                 },
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
@@ -354,6 +354,12 @@
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
                 }
               ],
               "name": "LiquidityAdded",
@@ -363,13 +369,13 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
                 },
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
@@ -806,6 +812,11 @@
                 {
                   "internalType": "address",
                   "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "router",
                   "type": "address"
                 }
               ],
@@ -1447,7 +1458,7 @@
       "chainId": "5",
       "contracts": {
         "TestERC20": {
-          "address": "0xcfDAD1B98bc62DACca93A92286479C997034337E",
+          "address": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682",
           "abi": [
             {
               "inputs": [],
@@ -1763,7 +1774,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xB6F6B68637071d34B2B3cf291d8568bE32393182",
+          "address": "0x0093549A42E8340Ec0B956EB6c0F868dc35bD8c6",
           "abi": [
             {
               "inputs": [
@@ -1780,13 +1791,13 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
                 },
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
@@ -1796,6 +1807,12 @@
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
                 }
               ],
               "name": "LiquidityAdded",
@@ -1805,13 +1822,13 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
                 },
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
@@ -2248,6 +2265,11 @@
                 {
                   "internalType": "address",
                   "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "router",
                   "type": "address"
                 }
               ],
