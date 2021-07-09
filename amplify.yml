@@ -5,11 +5,10 @@ applications:
         preBuild:
           commands:
             - yarn
-            - yarn build:all
-            - yarn workspaces focus --production @connext/nxtp-test-ui
         build:
           commands:
-            - yarn workspace @connext/nxtp-test-ui build
+            - yarn build:all
+            - yarn workspaces focus --production @connext/nxtp-test-ui
       artifacts:
         baseDirectory: packages/test-ui/build
         files:
