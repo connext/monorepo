@@ -328,7 +328,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
 
     // Check provided callData matches stored hash
-    wrequire(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
+    require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
