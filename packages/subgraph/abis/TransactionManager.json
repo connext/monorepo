@@ -14,13 +14,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "router",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "assetId",
         "type": "address"
@@ -30,6 +30,12 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
       }
     ],
     "name": "LiquidityAdded",
@@ -39,13 +45,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "router",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "assetId",
         "type": "address"
@@ -482,6 +488,11 @@
       {
         "internalType": "address",
         "name": "assetId",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "router",
         "type": "address"
       }
     ],
