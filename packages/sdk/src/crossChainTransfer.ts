@@ -1,4 +1,4 @@
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { constants, Contract, providers, Signer } from "ethers";
 import {
   CancelParams,
   generateMessagingInbox,
@@ -176,14 +176,6 @@ export const cancel = async (
   );
   logger.info({ method, methodId }, "Method complete");
   return cancelReceipt as providers.TransactionReceipt;
-};
-
-export type TransactionPrepareEvent = {
-  txData: InvariantTransactionData;
-  amount: BigNumber;
-  expiry: BigNumber;
-  blockNumber: BigNumber;
-  caller: string;
 };
 
 export const handleReceiverPrepare = async (
