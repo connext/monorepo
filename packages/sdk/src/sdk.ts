@@ -237,7 +237,7 @@ export class NxtpSdk {
   public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
     const signerAddress = await this.signer.getAddress();
     const transactionsForChains = await Promise.all(
-      Object.keys(this.chains).map(async (c): Promise<[chainId: number, txs: TransactionData[]]> => {
+      Object.keys(this.chains).map(async (c): Promise<[chainId: number, txs: TransactionPreparedEvent[]]> => {
         const chainId = parseInt(c);
         const active = await getActiveTransactionsByUser(chainId, signerAddress, this.chains[chainId].provider);
         return [chainId, active];
@@ -250,23 +250,23 @@ export class NxtpSdk {
         return await Promise.all(
           txs.map(async (tx): Promise<{ txData: TransactionData; status: NxtpSdkEvent } | undefined> => {
             // only handle sender txs
-            if (tx.sendingChainId === chainId) {
+            if (tx.txData.sendingChainId === chainId) {
               const hash = await getVariantHashByInvariantData(
-                tx.receivingChainId,
+                tx.txData.receivingChainId,
                 {
-                  user: tx.user,
-                  router: tx.router,
-                  sendingAssetId: tx.sendingAssetId,
-                  receivingAssetId: tx.receivingAssetId,
-                  sendingChainFallback: tx.sendingChainFallback,
-                  callTo: tx.callTo,
-                  receivingAddress: tx.receivingAddress,
-                  sendingChainId: tx.sendingChainId,
-                  receivingChainId: tx.receivingChainId,
-                  callDataHash: tx.callDataHash,
-                  transactionId: tx.transactionId,
+                  user: tx.txData.user,
+                  router: tx.txData.router,
+                  sendingAssetId: tx.txData.sendingAssetId,
+                  receivingAssetId: tx.txData.receivingAssetId,
+                  sendingChainFallback: tx.txData.sendingChainFallback,
+                  callTo: tx.txData.callTo,
+                  receivingAddress: tx.txData.receivingAddress,
+                  sendingChainId: tx.txData.sendingChainId,
+                  receivingChainId: tx.txData.receivingChainId,
+                  callDataHash: tx.txData.callDataHash,
+                  transactionId: tx.txData.transactionId,
                 },
-                this.chains[tx.receivingChainId].provider,
+                this.chains[tx.txData.receivingChainId].provider,
               );
               // default to receiver fulfilled
               let status: NxtpSdkEvent = NxtpSdkEvents.ReceiverTransactionFulfilled;
@@ -275,15 +275,31 @@ export class NxtpSdk {
                 status = NxtpSdkEvents.SenderTransactionPrepared;
               } else {
                 // else check if its in active transfers, if so, its prepared
-                const receivingActiveTxs = transactionsForChains.find(([cId]) => cId === tx.receivingChainId);
+                const receivingActiveTxs = transactionsForChains.find(([cId]) => cId === tx.txData.receivingChainId);
                 if (receivingActiveTxs) {
-                  const activeReceiving = receivingActiveTxs[1].find((t) => t.transactionId === tx.transactionId);
+                  const activeReceiving = receivingActiveTxs[1].find(
+                    (t) => t.txData.transactionId === tx.txData.transactionId,
+                  );
                   if (activeReceiving) {
                     status = NxtpSdkEvents.ReceiverTransactionPrepared;
+                    // rebroadcast sig
+                    await handleReceiverPrepare(
+                      {
+                        txData: activeReceiving.txData,
+                        bidSignature: activeReceiving.bidSignature,
+                        caller: activeReceiving.caller,
+                        encodedBid: activeReceiving.encodedBid,
+                        encryptedCallData: activeReceiving.encryptedCallData,
+                      },
+                      this.chains[activeReceiving.txData.sendingChainId].listener.transactionManager,
+                      this.signer,
+                      this.messaging,
+                      this.logger,
+                    );
                   }
                 }
               }
-              return { txData: tx, status };
+              return { txData: tx.txData, status };
             }
             return undefined;
           }),
