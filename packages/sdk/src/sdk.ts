@@ -33,7 +33,7 @@ declare const ethereum: any;
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
-  router: TAddress,
+  router: Type.Optional(TAddress),
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   receivingChainId: TChainId,
@@ -43,6 +43,7 @@ export const CrossChainParamsSchema = Type.Object({
   amount: TIntegerString,
   expiry: TIntegerString,
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
+  infiniteApprove: Type.Optional(Type.Boolean()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -178,13 +179,13 @@ export class NxtpSdk {
       sendingAssetId,
       receivingAssetId,
       receivingAddress,
-      router,
       amount,
       expiry,
       callData: _callData,
       sendingChainId,
       receivingChainId,
       callTo,
+      infiniteApprove,
     } = transferParams;
     if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
@@ -212,9 +213,15 @@ export class NxtpSdk {
       }
       throw error;
     }
-  
+
     const encryptedCallData = await encrypt(callData, encryptionPublicKey);
-    
+
+    let router = transferParams.router;
+    if (!router) {
+      const auctionRes = await this.runAuction(transferParams);
+      router = auctionRes.router;
+    }
+
     // Prepare sender side tx
     const params: PrepareParams = {
       txData: {
@@ -246,6 +253,7 @@ export class NxtpSdk {
       this.signer,
       this.logger,
       erc20,
+      infiniteApprove,
     );
 
     // wait for completed event
@@ -366,6 +374,16 @@ export class NxtpSdk {
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
     const tx = await cancel(cancelParams, this.chains[chainId].listener.transactionManager, this.signer, this.logger);
     return tx;
+  }
+
+  public async runAuction(
+    _params: CrossChainParams,
+  ): Promise<{ router: string; encodedBid: string; bidSignature: string }> {
+    return {
+      router: "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a",
+      encodedBid: "0x",
+      bidSignature: "0x",
+    };
   }
 
   private setupListeners(): void {

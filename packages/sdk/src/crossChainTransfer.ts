@@ -33,6 +33,7 @@ export const prepare = async (
   signer: Signer,
   logger: BaseLogger,
   erc20Contract?: IERC20Minimal,
+  infiniteApprove = false,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
@@ -100,7 +101,9 @@ export const prepare = async (
     logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
 
     if (approved.lt(amount)) {
-      const approveTx = await erc20Contract.connect(signer).approve(transactionManager.address, amount);
+      const approveTx = await erc20Contract
+        .connect(signer)
+        .approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {
