@@ -56,7 +56,6 @@ describe("TransactionService unit test", () => {
         receipt: new Error("timeout exceeded"),
         success: false,
       });
-
     });
 
     // it("errors if cannot get a signer", async () => {
@@ -83,7 +82,7 @@ describe("TransactionService unit test", () => {
       expect(response).to.deep.eq(txResponse);
 
       // This should throw.
-      transaction.bumpGasPrice()
+      transaction.bumpGasPrice();
       // chainProvider.confirmTransaction.onCall(1).resolves({ receipt: txReceipt, success: true });
       // expect(async () => await txService.sendTx(1337, tx)).to.throw(ChainError.reasons.MaxGasPriceReached);
     });
@@ -105,7 +104,7 @@ describe("TransactionService unit test", () => {
 
   describe("confirm", async () => {
     it("throws if you have not submitted yet", async () => {
-      expect(async () => await transaction.confirm()).to.throw(ChainError.reasons.TxNotFound);
+      await expect(transaction.confirm()).to.be.rejectedWith(ChainError.reasons.TxNotFound);
     });
 
     it("happy: confirmation on first loop", async () => {
