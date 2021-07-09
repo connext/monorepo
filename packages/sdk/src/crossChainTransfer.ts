@@ -1,4 +1,4 @@
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import {
   CancelParams,
   generateMessagingInbox,
@@ -195,9 +195,9 @@ export const handleReceiverPrepare = async (
 ): Promise<void> => {
   const method = "handleReceiverPrepare";
   const methodId = getRandomBytes32();
-  logger.info({ method, methodId, txData: params.txData }, "Method start");
+  logger.info({ method, methodId, txData: params.txData, encryptedCallData: params.encryptedCallData }, "Method start");
 
-  const { txData } = params;
+  const { txData, encryptedCallData } = params;
 
   // TODO
   const relayerFee = "0";
@@ -223,6 +223,22 @@ export const handleReceiverPrepare = async (
       return resolve(data);
     });
   });
+
+  let callData = "0x";
+
+  if (txData.callDataHash !== utils.keccak256(callData)) {
+    try {
+      // @ts-ignore
+      callData = await ethereum.request({
+        method: "eth_decrypt",
+        params: [encryptedCallData, txData.user],
+      });
+    } catch (error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+
   await messaging.publishMetaTxRequest(
     {
       type: "Fulfill",
@@ -233,7 +249,7 @@ export const handleReceiverPrepare = async (
         relayerFee,
         signature,
         txData,
-        callData: "0x", // TODO
+        callData: callData,
       },
       responseInbox,
     },

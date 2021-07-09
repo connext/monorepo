@@ -209,6 +209,7 @@ export class NxtpSdk {
       } else {
         console.error(error);
       }
+      throw error;
     }
   
     const encryptedCallData = await encrypt(callData, encryptionPublicKey);
