@@ -276,22 +276,6 @@ export class Handler implements Handler {
 
     const { txData, signature, callData, relayerFee } = data;
 
-    const senderTransaction = await this.subgraph.getTransactionForChain(txData.transactionId, txData.sendingChainId);
-    if (!senderTransaction) {
-      this.logger.error(
-        {
-          transactionId: txData.transactionId,
-          sendingChainId: txData.sendingChainId,
-          receivingChainId: txData.receivingChainId,
-        },
-        "Failed to find sender tx on receiver fulfill",
-      );
-      return;
-    }
-    if (senderTransaction.status === TransactionStatus.Fulfilled) {
-      this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
-      return;
-    }
     // Send to tx service
     this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
     const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
