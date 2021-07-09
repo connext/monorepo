@@ -399,14 +399,16 @@ describe("TransactionManager", function () {
 
     const gas = tx.gasPrice!.mul(receipt.gasUsed!).toString();
 
-    expect(finalIncreased).to.be.eq(
-      !fulfillingForSender ||
-        user.address !== submitter.address ||
-        transaction.receivingAssetId !== AddressZero ||
-        user.address !== transaction.receivingAddress
-        ? expectedIncrease
-        : expectedIncrease.add(relayerFee).sub(gas),
-    );
+    if (callData == EmptyBytes) {
+      expect(finalIncreased).to.be.eq(
+        !fulfillingForSender ||
+          user.address !== submitter.address ||
+          transaction.receivingAssetId !== AddressZero ||
+          user.address !== transaction.receivingAddress
+          ? expectedIncrease
+          : expectedIncrease.add(relayerFee).sub(gas),
+      );
+    }
     expect(finalFlat).to.be.eq(initialFlat);
   };
 
@@ -1009,8 +1011,6 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
     });
 
-    it.skip("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & failed addFunds", async () => {});
-
     it("happy case: router fulfills in native asset", async () => {
       const prepareAmount = "100";
       const assetId = AddressZero;
@@ -1139,7 +1139,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.only("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & success addFunds", async () => {
+    it("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & success addFunds", async () => {
       const prepareAmount = "10";
       const relayerFee = "1";
 
@@ -1162,7 +1162,6 @@ describe("TransactionManager", function () {
 
       expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(0));
 
-      console.log(transaction);
       // User fulfills
 
       await fulfillAndAssert(
@@ -1174,7 +1173,51 @@ describe("TransactionManager", function () {
         transactionManagerReceiverSide,
         callData,
       );
+
+      // const res = await testFulfillHelper.queryFilter({ address: testFulfillHelper.address }, blockNumber);
+      // testFulfillHelper.removeAllListeners({ address: testFulfillHelper.address });
+
+      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(0);
       expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
+    });
+
+    it.skip("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & failed execute", async () => {
+      // TODO: Need to add failing condition for Helper functions.
+      const prepareAmount = "10";
+      const relayerFee = "1";
+
+      const callData = await testFulfillHelper.getCallData({ recipient: AddressZero });
+      const callDataHash = utils.keccak256(callData);
+
+      const { transaction, record } = await getTransactionData({
+        sendingAssetId: tokenA.address,
+        receivingAssetId: tokenB.address,
+        callTo: testFulfillHelper.address,
+        callDataHash: callDataHash,
+      });
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId);
+
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address);
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      // User fulfills
+
+      console.log("fulfill start");
+
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+        callData,
+      );
+
+      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
     });
   });
 
