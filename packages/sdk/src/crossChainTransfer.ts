@@ -228,7 +228,6 @@ export const handleReceiverPrepare = async (
 
   if (txData.callDataHash !== utils.keccak256(callData)) {
     try {
-      // @ts-ignore
       callData = await ethereum.request({
         method: "eth_decrypt",
         params: [encryptedCallData, txData.user],

@@ -14,7 +14,7 @@ import {
   TChainId,
   TransactionData,
   CancelParams,
-  encrypt
+  encrypt,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -197,7 +197,6 @@ export class NxtpSdk {
     let encryptionPublicKey;
 
     try {
-      // @ts-ignore
       encryptionPublicKey = await ethereum.request({
         method: "eth_getEncryptionPublicKey",
         params: [user], // you must have access to the specified account

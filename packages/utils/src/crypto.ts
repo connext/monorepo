@@ -8,6 +8,7 @@ import {
   utf8ToBuffer,
 } from "eccrypto-js";
 import { utils } from "ethers";
+
 import { isValidHexString } from "./hexStrings";
 
 export const bufferify = (input: Uint8Array | Buffer | string): Buffer =>
