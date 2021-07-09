@@ -62,7 +62,7 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
-      (txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+      (_user, _router, _transactionId, txData, caller, encryptedCallData, encodedBid, bidSignature) => {
         this.logger.info(
           { txData, caller, encryptedCallData, encodedBid, bidSignature },
           "TransactionManagerEvents.TransactionPrepared",
@@ -80,7 +80,7 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
-      (txData, relayerFee, signature, callData, caller) => {
+      (_user, _router, _transactionId, txData, relayerFee, signature, callData, caller) => {
         this.logger.info(
           { txData, relayerFee, signature, callData, caller },
           "TransactionManagerEvents.TransactionFulfilled",
@@ -96,15 +96,18 @@ export class TransactionManagerListener {
       },
     );
 
-    this.transactionManager.on(TransactionManagerEvents.TransactionCancelled, (txData, relayerFee, caller) => {
-      this.logger.info({ txData, relayerFee, caller }, "TransactionManagerEvents.TransactionCancelled");
-      const payload: TransactionCancelledEvent = {
-        txData: processTxData(txData),
-        relayerFee: relayerFee.toString(),
-        caller,
-      };
-      this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
-    });
+    this.transactionManager.on(
+      TransactionManagerEvents.TransactionCancelled,
+      (_user, _router, _transactionId, txData, relayerFee, caller) => {
+        this.logger.info({ txData, relayerFee, caller }, "TransactionManagerEvents.TransactionCancelled");
+        const payload: TransactionCancelledEvent = {
+          txData: processTxData(txData),
+          relayerFee: relayerFee.toString(),
+          caller,
+        };
+        this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
+      },
+    );
   }
 
   public attach<T extends TransactionManagerEvent>(
