@@ -16,14 +16,15 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, 
 
 // import types
 import { TransactionManager } from "../typechain/TransactionManager";
+import { TestFulfillHelper } from "../typechain/TestFulfillHelper";
 import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
 import { getOnchainBalance } from "./utils";
 
-const { AddressZero, HashZero } = constants;
+const { AddressZero } = constants;
 const EmptyBytes = "0x";
-const EmptyCallDataHash = keccak256(toUtf8Bytes(""));
+const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const advanceBlockTime = async (desiredTimestamp: number) => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
@@ -31,29 +32,32 @@ const advanceBlockTime = async (desiredTimestamp: number) => {
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
-  const [wallet, router, user, receiver] = waffle.provider.getWallets();
+  const [wallet, router, user, receiver, other] = waffle.provider.getWallets();
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
+  let testFulfillHelper: TestFulfillHelper;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
 
   const fixture = async () => {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-
+    const testFulfillHelperFactory = await ethers.getContractFactory("TestFulfillHelper");
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
     transactionManager = (await transactionManagerFactory.deploy(1337)) as TransactionManager;
-
     transactionManagerReceiverSide = (await transactionManagerFactory.deploy(1338)) as TransactionManager;
+
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
+
+    testFulfillHelper = (await testFulfillHelperFactory.deploy()) as TestFulfillHelper;
 
     return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, user, receiver]);
+    loadFixture = createFixtureLoader([wallet, router, user, receiver, other]);
   });
 
   beforeEach(async function () {
@@ -303,6 +307,7 @@ describe("TransactionManager", function () {
     fulfillingForSender: boolean,
     submitter: Wallet,
     instance: TransactionManager,
+    callData: string = EmptyBytes,
   ) => {
     // Get pre-fulfull balance. If fulfilling on sender side, router
     // liquidity of sender asset will increase. If fulfilling on receiving
@@ -348,7 +353,7 @@ describe("TransactionManager", function () {
       },
       relayerFee,
       signature,
-      EmptyBytes,
+      callData,
     );
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -394,14 +399,16 @@ describe("TransactionManager", function () {
 
     const gas = tx.gasPrice!.mul(receipt.gasUsed!).toString();
 
-    expect(finalIncreased).to.be.eq(
-      !fulfillingForSender ||
-        user.address !== submitter.address ||
-        transaction.receivingAssetId !== AddressZero ||
-        user.address !== transaction.receivingAddress
-        ? expectedIncrease
-        : expectedIncrease.add(relayerFee).sub(gas),
-    );
+    if (callData == EmptyBytes) {
+      expect(finalIncreased).to.be.eq(
+        !fulfillingForSender ||
+          user.address !== submitter.address ||
+          transaction.receivingAssetId !== AddressZero ||
+          user.address !== transaction.receivingAddress
+          ? expectedIncrease
+          : expectedIncrease.add(relayerFee).sub(gas),
+      );
+    }
     expect(finalFlat).to.be.eq(initialFlat);
   };
 
@@ -699,6 +706,31 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
+    it("happy case: prepare by Bob for ERC20 with CallData", async () => {
+      const prepareAmount = "10";
+      const assetId = tokenA.address;
+
+      const callData = await testFulfillHelper.getCallData({ recipient: other.address });
+      const callDataHash = utils.keccak256(callData);
+
+      const { transaction, record } = await getTransactionData({
+        sendingAssetId: assetId,
+        receivingAssetId: tokenB.address,
+        callTo: testFulfillHelper.address,
+        callDataHash: callDataHash,
+      });
+      await approveTokens(prepareAmount, user, transactionManager.address);
+
+      await prepareAndAssert(
+        transaction,
+        {
+          amount: prepareAmount,
+        },
+        user,
+        transactionManager,
+      );
+    });
+
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
       const assetId = tokenA.address;
@@ -979,9 +1011,6 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
     });
 
-    it.skip("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter failed", async () => {});
-    it.skip("Happy case: iff it's receiving chain and calldata is non-zero bytes and MultisendInterpreter success", async () => {});
-
     it("happy case: router fulfills in native asset", async () => {
       const prepareAmount = "100";
       const assetId = AddressZero;
@@ -1079,18 +1108,18 @@ describe("TransactionManager", function () {
 
     it("happy case: user fulfills in ERC20", async () => {
       const prepareAmount = "100";
-      const assetId = tokenA.address;
+      const assetId = tokenB.address;
       const relayerFee = "10";
 
       // Add receiving liquidity
-      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenA);
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
       await addAndAssertLiquidity(prepareAmount, assetId);
 
       const { transaction, record } = await getTransactionData(
         {
           sendingChainId: (await transactionManager.chainId()).toNumber(),
           receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
-          sendingAssetId: tokenB.address,
+          sendingAssetId: tokenA.address,
           receivingAssetId: assetId,
         },
         { amount: prepareAmount },
@@ -1108,6 +1137,87 @@ describe("TransactionManager", function () {
         user,
         transactionManagerReceiverSide,
       );
+    });
+
+    it("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & success addFunds", async () => {
+      const prepareAmount = "10";
+      const relayerFee = "1";
+
+      const callData = await testFulfillHelper.getCallData({ recipient: other.address });
+      const callDataHash = utils.keccak256(callData);
+
+      const { transaction, record } = await getTransactionData({
+        sendingAssetId: tokenA.address,
+        receivingAssetId: tokenB.address,
+        callTo: testFulfillHelper.address,
+        callDataHash: callDataHash,
+      });
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId);
+
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address);
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(0));
+
+      // User fulfills
+
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+        callData,
+      );
+
+      // const res = await testFulfillHelper.queryFilter({ address: testFulfillHelper.address }, blockNumber);
+      // testFulfillHelper.removeAllListeners({ address: testFulfillHelper.address });
+
+      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(0);
+      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
+    });
+
+    it.skip("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & failed execute", async () => {
+      // TODO: Need to add failing condition for Helper functions.
+      const prepareAmount = "10";
+      const relayerFee = "1";
+
+      const callData = await testFulfillHelper.getCallData({ recipient: AddressZero });
+      const callDataHash = utils.keccak256(callData);
+
+      const { transaction, record } = await getTransactionData({
+        sendingAssetId: tokenA.address,
+        receivingAssetId: tokenB.address,
+        callTo: testFulfillHelper.address,
+        callDataHash: callDataHash,
+      });
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId);
+
+      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address);
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      // User fulfills
+
+      console.log("fulfill start");
+
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+        callData,
+      );
+
+      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
     });
   });
 

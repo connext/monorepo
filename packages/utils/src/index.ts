@@ -8,6 +8,7 @@ export * from "./util";
 export * from "./encode";
 export * from "./error";
 export * from "./math";
+export * from "./crypto";
 export * from "./signatures";
 export * from "./basic";
 export * from "./hexStrings";
