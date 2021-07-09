@@ -130,7 +130,12 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   if (transaction.chainId == transaction.sendingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    if (assetBalance == null) {
+      assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.router = event.params.router.toHex();
+      assetBalance.amount = new BigInt(0);
+    }
+    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
 }
@@ -150,7 +155,12 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   if (transaction.chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    if (assetBalance == null) {
+      assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.router = event.params.router.toHex();
+      assetBalance.amount = new BigInt(0);
+    }
+    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
 }
