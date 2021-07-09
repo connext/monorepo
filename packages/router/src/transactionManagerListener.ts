@@ -186,7 +186,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
 
         const queries = await Promise.all(
           Object.entries(txIds).map(async ([cId, txIds]) => {
-            const query = await this.sdks[Number(cId)].GetFulfilledTransactions({ transactionIds: txIds });
+            const _sdk = this.sdks[Number(cId)];
+            if (!_sdk) {
+              this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
+              return [];
+            }
+            const query = await _sdk.GetFulfilledTransactions({ transactionIds: txIds });
             return query.transactions;
           }),
         );
