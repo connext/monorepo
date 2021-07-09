@@ -152,6 +152,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
     });
   }
 
+  // the only relevant receiver fulfill transactions are the ones where a sender transaction still
+  // needs to be fulfilled
+  // to determine this:
+  // get sender prepared transactions
+  // extract receiver chains and tx ids
+  // foreach receiver chain, find any matching tx ids with fulfilled status
   onReceiverFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
     const method = "onReceiverFulfill";
     Object.keys(this.chainConfig).forEach(async (cId) => {
@@ -159,16 +165,37 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const methodId = hId();
-        const query = await sdk.GetReceiverFulfillTransactions({
+        const senderQuery = await sdk.GetSenderPrepareTransactions({
           routerId: this.routerAddress.toLowerCase(),
-          receivingChainId: chainId,
+          sendingChainId: chainId,
         });
 
+        const txIds =
+          senderQuery.router?.transactions.map((tx) => {
+            return { txId: tx.transactionId, receivingChainId: tx.receivingChainId };
+          }) ?? [];
+
+        const receivingChains: Record<string, string[]> = {};
+        txIds.forEach(({ txId, receivingChainId }) => {
+          if (receivingChains[receivingChainId]) {
+            receivingChains[receivingChainId].push(txId);
+          } else {
+            receivingChains[receivingChainId] = [txId];
+          }
+        });
+
+        const queries = await Promise.all(
+          Object.entries(txIds).map(async ([cId, txIds]) => {
+            const query = await this.sdks[Number(cId)].GetFulfilledTransactions({ transactionIds: txIds });
+            return query.transactions;
+          }),
+        );
+        const receiverFulfilled = queries.flat();
         this.logger.info(
-          { method, methodId, transactions: query.router?.transactions, chainId },
+          { method, methodId, transactions: receiverFulfilled, chainId },
           "Queried receiverFulfill transactions",
         );
-        query.router?.transactions.forEach(async (transaction) => {
+        receiverFulfilled.forEach(async (transaction) => {
           const data: TransactionFulfilledEvent = {
             txData: {
               user: transaction.user.id,

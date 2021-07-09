@@ -3,7 +3,11 @@ import { gql } from "graphql-request";
 export const getSenderPrepareQuery = gql`
   query GetSenderPrepareTransactions($routerId: ID!, $sendingChainId: BigInt!) {
     router(id: $routerId) {
-      transactions(where: { status: Prepared, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
+      transactions(
+        where: { status: Prepared, sendingChainId: $sendingChainId, chainId: $sendingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         user {
@@ -40,7 +44,11 @@ export const getSenderPrepareQuery = gql`
 export const getReceiverPrepareQuery = gql`
   query GetReceiverPrepareTransactions($routerId: ID!, $receivingChainId: BigInt!) {
     router(id: $routerId) {
-      transactions(where: { status: Prepared, receivingChainId: $receivingChainId, chainId: $receivingChainId }) {
+      transactions(
+        where: { status: Prepared, receivingChainId: $receivingChainId, chainId: $receivingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         user {
@@ -77,7 +85,11 @@ export const getReceiverPrepareQuery = gql`
 export const getReceiverFulfillQuery = gql`
   query GetReceiverFulfillTransactions($routerId: ID!, $receivingChainId: BigInt!) {
     router(id: $routerId) {
-      transactions(where: { status: Fulfilled, receivingChainId: $receivingChainId, chainId: $receivingChainId }) {
+      transactions(
+        where: { status: Fulfilled, receivingChainId: $receivingChainId, chainId: $receivingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         chainId
@@ -115,7 +127,11 @@ export const getReceiverFulfillQuery = gql`
 export const getSenderFulfillQuery = gql`
   query GetSenderFulfillTransactions($routerId: ID!, $sendingChainId: BigInt!) {
     router(id: $routerId) {
-      transactions(where: { status: Fulfilled, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
+      transactions(
+        where: { status: Fulfilled, sendingChainId: $sendingChainId, chainId: $sendingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         chainId
@@ -183,6 +199,38 @@ export const getTransactionByIdQuery = gql`
       prepareCaller
       fulfillCaller
       cancelCaller
+    }
+  }
+`;
+
+export const getFulfilledTransactionsByIdsQuery = gql`
+  query GetFulfilledTransactions($transactionIds: [Bytes!]) {
+    transactions(where: { transactionId_in: $transactionIds, status: Fulfilled }) {
+      id
+      status
+      chainId
+      user {
+        id
+      }
+      router {
+        id
+      }
+      sendingAssetId
+      receivingAssetId
+      sendingChainFallback
+      receivingAddress
+      callTo
+      sendingChainId
+      receivingChainId
+      callDataHash
+      transactionId
+      amount
+      expiry
+      preparedBlockNumber
+      relayerFee
+      signature
+      callData
+      fulfillCaller
     }
   }
 `;
