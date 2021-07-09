@@ -24,7 +24,7 @@ import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
 const EmptyBytes = "0x";
-const EmptyCallDataHash = keccak256(toUtf8Bytes(""));
+const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const advanceBlockTime = async (desiredTimestamp: number) => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
