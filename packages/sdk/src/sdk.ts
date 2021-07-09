@@ -248,9 +248,19 @@ export class NxtpSdk {
     const activeWithStatus = await Promise.all(
       transactionsForChains.map(async ([chainId, txs]) => {
         return await Promise.all(
-          txs.map(async (tx): Promise<{ txData: TransactionData; status: NxtpSdkEvent } | undefined> => {
-            // only handle sender txs
-            if (tx.txData.sendingChainId === chainId) {
+          txs.map(async (tx): Promise<(TransactionPreparedEvent & { status: NxtpSdkEvent }) | undefined> => {
+            if (tx.txData.receivingChainId === chainId) {
+              // receiver active transactions are automatically ReceiverTransactionPrepared
+              return {
+                txData: tx.txData,
+                status: NxtpSdkEvents.ReceiverTransactionPrepared,
+                bidSignature: tx.bidSignature,
+                caller: tx.caller,
+                encodedBid: tx.encodedBid,
+                encryptedCallData: tx.encryptedCallData,
+              };
+            } else if (tx.txData.sendingChainId === chainId) {
+              // use receiver status to determine sender side
               const hash = await getVariantHashByInvariantData(
                 tx.txData.receivingChainId,
                 {
@@ -282,24 +292,17 @@ export class NxtpSdk {
                   );
                   if (activeReceiving) {
                     status = NxtpSdkEvents.ReceiverTransactionPrepared;
-                    // rebroadcast sig
-                    await handleReceiverPrepare(
-                      {
-                        txData: activeReceiving.txData,
-                        bidSignature: activeReceiving.bidSignature,
-                        caller: activeReceiving.caller,
-                        encodedBid: activeReceiving.encodedBid,
-                        encryptedCallData: activeReceiving.encryptedCallData,
-                      },
-                      this.chains[activeReceiving.txData.sendingChainId].listener.transactionManager,
-                      this.signer,
-                      this.messaging,
-                      this.logger,
-                    );
                   }
                 }
               }
-              return { txData: tx.txData, status };
+              return {
+                txData: tx.txData,
+                status,
+                bidSignature: tx.bidSignature,
+                caller: tx.caller,
+                encodedBid: tx.encodedBid,
+                encryptedCallData: tx.encryptedCallData,
+              };
             }
             return undefined;
           }),
@@ -307,7 +310,28 @@ export class NxtpSdk {
       }),
     );
     const filtered = activeWithStatus.flat().filter((x) => !!x);
-    return filtered as { txData: TransactionData; status: NxtpSdkEvent }[];
+    const ids = filtered.map((t) => t?.txData.transactionId);
+    const deduped = filtered.filter((t, index) => !ids.includes(t?.txData.transactionId, index + 1));
+    deduped
+      .filter((d) => d?.status === NxtpSdkEvents.ReceiverTransactionPrepared)
+      .forEach(async (tx) => {
+        // rebroadcast sig
+        this.logger.info({ txData: tx!.txData }, "Rebroadcasting receiver prepare sig");
+        await handleReceiverPrepare(
+          {
+            txData: tx!.txData,
+            bidSignature: tx!.bidSignature,
+            caller: tx!.caller,
+            encodedBid: tx!.encodedBid,
+            encryptedCallData: tx!.encryptedCallData,
+          },
+          this.chains[tx!.txData.receivingChainId].listener.transactionManager,
+          this.signer,
+          this.messaging,
+          this.logger,
+        );
+      });
+    return deduped as { txData: TransactionData; status: NxtpSdkEvent }[];
   }
 
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
