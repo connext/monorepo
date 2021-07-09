@@ -312,25 +312,31 @@ export class NxtpSdk {
     const filtered = activeWithStatus.flat().filter((x) => !!x);
     const ids = filtered.map((t) => t?.txData.transactionId);
     const deduped = filtered.filter((t, index) => !ids.includes(t?.txData.transactionId, index + 1));
-    deduped
-      .filter((d) => d?.status === NxtpSdkEvents.ReceiverTransactionPrepared)
-      .forEach(async (tx) => {
-        // rebroadcast sig
-        this.logger.info({ txData: tx!.txData }, "Rebroadcasting receiver prepare sig");
-        await handleReceiverPrepare(
-          {
-            txData: tx!.txData,
-            bidSignature: tx!.bidSignature,
-            caller: tx!.caller,
-            encodedBid: tx!.encodedBid,
-            encryptedCallData: tx!.encryptedCallData,
-          },
-          this.chains[tx!.txData.receivingChainId].listener.transactionManager,
-          this.signer,
-          this.messaging,
-          this.logger,
-        );
-      });
+    const receiverPrepared = deduped.filter((d) => d?.status === NxtpSdkEvents.ReceiverTransactionPrepared);
+    // connect messaging if needed
+    if (receiverPrepared.length > 0) {
+      if (!this.messaging.isConnected()) {
+        await this.messaging.connect();
+      }
+    }
+    receiverPrepared.forEach(async (tx) => {
+      // rebroadcast sig
+      this.logger.info({ txData: tx!.txData }, "Rebroadcasting receiver prepare sig");
+      await handleReceiverPrepare(
+        {
+          txData: tx!.txData,
+          bidSignature: tx!.bidSignature,
+          caller: tx!.caller,
+          encodedBid: tx!.encodedBid,
+          encryptedCallData: tx!.encryptedCallData,
+        },
+        this.chains[tx!.txData.receivingChainId].listener.transactionManager,
+        this.signer,
+        this.messaging,
+        this.logger,
+      );
+      this.logger.info({ txData: tx!.txData }, "Broadcasted receiver prepare sig");
+    });
     return deduped as { txData: TransactionData; status: NxtpSdkEvent }[];
   }
 
@@ -367,6 +373,9 @@ export class NxtpSdk {
         // TODO: how to handle relayer fees here? will need before signing
         this.logger.info({ ...data }, "Handling receiver tx prepared event");
         this.fulfilling[txData.transactionId] = { ...data, chainId: listener.chainId };
+        if (!this.messaging.isConnected()) {
+          await this.messaging.connect();
+        }
         await handleReceiverPrepare(
           {
             txData,

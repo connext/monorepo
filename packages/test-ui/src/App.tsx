@@ -112,10 +112,9 @@ function App(): React.ReactElement | null {
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
-        const { txData } = data;
-        const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
-        activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionFulfilled;
-        setActiveTransferTableColumns(activeTransferTableColumns);
+        setActiveTransferTableColumns(
+          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+        );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
