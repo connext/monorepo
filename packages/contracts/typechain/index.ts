@@ -10,6 +10,7 @@ export type { ITransactionManager } from "./ITransactionManager";
 export type { LibAssetTest } from "./LibAssetTest";
 export type { LibERC20Test } from "./LibERC20Test";
 export type { TestERC20 } from "./TestERC20";
+export type { TestFulfillHelper } from "./TestFulfillHelper";
 export type { TransactionManager } from "./TransactionManager";
 
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -21,4 +22,5 @@ export { ITransactionManager__factory } from "./factories/ITransactionManager__f
 export { LibAssetTest__factory } from "./factories/LibAssetTest__factory";
 export { LibERC20Test__factory } from "./factories/LibERC20Test__factory";
 export { TestERC20__factory } from "./factories/TestERC20__factory";
+export { TestFulfillHelper__factory } from "./factories/TestFulfillHelper__factory";
 export { TransactionManager__factory } from "./factories/TransactionManager__factory";
