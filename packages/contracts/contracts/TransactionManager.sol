@@ -327,8 +327,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // 0-value crosschain tx, so only providing the fee amount
     require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
 
-    // Check provided callData matches stored hash
-    require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
+    // Check provided callData matches stored hash, only if callDataHash is not bytes32(0)
+    // we could check against txData.callTo == address(0) but theres a scenario where we want to
+    // callTo but not necessarily provide calldata
+    if (txData.callDataHash != bytes32(0)) {
+      require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
+    }
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
