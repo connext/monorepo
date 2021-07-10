@@ -21,8 +21,9 @@ import { Handler } from "../src/handler";
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
-import * as handlerUtils from "../src/handler";
-import { fakeConfig, fakeTxReceipt } from "./utils";
+import * as handlerUtils from "../src/handler";import { fakeConfig, fakeTxReceipt } from "./utils";
+import { err, ok, okAsync, Result } from "neverthrow";
+import { add } from "@jtbennett/ts-project-scripts/lib/commands/add";
 
 const logger = pino();
 
@@ -260,7 +261,30 @@ describe("Handler", () => {
   });
 
   it(`should add liquidity`, async () => {
-    await txManager.addLiquidity(4, constants.AddressZero);
+    console.log(`Trying okAsync`);
+    txManager.addLiquidity.resolves(fakeTxReceipt);
+
+    const wrappedAddLiquidity = async (chainId:number, address: string):Promise<Result<providers.TransactionReceipt, Error>> =>{
+      const tryAddLiquidity = await txManager.addLiquidity(chainId, address);
+
+      if(tryAddLiquidity)
+        return okAsync(tryAddLiquidity);
+      else
+        return err(new Error(`reeeeeee`))
+    }
+
+    const ntRes = await wrappedAddLiquidity(4, constants.AddressZero);
+
+    const noTryRes = await txManager.addLiquidity(4, constants.AddressZero);
+
+    // console.log(`No TRY RES ${ntRes.map((s)=>{console.log(s.to)})}`);
+
+
+    if(ntRes.isErr()){
+      ntRes.mapErr((e)=>{console.log(`Fuck an error ${e}`)})
+    }
+
+
     const call = txManager.addLiquidity.getCall(0);
   });
 });

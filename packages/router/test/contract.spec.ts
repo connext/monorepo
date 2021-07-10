@@ -8,6 +8,7 @@ import { constants, providers, Signer, utils } from "ethers";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as config from "../src/config";
 import { fakeConfig } from "./utils";
+import {okAsync} from "neverthrow";
 
 const fakeTxReceipt = {
   blockHash: "foo",
@@ -58,6 +59,8 @@ describe("Router Contract/Transaction Manager Test", () => {
   });
 
   describe("Prepare", () => {
+    let amount = "";
+
     it(`should work`, async () => {
       await txManager.prepare(1337, { amount, encryptedCallData, bidSignature, encodedBid, expiry, txData });
 

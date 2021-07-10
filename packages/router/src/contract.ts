@@ -2,7 +2,7 @@ import {
   TransactionManager as TTransactionManager,
   IERC20Minimal as TTIERC20,
 } from "@connext/nxtp-contracts/typechain";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { MinimalTransaction, TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants, providers } from "ethers";
@@ -10,6 +10,7 @@ import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@conne
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import IERC20MinimalArtifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
+import { okAsync, Result, ResultAsync, Err } from "neverthrow";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 
@@ -172,26 +173,78 @@ export class TransactionManager {
     return liquidityHex[0];
   }
 
+  readTransactionWrapper = async(chainId:number, to:string, data?:string):Promise<Result<string, Error>> =>{
+    const err = new Error(`No Transaction Receipt`);
+    let txData;
+    data? txData = data: txData = "";
+
+    const asyncRes = ResultAsync.fromPromise(this.txService.readTx(chainId,{
+      chainId:chainId,
+      data:txData,
+      to: to,
+      value: 0,
+    }), ()=> err);
+    await asyncRes;
+    return asyncRes;
+  }
+
+  sendTransactionWrapper = async(chainId:number, to:string, data?:string):Promise<Result<providers.TransactionReceipt, Error>> =>{
+    const err = new Error(`No Transaction Receipt`);
+    let txData;
+    data? txData = data: txData = "";
+
+    const asyncRes = ResultAsync.fromPromise(this.txService.sendAndConfirmTx(chainId,{
+      chainId:chainId,
+      data:txData,
+      to: to,
+      value: 0,
+    }), ()=> err);
+    await asyncRes;
+    return asyncRes;
+  }
+
   async addLiquidity(
     chainId: number,
     amount: string,
     assetId: string = constants.AddressZero,
-  ): Promise<providers.TransactionReceipt> {
+  ): Promise<providers.TransactionReceipt | Error> {
+    
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount);
-
     const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [bnAmount, assetId]);
-    try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
-        data: addLiquidityData,
-        to: nxtpContractAddress,
-        value: 0,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`Add liquidity error ${JSON.stringify(e)}`);
+
+    const balanceOf = async (chainId: number, assetId:string):Promise<BigNumber | Error> => {
+      const balanceOfData = this.erc20Interface.encodeFunctionData("allowance", [this.signerAddress, nxtpContractAddress]);
+      const res = await this.readTransactionWrapper(chainId, assetId, balanceOfData);
+      if(res.isErr()) {
+        console.log(`Error getting balance of ${this.signerAddress}`);
+        return new Error(res.error.message);
+      }else {
+        return BigNumber.from(res.value);
+      }
+    };
+    const routerAssetBalance = await balanceOf(chainId,assetId);
+
+    if(routerAssetBalance !== constants.MaxUint256){
+      const approveData = this.erc20Interface.encodeFunctionData("approve", [assetId, constants.MaxUint256]);
+      const res = await this.sendTransactionWrapper(chainId, assetId, approveData);
+      if(res.isErr()) {
+        console.log(`Error approving ${res.error.message}`);
+        return new Error(res.error.message);
+      }else {
+        console.log(`Approve successful, tx Hash: ${res.value.transactionHash}`);
+        const addLiquidityRes = await this.sendTransactionWrapper(chainId, nxtpContractAddress, addLiquidityData);
+        if(addLiquidityRes.isErr()) {
+          console.log(`Error getting balance of ${this.signerAddress}`);
+          return new Error(`arg`);
+
+        }else {
+          return addLiquidityRes.value;
+        }
+      }
     }
+    return new Error(`no idea what happened`);
+
   }
 
   async removeLiquidity(
