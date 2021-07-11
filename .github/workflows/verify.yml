@@ -46,3 +46,28 @@ jobs:
 
       - name: Lint
         run: yarn lint:all --max-warnings 0
+
+      # -------------------------------------------------------------------------
+      # PUBLISHING TO NPM
+      # -------------------------------------------------------------------------
+      # One-time steps to setup publishing:
+      # 1. Uncomment the Publish step below and change __PACKAGE_NAME__ to the name of
+      #    the package you want to publish. (Include the @scope, if any.)
+      # 2. Create a secret in your github repo named NPM_TOKEN to authenticate to npm.
+      #
+      # To publish a version (replace "1.2.3" with your version number), run:
+      #     yarn version:all 1.2.3
+      #     git push --follow-tags
+      #
+      # See https://github.com/jtbennett/create-ts-project/blob/main/docs/publishing-to-npm.md
+      # for details.
+      # -------------------------------------------------------------------------
+      - name: Publish
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          yarn workspace @connext/nxtp-utils npm publish --access public
+          yarn workspace @connext/nxtp-contracts npm publish --access public
+          yarn workspace @connext/nxtp-txservice npm publish --access public
+          yarn workspace @connext/nxtp-sdk npm publish --access public
