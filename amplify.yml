@@ -7,12 +7,12 @@ applications:
             - yarn
         build:
           commands:
-            - yarn build
+            - yarn build:all
+            - yarn workspace @connext/nxtp-test-ui build
       artifacts:
-        baseDirectory: build
+        baseDirectory: packages/test-ui/build
         files:
           - "**/*"
       cache:
         paths:
           - node_modules/**/*
-    appRoot: packages/test-ui
