@@ -1,3 +1,5 @@
+[![Verify](https://github.com/connext/nxtp/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![Netlify Status](https://api.netlify.com/api/v1/badges/89550773-dc6a-498d-8fef-b9cd62525e9e/deploy-status)](https://app.netlify.com/sites/keen-fermi-a3569f/deploys) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+
 # NXTP
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
