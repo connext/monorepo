@@ -47,17 +47,6 @@ describe("TransactionService unit test", () => {
     // nonce is expired
     // invalid data ?
 
-    it("handles event where confirmation times out", async () => {
-      chainProvider.confirmTransaction.onCall(0).resolves({
-        receipt: new Error("timeout exceeded"),
-        success: false,
-      });
-    });
-
-    // it("if receipt status == 0, errors out", async () => {
-
-    // });
-
     // it("retries transaction with higher gas price", async () => {
 
     // });
@@ -95,6 +84,48 @@ describe("TransactionService unit test", () => {
       await expect(transaction.confirm()).to.be.rejectedWith(ChainError.reasons.TxNotFound);
     });
 
+    // it("won't return until it gets enough confirmations", async () => {
+    //   // 1/10th of a second timeout for testing.
+    //   chainProvider.confirmationTimeout = 100;
+    //   // Wow, that's a lot of confirmations!
+    //   chainProvider.confirmationsRequired = 99;
+    //   chainProvider.confirmTransaction.resolves({
+    //     receipt: {
+    //       ...txReceipt,
+    //       // Going to be specific in only having 1 confirmation this time around.
+    //       confirmations: 1,
+    //     },
+    //     success: true,
+    //   });
+    //   chainProvider.confirmTransaction.onCall(1).resolves({
+        
+    //   });
+
+    //   await transaction.confirm();
+    // });
+
+    it("handles event where confirmation times out", async () => {
+      // 1/10th of a second timeout for testing.
+      chainProvider.confirmationTimeout = 100;
+      chainProvider.confirmTransaction.resolves({
+        receipt: new Error("timeout exceeded"),
+        success: false,
+      });
+
+    });
+
+    it("if receipt status == 0, errors out immediately", async () => {
+
+    });
+  
+    it("if all the receipts have a status == 0, errors out immediately", async () => {
+
+    });
+
+    it("will attempt to confirm all previously attempted transactions", async () => {
+
+    });
+
     it("happy: confirmation on first loop", async () => {
       const response = await transaction.send();
       const receipt = await transaction.confirm();
@@ -105,6 +136,18 @@ describe("TransactionService unit test", () => {
       const confirmTransaction = chainProvider.confirmTransaction.getCall(0);
       // Ensure we passed correct hash.
       expect(confirmTransaction.args[0]).to.eq(response.hash);
+    });
+  });
+
+  describe("bumpGas", async () => {
+    it("throws if gas has not been defined yet", async () => {
+
+    });
+
+    it("throws if it would bump gas above maximum", async () => {
+      
+      await expect(transaction.bumpGasPrice()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
+      
     });
   });
 });

@@ -83,7 +83,20 @@ describe("TransactionService unit test", () => {
     });
 
     it("retries transaction with higher gas price", async () => {
-      transaction.confirm.onCall(0).resolves()
+      // We would expect transaction to reject with confirmation timeout in this edge case.
+      transaction.confirm.onCall(0).rejects(new ChainError(ChainError.reasons.ConfirmationTimeout));
+      transaction.confirm.onCall(1).resolves(txReceipt);
+      // This should send the tx, then attempt to confirm, fail, bump gas, and receive confirmation the second time.
+      const result = await txService.sendTx(1337, tx);
+      expect(result).to.deep.eq(txReceipt);
+      expect(transaction.confirm.callCount).to.equal(2);
+      expect(transaction.bumpGasPrice.callCount).to.equal(1);
+      
+    });
+
+    it("should throw if gas price goes above maximum", async () => {
+      transaction.bumpGasPrice.rejects(new ChainError(ChainError.reasons.MaxGasPriceReached));
+
     });
 
     it("happy: tx sent and confirmed", async () => {
