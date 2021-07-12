@@ -6,29 +6,18 @@ IFS=$'\n\t'
 # It expects the working directory to be the repo root and
 # uses the following environment variables:
 # DOCKER_REPO - if not present, the image will be built, but not pushed.
-# APP_NAME - *required*, name as in package.json.
-# APP_DIR - if different from APP_NAME without any @scope.
 # COMMIT_HASH - defaults to 'unknown' Image will have this value as an env var.
 
 # Set defaults.
 
 COMMIT_HASH=${COMMIT_HASH:-unknown}
 
-if [ -z "$APP_NAME" ]; then
-  echo "WARNING: APP_NAME is required as an environment variable."
-  exit 1
-fi
-
 # Set variable values.
 
-APP_FULL_NAME="$APP_NAME"
-APP_NAME=$(echo "$APP_NAME" | sed s/".*\/"//) # remove scope like "@my-org/", if any.
-
-if [ -z "$APP_DIR" ]; then
-  APP_DIR="$APP_NAME"
-fi
-
-SHORT_APP_DIR=$(echo "$APP_DIR" | sed s/".*\/"//) # i.e. packages/router to /router
+APP_FULL_NAME=@connext/nxtp-router
+APP_NAME=nxtp-router # remove scope like "@my-org/", if any.
+APP_DIR=packages/router
+SHORT_APP_DIR=router # i.e. packages/router to /router
 
 if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
