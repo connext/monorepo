@@ -16,7 +16,7 @@ import {
   CancelParams,
   encrypt,
 } from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
+import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import { IERC20Minimal } from "@connext/nxtp-contracts/typechain";
@@ -120,7 +120,7 @@ export class NxtpSdk {
       [chainId: number]: providers.JsonRpcProvider;
     },
     signer: Signer,
-    logger: BaseLogger,
+    logger: BaseLogger = pino(),
     natsUrl?: string,
     authUrl?: string,
   ): Promise<NxtpSdk> {
