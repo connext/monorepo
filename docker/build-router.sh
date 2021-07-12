@@ -8,10 +8,6 @@ IFS=$'\n\t'
 # DOCKER_REPO - if not present, the image will be built, but not pushed.
 # COMMIT_HASH - defaults to 'unknown' Image will have this value as an env var.
 
-# Set defaults.
-
-COMMIT_HASH=${COMMIT_HASH:-unknown}
-
 # Set variable values.
 
 APP_FULL_NAME=@connext/nxtp-router
@@ -37,11 +33,11 @@ find "./packages" -maxdepth 2 -name "package.json" | \
   sed "s|/package.json||g" | \
   xargs -I % bash -c "mkdir -p ${TEMP_DEPS_DIR}/% && cp %/package.json ${TEMP_DEPS_DIR}/%/"
 
-# Pull the latest build stage image, if it exists.
-echo "====="
-echo "= Pull the latest build stage image"
-echo "====="
 if [ -n "$DOCKER_REPO" ]; then
+  # Pull the latest build stage image, if it exists.
+  echo "====="
+  echo "= Pull the latest build stage image"
+  echo "====="
   docker pull "${BUILD_IMAGE}":latest || \
     echo "No existing image found for ${BUILD_IMAGE}:latest"
 fi
@@ -62,11 +58,11 @@ docker build \
   --file ./docker/Dockerfile \
   .
 
-# Push the build stage image to the working repo.
-echo "====="
-echo "= Push the build stage image"
-echo "====="
 if [ -n "$DOCKER_REPO" ]; then
+  # Push the build stage image to the working repo.
+  echo "====="
+  echo "= Push the build stage image"
+  echo "====="
   docker push "${BUILD_IMAGE}":latest
 fi
 
@@ -75,18 +71,20 @@ echo "= Check images list"
 echo "====="
 docker image ls
 
-# Pull the latest app image, if it exists.
-echo "====="
-echo "= Pull the latest app image"
-echo "====="
 if [ -n "$DOCKER_REPO" ]; then
+  # Pull the latest app image, if it exists.
+  echo "====="
+  echo "= Pull the latest app image"
+  echo "====="
   docker pull "${APP_IMAGE}":latest || \
     echo "No existing image found for ${APP_IMAGE}:latest"
 fi
 
 # Get tag if available
-FULL_TAG=$(git tag --contains $COMMIT_HASH | tail -n1)
-echo "Full tag: $FULL_TAG"
+if [ -n "$COMMIT_HASH" ]; then
+  FULL_TAG=$(git tag --contains "$COMMIT_HASH" | tail -n1)
+  echo "Full tag: $FULL_TAG"
+fi
 
 # Build the app image.
 echo "====="
@@ -127,18 +125,15 @@ echo "= Check images list"
 echo "====="
 docker image ls
 
-# Push the app image to the working repo.
-echo "====="
-echo "= Push the app image"
-echo "====="
 if [ -n "$DOCKER_REPO" ]; then
+  # Push the app image to the working repo.
+  echo "====="
+  echo "= Push the app image"
+  echo "====="
   docker push "${APP_IMAGE}":latest
 
   if [ -n "$FULL_TAG" ]; then
     docker push "${APP_IMAGE}":"${FULL_TAG}"
-  else
-    docker push "${APP_IMAGE}":latest
-    docker push "${APP_IMAGE}":"${COMMIT_HASH}"
   fi
 
   if [ -n "$COMMIT_HASH" ]; then
