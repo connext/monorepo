@@ -1,4 +1,4 @@
-import { delay, jsonifyError } from "@connext/nxtp-utils";
+import { jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
@@ -6,16 +6,20 @@ import hyperid from "hyperid";
 import { TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
-import { FullTransaction, MinimalTransaction } from "./types";
+import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
 
 export class Transaction {
   // We use a unique ID to internally track a transaction through logs.
   public id: hyperid.Instance = hyperid();
+  // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   public receipt?: providers.TransactionReceipt;
+  // Receipts, mapped by hash.
+  private receipts: Map<string, providers.TransactionReceipt> = new Map();
   public nonce?: number;
   public nonceExpired = false;
 
+  // Flag to indicate that we did submit a tx (successfully) at least once.
   private didSubmit = false;
 
   private _attempt = 0;
@@ -23,17 +27,11 @@ export class Transaction {
     return this._attempt;
   }
 
-  private _gasPrice?: BigNumber;
-  public get gasPrice(): Promise<BigNumber> {
-    return new Promise(async (resolve) => {
-      const gasPrice = this._gasPrice ?? (await this.provider.getGasPrice());
-      resolve(gasPrice);
-    });
-  }
+  private gasPrice: GasPrice;
 
   public get data(): Promise<FullTransaction> {
     return new Promise(async (resolve) => {
-      const gasPrice = await this.gasPrice;
+      const gasPrice = await this.gasPrice.get();
       resolve({
         ...this.minTx,
         gasPrice,
@@ -47,11 +45,11 @@ export class Transaction {
     private readonly provider: ChainRpcProvider,
     private readonly minTx: MinimalTransaction,
     private readonly config: TransactionServiceConfig,
-    initialGasPrice?: BigNumber,
   ) {
-    this._gasPrice = initialGasPrice;
+    this.gasPrice = new GasPrice(BigNumber.from(this.config.gasLimit), this.provider);
   }
 
+  /// Makes a single attempt to send this transaction based on its current data.
   public async send(): Promise<providers.TransactionResponse> {
     const method = this.send.name;
 
@@ -60,10 +58,20 @@ export class Transaction {
       throw new ChainError(ChainError.reasons.NonceExpired, { method });
     }
 
+    // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
+    if (this.responses.length > 0) {
+      const lastPrice = this.responses[this.responses.length - 1].gasPrice;
+      // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
+      // If there isn't a lastPrice, we're going to skip this validation step.
+      if (lastPrice && await this.gasPrice.get() <= lastPrice) {
+        throw new ChainError(ChainError.reasons.ReplacementGasInvalid);
+      }
+    }
+
     const data = await this.data;
     await this.logInfo("Sending transaction...", this.confirm.name);
     const { response: _response, success } = await this.provider.sendTransaction(data);
-    this._attempt += 1;
+    this._attempt++;
     if (!success) {
       const error = _response as Error;
       if (
@@ -108,53 +116,42 @@ export class Transaction {
     return response;
   }
 
+  /// Makes an attempt to confirm this transaction. If confirmation times out, throws. If all
+  /// previous txs are reverted, throws.
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
-    this.log.info({ didSubmit: this.didSubmit }, "CONFIRM CALLED");
     if (!this.didSubmit) {
-      this.log.info("THROWING");
       throw new ChainError(ChainError.reasons.TxNotFound);
     }
-
     const method = this.confirm.name;
     await this.logInfo("Confirming transaction...", method);
-    const { confirmationTimeoutExtensionMultiplier } = this.config;
-    // A flag for marking when we have received at least 1 confirmation. We'll extend the wait period
-    // if this is the case.
-    let receivedConfirmation = false;
-    let confirmationAttempts = 0;
 
-    // An anon fn to get the tx receipts for all responses.
+    let confirmationAttempts = 0;
+    let receipt: providers.TransactionReceipt | undefined;
     // We must check for confirmation in all previous transactions. Although it's most likely
     // that it's the previous one, any of them could have been confirmed.
-    const waitForReceipt = async (): Promise<providers.TransactionReceipt | undefined> => {
+    while (!receipt || (receipt.confirmations > 0 && receipt.confirmations < this.provider.confirmationsRequired)) {
       confirmationAttempts++;
       await this.logInfo(`confirmation attempt: ${confirmationAttempts}`, method);
-      // Save all reverted receipts for a check in case our Promise.race evaluates to be undefined.
-      const reverted: providers.TransactionReceipt[] = [];
       // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
-      const receipt = await Promise.race<any>(
+      receipt = await Promise.race<providers.TransactionReceipt | any>(
         this.responses
           .map((response) => {
             return new Promise(async (resolve) => {
               const result = await this.provider.confirmTransaction(response.hash);
-              this.log.info(
-                {
-                  success: result.success,
-                  receipt: result.success ? result.receipt : (result.receipt as Error).message,
-                },
-                "RESULT",
-              );
               if (result.success) {
                 const r = result.receipt as providers.TransactionReceipt;
-                if (r.status === 0) {
-                  reverted.push(r);
-                } else if (r.confirmations >= this.provider.confirmationsRequired) {
-                  return resolve(r);
-                } else if (r.confirmations >= 1) {
-                  receivedConfirmation = true;
+                if (r.confirmations >= 1) {
+                  // Save this receipt by hash locally.
+                  this.receipts.set(r.transactionHash, r);
+                  if (r.status !== 0) {
+                    // If we found a valid, confirmed receipt, resolve immediately.
+                    return resolve(r);
+                  } else {
+                    // TODO: is there a way to check if the tx got replaced (harmless) or tx got reverted (concerning)?
+                  }
                 }
               } else {
-                // Check if we received an expected error.
+                // Check to ensure we received an expected error.
                 const e = result.receipt as Error;
                 // TODO: Should this be moved somewhere? Like to a constants file or something?
                 const expected = ["transaction was replaced", "timeout exceeded"];
@@ -165,23 +162,19 @@ export class Transaction {
               }
             });
           })
-          // Add a promise returning undefined with a delay of <timeout> to the pool.
-          // This will execute in the event that none of the provider.getTransactionReceipt calls work,
-          // and/or none of them have the number of confirmations we want.
-          .concat(delay(this.provider.confirmationTimeout)),
+          .concat(
+            new Promise((resolve) =>
+              setTimeout(() => {
+                return resolve(undefined);
+              }, this.provider.confirmationTimeout),
+            ),
+          ),
       );
-      if (!receivedConfirmation && reverted.length === this.responses.length) {
-        // We know every tx was reverted.
-        throw new ChainError(ChainError.reasons.TxReverted, { revertedReceipts: reverted });
-      }
-      return receipt;
-    };
+    }
 
-    // Initial poll for receipt.
-    let receipt: providers.TransactionReceipt | undefined = await waitForReceipt();
-    // If we received confirmation, wait for X more iterations.
-    while (!receipt && receivedConfirmation && confirmationAttempts <= confirmationTimeoutExtensionMultiplier) {
-      receipt = await waitForReceipt();
+    if (this.receipts.size === this.responses.length) {
+      // We know every tx was reverted.
+      throw new ChainError(ChainError.reasons.TxReverted);
     }
 
     // If there is still no receipt, we timed out in our polling operation.
@@ -192,21 +185,12 @@ export class Transaction {
     return receipt;
   }
 
+  /// Bump the gas price up by configured percentage.
   public async bumpGasPrice() {
-    const currentPrice = await this.gasPrice;
+    const currentPrice = await this.gasPrice.get();
     // Scale up gas by percentage as specified by config.
     const bumpedGasPrice = currentPrice.add(currentPrice.mul(this.config.gasReplacementBumpPercent).div(100)).add(1);
-    const { gasLimit } = this.config;
-    console.log("BUMPED THE GAS PRICE", currentPrice.toString(), bumpedGasPrice.toString(), gasLimit.toString());
-    // if the gas price is past the max, throw.
-    if (bumpedGasPrice.gt(gasLimit)) {
-      const error = new ChainError(ChainError.reasons.MaxGasPriceReached, {
-        gasPrice: bumpedGasPrice.toString(),
-        max: gasLimit.toString(),
-      });
-      throw error;
-    }
-    this._gasPrice = bumpedGasPrice;
+    this.gasPrice.set(bumpedGasPrice);
     this.log.info(
       {
         method: this.bumpGasPrice.name,

@@ -47,14 +47,19 @@ describe("TransactionService unit test", () => {
     // nonce is expired
     // invalid data ?
 
-    // it("retries transaction with higher gas price", async () => {
+    it("won't replace transaction without a higher gas price", async () => {
+      // First call should go through fine.
+      const response = await transaction.send();
+      expect(response).to.deep.eq(txResponse);
 
-    // });
+      // Now we send off another tx to replace the last one. It should reject before sending.
+      await expect(transaction.send()).to.be.rejectedWith(ChainError.reasons.ReplacementGasInvalid);
+    });
 
     it("throws if you try to bump above max gas price", async () => {
+      // Make it so the chain provider's get gas price call will give us the limit.
       chainProvider.getGasPrice.resolves(BigNumber.from(DEFAULT_CONFIG.gasLimit));
-
-      // First call should go through.
+      // First call should go through fine.
       const response = await transaction.send();
       expect(response).to.deep.eq(txResponse);
 
