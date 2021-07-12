@@ -132,13 +132,18 @@ echo "====="
 echo "= Push the app image"
 echo "====="
 if [ -n "$DOCKER_REPO" ]; then
+  docker push "${APP_IMAGE}":latest
+
   if [ -n "$FULL_TAG" ]; then
-    docker push "${APP_IMAGE}":latest
-    docker push "${APP_IMAGE}":"${COMMIT_HASH}"
     docker push "${APP_IMAGE}":"${FULL_TAG}"
   else
     docker push "${APP_IMAGE}":latest
     docker push "${APP_IMAGE}":"${COMMIT_HASH}"
   fi
 
+  if [ -n "$COMMIT_HASH" ]; then
+    docker push "${APP_IMAGE}":"${COMMIT_HASH}"
+  fi
+else 
+  echo "DOCKER_REPO not configured, will not push"
 fi
