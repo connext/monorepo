@@ -44,6 +44,9 @@ jobs:
       - name: Test
         run: yarn test:all
 
+      - name: Add COMMIT_HASH env property with commit short sha
+        run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
       - name: Test Integration
         run: yarn test:integration
 

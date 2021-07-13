@@ -33,7 +33,7 @@
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
-    "docker:router": "yarn workspace @connext/nxtp-router build && COMMIT_HASH=41663f0 bash docker/build-router.sh",
+    "docker:router": "yarn workspace @connext/nxtp-router build && bash docker/build-router.sh",
     "tsp:root": "tsp",
     "tsp": "tsp",
     "test:integration": "yarn docker:router && yarn workspace @connext/nxtp-integration docker:up && bash setup-integration-test.sh && yarn workspace @connext/nxtp-integration test && yarn workspace @connext/nxtp-integration docker:down"

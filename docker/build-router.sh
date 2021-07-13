@@ -15,6 +15,11 @@ APP_NAME=nxtp-router # remove scope like "@my-org/", if any.
 APP_DIR=packages/router
 SHORT_APP_DIR=router # i.e. packages/router to /router
 
+if [ -z "$COMMIT_HASH" ]; then
+  echo "COMMIT_HASH environment variable not set. This is required."
+  exit 1
+fi
+
 if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
   APP_IMAGE="$APP_NAME"
