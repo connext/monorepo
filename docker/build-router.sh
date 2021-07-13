@@ -12,7 +12,6 @@ IFS=$'\n\t'
 
 APP_FULL_NAME=@connext/nxtp-router
 APP_NAME=nxtp-router # remove scope like "@my-org/", if any.
-APP_DIR=packages/router
 SHORT_APP_DIR=router # i.e. packages/router to /router
 
 if [ -z "$COMMIT_HASH" ]; then
@@ -26,6 +25,9 @@ if [ -z "$DOCKER_REPO" ]; then
 else
   APP_IMAGE="$DOCKER_REPO/connext/$APP_NAME"
 fi
+
+echo "COMMIT_HASH: ${COMMIT_HASH}"
+echo "APP_IMAGE: ${APP_IMAGE}"
 
 BUILD_IMAGE=$APP_IMAGE-build
 export TEMP_DEPS_DIR="./_tmp/deps"
