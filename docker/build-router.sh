@@ -57,7 +57,6 @@ docker build \
   --tag "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
   --build-arg APP_NAME="${APP_FULL_NAME}" \
-  --build-arg APP_DIR="${APP_DIR}" \
   --build-arg COMMIT_HASH="${COMMIT_HASH}" \
   --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
   --file ./docker/Dockerfile \
@@ -105,7 +104,6 @@ if [ -n "$FULL_TAG" ]; then
     --tag "${APP_IMAGE}":"${FULL_TAG}" \
     --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
     --build-arg APP_NAME="${APP_FULL_NAME}" \
-    --build-arg APP_DIR="${APP_DIR}" \
     --build-arg COMMIT_HASH="${COMMIT_HASH}" \
     --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
     --file ./docker/Dockerfile \
@@ -118,7 +116,6 @@ else
     --tag "${APP_IMAGE}":"${COMMIT_HASH}" \
     --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
     --build-arg APP_NAME="${APP_FULL_NAME}" \
-    --build-arg APP_DIR="${APP_DIR}" \
     --build-arg COMMIT_HASH="${COMMIT_HASH}" \
     --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
     --file ./docker/Dockerfile \
