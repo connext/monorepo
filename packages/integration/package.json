@@ -13,8 +13,8 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker-up:integration": "docker compose -f ops/docker-compose.yml up -d",
-    "docker-down:integration": "docker compose -f ops/docker-compose.yml down"
+    "docker:up": "docker compose -f ops/docker-compose.yml up -d",
+    "docker:down": "docker compose -f ops/docker-compose.yml down"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
