@@ -54,8 +54,6 @@ docker build \
   --tag "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
   --build-arg APP_NAME="${app_full_name}" \
-  --build-arg COMMIT_HASH="${COMMIT_HASH}" \
-  --build-arg SHORT_APP_DIR="${short_app_dir}" \
   --file ./docker/Dockerfile \
   .
 
