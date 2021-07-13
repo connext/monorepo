@@ -71,7 +71,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
             transaction.receivingChainId,
           );
           if (receiverTransaction) {
-            this.logger.info({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
+            this.logger.debug({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
             return;
           }
 
