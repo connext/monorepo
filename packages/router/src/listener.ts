@@ -42,16 +42,6 @@ export async function setupListeners(
     await handler.handleSenderPrepare(data);
   });
 
-  txManager.onReceiverPrepare(async (data: TransactionPreparedEvent) => {
-    // On receiver prepare, route to receiver prepare handler
-    await handler.handleReceiverPrepare(data);
-  });
-
-  txManager.onSenderFulfill(async (data: TransactionFulfilledEvent) => {
-    // On sender fulfill, route to sender fulfill handler
-    await handler.handleSenderFulfill(data);
-  });
-
   txManager.onReceiverFulfill(async (data: TransactionFulfilledEvent) => {
     // On receiver fulfill, route to receiver fulfill handler
     await handler.handleReceiverFulfill(data);
