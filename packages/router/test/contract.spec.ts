@@ -2,7 +2,15 @@ import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
 import { TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import {
+  CancelParams,
+  FulfillParams,
+  InvariantTransactionData,
+  mkAddress,
+  mkBytes32,
+  PrepareParams, TransactionData,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 import { constants, providers, Signer, utils } from "ethers";
 
 import { TransactionManager as TxManager } from "../src/contract";
@@ -25,6 +33,27 @@ const fakeTxReceipt = {
   logsBloom: "",
   transactionIndex: 1,
 } as unknown as providers.TransactionReceipt;
+
+const fakeTxData:InvariantTransactionData = {
+  user: "",
+  router: "",
+  sendingAssetId: "",
+  receivingAssetId: "",
+  sendingChainFallback: "",
+  receivingAddress: "",
+  sendingChainId: 4,
+  receivingChainId: 5,
+  callDataHash: "",
+  transactionId: "",
+}
+const fakePrepareParams:PrepareParams = {
+  txData: fakeTxData,
+  amount: "",
+  expiry: "",
+  bidSignature: "",
+  encodedBid: "",
+  encryptedCallData: "",
+}
 
 describe("Router Contract/Transaction Manager Test", () => {
   let txManager: TxManager;
@@ -59,32 +88,32 @@ describe("Router Contract/Transaction Manager Test", () => {
   });
 
   describe("Prepare", () => {
-    let amount = "";
+    const amount = "";
 
-    it(`should work`, async () => {
-      await txManager.prepare(1337, { amount, encryptedCallData, bidSignature, encodedBid, expiry, txData });
+    it(`Should Prepare`, async () => {
+      await txManager.prepare(1337, fakePrepareParams);
 
       expect(txManagerInterface.encodeFunctionData.callCount).to.eq(1);
       const call = txManagerInterface.encodeFunctionData.getCall(0);
       expect(call.args[0]).to.eq("prepare");
       expect(call.args[1]).to.deep.eq([
         {
-          user: txData.user,
-          router: txData.router,
-          sendingAssetId: txData.sendingAssetId,
-          receivingAssetId: txData.receivingAssetId,
-          sendingChainFallback: txData.sendingChainFallback,
-          receivingAddress: txData.receivingAddress,
-          sendingChainId: txData.sendingChainId,
-          receivingChainId: txData.receivingChainId,
-          callDataHash: txData.callDataHash,
-          transactionId: txData.transactionId,
+          user: fakeTxData.user,
+          router: fakeTxData.router,
+          sendingAssetId: fakeTxData.sendingAssetId,
+          receivingAssetId: fakeTxData.receivingAssetId,
+          sendingChainFallback: fakeTxData.sendingChainFallback,
+          receivingAddress: fakeTxData.receivingAddress,
+          sendingChainId: fakeTxData.sendingChainId,
+          receivingChainId: fakeTxData.receivingChainId,
+          callDataHash: fakeTxData.callDataHash,
+          transactionId: fakeTxData.transactionId,
         },
-        amount,
-        expiry,
-        encryptedCallData,
-        encodedBid,
-        bidSignature,
+        fakePrepareParams.amount,
+        fakePrepareParams.expiry,
+        fakePrepareParams.encryptedCallData,
+        fakePrepareParams.encodedBid,
+        fakePrepareParams.bidSignature,
       ]);
 
       expect(txService.sendAndConfirmTx.callCount).to.eq(1);
@@ -95,8 +124,51 @@ describe("Router Contract/Transaction Manager Test", () => {
       txService.sendAndConfirmTx.rejects("foo");
 
       await expect(
-        txManager.prepare(1337, { amount, encryptedCallData, bidSignature, encodedBid, expiry, txData }),
-      ).to.eventually.be.rejectedWith("foo");
+        txManager.prepare(1337, fakePrepareParams),
+      ).to.eventually.be.rejectedWith("");
     });
   });
+  describe("Fulfill", () => {
+    it("should fulfill", async ()=>{
+
+      const fakeVariantTxData:VariantTransactionData = {amount: "", expiry:"", preparedBlockNumber:1};
+      const fakeFufillParams:FulfillParams = {
+        txData: ({...fakeTxData,...fakeVariantTxData}) as TransactionData,
+        callData: "",
+        relayerFee: "",
+        signature: "",
+      }
+      await txManager.fulfill(1337, fakeFufillParams);
+      expect(txManagerInterface.encodeFunctionData.callCount).to.eq(1);
+      const call = txManagerInterface.encodeFunctionData.getCall(0);
+      expect(txService.sendAndConfirmTx.callCount).to.eq(1);
+
+
+    })
+  });
+  describe("Cancel,", ()=>{
+    it("should cancel", async()=>{
+      const fakeVariantTxData:VariantTransactionData = {amount: "", expiry:"", preparedBlockNumber:1};
+
+      const fakeCancelParams:CancelParams = {txData:({...fakeTxData,...fakeVariantTxData}) as TransactionData, relayerFee:"0",
+      signature:"0xdeadbeef",}
+      await txManager.cancel(4, fakeCancelParams);
+
+      expect(txManagerInterface.encodeFunctionData.callCount).to.eq(1);
+
+      const call = txManagerInterface.encodeFunctionData.getCall(0);
+      // expect(txService.sendAndConfirmTx.callCount).to.eq(1);
+
+
+    })
+  })
+  describe("Send Tx Wrapper,", ()=>{
+    it("shoudlnt use try catch", async()=>{
+
+      await txManager.sendTransactionWrapper(4, "0x00");
+
+      expect(1 === 1);
+
+    })
+  })
 });

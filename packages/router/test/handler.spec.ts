@@ -251,7 +251,7 @@ describe("Handler", () => {
     } as FulfillParams);
   });
 
-  it(`should get liquidity`, async () => {
+  it(`should get liquidity `, async () => {
     const mockLiquidity = "169.00";
     txManager.getLiquidity.resolves(mockLiquidity);
     await txManager.getLiquidity(4, constants.AddressZero);
@@ -261,30 +261,9 @@ describe("Handler", () => {
   });
 
   it(`should add liquidity`, async () => {
-    console.log(`Trying okAsync`);
     txManager.addLiquidity.resolves(fakeTxReceipt);
-
-    const wrappedAddLiquidity = async (chainId:number, address: string):Promise<Result<providers.TransactionReceipt, Error>> =>{
-      const tryAddLiquidity = await txManager.addLiquidity(chainId, address);
-
-      if(tryAddLiquidity)
-        return okAsync(tryAddLiquidity);
-      else
-        return err(new Error(`reeeeeee`))
-    }
-
-    const ntRes = await wrappedAddLiquidity(4, constants.AddressZero);
-
-    const noTryRes = await txManager.addLiquidity(4, constants.AddressZero);
-
-    // console.log(`No TRY RES ${ntRes.map((s)=>{console.log(s.to)})}`);
-
-
-    if(ntRes.isErr()){
-      ntRes.mapErr((e)=>{console.log(`Fuck an error ${e}`)})
-    }
-
-
+    const tryAddLiquidity = await txManager.addLiquidity(4, constants.AddressZero);
     const call = txManager.addLiquidity.getCall(0);
+    expect(await call.returnValue).to.deep.eq(fakeTxReceipt);
   });
 });

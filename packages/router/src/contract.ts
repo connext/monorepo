@@ -10,7 +10,7 @@ import { jsonifyError, FulfillParams, PrepareParams, CancelParams } from "@conne
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import IERC20MinimalArtifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import { okAsync, Result, ResultAsync, Err } from "neverthrow";
+import {Result, ResultAsync } from "neverthrow";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 
@@ -224,7 +224,7 @@ export class TransactionManager {
       }
     };
     const routerAssetBalance = await balanceOf(chainId,assetId);
-
+    //if the approve balance isn't equal to the max then make it so; should we just be checking that a certain amount is approved though?
     if(routerAssetBalance !== constants.MaxUint256){
       const approveData = this.erc20Interface.encodeFunctionData("approve", [assetId, constants.MaxUint256]);
       const res = await this.sendTransactionWrapper(chainId, assetId, approveData);
