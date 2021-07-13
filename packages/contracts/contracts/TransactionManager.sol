@@ -321,7 +321,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     require(txData.preparedBlockNumber > 0, "fulfill: ALREADY_COMPLETED");
 
     // Validate the user has signed
-    require(recoverFulfillSignature(txData, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
+    require(recoverFulfillSignature(txData.transactionId, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
     // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
     // 0-value crosschain tx, so only providing the fee amount
@@ -508,7 +508,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // When the user could be unlocking funds through a relayer, validate
         // their signature and payout the relayer.
         if (relayerFee > 0) {
-          require(recoverCancelSignature(txData, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+          require(recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
           require(
             LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee),
@@ -533,7 +533,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(recoverCancelSignature(txData, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+        require(recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not
@@ -585,17 +585,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
   ///         function. Returns the address recovered
-  /// @param txData TransactionData of the transaction being fulfilled
+  /// @param transactionId Transaction identifier of tx being fulfilled
   /// @param relayerFee The fee paid to the relayer for submitting the fulfill
   ///                   tx on behalf of the user.
   /// @param signature The signature you are recovering the signer from
   function recoverFulfillSignature(
-    TransactionData calldata txData,
+    bytes32 transactionId,
     uint256 relayerFee,
     bytes calldata signature
   ) internal pure returns (address) {
     // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({transactionId: txData.transactionId, relayerFee: relayerFee});
+    SignedFulfillData memory payload = SignedFulfillData({transactionId: transactionId, relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
@@ -603,17 +603,17 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
   /// @notice Recovers the signer from the signature provided to the `cancel`
   ///         function. Returns the address recovered
-  /// @param txData TransactionData of the transaction being fulfilled
+  /// @param transactionId Transaction identifier of tx being cancelled
   /// @param relayerFee The fee paid to the relayer for submitting the cancel
   ///                   tx on behalf of the user.
   /// @param signature The signature you are recovering the signer from
-  function recoverCancelSignature(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature)
+  function recoverCancelSignature(bytes32 transactionId, uint256 relayerFee, bytes calldata signature)
     internal
     pure
     returns (address)
   {
     // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({transactionId: txData.transactionId, cancel: "cancel", relayerFee: relayerFee});
+    SignedCancelData memory payload = SignedCancelData({transactionId: transactionId, cancel: "cancel", relayerFee: relayerFee});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
