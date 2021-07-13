@@ -1,0 +1,28 @@
+# A GitHub Actions workflow to build a docker image for an app.
+#
+# One-time setup to use this workflow:
+# 1. Move this file into ./.github/workflows
+# 2. Change APP_NAME variable below to the name of the app.
+#
+# The image will be built on each push to or pull request on main.
+# It will be pushed to the current GitHub repo's Packages.
+
+name: Test Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integration:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Test Integration
+        run: yarn test:integration
