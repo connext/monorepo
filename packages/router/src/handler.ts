@@ -275,21 +275,6 @@ export class Handler implements Handler {
     // If success, update metrics
   }
 
-  // HandleReceiverPrepare
-  // Purpose: On this method, no action is needed from the router except to update
-  // metrics
-  public async handleReceiverPrepare(_data: TransactionPreparedEvent): Promise<void> {
-    // First log
-    // Update metrics
-  }
-
-  // HandleSenderFulfill
-  // Purpose: No action is needed here from router except to update metrics
-  public async handleSenderFulfill(_data: TransactionFulfilledEvent): Promise<void> {
-    // First log
-    // Update metrics
-  }
-
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
   public async handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void> {
