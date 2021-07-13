@@ -3,6 +3,7 @@ import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
+import { expect } from "@connext/nxtp-utils";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -46,6 +47,8 @@ const txManager1338 = new Contract(
   sugarDaddy.connect(chainProviders[1338]),
 ) as TransactionManager;
 
+const logger = pino({ name: "IntegrationTest" });
+
 describe("Integration", () => {
   let userSdk: NxtpSdk;
   let userWallet: Wallet;
@@ -56,39 +59,41 @@ describe("Integration", () => {
 
     // fund if necessary
     if (balance1337.lt(MIN_ETH)) {
+      logger.info({ chainId: 1337 }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy.connect(chainProviders[1337]).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      console.log("1337 eth mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to router mined");
     }
 
     if (balance1338.lt(MIN_ETH)) {
+      logger.info({ chainId: 1338 }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy.connect(chainProviders[1338]).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      console.log("1338 eth mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "ETH_GIFT to router mined: ");
     }
 
     const liquidity1337 = await txManager1337.routerBalances(router, tokenAddress1337);
-    console.log("liquidity1337: ", liquidity1337.toString());
     const liquidity1338 = await txManager1338.routerBalances(router, tokenAddress1338);
-    console.log("liquidity1338: ", liquidity1338.toString());
 
     // fund if necessary
     if (liquidity1337.lt(MIN_TOKEN)) {
+      logger.info({ chainId: 1337 }, "Adding liquidity");
       const approvetx = await token1337.approve(txManager1337.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      console.log("1337 approvetx mined: ", approveReceipt.transactionHash);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 1337 }, "addLiquidity approved");
       const tx = await txManager1337.addLiquidity(TOKEN_GIFT, tokenAddress1337, router);
       const receipt = await tx.wait();
-      console.log("1337 add liquidity mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "addLiquidity mined");
     }
 
     if (liquidity1338.lt(MIN_TOKEN)) {
+      logger.info({ chainId: 1338 }, "Adding liquidity");
       const approvetx = await token1338.approve(txManager1338.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      console.log("1338 approvetx mined: ", approveReceipt.transactionHash);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 1338 }, "addLiquidity approved");
       const tx = await txManager1338.addLiquidity(TOKEN_GIFT, tokenAddress1338, router);
       const receipt = await tx.wait();
-      console.log("1338 add liquidity mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "addLiquidity mined");
     }
   });
 
@@ -98,18 +103,20 @@ describe("Integration", () => {
     // fund user sender side
     const balance1337 = await chainProviders[1337].getBalance(userWallet.address);
     if (balance1337.lt(MIN_ETH)) {
+      logger.info({ chainId: 1337 }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
         .connect(chainProviders[1337])
         .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
       const receipt = await tx.wait();
-      console.log("1337 eth mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to user mined: ");
     }
 
     const balanceToken1337 = await token1337.balanceOf(userWallet.address);
     if (balanceToken1337.lt(MIN_TOKEN)) {
+      logger.info({ chainId: 1337 }, "Sending TOKEN_GIFT to user");
       const tx = await token1337.mint(userWallet.address, TOKEN_GIFT);
       const receipt = await tx.wait();
-      console.log("1337 token mined: ", receipt.transactionHash);
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "TOKEN_GIFT to user mined: ");
     }
 
     userSdk = await NxtpSdk.init(
@@ -124,7 +131,7 @@ describe("Integration", () => {
   it("should send tokens", async function () {
     this.timeout(120_000);
     const txs = await userSdk.getActiveTransactions();
-    console.log("txs: ", txs);
+    expect(txs.length).to.eq(0);
     const res = await userSdk.transfer({
       amount: utils.parseEther("1").toString(),
       expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(),
@@ -135,6 +142,6 @@ describe("Integration", () => {
       receivingAddress: userWallet.address,
       router,
     });
-    console.log("res: ", res);
+    expect(res.prepareReceipt.status).to.be.eq(1);
   });
 });
