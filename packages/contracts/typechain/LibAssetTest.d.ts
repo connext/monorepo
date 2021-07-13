@@ -176,20 +176,20 @@ export class LibAssetTest extends BaseContract {
       recipient: string,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     transferERC20(
       assetId: string,
       recipient: string,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     transferEther(
       recipient: string,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
   };
 
   filters: {};
