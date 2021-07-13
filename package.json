@@ -27,17 +27,15 @@
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run test",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
+    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
     "docker:router": "yarn workspace @connext/nxtp-router build && COMMIT_HASH=xxxxxxx bash docker/build-router.sh",
     "tsp:root": "tsp",
-    "tsp": "tsp",
-    "docker-up:integration": "docker compose -f packages/integration/ops/docker-compose.yml up -d",
-    "docker-down:integration": "docker compose -f packages/integration/ops/docker-compose.yml down"
+    "tsp": "tsp"
   },
   "resolutions": {
     "assemblyscript": "git+https://github.com/AssemblyScript/assemblyscript.git#v0.6",
