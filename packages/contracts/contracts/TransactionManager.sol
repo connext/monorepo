@@ -298,6 +298,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param signature The users signature on the invariant data + fee that
   ///                  can be used by the router to unlock the transaction on 
   ///                  the sending chain
+  /// @param callData The calldata to be sent to and executed by the 
+  ///                 `FulfillHelper`
   function fulfill(
     TransactionData calldata txData,
     uint256 relayerFee,
