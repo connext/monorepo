@@ -285,6 +285,7 @@ export class NxtpSdk {
       params,
       this.chains[sendingChainId].listener.transactionManager,
       this.signer.provider ? this.signer : this.signer.connect(this.chains[sendingChainId].provider),
+      this.evts,
       this.logger,
       erc20,
       infiniteApprove,
