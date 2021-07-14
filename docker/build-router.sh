@@ -101,7 +101,7 @@ docker build \
     .
 
 # tag images
-docker tag "${app_image}":latest "${app_name}":"${FULL_TAG}"
+docker tag "${app_image}":latest "${app_name}":latest
 if [ -n "$FULL_TAG" ]; then
   docker tag "${app_image}":latest "${app_image}":"${FULL_TAG}"
 fi
@@ -129,6 +129,6 @@ if [ -n "$DOCKER_REPO" ]; then
   if [ -n "$COMMIT_HASH" ]; then
     docker push "${app_image}":"${COMMIT_HASH}"
   fi
-else 
+else
   echo "DOCKER_REPO not configured, will not push"
 fi
