@@ -13,10 +13,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 ///         conventions and any noncompliant ERC20 transfers
 
 library LibAsset {
-    address constant ETHER_ASSETID = address(0);
+    address constant NATIVE_ASSETID = address(0);
 
     function isEther(address assetId) internal pure returns (bool) {
-        return assetId == ETHER_ASSETID;
+        return assetId == NATIVE_ASSETID;
     }
 
     function getOwnBalance(address assetId) internal view returns (uint256) {
