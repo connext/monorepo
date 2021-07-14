@@ -199,11 +199,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     //       correct bid information without requiring an offchain store.
 
     // Store the transaction variants
-    variantTransactionData[digest] = keccak256(abi.encode(VariantTransactionData({
-      amount: amount,
-      expiry: expiry,
-      preparedBlockNumber: block.number
-    })));
+    variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
     // Store active blocks
     activeTransactionBlocks[invariantData.user].push(block.number);
@@ -312,7 +308,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Make sure that the variant data matches what was stored
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData), "fulfill: INVALID_VARIANT_DATA");
+    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "fulfill: INVALID_VARIANT_DATA");
 
     // Make sure the expiry has not elapsed
     require(txData.expiry > block.timestamp, "fulfill: EXPIRED");
@@ -336,11 +332,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // a store can tell the difference between a transaction that has not been
     // prepared, and a transaction that was already completed on the receiver
     // chain.
-    variantTransactionData[digest] = keccak256(abi.encode(VariantTransactionData({
-      amount: txData.amount,
-      expiry: txData.expiry,
-      preparedBlockNumber: 0
-    })));
+    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
     // Remove the transaction prepared block from the active blocks
     removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
@@ -465,7 +457,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Verify the variant data is correct
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData), "cancel: INVALID_VARIANT_DATA");
+    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "cancel: INVALID_VARIANT_DATA");
 
     // Make sure the transaction wasn't already completed
     require(txData.preparedBlockNumber > 0, "cancel: ALREADY_COMPLETED");
@@ -480,11 +472,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // a store can tell the difference between a transaction that has not been
     // prepared, and a transaction that was already completed on the receiver
     // chain.
-    variantTransactionData[digest] = keccak256(abi.encode(VariantTransactionData({
-      amount: txData.amount,
-      expiry: txData.expiry,
-      preparedBlockNumber: 0
-    })));
+    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
     // Remove active blocks
     removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
@@ -641,12 +629,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
   /// @notice Returns the hash of only the variant portions of a given
   ///         crosschain transaction
-  /// @param txData TransactionData to hash
-  function hashVariantTransactionData(TransactionData calldata txData) internal pure returns (bytes32) {
+  /// @param amount Amount to hash
+  /// @param expiry Expiry in variant data
+  /// @param preparedBlockNumber Block in variant data
+  function hashVariantTransactionData(uint256 amount, uint256 expiry, uint256 preparedBlockNumber) internal pure returns (bytes32) {
     return keccak256(abi.encode(VariantTransactionData({
-      amount: txData.amount,
-      expiry: txData.expiry,
-      preparedBlockNumber: txData.preparedBlockNumber
+      amount: amount,
+      expiry: expiry,
+      preparedBlockNumber: preparedBlockNumber
     })));
   }
 }
