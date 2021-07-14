@@ -72,7 +72,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   uint256 public immutable chainId;
 
   /// @dev Minimum timeout (will be the lowest on the receiving chain)
-  uint256 public constant MIN_TIMEOUT = 24 hours;
+  uint256 public constant MIN_TIMEOUT = 1 days; // 24 hours
 
   constructor(uint256 _chainId) {
     chainId = _chainId;
