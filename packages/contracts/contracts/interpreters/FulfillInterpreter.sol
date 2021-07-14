@@ -26,11 +26,11 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     if (!success) {
       // If it fails, transfer to fallback
       LibAsset.transferAsset(assetId, fallbackAddress, amount);
+    }
 
-      // Also decrease allowance on failure
-      if (!isEther) {
-        LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
-      }
+    // Always decrease allowance
+    if (!isEther) {
+      LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
     }
   }
 }
