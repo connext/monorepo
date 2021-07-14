@@ -98,7 +98,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     }
 
     // Update the router balances
-    routerBalances[router][assetId] += amount;
+    unchecked {
+      routerBalances[router][assetId] += amount;
+    }
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
@@ -122,8 +124,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     require(routerBalances[msg.sender][assetId] >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
 
     // Update router balances
-    routerBalances[msg.sender][assetId] -= amount;
-
+    unchecked {
+      routerBalances[msg.sender][assetId] -= amount;
+    }
+    
     // Transfer from contract to specified recipient
     require(LibAsset.transferAsset(assetId, recipient, amount), "removeLiquidity: TRANSFER_FAILED");
 
@@ -257,7 +261,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       );
 
       // Decrement the router liquidity
-      routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+      unchecked {
+        routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+      }
     }
 
     // Emit event
@@ -355,7 +361,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.sender == txData.router, "fulfill: ROUTER_MISMATCH");
 
       // Complete tx to router for original sending amount
-      routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      unchecked {
+        routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      }
     } else {
       // The user is completing the transaction, they should get the
       // amount that the router deposited less fees for relayer.
@@ -541,7 +549,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       }
 
       // Return liquidity to router
-      routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
+      unchecked {
+        routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
+      }
     }
 
     // Emit event
