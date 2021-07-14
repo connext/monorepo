@@ -2,20 +2,20 @@
   "adminToken": "blahblah",
   "chainConfig": {
     "1337": {
-      "provider": ["http://chain-1337:8545"],
+      "provider": ["http://172.17.0.1:8545"],
       "confirmations": 1,
-      "subgraph": "http://host.docker.internal:8000/subgraphs/name/connext/nxtp",
+      "subgraph": "http://172.17.0.1:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
-      "provider": ["http://chain-1338:8545"],
+      "provider": ["http://172.17.0.1:8546"],
       "confirmations": 1,
-      "subgraph": "http://host.docker.internal:9000/subgraphs/name/connext/nxtp",
+      "subgraph": "http://172.17.0.1:9000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
   "logLevel": "info",
-  "natsUrl": "nats://nats:4222",
-  "authUrl": "http://auth:5040",
+  "natsUrl": "nats://172.17.0.1:4222",
+  "authUrl": "http://172.17.0.1:5040",
   "mnemonic": "model best tree august jump gate degree deputy glow since super enter"
 }
