@@ -11,12 +11,12 @@ import {
 } from "@connext/nxtp-utils";
 use(solidity);
 
-import { hexlify, keccak256, randomBytes, toUtf8Bytes } from "ethers/lib/utils";
-import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils } from "ethers";
+import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
+import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils, providers } from "ethers";
 
 // import types
+import { Counter } from "../typechain/Counter";
 import { TransactionManager } from "../typechain/TransactionManager";
-import { TestFulfillHelper } from "../typechain/TestFulfillHelper";
 import { TestERC20 } from "../typechain/TestERC20";
 import { ERC20 } from "../typechain/ERC20";
 
@@ -32,10 +32,10 @@ const advanceBlockTime = async (desiredTimestamp: number) => {
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
-  const [wallet, router, user, receiver, other] = waffle.provider.getWallets();
+  const [wallet, router, user, receiver, other] = waffle.provider.getWallets() as Wallet[];
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
-  let testFulfillHelper: TestFulfillHelper;
+  let counter: Counter;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
   const sendingChainId = 1337;
@@ -43,16 +43,25 @@ describe("TransactionManager", function () {
 
   const fixture = async () => {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-    const testFulfillHelperFactory = await ethers.getContractFactory("TestFulfillHelper");
+    const counterFactory = await ethers.getContractFactory("Counter");
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
+    const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
+    const interpreter = await interpreterFactory.deploy();
+
+    transactionManager = (await transactionManagerFactory.deploy(
+      sendingChainId,
+      interpreter.address,
+    )) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
+      receivingChainId,
+      interpreter.address,
+    )) as TransactionManager;
 
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
 
-    testFulfillHelper = (await testFulfillHelperFactory.deploy()) as TestFulfillHelper;
+    counter = (await counterFactory.deploy()) as Counter;
 
     return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
   };
@@ -748,30 +757,30 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
-    it("happy case: prepare by Bob for ERC20 with CallData", async () => {
-      const prepareAmount = "10";
-      const assetId = tokenA.address;
+    // it("happy case: prepare by Bob for ERC20 with CallData", async () => {
+    //   const prepareAmount = "10";
+    //   const assetId = tokenA.address;
 
-      const callData = await testFulfillHelper.getCallData({ recipient: other.address });
-      const callDataHash = utils.keccak256(callData);
+    //   const callData = await counter.getCallData({ recipient: other.address });
+    //   const callDataHash = utils.keccak256(callData);
 
-      const { transaction, record } = await getTransactionData({
-        sendingAssetId: assetId,
-        receivingAssetId: tokenB.address,
-        callTo: testFulfillHelper.address,
-        callDataHash: callDataHash,
-      });
-      await approveTokens(prepareAmount, user, transactionManager.address);
+    //   const { transaction, record } = await getTransactionData({
+    //     sendingAssetId: assetId,
+    //     receivingAssetId: tokenB.address,
+    //     callTo: counter.address,
+    //     callDataHash: callDataHash,
+    //   });
+    //   await approveTokens(prepareAmount, user, transactionManager.address);
 
-      await prepareAndAssert(
-        transaction,
-        {
-          amount: prepareAmount,
-        },
-        user,
-        transactionManager,
-      );
-    });
+    //   await prepareAndAssert(
+    //     transaction,
+    //     {
+    //       amount: prepareAmount,
+    //     },
+    //     user,
+    //     transactionManager,
+    //   );
+    // });
 
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
@@ -1181,30 +1190,36 @@ describe("TransactionManager", function () {
       );
     });
 
-    it("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & success addFunds", async () => {
+    it.skip("should handle external calls with ERC20 (external calls do not revert)", async () => {});
+
+    it("should handle external calls with native asset (external calls do not revert)", async () => {
       const prepareAmount = "10";
       const relayerFee = "1";
+      const counterAmount = BigNumber.from(prepareAmount).sub(relayerFee);
 
-      const callData = await testFulfillHelper.getCallData({ recipient: other.address });
+      // Get calldata
+      const callData = counter.interface.encodeFunctionData("incrementAndSend", [
+        AddressZero,
+        other.address,
+        counterAmount.toString(),
+      ]);
       const callDataHash = utils.keccak256(callData);
 
-      const { transaction, record } = await getTransactionData({
-        sendingAssetId: tokenA.address,
-        receivingAssetId: tokenB.address,
-        callTo: testFulfillHelper.address,
-        callDataHash: callDataHash,
-      });
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: AddressZero,
+          callTo: counter.address,
+          callDataHash: callDataHash,
+        },
+        { amount: prepareAmount },
+      );
 
-      // Add receiving liquidity
-      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
-      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId);
-
-      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address);
+      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId, router, transactionManagerReceiverSide);
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(0));
-
-      // User fulfills
+      const preExecute = await counter.count();
+      const balance = await other.getBalance();
 
       await fulfillAndAssert(
         transaction,
@@ -1216,38 +1231,49 @@ describe("TransactionManager", function () {
         callData,
       );
 
-      // const res = await testFulfillHelper.queryFilter({ address: testFulfillHelper.address }, blockNumber);
-      // testFulfillHelper.removeAllListeners({ address: testFulfillHelper.address });
-
-      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(0);
-      expect(await tokenB.balanceOf(other.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
+      expect(await counter.count()).to.be.eq(preExecute.add(1));
+      expect(await other.getBalance()).to.be.eq(balance.add(counterAmount));
     });
 
-    it.skip("Happy case: iff it's receiving chain and callTo is non-zero address and asset is Native token & failed execute", async () => {
-      // TODO: Need to add failing condition for Helper functions.
+    it.skip("should handle external calls with ERC20 that revert (sends to fallback address)", async () => {});
+
+    it("should handle external calls with native asset that revert (sends to fallback address)", async () => {
       const prepareAmount = "10";
       const relayerFee = "1";
+      const counterAmount = BigNumber.from(prepareAmount).sub(relayerFee);
 
-      const callData = await testFulfillHelper.getCallData({ recipient: AddressZero });
+      // Set to revert
+      const revert = await counter.setShouldRevert(true);
+      await revert.wait();
+      expect(await counter.shouldRevert()).to.be.true;
+
+      // Get calldata
+      const callData = counter.interface.encodeFunctionData("incrementAndSend", [
+        AddressZero,
+        other.address,
+        counterAmount.toString(),
+      ]);
       const callDataHash = utils.keccak256(callData);
 
-      const { transaction, record } = await getTransactionData({
-        sendingAssetId: tokenA.address,
-        receivingAssetId: tokenB.address,
-        callTo: testFulfillHelper.address,
-        callDataHash: callDataHash,
-      });
+      const fallback = Wallet.createRandom().connect(ethers.provider);
 
-      // Add receiving liquidity
-      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
-      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId);
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: AddressZero,
+          receivingAssetId: AddressZero,
+          callTo: counter.address,
+          callDataHash: callDataHash,
+          receivingAddress: fallback.address,
+        },
+        { amount: prepareAmount },
+      );
 
-      await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address);
+      await addAndAssertLiquidity(prepareAmount, transaction.receivingAssetId, router, transactionManagerReceiverSide);
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      // User fulfills
-
-      console.log("fulfill start");
+      const preExecute = await counter.count();
+      const fallbackBalance = await fallback.getBalance();
+      const otherBalance = await other.getBalance();
 
       await fulfillAndAssert(
         transaction,
@@ -1259,7 +1285,9 @@ describe("TransactionManager", function () {
         callData,
       );
 
-      expect(await tokenB.balanceOf(receiver.address)).to.be.eq(BigNumber.from(prepareAmount).sub(relayerFee));
+      expect(await counter.count()).to.be.eq(preExecute);
+      expect(await other.getBalance()).to.be.eq(otherBalance);
+      expect(await fallback.getBalance()).to.be.eq(fallbackBalance.add(counterAmount));
     });
   });
 
