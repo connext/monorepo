@@ -21,16 +21,16 @@ contract LibAssetTest {
     return LibAsset.getOwnBalance(assetId);
   }
 
-  function transferEther(address payable recipient, uint256 amount) public returns (bool) {
-    return LibAsset.transferEther(recipient, amount);
+  function transferEther(address payable recipient, uint256 amount) public {
+    LibAsset.transferEther(recipient, amount);
   }
 
   function transferERC20(
     address assetId,
     address recipient,
     uint256 amount
-  ) public returns (bool) {
-    return LibAsset.transferERC20(assetId, recipient, amount);
+  ) public {
+    LibAsset.transferERC20(assetId, recipient, amount);
   }
 
   // This function is a wrapper for transfers of Ether or ERC20 tokens,
@@ -40,7 +40,7 @@ contract LibAssetTest {
     address assetId,
     address payable recipient,
     uint256 amount
-  ) public returns (bool) {
-    return LibAsset.transferAsset(assetId, recipient, amount);
+  ) public {
+    LibAsset.transferAsset(assetId, recipient, amount);
   }
 }

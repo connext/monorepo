@@ -97,13 +97,15 @@ export const prepare = async (
     }
     const signerAddress = await signer.getAddress();
     logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
-    const approved = await erc20Contract.connect(signer).allowance(signerAddress, transactionManager.address);
+    const connected = erc20Contract.connect(signer);
+    const approved = await connected.allowance(signerAddress, transactionManager.address);
     logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
 
     if (approved.lt(amount)) {
-      const approveTx = await erc20Contract
-        .connect(signer)
-        .approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
+      const approveTx = await connected.approve(
+        transactionManager.address,
+        infiniteApprove ? constants.MaxUint256 : amount,
+      );
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {
