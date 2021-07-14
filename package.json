@@ -36,7 +36,7 @@
     "tsp:root": "tsp",
     "tsp": "tsp",
     "docker:router": "yarn workspace @connext/nxtp-router build && bash docker/build-router.sh",
-    "test:integration": "yarn docker:router && yarn workspace @connext/nxtp-integration docker:all:up && bash setup-integration-test.sh && yarn workspace @connext/nxtp-integration test && yarn workspace @connext/nxtp-integration docker:all:down"
+    "test:integration": "yarn workspace @connext/nxtp-integration docker:all:up && bash setup-integration-test.sh && yarn workspace @connext/nxtp-integration test && yarn workspace @connext/nxtp-integration docker:all:down"
   },
   "resolutions": {
     "assemblyscript": "git+https://github.com/AssemblyScript/assemblyscript.git#v0.6",

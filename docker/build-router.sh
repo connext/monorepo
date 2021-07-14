@@ -100,6 +100,8 @@ docker build \
     --file ./docker/Dockerfile \
     .
 
+# tag images
+docker tag "${app_image}":latest "${app_name}":"${FULL_TAG}"
 if [ -n "$FULL_TAG" ]; then
   docker tag "${app_image}":latest "${app_image}":"${FULL_TAG}"
 fi
