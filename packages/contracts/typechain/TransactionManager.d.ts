@@ -23,12 +23,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface TransactionManagerInterface extends ethers.utils.Interface {
   functions: {
     "MIN_TIMEOUT()": FunctionFragment;
-    "activeTransactionBlocks(address,uint256)": FunctionFragment;
     "addLiquidity(uint256,address,address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
-    "getActiveTransactionBlocks(address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -38,10 +36,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "MIN_TIMEOUT",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "activeTransactionBlocks",
-    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
@@ -96,10 +90,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "getActiveTransactionBlocks",
-    values: [string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "prepare",
     values: [
       {
@@ -140,20 +130,12 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "activeTransactionBlocks",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getActiveTransactionBlocks",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeLiquidity",
@@ -229,12 +211,6 @@ export class TransactionManager extends BaseContract {
   functions: {
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    activeTransactionBlocks(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
@@ -289,11 +265,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getActiveTransactionBlocks(
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
     prepare(
       invariantData: {
         user: string;
@@ -336,12 +307,6 @@ export class TransactionManager extends BaseContract {
   };
 
   MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
-
-  activeTransactionBlocks(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   addLiquidity(
     amount: BigNumberish,
@@ -397,11 +362,6 @@ export class TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getActiveTransactionBlocks(
-    user: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
   prepare(
     invariantData: {
       user: string;
@@ -444,12 +404,6 @@ export class TransactionManager extends BaseContract {
 
   callStatic: {
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    activeTransactionBlocks(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     addLiquidity(
       amount: BigNumberish,
@@ -568,11 +522,6 @@ export class TransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
-
-    getActiveTransactionBlocks(
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
 
     prepare(
       invariantData: {
@@ -942,12 +891,6 @@ export class TransactionManager extends BaseContract {
   estimateGas: {
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    activeTransactionBlocks(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
@@ -1002,11 +945,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getActiveTransactionBlocks(
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     prepare(
       invariantData: {
         user: string;
@@ -1050,12 +988,6 @@ export class TransactionManager extends BaseContract {
 
   populateTransaction: {
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    activeTransactionBlocks(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     addLiquidity(
       amount: BigNumberish,
@@ -1109,11 +1041,6 @@ export class TransactionManager extends BaseContract {
       signature: BytesLike,
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getActiveTransactionBlocks(
-      user: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     prepare(

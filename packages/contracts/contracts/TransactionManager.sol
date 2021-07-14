@@ -61,19 +61,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
-  /// @dev Mapping of user address to blocks where active transfers
-  ///      were created.
-  mapping(address => uint256[]) public activeTransactionBlocks;
-
-  /// @dev Number of transactions in the block for that user. Used for
-  ///      internal tracking only. Structured as:
-  ///      user => blockNumber => transactionsInBlock
-  mapping(address => mapping(uint256 => uint256)) private activeTransactionsCount;
-
-  /// @dev user => blockNum => index in activeTransactionBlocks(user). Used
-  ///      for internal tracking only (to avoid loops on removal).
-  mapping(address => mapping(uint256 => uint256)) private activeTransactionBlockIndices;
-
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
   mapping(bytes32 => bytes32) public variantTransactionData;
@@ -214,9 +201,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       preparedBlockNumber: block.number
     })));
 
-    // Store active blocks
-    addUserActiveBlocks(invariantData.user);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Sanity check: amount is sensible
@@ -350,9 +334,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       expiry: txData.expiry,
       preparedBlockNumber: 0
     })));
-
-    // Remove the transaction prepared block from the active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
 
     if (txData.sendingChainId == chainId) {
       // The router is completing the transaction, they should get the
@@ -495,9 +476,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       preparedBlockNumber: 0
     })));
 
-    // Remove active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
-
     // Return the appropriate locked funds
     if (txData.sendingChainId == chainId) {
       // Sender side, funds must be returned to the user
@@ -560,61 +538,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     return txData;
   }
 
-  /// @notice Helper method to get full array of active blocks. Each block
-  ///         may have more than 1 active transaction.
-  /// @param user User who you want active transaction blocks for
-  function getActiveTransactionBlocks(address user) external override view returns (uint256[] memory) {
-    return activeTransactionBlocks[user];
-  }
-
   //////////////////////////
   /// Private functions ///
   //////////////////////////
-
-  /// @notice Removes a given block from the tracked activeTransactionBlocks
-  ///         array for the user. Called when transactions are completed.
-  /// @param user User who has completed a transaction
-  /// @param preparedBlock The TransactionData.preparedBlockNumber to remove
-  function removeUserActiveBlocks(address user, uint256 preparedBlock) internal {
-    require(activeTransactionsCount[user][preparedBlock] > 0, "removeUserActiveBlocks: NONE");
-    if (activeTransactionsCount[user][preparedBlock] == 1) {
-      // Must remove the block from active blocks for user by swapping
-      // value at original index with final index, updating tracker, and
-      // popping
-      uint256 originalIdx = activeTransactionBlockIndices[user][preparedBlock];
-      uint256 finalIdx = activeTransactionBlocks[user].length - 1;
-
-      uint256 blockAtFinalIdx = activeTransactionBlocks[user][finalIdx];
-
-      // Update element positions in array
-      activeTransactionBlocks[user][originalIdx] = blockAtFinalIdx;
-      activeTransactionBlocks[user][finalIdx] = preparedBlock;
-
-      // Update index trackers
-      activeTransactionBlockIndices[user][preparedBlock] = 0;
-      activeTransactionBlockIndices[user][blockAtFinalIdx] = originalIdx;
-
-      // pop
-      activeTransactionBlocks[user].pop();
-    }
-
-    // block count decreased
-    activeTransactionsCount[user][preparedBlock] -= 1;
-  }
-
-  /// @notice Adds a given block from the tracked activeTransactionBlocks
-  ///         array for the user. Called when transactions are prepared.
-  ///         Also updates the count and indices if needed
-  /// @param user User who has completed a transaction
-  function addUserActiveBlocks(address user) internal {
-    if (activeTransactionsCount[user][block.number] == 0) {
-      // new block must be added
-      activeTransactionBlocks[user].push(block.number);
-      activeTransactionBlockIndices[user][block.number] = activeTransactionBlocks[user].length - 1;
-    }
-    // block count increased regardless
-    activeTransactionsCount[user][block.number] += 1;
-  }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
   ///         function. Returns the address recovered
