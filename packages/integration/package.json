@@ -13,8 +13,14 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker:up": "docker-compose -f ops/docker-compose.yml up -d",
-    "docker:down": "docker-compose -f ops/docker-compose.yml down"
+    "docker:chains:up": "docker-compose -f ops/chains.docker-compose.yml up -d",
+    "docker:chains:down": "docker-compose -f ops/chains.docker-compose.yml down",
+    "docker:messaging:up": "docker-compose -f ops/messaging.docker-compose.yml up -d",
+    "docker:messaging:down": "docker-compose -f ops/messaging.docker-compose.yml down",
+    "docker:router:up": "docker-compose -f ops/router.docker-compose.yml up -d",
+    "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
+    "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
+    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,22 +1,6 @@
 version: "3.8"
 
 services:
-  ##########################
-  router:
-    container_name: router-test
-    image: nxtp-router:latest
-    ports:
-      - 8080:8080
-    volumes:
-      - ./config.json:/home/node/router/config.json
-    depends_on:
-      - chain-1337
-      - chain-1338
-    networks:
-      - nxtp-test
-  ##########################
-
-  ##########################
   chain-1337:
     container_name: chain-1337-test
     image: trufflesuite/ganache-cli:latest
@@ -33,9 +17,9 @@ services:
       - 8546:8545
     networks:
       - nxtp-test
-  ##########################
 
-  ##########################
+  ######################
+
   graph-node-1337:
     container_name: graph-node-1337-test
     image: graphprotocol/graph-node
@@ -111,49 +95,6 @@ services:
     image: ipfs/go-ipfs:v0.4.23
     ports:
       - "5001:5001"
-    networks:
-      - nxtp-test
-  ##########################
-
-  auth:
-    container_name: auth-test
-    image: "connextproject/nats-auth"
-    environment:
-      VECTOR_JWT_SIGNER_PUBLIC_KEY_PATH: "/pub.key"
-      VECTOR_JWT_SIGNER_PRIVATE_KEY_PATH: "/priv.key"
-      VECTOR_NATS_URL: "nats://nats:4222"
-      VECTOR_ADMIN_TOKEN: "connext1234"
-      VECTOR_PORT: "5040"
-      VECTOR_PROD: "true"
-    ports:
-      - "5040:5040"
-    volumes:
-      - "./pub.key:/pub.key"
-      - "./priv.key:/priv.key"
-    networks:
-      - nxtp-test
-
-  nats:
-    container_name: nats-test
-    image: "connextproject/vector_nats"
-    environment:
-      JWT_SIGNER_PUBLIC_KEY: "-----BEGIN PUBLIC KEY-----
-        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAwQYLqNYRZrZcbD7Dx82b
-        rIiuOt2XSBI6oAYPb8WcnX1me4UyfVsx7eIF+DnyOJ7sinaG6hwx7zuyUPGy0QkI
-        YycNp2XX9BhA7zkWkrkIUAy9N/2Onq/HGXmaCGQQ6MMlopaz6ryuKmatCcWHUbBW
-        R/y2I79kK7IulWAJoX0yt867MToj8bEwlc8BIzqsWV+IwiXps5nX5PUHk/nwWMXI
-        JYYTE2VpJhwrkuw2R2VuaHxYoNneDlgNN/EJtZuqrAheqNBcd+Jyujpo4uaieIGC
-        tBdYy9hoxaBYhR82SGClFoRGWD4cb/3GTYXJf7ZaZrg/zkqEvrks6FNsFPeCslYM
-        A/jlFQNkoVUSn15n1B7ndetebEIRtFkaVQ89Ejxr3oHGdG2i6OAnuEQpAUOsG9Fu
-        sHv61RMCo+CcWwT1yMACcxWfN/aL9dOE+zDtQXSM1P5wYOHBaCHOnyCaumyieZ7v
-        sxGKQmfS/PtUWZTpHHdsafaVpUxkq0YFx5VzFbqraQf3AFU1wRaJYm6JNdHCLpVg
-        XBYYKUz9kGFJMe0T21AUeV53gi1yUwy6+jJQJbdV9bCtZnUQi7YlWmIrE25ABs2O
-        DvKsD63QcBOW4TATrd6+zUX3n80ZGz/60oS4SPOBmlGjdoZD9bASYCNrqJTBSegA
-        /jwvk787srHfu0XqjeY3DAkCAwEAAQ==
-        -----END PUBLIC KEY-----"
-    ports:
-      - "4222:4222"
-      - "4221:4221"
     networks:
       - nxtp-test
 
