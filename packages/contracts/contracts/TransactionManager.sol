@@ -126,11 +126,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Sanity check: nonzero amounts
     require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
 
+    uint256 routerBalance = routerBalances[msg.sender][assetId];
     // Sanity check: amount can be deducted for the router
-    require(routerBalances[msg.sender][assetId] >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
+    require(routerBalance >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
 
     // Update router balances
-    routerBalances[msg.sender][assetId] -= amount;
+    routerBalances[msg.sender][assetId] = routerBalance - amount;
 
     // Transfer from contract to specified recipient
     LibAsset.transferAsset(assetId, recipient, amount);
@@ -257,14 +258,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // Check that the router isnt accidentally locking funds in the contract
       require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
 
+      uint256 routerBalance = routerBalances[invariantData.router][invariantData.receivingAssetId];
       // Check that router has liquidity
-      require(
-        routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount,
-        "prepare: INSUFFICIENT_LIQUIDITY"
-      );
+      require(routerBalance >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
 
       // Decrement the router liquidity
-      routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+      routerBalances[invariantData.router][invariantData.receivingAssetId] = routerBalance - amount;
     }
 
     // Emit event
