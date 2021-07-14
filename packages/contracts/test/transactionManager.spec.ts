@@ -588,6 +588,17 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
     });
 
+    it("should revert if expiry is higher than max_timeout", async () => {
+      const { transaction, record } = await getTransactionData();
+      const days31 = 31 * 24 * 60 * 60;
+      const expiry = (Math.floor(Date.now() / 1000) + days31 + 5_000).toString();
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
+      ).to.be.revertedWith("prepare: TIMEOUT_TOO_HIGH");
+    });
+
     it("should revert if param sending and receiving chainId are same", async () => {
       const { transaction, record } = await getTransactionData({ sendingChainId: 1337, receivingChainId: 1337 });
       await expect(
