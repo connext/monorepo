@@ -374,10 +374,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // Handle receiver chain external calls if needed
       if (txData.callTo == address(0)) {
         // No external calls, send directly to receiving address
-        require(
-          LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
-          "fulfill: TRANSFER_FAILED"
-        );
+        if (toSend > 0) {
+          require(
+            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
+            "fulfill: TRANSFER_FAILED"
+          );
+        }
       } else {
         // Handle external calls with a fallback to the receiving
         // address in case the call fails so the funds dont remain
@@ -421,10 +423,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         {} catch {
           // Regardless of error within the callData execution, send funds
           // to the predetermined fallback address
-          require(
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
-            "fulfill: TRANSFER_FAILED"
-          );
+          if (toSend > 0) {
+            require(
+              LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend),
+              "fulfill: TRANSFER_FAILED"
+            );
+          }
         }
       }
     }
