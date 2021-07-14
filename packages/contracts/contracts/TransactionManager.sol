@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "./interfaces/IFulfillHelper.sol";
+import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
+import "./interpreters/FulfillInterpreter.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -77,8 +78,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  constructor(uint256 _chainId) {
+  IFulfillInterpreter private interpreter;
+
+  constructor(uint256 _chainId, address _interpreter) {
     chainId = _chainId;
+    interpreter = FulfillInterpreter(_interpreter);
   }
 
   /// @notice This is used by any router to increase their available
@@ -391,11 +395,10 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        IFulfillHelper(txData.callTo).execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
-          txData.user,
+        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          payable(txData.callTo),
           txData.receivingAssetId,
-          txData.receivingAddress,
-          txData.transactionId,
+          payable(txData.receivingAddress),
           toSend,
           callData
         );
