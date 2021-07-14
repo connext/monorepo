@@ -1,0 +1,21 @@
+{
+  "references": [
+    {
+      "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../contracts/tsconfig.build.json"
+    },
+    {
+      "path": "../sdk/tsconfig.build.json"
+    }
+  ],
+  "extends": "../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "./test",
+    "outDir": "./dist",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "include": ["test/**/*.ts"]
+}

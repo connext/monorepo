@@ -154,6 +154,11 @@ export class NxtpSdk {
     return client;
   }
 
+  public async connectMessaging(bearerToken?: string): Promise<string> {
+    const token = await this.messaging.connect(bearerToken);
+    return token;
+  }
+
   public async transfer(
     transferParams: CrossChainParams,
   ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
@@ -165,9 +170,9 @@ export class NxtpSdk {
     const validate = ajv.compile(CrossChainParamsSchema);
     const valid = validate(transferParams);
     if (!valid) {
-      const error = validate.errors?.map((err) => err.message).join(",");
-      this.logger.error({ error, transferParams }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error!}`);
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
+      throw new Error(`Invalid params - ${error}`);
     }
 
     // only need to connect messaging on transfer
@@ -232,7 +237,7 @@ export class NxtpSdk {
         router,
         sendingAssetId,
         receivingAssetId,
-        sendingChainFallback:  user, // TODO: for now
+        sendingChainFallback: user, // TODO: for now
         callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
@@ -253,7 +258,7 @@ export class NxtpSdk {
     const prepareReceipt = await prepare(
       params,
       this.chains[sendingChainId].listener.transactionManager,
-      this.signer,
+      this.signer.provider ? this.signer : this.signer.connect(this.chains[sendingChainId].provider),
       this.logger,
       erc20,
       infiniteApprove,
