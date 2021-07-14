@@ -1802,6 +1802,35 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/nxtp-integration@workspace:packages/integration":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-integration@workspace:packages/integration"
+  dependencies:
+    "@connext/nxtp-contracts": "workspace:*"
+    "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@types/chai": ^4.2.21
+    "@types/chai-as-promised": ^7.1.4
+    "@types/chai-subset": ^1.3.3
+    "@types/mocha": ^8.2.3
+    "@types/pino": ^6.3.9
+    "@types/sinon": ^10.0.2
+    chai: ^4.3.4
+    chai-as-promised: ^7.1.1
+    chai-subset: ^1.6.0
+    eslint: ^7.30.0
+    ethers: ^5.4.1
+    mocha: ^9.0.2
+    nyc: ^15.1.0
+    pino: ^6.11.3
+    rimraf: ^3.0.2
+    sinon: ^11.1.1
+    ts-mocha: ^8.0.0
+    tslib: ^2.3.0
+    typescript: ^4.3.5
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-router@workspace:packages/router":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-router@workspace:packages/router"

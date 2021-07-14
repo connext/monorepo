@@ -165,9 +165,9 @@ export class NxtpSdk {
     const validate = ajv.compile(CrossChainParamsSchema);
     const valid = validate(transferParams);
     if (!valid) {
-      const error = validate.errors?.map((err) => err.message).join(",");
-      this.logger.error({ error, transferParams }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error!}`);
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
+      throw new Error(`Invalid params - ${error}`);
     }
 
     // only need to connect messaging on transfer
@@ -253,7 +253,7 @@ export class NxtpSdk {
     const prepareReceipt = await prepare(
       params,
       this.chains[sendingChainId].listener.transactionManager,
-      this.signer,
+      this.signer.provider ? this.signer : this.signer.connect(this.chains[sendingChainId].provider),
       this.logger,
       erc20,
       infiniteApprove,
