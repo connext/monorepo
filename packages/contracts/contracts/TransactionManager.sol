@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "./interfaces/IFulfillHelper.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -56,9 +57,15 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         unilaterally by the person owed funds on that chain (router for 
 ///         sending chain, user for receiving chain) prior to expiry.
 
-contract TransactionManager is ReentrancyGuard, ITransactionManager {
+contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
+
+  /// @dev Mapping of allowed router addresses
+  mapping(address => bool) public approvedRouters;
+
+  /// @dev Mapping of allowed assetIds on same chain of contract
+  mapping(address => bool) public approvedAssets;
 
   /// @dev Mapping of user address to blocks where active transfers
   ///      were created.
@@ -81,6 +88,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     chainId = _chainId;
   }
 
+  function addRouter(address router) external override onlyOwner {
+    approvedRouters[router] = true;
+  }
+
+  function addAssetId(address assetId) external override onlyOwner {
+    approvedAssets[assetId] = true;
+  }
+
   /// @notice This is used by any router to increase their available
   ///         liquidity for a given asset.
   /// @param amount The amount of liquidity to add for the router
@@ -93,6 +108,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
+
+    // Router is approved
+    require(approvedRouters[router], "addLiquidity: BAD_ROUTER");
+
+    // Asset is approved
+    require(approvedAssets[assetId], "addLiquidity: BAD_ASSET");
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
@@ -184,6 +205,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Sanity check: router is sensible
     require(invariantData.router != address(0), "prepare: ROUTER_EMPTY");
 
+    // Router is approved
+    require(approvedRouters[router], "prepare: BAD_ROUTER");
+
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "prepare: SENDING_CHAIN_FALLBACK_EMPTY");
 
@@ -226,6 +250,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
       require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+
+      // Asset is approved
+      require(approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
