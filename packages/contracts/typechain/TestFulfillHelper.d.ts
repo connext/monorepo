@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -22,47 +21,30 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface TestFulfillHelperInterface extends ethers.utils.Interface {
   functions: {
-    "addFunds(address,bytes32,address,uint256)": FunctionFragment;
-    "execute(address,bytes32,address,uint256,bytes)": FunctionFragment;
+    "execute(address,address,address,bytes32,uint256,bytes)": FunctionFragment;
     "getCallData(tuple)": FunctionFragment;
-    "userBalances(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "addFunds",
-    values: [string, BytesLike, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "execute",
-    values: [string, BytesLike, string, BigNumberish, BytesLike]
+    values: [string, string, string, BytesLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getCallData",
     values: [{ recipient: string }]
   ): string;
-  encodeFunctionData(
-    functionFragment: "userBalances",
-    values: [string, string]
-  ): string;
 
-  decodeFunctionResult(functionFragment: "addFunds", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getCallData",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "userBalances",
-    data: BytesLike
-  ): Result;
 
   events: {
     "Executed(address,address,uint256,bytes32,bytes)": EventFragment;
-    "FundsAdded(address,address,uint256,bytes32)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "FundsAdded"): EventFragment;
 }
 
 export class TestFulfillHelper extends BaseContract {
@@ -109,50 +91,30 @@ export class TestFulfillHelper extends BaseContract {
   interface: TestFulfillHelperInterface;
 
   functions: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     execute(
       user: string,
-      transactionId: BytesLike,
       assetId: string,
+      fallbackAddress: string,
+      transactionId: BytesLike,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getCallData(
       testData: { recipient: string },
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    userBalances(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
   };
-
-  addFunds(
-    user: string,
-    transactionId: BytesLike,
-    assetId: string,
-    amount: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   execute(
     user: string,
-    transactionId: BytesLike,
     assetId: string,
+    fallbackAddress: string,
+    transactionId: BytesLike,
     amount: BigNumberish,
     callData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   getCallData(
@@ -160,25 +122,12 @@ export class TestFulfillHelper extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  userBalances(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   callStatic: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     execute(
       user: string,
-      transactionId: BytesLike,
       assetId: string,
+      fallbackAddress: string,
+      transactionId: BytesLike,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
@@ -188,12 +137,6 @@ export class TestFulfillHelper extends BaseContract {
       testData: { recipient: string },
       overrides?: CallOverrides
     ): Promise<string>;
-
-    userBalances(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -213,79 +156,38 @@ export class TestFulfillHelper extends BaseContract {
         callData: string;
       }
     >;
-
-    FundsAdded(
-      user?: null,
-      assetId?: null,
-      amount?: null,
-      transactionId?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber, string],
-      {
-        user: string;
-        assetId: string;
-        amount: BigNumber;
-        transactionId: string;
-      }
-    >;
   };
 
   estimateGas: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     execute(
       user: string,
-      transactionId: BytesLike,
       assetId: string,
+      fallbackAddress: string,
+      transactionId: BytesLike,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getCallData(
       testData: { recipient: string },
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    userBalances(
-      arg0: string,
-      arg1: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     execute(
       user: string,
-      transactionId: BytesLike,
       assetId: string,
+      fallbackAddress: string,
+      transactionId: BytesLike,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getCallData(
       testData: { recipient: string },
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    userBalances(
-      arg0: string,
-      arg1: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

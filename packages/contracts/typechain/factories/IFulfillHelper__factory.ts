@@ -18,42 +18,19 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "bytes32",
-        name: "transactionId",
-        type: "bytes32",
-      },
-      {
         internalType: "address",
         name: "assetId",
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "addFunds",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
-        name: "user",
+        name: "fallbackAddress",
         type: "address",
       },
       {
         internalType: "bytes32",
         name: "transactionId",
         type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "assetId",
-        type: "address",
       },
       {
         internalType: "uint256",
@@ -68,7 +45,7 @@ const _abi = [
     ],
     name: "execute",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
 ];
