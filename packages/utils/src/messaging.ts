@@ -225,8 +225,37 @@ export type NxtpMessageEnvelope<T> = {
   inbox?: string;
 };
 
-export type AuctionPayload = { [k: string]: never };
-export type AuctionResponse = { [k: string]: never };
+export type AuctionPayload = {
+  user: string;
+  router: string;
+  sendingChainId: string;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: string;
+  receivingAssetId: string;
+  receivingAddress: string;
+  expiry: string;
+  callData: string;
+  callTo: string;
+};
+
+export type AuctionResponse = {
+  bid: {
+    user: string;
+    router: string;
+    sendingChainId: string;
+    sendingAssetId: string;
+    amount: string;
+    receivingChainId: string;
+    receivingAssetId: string;
+    amountReceived: string;
+    receivingAddress: string;
+    expiry: string;
+    callData: string;
+    callTo: string;
+  };
+  bidSignature: string;
+};
 
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
@@ -313,9 +342,9 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    *
    */
   async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
+    await this.subscribeToNxtpMessageWithInbox<AuctionPayload>(
       `*.*.${AUCTION_SUBJECT}`,
-      (data: AuctionResponse, inbox: string, err?: any) => {
+      (data: AuctionPayload, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
     );

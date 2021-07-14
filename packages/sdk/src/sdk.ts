@@ -15,6 +15,8 @@ import {
   TransactionData,
   CancelParams,
   encrypt,
+  generateMessagingInbox,
+  AuctionResponse,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -379,9 +381,24 @@ export class NxtpSdk {
     return tx;
   }
 
-  public async runAuction(
-    _params: CrossChainParams,
-  ): Promise<{ router: string; encodedBid: string; bidSignature: string }> {
+  public async runAuction(_params: CrossChainParams): Promise<AuctionResponse> {
+    const inbox = generateMessagingInbox();
+    await this.messaging.publishAuctionRequest(
+      {
+        user,
+        router,
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        receivingChainId,
+        receivingAssetId,
+        receivingAddress,
+        callTo,
+        callData,
+        expiry,
+      },
+      inbox,
+    );
     return {
       router: "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a",
       encodedBid: "0x",
