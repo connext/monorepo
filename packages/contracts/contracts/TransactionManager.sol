@@ -75,6 +75,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Minimum timeout (will be the lowest on the receiving chain)
   uint256 public constant MIN_TIMEOUT = 24 hours;
 
+  /// @dev Maximum timeout
+  uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
+
   constructor(uint256 _chainId) {
     chainId = _chainId;
   }
@@ -186,6 +189,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
+
+    // Make sure the expiry is lower than max
+    require((expiry - block.timestamp) <= MAX_TIMEOUT, "prepare: TIMEOUT_TOO_HIGH");
 
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
