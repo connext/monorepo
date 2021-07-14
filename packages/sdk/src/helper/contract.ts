@@ -1,7 +1,7 @@
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { Contract, providers, constants } from "ethers";
+import { Contract, providers } from "ethers";
 import {
   getInvariantTransactionDigest,
   InvariantTransactionData,
@@ -15,23 +15,22 @@ export const getTransactionManagerContract = (
   chainId: number,
   userWebProvider?: providers.JsonRpcProvider,
 ): { address: string; abi: any; instance: TransactionManager } => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    throw new Error("Chain not supported yet, please contact connext team");
-  }
+  // just for testing
+  let address: string;
+  let abi: any;
+  if ([1337, 1338].includes(chainId)) {
+    address = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+    abi = TransactionManagerArtifact.abi;
+  } else {
+    const record = (contractDeployments as any)[String(chainId)] ?? {};
+    const name = Object.keys(record)[0];
+    if (!name) {
+      throw new Error("Chain not supported yet, please contact connext team");
+    }
 
-  // TODO: fix me!
-  if (name === "hardhat") {
-    return {
-      address: constants.AddressZero,
-      abi: TransactionManagerArtifact.abi,
-      instance: { test: "test" } as unknown as TransactionManager,
-    };
+    abi = record[name]?.contracts?.TransactionManager?.abi;
+    address = record[name]?.contracts?.TransactionManager?.address;
   }
-
-  const abi = record[name]?.contracts?.TransactionManager?.abi;
-  const address = record[name]?.contracts?.TransactionManager?.address;
 
   const instance = new Contract(address, abi, userWebProvider) as TransactionManager;
 

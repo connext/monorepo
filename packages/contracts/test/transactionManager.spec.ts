@@ -426,7 +426,10 @@ describe("TransactionManager", function () {
     const startingBalance = !sendingSideCancel
       ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
-    const expectedBalance = startingBalance.add(record.amount);
+    const expectedBalance =
+      canceller == user || (await instance.chainId()).toNumber() == transaction.receivingChainId
+        ? startingBalance.add(record.amount)
+        : startingBalance.add(record.amount).sub(relayerFee);
 
     const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
     const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
@@ -1499,7 +1502,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: router cancels ETH after expiry", async () => {
+    it("happy case: router cancels ETH after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 
@@ -1525,7 +1528,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: router cancels ERC20 after expiry", async () => {
+    it("happy case: router cancels ERC20 after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 
@@ -1552,7 +1555,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: thirdParty cancels at sender-side ETH after expiry", async () => {
+    it("happy case: thirdParty cancels at sender-side ETH after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 

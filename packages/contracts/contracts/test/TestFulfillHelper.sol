@@ -3,7 +3,8 @@ pragma solidity 0.8.4;
 
 import "../interfaces/IFulfillHelper.sol";
 import "../lib/LibAsset.sol";
-import "../lib/LibERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TestFulfillHelper is IFulfillHelper {
   /// @dev Mapping of user to balance specific to asset
@@ -35,7 +36,7 @@ contract TestFulfillHelper is IFulfillHelper {
       require(msg.value == amount, "addFunds: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addFunds: ETH_WITH_ERC_TRANSFER");
-      require(LibERC20.transferFrom(assetId, msg.sender, address(this), amount), "addFunds: ERC20_TRANSFER_FAILED");
+      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
 
     // Update the router balances
@@ -61,7 +62,7 @@ contract TestFulfillHelper is IFulfillHelper {
     // Update the router balances
     userBalances[user][assetId] -= amount;
 
-    require(LibAsset.transferAsset(assetId, testData.recipient, amount), "execute: TRANSFER_FAILED");
+    LibAsset.transferAsset(assetId, testData.recipient, amount);
 
     emit Executed(user, assetId, amount, transactionId, callData);
   }
