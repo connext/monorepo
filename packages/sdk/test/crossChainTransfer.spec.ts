@@ -1,217 +1,100 @@
-import { BigNumber, constants, Contract, providers, Wallet } from "ethers";
-import { createStubInstance, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import {
-  InvariantTransactionData,
-  isValidBytes32,
-  mkAddress,
-  mkBytes32,
-  PrepareParams,
-  recoverFulfilledTransactionPayload,
-  TransactionPreparedEvent,
-} from "@connext/nxtp-utils";
+import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
+import { getRandomBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, PrepareParams } from "@connext/nxtp-utils";
+import { Wallet, BigNumberish, Contract, utils, BigNumber } from "ethers";
+
+import { TransactionManager, TestERC20 } from "@connext/nxtp-contracts/typechain";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
+
 import pino from "pino";
-
 import { prepare } from "../src";
-import { IERC20Minimal, TransactionManager } from "../../contracts/typechain";
-
-const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
-  const transaction: InvariantTransactionData = {
-    user: mkAddress("0xa"),
-    router: mkAddress("0xb"),
-    sendingAssetId: mkAddress("0xc"),
-    receivingAssetId: mkAddress("0xd"),
-    receivingAddress: mkAddress("0xe"),
-    transactionId: mkBytes32("0xa"),
-    callDataHash: mkBytes32("0xb"),
-    callTo: mkAddress("0xf"),
-    sendingChainFallback: mkAddress("0xaa"),
-    sendingChainId: 1337,
-    receivingChainId: 31337,
-    ...txOverrides,
-  };
-
-  return transaction;
-};
-
 const logger = pino({ level: "error" });
 
-describe("prepare", () => {
-  let transactionManager: SinonStubbedInstance<Contract>;
-  let erc20: SinonStubbedInstance<Contract>;
-  let sendingProvider: SinonStubbedInstance<providers.Web3Provider>;
-  let prepareStub: SinonStub;
+const createFixtureLoader = waffle.createFixtureLoader;
+describe("TransactionManager", function () {
+  const [wallet, router, user, receiver] = waffle.provider.getWallets();
 
-  const user = Wallet.createRandom();
+  const sendingChainId = 1337;
+  const receivingChainId = 1338;
+  const routerFunds = "1000";
+  const userFunds = "100";
 
-  beforeEach(async () => {
-    sendingProvider = createStubInstance(providers.Web3Provider);
-    transactionManager = createStubInstance(Contract);
-    erc20 = createStubInstance(Contract);
+  let transactionManager: TransactionManager;
+  let transactionManagerReceiverSide: TransactionManager;
+  let tokenA: TestERC20;
+  let tokenB: TestERC20;
 
-    prepareStub = stub();
+  const fixture = async () => {
+    const transactionManagerFactory = await ethers.getContractFactory(
+      TransactionManagerArtifact.abi,
+      TransactionManagerArtifact.bytecode,
+      wallet,
+    );
+
+    const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
+
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
+
+    tokenA = (await testERC20Factory.deploy()) as TestERC20;
+    tokenB = (await testERC20Factory.deploy()) as TestERC20;
+
+    return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
+  };
+
+  let loadFixture: ReturnType<typeof createFixtureLoader>;
+  before("create fixture loader", async () => {
+    loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  afterEach(() => {
-    // Restore all mocks
-    restore();
+  beforeEach(async function () {
+    ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
+
+    await tokenB.connect(wallet).transfer(router.address, routerFunds);
+
+    await tokenA.connect(wallet).transfer(user.address, userFunds);
   });
 
-  const setupMocks = (overrides: Partial<PrepareParams> = {}): PrepareParams => {
+  it("should deploy", async () => {
+    expect(transactionManager.address).to.be.a("string");
+    expect(tokenA.address).to.be.a("string");
+    expect(tokenB.address).to.be.a("string");
+  });
+
+  const approveTokens = async (amount: BigNumberish, approver: Wallet, token: Contract) => {
+    const approveTx = await token.connect(approver).approve(transactionManager.address, amount);
+    await approveTx.wait();
+  };
+
+  it("happy test: prepare", async () => {
+    const callData = "0x";
+    const callDataHash = utils.keccak256(callData);
+
     const params: PrepareParams = {
       bidSignature: "0x",
       encodedBid: "0x",
       expiry: (Date.now() + 10_000).toString(),
-      amount: "100000",
+      amount: BigNumber.from(1).toString(),
       encryptedCallData: "0x",
       txData: {
-        user: mkAddress("0xa"),
-        router: mkAddress("0xb"),
-        sendingAssetId: mkAddress("0xc"),
-        receivingAssetId: mkAddress("0xd"),
-        receivingAddress: mkAddress("0xe"),
+        user: user.address,
+        router: router.address,
+        sendingAssetId: tokenA.address,
+        receivingAssetId: tokenB.address,
+        receivingAddress: receiver.address,
         callTo: mkAddress("0xf"),
-        sendingChainFallback: mkAddress("0xaa"),
-        transactionId: mkBytes32("0xa"),
-        callDataHash: mkBytes32("0xb"),
-        sendingChainId: 1337,
-        receivingChainId: 31337,
+        sendingChainFallback: user.address,
+        transactionId: getRandomBytes32(),
+        callDataHash: callDataHash,
+        sendingChainId: (await transactionManager.chainId()).toNumber(),
+        receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
       },
-      ...overrides,
     };
+    await approveTokens(params.amount, user, tokenA);
 
-    // Set default values
-    prepareStub.resolves({
-      hash: "success",
-      wait: (_confs: number) => {
-        return { status: 1 };
-      },
-    });
-    transactionManager.connect.returns({ prepare: prepareStub } as any);
-    erc20.connect.returns({
-      allowance: () => Promise.resolve(constants.Zero),
-      approve: () =>
-        Promise.resolve({
-          hash: "success",
-          wait: (_confs: number) => {
-            return { status: 1 };
-          },
-        }),
-    } as any);
-    sendingProvider.getSigner.returns(user as any);
-    sendingProvider.getNetwork.resolves({ name: "test", chainId: params.txData.sendingChainId });
-    return params;
-  };
-
-  it("should properly call prepare", async () => {
-    const params = setupMocks();
-
-    const result = await prepare(
-      params,
-      transactionManager as unknown as TransactionManager,
-      user,
-      logger,
-      erc20 as unknown as IERC20Minimal,
-    );
-    expect(result).to.be.ok;
-    expect(prepareStub.calledOnce).to.be.true;
-    const [txData, amount, expiry, encryptedCallData, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
-    expect(txData).to.deep.contain({
-      user: params.txData.user,
-      router: params.txData.router,
-      sendingAssetId: params.txData.sendingAssetId,
-      receivingAssetId: params.txData.receivingAssetId,
-      receivingAddress: params.txData.receivingAddress,
-      callDataHash: params.txData.callDataHash ?? "0x",
-      sendingChainId: params.txData.sendingChainId,
-      receivingChainId: params.txData.receivingChainId,
-    });
-    expect(isValidBytes32(txData.transactionId)).to.be.true;
-    expect(amount.toString()).to.be.eq(params.amount);
-    expect(expiry).to.be.eq(params.expiry);
-    expect(encodedBid).to.be.eq("0x");
-    expect(bidSignature).to.be.eq("0x");
-    expect(encryptedCallData).to.be.eq("0x");
-    expect(overrides).to.be.deep.eq(
-      params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : { value: 0 },
-    );
-  });
-});
-
-describe("handleReceiverPrepare", () => {
-  let contract: SinonStubbedInstance<Contract>;
-  let receivingProvider: SinonStubbedInstance<providers.Web3Provider>;
-  let fulfillStub: SinonStub;
-
-  beforeEach(async () => {
-    receivingProvider = createStubInstance(providers.Web3Provider);
-
-    contract = createStubInstance(Contract);
-
-    fulfillStub = stub();
-  });
-
-  afterEach(() => {
-    // Restore all mocks
-    restore();
-  });
-
-  const setupMocks = (
-    overrides: Partial<InvariantTransactionData> = {},
-    amount = "100000",
-    expiry = (Date.now() + 10_000).toString(),
-    preparedBlockNumber = 10,
-    encryptedCallData = "0x",
-    user: Wallet = Wallet.createRandom(),
-  ): { event: TransactionPreparedEvent; user: Wallet } => {
-    const txData = getTransactionData({
-      receivingChainId: 31337,
-      user: user.address,
-      ...overrides,
-    });
-
-    // Setup mocks
-    receivingProvider.getNetwork.resolves({ chainId: txData.receivingChainId, name: "test" });
-
-    fulfillStub.resolves({ hash: "success", wait: () => Promise.resolve({ status: 1, transactionHash: "success" }) });
-    contract.connect.returns({ fulfill: fulfillStub } as any);
-
-    return {
-      event: {
-        encryptedCallData,
-        txData: { ...txData, amount, expiry, preparedBlockNumber },
-        encodedBid: "0x",
-        bidSignature: "0x",
-        caller: txData.router,
-      },
-      user,
-    };
-  };
-
-  it.skip("should properly handle an emitted event with matching txId", async () => {
-    const relayerFee = "100";
-    const { event, user } = setupMocks();
-
-    // Make call
-    // const response = await handleReceiverPrepare(
-    //   {
-    //     txData: event.txData,
-    //     relayerFee,
-    //     receivingProvider,
-    //     signer: user,
-    //   },
-    //   (contract as unknown) as Contract,
-    //   logger,
-    // );
-
-    // Verify sig is properly broadcast
-    // TODO: update for messaging
-    // expect(response).to.be.undefined;
-    expect(fulfillStub.calledOnce).to.be.true;
-    const [txDataUsed, relayerFeeUsed, sig] = fulfillStub.firstCall.args;
-    expect(txDataUsed).to.be.deep.eq(event.txData);
-    expect(relayerFeeUsed).to.be.eq(relayerFee);
-    const recovered = recoverFulfilledTransactionPayload(event.txData, relayerFee, sig);
-    expect(recovered.toLowerCase()).to.be.eq(user.address.toLowerCase());
+    const res = await prepare(params, transactionManager, user, logger, tokenA);
+    expect(res.status).to.be.eq(1);
   });
 });
