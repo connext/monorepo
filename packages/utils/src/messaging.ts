@@ -13,6 +13,10 @@ export { AuthService } from "ts-natsutil";
 
 const hId = hyperid();
 
+const MESSAGE_PREFIX = `Hi there from Connext! Sign this message to make sure that no one can communicate on the Connext Network on your behalf. This will not cost you any Ether!
+  
+To stop hackers from using your wallet, here's a unique message ID that they can't guess: `;
+
 export class MessagingError extends NxtpError {
   static readonly type = "MessagingError";
   static readonly reasons = {
@@ -46,7 +50,7 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
   const address = await signer.getAddress();
   const nonceResponse = await axios.get(`${authUrl}/auth/${address}`);
   const nonce = nonceResponse.data;
-  const sig = await signer.signMessage(nonce);
+  const sig = await signer.signMessage(`${MESSAGE_PREFIX}${nonce}`);
   const verifyResponse: AxiosResponse<string> = await axios.post(`${authUrl}/auth`, {
     sig,
     signerAddress: address,
