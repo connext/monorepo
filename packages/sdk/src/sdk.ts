@@ -27,7 +27,7 @@ import {
   getVariantHashByInvariantData,
   TransactionManagerEvents,
   TransactionManagerListener,
-} from "./utils";
+} from "./helper";
 
 declare const ethereum: any;
 
@@ -232,7 +232,7 @@ export class NxtpSdk {
         router,
         sendingAssetId,
         receivingAssetId,
-        sendingChainFallback: receivingAddress, // TODO: for now
+        sendingChainFallback:  user, // TODO: for now
         callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
