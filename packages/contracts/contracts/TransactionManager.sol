@@ -86,6 +86,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   ///                asset you're adding liquidity for
   /// @param router The router you are adding liquidity on behalf of
   function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
+    // Sanity check: router is sensible
+    require(router != address(0), "addLiquidity: ROUTER_EMPTY");
+
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
 
@@ -115,6 +118,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     address assetId,
     address payable recipient
   ) external override nonReentrant {
+    // Sanity check: recipient is sensible
+    require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
+
     // Sanity check: nonzero amounts
     require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
 
@@ -174,6 +180,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // Sanity check: router is sensible
     require(invariantData.router != address(0), "prepare: ROUTER_EMPTY");
+
+    // Sanity check: sendingChainFallback is sensible
+    require(invariantData.sendingChainFallback != address(0), "prepare: SENDING_CHAIN_FALLBACK_EMPTY");
 
     // Sanity check: valid fallback
     require(invariantData.receivingAddress != address(0), "prepare: RECEIVING_ADDRESS_EMPTY");
