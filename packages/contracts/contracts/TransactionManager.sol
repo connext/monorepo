@@ -491,7 +491,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         if (relayerFee > 0) {
           require(recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
-          LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
+          LibAsset.transferAsset(txData.sendingAssetId, payable(msg.sender), relayerFee);
         }
 
         // Get the amount to refund the user
