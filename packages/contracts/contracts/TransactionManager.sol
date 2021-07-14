@@ -315,7 +315,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     require(variantTransactionData[digest] == hashVariantTransactionData(txData), "fulfill: INVALID_VARIANT_DATA");
 
     // Make sure the expiry has not elapsed
-    require(txData.expiry > block.timestamp, "fulfill: EXPIRED");
+    require(txData.expiry >= block.timestamp, "fulfill: EXPIRED");
 
     // Make sure the transaction wasn't already completed
     require(txData.preparedBlockNumber > 0, "fulfill: ALREADY_COMPLETED");
