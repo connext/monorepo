@@ -454,9 +454,17 @@ describe("TransactionManager", function () {
   });
 
   describe("#addLiquidity", () => {
-    // TODO: reentrant cases
+    it("should revert if param router address is addressZero", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
+        "addLiquidity: ROUTER_EMPTY",
+      );
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
     it("should error if value is not present for Ether/Native token", async () => {
-      // addLiquidity: VALUE_MISMATCH
       const amount = "1";
       const assetId = AddressZero;
 
@@ -467,7 +475,6 @@ describe("TransactionManager", function () {
     });
 
     it("should error if value is not equal to amount param for Ether/Native token", async () => {
-      // addLiquidity: VALUE_MISMATCH
       const amount = "1";
       const falseValue = "2";
       const assetId = AddressZero;
@@ -512,7 +519,15 @@ describe("TransactionManager", function () {
   });
 
   describe("#removeLiquidity", () => {
-    // TODO: reentrant cases
+    it("should revert if param recipient address is addressZero", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      await expect(transactionManager.connect(router).removeLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
+        "removeLiquidity: RECIPIENT_EMPTY",
+      );
+    });
+
     it("should error if router Balance is lower than amount", async () => {
       const amount = "1";
       const assetId = AddressZero;
@@ -575,6 +590,17 @@ describe("TransactionManager", function () {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
+    });
+
+    it("should revert if param sendingChainFallback address is addressZero", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainFallback: AddressZero });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: SENDING_CHAIN_FALLBACK_EMPTY");
     });
 
     it("should revert if expiry is lower than min_timeout", async () => {
