@@ -66,7 +66,8 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   mapping(address => uint256[]) public activeTransactionBlocks;
 
   /// @dev Number of transactions in the block for that user. Used for
-  //       internal tracking only
+  ///      internal tracking only. Structured as:
+  ///      user => blockNumber => transactionsInBlock
   mapping(address => mapping(uint256 => uint256)) private activeTransactionsCount;
 
   /// @dev user => blockNum => index in activeTransactionBlocks(user). Used
