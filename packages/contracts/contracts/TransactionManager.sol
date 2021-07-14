@@ -214,7 +214,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     })));
 
     // Store active blocks
-    activeTransactionBlocks[invariantData.user].push(block.number);
+    addUserActiveBlocks(invariantData.user);
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
