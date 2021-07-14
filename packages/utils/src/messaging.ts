@@ -58,19 +58,7 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
   return verifyResponse.data;
 };
 
-export interface BasicMessaging {
-  isConnected(): boolean;
-  assertConnected(): void;
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  publish(subject: string, data: any): Promise<void>;
-  subscribe(subject: string, cb: (data: any) => any): Promise<void>;
-  unsubscribe(subject: string): Promise<void>;
-  flush(): Promise<void>;
-  request(subject: string, timeout: number, data: any): Promise<any>;
-}
-
-export class NatsBasicMessagingService implements BasicMessaging {
+export class NatsBasicMessagingService {
   private connection: INatsService | undefined;
   private log: BaseLogger;
 
@@ -114,8 +102,10 @@ export class NatsBasicMessagingService implements BasicMessaging {
     }
   }
 
-  async connect(): Promise<void> {
-    if (!this.bearerToken) {
+  async connect(bearerToken?: string): Promise<string> {
+    if (bearerToken) {
+      this.bearerToken = bearerToken;
+    } else if (!this.bearerToken) {
       const token = await getBearerToken(this.authUrl!, this.signer)();
       this.bearerToken = token;
     }
@@ -142,6 +132,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
         await this.connect();
       });
     }
+    return this.bearerToken;
   }
 
   async disconnect(): Promise<void> {

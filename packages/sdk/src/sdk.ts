@@ -154,6 +154,11 @@ export class NxtpSdk {
     return client;
   }
 
+  public async connectMessaging(bearerToken?: string): Promise<string> {
+    const token = await this.messaging.connect(bearerToken);
+    return token;
+  }
+
   public async transfer(
     transferParams: CrossChainParams,
   ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
@@ -232,7 +237,7 @@ export class NxtpSdk {
         router,
         sendingAssetId,
         receivingAssetId,
-        sendingChainFallback:  user, // TODO: for now
+        sendingChainFallback: user, // TODO: for now
         callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
