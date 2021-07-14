@@ -10,19 +10,21 @@ IFS=$'\n\t'
 
 # Set variable values.
 
-APP_FULL_NAME=@connext/nxtp-router
-APP_NAME=nxtp-router # remove scope like "@my-org/", if any.
-APP_DIR=packages/router
-SHORT_APP_DIR=router # i.e. packages/router to /router
+app_full_name=@connext/nxtp-router
+app_name=nxtp-router # remove scope like "@my-org/", if any.
+short_app_dir=router # i.e. packages/router to /router
 
 if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
-  APP_IMAGE="$APP_NAME"
+  app_image="$app_name"
 else
-  APP_IMAGE="$DOCKER_REPO/connext/$APP_NAME"
+  app_image="$DOCKER_REPO/connext/$app_name"
 fi
 
-BUILD_IMAGE=$APP_IMAGE-build
+echo "COMMIT_HASH: ${COMMIT_HASH}"
+echo "DOCKER_REPO: ${DOCKER_REPO}"
+
+BUILD_IMAGE=$app_image-build
 export TEMP_DEPS_DIR="./_tmp/deps"
 
 # Copy ./packages/*/package.json files to TEMP_DEPS_DIR,
@@ -51,10 +53,7 @@ docker build \
   --cache-from "${BUILD_IMAGE}":latest \
   --tag "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
-  --build-arg APP_NAME="${APP_FULL_NAME}" \
-  --build-arg APP_DIR="${APP_DIR}" \
-  --build-arg COMMIT_HASH="${COMMIT_HASH}" \
-  --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
+  --build-arg APP_NAME="${app_full_name}" \
   --file ./docker/Dockerfile \
   .
 
@@ -76,8 +75,8 @@ if [ -n "$DOCKER_REPO" ]; then
   echo "====="
   echo "= Pull the latest app image"
   echo "====="
-  docker pull "${APP_IMAGE}":latest || \
-    echo "No existing image found for ${APP_IMAGE}:latest"
+  docker pull "${app_image}":latest || \
+    echo "No existing image found for ${app_image}:latest"
 fi
 
 # Get tag if available
@@ -91,33 +90,24 @@ echo "====="
 echo "= Build the app image and push to registry"
 echo "====="
 
+docker build \
+    --cache-from "${app_image}":latest \
+    --cache-from "${BUILD_IMAGE}":latest \
+    --tag "${app_image}":latest \
+    --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
+    --build-arg APP_NAME="${app_full_name}" \
+    --build-arg SHORT_APP_DIR="${short_app_dir}" \
+    --file ./docker/Dockerfile \
+    .
+
+# tag images
+docker tag "${app_image}":latest "${app_name}":latest
 if [ -n "$FULL_TAG" ]; then
-  docker build \
-    --cache-from "${APP_IMAGE}":latest \
-    --cache-from "${BUILD_IMAGE}":latest \
-    --tag "${APP_IMAGE}":latest \
-    --tag "${APP_IMAGE}":"${COMMIT_HASH}" \
-    --tag "${APP_IMAGE}":"${FULL_TAG}" \
-    --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
-    --build-arg APP_NAME="${APP_FULL_NAME}" \
-    --build-arg APP_DIR="${APP_DIR}" \
-    --build-arg COMMIT_HASH="${COMMIT_HASH}" \
-    --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
-    --file ./docker/Dockerfile \
-    .
-else
-  docker build \
-    --cache-from "${APP_IMAGE}":latest \
-    --cache-from "${BUILD_IMAGE}":latest \
-    --tag "${APP_IMAGE}":latest \
-    --tag "${APP_IMAGE}":"${COMMIT_HASH}" \
-    --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
-    --build-arg APP_NAME="${APP_FULL_NAME}" \
-    --build-arg APP_DIR="${APP_DIR}" \
-    --build-arg COMMIT_HASH="${COMMIT_HASH}" \
-    --build-arg SHORT_APP_DIR="${SHORT_APP_DIR}" \
-    --file ./docker/Dockerfile \
-    .
+  docker tag "${app_image}":latest "${app_image}":"${FULL_TAG}"
+fi
+
+if [ -n "$COMMIT_HASH" ]; then
+  docker tag "${app_image}":latest "${app_image}":"${COMMIT_HASH}"
 fi
 
 echo "====="
@@ -130,15 +120,15 @@ if [ -n "$DOCKER_REPO" ]; then
   echo "====="
   echo "= Push the app image"
   echo "====="
-  docker push "${APP_IMAGE}":latest
+  docker push "${app_image}":latest
 
   if [ -n "$FULL_TAG" ]; then
-    docker push "${APP_IMAGE}":"${FULL_TAG}"
+    docker push "${app_image}":"${FULL_TAG}"
   fi
 
   if [ -n "$COMMIT_HASH" ]; then
-    docker push "${APP_IMAGE}":"${COMMIT_HASH}"
+    docker push "${app_image}":"${COMMIT_HASH}"
   fi
-else 
+else
   echo "DOCKER_REPO not configured, will not push"
 fi
