@@ -16,7 +16,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     // If it is not ether, approve the callTo
     bool isEther = LibAsset.isEther(assetId);
     if (!isEther) {
-      LibAsset.approveERC20(assetId, callTo, amount);
+      LibAsset.increaseERC20Allowance(assetId, callTo, amount);
     }
 
     // Try to execute the callData
@@ -25,13 +25,12 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     if (!success) {
       // If it fails, transfer to fallback
-      LibAsset.transferAsset(assetId, fallbackAddress, amount);        
-    }
-    
+      LibAsset.transferAsset(assetId, fallbackAddress, amount);
 
-    // If it is not ether, reset approval amount
-    if (!isEther) {
-      LibAsset.approveERC20(assetId, callTo, 0);
+      // Also decrease allowance
+      if (!isEther) {
+        LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
+      }
     }
   }
 }
