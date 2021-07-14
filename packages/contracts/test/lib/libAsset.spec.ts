@@ -87,6 +87,10 @@ describe("LibAsset", () => {
   });
 
   describe("#transferEther", () => {
+    it("should fail if transferring ether fails", async () => {
+      await expect(libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000))).to.be.reverted;
+    });
+
     it.skip("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
 

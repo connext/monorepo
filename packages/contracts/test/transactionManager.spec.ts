@@ -38,14 +38,16 @@ describe("TransactionManager", function () {
   let testFulfillHelper: TestFulfillHelper;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
+  const sendingChainId = 1337;
+  const receivingChainId = 1338;
 
   const fixture = async () => {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
     const testFulfillHelperFactory = await ethers.getContractFactory("TestFulfillHelper");
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
-    transactionManager = (await transactionManagerFactory.deploy(1337)) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(1338)) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
 
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
