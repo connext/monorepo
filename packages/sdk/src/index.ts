@@ -1,3 +1,3 @@
 export * from "./crossChainTransfer";
-export * from "./utils";
+export * from "./helper";
 export * from "./sdk";
