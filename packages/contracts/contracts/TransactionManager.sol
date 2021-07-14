@@ -65,6 +65,14 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   ///      were created.
   mapping(address => uint256[]) public activeTransactionBlocks;
 
+  /// @dev Number of transactions in the block for that user. Used for
+  //       internal tracking only
+  mapping(address => mapping(uint256 => uint256)) private activeTransactionsCount;
+
+  /// @dev user => blockNum => index in activeTransactionBlocks(user). Used
+  ///      for internal tracking only (to avoid loops on removal).
+  mapping(address => mapping(uint256 => uint256)) private activeTransactionBlockIndices;
+
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
   mapping(bytes32 => bytes32) public variantTransactionData;
@@ -551,7 +559,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     return txData;
   }
 
-  // helper method to get full array of active blocks
+  /// @notice Helper method to get full array of active blocks. Each block
+  ///         may have more than 1 active transaction.
+  /// @param user User who you want active transaction blocks for
   function getActiveTransactionBlocks(address user) external override view returns (uint256[] memory) {
     return activeTransactionBlocks[user];
   }
@@ -565,22 +575,44 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param user User who has completed a transaction
   /// @param preparedBlock The TransactionData.preparedBlockNumber to remove
   function removeUserActiveBlocks(address user, uint256 preparedBlock) internal {
-    // Remove active blocks
-    uint256 newLength = activeTransactionBlocks[user].length - 1;
-    uint256[] memory updated = new uint256[](newLength);
-    bool removed = false;
-    uint256 updatedIdx = 0;
-    for (uint256 i; i < newLength + 1; i++) {
-      // Handle case where there could be more than one tx added in a block
-      // And only one should be removed
-      if (!removed && activeTransactionBlocks[user][i] == preparedBlock) {
-        removed = true;
-        continue;
-      }
-      updated[updatedIdx] = activeTransactionBlocks[user][i];
-      updatedIdx++;
+    require(activeTransactionsCount[user][preparedBlock] > 0, "removeUserActiveBlocks: NONE");
+    if (activeTransactionsCount[user][preparedBlock] == 1) {
+      // Must remove the block from active blocks for user by swapping
+      // value at original index with final index, updating tracker, and
+      // popping
+      uint256 originalIdx = activeTransactionBlockIndices[user][preparedBlock];
+      uint256 finalIdx = activeTransactionBlocks[user].length - 1;
+
+      uint256 blockAtFinalIdx = activeTransactionBlocks[user][finalIdx];
+
+      // Update element positions in array
+      activeTransactionBlocks[user][originalIdx] = blockAtFinalIdx;
+      activeTransactionBlocks[user][finalIdx] = preparedBlock;
+
+      // Update index trackers
+      activeTransactionBlockIndices[user][preparedBlock] = 0;
+      activeTransactionBlockIndices[user][blockAtFinalIdx] = originalIdx;
+
+      // pop
+      activeTransactionBlocks[user].pop();
     }
-    activeTransactionBlocks[user] = updated;
+
+    // block count decreased
+    activeTransactionsCount[user][preparedBlock] -= 1;
+  }
+
+  /// @notice Adds a given block from the tracked activeTransactionBlocks
+  ///         array for the user. Called when transactions are prepared.
+  ///         Also updates the count and indices if needed
+  /// @param user User who has completed a transaction
+  function addUserActiveBlocks(address user) internal {
+    if (activeTransactionsCount[user][block.number] == 0) {
+      // new block must be added
+      activeTransactionBlocks[user].push(block.number);
+      activeTransactionBlockIndices[user][block.number] = activeTransactionBlocks[user].length - 1;
+    }
+    // block count increased regardless
+    activeTransactionsCount[user][block.number] += 1;
   }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
