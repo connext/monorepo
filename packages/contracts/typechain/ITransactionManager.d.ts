@@ -22,18 +22,25 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ITransactionManagerInterface extends ethers.utils.Interface {
   functions: {
+    "addAssetId(address)": FunctionFragment;
     "addLiquidity(uint256,address,address)": FunctionFragment;
+    "addRouter(address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
     "getActiveTransactionBlocks(address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
+    "removeRouter(address)": FunctionFragment;
+    "renounce()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
     values: [BigNumberish, string, string]
   ): string;
+  encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
   encodeFunctionData(
     functionFragment: "cancel",
     values: [
@@ -109,14 +116,25 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeAssetId",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeLiquidity",
     values: [BigNumberish, string, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "removeRouter",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "renounce", values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
   decodeFunctionResult(
@@ -125,9 +143,18 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "removeAssetId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
 
   events: {
     "LiquidityAdded(address,address,uint256,address)": EventFragment;
@@ -188,11 +215,21 @@ export class ITransactionManager extends BaseContract {
   interface: ITransactionManagerInterface;
 
   functions: {
+    addAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     cancel(
@@ -267,19 +304,43 @@ export class ITransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    removeAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    removeRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounce(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  addAssetId(
+    assetId: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   addLiquidity(
     amount: BigNumberish,
     assetId: string,
     router: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addRouter(
+    router: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   cancel(
@@ -354,6 +415,11 @@ export class ITransactionManager extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  removeAssetId(
+    assetId: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   removeLiquidity(
     amount: BigNumberish,
     assetId: string,
@@ -361,13 +427,26 @@ export class ITransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  removeRouter(
+    router: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounce(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    addAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    addRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     cancel(
       txData: {
@@ -537,12 +616,18 @@ export class ITransactionManager extends BaseContract {
       }
     >;
 
+    removeAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
+
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
+
+    renounce(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -838,11 +923,21 @@ export class ITransactionManager extends BaseContract {
   };
 
   estimateGas: {
+    addAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     cancel(
@@ -917,20 +1012,44 @@ export class ITransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    removeAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    removeRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounce(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     cancel(
@@ -1005,10 +1124,24 @@ export class ITransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    removeAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounce(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
