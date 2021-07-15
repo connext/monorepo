@@ -13,6 +13,7 @@ import { ChainError } from "../src/error";
 import { Transaction } from "../src/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
 import { tx, txReceipt, txResponse } from "./constants";
+import { parseUnits } from "ethers/lib/utils";
 
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
@@ -56,30 +57,44 @@ describe("TransactionService unit test", () => {
       await expect(transaction.send()).to.be.rejectedWith(ChainError.reasons.ReplacementGasInvalid);
     });
 
+    it("throws if the provider returns a gas price above the limit", async () => {
+      // Make it so the chain provider's get gas price call will return above the limit.
+      chainProvider.getGasPrice.resolves(
+        BigNumber.from(DEFAULT_CONFIG.gasLimit).add(parseUnits("1500", "gwei").toString()),
+      );
+      // This should fail, as the gas price starts well above the limit.
+      await expect(transaction.send()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
+    });
+
     it("throws if you try to bump above max gas price", async () => {
-      // Make it so the chain provider's get gas price call will give us the limit.
+      // Make it so the chain provider's get gas price call will return exactly == the limit (which is acceptable).
       chainProvider.getGasPrice.resolves(BigNumber.from(DEFAULT_CONFIG.gasLimit));
+
       // First call should go through fine.
       const response = await transaction.send();
       expect(response).to.deep.eq(txResponse);
 
-      // This should throw.
-      transaction.bumpGasPrice();
-      // chainProvider.confirmTransaction.onCall(1).resolves({ receipt: txReceipt, success: true });
-      // expect(async () => await txService.sendTx(1337, tx)).to.throw(ChainError.reasons.MaxGasPriceReached);
+      // This should throw, as we are attempting to bump above the limit.
+      await expect(transaction.bumpGasPrice()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
     });
 
     it("happy: send returns correct response", async () => {
       const response = await transaction.send();
       // Expect response to be correct.
+      
       expect(response).to.deep.eq(txResponse);
       // Ensure that we called the nested chain provider method.
       expect(chainProvider.sendTransaction.callCount).eq(1);
       const sendTransactionCall = chainProvider.sendTransaction.getCall(0);
+      console.log(sendTransactionCall.args[0], "==", {
+        ...tx,
+        gasPrice: txResponse.gasPrice,
+        nonce: undefined,
+      })
       expect(sendTransactionCall.args[0]).to.deep.eq({
         ...tx,
-        nonce: undefined,
         gasPrice: txResponse.gasPrice,
+        nonce: undefined,
       });
     });
   });
@@ -103,7 +118,7 @@ describe("TransactionService unit test", () => {
     //     success: true,
     //   });
     //   chainProvider.confirmTransaction.onCall(1).resolves({
-        
+
     //   });
 
     //   await transaction.confirm();
@@ -116,20 +131,13 @@ describe("TransactionService unit test", () => {
         receipt: new Error("timeout exceeded"),
         success: false,
       });
-
     });
 
-    it("if receipt status == 0, errors out immediately", async () => {
+    it("if receipt status == 0 (for only 1 tx), errors out immediately", async () => {});
 
-    });
-  
-    it("if all the receipts have a status == 0, errors out immediately", async () => {
+    it("if all the receipts have a status == 0, errors out immediately", async () => {});
 
-    });
-
-    it("will attempt to confirm all previously attempted transactions", async () => {
-
-    });
+    it("will attempt to confirm all previously attempted transactions", async () => {});
 
     it("happy: confirmation on first loop", async () => {
       const response = await transaction.send();
@@ -145,14 +153,10 @@ describe("TransactionService unit test", () => {
   });
 
   describe("bumpGas", async () => {
-    it("throws if gas has not been defined yet", async () => {
-
-    });
+    it("throws if gas has not been defined yet", async () => {});
 
     it("throws if it would bump gas above maximum", async () => {
-      
       await expect(transaction.bumpGasPrice()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
-      
     });
   });
 });

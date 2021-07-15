@@ -25,14 +25,12 @@ export class GasPrice {
   ) {}
 
   public async get(): Promise<BigNumber> {
-    if (this._gasPrice) {
-      return this._gasPrice;
-    } else {
+    if (!this._gasPrice) {
       const value = await this.provider.getGasPrice();
       this.validate(value);
       this._gasPrice = value;
-      return this._gasPrice;
     }
+    return BigNumber.from(this._gasPrice);
   }
 
   public set(value: BigNumber) {
@@ -43,11 +41,10 @@ export class GasPrice {
   /// Check to see if the gas price provided is past the max. If so, throw.
   private validate(value: BigNumber) {
     if (value.gt(this.limit)) {
-      const error = new ChainError(ChainError.reasons.MaxGasPriceReached, {
+      throw new ChainError(ChainError.reasons.MaxGasPriceReached, {
         gasPrice: value.toString(),
         max: this.limit.toString(),
       });
-      throw error;
     }
   }
 }

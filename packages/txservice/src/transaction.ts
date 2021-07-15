@@ -29,17 +29,6 @@ export class Transaction {
 
   private gasPrice: GasPrice;
 
-  public get data(): Promise<FullTransaction> {
-    return new Promise(async (resolve) => {
-      const gasPrice = await this.gasPrice.get();
-      resolve({
-        ...this.minTx,
-        gasPrice,
-        nonce: this.nonce,
-      });
-    });
-  }
-
   constructor(
     private readonly log: BaseLogger,
     private readonly provider: ChainRpcProvider,
@@ -47,6 +36,16 @@ export class Transaction {
     private readonly config: TransactionServiceConfig,
   ) {
     this.gasPrice = new GasPrice(BigNumber.from(this.config.gasLimit), this.provider);
+  }
+
+  /// Retrieves all data needed to format a full transaction.
+  public async getData(): Promise<FullTransaction> {
+    const gasPrice = await this.gasPrice.get();
+    return {
+      ...this.minTx,
+      gasPrice,
+      nonce: this.nonce,
+    };
   }
 
   /// Makes a single attempt to send this transaction based on its current data.
@@ -63,12 +62,12 @@ export class Transaction {
       const lastPrice = this.responses[this.responses.length - 1].gasPrice;
       // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
       // If there isn't a lastPrice, we're going to skip this validation step.
-      if (lastPrice && await this.gasPrice.get() <= lastPrice) {
+      if (lastPrice && (await this.gasPrice.get()) <= lastPrice) {
         throw new ChainError(ChainError.reasons.ReplacementGasInvalid);
       }
     }
 
-    const data = await this.data;
+    const data = await this.getData();
     await this.logInfo("Sending transaction...", this.confirm.name);
     const { response: _response, success } = await this.provider.sendTransaction(data);
     this._attempt++;
@@ -113,11 +112,19 @@ export class Transaction {
     this.responses.push(response);
     // Raise this flag to enable confirmation step.
     this.didSubmit = true;
+    await this.logInfo("Transaction successfully sent.", this.confirm.name);
     return response;
   }
 
-  /// Makes an attempt to confirm this transaction. If confirmation times out, throws. If all
-  /// previous txs are reverted, throws.
+  /* Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
+   * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
+   * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
+   * 
+   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
+   * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
+   * wait an extended period for the desired number of confirmations. If no further confirmations appear
+   * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
+   */
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
     if (!this.didSubmit) {
       throw new ChainError(ChainError.reasons.TxNotFound);
@@ -203,7 +210,7 @@ export class Transaction {
 
   /// This helper exists to ensure we are always logging the full transaction data and ID whenever we log info.
   private async logInfo(message: string, method: string, info: any = {}) {
-    const data = await this.data;
+    const data = await this.getData();
     this.log.info(
       {
         method,
