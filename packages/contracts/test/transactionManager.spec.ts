@@ -757,30 +757,35 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
-    // it("happy case: prepare by Bob for ERC20 with CallData", async () => {
-    //   const prepareAmount = "10";
-    //   const assetId = tokenA.address;
+    it("happy case: prepare by Bob for ERC20 with CallData", async () => {
+      const prepareAmount = "10";
+      const assetId = tokenA.address;
 
-    //   const callData = await counter.getCallData({ recipient: other.address });
-    //   const callDataHash = utils.keccak256(callData);
+      // Get calldata
+      const callData = counter.interface.encodeFunctionData("incrementAndSend", [
+        assetId,
+        other.address,
+        prepareAmount,
+      ]);
+      const callDataHash = utils.keccak256(callData);
 
-    //   const { transaction, record } = await getTransactionData({
-    //     sendingAssetId: assetId,
-    //     receivingAssetId: tokenB.address,
-    //     callTo: counter.address,
-    //     callDataHash: callDataHash,
-    //   });
-    //   await approveTokens(prepareAmount, user, transactionManager.address);
+      const { transaction, record } = await getTransactionData({
+        sendingAssetId: assetId,
+        receivingAssetId: tokenB.address,
+        callTo: counter.address,
+        callDataHash: callDataHash,
+      });
+      await approveTokens(prepareAmount, user, transactionManager.address);
 
-    //   await prepareAndAssert(
-    //     transaction,
-    //     {
-    //       amount: prepareAmount,
-    //     },
-    //     user,
-    //     transactionManager,
-    //   );
-    // });
+      await prepareAndAssert(
+        transaction,
+        {
+          amount: prepareAmount,
+        },
+        user,
+        transactionManager,
+      );
+    });
 
     it("happy case: prepare by Bob for ERC20", async () => {
       const prepareAmount = "10";
@@ -1190,7 +1195,54 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("should handle external calls with ERC20 (external calls do not revert)", async () => {});
+    it("should handle external calls with ERC20 (external calls do not revert)", async () => {
+      const prepareAmount = "100";
+      const assetId = tokenB.address;
+      const relayerFee = "10";
+      const counterAmount = BigNumber.from(prepareAmount).sub(relayerFee);
+
+      // Get calldata
+      const callData = counter.interface.encodeFunctionData("incrementAndSend", [
+        assetId,
+        other.address,
+        counterAmount.toString(),
+      ]);
+      const callDataHash = utils.keccak256(callData);
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, assetId);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: tokenA.address,
+          receivingAssetId: assetId,
+          callDataHash,
+          callTo: counter.address,
+        },
+        { amount: prepareAmount },
+      );
+
+      // Router prepares
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      const preExecute = await counter.count();
+      const balance = await getOnchainBalance(assetId, other.address, other.provider);
+
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+        callData,
+      );
+
+      expect(await counter.count()).to.be.eq(preExecute.add(1));
+      expect(await getOnchainBalance(assetId, other.address, other.provider)).to.be.eq(balance.add(counterAmount));
+    });
 
     it("should handle external calls with native asset (external calls do not revert)", async () => {
       const prepareAmount = "10";
@@ -1235,7 +1287,63 @@ describe("TransactionManager", function () {
       expect(await other.getBalance()).to.be.eq(balance.add(counterAmount));
     });
 
-    it.skip("should handle external calls with ERC20 that revert (sends to fallback address)", async () => {});
+    it("should handle external calls with ERC20 that revert (sends to fallback address)", async () => {
+      const prepareAmount = "100";
+      const assetId = tokenB.address;
+      const relayerFee = "10";
+      const counterAmount = BigNumber.from(prepareAmount).sub(relayerFee);
+
+      // Set to revert
+      const revert = await counter.setShouldRevert(true);
+      await revert.wait();
+      expect(await counter.shouldRevert()).to.be.true;
+
+      // Get calldata
+      const callData = counter.interface.encodeFunctionData("incrementAndSend", [
+        assetId,
+        other.address,
+        counterAmount.toString(),
+      ]);
+      const callDataHash = utils.keccak256(callData);
+
+      // Add receiving liquidity
+      await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenB);
+      await addAndAssertLiquidity(prepareAmount, assetId);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingAssetId: tokenA.address,
+          receivingAssetId: assetId,
+          callDataHash,
+          callTo: counter.address,
+        },
+        { amount: prepareAmount },
+      );
+
+      // Router prepares
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      const preExecute = await counter.count();
+      const otherBalance = await getOnchainBalance(assetId, other.address, other.provider);
+      const fallbackBalance = await getOnchainBalance(assetId, transaction.receivingAddress, other.provider);
+
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+        callData,
+      );
+
+      expect(await counter.count()).to.be.eq(preExecute);
+      expect(await getOnchainBalance(assetId, other.address, other.provider)).to.be.eq(otherBalance);
+      expect(await getOnchainBalance(assetId, transaction.receivingAddress, other.provider)).to.be.eq(
+        fallbackBalance.add(counterAmount),
+      );
+    });
 
     it("should handle external calls with native asset that revert (sends to fallback address)", async () => {
       const prepareAmount = "10";
