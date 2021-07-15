@@ -67,6 +67,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Mapping of allowed assetIds on same chain of contract
   mapping(address => bool) public approvedAssets;
 
+  /// @dev Indicates if the ownership has been renounced
+  bool public renounced = false;
+
   /// @dev Mapping of user address to blocks where active transfers
   ///      were created.
   mapping(address => uint256[]) public activeTransactionBlocks;
@@ -88,12 +91,37 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     chainId = _chainId;
   }
 
+  /// @notice Removes any ownership privelenges. Used to allow 
+  ///         arbitrary assets and routers
+  function renounce() external override onlyOwner {
+    renounced = true;
+    renounceOwnership();
+  }
+
+  /// @notice Used to add routers that can transact crosschain
+  /// @param router Router address to add
   function addRouter(address router) external override onlyOwner {
     approvedRouters[router] = true;
   }
 
+  /// @notice Used to remove routers that can transact crosschain
+  /// @param router Router address to remove
+  function removeRouter(address router) external override onlyOwner {
+    approvedRouters[router] = false;
+  }
+
+  /// @notice Used to add assets on same chain as contract that can
+  ///         be transferred.
+  /// @param assetId AssetId to add
   function addAssetId(address assetId) external override onlyOwner {
     approvedAssets[assetId] = true;
+  }
+
+  /// @notice Used to remove assets on same chain as contract that can
+  ///         be transferred.
+  /// @param assetId AssetId to remove
+  function removeAssetId(address assetId) external override onlyOwner {
+    approvedAssets[assetId] = false;
   }
 
   /// @notice This is used by any router to increase their available
@@ -110,10 +138,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
 
     // Router is approved
-    require(approvedRouters[router], "addLiquidity: BAD_ROUTER");
+    require(renounced || approvedRouters[router], "addLiquidity: BAD_ROUTER");
 
     // Asset is approved
-    require(approvedAssets[assetId], "addLiquidity: BAD_ASSET");
+    require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
@@ -206,7 +234,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(invariantData.router != address(0), "prepare: ROUTER_EMPTY");
 
     // Router is approved
-    require(approvedRouters[router], "prepare: BAD_ROUTER");
+    require(renounced || approvedRouters[invariantData.router], "prepare: BAD_ROUTER");
 
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "prepare: SENDING_CHAIN_FALLBACK_EMPTY");
@@ -252,7 +280,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(amount > 0, "prepare: AMOUNT_IS_ZERO");
 
       // Asset is approved
-      require(approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
+      require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
