@@ -13,7 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const interpreter = await hre.deployments.deploy("FulfillInterpreter", {
     from: deployer,
-    args: [chainId],
+    args: [],
     log: true,
   });
 
