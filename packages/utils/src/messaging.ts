@@ -222,33 +222,39 @@ export type NxtpMessageEnvelope<T> = {
 
 export type AuctionPayload = {
   user: string;
-  router: string;
-  sendingChainId: string;
+  sendingChainId: number;
   sendingAssetId: string;
   amount: string;
-  receivingChainId: string;
+  receivingChainId: number;
   receivingAssetId: string;
   receivingAddress: string;
   expiry: string;
-  callData: string;
+  transactionId: string;
+  encryptedCallData: string;
+  callDataHash: string;
+  callTo: string;
+  txManagerAddress: string;
+};
+
+export type AuctionBid = {
+  user: string;
+  router: string;
+  sendingChainId: number;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: number;
+  receivingAssetId: string;
+  amountReceived: string;
+  receivingAddress: string;
+  transactionId: string;
+  expiry: string;
+  encryptedCallData: string;
+  callDataHash: string;
   callTo: string;
 };
 
 export type AuctionResponse = {
-  bid: {
-    user: string;
-    router: string;
-    sendingChainId: string;
-    sendingAssetId: string;
-    amount: string;
-    receivingChainId: string;
-    receivingAssetId: string;
-    amountReceived: string;
-    receivingAddress: string;
-    expiry: string;
-    callData: string;
-    callTo: string;
-  };
+  bid: AuctionBid;
   bidSignature: string;
 };
 
