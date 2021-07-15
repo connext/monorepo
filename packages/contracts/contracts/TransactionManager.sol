@@ -87,12 +87,15 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
   /// @param router The router you are adding liquidity on behalf of
-  function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
+  function addLiquidity(uint256 amount, address assetId, address router) external payable override {
     // Sanity check: router is sensible
     require(router != address(0), "addLiquidity: ROUTER_EMPTY");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
+
+    // Update the router balances
+    routerBalances[router][assetId] += amount;
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
@@ -101,9 +104,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
-
-    // Update the router balances
-    routerBalances[router][assetId] += amount;
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
@@ -119,7 +119,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     uint256 amount,
     address assetId,
     address payable recipient
-  ) external override nonReentrant {
+  ) external override {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
 
@@ -177,7 +177,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
-  ) external payable override nonReentrant returns (TransactionData memory) {
+  ) external payable override returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "prepare: USER_EMPTY");
 
@@ -213,12 +213,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     //       in the event of a router or user crash, they may recover the
     //       correct bid information without requiring an offchain store.
 
-    // Store the transaction variants
-    variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
-
-    // Store active blocks
-    activeTransactionBlocks[invariantData.user].push(block.number);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Sanity check: amount is sensible
@@ -226,6 +220,13 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
       require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+
+      // Store active blocks
+      activeTransactionBlocks[invariantData.user].push(block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -261,6 +262,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       uint256 routerBalance = routerBalances[invariantData.router][invariantData.receivingAssetId];
       // Check that router has liquidity
       require(routerBalance >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+
+      // Store active blocks
+      activeTransactionBlocks[invariantData.user].push(block.number);
 
       // Decrement the router liquidity
       routerBalances[invariantData.router][invariantData.receivingAssetId] = routerBalance - amount;
