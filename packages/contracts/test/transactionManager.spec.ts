@@ -5,6 +5,7 @@ import {
   InvariantTransactionData,
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
+  signPrepareTransactionPayload,
   VariantTransactionData,
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
@@ -221,11 +222,12 @@ describe("TransactionManager", function () {
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
     instance: TransactionManager = transactionManager,
+    userSignature = EmptyBytes,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
     // Check if its the user
-    const userSending = preparer.address === transaction.user;
+    const userSending = preparer.address !== transaction.router;
 
     // Get initial balances
     const initialContractAmount = await getOnchainBalance(
@@ -235,7 +237,7 @@ describe("TransactionManager", function () {
     );
     const initialPreparerAmount = userSending
       ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-      : await instance.routerBalances(preparer.address, transaction.receivingAssetId);
+      : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
 
     const invariantDigest = getInvariantTransactionDigest(transaction);
 
@@ -250,7 +252,10 @@ describe("TransactionManager", function () {
         EmptyBytes,
         EmptyBytes,
         EmptyBytes,
-        transaction.sendingAssetId === AddressZero && userSending ? { value: record.amount } : {},
+        userSignature,
+        transaction.sendingAssetId === AddressZero && preparer.address !== transaction.router
+          ? { value: record.amount }
+          : {},
       );
     const receipt = await prepareTx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -280,8 +285,8 @@ describe("TransactionManager", function () {
 
     // Verify amount has been deducted from preparer
     const finalPreparerAmount = userSending
-      ? await getOnchainBalance(transaction.sendingAssetId, await user.getAddress(), ethers.provider)
-      : await instance.routerBalances(preparer.address, transaction.receivingAssetId);
+      ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
+      : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
     const expected = initialPreparerAmount.sub(record.amount);
     expect(finalPreparerAmount).to.be.eq(
       transaction.sendingAssetId === AddressZero && userSending
@@ -567,7 +572,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: USER_EMPTY");
@@ -578,7 +583,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: ROUTER_EMPTY");
@@ -589,7 +594,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
@@ -600,7 +605,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: SENDING_CHAIN_FALLBACK_EMPTY");
@@ -613,7 +618,9 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
     });
 
@@ -624,7 +631,9 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_HIGH");
     });
 
@@ -633,7 +642,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: SAME_CHAINIDS");
@@ -644,7 +653,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: INVALID_CHAINIDS");
@@ -655,7 +664,9 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, 0, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
+          .prepare(transaction, 0, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
       ).to.be.revertedWith("prepare: AMOUNT_IS_ZERO");
     });
 
@@ -667,7 +678,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: DIGEST_EXISTS");
@@ -679,7 +690,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes),
       ).to.be.revertedWith("prepare: VALUE_MISMATCH");
     });
 
@@ -689,7 +700,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: falseAmount,
           }),
       ).to.be.revertedWith("prepare: VALUE_MISMATCH");
@@ -701,7 +712,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: ETH_WITH_ERC_TRANSFER");
@@ -712,7 +723,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes),
       ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
     });
 
@@ -722,7 +733,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManagerReceiverSide
           .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes),
       ).to.be.revertedWith("prepare: ROUTER_MISMATCH");
     });
 
@@ -732,7 +743,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManagerReceiverSide
           .connect(router)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: ETH_WITH_ROUTER_PREPARE");
@@ -744,7 +755,7 @@ describe("TransactionManager", function () {
       await expect(
         transactionManagerReceiverSide
           .connect(router)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, EmptyBytes),
       ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
     });
 
@@ -841,6 +852,24 @@ describe("TransactionManager", function () {
         { amount: prepareAmount },
         router,
         transactionManagerReceiverSide,
+      );
+    });
+
+    it("happy case: prepare by Bob, sent by relayer", async () => {
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+
+      const { transaction, record } = await getTransactionData(
+        { sendingAssetId: assetId, receivingAssetId: tokenB.address },
+        { amount: prepareAmount },
+      );
+
+      await prepareAndAssert(
+        transaction,
+        record,
+        other,
+        transactionManager,
+        await signPrepareTransactionPayload({ ...transaction, ...record }, user),
       );
     });
   });
