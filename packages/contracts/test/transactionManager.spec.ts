@@ -426,7 +426,10 @@ describe("TransactionManager", function () {
     const startingBalance = !sendingSideCancel
       ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
-    const expectedBalance = startingBalance.add(record.amount);
+    const expectedBalance =
+      canceller == user || (await instance.chainId()).toNumber() == transaction.receivingChainId
+        ? startingBalance.add(record.amount)
+        : startingBalance.add(record.amount).sub(relayerFee);
 
     const signature = await signCancelTransactionPayload(transaction, relayerFee.toString(), user);
     const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
@@ -454,9 +457,17 @@ describe("TransactionManager", function () {
   });
 
   describe("#addLiquidity", () => {
-    // TODO: reentrant cases
+    it("should revert if param router address is addressZero", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
+        "addLiquidity: ROUTER_EMPTY",
+      );
+      expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
     it("should error if value is not present for Ether/Native token", async () => {
-      // addLiquidity: VALUE_MISMATCH
       const amount = "1";
       const assetId = AddressZero;
 
@@ -467,7 +478,6 @@ describe("TransactionManager", function () {
     });
 
     it("should error if value is not equal to amount param for Ether/Native token", async () => {
-      // addLiquidity: VALUE_MISMATCH
       const amount = "1";
       const falseValue = "2";
       const assetId = AddressZero;
@@ -512,7 +522,15 @@ describe("TransactionManager", function () {
   });
 
   describe("#removeLiquidity", () => {
-    // TODO: reentrant cases
+    it("should revert if param recipient address is addressZero", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      await expect(transactionManager.connect(router).removeLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
+        "removeLiquidity: RECIPIENT_EMPTY",
+      );
+    });
+
     it("should error if router Balance is lower than amount", async () => {
       const amount = "1";
       const assetId = AddressZero;
@@ -577,6 +595,17 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
     });
 
+    it("should revert if param sendingChainFallback address is addressZero", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainFallback: AddressZero });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: SENDING_CHAIN_FALLBACK_EMPTY");
+    });
+
     it("should revert if expiry is lower than min_timeout", async () => {
       const { transaction, record } = await getTransactionData();
       const hours12 = 12 * 60 * 60;
@@ -586,6 +615,17 @@ describe("TransactionManager", function () {
           .connect(user)
           .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
+    });
+
+    it("should revert if expiry is higher than max_timeout", async () => {
+      const { transaction, record } = await getTransactionData();
+      const days31 = 31 * 24 * 60 * 60;
+      const expiry = (Math.floor(Date.now() / 1000) + days31 + 5_000).toString();
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, { value: record.amount }),
+      ).to.be.revertedWith("prepare: TIMEOUT_TOO_HIGH");
     });
 
     it("should revert if param sending and receiving chainId are same", async () => {
@@ -1499,7 +1539,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: router cancels ETH after expiry", async () => {
+    it("happy case: router cancels ETH after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 
@@ -1525,7 +1565,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: router cancels ERC20 after expiry", async () => {
+    it("happy case: router cancels ERC20 after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 
@@ -1552,7 +1592,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it.skip("happy case: thirdParty cancels at sender-side ETH after expiry", async () => {
+    it("happy case: thirdParty cancels at sender-side ETH after expiry", async () => {
       const prepareAmount = "10";
       const relayerFee = BigNumber.from(1);
 
