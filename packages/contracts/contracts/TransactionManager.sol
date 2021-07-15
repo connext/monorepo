@@ -200,8 +200,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     require((expiry - block.timestamp) <= MAX_TIMEOUT, "prepare: TIMEOUT_TOO_HIGH");
 
     // Make sure the hash is not a duplicate
-    bytes32 digest = keccak256(abi.encode(invariantData));
-    require(variantTransactionData[digest] == bytes32(0), "prepare: DIGEST_EXISTS");
+    // NOTE: keccak256(abi.encode(invariantData)) is repeated due to stack
+    // too deep errors
+    require(variantTransactionData[keccak256(abi.encode(invariantData))] == bytes32(0), "prepare: DIGEST_EXISTS");
 
     // Make sure user is caller or has signed
     require(msg.sender == invariantData.user || recoverPrepareSignature(invariantData.transactionId, amount, userSignature) == invariantData.user, "prepare: NO_USER_AUTH");
@@ -214,7 +215,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     //       correct bid information without requiring an offchain store.
 
     // Store the transaction variants
-    variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+    variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
@@ -255,12 +256,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // Check that the router isnt accidentally locking funds in the contract
       require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
 
-      uint256 routerBalance = routerBalances[invariantData.router][invariantData.receivingAssetId];
       // Check that router has liquidity
-      require(routerBalance >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+      require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
 
       // Decrement the router liquidity
-      routerBalances[invariantData.router][invariantData.receivingAssetId] = routerBalance - amount;
+      routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
     }
 
     // Emit event

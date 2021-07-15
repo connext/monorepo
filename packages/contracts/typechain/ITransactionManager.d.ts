@@ -25,7 +25,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "addLiquidity(uint256,address,address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
-    "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "prepare(tuple,uint256,uint256,bytes,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
   };
 
@@ -98,6 +98,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
       },
       BigNumberish,
       BigNumberish,
+      BytesLike,
       BytesLike,
       BytesLike,
       BytesLike
@@ -250,6 +251,7 @@ export class ITransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -332,6 +334,7 @@ export class ITransactionManager extends BaseContract {
     encryptedCallData: BytesLike,
     encodedBid: BytesLike,
     bidSignature: BytesLike,
+    userSignature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -478,6 +481,7 @@ export class ITransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -885,6 +889,7 @@ export class ITransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -968,6 +973,7 @@ export class ITransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

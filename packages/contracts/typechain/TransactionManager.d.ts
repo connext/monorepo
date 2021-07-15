@@ -28,7 +28,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
-    "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "prepare(tuple,uint256,uint256,bytes,bytes,bytes,bytes)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "variantTransactionData(bytes32)": FunctionFragment;
@@ -112,6 +112,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
       },
       BigNumberish,
       BigNumberish,
+      BytesLike,
       BytesLike,
       BytesLike,
       BytesLike
@@ -295,6 +296,7 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -394,6 +396,7 @@ export class TransactionManager extends BaseContract {
     encryptedCallData: BytesLike,
     encodedBid: BytesLike,
     bidSignature: BytesLike,
+    userSignature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -557,6 +560,7 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -981,6 +985,7 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1081,6 +1086,7 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
+      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
