@@ -204,9 +204,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // too deep errors
     require(variantTransactionData[keccak256(abi.encode(invariantData))] == bytes32(0), "prepare: DIGEST_EXISTS");
 
-    // Make sure user is caller or has signed
-    require(msg.sender == invariantData.user || recoverPrepareSignature(invariantData.transactionId, amount, userSignature) == invariantData.user, "prepare: NO_USER_AUTH");
-
     // NOTE: the `encodedBid` and `bidSignature` are simply passed through
     //       to the contract emitted event to ensure the availability of
     //       this information. Their validity is asserted offchain, and
@@ -219,6 +216,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
+      // Make sure user is caller or has signed
+      require(msg.sender == invariantData.user || recoverPrepareSignature(invariantData.transactionId, amount, userSignature) == invariantData.user, "prepare: USER_MISMATCH");
+
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
