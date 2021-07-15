@@ -1,8 +1,10 @@
+[![Verify](https://github.com/connext/nxtp/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+
 # NXTP
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (i.e. it does **not** rely on any external validator set).
+**Nxtp** is a lightweight protocol for generalized xchain/xrollup transactions that retain the security properties of the underlying execution environment (i.e. it does **not** rely on any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transactions.
 

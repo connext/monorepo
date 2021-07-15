@@ -1,10 +1,11 @@
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { constants, Contract, providers, Signer, utils } from "ethers";
 import {
   CancelParams,
   generateMessagingInbox,
   InvariantTransactionData,
   MetaTxResponse,
   PrepareParams,
+  getRandomBytes32,
   signFulfillTransactionPayload,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
@@ -12,8 +13,11 @@ import {
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
+import { Evt } from "evt";
 
-import { getRandomBytes32 } from "./utils";
+import { NxtpSdkEvent, NxtpSdkEventPayloads } from "./sdk";
+
+declare const ethereum: any;
 
 export const ajv = new Ajv();
 
@@ -30,8 +34,10 @@ export const prepare = async (
   params: PrepareParams,
   transactionManager: TransactionManager,
   signer: Signer,
+  evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> },
   logger: BaseLogger,
   erc20Contract?: IERC20Minimal,
+  infiniteApprove = false,
 ): Promise<providers.TransactionReceipt> => {
   const method = "prepare";
   const methodId = getRandomBytes32();
@@ -95,12 +101,22 @@ export const prepare = async (
     }
     const signerAddress = await signer.getAddress();
     logger.info({ method, methodId, transactionId, assetId: transaction.sendingAssetId, amount }, "Approving tokens");
-    const approved = await erc20Contract.connect(signer).allowance(signerAddress, transactionManager.address);
+    const connected = erc20Contract.connect(signer);
+    const approved = await connected.allowance(signerAddress, transactionManager.address);
     logger.info({ method, methodId, transactionId, approved: approved.toString() }, "Got approved tokens");
 
     if (approved.lt(amount)) {
-      const approveTx = await erc20Contract.connect(signer).approve(transactionManager.address, amount);
+      const approveTx = await connected.approve(
+        transactionManager.address,
+        infiniteApprove ? constants.MaxUint256 : amount,
+      );
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
+      evts.SenderTokenApprovalSubmitted.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionResponse: approveTx,
+      });
+
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {
         throw new Error("Approve transaction reverted onchain");
@@ -109,6 +125,11 @@ export const prepare = async (
         { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
         "Mined approve tx",
       );
+      evts.SenderTokenApprovalMined.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionReceipt: approveReceipt,
+      });
     }
   }
 
@@ -123,6 +144,10 @@ export const prepare = async (
       bidSignature,
       transaction.sendingAssetId === constants.AddressZero ? { value: amount } : { value: 0 },
     );
+  evts.SenderTransactionPrepareSubmitted.post({
+    prepareParams: params,
+    transactionResponse: prepareTx,
+  });
 
   // TODO: fix block confs for chains
   logger.info({ method, methodId, transactionId, transactionHash: prepareTx.hash }, "Submitted prepare tx");
@@ -178,14 +203,6 @@ export const cancel = async (
   return cancelReceipt as providers.TransactionReceipt;
 };
 
-export type TransactionPrepareEvent = {
-  txData: InvariantTransactionData;
-  amount: BigNumber;
-  expiry: BigNumber;
-  blockNumber: BigNumber;
-  caller: string;
-};
-
 export const handleReceiverPrepare = async (
   params: TransactionPreparedEvent,
   transactionManager: Contract,
@@ -195,9 +212,9 @@ export const handleReceiverPrepare = async (
 ): Promise<void> => {
   const method = "handleReceiverPrepare";
   const methodId = getRandomBytes32();
-  logger.info({ method, methodId, txData: params.txData }, "Method start");
+  logger.info({ method, methodId, txData: params.txData, encryptedCallData: params.encryptedCallData }, "Method start");
 
-  const { txData } = params;
+  const { txData, encryptedCallData } = params;
 
   // TODO
   const relayerFee = "0";
@@ -223,6 +240,15 @@ export const handleReceiverPrepare = async (
       return resolve(data);
     });
   });
+
+  let callData = "0x";
+  if (txData.callDataHash !== utils.keccak256(callData)) {
+    callData = await ethereum.request({
+      method: "eth_decrypt",
+      params: [encryptedCallData, txData.user],
+    });
+  }
+
   await messaging.publishMetaTxRequest(
     {
       type: "Fulfill",
@@ -233,7 +259,7 @@ export const handleReceiverPrepare = async (
         relayerFee,
         signature,
         txData,
-        callData: "0x", // TODO
+        callData,
       },
       responseInbox,
     },

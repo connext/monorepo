@@ -150,7 +150,7 @@ export class TransactionManager {
     chainId: number,
     router: string,
     amount: string,
-    assetId: string = constants.AddressZero,
+    assetId: string,
   ): Promise<providers.TransactionReceipt> {
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
     const bnAmount = BigNumber.from(amount);
@@ -177,7 +177,7 @@ export class TransactionManager {
   async removeLiquidity(
     chainId: number,
     amount: string,
-    assetId: string = constants.AddressZero,
+    assetId: string,
     recipientAddress: string | undefined,
   ): Promise<providers.TransactionReceipt> {
     //should we remove liquidity for self if there isn't another address specified?

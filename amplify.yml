@@ -1,0 +1,18 @@
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - yarn
+        build:
+          commands:
+            - yarn build:all
+            - yarn workspace @connext/nxtp-test-ui build
+      artifacts:
+        baseDirectory: packages/test-ui/build
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*

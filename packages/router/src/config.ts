@@ -66,7 +66,6 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
     if (json) {
       configFile = JSON.parse(json);
-      console.log("configFile: ", configFile);
       console.log("Found configFile");
     }
   } catch (e) {
@@ -123,5 +122,6 @@ if (!valid) {
 }
 
 const config = nxtpConfig as Omit<NxtpRouterConfig, "mnemonic"> & { mnemonic: string };
+console.log(JSON.stringify({ ...config, mnemonic: "********" }, null, 2));
 
 export const getConfig = (): Omit<NxtpRouterConfig, "mnemonic"> & { mnemonic: string } => config;

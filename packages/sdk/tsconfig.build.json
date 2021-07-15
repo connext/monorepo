@@ -17,11 +17,6 @@
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "test/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["test/**/*.ts"]
 }

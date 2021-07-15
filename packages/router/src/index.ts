@@ -79,18 +79,21 @@ server.get("/config", async () => {
 
 server.post<{ Body: AddLiquidityRequest }>(
   "/add-liquidity",
-  //  TODO: make these work!
-  // { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
+  { schema: { body: AddLiquidityRequestSchema, response: { "2xx": AddLiquidityResponseSchema } } },
   async (req) => {
-    const result = await transactionManager.addLiquidity(req.body.chainId, req.body.amount, req.body.assetId);
+    const result = await transactionManager.addLiquidity(
+      req.body.chainId,
+      wallet.address,
+      req.body.amount,
+      req.body.assetId,
+    );
     return { transactionHash: result.transactionHash };
   },
 );
 
 server.get<{ Body: RemoveLiquidityRequest }>(
   "/remove-liquidity",
-  //  TODO: make these work!
-  // { schema: { body: RemoveLiquidityRequestSchema, response: RemoveLiquidityResponseSchema } },
+  { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
   async (req) => {
     const result = await transactionManager.removeLiquidity(
       req.body.chainId,

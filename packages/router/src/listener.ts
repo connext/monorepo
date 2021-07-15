@@ -32,7 +32,7 @@ export async function setupListeners(
   messagingService.subscribeToMetaTxRequest(async (data) => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
-    logger.debug({ data }, "Got metatx");
+    logger.info({ data }, "Got metatx");
     await handler.handleMetaTxRequest(data);
   });
 
@@ -40,16 +40,6 @@ export async function setupListeners(
   txManager.onSenderPrepare(async (data: TransactionPreparedEvent) => {
     // On sender prepare, route to sender prepare handler
     await handler.handleSenderPrepare(data);
-  });
-
-  txManager.onReceiverPrepare(async (data: TransactionPreparedEvent) => {
-    // On receiver prepare, route to receiver prepare handler
-    await handler.handleReceiverPrepare(data);
-  });
-
-  txManager.onSenderFulfill(async (data: TransactionFulfilledEvent) => {
-    // On sender fulfill, route to sender fulfill handler
-    await handler.handleSenderFulfill(data);
   });
 
   txManager.onReceiverFulfill(async (data: TransactionFulfilledEvent) => {

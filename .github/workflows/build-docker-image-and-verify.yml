@@ -1,0 +1,114 @@
+# A GitHub Actions workflow to build a docker image for an app.
+#
+# One-time setup to use this workflow:
+# 1. Move this file into ./.github/workflows
+# 2. Change APP_NAME variable below to the name of the app.
+#
+# The image will be built on each push to or pull request on main.
+# It will be pushed to the current GitHub repo's Packages.
+
+name: Build and Push Docker Image - Router
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  create:
+    tag:
+      - "v*"
+
+env:
+  # These variables are used by build.sh.
+
+  # Comment out the following line to skip pushing the image to your GitHub repo.
+  DOCKER_REPO: ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Add COMMIT_HASH env property with commit short sha
+        run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Build and push docker image to GitHub repo
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          chmod +x ./docker/build-router.sh
+          ./docker/build-router.sh
+
+  verify:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - name: Cache yarn cache
+        uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Build
+        run: yarn build:all
+
+      - name: Test
+        run: yarn test:all
+
+      - name: Get Docker image
+        run: |
+          yarn workspace @connext/nxtp-router build
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/connext/nxtp-router:latest
+          docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
+
+      - name: Test Integration
+        run: yarn test:integration
+
+      - name: Lint
+        run: yarn lint:all --max-warnings 0
+
+      # -------------------------------------------------------------------------
+      # PUBLISHING TO NPM
+      # -------------------------------------------------------------------------
+      # One-time steps to setup publishing:
+      # 1. Uncomment the Publish step below and change __PACKAGE_NAME__ to the name of
+      #    the package you want to publish. (Include the @scope, if any.)
+      # 2. Create a secret in your github repo named NPM_TOKEN to authenticate to npm.
+      #
+      # To publish a version (replace "1.2.3" with your version number), run:
+      #     yarn version:all 1.2.3
+      #     git push --follow-tags
+      #
+      # See https://github.com/jtbennett/create-ts-project/blob/main/docs/publishing-to-npm.md
+      # for details.
+      # -------------------------------------------------------------------------
+      - name: Publish
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          yarn workspace @connext/nxtp-utils npm publish --access public
+          yarn workspace @connext/nxtp-contracts npm publish --access public
+          yarn workspace @connext/nxtp-txservice npm publish --access public
+          yarn workspace @connext/nxtp-sdk npm publish --access public

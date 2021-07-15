@@ -9,9 +9,7 @@ import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 const hId = hyperid();
 
 export interface TransactionManagerListener {
-  onSenderPrepare(handler: (data: TransactionPreparedEvent) => any): Promise<void>;
-  onReceiverPrepare(handler: (data: TransactionPreparedEvent) => any): void;
-  onSenderFulfill(handler: (data: TransactionFulfilledEvent) => any): void;
+  onSenderPrepare(handler: (data: TransactionPreparedEvent) => any): void;
   onReceiverFulfill(handler: (data: TransactionFulfilledEvent) => any): void;
 }
 
@@ -41,22 +39,24 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
    *
    * Queries subgraph to get prepared txs which have not been handled on the receiver side.
    */
-  async onSenderPrepare(handler: (data: TransactionPreparedEvent) => Promise<void>): Promise<void> {
+  onSenderPrepare(handler: (data: TransactionPreparedEvent) => Promise<void>): void {
     const method = "onSenderPrepare";
-    const methodId = hId();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
+        const methodId = hId();
         const query = await sdk.GetSenderPrepareTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
 
-        this.logger.info(
-          { method, methodId, transactions: query.router?.transactions, chainId },
-          "Queried senderPrepare transactions",
-        );
+        if (query.router?.transactions.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: query.router?.transactions, chainId },
+            "Queried senderPrepare transactions",
+          );
+        }
         query.router?.transactions.forEach(async (transaction) => {
           // user prepares sender -> router prepares receiver -> user broadcasts sig -> router fulfills receiver -> router fulfills sender
           // Make sure we didnt *already* prepare receiver tx
@@ -64,10 +64,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           // reverted. this is fine.
           const receiverTransaction = await this.getTransactionForChain(
             transaction.transactionId,
+            transaction.user.id,
+            transaction.router.id,
             transaction.receivingChainId,
           );
           if (receiverTransaction) {
-            this.logger.info({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
+            this.logger.debug({ method, methodId, receiverTransaction }, "Receiver transaction already prepared");
             return;
           }
 
@@ -102,104 +104,57 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
     });
   }
 
-  onReceiverPrepare(handler: (data: TransactionPreparedEvent) => void): void {
-    Object.keys(this.chainConfig).forEach(async (cId) => {
-      const chainId = parseInt(cId);
-      const sdk: Sdk = this.sdks[chainId];
-      setInterval(async () => {
-        const query = await sdk.GetReceiverPrepareTransactions({
-          routerId: this.routerAddress.toLowerCase(),
-          receivingChainId: chainId,
-        });
-
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried receiverPrepare transactions");
-        query.router?.transactions.forEach((transaction) => {
-          const data: TransactionPreparedEvent = {
-            txData: {
-              user: transaction.user.id,
-              router: transaction.router.id,
-              sendingAssetId: transaction.sendingAssetId,
-              receivingAssetId: transaction.receivingAssetId,
-              sendingChainFallback: transaction.sendingChainFallback,
-              callTo: transaction.callTo,
-              receivingAddress: transaction.receivingAddress,
-              callDataHash: transaction.callDataHash,
-              transactionId: transaction.transactionId,
-              sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
-              receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
-              amount: transaction.amount,
-              expiry: transaction.expiry.toString(),
-              preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
-            },
-            bidSignature: transaction.bidSignature,
-            caller: transaction.prepareCaller,
-            encodedBid: transaction.encodedBid,
-            encryptedCallData: transaction.encryptedCallData,
-          };
-
-          // NOTE: this will call the handler every time the interval runs if the tx status is not changed
-          // make sure handlers are idempotent
-          handler(data);
-        });
-      }, this.pollInterval);
-    });
-  }
-
+  // the only relevant receiver fulfill transactions are the ones where a sender transaction still
+  // needs to be fulfilled
+  // to determine this:
+  // get sender prepared transactions
+  // extract receiver chains and tx ids
+  // foreach receiver chain, find any matching tx ids with fulfilled status
   onReceiverFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
+    const method = "onReceiverFulfill";
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
-        const query = await sdk.GetReceiverFulfillTransactions({
-          routerId: this.routerAddress.toLowerCase(),
-          receivingChainId: chainId,
-        });
-
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried receiverFulfill transactions");
-        query.router?.transactions.forEach((transaction) => {
-          const data: TransactionFulfilledEvent = {
-            txData: {
-              user: transaction.user.id,
-              router: transaction.router.id,
-              sendingAssetId: transaction.sendingAssetId,
-              receivingAssetId: transaction.receivingAssetId,
-              sendingChainFallback: transaction.sendingChainFallback,
-              callTo: transaction.callTo,
-              receivingAddress: transaction.receivingAddress,
-              callDataHash: transaction.callDataHash,
-              transactionId: transaction.transactionId,
-              sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
-              receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
-              amount: transaction.amount,
-              expiry: transaction.expiry.toString(),
-              preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
-            },
-            signature: transaction.signature,
-            relayerFee: transaction.relayerFee,
-            callData: transaction.callData ?? "0x",
-            caller: transaction.fulfillCaller,
-          };
-
-          // NOTE: this will call the handler every time the interval runs if the tx status is not changed
-          // make sure handlers are idempotent
-          handler(data);
-        });
-      }, this.pollInterval);
-    });
-  }
-
-  onSenderFulfill(handler: (data: TransactionFulfilledEvent) => void): void {
-    Object.keys(this.chainConfig).forEach(async (cId) => {
-      const chainId = parseInt(cId);
-      const sdk: Sdk = this.sdks[chainId];
-      setInterval(async () => {
-        const query = await sdk.GetSenderFulfillTransactions({
+        const methodId = hId();
+        const senderQuery = await sdk.GetSenderPrepareTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
         });
 
-        this.logger.info({ transactions: query.router?.transactions, chainId }, "Queried senderFulfill transactions");
-        query.router?.transactions.forEach((transaction) => {
+        const txIds =
+          senderQuery.router?.transactions.map((tx) => {
+            return { txId: tx.transactionId, receivingChainId: tx.receivingChainId };
+          }) ?? [];
+
+        const receivingChains: Record<string, string[]> = {};
+        txIds.forEach(({ txId, receivingChainId }) => {
+          if (receivingChains[receivingChainId]) {
+            receivingChains[receivingChainId].push(txId);
+          } else {
+            receivingChains[receivingChainId] = [txId];
+          }
+        });
+
+        const queries = await Promise.all(
+          Object.entries(receivingChains).map(async ([cId, txIds]) => {
+            const _sdk = this.sdks[Number(cId)];
+            if (!_sdk) {
+              this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
+              return [];
+            }
+            const query = await _sdk.GetFulfilledTransactions({ transactionIds: txIds });
+            return query.transactions;
+          }),
+        );
+        const receiverFulfilled = queries.flat();
+        if (receiverFulfilled.length ?? 0 > 0) {
+          this.logger.info(
+            { method, methodId, transactions: receiverFulfilled, chainId },
+            "Queried receiverFulfill transactions",
+          );
+        }
+        receiverFulfilled.forEach(async (transaction) => {
           const data: TransactionFulfilledEvent = {
             txData: {
               user: transaction.user.id,
@@ -215,7 +170,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
               receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
               amount: transaction.amount,
               expiry: transaction.expiry.toString(),
-              preparedBlockNumber: Number(transaction.preparedBlockNumber),
+              preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
             },
             signature: transaction.signature,
             relayerFee: transaction.relayerFee,
@@ -233,6 +188,8 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
 
   async getTransactionForChain(
     transactionId: string,
+    user: string,
+    router: string,
     chainId: number,
   ): Promise<
     | {
@@ -248,7 +205,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   > {
     const sdk: Sdk = this.sdks[chainId];
     const { transaction } = await sdk.GetTransaction({
-      transactionId: transactionId.toLowerCase(),
+      transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + router.toLowerCase(),
     });
     return transaction
       ? {

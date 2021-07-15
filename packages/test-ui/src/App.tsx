@@ -41,7 +41,12 @@ function App(): React.ReactElement | null {
       if (!sendingAssetId) {
         throw new Error("Bad configuration for swap");
       }
-      const _balance = await getBalance(_signer, sendingAssetId);
+      console.log("sendingAssetId: ", sendingAssetId);
+      const _balance = await getBalance(
+        address,
+        sendingAssetId,
+        new providers.JsonRpcProvider(providerUrls[form.getFieldValue("sendingChain")]),
+      );
 
       setUserBalance(_balance);
       setSigner(_signer);
@@ -70,7 +75,13 @@ function App(): React.ReactElement | null {
       Object.entries(providerUrls).forEach(
         ([chainId, url]) => (chainProviders[parseInt(chainId)] = new providers.JsonRpcProvider(url, parseInt(chainId))),
       );
-      const _sdk = await NxtpSdk.init(chainProviders, signer, pino({ level: "info" }));
+      const _sdk = await NxtpSdk.init(
+        chainProviders,
+        signer,
+        pino({ level: "info" }),
+        "ws://localhost:4221",
+        "http://localhost:5040",
+      );
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
@@ -107,10 +118,9 @@ function App(): React.ReactElement | null {
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
-        const { txData } = data;
-        const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
-        activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionFulfilled;
-        setActiveTransferTableColumns(activeTransferTableColumns);
+        setActiveTransferTableColumns(
+          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+        );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
@@ -118,6 +128,14 @@ function App(): React.ReactElement | null {
         setActiveTransferTableColumns(
           activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
         );
+      });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareTokenApproval, (data) => {
+        console.log("SenderTransactionPrepareTokenApproval:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, (data) => {
+        console.log("SenderTransactionPrepareSubmitted:", data);
       });
       const activeTxs = await _sdk.getActiveTransactions();
 
@@ -200,7 +218,7 @@ function App(): React.ReactElement | null {
         receivingAddress,
         amount,
         transactionId,
-        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 2).toString(), // 2 days
+        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(), // 3 days
         // callData?: string;
       });
     } catch (e) {
@@ -390,7 +408,6 @@ function App(): React.ReactElement | null {
               receivingChain: "5",
               asset: "TEST",
               amount: "1",
-              routerAddress: "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6",
             }}
           >
             <Form.Item label="Sending Chain" name="sendingChain">
@@ -477,7 +494,7 @@ function App(): React.ReactElement | null {
             </Form.Item>
 
             <Form.Item label="Router Address" name="routerAddress">
-              <Input />
+              <Input placeholder="Optional for Testing" />
             </Form.Item>
 
             <Form.Item label="Receiving Address" name="receivingAddress">
