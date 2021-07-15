@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface TransactionManagerInterface extends ethers.utils.Interface {
   functions: {
+    "MAX_TIMEOUT()": FunctionFragment;
     "MIN_TIMEOUT()": FunctionFragment;
     "addLiquidity(uint256,address,address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
@@ -33,6 +34,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "variantTransactionData(bytes32)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "MAX_TIMEOUT",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "MIN_TIMEOUT",
     values?: undefined
@@ -126,6 +131,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "MAX_TIMEOUT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MIN_TIMEOUT",
     data: BytesLike
   ): Result;
@@ -209,6 +218,8 @@ export class TransactionManager extends BaseContract {
   interface: TransactionManagerInterface;
 
   functions: {
+    MAX_TIMEOUT(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     addLiquidity(
@@ -305,6 +316,8 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
   };
+
+  MAX_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
   MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -403,6 +416,8 @@ export class TransactionManager extends BaseContract {
   ): Promise<string>;
 
   callStatic: {
+    MAX_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addLiquidity(
@@ -889,6 +904,8 @@ export class TransactionManager extends BaseContract {
   };
 
   estimateGas: {
+    MAX_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
+
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addLiquidity(
@@ -987,6 +1004,8 @@ export class TransactionManager extends BaseContract {
   };
 
   populateTransaction: {
+    MAX_TIMEOUT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addLiquidity(

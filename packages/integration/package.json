@@ -1,18 +1,26 @@
 {
-  "name": "@connext/nxtp-sdk",
+  "name": "@connext/nxtp-integration",
   "version": "0.0.7",
-  "description": "> TODO: description",
+  "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn build --watch --preserveWatchOutput",
+    "dev": "exit 0",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "tsc --build ./tsconfig.build.json",
+    "build": "exit 0",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "docker:chains:up": "docker-compose -f ops/chains.docker-compose.yml up -d",
+    "docker:chains:down": "docker-compose -f ops/chains.docker-compose.yml down",
+    "docker:messaging:up": "docker-compose -f ops/messaging.docker-compose.yml up -d",
+    "docker:messaging:down": "docker-compose -f ops/messaging.docker-compose.yml down",
+    "docker:router:up": "docker-compose -f ops/router.docker-compose.yml up -d",
+    "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
+    "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
+    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,14 +30,9 @@
   ],
   "dependencies": {
     "@connext/nxtp-contracts": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
+    "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "^0.17.7",
-    "ajv": "^8.6.1",
-    "ajv-formats": "^2.1.0",
     "ethers": "^5.4.1",
-    "evt": "^1.9.14",
-    "hyperid": "^2.3.1",
     "pino": "^6.11.3"
   },
   "devDependencies": {
@@ -43,7 +46,6 @@
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
     "eslint": "^7.30.0",
-    "hardhat": "^2.4.3",
     "mocha": "^9.0.2",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
@@ -51,10 +53,5 @@
     "ts-mocha": "^8.0.0",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
-  },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  }
 }
