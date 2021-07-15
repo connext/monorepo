@@ -389,7 +389,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
         // First, transfer the funds to the helper if needed
         if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.transferERC20(txData.receivingAssetId, txData.callTo, toSend);
+          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
