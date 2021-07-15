@@ -11,9 +11,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
   console.log("deployer: ", deployer);
 
-  await hre.deployments.deploy("TransactionManager", {
+  const interpreter = await hre.deployments.deploy("FulfillInterpreter", {
     from: deployer,
     args: [chainId],
+    log: true,
+  });
+
+  await hre.deployments.deploy("TransactionManager", {
+    from: deployer,
+    args: [chainId, interpreter.address],
     log: true,
   });
 
