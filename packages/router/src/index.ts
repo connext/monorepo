@@ -40,7 +40,14 @@ const transactionManager = new TransactionManager(
   logger.child({ module: "TransactionManager" }),
 );
 
-const handler = new Handler(messaging, subgraph, transactionManager, wallet, logger.child({ module: "Handler" }));
+const handler = new Handler(
+  messaging,
+  subgraph,
+  transactionManager,
+  txService,
+  wallet,
+  logger.child({ module: "Handler" }),
+);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,

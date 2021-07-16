@@ -329,6 +329,15 @@ export class TransactionService {
     });
   }
 
+  async getBalance(chainId: number, address: string): Promise<BigNumber> {
+    const method = this.getGasPrice.name;
+    const { provider } = this.chains.get(chainId)!;
+    return await this.retryWrapper<BigNumber>(chainId, method, async () => {
+      const balance = await provider.getBalance(address);
+      return balance;
+    });
+  }
+
   private async retryWrapper<T>(chainId: number, method: string, targetMethod: () => Promise<T>): Promise<T> {
     let retries: number;
     const errors: { [attempt: number]: string | undefined } = {};

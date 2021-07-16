@@ -42,7 +42,7 @@ export const fakeConfig: NxtpRouterConfig = {
       confirmations: 1,
       provider: ["http://example.com"],
       subgraph: "http://example.com",
-      transactionManagerAddress: mkAddress("0xaaa"),
+      transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
     },
   },

@@ -1,3 +1,4 @@
+import { TransactionService } from "@connext/nxtp-txservice";
 import {
   RouterNxtpNatsMessagingService,
   MetaTxPayload,
@@ -10,7 +11,7 @@ import {
   AuctionBid,
   signAuctionBid,
 } from "@connext/nxtp-utils";
-import { providers, Wallet } from "ethers";
+import { BigNumber, Wallet } from "ethers";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
@@ -71,6 +72,7 @@ export class Handler {
     private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: SubgraphTransactionManagerListener,
     private readonly txManager: TransactionManager,
+    private readonly txService: TransactionService,
     private readonly signer: Wallet,
     private readonly logger: BaseLogger,
   ) {
@@ -135,29 +137,51 @@ export class Handler {
       );
       return;
     }
-    const senderProvider = new providers.FallbackProvider(
-      sendingConfig.provider.map((p) => new providers.JsonRpcProvider(p)),
-      1,
-    );
-    const senderBalance = await senderProvider.getBalance(this.signer.address);
 
-    const receiverProvider = new providers.FallbackProvider(
-      receivingConfig.provider.map((p) => new providers.JsonRpcProvider(p)),
-      1,
-    );
-    const receiverBalance = await receiverProvider.getBalance(this.signer.address);
+    let senderBalance: BigNumber;
+    try {
+      senderBalance = await this.txService.getBalance(sendingChainId, this.signer.address);
+    } catch (error) {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          sendingChainId,
+          err: jsonifyError(error),
+        },
+        "Could not get sender balance",
+      );
+      return;
+    }
+
+    let receiverBalance: BigNumber;
+    try {
+      receiverBalance = await this.txService.getBalance(sendingChainId, this.signer.address);
+    } catch (error) {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          receivingChainId,
+          err: jsonifyError(error),
+        },
+        "Could not get receiver balance",
+      );
+      return;
+    }
     if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
       this.logger.error(
         {
           method,
           methodId,
           sendingChainId,
-          receivingAssetId,
         },
         "Not enough gas",
       );
       return;
     }
+
+    this.logger.info({ method, methodId }, "Auction validation complete, generating bid");
 
     // (TODO in what other scenarios would auction fail here? We should make sure
     // that router does not bid unless it is *sure* it's doing ok)
@@ -192,6 +216,7 @@ export class Handler {
     const bidSignature = await signAuctionBid(bid, this.signer);
     // Next, dispatch bid to messaging service with the user address
     await this.messagingService.publishAuctionResponse({ bid, bidSignature }, inbox);
+    this.logger.info({ method, methodId, bid, bidSignature }, "Bid sent");
     // Last, update metrics
   }
 

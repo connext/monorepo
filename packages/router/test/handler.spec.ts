@@ -10,7 +10,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { constants, Signer, Wallet } from "ethers";
+import { BigNumber, constants, Signer, Wallet } from "ethers";
 
 import { SubgraphTransactionManagerListener } from "../src/transactionManagerListener";
 import { Handler } from "../src/handler";
@@ -18,9 +18,10 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeTxReceipt, fakeConfig, senderPrepareData, receiverFulfillDataMock, invariantDataMock } from "./utils";
+import { fakeConfig, senderPrepareData, receiverFulfillDataMock, invariantDataMock } from "./utils";
+import { parseEther } from "@ethersproject/units";
 
-const logger = pino();
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
@@ -34,27 +35,26 @@ describe("Handler", () => {
   let txManager: SinonStubbedInstance<TxManager>;
   let subgraph: SinonStubbedInstance<SubgraphTransactionManagerListener>;
   let wallet: SinonStubbedInstance<Wallet>;
+  let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 
   beforeEach(() => {
-    const messaging = createStubInstance(RouterNxtpNatsMessagingService);
+    messaging = createStubInstance(RouterNxtpNatsMessagingService);
 
     subgraph = createStubInstance(SubgraphTransactionManagerListener);
-
-    const signer = createStubInstance(Signer);
-    (signer as any).getAddress = () => Promise.resolve(mkAddress("0xabc")); // need to do this differently bc the function doesnt exist on the interface
 
     txManager = createStubInstance(TxManager);
 
     txService = createStubInstance(TransactionService);
-    txService.sendAndConfirmTx.resolves(fakeTxReceipt);
+
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
 
     wallet = createStubInstance(Wallet);
     (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
+    wallet.signMessage.resolves("0xabcdef");
 
-    handler = new Handler(messaging as any, subgraph as any, txManager as any, wallet, logger);
+    handler = new Handler(messaging as any, subgraph as any, txManager as any, txService as any, wallet, logger);
   });
 
   afterEach(() => {
@@ -63,7 +63,7 @@ describe("Handler", () => {
   });
 
   describe("handleNewAuction", () => {
-    const auctionPayload = {
+    const auctionPayload: AuctionPayload = {
       user: mkAddress("0xa"),
       sendingChainId: 1337,
       sendingAssetId: mkAddress("0xb"),
@@ -71,14 +71,43 @@ describe("Handler", () => {
       receivingChainId: 1338,
       receivingAssetId: mkAddress("0xc"),
       receivingAddress: mkAddress("0xd"),
-      expiry: Date.now() / 1000 + 24 * 3600 * 3,
+      expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId: mkBytes32("0xa"),
       encryptedCallData: "0x",
       callDataHash: mkBytes32("0xb"),
       callTo: mkAddress("0xe"),
     };
+
+    beforeEach(() => {
+      subgraph.getAssetBalance.resolves(BigNumber.from(100));
+      txService.getBalance.resolves(parseEther("1"));
+    });
+
     it("happy: should publish auction response for a valid swap", async () => {
       await handler.handleNewAuction(auctionPayload, "_INBOX.abc");
+      expect(messaging.publishAuctionResponse.callCount).to.eq(1);
+      const publishCall = messaging.publishAuctionResponse.getCall(0);
+      expect(publishCall.args[0].bid).to.deep.eq({
+        user: auctionPayload.user,
+        router: mkAddress("0xb"),
+        sendingChainId: auctionPayload.sendingChainId,
+        sendingAssetId: auctionPayload.sendingAssetId,
+        amount: auctionPayload.amount,
+        receivingChainId: auctionPayload.receivingChainId,
+        receivingAssetId: auctionPayload.receivingAssetId,
+        amountReceived: MUTATED_AMOUNT,
+        receivingAddress: auctionPayload.receivingAddress,
+        transactionId: auctionPayload.transactionId,
+        expiry: auctionPayload.expiry,
+        callDataHash: auctionPayload.callDataHash,
+        callTo: auctionPayload.callTo,
+        encryptedCallData: auctionPayload.encryptedCallData,
+        sendingChainTxManagerAddress: fakeConfig.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
+        receivingChainTxManagerAddress:
+          fakeConfig.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+      });
+      expect(publishCall.args[0].bidSignature).to.eq("0xabcdef");
+      expect(publishCall.args[1]).to.eq("_INBOX.abc");
     });
   });
 
@@ -233,26 +262,6 @@ describe("Handler", () => {
           preparedBlockNumber: tokenRxFulfillDataMock.txData.preparedBlockNumber,
         },
       } as FulfillParams);
-    });
-  });
-
-  describe("getLiquidity", () => {
-    it(`should get liquidity`, async () => {
-      const mockLiquidity = "169.00";
-      txManager.getLiquidity.resolves(mockLiquidity);
-      await txManager.getLiquidity(4, constants.AddressZero);
-      const call = txManager.getLiquidity.getCall(0);
-
-      expect(await call.returnValue).to.eq("169.00");
-    });
-  });
-
-  describe("addLiquidity", () => {
-    it(`should add liquidity`, async () => {
-      await txManager.addLiquidity(4, invariantDataMock.router, "100", constants.AddressZero);
-      const call = txManager.addLiquidity.getCall(0);
-
-      console.log(call);
     });
   });
 });
