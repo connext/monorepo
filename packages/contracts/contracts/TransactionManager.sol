@@ -130,7 +130,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
   /// @param router The router you are adding liquidity on behalf of
-  function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
+  function addLiquidity(uint256 amount, address assetId, address router) external payable override {
     // Sanity check: router is sensible
     require(router != address(0), "addLiquidity: ROUTER_EMPTY");
 
@@ -143,6 +143,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Asset is approved
     require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
 
+    // Update the router balances
+    routerBalances[router][assetId] += amount;
+
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
@@ -150,9 +153,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
-
-    // Update the router balances
-    routerBalances[router][assetId] += amount;
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
@@ -168,7 +168,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 amount,
     address assetId,
     address payable recipient
-  ) external override nonReentrant {
+  ) external override {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
 
@@ -226,7 +226,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
-  ) external payable override nonReentrant returns (TransactionData memory) {
+  ) external payable override returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "prepare: USER_EMPTY");
 
@@ -265,9 +265,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     //       in the event of a router or user crash, they may recover the
     //       correct bid information without requiring an offchain store.
 
-    // Store the transaction variants
-    variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Sanity check: amount is sensible
@@ -278,6 +275,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Asset is approved
       require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -313,6 +313,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       uint256 routerBalance = routerBalances[invariantData.router][invariantData.receivingAssetId];
       // Check that router has liquidity
       require(routerBalance >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
       routerBalances[invariantData.router][invariantData.receivingAssetId] = routerBalance - amount;
