@@ -9,7 +9,6 @@ import {
   signFulfillTransactionPayload,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
-  recoverPrepareTransactionPayload,
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
@@ -63,7 +62,6 @@ export const prepare = async (
     encodedBid,
     bidSignature,
     encryptedCallData,
-    userSignature,
   } = params;
 
   // TODO: validate expiry
@@ -80,13 +78,6 @@ export const prepare = async (
     callDataHash,
     transactionId,
   };
-
-  if (user.toLowerCase() !== (await signer.getAddress()).toLowerCase()) {
-    const recovered = recoverPrepareTransactionPayload(transactionId, amount, userSignature ?? "");
-    if (recovered.toLowerCase() !== user.toLowerCase()) {
-      throw new Error("Missing signature for relayer");
-    }
-  }
 
   // TODO: validate bid stuff
 
@@ -151,7 +142,6 @@ export const prepare = async (
       encryptedCallData,
       encodedBid,
       bidSignature,
-      userSignature ?? "0x",
       transaction.sendingAssetId === constants.AddressZero ? { value: amount } : { value: 0 },
     );
   evts.SenderTransactionPrepareSubmitted.post({

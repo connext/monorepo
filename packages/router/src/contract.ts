@@ -50,7 +50,6 @@ export class TransactionManager {
       encryptedCallData,
       encodedBid,
       bidSignature,
-      "0x", // user sig not needed for router
     ]);
 
     try {
