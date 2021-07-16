@@ -14,13 +14,8 @@ export class Transaction {
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   public receipt?: providers.TransactionReceipt;
-  // Receipts, mapped by hash.
-  private receipts: Map<string, providers.TransactionReceipt> = new Map();
   public nonce?: number;
   public nonceExpired = false;
-
-  // Flag to indicate that we did submit a tx (successfully) at least once.
-  private didSubmit = false;
 
   private _attempt = 0;
   public get attempt(): number {
@@ -110,8 +105,6 @@ export class Transaction {
 
     // Add this response to our local response history.
     this.responses.push(response);
-    // Raise this flag to enable confirmation step.
-    this.didSubmit = true;
     await this.logInfo("Transaction successfully sent.", this.confirm.name);
     return response;
   }
@@ -119,77 +112,60 @@ export class Transaction {
   /* Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
    * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
    * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
-   * 
+   *
    * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
    * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
    * wait an extended period for the desired number of confirmations. If no further confirmations appear
    * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
    */
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
-    if (!this.didSubmit) {
+    // Ensure we've submitted at least 1 tx.
+    if (this.responses.length === 0) {
       throw new ChainError(ChainError.reasons.TxNotFound);
     }
     const method = this.confirm.name;
     await this.logInfo("Confirming transaction...", method);
 
-    let confirmationAttempts = 0;
-    let receipt: providers.TransactionReceipt | undefined;
-    // We must check for confirmation in all previous transactions. Although it's most likely
-    // that it's the previous one, any of them could have been confirmed.
-    while (!receipt || (receipt.confirmations > 0 && receipt.confirmations < this.provider.confirmationsRequired)) {
-      confirmationAttempts++;
-      await this.logInfo(`confirmation attempt: ${confirmationAttempts}`, method);
-      // Make a pool of promises for resolving each receipt call (once it reaches target confirmations).
-      receipt = await Promise.race<providers.TransactionReceipt | any>(
-        this.responses
-          .map((response) => {
-            return new Promise(async (resolve) => {
-              const result = await this.provider.confirmTransaction(response.hash);
-              if (result.success) {
-                const r = result.receipt as providers.TransactionReceipt;
-                if (r.confirmations >= 1) {
-                  // Save this receipt by hash locally.
-                  this.receipts.set(r.transactionHash, r);
-                  if (r.status !== 0) {
-                    // If we found a valid, confirmed receipt, resolve immediately.
-                    return resolve(r);
-                  } else {
-                    // TODO: is there a way to check if the tx got replaced (harmless) or tx got reverted (concerning)?
-                  }
-                }
-              } else {
-                // Check to ensure we received an expected error.
-                const e = result.receipt as Error;
-                // TODO: Should this be moved somewhere? Like to a constants file or something?
-                const expected = ["transaction was replaced", "timeout exceeded"];
-                if (expected.every((value) => !e.message.includes(value))) {
-                  // If the error wasn't any of the expected errors, we should log it.
-                  this.log.error({ method, error: jsonifyError(e) }, "Unexpected error while polling to confirm.");
-                }
-              }
-            });
-          })
-          .concat(
-            new Promise((resolve) =>
-              setTimeout(() => {
-                return resolve(undefined);
-              }, this.provider.confirmationTimeout),
-            ),
-          ),
-      );
+    // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
+    // the error it throws will give us the replacement's receipt.
+    const response = this.responses[0];
+    try {
+      // TODO: Implement a timeout. This can be achieved with a Promise.race, but we must ensure a memory leak isn't possible.
+      this.receipt = await response.wait(this.provider.confirmationsRequired);
+    } catch (error) {
+      /* From ethers docs:
+       * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
+       * error.transaction - the original transaction
+       * error.transactionHash - the hash of the transaction
+       * error.receipt - the actual receipt, with the status of 0
+       *
+       * If the transaction is replaced by another transaction, a TRANSACTION_REPLACED error will be rejected with the following properties:
+       * error.hash - the hash of the original transaction which was replaced
+       * error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
+       * error.cancelled - a boolean; a "repriced" transaction is not considered cancelled, but "cancelled" and "replaced" are
+       * error.replacement - the replacement transaction (a TransactionResponse)
+       * error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
+       */
+      if (error.code === "TRANSACTION_REPLACED") {
+        // This will be the replacement receipt (see above).
+        this.receipt = error.receipt;
+        this.logInfo(`Transaction ${error.reason}.`, method, { receipt: error.receipt });
+      } else if (error.code === "CALL_EXCEPTION") {
+        // This will be the receipt with a status of 0.
+        this.receipt = error.receipt;
+        this.logInfo("Transaction reverted.", method, { receipt: error.receipt });
+      } else {
+        this.log.error(
+          {
+            response,
+            errorCode: error.code,
+            error: jsonifyError(error),
+          },
+          "Received unexpected error code from response.wait!",
+        );
+      }
     }
-
-    if (this.receipts.size === this.responses.length) {
-      // We know every tx was reverted.
-      throw new ChainError(ChainError.reasons.TxReverted);
-    }
-
-    // If there is still no receipt, we timed out in our polling operation.
-    if (!receipt) {
-      throw new ChainError(ChainError.reasons.ConfirmationTimeout);
-    }
-
-    return receipt;
+    return this.receipt;
   }
 
   /// Bump the gas price up by configured percentage.

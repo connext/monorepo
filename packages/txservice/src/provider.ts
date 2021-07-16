@@ -122,23 +122,6 @@ export class ChainRpcProvider {
     return await this.queue.add(task);
   }
 
-  public async confirmTransaction(
-    transactionHash: string,
-  ): Promise<{ receipt: providers.TransactionReceipt | Error; success: boolean }> {
-    this.isReady();
-    try {
-      // We are using waitForTransaction here to leverage the timeout functionality internal to ethers.
-      // IF this times out, ethers will reject with ("timeout exceeded", Logger.errors.TIMEOUT)
-      // Alternatively, it could reject with ("transaction was replaced", Logger.errors.TRANSACTION_REPLACED)
-      // We are setting the confirmations required here to just 1. We want to return any receipt with at least 1 confirmation,
-      // to indicate whether we have a possibly confirmed transaction.
-      const receipt = await this.provider.waitForTransaction(transactionHash, 1, this.confirmationTimeout);
-      return { receipt, success: true };
-    } catch (e) {
-      return { receipt: e, success: false };
-    }
-  }
-
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
     this.isReady();
     const method = this.readTransaction.name;
