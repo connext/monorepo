@@ -9,10 +9,14 @@ import {
   signFulfillTransactionPayload,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
+  recoverPrepareTransactionPayload,
 } from "@connext/nxtp-utils";
 import Ajv from "ajv";
 import { BaseLogger } from "pino";
 import { TransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
+import { Evt } from "evt";
+
+import { NxtpSdkEvent, NxtpSdkEventPayloads } from "./sdk";
 
 declare const ethereum: any;
 
@@ -31,6 +35,7 @@ export const prepare = async (
   params: PrepareParams,
   transactionManager: TransactionManager,
   signer: Signer,
+  evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> },
   logger: BaseLogger,
   erc20Contract?: IERC20Minimal,
   infiniteApprove = false,
@@ -58,6 +63,7 @@ export const prepare = async (
     encodedBid,
     bidSignature,
     encryptedCallData,
+    userSignature,
   } = params;
 
   // TODO: validate expiry
@@ -74,6 +80,13 @@ export const prepare = async (
     callDataHash,
     transactionId,
   };
+
+  if (user.toLowerCase() !== (await signer.getAddress()).toLowerCase()) {
+    const recovered = recoverPrepareTransactionPayload(transactionId, amount, userSignature ?? "");
+    if (recovered.toLowerCase() !== user.toLowerCase()) {
+      throw new Error("Missing signature for relayer");
+    }
+  }
 
   // TODO: validate bid stuff
 
@@ -107,6 +120,12 @@ export const prepare = async (
         infiniteApprove ? constants.MaxUint256 : amount,
       );
       logger.info({ method, methodId, transactionId, transactionHash: approveTx.hash }, "Submitted approve tx");
+      evts.SenderTokenApprovalSubmitted.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionResponse: approveTx,
+      });
+
       const approveReceipt = await approveTx.wait(1);
       if (approveReceipt.status === 0) {
         throw new Error("Approve transaction reverted onchain");
@@ -115,6 +134,11 @@ export const prepare = async (
         { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
         "Mined approve tx",
       );
+      evts.SenderTokenApprovalMined.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionReceipt: approveReceipt,
+      });
     }
   }
 
@@ -127,8 +151,13 @@ export const prepare = async (
       encryptedCallData,
       encodedBid,
       bidSignature,
+      userSignature ?? "0x",
       transaction.sendingAssetId === constants.AddressZero ? { value: amount } : { value: 0 },
     );
+  evts.SenderTransactionPrepareSubmitted.post({
+    prepareParams: params,
+    transactionResponse: prepareTx,
+  });
 
   // TODO: fix block confs for chains
   logger.info({ method, methodId, transactionId, transactionHash: prepareTx.hash }, "Submitted prepare tx");
@@ -202,7 +231,7 @@ export const handleReceiverPrepare = async (
 
   // Generate signature
   logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
-  const signature = await signFulfillTransactionPayload(txData, relayerFee, signer);
+  const signature = await signFulfillTransactionPayload(txData.transactionId, relayerFee, signer);
   logger.info({ method, methodId }, "Generated signature");
 
   // Make sure user is on the receiving chain

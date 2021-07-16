@@ -12,7 +12,8 @@ import {
 import { expect } from "chai";
 import pino from "pino";
 
-import { prepare } from "../src";
+import { prepare } from "../src/crossChainTransfer";
+import { createEvts } from "../src/sdk";
 import { IERC20Minimal, TransactionManager } from "../../contracts/typechain";
 
 const getTransactionData = (txOverrides: Partial<InvariantTransactionData> = {}): InvariantTransactionData => {
@@ -110,6 +111,7 @@ describe("prepare", () => {
       params,
       transactionManager as unknown as TransactionManager,
       user,
+      createEvts(),
       logger,
       erc20 as unknown as IERC20Minimal,
     );

@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -20,28 +19,22 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IFulfillHelperInterface extends ethers.utils.Interface {
+interface IFulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "addFunds(address,bytes32,address,uint256)": FunctionFragment;
-    "execute(address,bytes32,address,uint256,bytes)": FunctionFragment;
+    "execute(address,address,address,uint256,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "addFunds",
-    values: [string, BytesLike, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "execute",
-    values: [string, BytesLike, string, BigNumberish, BytesLike]
+    values: [string, string, string, BigNumberish, BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addFunds", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
 
   events: {};
 }
 
-export class IFulfillHelper extends BaseContract {
+export class IFulfillInterpreter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -82,57 +75,33 @@ export class IFulfillHelper extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IFulfillHelperInterface;
+  interface: IFulfillInterpreterInterface;
 
   functions: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     execute(
-      user: string,
-      transactionId: BytesLike,
+      callTo: string,
       assetId: string,
+      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  addFunds(
-    user: string,
-    transactionId: BytesLike,
+  execute(
+    callTo: string,
     assetId: string,
+    fallbackAddress: string,
     amount: BigNumberish,
+    callData: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  execute(
-    user: string,
-    transactionId: BytesLike,
-    assetId: string,
-    amount: BigNumberish,
-    callData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     execute(
-      user: string,
-      transactionId: BytesLike,
+      callTo: string,
       assetId: string,
+      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
@@ -142,40 +111,24 @@ export class IFulfillHelper extends BaseContract {
   filters: {};
 
   estimateGas: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     execute(
-      user: string,
-      transactionId: BytesLike,
+      callTo: string,
       assetId: string,
+      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    addFunds(
-      user: string,
-      transactionId: BytesLike,
-      assetId: string,
-      amount: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     execute(
-      user: string,
-      transactionId: BytesLike,
+      callTo: string,
       assetId: string,
+      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

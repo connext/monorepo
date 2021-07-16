@@ -12,6 +12,7 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -19,43 +20,49 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface LibERC20TestInterface extends ethers.utils.Interface {
+interface CounterInterface extends ethers.utils.Interface {
   functions: {
-    "approve(address,address,uint256)": FunctionFragment;
-    "transfer(address,address,uint256)": FunctionFragment;
-    "transferFrom(address,address,address,uint256)": FunctionFragment;
-    "wrapCall(address,bytes)": FunctionFragment;
+    "count()": FunctionFragment;
+    "increment()": FunctionFragment;
+    "incrementAndSend(address,address,uint256)": FunctionFragment;
+    "setShouldRevert(bool)": FunctionFragment;
+    "shouldRevert()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(functionFragment: "increment", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "approve",
+    functionFragment: "incrementAndSend",
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "transfer",
-    values: [string, string, BigNumberish]
+    functionFragment: "setShouldRevert",
+    values: [boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "wrapCall",
-    values: [string, BytesLike]
+    functionFragment: "shouldRevert",
+    values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "increment", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "transferFrom",
+    functionFragment: "incrementAndSend",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "wrapCall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setShouldRevert",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "shouldRevert",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export class LibERC20Test extends BaseContract {
+export class Counter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -96,155 +103,110 @@ export class LibERC20Test extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: LibERC20TestInterface;
+  interface: CounterInterface;
 
   functions: {
-    approve(
-      assetId: string,
-      spender: string,
-      amount: BigNumberish,
+    count(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    increment(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transfer(
+    incrementAndSend(
       assetId: string,
       recipient: string,
       amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setShouldRevert(
+      value: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transferFrom(
-      assetId: string,
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    wrapCall(
-      assetId: string,
-      callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    shouldRevert(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  approve(
-    assetId: string,
-    spender: string,
-    amount: BigNumberish,
+  count(overrides?: CallOverrides): Promise<BigNumber>;
+
+  increment(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transfer(
+  incrementAndSend(
     assetId: string,
     recipient: string,
     amount: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setShouldRevert(
+    value: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferFrom(
-    assetId: string,
-    sender: string,
-    recipient: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  wrapCall(
-    assetId: string,
-    callData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  shouldRevert(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    approve(
-      assetId: string,
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    count(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transfer(
+    increment(overrides?: CallOverrides): Promise<void>;
+
+    incrementAndSend(
       assetId: string,
       recipient: string,
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
-    transferFrom(
-      assetId: string,
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    setShouldRevert(value: boolean, overrides?: CallOverrides): Promise<void>;
 
-    wrapCall(
-      assetId: string,
-      callData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    shouldRevert(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {};
 
   estimateGas: {
-    approve(
-      assetId: string,
-      spender: string,
-      amount: BigNumberish,
+    count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    increment(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transfer(
+    incrementAndSend(
       assetId: string,
       recipient: string,
       amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setShouldRevert(
+      value: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transferFrom(
-      assetId: string,
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    wrapCall(
-      assetId: string,
-      callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    shouldRevert(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    approve(
-      assetId: string,
-      spender: string,
-      amount: BigNumberish,
+    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    increment(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    transfer(
+    incrementAndSend(
       assetId: string,
       recipient: string,
       amount: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setShouldRevert(
+      value: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferFrom(
-      assetId: string,
-      sender: string,
-      recipient: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    wrapCall(
-      assetId: string,
-      callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    shouldRevert(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
