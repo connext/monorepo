@@ -1,31 +1,48 @@
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
-import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import { BigNumber, constants, providers } from "ethers";
-import { jsonifyError, FulfillParams, PrepareParams, CancelParams, validateAndParseAddress } from "@connext/nxtp-utils";
+import { constants, providers, Signer } from "ethers";
+import { jsonifyError, PrepareParams, CancelParams } from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
 const hId = hyperid();
 
+/**
+ * Multi-chain wrapper around TranasctionManager contract
+ */
 export class TransactionManager {
-  private readonly txManagerInterface: TTransactionManager["interface"];
+  private chainConfig: {
+    [chainId: number]: {
+      provider: providers.FallbackProvider;
+      transactionManagerAddress: string;
+    };
+  };
 
   constructor(
-    private readonly txService: TransactionService,
-    private readonly signerAddress: string,
+    private readonly signer: Signer,
     private readonly logger: BaseLogger,
+    _chainConfig: {
+      [chainId: number]: {
+        provider: providers.FallbackProvider;
+        transactionManagerAddress: string;
+      };
+    },
   ) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
   }
 
-  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionReceipt> {
+  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionResponse> {
     const method = "Contract::prepare";
     const methodId = hId();
+
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
-    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
+    if (!this.chainConfig[chainId].transactionManagerAddress) {
+      throw new Error("No transactionManagerAddress configured for chainId: " + chainId.toString());
+    }
+
+    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData, userSignature } = prepareParams;
 
     const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
       {
@@ -46,25 +63,18 @@ export class TransactionManager {
       encryptedCallData,
       encodedBid,
       bidSignature,
-      "0x", // user sig not needed for router
+      userSignature ?? "0x",
     ]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
+      const txRes = await this.signer.connect(this.chainConfig[chainId].provider).sendTransaction({
+        to: this.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
         chainId: chainId,
-        from: this.signerAddress,
       });
       return txRes;
     } catch (e) {
-      if (e.message.includes("DUPLICATE_DIGEST")) {
-        this.logger.warn(
-          { methodId, method, transactionId: txData.transactionId },
-          "Receiver tx already prepared, but resubmitted",
-        );
-      }
       this.logger.error(
         { methodId, method, error: jsonifyError(e), transactionId: txData.transactionId },
         "Error sending receiver prepare tx",
@@ -73,51 +83,26 @@ export class TransactionManager {
     }
   }
 
-  async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
-    const method = "Contract::fulfill";
-    const methodId = hId();
-    this.logger.info({ method, methodId, fulfillParams }, "Method start");
-
-    const { txData, relayerFee, signature, callData } = fulfillParams;
-
-    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
-    try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId,
-        data: fulfilData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
-      });
-      return txRes;
-    } catch (e) {
-      // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-      this.logger.error(
-        { methodId, method, transactionId: fulfillParams.txData.transactionId, error: jsonifyError(e) },
-        "Error sending sender fulfill tx",
-      );
-      // TODO discuss this case!!
-      throw e;
-    }
-  }
-
-  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionReceipt> {
+  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionResponse> {
     const method = "Contract::cancel";
     const methodId = hId();
+
     this.logger.info({ method, methodId, cancelParams }, "Method start");
-    // encode and call tx service
+
+    if (!this.chainConfig[chainId].transactionManagerAddress) {
+      throw new Error("No transactionManagerAddress configured for chainId: " + chainId.toString());
+    }
 
     const { txData, relayerFee, signature } = cancelParams;
 
     const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
 
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      const txRes = await this.signer.connect(this.chainConfig[chainId].provider).sendTransaction({
         chainId: chainId,
         data: cancelData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
+        to: this.chainConfig[chainId].transactionManagerAddress,
         value: 0,
-        from: this.signerAddress,
       });
       return txRes;
     } catch (e) {
@@ -125,82 +110,20 @@ export class TransactionManager {
     }
   }
 
-  async getLiquidity(chainId: number, assetId: string): Promise<string> {
-    const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [
-      this.signerAddress,
-      assetId,
-    ]);
-    const liquidity = await this.txService.readTx(chainId, {
+  async getLiquidity(chainId: number, router: string, assetId: string): Promise<string> {
+    if (!this.chainConfig[chainId].transactionManagerAddress) {
+      throw new Error("No transactionManagerAddress configured for chainId: " + chainId.toString());
+    }
+
+    const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [router, assetId]);
+    const liquidity = await this.signer.connect(this.chainConfig[chainId].provider).call({
       chainId: chainId,
-      to: this.config.chainConfig[chainId].transactionManagerAddress,
+      to: this.chainConfig[chainId].transactionManagerAddress,
       value: 0,
       data: getLiquidityData,
     });
     //decode hex data
     const liquidityHex = this.txManagerInterface.decodeFunctionResult("routerBalances", liquidity);
-
-    console.log(`Liquidity Hex::Contract ${liquidityHex[0]}`);
     return liquidityHex[0];
-  }
-
-  async addLiquidity(
-    chainId: number,
-    router: string,
-    amount: string,
-    assetId: string,
-  ): Promise<providers.TransactionReceipt> {
-    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
-    const bnAmount = BigNumber.from(amount);
-    const routerAddress = validateAndParseAddress(router);
-
-    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [
-      bnAmount,
-      assetId,
-      routerAddress,
-    ]);
-    try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
-        data: addLiquidityData,
-        to: nxtpContractAddress,
-        value: 0,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`Add liquidity error ${JSON.stringify(e)}`);
-    }
-  }
-
-  async removeLiquidity(
-    chainId: number,
-    amount: string,
-    assetId: string,
-    recipientAddress: string | undefined,
-  ): Promise<providers.TransactionReceipt> {
-    //should we remove liquidity for self if there isn't another address specified?
-    if (!recipientAddress) {
-      recipientAddress = this.signerAddress;
-    }
-
-    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
-    const bnAmount = BigNumber.from(amount).toString();
-
-    const removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity", [
-      bnAmount,
-      assetId,
-      recipientAddress,
-    ]);
-
-    try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
-        data: removeLiquidityData,
-        to: nxtpContractAddress,
-        value: 0,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`remove liquidity error ${JSON.stringify(e)}`);
-    }
   }
 }

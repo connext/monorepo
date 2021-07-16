@@ -9,7 +9,7 @@ import { providers } from "ethers";
 import { Evt } from "evt";
 import { BaseLogger } from "pino";
 
-import { getTransactionManagerContract } from "./contract";
+import { getTransactionManagerContract } from "./helper/contract";
 
 export const TransactionManagerEvents = {
   TransactionPrepared: "TransactionPrepared",
@@ -33,7 +33,7 @@ export class TransactionManagerListener {
   public chainId?: number;
   public transactionManager: TransactionManager;
 
-  constructor(provider: providers.JsonRpcProvider, chainId: number, private readonly logger: BaseLogger) {
+  constructor(provider: providers.FallbackProvider, chainId: number, private readonly logger: BaseLogger) {
     const { instance } = getTransactionManagerContract(chainId, provider);
     this.chainId = chainId;
     this.transactionManager = instance;
