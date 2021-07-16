@@ -2,9 +2,11 @@
 
 ## System Overview
 
-### TLDR
+### Video Walkthrough
 
 [![Security walkthrough video](https://img.youtube.com/vi/ABEOIKzEshA/0.jpg)](https://www.youtube.com/watch?v=ABEOIKzEshA)
+
+### TLDR
 
 NXTP is designed to facilitate crosschain transactions via simple atomic swaps where one party provides the liquidity of `assetA` on `chainA` and the other provides the liquidity of `assetB` on `chainB`.
 
