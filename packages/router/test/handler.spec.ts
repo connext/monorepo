@@ -10,7 +10,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { BigNumber, constants, Signer, Wallet } from "ethers";
+import { BigNumber, constants, Wallet } from "ethers";
 
 import { SubgraphTransactionManagerListener } from "../src/transactionManagerListener";
 import { Handler } from "../src/handler";
@@ -18,7 +18,7 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, invariantDataMock } from "./utils";
+import { fakeConfig, senderPrepareData, receiverFulfillDataMock } from "./utils";
 import { parseEther } from "@ethersproject/units";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
