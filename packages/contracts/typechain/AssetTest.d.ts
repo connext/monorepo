@@ -19,7 +19,7 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface LibAssetTestInterface extends ethers.utils.Interface {
+interface AssetTestInterface extends ethers.utils.Interface {
   functions: {
     "getOwnBalance(address)": FunctionFragment;
     "isEther(address)": FunctionFragment;
@@ -67,7 +67,7 @@ interface LibAssetTestInterface extends ethers.utils.Interface {
   events: {};
 }
 
-export class LibAssetTest extends BaseContract {
+export class AssetTest extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -108,7 +108,7 @@ export class LibAssetTest extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: LibAssetTestInterface;
+  interface: AssetTestInterface;
 
   functions: {
     getOwnBalance(

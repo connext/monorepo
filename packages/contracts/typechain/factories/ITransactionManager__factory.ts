@@ -33,6 +33,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "percent",
+        type: "uint256",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -60,6 +66,12 @@ const _abi = [
         indexed: false,
         internalType: "uint256",
         name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "percent",
         type: "uint256",
       },
       {
@@ -152,7 +164,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -267,7 +284,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -394,7 +416,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -551,7 +578,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -641,7 +673,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -724,7 +761,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -819,7 +861,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {
@@ -836,6 +883,30 @@ const _abi = [
         internalType: "struct ITransactionManager.TransactionData",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "getRouterBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",
@@ -997,7 +1068,12 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "routerPercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "preparedAmount",
             type: "uint256",
           },
           {

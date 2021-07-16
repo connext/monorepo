@@ -27,6 +27,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "addRouter(address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getRouterBalance(address,address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes,bytes)": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -55,7 +56,8 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -78,7 +80,8 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -86,6 +89,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRouterBalance",
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "prepare",
@@ -133,6 +140,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRouterBalance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
@@ -149,8 +160,8 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
 
   events: {
-    "LiquidityAdded(address,address,uint256,address)": EventFragment;
-    "LiquidityRemoved(address,address,uint256,address)": EventFragment;
+    "LiquidityAdded(address,address,uint256,uint256,address)": EventFragment;
+    "LiquidityRemoved(address,address,uint256,uint256,address)": EventFragment;
     "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
@@ -237,7 +248,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -259,13 +271,20 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getRouterBalance(
+      assetId: string,
+      router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -344,7 +363,8 @@ export class ITransactionManager extends BaseContract {
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
-      amount: BigNumberish;
+      routerPercentage: BigNumberish;
+      preparedAmount: BigNumberish;
       expiry: BigNumberish;
       preparedBlockNumber: BigNumberish;
     },
@@ -366,13 +386,20 @@ export class ITransactionManager extends BaseContract {
       transactionId: BytesLike;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
-      amount: BigNumberish;
+      routerPercentage: BigNumberish;
+      preparedAmount: BigNumberish;
       expiry: BigNumberish;
       preparedBlockNumber: BigNumberish;
     },
     relayerFee: BigNumberish,
     signature: BytesLike,
     callData: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getRouterBalance(
+    assetId: string,
+    router: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -445,7 +472,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -467,6 +495,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         user: string;
@@ -480,7 +509,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
-        amount: BigNumber;
+        routerPercentage: BigNumber;
+        preparedAmount: BigNumber;
         expiry: BigNumber;
         preparedBlockNumber: BigNumber;
       }
@@ -499,7 +529,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -522,6 +553,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         user: string;
@@ -535,11 +567,18 @@ export class ITransactionManager extends BaseContract {
         transactionId: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
-        amount: BigNumber;
+        routerPercentage: BigNumber;
+        preparedAmount: BigNumber;
         expiry: BigNumber;
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getRouterBalance(
+      assetId: string,
+      router: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     prepare(
       txData: {
@@ -577,6 +616,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         user: string;
@@ -590,7 +630,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
-        amount: BigNumber;
+        routerPercentage: BigNumber;
+        preparedAmount: BigNumber;
         expiry: BigNumber;
         preparedBlockNumber: BigNumber;
       }
@@ -615,20 +656,34 @@ export class ITransactionManager extends BaseContract {
       router?: string | null,
       assetId?: string | null,
       amount?: null,
+      percent?: null,
       caller?: null
     ): TypedEventFilter<
-      [string, string, BigNumber, string],
-      { router: string; assetId: string; amount: BigNumber; caller: string }
+      [string, string, BigNumber, BigNumber, string],
+      {
+        router: string;
+        assetId: string;
+        amount: BigNumber;
+        percent: BigNumber;
+        caller: string;
+      }
     >;
 
     LiquidityRemoved(
       router?: string | null,
       assetId?: string | null,
       amount?: null,
+      percent?: null,
       recipient?: null
     ): TypedEventFilter<
-      [string, string, BigNumber, string],
-      { router: string; assetId: string; amount: BigNumber; recipient: string }
+      [string, string, BigNumber, BigNumber, string],
+      {
+        router: string;
+        assetId: string;
+        amount: BigNumber;
+        percent: BigNumber;
+        recipient: string;
+      }
     >;
 
     TransactionCancelled(
@@ -657,6 +712,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -670,7 +726,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         },
@@ -695,6 +752,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -708,7 +766,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
@@ -745,6 +804,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -758,7 +818,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         },
@@ -785,6 +846,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -798,7 +860,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
@@ -837,6 +900,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -850,7 +914,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         },
@@ -877,6 +942,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
+          BigNumber,
           BigNumber
         ] & {
           user: string;
@@ -890,7 +956,8 @@ export class ITransactionManager extends BaseContract {
           transactionId: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
-          amount: BigNumber;
+          routerPercentage: BigNumber;
+          preparedAmount: BigNumber;
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
@@ -933,7 +1000,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -955,13 +1023,20 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRouterBalance(
+      assetId: string,
+      router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1041,7 +1116,8 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
@@ -1063,13 +1139,20 @@ export class ITransactionManager extends BaseContract {
         transactionId: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
-        amount: BigNumberish;
+        routerPercentage: BigNumberish;
+        preparedAmount: BigNumberish;
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRouterBalance(
+      assetId: string,
+      router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
