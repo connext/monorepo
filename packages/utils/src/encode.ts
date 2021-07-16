@@ -1,6 +1,6 @@
 import { utils } from "ethers";
-import { AuctionBid } from "./messaging";
 
+import { AuctionBid } from "./messaging";
 import { InvariantTransactionData, VariantTransactionData } from "./transactionManager";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
