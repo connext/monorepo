@@ -12,8 +12,7 @@
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "generate": "gqless generate"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
