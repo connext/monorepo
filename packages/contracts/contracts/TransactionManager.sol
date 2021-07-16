@@ -243,7 +243,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(invariantData.sendingChainFallback != address(0), "#P:010");
 
     // Sanity check: valid fallback
-    require(invariantData.receivingAddress != address(0), "#P:007");
+    require(invariantData.receivingAddress != address(0), "#P:027");
 
     // Make sure the chains are different
     require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
