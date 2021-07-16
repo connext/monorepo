@@ -8,14 +8,7 @@ import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
 const hId = hyperid();
 
-export interface TransactionManagerListener {
-  onSenderPrepare(handler: (data: TransactionPreparedEvent) => any): void;
-  onReceiverFulfill(handler: (data: TransactionFulfilledEvent) => any): void;
-}
-
-// imported
-
-export class SubgraphTransactionManagerListener implements TransactionManagerListener {
+export class SubgraphTransactionManagerListener {
   private sdks: Record<number, Sdk> = {};
 
   constructor(
@@ -65,7 +58,6 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           const receiverTransaction = await this.getTransactionForChain(
             transaction.transactionId,
             transaction.user.id,
-            transaction.router.id,
             transaction.receivingChainId,
           );
           if (receiverTransaction) {
@@ -189,7 +181,6 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   async getTransactionForChain(
     transactionId: string,
     user: string,
-    router: string,
     chainId: number,
   ): Promise<
     | {
@@ -205,7 +196,7 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
   > {
     const sdk: Sdk = this.sdks[chainId];
     const { transaction } = await sdk.GetTransaction({
-      transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + router.toLowerCase(),
+      transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + this.routerAddress.toLowerCase(),
     });
     return transaction
       ? {
@@ -233,5 +224,12 @@ export class SubgraphTransactionManagerListener implements TransactionManagerLis
           relayerFee: transaction.relayerFee,
         }
       : undefined;
+  }
+
+  async getAssetBalance(assetId: string, chainId: number): Promise<BigNumber | undefined> {
+    const sdk: Sdk = this.sdks[chainId];
+    const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
+    const res = await sdk.GetAssetBalance({ assetBalanceId });
+    return res.assetBalance?.amount ? BigNumber.from(res.assetBalance?.amount) : undefined;
   }
 }

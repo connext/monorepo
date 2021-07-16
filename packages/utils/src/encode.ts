@@ -72,8 +72,11 @@ export const AuctionBidEncoding = tidy(`tuple(
   address receivingAddress,
   bytes32 transactionId,
   uint256 expiry,
+  bytes32 callDataHash,
   address callTo,
-  bytes encryptedCallData
+  bytes encryptedCallData,
+  address sendingChainTxManagerAddress,
+  address receivingChainTxManagerAddress
 )`);
 
 export const encodeAuctionBid = (bid: AuctionBid): string => {

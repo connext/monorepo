@@ -233,7 +233,6 @@ export type AuctionPayload = {
   encryptedCallData: string;
   callDataHash: string;
   callTo: string;
-  txManagerAddress: string;
 };
 
 export type AuctionBid = {
@@ -248,9 +247,11 @@ export type AuctionBid = {
   receivingAddress: string;
   transactionId: string;
   expiry: string;
-  encryptedCallData: string;
   callDataHash: string;
   callTo: string;
+  encryptedCallData: string;
+  sendingChainTxManagerAddress: string;
+  receivingChainTxManagerAddress: string;
 };
 
 export type AuctionResponse = {
@@ -272,7 +273,6 @@ export type MetaTxPayload<T extends MetaTxTypes> = {
   to: string;
   data: MetaTxPayloads[T];
   chainId: number;
-  responseInbox: string;
 };
 export type MetaTxResponse = {
   transactionHash: string;
