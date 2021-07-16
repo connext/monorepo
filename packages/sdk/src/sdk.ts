@@ -49,6 +49,9 @@ export const CrossChainParamsSchema = Type.Object({
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
 export const NxtpSdkEvents = {
+  SenderTransactionPrepareTokenApproval: "SenderTokenApprovalSubmitted",
+  SenderTokenApprovalMined: "SenderTokenApprovalMined",
+  SenderTransactionPrepareSubmitted: "SenderTransactionPrepareSubmitted",
   SenderTransactionPrepared: "SenderTransactionPrepared",
   SenderTransactionFulfilled: "SenderTransactionFulfilled",
   SenderTransactionCancelled: "SenderTransactionCancelled",
@@ -61,7 +64,27 @@ export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 // TODO: is this the event payload we want? anything else?
 export type TransactionCompletedEvent = TransactionFulfilledEvent;
 
+export type SenderTransactionPrepareTokenApprovalPayload = {
+  assetId: string;
+  chainId: number;
+  transactionResponse: providers.TransactionResponse;
+};
+
+export type SenderTokenApprovalMinedPayload = {
+  assetId: string;
+  chainId: number;
+  transactionReceipt: providers.TransactionReceipt;
+};
+
+export type SenderTransactionPrepareSubmittedPayload = {
+  prepareParams: PrepareParams;
+  transactionResponse: providers.TransactionResponse;
+};
+
 export interface NxtpSdkEventPayloads {
+  [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: SenderTransactionPrepareTokenApprovalPayload;
+  [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
+  [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
   [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
@@ -96,8 +119,11 @@ export type SdkChains = {
   };
 };
 
-export class NxtpSdk {
-  private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = {
+export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
+  return {
+    [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: Evt.create<SenderTransactionPrepareTokenApprovalPayload>(),
+    [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
+    [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
@@ -105,6 +131,10 @@ export class NxtpSdk {
     [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
+};
+
+export class NxtpSdk {
+  private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
 
   private readonly fulfilling: { [id: string]: TransactionPreparedEvent & { chainId: number } } = {};
 
@@ -154,6 +184,11 @@ export class NxtpSdk {
     return client;
   }
 
+  public async connectMessaging(bearerToken?: string): Promise<string> {
+    const token = await this.messaging.connect(bearerToken);
+    return token;
+  }
+
   public async transfer(
     transferParams: CrossChainParams,
   ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
@@ -165,9 +200,9 @@ export class NxtpSdk {
     const validate = ajv.compile(CrossChainParamsSchema);
     const valid = validate(transferParams);
     if (!valid) {
-      const error = validate.errors?.map((err) => err.message).join(",");
-      this.logger.error({ error, transferParams }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error!}`);
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
+      throw new Error(`Invalid params - ${error}`);
     }
 
     // only need to connect messaging on transfer
@@ -232,7 +267,7 @@ export class NxtpSdk {
         router,
         sendingAssetId,
         receivingAssetId,
-        sendingChainFallback:  user, // TODO: for now
+        sendingChainFallback: user, // TODO: for now
         callTo: callTo ?? constants.AddressZero,
         receivingAddress,
         sendingChainId,
@@ -253,7 +288,8 @@ export class NxtpSdk {
     const prepareReceipt = await prepare(
       params,
       this.chains[sendingChainId].listener.transactionManager,
-      this.signer,
+      this.signer.provider ? this.signer : this.signer.connect(this.chains[sendingChainId].provider),
+      this.evts,
       this.logger,
       erc20,
       infiniteApprove,

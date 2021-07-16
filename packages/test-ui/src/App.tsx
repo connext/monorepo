@@ -75,7 +75,13 @@ function App(): React.ReactElement | null {
       Object.entries(providerUrls).forEach(
         ([chainId, url]) => (chainProviders[parseInt(chainId)] = new providers.JsonRpcProvider(url, parseInt(chainId))),
       );
-      const _sdk = await NxtpSdk.init(chainProviders, signer, pino({ level: "info" }));
+      const _sdk = await NxtpSdk.init(
+        chainProviders,
+        signer,
+        pino({ level: "info" }),
+        "ws://localhost:4221",
+        "http://localhost:5040",
+      );
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
@@ -122,6 +128,14 @@ function App(): React.ReactElement | null {
         setActiveTransferTableColumns(
           activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
         );
+      });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareTokenApproval, (data) => {
+        console.log("SenderTransactionPrepareTokenApproval:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, (data) => {
+        console.log("SenderTransactionPrepareSubmitted:", data);
       });
       const activeTxs = await _sdk.getActiveTransactions();
 

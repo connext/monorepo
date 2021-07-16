@@ -1,19 +1,50 @@
-name: Verify
+# A GitHub Actions workflow to build a docker image for an app.
+#
+# One-time setup to use this workflow:
+# 1. Move this file into ./.github/workflows
+# 2. Change APP_NAME variable below to the name of the app.
+#
+# The image will be built on each push to or pull request on main.
+# It will be pushed to the current GitHub repo's Packages.
+
+name: Build and Push Docker Image - Router
 
 on:
-  create:
-    tag:
-      - "v*"
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
+  create:
+    tag:
+      - "v*"
+
+env:
+  # These variables are used by build.sh.
+
+  # Comment out the following line to skip pushing the image to your GitHub repo.
+  DOCKER_REPO: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Add COMMIT_HASH env property with commit short sha
+        run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+
+      - name: Build and push docker image to GitHub repo
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          chmod +x ./docker/build-router.sh
+          ./docker/build-router.sh
+
+  verify:
+    runs-on: ubuntu-20.04
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -43,6 +74,16 @@ jobs:
 
       - name: Test
         run: yarn test:all
+
+      - name: Get Docker image
+        run: |
+          yarn workspace @connext/nxtp-router build
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/connext/nxtp-router:latest
+          docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
+
+      - name: Test Integration
+        run: yarn test:integration
 
       - name: Lint
         run: yarn lint:all --max-warnings 0

@@ -1,0 +1,21 @@
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "1337": {
+      "provider": ["http://172.17.0.1:8545"],
+      "confirmations": 1,
+      "subgraph": "http://172.17.0.1:8000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    },
+    "1338": {
+      "provider": ["http://172.17.0.1:8546"],
+      "confirmations": 1,
+      "subgraph": "http://172.17.0.1:9000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://172.17.0.1:4222",
+  "authUrl": "http://172.17.0.1:5040",
+  "mnemonic": "model best tree august jump gate degree deputy glow since super enter"
+}
