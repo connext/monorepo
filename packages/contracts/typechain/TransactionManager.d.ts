@@ -383,10 +383,10 @@ export class TransactionManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     getRouterBalance(
-      assetId: string,
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     issuedShares(
       arg0: string,
@@ -534,10 +534,10 @@ export class TransactionManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   getRouterBalance(
-    assetId: string,
     router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    assetId: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   issuedShares(
     arg0: string,
@@ -743,8 +743,8 @@ export class TransactionManager extends BaseContract {
     >;
 
     getRouterBalance(
-      assetId: string,
       router: string,
+      assetId: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1236,9 +1236,9 @@ export class TransactionManager extends BaseContract {
     ): Promise<BigNumber>;
 
     getRouterBalance(
-      assetId: string,
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      assetId: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     issuedShares(
@@ -1394,9 +1394,9 @@ export class TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getRouterBalance(
-      assetId: string,
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      assetId: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     issuedShares(
