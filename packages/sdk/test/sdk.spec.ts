@@ -12,9 +12,12 @@ describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
   beforeEach(() => {
+    const provider1337 = createStubInstance(providers.FallbackProvider);
+    (provider1337 as any)._isProvider = true;
+    const provider1338 = provider1337;
     const chainConfig = {
-      1337: createStubInstance(providers.FallbackProvider),
-      1338: createStubInstance(providers.FallbackProvider),
+      1337: provider1337,
+      1338: provider1338,
     };
     const signer = createStubInstance(Wallet);
     signer.getAddress.resolves(mkAddress("0xaaa"));
@@ -43,9 +46,7 @@ describe("NxtpSdk", () => {
     it.only("happy: should get a transfer quote from a router without callTo and callData", async () => {
       const prom = sdk.getTransferQuote(crossChainParams);
       await delay(1000);
-      messaging.subscribeToAuctionResponse.invokeCallback("_INBOX.abc", (data) => {
-        console.log(data);
-      });
+      messaging.subscribeToAuctionResponse.callsArgWith(0, "blahblah");
     });
   });
 });

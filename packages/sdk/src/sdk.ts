@@ -17,7 +17,6 @@ import {
   encrypt,
   generateMessagingInbox,
   AuctionResponse,
-  delay,
   encodeAuctionBid,
   recoverAuctionBid,
   recoverPrepareTransactionPayload,
@@ -235,31 +234,27 @@ export class NxtpSdk {
     }
 
     const inbox = generateMessagingInbox();
-    const receivedResponsePromise = Promise.race<AuctionResponse | void>([
-      // resolve after first response
-      // TODO: update this for real auctions
-      new Promise<AuctionResponse>((res) =>
-        this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
-          if (err) {
-            this.logger.error({ method, methodId, err }, "Error in auction response");
-            return;
-          }
+    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
+      setTimeout(() => rej(), 10_000);
+      this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+        if (err) {
+          this.logger.error({ method, methodId, err }, "Error in auction response");
+          return;
+        }
 
-          // check router sig on bid
-          const signer = recoverAuctionBid(data.bid, data.bidSignature);
-          if (signer !== data.bid.router) {
-            this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
-            return;
-          }
+        // check router sig on bid
+        const signer = recoverAuctionBid(data.bid, data.bidSignature);
+        if (signer !== data.bid.router) {
+          this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
+          return;
+        }
 
-          // TODO: check contract for router liquidity
+        // TODO: check contract for router liquidity
 
-          this.logger.info({ method, methodId, data }, "Received auction response");
-          res(data);
-        }),
-      ),
-      delay(10_000),
-    ]);
+        this.logger.info({ method, methodId, data }, "Received auction response");
+        res(data);
+      });
+    });
 
     await this.messaging.publishAuctionRequest(
       {
@@ -280,13 +275,13 @@ export class NxtpSdk {
     );
 
     this.logger.info({ method, methodId }, "Waiting up to 10 seconds for responses");
-    const auctionResponse = await receivedResponsePromise;
-    if (!auctionResponse) {
-      throw new Error("No response received");
+    try {
+      const auctionResponse = await receivedResponsePromise;
+      this.logger.info({ method, methodId, auctionResponse }, "Received response");
+      return auctionResponse;
+    } catch (e) {
+      throw new Error("No response received", e);
     }
-    this.logger.info({ method, methodId, auctionResponse }, "Received response");
-
-    return auctionResponse;
   }
 
   public async startTransfer(
