@@ -324,6 +324,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
+      // using unchecked because underflow protected against with require
       unchecked {
         routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
       }
@@ -419,9 +420,8 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(msg.sender == txData.router, "fulfill: ROUTER_MISMATCH");
 
       // Complete tx to router for original sending amount
-      unchecked {
-        routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
-      }
+      routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      
     } else {
       // The user is completing the transaction, they should get the
       // amount that the router deposited less fees for relayer.
@@ -559,9 +559,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       }
 
       // Return liquidity to router
-      unchecked {
-        routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
-      }
+      routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
     }
 
     // Emit event
