@@ -273,6 +273,8 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // `IFulfillHelper`
       require(amount > 0, "prepare: AMOUNT_IS_ZERO");
 
+      // Asset is approved
+      require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
 
       // Store the transaction variants
       variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
