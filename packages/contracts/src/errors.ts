@@ -1,4 +1,8 @@
-export const Errors = {
+type ErrorsType = {
+  [key: string]: string;
+};
+
+export const Errors: ErrorsType = {
   "001": "ROUTER_EMPTY",
   "002": "AMOUNT_IS_ZERO",
   "003": "BAD_ROUTER",
@@ -25,12 +29,35 @@ export const Errors = {
   "024": "INVALID_RELAYER_FEE",
   "025": "INVALID_CALL_DATA",
   "026": "ROUTER_MUST_CANCEL",
+  "027": "RECEIVING_ADDRESS_EMPTY",
 };
 
-export const ErrorsPrefix = {
-  AL: "addLiquidity",
-  RL: "removeLiquidity",
-  P: "prepare",
-  F: "fulfill",
-  C: "cancel",
+type ErrorsPrefixType = {
+  [key: string]: string;
+};
+export const ErrorsPrefix: ErrorsPrefixType = {
+  "#AL": "addLiquidity",
+  "#RL": "removeLiquidity",
+  "#P": "prepare",
+  "#F": "fulfill",
+  "#C": "cancel",
+};
+
+export const getFullError = (error: string): string => {
+  const [prefix, index] = error.split(":");
+
+  const fullError: string = ErrorsPrefix[prefix] + ":" + Errors[index];
+
+  return fullError;
+};
+
+export const getContractError = (error: string): string => {
+  const [prefix_value, error_value] = error.split(":");
+
+  const shortError: string =
+    Object.keys(ErrorsPrefix).find((key) => ErrorsPrefix[key] === prefix_value.trim()) +
+    ":" +
+    Object.keys(Errors).find((key) => Errors[key] === error_value.trim());
+
+  return shortError;
 };
