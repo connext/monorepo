@@ -28,11 +28,19 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   subgraphs[parseInt(chainId)] = config.subgraph;
   providers[parseInt(chainId)] = config.provider;
 });
-const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TransactionService(logger, wallet, providers);
-const transactionManager = new TransactionManager(txService, wallet.address, logger);
+const subgraph = new SubgraphTransactionManagerListener(
+  subgraphs,
+  wallet.address,
+  logger.child({ module: "SubgraphTransactionManagerListener" }),
+);
+const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, providers);
+const transactionManager = new TransactionManager(
+  txService,
+  wallet.address,
+  logger.child({ module: "TransactionManager" }),
+);
 
-const handler = new Handler(messaging, subgraph, transactionManager, wallet, logger);
+const handler = new Handler(messaging, subgraph, transactionManager, wallet, logger.child({ module: "Handler" }));
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
