@@ -288,7 +288,7 @@ export class NxtpSdk {
     transferParams: AuctionResponse,
     userSignature?: string,
     infiniteApprove = false,
-  ): Promise<{ prepareResponse: providers.TransactionResponse }> {
+  ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
     const method = "transfer";
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, transferParams }, "Method started");
@@ -400,6 +400,7 @@ export class NxtpSdk {
     );
     return {
       prepareResponse,
+      transactionId,
     };
   }
 
