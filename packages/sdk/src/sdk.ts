@@ -280,7 +280,7 @@ export class NxtpSdk {
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
       return auctionResponse;
     } catch (e) {
-      throw new Error("No response received", e);
+      throw new Error("No response received");
     }
   }
 
