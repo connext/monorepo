@@ -133,7 +133,7 @@ describe("TransactionManager", function () {
     const day = 24 * 60 * 60;
     const record = {
       amount: "10",
-      expiry: (Math.floor(Date.now() / 1000) + day + 5_000).toString(),
+      expiry: Math.floor(Date.now() / 1000) + day + 5_000,
       preparedBlockNumber: 10,
       ...recordOverrides,
     };
