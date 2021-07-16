@@ -85,7 +85,7 @@ export class Handler {
   public async handleNewAuction(data: AuctionPayload, inbox: string): Promise<void> {
     const method = "handleNewAuction";
     const methodId = hId();
-    this.logger.info({ method, methodId, data }, "Method start");
+    this.logger.info({ method, methodId, data, inbox }, "Method start");
 
     const {
       user,

@@ -238,6 +238,10 @@ export class NxtpSdk {
       encryptedCallData = await encrypt(callData, encryptionPublicKey);
     }
 
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
+    }
+
     const inbox = generateMessagingInbox();
     const receivedResponsePromise = Promise.race<AuctionResponse | void>([
       // resolve after first response
@@ -255,6 +259,8 @@ export class NxtpSdk {
             this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
             return;
           }
+
+          // TODO: check contract for router liquidity
 
           this.logger.info({ method, methodId, data }, "Received auction response");
           res(data);
@@ -281,10 +287,12 @@ export class NxtpSdk {
       inbox,
     );
 
+    this.logger.info({ method, methodId }, "Waiting up to 10 seconds for responses");
     const auctionResponse = await receivedResponsePromise;
     if (!auctionResponse) {
       throw new Error("No response received");
     }
+    this.logger.info({ method, methodId, auctionResponse }, "Received response");
 
     return auctionResponse;
   }
@@ -298,13 +306,7 @@ export class NxtpSdk {
     this.logger.info({ method, methodId, transferParams }, "Method started");
 
     // Validate params schema
-    const validate = ajv.compile(CrossChainParamsSchema);
-    const valid = validate(transferParams);
-    if (!valid) {
-      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error}`);
-    }
+    // TODO
 
     // only need to connect messaging on transfer
     if (!this.messaging.isConnected()) {
