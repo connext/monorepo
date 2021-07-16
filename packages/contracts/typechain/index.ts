@@ -11,6 +11,7 @@ export type { FulfillInterpreter } from "./FulfillInterpreter";
 export type { PercentageMath } from "./PercentageMath";
 export type { AssetTest } from "./AssetTest";
 export type { Counter } from "./Counter";
+export type { PercentageMathTest } from "./PercentageMathTest";
 export type { TestERC20 } from "./TestERC20";
 
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -23,4 +24,5 @@ export { FulfillInterpreter__factory } from "./factories/FulfillInterpreter__fac
 export { PercentageMath__factory } from "./factories/PercentageMath__factory";
 export { AssetTest__factory } from "./factories/AssetTest__factory";
 export { Counter__factory } from "./factories/Counter__factory";
+export { PercentageMathTest__factory } from "./factories/PercentageMathTest__factory";
 export { TestERC20__factory } from "./factories/TestERC20__factory";

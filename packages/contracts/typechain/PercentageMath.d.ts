@@ -22,9 +22,6 @@ interface PercentageMathInterface extends ethers.utils.Interface {
   functions: {
     "HALF_PERCENT()": FunctionFragment;
     "PERCENTAGE_FACTOR()": FunctionFragment;
-    "calculatePercent(uint256,uint256)": FunctionFragment;
-    "percentDiv(uint256,uint256)": FunctionFragment;
-    "percentMul(uint256,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -35,18 +32,6 @@ interface PercentageMathInterface extends ethers.utils.Interface {
     functionFragment: "PERCENTAGE_FACTOR",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "calculatePercent",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "percentDiv",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "percentMul",
-    values: [BigNumberish, BigNumberish]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "HALF_PERCENT",
@@ -56,12 +41,6 @@ interface PercentageMathInterface extends ethers.utils.Interface {
     functionFragment: "PERCENTAGE_FACTOR",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "calculatePercent",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "percentDiv", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "percentMul", data: BytesLike): Result;
 
   events: {};
 }
@@ -113,70 +92,16 @@ export class PercentageMath extends BaseContract {
     HALF_PERCENT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    calculatePercent(
-      value: BigNumberish,
-      total: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    percentDiv(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    percentMul(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
   };
 
   HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
 
   PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
 
-  calculatePercent(
-    value: BigNumberish,
-    total: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  percentDiv(
-    value: BigNumberish,
-    percentage: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  percentMul(
-    value: BigNumberish,
-    percentage: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   callStatic: {
     HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    calculatePercent(
-      value: BigNumberish,
-      total: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    percentDiv(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    percentMul(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -185,47 +110,11 @@ export class PercentageMath extends BaseContract {
     HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    calculatePercent(
-      value: BigNumberish,
-      total: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    percentDiv(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    percentMul(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     HALF_PERCENT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    calculatePercent(
-      value: BigNumberish,
-      total: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    percentDiv(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    percentMul(
-      value: BigNumberish,
-      percentage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
   };
 }

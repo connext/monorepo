@@ -20,7 +20,7 @@ library PercentageMath {
    * @param percentage The percentage of the value to be calculated
    * @return The percentage of value
    **/
-  function percentMul(uint256 value, uint256 percentage) external pure returns (uint256) {
+  function percentMul(uint256 value, uint256 percentage) internal pure returns (uint256) {
     if (value == 0 || percentage == 0) {
       return 0;
     }
@@ -39,7 +39,7 @@ library PercentageMath {
    * @param percentage The percentage of the value to be calculated
    * @return The value divided the percentage
    **/
-  function percentDiv(uint256 value, uint256 percentage) external pure returns (uint256) {
+  function percentDiv(uint256 value, uint256 percentage) internal pure returns (uint256) {
     require(percentage != 0, "percentDiv: DIVIDE_BY_ZERO");
     uint256 halfPercentage = percentage / 2;
 
@@ -57,7 +57,7 @@ library PercentageMath {
    * @param total Total to take percentage of
    * @return The percentage in format 7% == 700, 0.07% == 7
    **/
-  function calculatePercent(uint256 value, uint256 total) external pure returns (uint256) {
+  function calculatePercent(uint256 value, uint256 total) internal pure returns (uint256) {
     require(total != 0, "calculatePercent: DIVIDE_BY_ZERO");
   
     if (value == 0) {

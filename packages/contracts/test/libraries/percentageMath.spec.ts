@@ -4,19 +4,19 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { PercentageMath } from "../../typechain/PercentageMath";
+import { PercentageMathTest } from "../../typechain/PercentageMathTest";
 import { utils } from "ethers";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("PercentageMath", () => {
-  const [wallet, other, receiver] = waffle.provider.getWallets();
+  const [wallet, other] = waffle.provider.getWallets();
 
-  let libPercentageMath: PercentageMath;
+  let libPercentageMath: PercentageMathTest;
 
   const fixture = async () => {
-    const libPercentageMathFactory = await ethers.getContractFactory("PercentageMath");
+    const libPercentageMathFactory = await ethers.getContractFactory("PercentageMathTest");
 
-    libPercentageMath = (await libPercentageMathFactory.deploy()) as PercentageMath;
+    libPercentageMath = (await libPercentageMathFactory.deploy()) as PercentageMathTest;
     return { libPercentageMath };
   };
 
