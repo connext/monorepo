@@ -110,7 +110,7 @@ describe("Handler", () => {
           preparedBlockNumber: ethPrepareDataMock.txData.preparedBlockNumber,
         },
         amount: MUTATED_AMOUNT,
-        expiry: MUTATED_EXPIRY.toString(),
+        expiry: MUTATED_EXPIRY,
         bidSignature: ethPrepareDataMock.bidSignature,
         encodedBid: ethPrepareDataMock.encodedBid,
         encryptedCallData: ethPrepareDataMock.encryptedCallData,
