@@ -167,6 +167,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
+      // TODO: fix for fee on transfer
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
 
