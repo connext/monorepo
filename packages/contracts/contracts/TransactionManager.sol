@@ -201,8 +201,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Sanity check: percent can be deducted for the router
     require(routerPercent >= percentToRemove, "removeLiquidity: INSUFFICIENT_FUNDS");
 
-    // Update router balances
-    routerPercentages[msg.sender][assetId] = routerPercent - percentToRemove;
+    // Update router percentages
+    unchecked {
+      routerPercentages[msg.sender][assetId] = routerPercent - percentToRemove;
+    }
 
     // Transfer from contract to specified recipient
     LibAsset.transferAsset(assetId, recipient, amount);
@@ -350,7 +352,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
-      routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+      // using unchecked because underflow protected against with require
+      unchecked {
+        routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+      }
     }
 
     // Emit event
@@ -444,12 +449,16 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Complete tx to router for original sending amount
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      
     } else {
       // The user is completing the transaction, they should get the
       // amount that the router deposited less fees for relayer.
 
       // Get the amount to send
-      uint256 toSend = txData.amount - relayerFee;
+      uint256 toSend;
+      unchecked {
+        toSend = txData.amount - relayerFee;
+      }
 
       // Send the relayer the fee
       if (relayerFee > 0) {
@@ -560,7 +569,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         }
 
         // Get the amount to refund the user
-        uint256 toRefund = txData.amount - relayerFee;
+        uint256 toRefund;
+        unchecked {
+          toRefund = txData.amount - relayerFee; 
+        }
 
         // Return locked funds to sending chain fallback
         if (toRefund > 0) {
