@@ -5,13 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
-/// @title LibAsset
+/// @title Asset
 /// @author Connext <support@connext.network>
 /// @notice This library contains helpers for dealing with onchain transfers
 ///         of assets, including accounting for the native asset `assetId`
 ///         conventions and any noncompliant ERC20 transfers
 
-library LibAsset {
+library Asset {
     address constant NATIVE_ASSETID = address(0);
 
     using SafeERC20 for IERC20;

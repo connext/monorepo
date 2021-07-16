@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 import "../interfaces/IFulfillInterpreter.sol";
-import "../lib/LibAsset.sol";
+import "../libraries/Asset.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
@@ -14,9 +14,9 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     bytes calldata callData
   ) override external payable nonReentrant {
     // If it is not ether, approve the callTo
-    bool isEther = LibAsset.isEther(assetId);
+    bool isEther = Asset.isEther(assetId);
     if (!isEther) {
-      LibAsset.increaseERC20Allowance(assetId, callTo, amount);
+      Asset.increaseERC20Allowance(assetId, callTo, amount);
     }
 
     // Try to execute the callData
@@ -25,10 +25,10 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     if (!success) {
       // If it fails, transfer to fallback
-      LibAsset.transferAsset(assetId, fallbackAddress, amount);
+      Asset.transferAsset(assetId, fallbackAddress, amount);
       // Decrease allowance
       if (!isEther) {
-        LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
+        Asset.decreaseERC20Allowance(assetId, callTo, amount);
       }
     }
   }

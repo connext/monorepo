@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "../lib/LibAsset.sol";
+import "../libraries/Asset.sol";
 
-/// @title LibAssetTest
+/// @title AssetTest
 /// @author Connext
 /// @notice Used to easily test the internal methods of
-///         LibAsset.sol by aliasing them to public
+///         Asset.sol by aliasing them to public
 ///         methods.
 
-contract LibAssetTest {
+contract AssetTest {
   
   constructor() {}
 
   function isEther(address assetId) public pure returns (bool) {
-    return LibAsset.isEther(assetId);
+    return Asset.isEther(assetId);
   }
 
   function getOwnBalance(address assetId) public view returns (uint256) {
-    return LibAsset.getOwnBalance(assetId);
+    return Asset.getOwnBalance(assetId);
   }
 
   function transferEther(address payable recipient, uint256 amount) public {
-    LibAsset.transferEther(recipient, amount);
+    Asset.transferEther(recipient, amount);
   }
 
   function transferERC20(
@@ -30,7 +30,7 @@ contract LibAssetTest {
     address recipient,
     uint256 amount
   ) public {
-    LibAsset.transferERC20(assetId, recipient, amount);
+    Asset.transferERC20(assetId, recipient, amount);
   }
 
   // This function is a wrapper for transfers of Ether or ERC20 tokens,
@@ -41,6 +41,6 @@ contract LibAssetTest {
     address payable recipient,
     uint256 amount
   ) public {
-    LibAsset.transferAsset(assetId, recipient, amount);
+    Asset.transferAsset(assetId, recipient, amount);
   }
 }

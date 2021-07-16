@@ -6,7 +6,7 @@ import { solidity } from "ethereum-waffle";
 use(solidity);
 
 // import types
-import { LibAssetTest } from "../../typechain/LibAssetTest";
+import { AssetTest } from "../../typechain/AssetTest";
 import { TestERC20 } from "../../typechain/TestERC20";
 import { BigNumber, constants } from "ethers";
 
@@ -16,14 +16,14 @@ const createFixtureLoader = waffle.createFixtureLoader;
 describe("LibAsset", () => {
   const [wallet, other, receiver] = waffle.provider.getWallets();
 
-  let libAssetTest: LibAssetTest;
+  let libAssetTest: AssetTest;
   let token: TestERC20;
 
   const fixture = async () => {
-    const libAssetTestFactory = await ethers.getContractFactory("LibAssetTest");
+    const libAssetTestFactory = await ethers.getContractFactory("AssetTest");
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
 
-    libAssetTest = (await libAssetTestFactory.deploy()) as LibAssetTest;
+    libAssetTest = (await libAssetTestFactory.deploy()) as AssetTest;
     token = (await testERC20Factory.deploy()) as TestERC20;
     return { libAssetTest, token };
   };

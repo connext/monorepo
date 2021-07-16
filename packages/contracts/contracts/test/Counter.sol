@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "../lib/LibAsset.sol";
+import "../libraries/Asset.sol";
 
 contract Counter {
   bool public shouldRevert;
@@ -21,14 +21,14 @@ contract Counter {
   }
 
   function incrementAndSend(address assetId, address recipient, uint256 amount) public payable {
-    if (LibAsset.isEther(assetId)) {
+    if (Asset.isEther(assetId)) {
       require(msg.value == amount, "incrementAndSend: INVALID_ETH_AMOUNT");
     } else {
       require(msg.value == 0, "incrementAndSend: ETH_WITH_ERC");
-      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
+      Asset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
     increment();
 
-    LibAsset.transferAsset(assetId, payable(recipient), amount);
+    Asset.transferAsset(assetId, payable(recipient), amount);
   }
 }
