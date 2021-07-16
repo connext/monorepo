@@ -24,8 +24,10 @@ interface ITransactionManager {
   // Holds all data that varies between sending and receiving
   // chains. The hash of this is stored onchain to ensure the
   // information passed in is valid.
+  // TODO: do we want to store prepared amount?
   struct VariantTransactionData {
-    uint256 amount;
+    uint256 preparedAmount;
+    uint256 routerPercentage;
     uint256 expiry;
     uint256 preparedBlockNumber;
   }
@@ -43,7 +45,8 @@ interface ITransactionManager {
     bytes32 transactionId;
     uint256 sendingChainId;
     uint256 receivingChainId;
-    uint256 amount;
+    uint256 routerPercentage;
+    uint256 preparedAmount;
     uint256 expiry;
     uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
   }
@@ -58,7 +61,7 @@ interface ITransactionManager {
   // The structure of the signed data for cancellations
   struct SignedPrepareData {
     bytes32 transactionId;
-    uint256 amount;
+    uint256 routerPercentage;
     string prepare; // just the string "prepare"
   }
 
@@ -69,9 +72,21 @@ interface ITransactionManager {
   }
 
   // Liquidity events
-  event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
+  event LiquidityAdded(
+    address indexed router,
+    address indexed assetId,
+    uint256 amount,
+    uint256 percent, // TODO: rename?
+    address caller
+  );
 
-  event LiquidityRemoved(address indexed router, address indexed assetId, uint256 amount, address recipient);
+  event LiquidityRemoved(
+    address indexed router,
+    address indexed assetId,
+    uint256 amount,
+    uint256 percent, // TODO: rename?
+    address recipient
+  );
 
   // Transaction events
   event TransactionPrepared(
@@ -104,6 +119,9 @@ interface ITransactionManager {
     uint256 relayerFee,
     address caller
   );
+
+  // Getters
+  function getRouterBalance(address assetId, address router) external returns (uint256);
 
   // Owner only methods
   function renounce() external;

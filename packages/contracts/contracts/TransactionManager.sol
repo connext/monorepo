@@ -59,8 +59,14 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         sending chain, user for receiving chain) prior to expiry.
 
 contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
+  /// @dev For percentage math
+  using WadRayMath for uint256;
+
   /// @dev Mapping of router to balance specific to asset
-  mapping(address => mapping(address => uint256)) public routerBalances;
+  mapping(address => mapping(address => uint256)) public routerPercentages;
+
+  /// @dev Mapping of user deposits in contract to asset
+  mapping(address => uint256) public userDeposits;
 
   /// @dev Mapping of allowed router addresses
   mapping(address => bool) public approvedRouters;
@@ -89,6 +95,13 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   constructor(uint256 _chainId, address _interpreter) {
     chainId = _chainId;
     interpreter = FulfillInterpreter(_interpreter);
+  }
+
+  /// @notice Gets amounts from router percentages
+  /// @param assetId Asset for percentage
+  /// @param router Router you want balance of
+  function getRouterBalance(address assetId, address router) external override returns (uint256) {
+    return getAmountFromPercentOfRouterTotals(assetId, routerPercentages[router]);
   }
 
   /// @notice Removes any ownership privelenges. Used to allow 
@@ -143,8 +156,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Asset is approved
     require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
 
+    // Get the percent from amount
+    uint256 percent = getPercentOfRouterTotalsFromAmount(assetId, amount);
+
     // Update the router balances
-    routerBalances[router][assetId] += amount;
+    routerPercentages[router][assetId] += percent;
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
@@ -155,7 +171,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     }
 
     // Emit event
-    emit LiquidityAdded(router, assetId, amount, msg.sender);
+    emit LiquidityAdded(router, assetId, amount, percent, msg.sender);
   }
 
   /// @notice This is used by any router to decrease their available
@@ -175,18 +191,29 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Sanity check: nonzero amounts
     require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
 
-    uint256 routerBalance = routerBalances[msg.sender][assetId];
-    // Sanity check: amount can be deducted for the router
-    require(routerBalance >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
+    // Convert amount to percentage
+    uint256 percentToRemove = getPercentOfRouterTotalsFromAmount(assetId, amount);
+
+    // Get stored percentage
+    uint256 routerPercent = routerBalances[msg.sender][assetId];
+
+    // Sanity check: percent can be deducted for the router
+    require(routerPercent >= percentToRemove, "removeLiquidity: INSUFFICIENT_FUNDS");
 
     // Update router balances
-    routerBalances[msg.sender][assetId] = routerBalance - amount;
+    routerPercentages[msg.sender][assetId] = routerPercent - percentToRemove;
 
     // Transfer from contract to specified recipient
     LibAsset.transferAsset(assetId, recipient, amount);
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, assetId, amount, recipient);
+    emit LiquidityRemoved(
+      msg.sender,
+      assetId, 
+      amount,
+      routerPercent - percentToRemove;,
+      recipient
+    );
   }
 
   /// @notice This function creates a crosschain transaction. When called on
@@ -566,6 +593,52 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   //////////////////////////
   /// Private functions ///
   //////////////////////////
+
+  /// @notice Gets a percentage ownership from a given amount
+  /// @param assetId Asset for percentage
+  /// @param amount Raw amount to convert
+  function getPercentOfRouterTotalsFromAmount(address assetId, uint256 amount) internal view returns (uint256) {
+    // Get total balance on contract
+    uint256 total = LibAsset.getOwnBalance(assetId);
+
+    // Get router total
+    uint256 routerTotal = total - userDeposits[assetId];
+
+    // If either totals or amount are 0, exit
+    if (amount == 0 || total == 0 || routerTotal == 0) {
+      return 0;
+    }
+
+    // Convert to a percentage
+    return amount
+      .wadToRay()
+      .rayDiv(routerTotal)
+      .rayMul(100)
+      .rayToWad();
+  }
+
+  /// @notice Gets an amount from a percentage
+  /// @param assetId Asset for percentage
+  /// @param percentage Percent of router total to convert to amount
+  function getAmountFromPercentOfRouterTotals(address assetId, uint256 percentage) internal view returns (uint256) {
+    // Get total balance on contract
+    uint256 total = LibAsset.getOwnBalance(assetId);
+
+    // Get router total
+    uint256 routerTotal = total - userDeposits[assetId];
+
+    // If either totals or amount are 0, exit
+    if (percentage == 0 || total == 0 || routerTotal == 0) {
+      return 0;
+    }
+
+    // Convert to a percentage
+    return percentage
+      .wadToRay()
+      .rayDiv(100)
+      .rayMul(routerTotal)
+      .rayToWad();
+  }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
   ///         function. Returns the address recovered
