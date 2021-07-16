@@ -220,8 +220,44 @@ export type NxtpMessageEnvelope<T> = {
   inbox?: string;
 };
 
-export type AuctionPayload = { [k: string]: never };
-export type AuctionResponse = { [k: string]: never };
+export type AuctionPayload = {
+  user: string;
+  sendingChainId: number;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: number;
+  receivingAssetId: string;
+  receivingAddress: string;
+  expiry: number;
+  transactionId: string;
+  encryptedCallData: string;
+  callDataHash: string;
+  callTo: string;
+};
+
+export type AuctionBid = {
+  user: string;
+  router: string;
+  sendingChainId: number;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: number;
+  receivingAssetId: string;
+  amountReceived: string;
+  receivingAddress: string;
+  transactionId: string;
+  expiry: number;
+  callDataHash: string;
+  callTo: string;
+  encryptedCallData: string;
+  sendingChainTxManagerAddress: string;
+  receivingChainTxManagerAddress: string;
+};
+
+export type AuctionResponse = {
+  bid: AuctionBid;
+  bidSignature: string;
+};
 
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
@@ -237,7 +273,6 @@ export type MetaTxPayload<T extends MetaTxTypes> = {
   to: string;
   data: MetaTxPayloads[T];
   chainId: number;
-  responseInbox: string;
 };
 export type MetaTxResponse = {
   transactionHash: string;
@@ -308,9 +343,9 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    *
    */
   async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
+    await this.subscribeToNxtpMessageWithInbox<AuctionPayload>(
       `*.*.${AUCTION_SUBJECT}`,
-      (data: AuctionResponse, inbox: string, err?: any) => {
+      (data: AuctionPayload, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
     );
@@ -347,7 +382,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data, inbox);
     return { inbox };
   }
 
@@ -365,7 +400,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data, inbox);
     return { inbox };
   }
 

@@ -1,5 +1,6 @@
 import { utils } from "ethers";
 
+import { AuctionBid } from "./messaging";
 import { InvariantTransactionData, VariantTransactionData } from "./transactionManager";
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
@@ -65,4 +66,28 @@ export const encodeCancelData = (transactionId: string, relayerFee: string): str
 
 export const encodePrepareData = (transactionId: string, amount: string): string => {
   return utils.defaultAbiCoder.encode([PrepareEncoding], [{ transactionId, prepare: "prepare", amount }]);
+};
+
+////// AUCTION
+export const AuctionBidEncoding = tidy(`tuple(
+  address user,
+  address router,
+  uint24 sendingChainId,
+  address sendingAssetId,
+  uint256 amount,
+  uint24 receivingChainId,
+  address receivingAssetId,
+  uint256 amountReceived,
+  address receivingAddress,
+  bytes32 transactionId,
+  uint256 expiry,
+  bytes32 callDataHash,
+  address callTo,
+  bytes encryptedCallData,
+  address sendingChainTxManagerAddress,
+  address receivingChainTxManagerAddress
+)`);
+
+export const encodeAuctionBid = (bid: AuctionBid): string => {
+  return utils.defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
 };

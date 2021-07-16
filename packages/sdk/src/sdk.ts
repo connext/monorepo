@@ -15,6 +15,11 @@ import {
   TransactionData,
   CancelParams,
   encrypt,
+  generateMessagingInbox,
+  AuctionResponse,
+  delay,
+  encodeAuctionBid,
+  recoverAuctionBid,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -41,9 +46,8 @@ export const CrossChainParamsSchema = Type.Object({
   callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
-  expiry: TIntegerString,
+  expiry: Type.Number(),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
-  infiniteApprove: Type.Optional(Type.Boolean()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -189,48 +193,27 @@ export class NxtpSdk {
     return token;
   }
 
-  public async transfer(
-    transferParams: CrossChainParams,
-  ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
-    const method = "transfer";
+  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
+    const method = "getTransferQuote";
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, transferParams }, "Method started");
+    this.logger.info({ method, methodId, params }, "Method started");
 
     // Validate params schema
     const validate = ajv.compile(CrossChainParamsSchema);
-    const valid = validate(transferParams);
+    const valid = validate(params);
     if (!valid) {
       const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
+      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid transfer params");
       throw new Error(`Invalid params - ${error}`);
     }
-
-    // only need to connect messaging on transfer
-    if (!this.messaging.isConnected()) {
-      await this.messaging.connect();
-    }
-
-    const {
-      sendingAssetId,
-      receivingAssetId,
-      receivingAddress,
-      amount,
-      expiry,
-      callData: _callData,
-      sendingChainId,
-      receivingChainId,
-      callTo,
-      infiniteApprove,
-    } = transferParams;
-    if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
-      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
-    }
-
-    const transactionId = transferParams.transactionId ?? getRandomBytes32();
-
     const user = await this.signer.getAddress();
 
-    const callData = _callData ?? "0x";
+    const { sendingAssetId, sendingChainId, amount, receivingChainId, receivingAssetId, receivingAddress, expiry } =
+      params;
+    const transactionId = params.transactionId ?? getRandomBytes32();
+    const callTo = params.callTo ?? constants.AddressZero;
+    const callData = params.callData ?? "0x";
+
     let encryptedCallData = "0x";
     const callDataHash = utils.keccak256(callData);
     if (callData !== "0x") {
@@ -244,9 +227,9 @@ export class NxtpSdk {
       } catch (error) {
         if (error.code === 4001) {
           // EIP-1193 userRejectedRequest error
-          console.log("We can't encrypt anything without the key.");
+          this.logger.info({ method, methodId }, "We can't encrypt anything without the key.");
         } else {
-          console.error(error);
+          this.logger.error({ method, methodId, error }, "Error getting encryption key");
         }
         throw error;
       }
@@ -254,11 +237,104 @@ export class NxtpSdk {
       encryptedCallData = await encrypt(callData, encryptionPublicKey);
     }
 
-    let router = transferParams.router;
-    if (!router) {
-      const auctionRes = await this.runAuction(transferParams);
-      router = auctionRes.router;
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
     }
+
+    const inbox = generateMessagingInbox();
+    const receivedResponsePromise = Promise.race<AuctionResponse | void>([
+      // resolve after first response
+      // TODO: update this for real auctions
+      new Promise<AuctionResponse>((res) =>
+        this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+          if (err) {
+            this.logger.error({ method, methodId, err }, "Error in auction response");
+            return;
+          }
+
+          // check router sig on bid
+          const signer = recoverAuctionBid(data.bid, data.bidSignature);
+          if (signer !== data.bid.router) {
+            this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
+            return;
+          }
+
+          // TODO: check contract for router liquidity
+
+          this.logger.info({ method, methodId, data }, "Received auction response");
+          res(data);
+        }),
+      ),
+      delay(10_000),
+    ]);
+
+    await this.messaging.publishAuctionRequest(
+      {
+        user,
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        receivingChainId,
+        receivingAssetId,
+        receivingAddress,
+        callTo,
+        callDataHash,
+        encryptedCallData,
+        expiry,
+        transactionId,
+      },
+      inbox,
+    );
+
+    this.logger.info({ method, methodId }, "Waiting up to 10 seconds for responses");
+    const auctionResponse = await receivedResponsePromise;
+    if (!auctionResponse) {
+      throw new Error("No response received");
+    }
+    this.logger.info({ method, methodId, auctionResponse }, "Received response");
+
+    return auctionResponse;
+  }
+
+  public async transfer(
+    transferParams: AuctionResponse,
+    infiniteApprove = false,
+  ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
+    const method = "transfer";
+    const methodId = getRandomBytes32();
+    this.logger.info({ method, methodId, transferParams }, "Method started");
+
+    // Validate params schema
+    // TODO
+
+    // only need to connect messaging on transfer
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
+    }
+
+    const { bid, bidSignature } = transferParams;
+
+    const {
+      user,
+      router,
+      sendingAssetId,
+      receivingAssetId,
+      receivingAddress,
+      amount,
+      expiry,
+      callDataHash,
+      encryptedCallData,
+      sendingChainId,
+      receivingChainId,
+      callTo,
+      transactionId,
+    } = bid;
+
+    if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
+      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
+    }
+
+    const encodedBid = encodeAuctionBid(bid);
 
     // Prepare sender side tx
     const params: PrepareParams = {
@@ -276,8 +352,8 @@ export class NxtpSdk {
         transactionId,
       },
       encryptedCallData,
-      bidSignature: "0x", // TODO
-      encodedBid: "0x", // TODO
+      bidSignature,
+      encodedBid,
       amount,
       expiry,
     };
@@ -413,16 +489,6 @@ export class NxtpSdk {
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
     const tx = await cancel(cancelParams, this.chains[chainId].listener.transactionManager, this.signer, this.logger);
     return tx;
-  }
-
-  public async runAuction(
-    _params: CrossChainParams,
-  ): Promise<{ router: string; encodedBid: string; bidSignature: string }> {
-    return {
-      router: "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a",
-      encodedBid: "0x",
-      bidSignature: "0x",
-    };
   }
 
   private setupListeners(): void {

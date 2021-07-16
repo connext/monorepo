@@ -271,7 +271,6 @@ export const handleReceiverPrepare = async (
         txData,
         callData,
       },
-      responseInbox,
     },
     inbox,
   );

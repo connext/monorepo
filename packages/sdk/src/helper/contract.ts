@@ -33,9 +33,9 @@ export const getTransactionManagerContract = (
 };
 
 export const getActiveTransactionsByUser = async (
-  chainId: number,
-  userAddress: string,
-  provider: providers.JsonRpcProvider,
+  _chainId: number,
+  _userAddress: string,
+  _provider: providers.JsonRpcProvider,
 ): Promise<TransactionPreparedEvent[]> => {
   throw new Error("Needs subgraph implementation");
 };
