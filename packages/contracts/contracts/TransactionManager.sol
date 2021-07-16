@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "./interfaces/IFulfillHelper.sol";
+import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./lib/LibAsset.sol";
+import "./interpreters/FulfillInterpreter.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -73,8 +74,11 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  constructor(uint256 _chainId) {
+  IFulfillInterpreter private interpreter;
+
+  constructor(uint256 _chainId, address _interpreter) {
     chainId = _chainId;
+    interpreter = FulfillInterpreter(_interpreter);
   }
 
   /// @notice This is used by any router to increase their available
@@ -373,45 +377,21 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // address in case the call fails so the funds dont remain
         // locked.
 
-        // First, approve the funds to the helper if needed
+        // First, transfer the funds to the helper if needed
         if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.approveERC20(txData.receivingAssetId, txData.callTo, toSend);
+          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
-        // Next, call `addFunds` on the helper. Helpers should internally
+        // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
-        // for tx
-        if (toSend > 0) {
-          try
-            IFulfillHelper(txData.callTo).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
-              txData.user,
-              txData.transactionId,
-              txData.receivingAssetId,
-              toSend
-            )
-          {} catch {
-            // Regardless of error within the callData execution, send funds
-            // to the predetermined fallback address
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
-
-        // Call `execute` on the helper
-        try
-          IFulfillHelper(txData.callTo).execute(
-            txData.user,
-            txData.transactionId,
-            txData.receivingAssetId,
-            toSend,
-            callData
-          )
-        {} catch {
-          // Regardless of error within the callData execution, send funds
-          // to the predetermined fallback address
-          if (toSend > 0) {
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
+        // for tx, and handle the case of reversions
+        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          payable(txData.callTo),
+          txData.receivingAssetId,
+          payable(txData.receivingAddress),
+          toSend,
+          callData
+        );
       }
     }
 
