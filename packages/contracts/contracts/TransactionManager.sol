@@ -101,9 +101,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   }
 
   /// @notice Gets amounts from router percentages
-  /// @param assetId Asset for percentage
   /// @param router Router you want balance of
-  function getRouterBalance(address assetId, address router) external override returns (uint256) {
+  /// @param assetId Asset for percentage
+  function getRouterBalance(address router, address assetId) external view override returns (uint256) {
     return getAmountFromIssuedShares(
       issuedShares[router][assetId],
       outstandingShares[assetId],
@@ -363,6 +363,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Check that the router isnt accidentally locking funds in the contract
       require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
+
+      // Sanity check: contract has funds > amount on it
+      // This will handle the 0-value case
+      require(Asset.getOwnBalance(invariantData.receivingAssetId) >= amount, "prepare: INSUFFICIENT_FUNDS");
 
       // Calculate the shares from the amount
       shares = getIssuedSharesFromAmount(
@@ -726,6 +730,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 _outstandingShares,
     uint256 value
   ) internal pure returns (uint256) {
+    if (value == 0 || _issuedShares == 0) {
+      return 0;
+    }
     return _issuedShares
       .wadToRay()
       .rayDiv(_outstandingShares)
@@ -742,6 +749,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 _outstandingShares,
     uint256 value
   ) internal pure returns (uint256) {
+    if (amount == 0 || _outstandingShares == 0) {
+      return 0;
+    }
     return amount
       .wadToRay()
       .rayDiv(value)
