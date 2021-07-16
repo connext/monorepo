@@ -2,6 +2,7 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
+import { Logger } from "ethers/lib/utils";
 
 import { TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
@@ -146,11 +147,11 @@ export class Transaction {
        * error.replacement - the replacement transaction (a TransactionResponse)
        * error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
        */
-      if (error.code === "TRANSACTION_REPLACED") {
+      if (error.code === Logger.errors.TRANSACTION_REPLACED) {
         // This will be the replacement receipt (see above).
         this.receipt = error.receipt;
         this.logInfo(`Transaction ${error.reason}.`, method, { receipt: error.receipt });
-      } else if (error.code === "CALL_EXCEPTION") {
+      } else if (error.code === Logger.errors.CALL_EXCEPTION) {
         // This will be the receipt with a status of 0.
         this.receipt = error.receipt;
         this.logInfo("Transaction reverted.", method, { receipt: error.receipt });
