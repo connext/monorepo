@@ -4,6 +4,8 @@
 
 ### TLDR
 
+![Security walkthrough video](https://www.youtube.com/watch?v=ABEOIKzEshA&feature=youtu.be)
+
 NXTP is designed to facilitate crosschain transactions via simple atomic swaps where one party provides the liquidity of `assetA` on `chainA` and the other provides the liquidity of `assetB` on `chainB`.
 
 There are two main offchain agents:
