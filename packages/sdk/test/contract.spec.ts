@@ -2,19 +2,19 @@ import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 import { mkAddress, PrepareParams } from "@connext/nxtp-utils";
-import { Wallet, BigNumberish, Contract, utils, BigNumber } from "ethers";
+import { Wallet, BigNumberish, Contract, utils, BigNumber, constants } from "ethers";
 
-import { TransactionManager, TestERC20 } from "@connext/nxtp-contracts/typechain";
+import { FulfillInterpreter, Counter, TransactionManager, TestERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import FulfillInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contracts/interpreters/FulfillInterpreter.sol/FulfillInterpreter.json";
+import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import pino from "pino";
-import {
-  getTransactionManagerContract,
-  getActiveTransactionsByUser,
-  getVariantHashByInvariantData,
-} from "../src/helper";
-const logger = pino({ level: "error" });
+import pino, { BaseLogger } from "pino";
+import { prepare, createEvts } from "../src";
+
+const { AddressZero } = constants;
+const logger: BaseLogger = pino();
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
@@ -22,11 +22,12 @@ describe("TransactionManager", function () {
 
   const sendingChainId = 1337;
   const receivingChainId = 1338;
-  const routerFunds = BigNumber.from(10000).toString();
-  const userFunds = BigNumber.from(100).toString();
+  const routerFunds = "1000";
+  const userFunds = "100";
 
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
+  let counter: Counter;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
 
@@ -36,25 +37,56 @@ describe("TransactionManager", function () {
       TransactionManagerArtifact.bytecode,
       wallet,
     );
-
+    const counterFactory = await ethers.getContractFactory(CounterArtifact.abi, CounterArtifact.bytecode, wallet);
     const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
+    const interpreterFactory = await ethers.getContractFactory(
+      FulfillInterpreterArtifact.abi,
+      FulfillInterpreterArtifact.bytecode,
+      wallet,
+    );
 
-    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
+    const interpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
+
+    transactionManager = (await transactionManagerFactory.deploy(
+      sendingChainId,
+      interpreter.address,
+    )) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
+      receivingChainId,
+      interpreter.address,
+    )) as TransactionManager;
 
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
     tokenB = (await testERC20Factory.deploy()) as TestERC20;
+
+    counter = (await counterFactory.deploy()) as Counter;
 
     return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
+
+  const addPrivileges = async (tm: TransactionManager, routers: string[], assets: string[]) => {
+    for (const router of routers) {
+      const tx = await tm.addRouter(router);
+      await tx.wait();
+      expect(await tm.approvedRouters(router)).to.be.true;
+    }
+
+    for (const assetId of assets) {
+      const tx = await tm.addAssetId(assetId);
+      await tx.wait();
+      expect(await tm.approvedAssets(assetId)).to.be.true;
+    }
+  };
+
   before("create fixture loader", async () => {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
   beforeEach(async function () {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
+    await addPrivileges(transactionManager, [router.address], [AddressZero, tokenA.address, tokenB.address]);
 
     await tokenB.connect(wallet).transfer(router.address, routerFunds);
 
