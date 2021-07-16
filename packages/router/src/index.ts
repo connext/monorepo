@@ -28,11 +28,26 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   subgraphs[parseInt(chainId)] = config.subgraph;
   providers[parseInt(chainId)] = config.provider;
 });
-const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TransactionService(logger, wallet, providers);
-const transactionManager = new TransactionManager(txService, wallet.address, logger);
+const subgraph = new SubgraphTransactionManagerListener(
+  subgraphs,
+  wallet.address,
+  logger.child({ module: "SubgraphTransactionManagerListener" }),
+);
+const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, providers);
+const transactionManager = new TransactionManager(
+  txService,
+  wallet.address,
+  logger.child({ module: "TransactionManager" }),
+);
 
-const handler = new Handler(messaging, subgraph, transactionManager, logger);
+const handler = new Handler(
+  messaging,
+  subgraph,
+  transactionManager,
+  txService,
+  wallet,
+  logger.child({ module: "Handler" }),
+);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
@@ -60,6 +75,7 @@ export const RemoveLiquidityResponseSchema = Type.Object({
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
 
 server.addHook("onReady", async function () {
+  getConfig(); // validate config
   await messaging.connect();
   await setupListeners(messaging, subgraph, handler, logger);
 });

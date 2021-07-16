@@ -270,8 +270,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 expiry,
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
-    bytes calldata bidSignature,
-    bytes calldata userSignature
+    bytes calldata bidSignature
   ) external payable override returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "prepare: USER_EMPTY");
@@ -317,9 +316,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
-      // Make sure user is caller or has signed
-      require(msg.sender == invariantData.user || recoverPrepareSignature(invariantData.transactionId, amount, userSignature) == invariantData.user, "prepare: USER_MISMATCH");
-
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
@@ -796,23 +792,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   {
     // Create the signed payload
     SignedCancelData memory payload = SignedCancelData({transactionId: transactionId, cancel: "cancel", relayerFee: relayerFee});
-
-    // Recover
-    return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
-  }
-
-  /// @notice Recovers the signer from the signature provided to the `cancel`
-  ///         function. Returns the address recovered
-  /// @param transactionId Transaction identifier of tx being cancelled
-  /// @param shares The transaction shares
-  /// @param signature The signature you are recovering the signer from
-  function recoverPrepareSignature(bytes32 transactionId, uint256 shares, bytes calldata signature)
-    internal
-    pure
-    returns (address)
-  {
-    // Create the signed payload
-    SignedPrepareData memory payload = SignedPrepareData({transactionId: transactionId, prepare: "prepare", shares: shares});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);

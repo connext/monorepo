@@ -33,10 +33,6 @@ export const getSenderPrepareQuery = gql`
         bidSignature
         prepareCaller
       }
-      assetBalances {
-        id
-        amount
-      }
     }
   }
 `;
@@ -73,10 +69,6 @@ export const getReceiverPrepareQuery = gql`
         encodedBid
         bidSignature
         prepareCaller
-      }
-      assetBalances {
-        id
-        amount
       }
     }
   }
@@ -116,10 +108,6 @@ export const getReceiverFulfillQuery = gql`
         callData
         fulfillCaller
       }
-      assetBalances {
-        id
-        amount
-      }
     }
   }
 `;
@@ -157,10 +145,6 @@ export const getSenderFulfillQuery = gql`
         signature
         callData
         fulfillCaller
-      }
-      assetBalances {
-        id
-        amount
       }
     }
   }
@@ -231,6 +215,14 @@ export const getFulfilledTransactionsByIdsQuery = gql`
       signature
       callData
       fulfillCaller
+    }
+  }
+`;
+
+export const getAssetBalanceById = gql`
+  query GetAssetBalance($assetBalanceId: ID!) {
+    assetBalance(id: $assetBalanceId) {
+      amount
     }
   }
 `;

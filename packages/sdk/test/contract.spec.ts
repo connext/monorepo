@@ -99,40 +99,9 @@ describe("TransactionManager", function () {
     expect(tokenB.address).to.be.a("string");
   });
 
-  const approveTokens = async (amount: BigNumberish, approver: Wallet, token: Contract) => {
-    const approveTx = await token.connect(approver).approve(transactionManager.address, amount);
-    await approveTx.wait();
-  };
-
-  it("happy test: prepare", async () => {
-    const callData = "0x";
-    const callDataHash = utils.keccak256(callData);
-    const evts = createEvts();
-    const day = 24 * 60 * 60;
-
-    const params: PrepareParams = {
-      bidSignature: "0x",
-      encodedBid: "0x",
-      expiry: (Math.floor(Date.now() / 1000) + day + 5_000).toString(),
-      amount: BigNumber.from(1).toString(),
-      encryptedCallData: "0x",
-      txData: {
-        user: user.address,
-        router: router.address,
-        sendingAssetId: tokenA.address,
-        receivingAssetId: tokenB.address,
-        receivingAddress: receiver.address,
-        callTo: mkAddress("0xf"),
-        sendingChainFallback: user.address,
-        transactionId: getRandomBytes32(),
-        callDataHash: callDataHash,
-        sendingChainId: (await transactionManager.chainId()).toNumber(),
-        receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
-      },
-    };
-    await approveTokens(params.amount, user, tokenA);
-
-    const res = await prepare(params, transactionManager, user, evts, logger, tokenA);
-    expect(res.status).to.be.eq(1);
+  describe.only("getTransactionManagerContract", () => {
+    it("happy case: getTransactionManagerContract", async () => {});
   });
+  describe("getActiveTransactionsByUser", () => {});
+  describe("getVariantHashByInvariantData", () => {});
 });

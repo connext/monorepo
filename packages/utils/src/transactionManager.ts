@@ -17,7 +17,7 @@ export type InvariantTransactionData = {
 
 export type VariantTransactionData = {
   amount: string;
-  expiry: string;
+  expiry: number;
   preparedBlockNumber: number;
 };
 export type TransactionData = InvariantTransactionData & VariantTransactionData;
@@ -37,11 +37,10 @@ export type SignedFulfillData = {
 export type PrepareParams = {
   txData: InvariantTransactionData;
   amount: string;
-  expiry: string;
+  expiry: number;
   encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
-  userSignature?: string;
 };
 
 export type FulfillParams = {

@@ -56,13 +56,6 @@ interface ITransactionManager {
     string cancel; // just the string "cancel"
   }
 
-  // The structure of the signed data for cancellations
-  struct SignedPrepareData {
-    bytes32 transactionId;
-    uint256 shares;
-    string prepare; // just the string "prepare"
-  }
-
   // The structure of the signed data for fulfill
   struct SignedFulfillData {
     bytes32 transactionId;
@@ -155,8 +148,7 @@ interface ITransactionManager {
     uint256 expiry,
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
-    bytes calldata bidSignature,
-    bytes calldata userSignature
+    bytes calldata bidSignature
   ) external payable returns (TransactionData memory);
 
   function fulfill(

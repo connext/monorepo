@@ -1,3 +1,4 @@
+import { TransactionService } from "@connext/nxtp-txservice";
 import {
   RouterNxtpNatsMessagingService,
   MetaTxPayload,
@@ -6,10 +7,15 @@ import {
   TransactionPreparedEvent,
   TransactionFulfilledEvent,
   calculateExchangeAmount,
+  AuctionPayload,
+  AuctionBid,
+  signAuctionBid,
 } from "@connext/nxtp-utils";
+import { BigNumber, Wallet } from "ethers";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 
+import { getConfig } from "./config";
 import { TransactionManager } from "./contract";
 import { TransactionStatus } from "./graphqlsdk";
 import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
@@ -18,7 +24,7 @@ const hId = hyperid();
 
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
-export const SWAP_RATE = "0.995";
+export const SWAP_RATE = "0.9995"; // 0.05% fee
 
 export interface TransactionDataParams {
   user: string;
@@ -35,24 +41,19 @@ export interface TransactionDataParams {
   blockNumber: number;
 }
 
-//look @ ethers Contract instantiation for abiEncode
-
 /*
-    Handler.ts
+  Handler.ts
 
-    The goal of this file is to handle all inbound events and dispatch messages
-    or new onchain txs as needed.
+  The goal of this file is to handle all inbound events and dispatch messages
+  or new onchain txs as needed.
 
-    Each handler method should do the following:
-    1. Log what it's doing
-    2. Validate the event data (in some cases not necessary if onchain validation)
-    3. Prepare parameters for next action
-    4. Dispatch a new message or tx to chain
-    5. Update metrics
+  Each handler method should do the following:
+  1. Log what it's doing
+  2. Validate the event data (in some cases not necessary if onchain validation)
+  3. Prepare parameters for next action
+  4. Dispatch a new message or tx to chain
+  5. Update metrics
 */
-
-// TODO should this be a class? Would be much easier to test, and remove the need
-// to pass in dependencies into every single function from the listener.
 
 export const mutateAmount = (amount: string) => {
   return calculateExchangeAmount(amount, SWAP_RATE);
@@ -66,22 +67,13 @@ export const mutateExpiry = (expiry: number) => {
   return rxExpiry;
 };
 
-export interface Handler {
-  handleNewAuction(data: AuctionData): Promise<void>;
-  handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void>;
-  handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void>;
-  handleReceiverPrepare(data: TransactionPreparedEvent): Promise<void>;
-  handleSenderFulfill(data: TransactionFulfilledEvent): Promise<void>;
-  handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void>;
-}
-
-export type AuctionData = any;
-
-export class Handler implements Handler {
+export class Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: SubgraphTransactionManagerListener,
     private readonly txManager: TransactionManager,
+    private readonly txService: TransactionService,
+    private readonly signer: Wallet,
     private readonly logger: BaseLogger,
   ) {
     // log to get rid of unused build errors
@@ -90,22 +82,142 @@ export class Handler implements Handler {
   // HandleNewAuction
   // Purpose: Respond to auction with bid if router has sufficient funds for transfer
   // NOTE: This does not need to be implemented as part of MVP
-  public async handleNewAuction(_data: AuctionData): Promise<void> {
-    // First, log
-    // TODO
-    // Next, validate that assets/chains are supported and there is enough liquidity
+  public async handleNewAuction(data: AuctionPayload, inbox: string): Promise<void> {
+    const method = "handleNewAuction";
+    const methodId = hId();
+    this.logger.info({ method, methodId, data, inbox }, "Method start");
+
+    const {
+      user,
+      sendingChainId,
+      sendingAssetId,
+      amount,
+      receivingAssetId,
+      receivingChainId,
+      expiry,
+      encryptedCallData,
+      callDataHash,
+      callTo,
+      transactionId,
+      receivingAddress,
+    } = data;
+
+    // validate that assets/chains are supported and there is enough liquidity
     // and gas on both sender and receiver side.
+    // TODO: will need to track this offchain
+    const amountReceived = mutateAmount(amount);
+    const availableLiquidity = await this.subgraph.getAssetBalance(receivingAssetId, receivingChainId);
+    if (!availableLiquidity || availableLiquidity.lt(amountReceived)) {
+      this.logger.warn(
+        {
+          method,
+          methodId,
+          availableLiquidity: availableLiquidity?.toString(),
+          amount,
+          receivingAssetId,
+          receivingChainId,
+        },
+        "Not enough availble liquidity for auction",
+      );
+      return;
+    }
+
+    const config = getConfig();
+    const sendingConfig = config.chainConfig[sendingChainId];
+    const receivingConfig = config.chainConfig[receivingChainId];
+    if (!sendingConfig.provider || !receivingConfig.provider) {
+      this.logger.warn(
+        {
+          method,
+          methodId,
+          sendingChainId,
+          receivingAssetId,
+        },
+        "Providers not available for both chains",
+      );
+      return;
+    }
+
+    let senderBalance: BigNumber;
+    try {
+      senderBalance = await this.txService.getBalance(sendingChainId, this.signer.address);
+    } catch (error) {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          sendingChainId,
+          err: jsonifyError(error),
+        },
+        "Could not get sender balance",
+      );
+      return;
+    }
+
+    let receiverBalance: BigNumber;
+    try {
+      receiverBalance = await this.txService.getBalance(sendingChainId, this.signer.address);
+    } catch (error) {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          receivingChainId,
+          err: jsonifyError(error),
+        },
+        "Could not get receiver balance",
+      );
+      return;
+    }
+    if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          sendingChainId,
+        },
+        "Not enough gas",
+      );
+      return;
+    }
+
+    this.logger.info({ method, methodId }, "Auction validation complete, generating bid");
+
     // (TODO in what other scenarios would auction fail here? We should make sure
     // that router does not bid unless it is *sure* it's doing ok)
     // If you can support the transfer:
     // Next, prepare bid
-    // - Get price from AMM (TODO)
-    // - Get fee rate
-    // - Sign bid data
+    // - TODO: Get price from AMM
+
+    // - TODO: Get fee rate
+    // estimate gas for contract
+    // amountReceived = amountReceived.sub(gasFee)
+
     // - Create bid object
+    const bid: AuctionBid = {
+      user,
+      router: this.signer.address,
+      sendingChainId,
+      sendingAssetId,
+      amount,
+      receivingChainId,
+      receivingAssetId,
+      amountReceived,
+      receivingAddress,
+      transactionId,
+      expiry,
+      callDataHash,
+      callTo,
+      encryptedCallData,
+      sendingChainTxManagerAddress: sendingConfig.transactionManagerAddress,
+      receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
+    };
+    // - Sign bid data
+    const bidSignature = await signAuctionBid(bid, this.signer);
     // Next, dispatch bid to messaging service with the user address
+    await this.messagingService.publishAuctionResponse({ bid, bidSignature }, inbox);
+    this.logger.info({ method, methodId, bid, bidSignature }, "Bid sent");
     // Last, update metrics
-    // TODO (also need to discuss what data is most needed here)
   }
 
   // HandleMetatxRequest
@@ -113,13 +225,13 @@ export class Handler implements Handler {
   // NOTE: One consideration here is that it's technically possible for router to
   // just directly fulfill the sender side and leave the user hanging.
   // How can we protect against this case? Maybe broadcast to all routers?
-  public async handleMetaTxRequest(data: MetaTxPayload<any>): Promise<void> {
+  public async handleMetaTxRequest(data: MetaTxPayload<any>, inbox: string): Promise<void> {
     // First log
     const method = "handleMetaTxRequest";
     const methodId = hId();
     this.logger.info({ method, methodId, data }, "Method start");
 
-    const { chainId, responseInbox } = data;
+    const { chainId } = data;
 
     if (data.type === "Fulfill") {
       const fulfillData: MetaTxFulfillPayload = data.data;
@@ -137,7 +249,7 @@ export class Handler implements Handler {
 
       // TODO: make sure fee is something we want to accept
 
-      this.logger.info({ method, methodId, chainId, responseInbox, data }, "Submitting tx");
+      this.logger.info({ method, methodId, chainId, data }, "Submitting tx");
       try {
         const tx = await this.txManager.fulfill(chainId, {
           txData: fulfillData.txData,
@@ -148,14 +260,11 @@ export class Handler implements Handler {
         this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
 
         // TODO: this will wait for conformation, we should respond before tx is fully confirmed, i.e. in flight
-        await this.messagingService.publishMetaTxResponse(
-          { transactionHash: tx.transactionHash, chainId },
-          responseInbox,
-        );
+        await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, inbox);
       } catch (e) {
         this.logger.error({ method, methodId, e: jsonifyError(e) }, "Error relaying transaction");
         // TODO: error response
-        await this.messagingService.publishMetaTxResponse({ transactionHash: "", chainId }, responseInbox);
+        await this.messagingService.publishMetaTxResponse({ transactionHash: "", chainId }, inbox);
       }
     }
   }
@@ -205,7 +314,7 @@ export class Handler implements Handler {
       const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
         txData,
         amount: mutateAmount(txData.amount),
-        expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
+        expiry: mutateExpiry(txData.expiry),
         bidSignature,
         encodedBid,
         encryptedCallData,
@@ -289,7 +398,6 @@ export class Handler implements Handler {
     const senderTransaction = await this.subgraph.getTransactionForChain(
       txData.transactionId,
       txData.user,
-      txData.router,
       txData.sendingChainId,
     );
     if (!senderTransaction) {
