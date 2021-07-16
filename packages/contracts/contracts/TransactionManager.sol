@@ -4,7 +4,8 @@ pragma solidity 0.8.4;
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./interpreters/FulfillInterpreter.sol";
-import "./lib/LibAsset.sol";
+import "./libraries/Asset.sol";
+import "./libraries/WadRayMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -59,14 +60,16 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         sending chain, user for receiving chain) prior to expiry.
 
 contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
-  /// @dev For percentage math
+  /// @dev For percentage math (multiply by percent, divide by)
   using WadRayMath for uint256;
 
-  /// @dev Mapping of router to balance specific to asset
-  mapping(address => mapping(address => uint256)) public routerPercentages;
+  /// @dev Mapping of router or user to shares specific to asset
+  mapping(address => mapping(address => uint256)) public issuedShares;
 
-  /// @dev Mapping of user deposits in contract to asset
-  mapping(address => uint256) public userDeposits;
+  /// @dev Mapping of total issued shares in contract per asset
+  ///      This is incremented any time funds are sent to the
+  ///      contract, and decremented from the contract.
+  mapping(address => uint256) public outstandingShares;
 
   /// @dev Mapping of allowed router addresses
   mapping(address => bool) public approvedRouters;
@@ -101,7 +104,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @param assetId Asset for percentage
   /// @param router Router you want balance of
   function getRouterBalance(address assetId, address router) external override returns (uint256) {
-    return getAmountFromPercentOfRouterTotals(assetId, routerPercentages[router]);
+    return getAmountFromIssuedShares(
+      issuedShares[router][assetId],
+      outstandingShares[assetId],
+      Asset.getOwnBalance(assetId)
+    );
   }
 
   /// @notice Removes any ownership privelenges. Used to allow 
@@ -156,65 +163,73 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Asset is approved
     require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
 
-    // Get the percent from amount
-    uint256 percent = getPercentOfRouterTotalsFromAmount(assetId, amount);
-
-    // Update the router balances
-    routerPercentages[router][assetId] += percent;
+    handleFundsSentToContracts(amount, assetId, router);
 
     // Validate correct amounts are transferred
-    if (LibAsset.isEther(assetId)) {
+    if (Asset.isEther(assetId)) {
       require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
     } else {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
       // TODO: fix for fee on transfer
-      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
+      Asset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
 
     // Emit event
-    emit LiquidityAdded(router, assetId, amount, percent, msg.sender);
+    emit LiquidityAdded(router, assetId, amount, msg.sender);
   }
 
   /// @notice This is used by any router to decrease their available
   ///         liquidity for a given asset.
-  /// @param amount The amount of liquidity to remove for the router
+  /// @param shares The amount of liquidity to remove for the router in shares
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're removing liquidity for
   /// @param recipient The address that will receive the liquidity being removed
   function removeLiquidity(
-    uint256 amount,
+    uint256 shares,
     address assetId,
     address payable recipient
   ) external override {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
 
-    // Sanity check: nonzero amounts
-    require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
+    // Sanity check: nonzero shares
+    require(shares > 0, "removeLiquidity: SHARES_IS_ZERO");
 
-    // Convert amount to percentage
-    uint256 percentToRemove = getPercentOfRouterTotalsFromAmount(assetId, amount);
+    // Get stored router shares
+    uint256 routerShares = issuedShares[msg.sender][assetId];
 
-    // Get stored percentage
-    uint256 routerPercent = routerBalances[msg.sender][assetId];
+    // Get stored outstanding shares
+    uint256 outstanding = outstandingShares[assetId];
 
-    // Sanity check: percent can be deducted for the router
-    require(routerPercent >= percentToRemove, "removeLiquidity: INSUFFICIENT_FUNDS");
+    // Sanity check: owns enough shares
+    require(routerShares >= shares, "removeLiquidity: INSUFFICIENT_LIQUIDITY");
 
-    // Update router percentages
+    // Convert shares to amount
+    // TODO: is this the right outstanding value to use?
+    uint256 amount = getAmountFromIssuedShares(
+      shares,
+      outstanding,
+      Asset.getOwnBalance(assetId)
+    );
+
+    // Update router issued shares
+    // NOTE: unchecked due to require above
     unchecked {
-      routerPercentages[msg.sender][assetId] = routerPercent - percentToRemove;
+      issuedShares[msg.sender][assetId] = routerShares - shares;
     }
 
+    // Update the total shares for asset
+    outstandingShares[assetId] = outstanding - shares;
+
     // Transfer from contract to specified recipient
-    LibAsset.transferAsset(assetId, recipient, amount);
+    Asset.transferAsset(assetId, recipient, amount);
 
     // Emit event
     emit LiquidityRemoved(
       msg.sender,
-      assetId, 
+      assetId,
+      shares,
       amount,
-      routerPercent - percentToRemove;,
       recipient
     );
   }
@@ -297,6 +312,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     //       in the event of a router or user crash, they may recover the
     //       correct bid information without requiring an offchain store.
 
+    // Declare transfer shares
+    uint256 shares;
+
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Make sure user is caller or has signed
@@ -311,8 +329,13 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Asset is approved
       require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
 
+      // Set the shares
+      shares = amount;
+
+      handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
+
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -322,11 +345,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Validate correct amounts on msg and transfer from user to
       // contract
-      if (LibAsset.isEther(invariantData.sendingAssetId)) {
+      if (Asset.isEther(invariantData.sendingAssetId)) {
         require(msg.value == amount, "prepare: VALUE_MISMATCH");
       } else {
         require(msg.value == 0, "prepare: ETH_WITH_ERC_TRANSFER");
-        LibAsset.transferFromERC20(invariantData.sendingAssetId, msg.sender, address(this), amount);
+        Asset.transferFromERC20(invariantData.sendingAssetId, msg.sender, address(this), amount);
       }
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
@@ -345,16 +368,23 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Check that the router isnt accidentally locking funds in the contract
       require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
 
+      // Calculate the shares from the amount
+      shares = getIssuedSharesFromAmount(
+        amount,
+        outstandingShares[invariantData.receivingAssetId],
+        Asset.getOwnBalance(invariantData.receivingAssetId)
+      );
+
       // Check that router has liquidity
-      require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+      require(issuedShares[invariantData.router][invariantData.receivingAssetId] >= shares, "prepare: INSUFFICIENT_LIQUIDITY");
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);
 
       // Decrement the router liquidity
-      // using unchecked because underflow protected against with require
+      // NOTE: using unchecked because underflow protected against with require
       unchecked {
-        routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+        issuedShares[invariantData.router][invariantData.receivingAssetId] -= shares;
       }
     }
 
@@ -371,11 +401,22 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       transactionId: invariantData.transactionId,
       sendingChainId: invariantData.sendingChainId,
       receivingChainId: invariantData.receivingChainId,
-      amount: amount,
+      shares: shares,
       expiry: expiry,
       preparedBlockNumber: block.number
     });
-    emit TransactionPrepared(txData.user, txData.router, txData.transactionId, txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
+
+    emit TransactionPrepared(
+      invariantData.user,
+      invariantData.router,
+      invariantData.transactionId,
+      txData,
+      amount,
+      msg.sender,
+      encryptedCallData,
+      encodedBid,
+      bidSignature
+    );
     return txData;
   }
 
@@ -412,7 +453,14 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Make sure that the variant data matches what was stored
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "fulfill: INVALID_VARIANT_DATA");
+    require(
+      variantTransactionData[digest] == hashVariantTransactionData(
+        txData.shares,
+        txData.expiry,
+        txData.preparedBlockNumber
+      ),
+      "fulfill: INVALID_VARIANT_DATA"
+    );
 
     // Make sure the expiry has not elapsed
     require(txData.expiry >= block.timestamp, "fulfill: EXPIRED");
@@ -423,10 +471,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Validate the user has signed
     require(recoverFulfillSignature(txData.transactionId, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
 
-    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
-    // 0-value crosschain tx, so only providing the fee amount
-    require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
-
     // Check provided callData matches stored hash
     require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
 
@@ -436,40 +480,71 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // a store can tell the difference between a transaction that has not been
     // prepared, and a transaction that was already completed on the receiver
     // chain.
-    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+    variantTransactionData[digest] = hashVariantTransactionData(txData.shares, txData.expiry, 0);
 
+    uint256 amount;
     if (txData.sendingChainId == chainId) {
-      // The router is completing the transaction, they should get the
-      // amount that the user deposited credited to their liquidity
-      // reserves.
+      // The router is completing the transaction, they should receive the users
+      // issued shares for the transfer
 
       // Make sure that the user is not accidentally fulfilling the transaction
       // on the sending chain
       require(msg.sender == txData.router, "fulfill: ROUTER_MISMATCH");
 
+      // Calculate the fulfilled amount from the percent
+      // TODO: is this the right outstanding amount / value?
+      // NOTE: here only used for the event emission
+      amount = getAmountFromIssuedShares(
+        txData.shares,
+        outstandingShares[txData.sendingAssetId],
+        Asset.getOwnBalance(txData.sendingAssetId)
+      );
+
+      // Update the issued shares for the user (router is claiming those funds)
+      issuedShares[txData.user][txData.sendingAssetId] -= txData.shares;
+
       // Complete tx to router for original sending amount
-      routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
-      
+      issuedShares[txData.router][txData.sendingAssetId] += txData.shares;
     } else {
       // The user is completing the transaction, they should get the
-      // amount that the router deposited less fees for relayer.
+      // amount representing the shares the transfer was created for, less
+      // the relayer fee
+
+      // Calculate the fulfilled amount from the percent
+      // TODO: is this the right outstanding amount / value?
+      amount = getAmountFromIssuedShares(
+        txData.shares,
+        outstandingShares[txData.receivingAssetId],
+        Asset.getOwnBalance(txData.receivingAssetId)
+      );
+
+      // Sanity check: fee <= amount. Allow `=` in case of only wanting
+      // to execute 0-value crosschain tx, so only providing the fee
+      require(relayerFee <= amount, "fulfill: INVALID_RELAYER_FEE");
+
+      // NOTE: here you are on the recieiving chain, and the issued shares
+      // for the router were already decremented on `prepare`, so only the
+      // authorized shares must be updated
+
+      // Update authorized shares
+      outstandingShares[txData.receivingAssetId] -= txData.shares;
 
       // Get the amount to send
       uint256 toSend;
       unchecked {
-        toSend = txData.amount - relayerFee;
+        toSend = amount - relayerFee;
       }
 
       // Send the relayer the fee
       if (relayerFee > 0) {
-        LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
+        Asset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
       }
 
       // Handle receiver chain external calls if needed
       if (txData.callTo == address(0)) {
         // No external calls, send directly to receiving address
         if (toSend > 0) {
-          LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
+          Asset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
         }
       } else {
         // Handle external calls with a fallback to the receiving
@@ -477,14 +552,14 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // locked.
 
         // First, transfer the funds to the helper if needed
-        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
+        if (!Asset.isEther(txData.receivingAssetId) && toSend > 0) {
+          Asset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+        interpreter.execute{ value: Asset.isEther(txData.receivingAssetId) ? toSend : 0}(
           payable(txData.callTo),
           txData.receivingAssetId,
           payable(txData.receivingAddress),
@@ -495,7 +570,18 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     }
 
     // Emit event
-    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, callData, msg.sender);
+    // NOTE: amount == amount transferred (so 0 on router)
+    emit TransactionFulfilled(
+      txData.user,
+      txData.router,
+      txData.transactionId,
+      txData,
+      amount,
+      relayerFee,
+      signature,
+      callData,
+      msg.sender
+    );
 
     return txData;
   }
@@ -530,14 +616,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Verify the variant data is correct
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "cancel: INVALID_VARIANT_DATA");
+    require(variantTransactionData[digest] == hashVariantTransactionData(txData.shares, txData.expiry, txData.preparedBlockNumber), "cancel: INVALID_VARIANT_DATA");
 
     // Make sure the transaction wasn't already completed
     require(txData.preparedBlockNumber > 0, "cancel: ALREADY_COMPLETED");
-
-    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
-    // 0-value crosschain tx, so only providing the fee amount
-    require(relayerFee <= txData.amount, "cancel: INVALID_RELAYER_FEE");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -545,10 +627,19 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // a store can tell the difference between a transaction that has not been
     // prepared, and a transaction that was already completed on the receiver
     // chain.
-    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+    variantTransactionData[digest] = hashVariantTransactionData(txData.shares, txData.expiry, 0);
 
-    // Return the appropriate locked funds
+    // Return the appropriate locked funds and reset shares
+    // Declare the amount
+    uint256 amount;
     if (txData.sendingChainId == chainId) {
+      // Calculate the equivalent amount
+      amount = getAmountFromIssuedShares(
+        txData.shares,
+        outstandingShares[txData.sendingAssetId],
+        Asset.getOwnBalance(txData.sendingAssetId)
+      );
+
       // Sender side, funds must be returned to the user
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by router
@@ -557,26 +648,41 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // fulfill-able window
         require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
 
+        // Update the issued shares for the user
+        issuedShares[txData.user][txData.sendingAssetId] -= txData.shares;
+
+        // Update the outstanding shares
+        outstandingShares[txData.sendingAssetId] -= txData.shares;
+
         // Return totality of locked funds to provided fallbacl
-        LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount);
+        Asset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), amount);
       } else {
+        // Sanity check relayer fee
+        require(relayerFee <= amount, "cancel: INVALID_RELAYER_FEE");
+
+        // Update the issued shares for the user
+        issuedShares[txData.user][txData.sendingAssetId] -= txData.shares;
+
+        // Update the outstanding shares
+        outstandingShares[txData.sendingAssetId] -= txData.shares;
+
         // When the user could be unlocking funds through a relayer, validate
         // their signature and payout the relayer.
         if (relayerFee > 0) {
           require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
-          LibAsset.transferAsset(txData.sendingAssetId, payable(msg.sender), relayerFee);
+          Asset.transferAsset(txData.sendingAssetId, payable(msg.sender), relayerFee);
         }
 
         // Get the amount to refund the user
         uint256 toRefund;
         unchecked {
-          toRefund = txData.amount - relayerFee; 
+          toRefund = amount - relayerFee; 
         }
 
         // Return locked funds to sending chain fallback
         if (toRefund > 0) {
-          LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund);
+          Asset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), toRefund);
         }
       }
 
@@ -592,12 +698,20 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // locked funds on this contract.
       }
 
+      // Calculate the equivalent amount
+      // NOTE: no funds are transferred, this is only for event emission
+      amount = getAmountFromIssuedShares(
+        txData.shares,
+        outstandingShares[txData.receivingAssetId],
+        Asset.getOwnBalance(txData.receivingAssetId)
+      );
+
       // Return liquidity to router
-      routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
+      issuedShares[txData.router][txData.receivingAssetId] += txData.shares;
     }
 
     // Emit event
-    emit TransactionCancelled(txData.user, txData.router, txData.transactionId, txData, relayerFee, msg.sender);
+    emit TransactionCancelled(txData.user, txData.router, txData.transactionId, txData, amount, relayerFee, msg.sender);
 
     // Return
     return txData;
@@ -607,50 +721,48 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// Private functions ///
   //////////////////////////
 
-  /// @notice Gets a percentage ownership from a given amount
-  /// @param assetId Asset for percentage
-  /// @param amount Raw amount to convert
-  function getPercentOfRouterTotalsFromAmount(address assetId, uint256 amount) internal view returns (uint256) {
-    // Get total balance on contract
-    uint256 total = LibAsset.getOwnBalance(assetId);
-
-    // Get router total
-    uint256 routerTotal = total - userDeposits[assetId];
-
-    // If either totals or amount are 0, exit
-    if (amount == 0 || total == 0 || routerTotal == 0) {
-      return 0;
-    }
-
-    // Convert to a percentage
-    return amount
+  /// @notice Gets an amount from a given issued and authorized shares
+  /// @param _issuedShares Ownership to convert for a given user
+  /// @param _outstandingShares Total shares for 
+  /// @param value Total balance to claim portion of
+  function getAmountFromIssuedShares(
+    uint256 _issuedShares,
+    uint256 _outstandingShares,
+    uint256 value
+  ) internal pure returns (uint256) {
+    return _issuedShares
       .wadToRay()
-      .rayDiv(routerTotal)
-      .rayMul(100)
+      .rayDiv(_outstandingShares)
+      .rayMul(value)
       .rayToWad();
   }
 
-  /// @notice Gets an amount from a percentage
-  /// @param assetId Asset for percentage
-  /// @param percentage Percent of router total to convert to amount
-  function getAmountFromPercentOfRouterTotals(address assetId, uint256 percentage) internal view returns (uint256) {
-    // Get total balance on contract
-    uint256 total = LibAsset.getOwnBalance(assetId);
-
-    // Get router total
-    uint256 routerTotal = total - userDeposits[assetId];
-
-    // If either totals or amount are 0, exit
-    if (percentage == 0 || total == 0 || routerTotal == 0) {
-      return 0;
-    }
-
-    // Convert to a percentage
-    return percentage
+  /// @notice Converts an amount to a given number of issued shares
+  /// @param amount Amount you wish to convert
+  /// @param _outstandingShares Total number of shares authorized
+  /// @param value Total value you want ownership of
+  function getIssuedSharesFromAmount(
+    uint256 amount,
+    uint256 _outstandingShares,
+    uint256 value
+  ) internal pure returns (uint256) {
+    return amount
       .wadToRay()
-      .rayDiv(100)
-      .rayMul(routerTotal)
+      .rayDiv(value)
+      .rayMul(_outstandingShares)
       .rayToWad();
+  }
+
+  function handleFundsSentToContracts(
+    uint256 amount,
+    address assetId,
+    address user
+  ) internal {
+    // Increment user issued shares
+    issuedShares[user][assetId] += amount;
+
+    // Increment authorized shares
+    outstandingShares[assetId] += amount;
   }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
@@ -692,16 +804,15 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @notice Recovers the signer from the signature provided to the `cancel`
   ///         function. Returns the address recovered
   /// @param transactionId Transaction identifier of tx being cancelled
-  /// @param amount The transaction amount
-  ///                   tx on behalf of the user.
+  /// @param shares The transaction shares
   /// @param signature The signature you are recovering the signer from
-  function recoverPrepareSignature(bytes32 transactionId, uint256 amount, bytes calldata signature)
+  function recoverPrepareSignature(bytes32 transactionId, uint256 shares, bytes calldata signature)
     internal
     pure
     returns (address)
   {
     // Create the signed payload
-    SignedPrepareData memory payload = SignedPrepareData({transactionId: transactionId, prepare: "prepare", amount: amount});
+    SignedPrepareData memory payload = SignedPrepareData({transactionId: transactionId, prepare: "prepare", shares: shares});
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
@@ -729,12 +840,16 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
   /// @notice Returns the hash of only the variant portions of a given
   ///         crosschain transaction
-  /// @param amount amount to hash
+  /// @param shares shares to hash
   /// @param expiry expiry to hash
   /// @param preparedBlockNumber preparedBlockNumber to hash
-  function hashVariantTransactionData(uint256 amount, uint256 expiry, uint256 preparedBlockNumber) internal pure returns (bytes32) {
+  function hashVariantTransactionData(
+    uint256 shares,
+    uint256 expiry,
+    uint256 preparedBlockNumber
+  ) internal pure returns (bytes32) {
     VariantTransactionData memory variant = VariantTransactionData({
-      amount: amount,
+      shares: shares,
       expiry: expiry,
       preparedBlockNumber: preparedBlockNumber
     });

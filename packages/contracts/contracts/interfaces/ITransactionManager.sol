@@ -26,8 +26,7 @@ interface ITransactionManager {
   // information passed in is valid.
   // TODO: do we want to store prepared amount?
   struct VariantTransactionData {
-    uint256 preparedAmount;
-    uint256 routerPercentage;
+    uint256 shares;
     uint256 expiry;
     uint256 preparedBlockNumber;
   }
@@ -45,8 +44,7 @@ interface ITransactionManager {
     bytes32 transactionId;
     uint256 sendingChainId;
     uint256 receivingChainId;
-    uint256 routerPercentage;
-    uint256 preparedAmount;
+    uint256 shares;
     uint256 expiry;
     uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
   }
@@ -61,7 +59,7 @@ interface ITransactionManager {
   // The structure of the signed data for cancellations
   struct SignedPrepareData {
     bytes32 transactionId;
-    uint256 routerPercentage;
+    uint256 shares;
     string prepare; // just the string "prepare"
   }
 
@@ -76,15 +74,14 @@ interface ITransactionManager {
     address indexed router,
     address indexed assetId,
     uint256 amount,
-    uint256 percent, // TODO: rename?
     address caller
   );
 
   event LiquidityRemoved(
     address indexed router,
     address indexed assetId,
+    uint256 shares,
     uint256 amount,
-    uint256 percent, // TODO: rename?
     address recipient
   );
 
@@ -94,6 +91,7 @@ interface ITransactionManager {
     address indexed router,
     bytes32 indexed transactionId,
     TransactionData txData,
+    uint256 amount,
     address caller,
     bytes encryptedCallData,
     bytes encodedBid,
@@ -105,6 +103,7 @@ interface ITransactionManager {
     address indexed router,
     bytes32 indexed transactionId,
     TransactionData txData,
+    uint256 amount,
     uint256 relayerFee,
     bytes signature,
     bytes callData,
@@ -116,6 +115,7 @@ interface ITransactionManager {
     address indexed router,
     bytes32 indexed transactionId,
     TransactionData txData,
+    uint256 amount,
     uint256 relayerFee,
     address caller
   );
@@ -138,7 +138,7 @@ interface ITransactionManager {
   function addLiquidity(uint256 amount, address assetId, address router) external payable;
 
   function removeLiquidity(
-    uint256 amount,
+    uint256 shares,
     address assetId,
     address payable recipient
   ) external;

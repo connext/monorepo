@@ -33,12 +33,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "percent",
-        type: "uint256",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -65,13 +59,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "shares",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "percent",
+        name: "amount",
         type: "uint256",
       },
       {
@@ -164,12 +158,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -187,6 +176,12 @@ const _abi = [
         internalType: "struct ITransactionManager.TransactionData",
         name: "txData",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -284,12 +279,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -307,6 +297,12 @@ const _abi = [
         internalType: "struct ITransactionManager.TransactionData",
         name: "txData",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -416,12 +412,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -439,6 +430,12 @@ const _abi = [
         internalType: "struct ITransactionManager.TransactionData",
         name: "txData",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -578,12 +575,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -673,12 +665,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -761,12 +748,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -861,12 +843,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -1001,11 +978,6 @@ const _abi = [
         name: "bidSignature",
         type: "bytes",
       },
-      {
-        internalType: "bytes",
-        name: "userSignature",
-        type: "bytes",
-      },
     ],
     name: "prepare",
     outputs: [
@@ -1068,12 +1040,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "routerPercentage",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedAmount",
+            name: "shares",
             type: "uint256",
           },
           {
@@ -1112,7 +1079,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "amount",
+        name: "shares",
         type: "uint256",
       },
       {
