@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "./interfaces/IFulfillHelper.sol";
+import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
+import "./interpreters/FulfillInterpreter.sol";
 import "./lib/LibAsset.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -70,10 +71,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Indicates if the ownership has been renounced
   bool public renounced = false;
 
-  /// @dev Mapping of user address to blocks where active transfers
-  ///      were created.
-  mapping(address => uint256[]) public activeTransactionBlocks;
-
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
   mapping(bytes32 => bytes32) public variantTransactionData;
@@ -87,8 +84,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  constructor(uint256 _chainId) {
+  IFulfillInterpreter private interpreter;
+
+  constructor(uint256 _chainId, address _interpreter) {
     chainId = _chainId;
+    interpreter = FulfillInterpreter(_interpreter);
   }
 
   /// @notice Removes any ownership privelenges. Used to allow 
@@ -268,9 +268,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Store the transaction variants
     variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
-    // Store active blocks
-    activeTransactionBlocks[invariantData.user].push(block.number);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Sanity check: amount is sensible
@@ -401,9 +398,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    // Remove the transaction prepared block from the active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
-
     if (txData.sendingChainId == chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
@@ -438,45 +432,21 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // address in case the call fails so the funds dont remain
         // locked.
 
-        // First, approve the funds to the helper if needed
+        // First, transfer the funds to the helper if needed
         if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.approveERC20(txData.receivingAssetId, txData.callTo, toSend);
+          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
-        // Next, call `addFunds` on the helper. Helpers should internally
+        // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
-        // for tx
-        if (toSend > 0) {
-          try
-            IFulfillHelper(txData.callTo).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
-              txData.user,
-              txData.transactionId,
-              txData.receivingAssetId,
-              toSend
-            )
-          {} catch {
-            // Regardless of error within the callData execution, send funds
-            // to the predetermined fallback address
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
-
-        // Call `execute` on the helper
-        try
-          IFulfillHelper(txData.callTo).execute(
-            txData.user,
-            txData.transactionId,
-            txData.receivingAssetId,
-            toSend,
-            callData
-          )
-        {} catch {
-          // Regardless of error within the callData execution, send funds
-          // to the predetermined fallback address
-          if (toSend > 0) {
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
+        // for tx, and handle the case of reversions
+        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          payable(txData.callTo),
+          txData.receivingAssetId,
+          payable(txData.receivingAddress),
+          toSend,
+          callData
+        );
       }
     }
 
@@ -533,9 +503,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    // Remove active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
-
     // Return the appropriate locked funds
     if (txData.sendingChainId == chainId) {
       // Sender side, funds must be returned to the user
@@ -589,37 +556,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     return txData;
   }
 
-  // helper method to get full array of active blocks
-  function getActiveTransactionBlocks(address user) external override view returns (uint256[] memory) {
-    return activeTransactionBlocks[user];
-  }
-
   //////////////////////////
   /// Private functions ///
   //////////////////////////
-
-  /// @notice Removes a given block from the tracked activeTransactionBlocks
-  ///         array for the user. Called when transactions are completed.
-  /// @param user User who has completed a transaction
-  /// @param preparedBlock The TransactionData.preparedBlockNumber to remove
-  function removeUserActiveBlocks(address user, uint256 preparedBlock) internal {
-    // Remove active blocks
-    uint256 newLength = activeTransactionBlocks[user].length - 1;
-    uint256[] memory updated = new uint256[](newLength);
-    bool removed = false;
-    uint256 updatedIdx = 0;
-    for (uint256 i; i < newLength + 1; i++) {
-      // Handle case where there could be more than one tx added in a block
-      // And only one should be removed
-      if (!removed && activeTransactionBlocks[user][i] == preparedBlock) {
-        removed = true;
-        continue;
-      }
-      updated[updatedIdx] = activeTransactionBlocks[user][i];
-      updatedIdx++;
-    }
-    activeTransactionBlocks[user] = updated;
-  }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
   ///         function. Returns the address recovered
