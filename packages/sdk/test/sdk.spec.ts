@@ -43,7 +43,7 @@ describe("NxtpSdk", () => {
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
     };
 
-    it.only("happy: should get a transfer quote from a router without callTo and callData", async () => {
+    it.skip("happy: should get a transfer quote from a router without callTo and callData", async () => {
       const prom = sdk.getTransferQuote(crossChainParams);
       await delay(1000);
       messaging.subscribeToAuctionResponse.callsArgWith(0, "blahblah");
