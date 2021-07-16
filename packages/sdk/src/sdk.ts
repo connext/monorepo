@@ -35,7 +35,6 @@ declare const ethereum: any;
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
-  router: Type.Optional(TAddress),
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   receivingChainId: TChainId,
@@ -132,7 +131,8 @@ export class NxtpSdk {
 
   private readonly transactionManager: TransactionManager;
   private readonly messaging: UserNxtpNatsMessagingService;
-  private constructor(
+
+  constructor(
     private readonly chainProviders: {
       [chainId: number]: providers.FallbackProvider;
     },
@@ -140,13 +140,18 @@ export class NxtpSdk {
     private readonly logger: BaseLogger = pino(),
     natsUrl?: string,
     authUrl?: string,
+    messaging?: UserNxtpNatsMessagingService,
   ) {
-    this.messaging = new UserNxtpNatsMessagingService({
-      signer,
-      logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-      natsUrl,
-      authUrl,
-    });
+    if (messaging) {
+      this.messaging = messaging;
+    } else {
+      this.messaging = new UserNxtpNatsMessagingService({
+        signer,
+        logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
+        natsUrl,
+        authUrl,
+      });
+    }
 
     const cc: {
       [chainId: number]: {
