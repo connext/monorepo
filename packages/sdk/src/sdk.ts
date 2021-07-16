@@ -29,7 +29,6 @@ import { IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import { cancel, handleReceiverPrepare, prepare } from "./crossChainTransfer";
 import {
   getActiveTransactionsByUser,
-  getTransactionManagerContract,
   getVariantHashByInvariantData,
   TransactionManagerEvents,
   TransactionManagerListener,
@@ -47,7 +46,7 @@ export const CrossChainParamsSchema = Type.Object({
   callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
-  expiry: TIntegerString,
+  expiry: Type.Number(),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
   infiniteApprove: Type.Optional(Type.Boolean()),
 });
@@ -278,7 +277,6 @@ export class NxtpSdk {
         encryptedCallData,
         expiry,
         transactionId,
-        txManagerAddress: getTransactionManagerContract(sendingChainId).address,
       },
       inbox,
     );

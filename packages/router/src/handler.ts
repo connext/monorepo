@@ -289,7 +289,7 @@ export class Handler {
       const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
         txData,
         amount: mutateAmount(txData.amount),
-        expiry: mutateExpiry(parseInt(txData.expiry)).toString(),
+        expiry: mutateExpiry(txData.expiry),
         bidSignature,
         encodedBid,
         encryptedCallData,

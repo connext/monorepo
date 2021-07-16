@@ -228,7 +228,7 @@ export type AuctionPayload = {
   receivingChainId: number;
   receivingAssetId: string;
   receivingAddress: string;
-  expiry: string;
+  expiry: number;
   transactionId: string;
   encryptedCallData: string;
   callDataHash: string;
@@ -246,7 +246,7 @@ export type AuctionBid = {
   amountReceived: string;
   receivingAddress: string;
   transactionId: string;
-  expiry: string;
+  expiry: number;
   callDataHash: string;
   callTo: string;
   encryptedCallData: string;

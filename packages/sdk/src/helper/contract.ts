@@ -74,7 +74,7 @@ export const getActiveTransactionsByUser = async (
         callDataHash: txData.callDataHash,
         transactionId: txData.transactionId,
         amount: txData.amount.toString(),
-        expiry: txData.expiry.toString(),
+        expiry: txData.expiry.toNumber(),
         preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
       } as TransactionData,
       bidSignature,
