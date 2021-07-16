@@ -129,6 +129,14 @@ function App(): React.ReactElement | null {
           activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
         );
       });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareTokenApproval, (data) => {
+        console.log("SenderTransactionPrepareTokenApproval:", data);
+      });
+
+      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, (data) => {
+        console.log("SenderTransactionPrepareSubmitted:", data);
+      });
       const activeTxs = await _sdk.getActiveTransactions();
 
       // TODO: race condition with the event listeners

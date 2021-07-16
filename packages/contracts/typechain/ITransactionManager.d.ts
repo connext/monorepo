@@ -22,17 +22,21 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface ITransactionManagerInterface extends ethers.utils.Interface {
   functions: {
+    "addAssetId(address)": FunctionFragment;
     "addLiquidity(uint256,address,address)": FunctionFragment;
+    "addRouter(address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
-    "prepare(tuple,uint256,uint256,bytes,bytes,bytes,bytes)": FunctionFragment;
+    "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
+    "removeRouter(address)": FunctionFragment;
+    "renounce()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "addLiquidity",
-    values: [BigNumberish, string, string]
-  ): string;
+  encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
+  encodeFunctionData(functionFragment: "addLiquidity", values: [BigNumberish, string, string]): string;
+  encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
   encodeFunctionData(
     functionFragment: "cancel",
     values: [
@@ -53,8 +57,8 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         preparedBlockNumber: BigNumberish;
       },
       BigNumberish,
-      BytesLike
-    ]
+      BytesLike,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: "fulfill",
@@ -77,8 +81,8 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
       },
       BigNumberish,
       BytesLike,
-      BytesLike
-    ]
+      BytesLike,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: "prepare",
@@ -101,25 +105,24 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
       BytesLike,
       BytesLike,
       BytesLike,
-      BytesLike
-    ]
+      BytesLike,
+    ],
   ): string;
-  encodeFunctionData(
-    functionFragment: "removeLiquidity",
-    values: [BigNumberish, string, string]
-  ): string;
+  encodeFunctionData(functionFragment: "removeAssetId", values: [string]): string;
+  encodeFunctionData(functionFragment: "removeLiquidity", values: [BigNumberish, string, string]): string;
+  encodeFunctionData(functionFragment: "removeRouter", values: [string]): string;
+  encodeFunctionData(functionFragment: "renounce", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "addLiquidity",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addLiquidity", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeLiquidity",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "removeAssetId", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeLiquidity", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeRouter", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
 
   events: {
     "LiquidityAdded(address,address,uint256,address)": EventFragment;
@@ -142,26 +145,26 @@ export class ITransactionManager extends BaseContract {
   deployed(): Promise<this>;
 
   listeners<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter?: TypedEventFilter<EventArgsArray, EventArgsObject>
+    eventFilter?: TypedEventFilter<EventArgsArray, EventArgsObject>,
   ): Array<TypedListener<EventArgsArray, EventArgsObject>>;
   off<EventArgsArray extends Array<any>, EventArgsObject>(
     eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
   ): this;
   on<EventArgsArray extends Array<any>, EventArgsObject>(
     eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
   ): this;
   once<EventArgsArray extends Array<any>, EventArgsObject>(
     eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
   ): this;
   removeListener<EventArgsArray extends Array<any>, EventArgsObject>(
     eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
-    listener: TypedListener<EventArgsArray, EventArgsObject>
+    listener: TypedListener<EventArgsArray, EventArgsObject>,
   ): this;
   removeAllListeners<EventArgsArray extends Array<any>, EventArgsObject>(
-    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>
+    eventFilter: TypedEventFilter<EventArgsArray, EventArgsObject>,
   ): this;
 
   listeners(eventName?: string): Array<Listener>;
@@ -174,17 +177,27 @@ export class ITransactionManager extends BaseContract {
   queryFilter<EventArgsArray extends Array<any>, EventArgsObject>(
     event: TypedEventFilter<EventArgsArray, EventArgsObject>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
   interface: ITransactionManagerInterface;
 
   functions: {
+    addAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
+
+    addRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     cancel(
@@ -206,7 +219,7 @@ export class ITransactionManager extends BaseContract {
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     fulfill(
@@ -229,7 +242,7 @@ export class ITransactionManager extends BaseContract {
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     prepare(
@@ -252,23 +265,42 @@ export class ITransactionManager extends BaseContract {
       encodedBid: BytesLike,
       bidSignature: BytesLike,
       userSignature: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
+
+    removeAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
 
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<ContractTransaction>;
+
+    removeRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
+
+    renounce(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
   };
+
+  addAssetId(
+    assetId: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
 
   addLiquidity(
     amount: BigNumberish,
     assetId: string,
     router: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ContractTransaction>;
+
+  addRouter(router: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
 
   cancel(
     txData: {
@@ -289,7 +321,7 @@ export class ITransactionManager extends BaseContract {
     },
     relayerFee: BigNumberish,
     signature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): Promise<ContractTransaction>;
 
   fulfill(
@@ -312,7 +344,7 @@ export class ITransactionManager extends BaseContract {
     relayerFee: BigNumberish,
     signature: BytesLike,
     callData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): Promise<ContractTransaction>;
 
   prepare(
@@ -335,23 +367,34 @@ export class ITransactionManager extends BaseContract {
     encodedBid: BytesLike,
     bidSignature: BytesLike,
     userSignature: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  removeAssetId(
+    assetId: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): Promise<ContractTransaction>;
 
   removeLiquidity(
     amount: BigNumberish,
     assetId: string,
     recipient: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): Promise<ContractTransaction>;
 
+  removeRouter(
+    router: string,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
+
+  renounce(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+
   callStatic: {
-    addLiquidity(
-      amount: BigNumberish,
-      assetId: string,
-      router: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
+
+    addLiquidity(amount: BigNumberish, assetId: string, router: string, overrides?: CallOverrides): Promise<void>;
+
+    addRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     cancel(
       txData: {
@@ -372,7 +415,7 @@ export class ITransactionManager extends BaseContract {
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [
         string,
@@ -388,7 +431,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber
+        BigNumber,
       ] & {
         user: string;
         router: string;
@@ -427,7 +470,7 @@ export class ITransactionManager extends BaseContract {
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [
         string,
@@ -443,7 +486,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber
+        BigNumber,
       ] & {
         user: string;
         router: string;
@@ -482,7 +525,7 @@ export class ITransactionManager extends BaseContract {
       encodedBid: BytesLike,
       bidSignature: BytesLike,
       userSignature: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [
         string,
@@ -498,7 +541,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber
+        BigNumber,
       ] & {
         user: string;
         router: string;
@@ -517,12 +560,13 @@ export class ITransactionManager extends BaseContract {
       }
     >;
 
-    removeLiquidity(
-      amount: BigNumberish,
-      assetId: string,
-      recipient: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    removeAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
+
+    removeLiquidity(amount: BigNumberish, assetId: string, recipient: string, overrides?: CallOverrides): Promise<void>;
+
+    removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
+
+    renounce(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -530,7 +574,7 @@ export class ITransactionManager extends BaseContract {
       router?: string | null,
       assetId?: string | null,
       amount?: null,
-      caller?: null
+      caller?: null,
     ): TypedEventFilter<
       [string, string, BigNumber, string],
       { router: string; assetId: string; amount: BigNumber; caller: string }
@@ -540,7 +584,7 @@ export class ITransactionManager extends BaseContract {
       router?: string | null,
       assetId?: string | null,
       amount?: null,
-      recipient?: null
+      recipient?: null,
     ): TypedEventFilter<
       [string, string, BigNumber, string],
       { router: string; assetId: string; amount: BigNumber; recipient: string }
@@ -552,7 +596,7 @@ export class ITransactionManager extends BaseContract {
       transactionId?: BytesLike | null,
       txData?: null,
       relayerFee?: null,
-      caller?: null
+      caller?: null,
     ): TypedEventFilter<
       [
         string,
@@ -572,7 +616,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -590,7 +634,7 @@ export class ITransactionManager extends BaseContract {
           preparedBlockNumber: BigNumber;
         },
         BigNumber,
-        string
+        string,
       ],
       {
         user: string;
@@ -610,7 +654,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -640,7 +684,7 @@ export class ITransactionManager extends BaseContract {
       relayerFee?: null,
       signature?: null,
       callData?: null,
-      caller?: null
+      caller?: null,
     ): TypedEventFilter<
       [
         string,
@@ -660,7 +704,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -680,7 +724,7 @@ export class ITransactionManager extends BaseContract {
         BigNumber,
         string,
         string,
-        string
+        string,
       ],
       {
         user: string;
@@ -700,7 +744,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -732,7 +776,7 @@ export class ITransactionManager extends BaseContract {
       caller?: null,
       encryptedCallData?: null,
       encodedBid?: null,
-      bidSignature?: null
+      bidSignature?: null,
     ): TypedEventFilter<
       [
         string,
@@ -752,7 +796,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -772,7 +816,7 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
-        string
+        string,
       ],
       {
         user: string;
@@ -792,7 +836,7 @@ export class ITransactionManager extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber
+          BigNumber,
         ] & {
           user: string;
           router: string;
@@ -818,12 +862,16 @@ export class ITransactionManager extends BaseContract {
   };
 
   estimateGas: {
+    addAssetId(assetId: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
+
+    addRouter(router: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     cancel(
       txData: {
@@ -844,7 +892,7 @@ export class ITransactionManager extends BaseContract {
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     fulfill(
@@ -867,7 +915,7 @@ export class ITransactionManager extends BaseContract {
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
 
     prepare(
@@ -890,23 +938,39 @@ export class ITransactionManager extends BaseContract {
       encodedBid: BytesLike,
       bidSignature: BytesLike,
       userSignature: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
+
+    removeAssetId(assetId: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
 
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<BigNumber>;
+
+    removeRouter(router: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+
+    renounce(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<PopulatedTransaction>;
+
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
       router: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+    ): Promise<PopulatedTransaction>;
+
+    addRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     cancel(
@@ -928,7 +992,7 @@ export class ITransactionManager extends BaseContract {
       },
       relayerFee: BigNumberish,
       signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     fulfill(
@@ -951,7 +1015,7 @@ export class ITransactionManager extends BaseContract {
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     prepare(
@@ -974,14 +1038,26 @@ export class ITransactionManager extends BaseContract {
       encodedBid: BytesLike,
       bidSignature: BytesLike,
       userSignature: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> },
+    ): Promise<PopulatedTransaction>;
+
+    removeAssetId(
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
 
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
       recipient: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> },
     ): Promise<PopulatedTransaction>;
+
+    removeRouter(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<PopulatedTransaction>;
+
+    renounce(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
   };
 }

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "./interfaces/IFulfillHelper.sol";
+import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
+import "./interpreters/FulfillInterpreter.sol";
 import "./lib/LibAsset.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -56,9 +58,18 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         unilaterally by the person owed funds on that chain (router for 
 ///         sending chain, user for receiving chain) prior to expiry.
 
-contract TransactionManager is ReentrancyGuard, ITransactionManager {
+contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
+
+  /// @dev Mapping of allowed router addresses
+  mapping(address => bool) public approvedRouters;
+
+  /// @dev Mapping of allowed assetIds on same chain of contract
+  mapping(address => bool) public approvedAssets;
+
+  /// @dev Indicates if the ownership has been renounced
+  bool public renounced = false;
 
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
@@ -73,8 +84,44 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  constructor(uint256 _chainId) {
+  IFulfillInterpreter private interpreter;
+
+  constructor(uint256 _chainId, address _interpreter) {
     chainId = _chainId;
+    interpreter = FulfillInterpreter(_interpreter);
+  }
+
+  /// @notice Removes any ownership privelenges. Used to allow 
+  ///         arbitrary assets and routers
+  function renounce() external override onlyOwner {
+    renounced = true;
+    renounceOwnership();
+  }
+
+  /// @notice Used to add routers that can transact crosschain
+  /// @param router Router address to add
+  function addRouter(address router) external override onlyOwner {
+    approvedRouters[router] = true;
+  }
+
+  /// @notice Used to remove routers that can transact crosschain
+  /// @param router Router address to remove
+  function removeRouter(address router) external override onlyOwner {
+    approvedRouters[router] = false;
+  }
+
+  /// @notice Used to add assets on same chain as contract that can
+  ///         be transferred.
+  /// @param assetId AssetId to add
+  function addAssetId(address assetId) external override onlyOwner {
+    approvedAssets[assetId] = true;
+  }
+
+  /// @notice Used to remove assets on same chain as contract that can
+  ///         be transferred.
+  /// @param assetId AssetId to remove
+  function removeAssetId(address assetId) external override onlyOwner {
+    approvedAssets[assetId] = false;
   }
 
   /// @notice This is used by any router to increase their available
@@ -83,12 +130,21 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
   /// @param router The router you are adding liquidity on behalf of
-  function addLiquidity(uint256 amount, address assetId, address router) external payable override nonReentrant {
+  function addLiquidity(uint256 amount, address assetId, address router) external payable override {
     // Sanity check: router is sensible
     require(router != address(0), "addLiquidity: ROUTER_EMPTY");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
+
+    // Router is approved
+    require(renounced || approvedRouters[router], "addLiquidity: BAD_ROUTER");
+
+    // Asset is approved
+    require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
+
+    // Update the router balances
+    routerBalances[router][assetId] += amount;
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
@@ -97,9 +153,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
-
-    // Update the router balances
-    routerBalances[router][assetId] += amount;
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
@@ -115,7 +168,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     uint256 amount,
     address assetId,
     address payable recipient
-  ) external override nonReentrant {
+  ) external override {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
 
@@ -174,12 +227,15 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     bytes calldata encodedBid,
     bytes calldata bidSignature,
     bytes calldata userSignature
-  ) external payable override nonReentrant returns (TransactionData memory) {
+  ) external payable override returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "prepare: USER_EMPTY");
 
     // Sanity check: router is sensible
     require(invariantData.router != address(0), "prepare: ROUTER_EMPTY");
+
+    // Router is approved
+    require(renounced || approvedRouters[invariantData.router], "prepare: BAD_ROUTER");
 
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "prepare: SENDING_CHAIN_FALLBACK_EMPTY");
@@ -211,9 +267,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     //       in the event of a router or user crash, they may recover the
     //       correct bid information without requiring an offchain store.
 
-    // Store the transaction variants
-    variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Make sure user is caller or has signed
@@ -224,6 +277,12 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
       require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+
+      // Asset is approved
+      require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -258,6 +317,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
 
       // Check that router has liquidity
       require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+
+      // Store the transaction variants
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
       routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
@@ -377,45 +439,21 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // address in case the call fails so the funds dont remain
         // locked.
 
-        // First, approve the funds to the helper if needed
+        // First, transfer the funds to the helper if needed
         if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.approveERC20(txData.receivingAssetId, txData.callTo, toSend);
+          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
-        // Next, call `addFunds` on the helper. Helpers should internally
+        // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
-        // for tx
-        if (toSend > 0) {
-          try
-            IFulfillHelper(txData.callTo).addFunds{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
-              txData.user,
-              txData.transactionId,
-              txData.receivingAssetId,
-              toSend
-            )
-          {} catch {
-            // Regardless of error within the callData execution, send funds
-            // to the predetermined fallback address
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
-
-        // Call `execute` on the helper
-        try
-          IFulfillHelper(txData.callTo).execute(
-            txData.user,
-            txData.transactionId,
-            txData.receivingAssetId,
-            toSend,
-            callData
-          )
-        {} catch {
-          // Regardless of error within the callData execution, send funds
-          // to the predetermined fallback address
-          if (toSend > 0) {
-            LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-          }
-        }
+        // for tx, and handle the case of reversions
+        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          payable(txData.callTo),
+          txData.receivingAssetId,
+          payable(txData.receivingAddress),
+          toSend,
+          callData
+        );
       }
     }
 
@@ -488,7 +526,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
         // When the user could be unlocking funds through a relayer, validate
         // their signature and payout the relayer.
         if (relayerFee > 0) {
-          require(recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+          require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
           LibAsset.transferAsset(txData.sendingAssetId, payable(msg.sender), relayerFee);
         }
@@ -507,7 +545,7 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+        require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not

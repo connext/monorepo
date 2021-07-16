@@ -105,6 +105,17 @@ interface ITransactionManager {
     address caller
   );
 
+  // Owner only methods
+  function renounce() external;
+
+  function addRouter(address router) external;
+
+  function removeRouter(address router) external;
+
+  function addAssetId(address assetId) external;
+
+  function removeAssetId(address assetId) external;
+
   // Router only methods
   function addLiquidity(uint256 amount, address assetId, address router) external payable;
 

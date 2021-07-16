@@ -444,6 +444,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+    ],
+    name: "addAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -462,6 +475,19 @@ const _abi = [
     name: "addLiquidity",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "addRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -996,6 +1022,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+    ],
+    name: "removeAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -1012,6 +1051,26 @@ const _abi = [
       },
     ],
     name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "removeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounce",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
