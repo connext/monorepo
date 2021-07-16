@@ -427,7 +427,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // amount that the router deposited less fees for relayer.
 
       // Get the amount to send
-      uint256 toSend = txData.amount - relayerFee;
+      uint256 toSend;
+      unchecked {
+        toSend = txData.amount - relayerFee;
+      }
 
       // Send the relayer the fee
       if (relayerFee > 0) {
@@ -538,7 +541,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         }
 
         // Get the amount to refund the user
-        uint256 toRefund = txData.amount - relayerFee;
+        uint256 toRefund;
+        unchecked {
+          toRefund = txData.amount - relayerFee; 
+        }
 
         // Return locked funds to sending chain fallback
         if (toRefund > 0) {
