@@ -659,7 +659,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: INVALID_CHAINIDS");
     });
 
-    it("should revert if param sending or receiving chainId doesn't match chainId variable", async () => {
+    it("should revert if param sending or receiving chainId and amount is zero", async () => {
       const { transaction, record } = await getTransactionData({});
       await expect(
         transactionManager

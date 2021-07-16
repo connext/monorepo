@@ -61,10 +61,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
-  /// @dev Mapping of user address to blocks where active transfers
-  ///      were created.
-  mapping(address => uint256[]) public activeTransactionBlocks;
-
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
   mapping(bytes32 => bytes32) public variantTransactionData;
@@ -220,9 +216,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // Store the transaction variants
     variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
-    // Store active blocks
-    activeTransactionBlocks[invariantData.user].push(block.number);
-
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == chainId) {
       // Sanity check: amount is sensible
@@ -350,9 +343,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    // Remove the transaction prepared block from the active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
-
     if (txData.sendingChainId == chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
@@ -458,9 +448,6 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    // Remove active blocks
-    removeUserActiveBlocks(txData.user, txData.preparedBlockNumber);
-
     // Return the appropriate locked funds
     if (txData.sendingChainId == chainId) {
       // Sender side, funds must be returned to the user
@@ -514,37 +501,9 @@ contract TransactionManager is ReentrancyGuard, ITransactionManager {
     return txData;
   }
 
-  // helper method to get full array of active blocks
-  function getActiveTransactionBlocks(address user) external override view returns (uint256[] memory) {
-    return activeTransactionBlocks[user];
-  }
-
   //////////////////////////
   /// Private functions ///
   //////////////////////////
-
-  /// @notice Removes a given block from the tracked activeTransactionBlocks
-  ///         array for the user. Called when transactions are completed.
-  /// @param user User who has completed a transaction
-  /// @param preparedBlock The TransactionData.preparedBlockNumber to remove
-  function removeUserActiveBlocks(address user, uint256 preparedBlock) internal {
-    // Remove active blocks
-    uint256 newLength = activeTransactionBlocks[user].length - 1;
-    uint256[] memory updated = new uint256[](newLength);
-    bool removed = false;
-    uint256 updatedIdx = 0;
-    for (uint256 i; i < newLength + 1; i++) {
-      // Handle case where there could be more than one tx added in a block
-      // And only one should be removed
-      if (!removed && activeTransactionBlocks[user][i] == preparedBlock) {
-        removed = true;
-        continue;
-      }
-      updated[updatedIdx] = activeTransactionBlocks[user][i];
-      updatedIdx++;
-    }
-    activeTransactionBlocks[user] = updated;
-  }
 
   /// @notice Recovers the signer from the signature provided to the `fulfill`
   ///         function. Returns the address recovered
