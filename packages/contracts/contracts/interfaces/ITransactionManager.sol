@@ -55,6 +55,13 @@ interface ITransactionManager {
     string cancel; // just the string "cancel"
   }
 
+  // The structure of the signed data for cancellations
+  struct SignedPrepareData {
+    bytes32 transactionId;
+    uint256 amount;
+    string prepare; // just the string "prepare"
+  }
+
   // The structure of the signed data for fulfill
   struct SignedFulfillData {
     bytes32 transactionId;
@@ -98,6 +105,17 @@ interface ITransactionManager {
     address caller
   );
 
+  // Owner only methods
+  function renounce() external;
+
+  function addRouter(address router) external;
+
+  function removeRouter(address router) external;
+
+  function addAssetId(address assetId) external;
+
+  function removeAssetId(address assetId) external;
+
   // Router only methods
   function addLiquidity(uint256 amount, address assetId, address router) external payable;
 
@@ -119,7 +137,8 @@ interface ITransactionManager {
     uint256 expiry,
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
-    bytes calldata bidSignature
+    bytes calldata bidSignature,
+    bytes calldata userSignature
   ) external payable returns (TransactionData memory);
 
   function fulfill(
@@ -130,7 +149,4 @@ interface ITransactionManager {
   ) external returns (TransactionData memory);
 
   function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);
-  
-  // Getters
-  function getActiveTransactionBlocks(address user) external view returns (uint256[] memory);
 }

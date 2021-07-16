@@ -3785,9 +3785,9 @@ __metadata:
   linkType: hard
 
 "@sinclair/typebox@npm:^0.17.7":
-  version: 0.17.7
-  resolution: "@sinclair/typebox@npm:0.17.7"
-  checksum: ea447817d7dae48508c72f779d1ea2b1b5f85760a17b3371ce980a1d37ee983708441fd6923d587241f5dcfcfa5769a5b1f3c649f4e1a5788cac773189c8d7a0
+  version: 0.17.8
+  resolution: "@sinclair/typebox@npm:0.17.8"
+  checksum: 1f47212674bfcb12b5ba68f6fd9ee312d407d3d3612e328fdfb58dc41d13e51904c9cfe0d40856dc87937dceb234cd089fb13139b467262c01f12aa41f601184
   languageName: node
   linkType: hard
 
@@ -5370,14 +5370,14 @@ __metadata:
   linkType: hard
 
 "ajv@npm:^8.0.0, ajv@npm:^8.0.1, ajv@npm:^8.6.1":
-  version: 8.6.1
-  resolution: "ajv@npm:8.6.1"
+  version: 8.6.2
+  resolution: "ajv@npm:8.6.2"
   dependencies:
     fast-deep-equal: ^3.1.1
     json-schema-traverse: ^1.0.0
     require-from-string: ^2.0.2
     uri-js: ^4.2.2
-  checksum: 9abb66b4ced54f0e955313387183615028df1affc28859332d5d935258e391ead880ad5a4e5c59e3b82367486b3824faefdaf7b87cfd3a5b6629f14e8edc2fd7
+  checksum: 9969d6c0e6b601c4a1254d01acf1ccd419e5dabeb4651f2fbe7269d4ae5e30c281af758839a0cbf6f2bf4830600fa8bc909232af634b97c4ceb798f9a2b65cb4
   languageName: node
   linkType: hard
 
@@ -10128,9 +10128,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.723":
-  version: 1.3.776
-  resolution: "electron-to-chromium@npm:1.3.776"
-  checksum: 9cdf721325f3c4cdecef157b12395c3749c9539c90320d63030d1fb860670c73e1433b90eddae4b3cf93e1628e5f5cbd9ea42ab615bc3fa6dc4d5215cac47579
+  version: 1.3.778
+  resolution: "electron-to-chromium@npm:1.3.778"
+  checksum: 8cde358a18a15708415bb284fb50ad56432139214f18b61e3703f28c4aabb238a7320240911cc02c9b20916a43763e093d83ef422f5cebdf42177e5d4c6b6e31
   languageName: node
   linkType: hard
 
@@ -12102,14 +12102,14 @@ __metadata:
   linkType: hard
 
 "find-my-way@npm:^4.0.0":
-  version: 4.3.2
-  resolution: "find-my-way@npm:4.3.2"
+  version: 4.3.3
+  resolution: "find-my-way@npm:4.3.3"
   dependencies:
     fast-decode-uri-component: ^1.0.1
     fast-deep-equal: ^3.1.3
     safe-regex2: ^2.0.0
     semver-store: ^0.3.0
-  checksum: d8d43cb793535b19d2d9b4aa6d5da42d141ce1577bda31fcc99e50167f4d293149144feb8277b8b3db27a19f3e74b45dd5e66f6dcb7a375132c0056667e9d6fe
+  checksum: 4293b9fc70144155e77cfbb98ecfcb0ab549dfb4f869f1f2efbbcd9c9489983f27667fe3d3dfa515e1d8793750da0050e8daeca6f05f1d17d14dded610969aba
   languageName: node
   linkType: hard
 
@@ -17763,8 +17763,8 @@ fsevents@~2.1.1:
   linkType: hard
 
 "minipass-fetch@npm:^1.3.2":
-  version: 1.3.3
-  resolution: "minipass-fetch@npm:1.3.3"
+  version: 1.3.4
+  resolution: "minipass-fetch@npm:1.3.4"
   dependencies:
     encoding: ^0.1.12
     minipass: ^3.1.0
@@ -17773,7 +17773,7 @@ fsevents@~2.1.1:
   dependenciesMeta:
     encoding:
       optional: true
-  checksum: cc93f86391795279b5681a2bbd5bb55cceabdae959c4ff0cb85e767427edb0d7e8bde49b6897afd386c2e47965ecc304b96bb7c2af0dbb9da7dfa67da140757e
+  checksum: c1a3d2b7a6082641601648ba309d1f878aaf6cb3f39f1468981dfe1fd30b96de8a0926128d4c2bff24aced21aff599f6fff8611a0084641d171063c6099d855d
   languageName: node
   linkType: hard
 
