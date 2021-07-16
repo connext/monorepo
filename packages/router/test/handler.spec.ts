@@ -14,7 +14,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { constants, providers, Signer } from "ethers";
+import { constants, providers, Signer, Wallet } from "ethers";
 
 import { SubgraphTransactionManagerListener } from "../src/transactionManagerListener";
 import { Handler } from "../src/handler";
@@ -50,12 +50,14 @@ const fakeConfig: config.NxtpRouterConfig = {
       provider: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
+      minGas: "100",
     },
     1338: {
       confirmations: 1,
       provider: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
+      minGas: "100",
     },
   },
   mnemonic: "hello world",
@@ -115,6 +117,7 @@ describe("Handler", () => {
   let txService: SinonStubbedInstance<TransactionService>;
   let txManager: SinonStubbedInstance<TxManager>;
   let subgraph: SinonStubbedInstance<SubgraphTransactionManagerListener>;
+  let wallet: SinonStubbedInstance<Wallet>;
 
   beforeEach(() => {
     const messaging = createStubInstance(RouterNxtpNatsMessagingService);
@@ -132,7 +135,10 @@ describe("Handler", () => {
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
 
-    handler = new Handler(messaging as any, subgraph as any, txManager as any, logger);
+    wallet = createStubInstance(Wallet);
+    (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
+
+    handler = new Handler(messaging as any, subgraph as any, txManager as any, wallet, logger);
   });
 
   afterEach(() => {
