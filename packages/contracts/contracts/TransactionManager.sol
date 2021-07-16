@@ -282,7 +282,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
 
       // Store the transaction variants
-      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -319,7 +319,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
 
       // Store the transaction variants
-      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
       routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
