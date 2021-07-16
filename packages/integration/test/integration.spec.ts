@@ -18,9 +18,9 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const tokenAddress1337 = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
 const tokenAddress1338 = tokenAddress1337;
-const txManagerAddress1337 = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+const txManagerAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const txManagerAddress1338 = txManagerAddress1337;
 const chainProviders = {
   1337: new providers.JsonRpcProvider("http://localhost:8545"),
