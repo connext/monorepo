@@ -48,7 +48,6 @@ export const CrossChainParamsSchema = Type.Object({
   amount: TIntegerString,
   expiry: Type.Number(),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
-  infiniteApprove: Type.Optional(Type.Boolean()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;

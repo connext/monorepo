@@ -132,16 +132,18 @@ describe("Integration", () => {
     this.timeout(120_000);
     const txs = await userSdk.getActiveTransactions();
     expect(txs.length).to.eq(0);
-    const res = await userSdk.transfer({
+    const quote = await userSdk.getTransferQuote({
       amount: utils.parseEther("1").toString(),
-      expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(),
-      sendingChainId: 1337,
-      sendingAssetId: tokenAddress1337,
-      receivingChainId: 1338,
       receivingAssetId: tokenAddress1338,
+      sendingAssetId: tokenAddress1337,
       receivingAddress: userWallet.address,
+      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
       router,
+      sendingChainId: 1337,
+      receivingChainId: 1338,
     });
+
+    const res = await userSdk.transfer(quote);
     expect(res.prepareReceipt.status).to.be.eq(1);
   });
 });
