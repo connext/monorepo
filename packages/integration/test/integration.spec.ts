@@ -72,6 +72,40 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "ETH_GIFT to router mined: ");
     }
 
+    const isRouter1337 = await txManager1337.approvedRouters(router);
+    const isRouter1338 = await txManager1338.approvedRouters(router);
+
+    if (!isRouter1337) {
+      logger.info({ chainId: 1337 }, "Adding router");
+      const tx = await txManager1337.addRouter(router);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Router added");
+    }
+
+    if (!isRouter1338) {
+      logger.info({ chainId: 1338 }, "Adding router");
+      const tx = await txManager1338.addRouter(router);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Router added");
+    }
+
+    const isAsset1337 = await txManager1337.approvedAssets(tokenAddress1337);
+    const isAsset1338 = await txManager1338.approvedAssets(tokenAddress1338);
+
+    if (!isAsset1337) {
+      logger.info({ chainId: 1337 }, "Adding Asset");
+      const tx = await txManager1337.addAssetId(tokenAddress1337);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Asset added");
+    }
+
+    if (!isAsset1338) {
+      logger.info({ chainId: 1338 }, "Adding Asset");
+      const tx = await txManager1338.addAssetId(tokenAddress1338);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Asset added");
+    }
+
     const liquidity1337 = await txManager1337.routerBalances(router, tokenAddress1337);
     const liquidity1338 = await txManager1338.routerBalances(router, tokenAddress1338);
 
@@ -130,8 +164,6 @@ describe("Integration", () => {
 
   it("should send tokens", async function () {
     this.timeout(120_000);
-    const txs = await userSdk.getActiveTransactions();
-    expect(txs.length).to.eq(0);
     const quote = await userSdk.getTransferQuote({
       amount: utils.parseEther("1").toString(),
       receivingAssetId: tokenAddress1338,
