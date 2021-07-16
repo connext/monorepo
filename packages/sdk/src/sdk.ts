@@ -28,8 +28,7 @@ import {
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { getTransactionManagerContractAddress } from "./helper/contract";
-import { TransactionManager } from "./transactionManager";
+import { TransactionManager, getTransactionManagerContractAddress } from "./transactionManager";
 import { TransactionManagerEvents } from "./listener";
 
 declare const ethereum: any;
