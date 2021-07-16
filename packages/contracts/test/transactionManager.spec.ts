@@ -16,11 +16,7 @@ import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils, providers } from "ethers";
 
 // import types
-import { Counter } from "../typechain/Counter";
-import { TransactionManager } from "../typechain/TransactionManager";
-import { TestERC20 } from "../typechain/TestERC20";
-import { ERC20 } from "../typechain/ERC20";
-
+import { FulfillInterpreter, Counter, TransactionManager, TestERC20, ERC20 } from "../typechain";
 import { getOnchainBalance } from "./utils";
 
 const { AddressZero } = constants;
@@ -48,7 +44,7 @@ describe("TransactionManager", function () {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
     const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    const interpreter = await interpreterFactory.deploy();
+    const interpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
 
     transactionManager = (await transactionManagerFactory.deploy(
       sendingChainId,
