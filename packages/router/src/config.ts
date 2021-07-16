@@ -115,19 +115,24 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
   });
 
+  const validate = ajv.compile(NxtpRouterConfigSchema);
+
+  const valid = validate(nxtpConfig);
+
+  if (!valid) {
+    console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
+    throw new Error(validate.errors?.map((err) => err.message).join(","));
+  }
+
+  console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
   return nxtpConfig;
 };
 
-const nxtpConfig: NxtpRouterConfig = getEnvConfig();
-const validate = ajv.compile(NxtpRouterConfigSchema);
+let nxtpConfig: NxtpRouterConfig | undefined;
 
-const valid = validate(nxtpConfig);
-
-if (!valid) {
-  console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
-  throw new Error(validate.errors?.map((err) => err.message).join(","));
-}
-
-console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
-
-export const getConfig = (): NxtpRouterConfig => nxtpConfig;
+export const getConfig = (): NxtpRouterConfig => {
+  if (!nxtpConfig) {
+    nxtpConfig = getEnvConfig();
+  }
+  return nxtpConfig;
+};

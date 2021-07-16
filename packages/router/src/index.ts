@@ -75,6 +75,7 @@ export const RemoveLiquidityResponseSchema = Type.Object({
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
 
 server.addHook("onReady", async function () {
+  getConfig(); // validate config
   await messaging.connect();
   await setupListeners(messaging, subgraph, handler, logger);
 });
