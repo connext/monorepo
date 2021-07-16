@@ -62,7 +62,7 @@ describe("prepare", () => {
     const params: PrepareParams = {
       bidSignature: "0x",
       encodedBid: "0x",
-      expiry: (Date.now() + 10_000).toString(),
+      expiry: Date.now() + 10_000,
       amount: "100000",
       encryptedCallData: "0x",
       txData: {
@@ -106,6 +106,7 @@ describe("prepare", () => {
 
   it("should properly call prepare", async () => {
     const params = setupMocks();
+    params.txData.user = user.address;
 
     const result = await prepare(
       params,
@@ -117,7 +118,8 @@ describe("prepare", () => {
     );
     expect(result).to.be.ok;
     expect(prepareStub.calledOnce).to.be.true;
-    const [txData, amount, expiry, encryptedCallData, encodedBid, bidSignature, overrides] = prepareStub.firstCall.args;
+    const [txData, amount, expiry, encryptedCallData, encodedBid, bidSignature, userSignature, overrides] =
+      prepareStub.firstCall.args;
     expect(txData).to.deep.contain({
       user: params.txData.user,
       router: params.txData.router,
@@ -134,6 +136,7 @@ describe("prepare", () => {
     expect(encodedBid).to.be.eq("0x");
     expect(bidSignature).to.be.eq("0x");
     expect(encryptedCallData).to.be.eq("0x");
+    expect(userSignature).to.be.eq("0x");
     expect(overrides).to.be.deep.eq(
       params.txData.sendingAssetId === constants.AddressZero ? { value: BigNumber.from(params.amount) } : { value: 0 },
     );
@@ -161,7 +164,7 @@ describe("handleReceiverPrepare", () => {
   const setupMocks = (
     overrides: Partial<InvariantTransactionData> = {},
     amount = "100000",
-    expiry = (Date.now() + 10_000).toString(),
+    expiry = Date.now() + 10_000,
     preparedBlockNumber = 10,
     encryptedCallData = "0x",
     user: Wallet = Wallet.createRandom(),
@@ -213,7 +216,7 @@ describe("handleReceiverPrepare", () => {
     const [txDataUsed, relayerFeeUsed, sig] = fulfillStub.firstCall.args;
     expect(txDataUsed).to.be.deep.eq(event.txData);
     expect(relayerFeeUsed).to.be.eq(relayerFee);
-    const recovered = recoverFulfilledTransactionPayload(event.txData, relayerFee, sig);
+    const recovered = recoverFulfilledTransactionPayload(event.txData.transactionId, relayerFee, sig);
     expect(recovered.toLowerCase()).to.be.eq(user.address.toLowerCase());
   });
 });
