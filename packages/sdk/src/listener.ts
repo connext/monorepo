@@ -5,11 +5,8 @@ import {
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { providers } from "ethers";
 import { Evt } from "evt";
 import { BaseLogger } from "pino";
-
-import { getTransactionManagerContract } from "./helper/contract";
 
 export const TransactionManagerEvents = {
   TransactionPrepared: "TransactionPrepared",
@@ -30,13 +27,12 @@ export class TransactionManagerListener {
     [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
-  public chainId?: number;
-  public transactionManager: TransactionManager;
 
-  constructor(provider: providers.FallbackProvider, chainId: number, private readonly logger: BaseLogger) {
-    const { instance } = getTransactionManagerContract(chainId, provider);
-    this.chainId = chainId;
-    this.transactionManager = instance;
+  constructor(
+    public readonly transactionManager: TransactionManager,
+    public readonly chainId: number,
+    private readonly logger: BaseLogger,
+  ) {
     this.establishListeners();
   }
 

@@ -33,7 +33,7 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.4.1",
-    "pino": "^6.11.3"
+    "pino": "^6.12.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
