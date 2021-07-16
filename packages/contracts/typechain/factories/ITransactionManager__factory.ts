@@ -930,6 +930,11 @@ const _abi = [
         name: "bidSignature",
         type: "bytes",
       },
+      {
+        internalType: "bytes",
+        name: "userSignature",
+        type: "bytes",
+      },
     ],
     name: "prepare",
     outputs: [
