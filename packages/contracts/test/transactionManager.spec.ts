@@ -22,7 +22,7 @@ const { AddressZero } = constants;
 const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
 
-const advanceBlockTime = async (desiredTimestamp: number) => {
+const setBlockTime = async (desiredTimestamp: number) => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
 };
 
@@ -249,6 +249,7 @@ describe("TransactionManager", function () {
     recordOverrides: Partial<VariantTransactionData> = {},
     preparer: Wallet = user,
     instance: TransactionManager = transactionManager,
+    encryptedCallData: string = EmptyBytes,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
@@ -275,7 +276,7 @@ describe("TransactionManager", function () {
         transaction,
         record.amount,
         record.expiry,
-        EmptyBytes,
+        encryptedCallData,
         EmptyBytes,
         EmptyBytes,
         transaction.sendingAssetId === AddressZero && preparer.address !== transaction.router
@@ -292,11 +293,7 @@ describe("TransactionManager", function () {
     });
 
     expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
-    // expect(await instance.activeTransactionBlocks(preparer.address));
 
-    // const activeBlock = await instance.activeTransactionBlocks(transaction.user, 0);
-
-    // console.log(activeBlock);
     // Verify receipt event
     await assertReceiptEvent(receipt, "TransactionPrepared", {
       user: transaction.user,
@@ -304,6 +301,7 @@ describe("TransactionManager", function () {
       transactionId: transaction.transactionId,
       txData: { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber },
       caller: preparer.address,
+      encryptedCallData: encryptedCallData,
       bidSignature: EmptyBytes,
       encodedBid: EmptyBytes,
     });
@@ -699,7 +697,7 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("#removeLiquidity", () => {
+  describe("removeLiquidity", () => {
     it("should revert if param recipient address is empty", async () => {
       const amount = "1";
       const assetId = AddressZero;
@@ -748,11 +746,11 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("#prepare", () => {
+  describe("prepare", () => {
     // TODO: revert and emit event test cases
     // - reentrant cases
     // - rebasing test cases
-    it("should revert if param user is AddressZero", async () => {
+    it("should revert if invariantData.user is AddressZero", async () => {
       const { transaction, record } = await getTransactionData({ user: AddressZero });
       await expect(
         transactionManager
@@ -763,7 +761,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: USER_EMPTY");
     });
 
-    it("should revert if param router is addressZero", async () => {
+    it("should revert if invariantData.router is AddressZero", async () => {
       const { transaction, record } = await getTransactionData({ router: AddressZero });
       await expect(
         transactionManager
@@ -774,29 +772,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: ROUTER_EMPTY");
     });
 
-    it("should revert if param receiving address is addressZero", async () => {
-      const { transaction, record } = await getTransactionData({ receivingAddress: AddressZero });
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
-    });
-
-    it("should fail if amount is 0", async () => {
-      const { transaction, record } = await getTransactionData({}, { amount: "0" });
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: AMOUNT_IS_ZERO");
-    });
-
-    it("should fail if its an unapproved router and it has not been renounced", async () => {
+    it("should fail if it hasnt been renounced && using an unapproved router", async () => {
       const { transaction, record } = await getTransactionData({ router: Wallet.createRandom().address });
       await expect(
         transactionManager
@@ -807,7 +783,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: BAD_ROUTER");
     });
 
-    it("should revert if param sendingChainFallback address is addressZero", async () => {
+    it("should revert if invariantData.sendingChainFallback is AddressZero", async () => {
       const { transaction, record } = await getTransactionData({ sendingChainFallback: AddressZero });
       await expect(
         transactionManager
@@ -818,7 +794,40 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: SENDING_CHAIN_FALLBACK_EMPTY");
     });
 
-    it("should revert if expiry is lower than min_timeout", async () => {
+    it("should revert if invariantData.receivingAddress is AddressZero", async () => {
+      const { transaction, record } = await getTransactionData({ receivingAddress: AddressZero });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
+    });
+
+    it("should revert if invariantData.sendingChainId == invariantData.receivingChainId", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainId: 1337, receivingChainId: 1337 });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: SAME_CHAINIDS");
+    });
+
+    it("should revert if invariantData.sendingChainId != transactionManager.chainId && invariantData.receivingChainId != transactionManager.chainId", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainId: 1340, receivingChainId: 1341 });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: INVALID_CHAINIDS");
+    });
+
+    it("should revert if invariantData.expiry - block.timestamp < MIN_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const hours12 = 12 * 60 * 60;
       const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
@@ -831,7 +840,19 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
     });
 
-    it("should revert if expiry is higher than max_timeout", async () => {
+    it("should revert if invariantData.expiry - block.timestamp == MIN_TIMEOUT", async () => {
+      const { transaction, record } = await getTransactionData();
+      const expiry = (await transactionManager.MIN_TIMEOUT()).add(Math.floor(Date.now() / 1000)).toString();
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
+    });
+
+    it("should revert if invariantData.expiry - block.timestamp > MAX_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const days31 = 31 * 24 * 60 * 60;
       const expiry = (Math.floor(Date.now() / 1000) + days31 + 5_000).toString();
@@ -842,37 +863,6 @@ describe("TransactionManager", function () {
             value: record.amount,
           }),
       ).to.be.revertedWith("prepare: TIMEOUT_TOO_HIGH");
-    });
-
-    it("should revert if param sending and receiving chainId are same", async () => {
-      const { transaction, record } = await getTransactionData({ sendingChainId: 1337, receivingChainId: 1337 });
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: SAME_CHAINIDS");
-    });
-
-    it("should revert if param sending or receiving chainId doesn't match chainId variable", async () => {
-      const { transaction, record } = await getTransactionData({ sendingChainId: 1340, receivingChainId: 1341 });
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: INVALID_CHAINIDS");
-    });
-
-    it("should revert if param sending or receiving chainId and amount is zero", async () => {
-      const { transaction, record } = await getTransactionData({});
-      await expect(
-        transactionManager.connect(user).prepare(transaction, 0, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-          value: record.amount,
-        }),
-      ).to.be.revertedWith("prepare: AMOUNT_IS_ZERO");
     });
 
     it("should revert if digest already exist", async () => {
@@ -889,91 +879,106 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("prepare: DIGEST_EXISTS");
     });
 
-    it("should revert if value is not present for Ether/Native token", async () => {
-      const { transaction, record } = await getTransactionData();
+    describe("failures when preparing on the sender chain", () => {
+      it("should fail if amount is 0", async () => {
+        const { transaction, record } = await getTransactionData({}, { amount: "0" });
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith("prepare: AMOUNT_IS_ZERO");
+      });
 
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-      ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+      it("should fail if its not renounced && invariantData.sendingAssetId != an approved asset", async () => {
+        const { transaction, record } = await getTransactionData({ sendingAssetId: Wallet.createRandom().address });
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith("prepare: BAD_ASSET");
+      });
+
+      it("should revert if msg.value == 0 && invariantData.sendingAssetId == native token", async () => {
+        const { transaction, record } = await getTransactionData();
+
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+      });
+
+      it("should revert if msg.value != amount && invariantData.sendingAssetId == native token", async () => {
+        const { transaction, record } = await getTransactionData();
+        const falseAmount = "20";
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: falseAmount,
+            }),
+        ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+      });
+
+      it("should revert if msg.value != 0 && invariantData.sendingAssetId != native token", async () => {
+        const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith("prepare: ETH_WITH_ERC_TRANSFER");
+      });
+
+      it("should revert if ERC20.transferFrom fails", async () => {
+        const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+      });
     });
 
-    it("should revert if value is not equal to amount param for Ether/Native token", async () => {
-      const { transaction, record } = await getTransactionData();
-      const falseAmount = "20";
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: falseAmount,
-          }),
-      ).to.be.revertedWith("prepare: VALUE_MISMATCH");
-    });
+    describe("failures when prepareing on the router chain", () => {
+      it("should fail if msg.sender != invariantData.router", async () => {
+        const { transaction, record } = await getTransactionData();
 
-    it("should revert if value is non-zero for ERC20 token", async () => {
-      const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+        await expect(
+          transactionManagerReceiverSide
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("prepare: ROUTER_MISMATCH");
+      });
 
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: ETH_WITH_ERC_TRANSFER");
-    });
+      it("should fail if msg.value != 0", async () => {
+        const { transaction, record } = await getTransactionData();
 
-    it("should revert if transaction manager isn't approve for respective amount", async () => {
-      const { transaction, record } = await getTransactionData({ sendingAssetId: tokenA.address });
+        await expect(
+          transactionManagerReceiverSide
+            .connect(router)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith("prepare: ETH_WITH_ROUTER_PREPARE");
+      });
 
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-      ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
-    });
+      it("should fail if router liquidity is lower than amount", async () => {
+        const { transaction, record } = await getTransactionData({}, { amount: "1000000" });
 
-    it("should fail if its an unapproved asset and it has not been renounced", async () => {
-      const { transaction, record } = await getTransactionData({ sendingAssetId: Wallet.createRandom().address });
-      await expect(
-        transactionManager
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: BAD_ASSET");
-    });
-
-    it("should revert iff senderChainId not equal to chainId and sender is diff from router", async () => {
-      const { transaction, record } = await getTransactionData();
-
-      await expect(
-        transactionManagerReceiverSide
-          .connect(user)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-      ).to.be.revertedWith("prepare: ROUTER_MISMATCH");
-    });
-
-    it("should revert iff senderChainId not equal to chainId and msg.value is non-zero", async () => {
-      const { transaction, record } = await getTransactionData();
-
-      await expect(
-        transactionManagerReceiverSide
-          .connect(router)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
-          }),
-      ).to.be.revertedWith("prepare: ETH_WITH_ROUTER_PREPARE");
-    });
-
-    it("should revert iff senderChainId not equal to chainId and router liquidity is lower than amount", async () => {
-      const { transaction, record } = await getTransactionData({}, { amount: "1000000" });
-
-      await expect(
-        transactionManagerReceiverSide
-          .connect(router)
-          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-      ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
+        await expect(
+          transactionManagerReceiverSide
+            .connect(router)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
+      });
     });
 
     it("should work if the contract has been renounced and using unapproved router", async () => {
@@ -1054,6 +1059,7 @@ describe("TransactionManager", function () {
         },
         user,
         transactionManager,
+        callData,
       );
     });
 
@@ -1181,7 +1187,7 @@ describe("TransactionManager", function () {
 
       expect(await transactionManager.variantTransactionData(invariantDigest)).to.be.eq(variantDigestBeforeFulfill);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
 
       const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee, user);
 
@@ -1745,7 +1751,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
       const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), receiver);
       await expect(
         transactionManager
@@ -1770,7 +1776,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
 
       await cancelAndAssert(
         transaction,
@@ -1928,7 +1934,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
 
       await cancelAndAssert(
         transaction,
@@ -1957,7 +1963,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
@@ -1983,7 +1989,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
@@ -2010,7 +2016,7 @@ describe("TransactionManager", function () {
       await approveTokens(prepareAmount, user, transactionManager.address, tokenA);
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
@@ -2036,7 +2042,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
@@ -2058,7 +2064,7 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      await advanceBlockTime(+record.expiry + 1_000);
+      await setBlockTime(+record.expiry + 1_000);
 
       await cancelAndAssert(
         transaction,
