@@ -29,6 +29,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "addRouter(address)": FunctionFragment;
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
+    "c_0xd8190500(bytes32)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
@@ -66,6 +67,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "approvedRouters",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xd8190500",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "cancel",
@@ -193,6 +198,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "approvedRouters",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xd8190500",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
@@ -317,6 +326,11 @@ export class TransactionManager extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
 
     cancel(
       txData: {
@@ -459,6 +473,11 @@ export class TransactionManager extends BaseContract {
 
   approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
+  c_0xd8190500(
+    c__0xd8190500: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   cancel(
     txData: {
       user: string;
@@ -593,6 +612,11 @@ export class TransactionManager extends BaseContract {
     approvedAssets(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     cancel(
       txData: {
@@ -1125,6 +1149,11 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     cancel(
       txData: {
         user: string;
@@ -1270,6 +1299,11 @@ export class TransactionManager extends BaseContract {
 
     approvedRouters(
       arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

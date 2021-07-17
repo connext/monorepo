@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CounterInterface extends ethers.utils.Interface {
   functions: {
+    "c_0x2f5a8380(bytes32)": FunctionFragment;
     "count()": FunctionFragment;
     "increment()": FunctionFragment;
     "incrementAndSend(address,address,uint256)": FunctionFragment;
@@ -29,6 +30,10 @@ interface CounterInterface extends ethers.utils.Interface {
     "shouldRevert()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "c_0x2f5a8380",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "increment", values?: undefined): string;
   encodeFunctionData(
@@ -44,6 +49,10 @@ interface CounterInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "c_0x2f5a8380",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "increment", data: BytesLike): Result;
   decodeFunctionResult(
@@ -106,6 +115,11 @@ export class Counter extends BaseContract {
   interface: CounterInterface;
 
   functions: {
+    c_0x2f5a8380(
+      c__0x2f5a8380: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     increment(
@@ -126,6 +140,11 @@ export class Counter extends BaseContract {
 
     shouldRevert(overrides?: CallOverrides): Promise<[boolean]>;
   };
+
+  c_0x2f5a8380(
+    c__0x2f5a8380: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   count(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -148,6 +167,11 @@ export class Counter extends BaseContract {
   shouldRevert(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
+    c_0x2f5a8380(
+      c__0x2f5a8380: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
     increment(overrides?: CallOverrides): Promise<void>;
@@ -167,6 +191,11 @@ export class Counter extends BaseContract {
   filters: {};
 
   estimateGas: {
+    c_0x2f5a8380(
+      c__0x2f5a8380: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
     increment(
@@ -189,6 +218,11 @@ export class Counter extends BaseContract {
   };
 
   populateTransaction: {
+    c_0x2f5a8380(
+      c__0x2f5a8380: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increment(
