@@ -120,7 +120,6 @@ export class TransactionService {
         }
       }
     }
-
     // Success!
     this.handleConfirm(receipt);
     return receipt;
@@ -130,6 +129,16 @@ export class TransactionService {
   public async readTx(chainId: number, tx: MinimalTransaction): Promise<string> {
     const provider = this.getProvider(chainId);
     return provider.readTransaction(tx);
+  }
+
+  public async getBalance(chainId: number, address: string) {
+    const provider = this.getProvider(chainId);
+    return await provider.getBalance(address);
+  }
+
+  public async estimateGas(chainId: number, transaction: providers.TransactionRequest) {
+    const provider = this.getProvider(chainId);
+    return await provider.estimateGas(transaction);
   }
 
   /// LISTENER METHODS

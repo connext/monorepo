@@ -188,6 +188,14 @@ export class ChainRpcProvider {
     });
   }
 
+  public async getBalance(address: string): Promise<BigNumber> {
+    return this.provider.getBalance(address);
+  }
+
+  public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
+    return this.provider.estimateGas(transaction);
+  }
+
   private async isReady(): Promise<boolean> {
     // TODO: Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
