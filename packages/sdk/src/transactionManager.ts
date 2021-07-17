@@ -1,7 +1,7 @@
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
-import { jsonifyError, PrepareParams, CancelParams, FulfillParams } from "@connext/nxtp-utils";
+import { PrepareParams, CancelParams, FulfillParams } from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
@@ -87,8 +87,9 @@ export class TransactionManager {
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    try {
-      const txRes = await txManager.connect(this.signer).prepare(
+    const txRes = await txManager
+      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
+      .prepare(
         {
           user: txData.user,
           router: txData.router,
@@ -109,14 +110,7 @@ export class TransactionManager {
         bidSignature,
         { value: constants.Zero, from: this.signer.getAddress() },
       );
-      return txRes;
-    } catch (e) {
-      this.logger.error(
-        { methodId, method, error: jsonifyError(e), transactionId: txData.transactionId },
-        "Error sending receiver prepare tx",
-      );
-      throw e;
-    }
+    return txRes;
   }
 
   async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionResponse> {
@@ -132,14 +126,10 @@ export class TransactionManager {
 
     const { txData, relayerFee, signature } = cancelParams;
 
-    try {
-      const txRes = await txManager
-        .connect(this.signer)
-        .cancel(txData, relayerFee, signature, { from: this.signer.getAddress() });
-      return txRes;
-    } catch (e) {
-      throw new Error(`cancel error ${JSON.stringify(e)}`);
-    }
+    const txRes = await txManager
+      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
+      .cancel(txData, relayerFee, signature, { from: this.signer.getAddress() });
+    return txRes;
   }
 
   async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionResponse> {
@@ -155,14 +145,12 @@ export class TransactionManager {
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
-    try {
-      const txRes = await txManager.connect(this.signer).fulfill(txData, relayerFee, signature, callData, {
+    const txRes = await txManager
+      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
+      .fulfill(txData, relayerFee, signature, callData, {
         from: this.signer.getAddress(),
       });
-      return txRes;
-    } catch (e) {
-      throw new Error(`cancel error ${JSON.stringify(e)}`);
-    }
+    return txRes;
   }
 
   async approveTokensIfNeeded(
