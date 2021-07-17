@@ -19,7 +19,6 @@ import {
   AuctionResponse,
   encodeAuctionBid,
   recoverAuctionBid,
-  recoverPrepareTransactionPayload,
   InvariantTransactionData,
   signFulfillTransactionPayload,
   MetaTxResponse,
@@ -286,7 +285,6 @@ export class NxtpSdk {
 
   public async startTransfer(
     transferParams: AuctionResponse,
-    userSignature?: string,
     infiniteApprove = false,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
     const method = "transfer";
@@ -313,13 +311,6 @@ export class NxtpSdk {
 
     if (!this.chainProviders[sendingChainId] || !this.chainProviders[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
-    }
-
-    if (user.toLowerCase() !== (await this.signer.getAddress()).toLowerCase()) {
-      const recovered = recoverPrepareTransactionPayload(transactionId, amount, userSignature ?? "");
-      if (recovered.toLowerCase() !== user.toLowerCase()) {
-        throw new Error("Missing signature for relayer");
-      }
     }
 
     this.logger.info(

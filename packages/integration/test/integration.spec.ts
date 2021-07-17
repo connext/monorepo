@@ -1,4 +1,4 @@
-import { NxtpSdk } from "@connext/nxtp-sdk";
+import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -23,8 +23,8 @@ const tokenAddress1338 = tokenAddress1337;
 const txManagerAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const txManagerAddress1338 = txManagerAddress1337;
 const chainProviders = {
-  1337: new providers.JsonRpcProvider("http://localhost:8545"),
-  1338: new providers.JsonRpcProvider("http://localhost:8546"),
+  1337: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
+  1338: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
@@ -153,7 +153,7 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "TOKEN_GIFT to user mined: ");
     }
 
-    userSdk = await NxtpSdk.init(
+    userSdk = new NxtpSdk(
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest" }),
@@ -170,12 +170,26 @@ describe("Integration", () => {
       sendingAssetId: tokenAddress1337,
       receivingAddress: userWallet.address,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-      router,
       sendingChainId: 1337,
       receivingChainId: 1338,
     });
 
-    const res = await userSdk.transfer(quote);
-    expect(res.prepareReceipt.status).to.be.eq(1);
+    const res = await userSdk.startTransfer(quote);
+    expect(res.prepareResponse.hash).to.be.ok;
+
+    const event = await userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const finishRes = await userSdk.finishTransfer(event);
+    expect(finishRes.metaTxResponse).to.be.ok;
+    const fulfillEvent = await userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+    expect(fulfillEvent).to.be.ok;
   });
 });

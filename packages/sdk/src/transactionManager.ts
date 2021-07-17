@@ -85,7 +85,7 @@ export class TransactionManager {
       throw new Error("No transactionManagerAddress configured for chainId: " + chainId.toString());
     }
 
-    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData, userSignature } = prepareParams;
+    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
     try {
       const txRes = await txManager.prepare(
@@ -107,7 +107,6 @@ export class TransactionManager {
         encryptedCallData,
         encodedBid,
         bidSignature,
-        userSignature ?? "0x",
         { value: constants.Zero, from: this.signer.getAddress() },
       );
       return txRes;
