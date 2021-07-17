@@ -41,7 +41,6 @@ export type PrepareParams = {
   encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
-  userSignature?: string;
 };
 
 export type FulfillParams = {

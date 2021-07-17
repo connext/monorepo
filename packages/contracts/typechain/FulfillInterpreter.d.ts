@@ -21,14 +21,23 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
+    "c_0x96d668da(bytes32)": FunctionFragment;
     "execute(address,address,address,uint256,bytes)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "c_0x96d668da",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [string, string, string, BigNumberish, BytesLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "c_0x96d668da",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
 
   events: {};
@@ -78,6 +87,11 @@ export class FulfillInterpreter extends BaseContract {
   interface: FulfillInterpreterInterface;
 
   functions: {
+    c_0x96d668da(
+      c__0x96d668da: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     execute(
       callTo: string,
       assetId: string,
@@ -87,6 +101,11 @@ export class FulfillInterpreter extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  c_0x96d668da(
+    c__0x96d668da: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   execute(
     callTo: string,
@@ -98,6 +117,11 @@ export class FulfillInterpreter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    c_0x96d668da(
+      c__0x96d668da: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     execute(
       callTo: string,
       assetId: string,
@@ -111,6 +135,11 @@ export class FulfillInterpreter extends BaseContract {
   filters: {};
 
   estimateGas: {
+    c_0x96d668da(
+      c__0x96d668da: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     execute(
       callTo: string,
       assetId: string,
@@ -122,6 +151,11 @@ export class FulfillInterpreter extends BaseContract {
   };
 
   populateTransaction: {
+    c_0x96d668da(
+      c__0x96d668da: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     execute(
       callTo: string,
       assetId: string,

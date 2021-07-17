@@ -29,11 +29,12 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "addRouter(address)": FunctionFragment;
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
+    "c_0xd8190500(bytes32)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
-    "prepare(tuple,uint256,uint256,bytes,bytes,bytes,bytes)": FunctionFragment;
+    "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
@@ -66,6 +67,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "approvedRouters",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xd8190500",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "cancel",
@@ -136,7 +141,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
       BigNumberish,
       BytesLike,
       BytesLike,
-      BytesLike,
       BytesLike
     ]
   ): string;
@@ -191,6 +195,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "approvedRouters",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xd8190500",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
@@ -318,6 +326,11 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     cancel(
       txData: {
         user: string;
@@ -386,7 +399,6 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
-      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -459,6 +471,11 @@ export class TransactionManager extends BaseContract {
 
   approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
+  c_0xd8190500(
+    c__0xd8190500: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   cancel(
     txData: {
       user: string;
@@ -527,7 +544,6 @@ export class TransactionManager extends BaseContract {
     encryptedCallData: BytesLike,
     encodedBid: BytesLike,
     bidSignature: BytesLike,
-    userSignature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -593,6 +609,11 @@ export class TransactionManager extends BaseContract {
     approvedAssets(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     cancel(
       txData: {
@@ -726,7 +747,6 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
-      userSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1125,6 +1145,11 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     cancel(
       txData: {
         user: string;
@@ -1193,7 +1218,6 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
-      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1273,6 +1297,11 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     cancel(
       txData: {
         user: string;
@@ -1341,7 +1370,6 @@ export class TransactionManager extends BaseContract {
       encryptedCallData: BytesLike,
       encodedBid: BytesLike,
       bidSignature: BytesLike,
-      userSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
