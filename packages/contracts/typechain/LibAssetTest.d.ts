@@ -21,7 +21,6 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface LibAssetTestInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x035d336d(bytes32)": FunctionFragment;
     "getOwnBalance(address)": FunctionFragment;
     "isEther(address)": FunctionFragment;
     "transferAsset(address,address,uint256)": FunctionFragment;
@@ -29,10 +28,6 @@ interface LibAssetTestInterface extends ethers.utils.Interface {
     "transferEther(address,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x035d336d",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "getOwnBalance",
     values: [string]
@@ -51,10 +46,6 @@ interface LibAssetTestInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "c_0x035d336d",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getOwnBalance",
     data: BytesLike
@@ -120,11 +111,6 @@ export class LibAssetTest extends BaseContract {
   interface: LibAssetTestInterface;
 
   functions: {
-    c_0x035d336d(
-      c__0x035d336d: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
@@ -153,11 +139,6 @@ export class LibAssetTest extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  c_0x035d336d(
-    c__0x035d336d: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   getOwnBalance(assetId: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   isEther(assetId: string, overrides?: CallOverrides): Promise<boolean>;
@@ -183,11 +164,6 @@ export class LibAssetTest extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    c_0x035d336d(
-      c__0x035d336d: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
@@ -219,11 +195,6 @@ export class LibAssetTest extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x035d336d(
-      c__0x035d336d: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
@@ -253,11 +224,6 @@ export class LibAssetTest extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x035d336d(
-      c__0x035d336d: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides

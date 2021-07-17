@@ -10,7 +10,6 @@ export type { IFulfillInterpreter } from "./IFulfillInterpreter";
 export type { ITransactionManager } from "./ITransactionManager";
 export type { FulfillInterpreter } from "./FulfillInterpreter";
 export type { LibAsset } from "./LibAsset";
-export type { WadRayMath } from "./WadRayMath";
 export type { Counter } from "./Counter";
 export type { LibAssetTest } from "./LibAssetTest";
 export type { TestERC20 } from "./TestERC20";
@@ -25,7 +24,6 @@ export { IFulfillInterpreter__factory } from "./factories/IFulfillInterpreter__f
 export { ITransactionManager__factory } from "./factories/ITransactionManager__factory";
 export { FulfillInterpreter__factory } from "./factories/FulfillInterpreter__factory";
 export { LibAsset__factory } from "./factories/LibAsset__factory";
-export { WadRayMath__factory } from "./factories/WadRayMath__factory";
 export { Counter__factory } from "./factories/Counter__factory";
 export { LibAssetTest__factory } from "./factories/LibAssetTest__factory";
 export { TestERC20__factory } from "./factories/TestERC20__factory";

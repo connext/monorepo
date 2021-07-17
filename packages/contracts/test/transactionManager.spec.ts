@@ -31,6 +31,7 @@ describe("TransactionManager", function () {
   const [wallet, router, user, receiver, other] = waffle.provider.getWallets() as Wallet[];
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
+  let fulfillInterpreter: FulfillInterpreter;
   let counter: Counter;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
@@ -43,15 +44,15 @@ describe("TransactionManager", function () {
     const testERC20Factory = await ethers.getContractFactory("TestERC20");
     const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    const interpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
+    fulfillInterpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
 
     transactionManager = (await transactionManagerFactory.deploy(
       sendingChainId,
-      interpreter.address,
+      fulfillInterpreter.address,
     )) as TransactionManager;
     transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
       receivingChainId,
-      interpreter.address,
+      fulfillInterpreter.address,
     )) as TransactionManager;
 
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
@@ -187,7 +188,12 @@ describe("TransactionManager", function () {
 
     // Verify receipt + attached events
     expect(receipt.status).to.be.eq(1);
-    await assertReceiptEvent(receipt, "LiquidityAdded", { router: routerAddr, assetId, amount });
+    await assertReceiptEvent(receipt, "LiquidityAdded", {
+      router: routerAddr,
+      assetId,
+      amount,
+      caller: receipt.from,
+    });
 
     // Check liquidity
     const liquidity = await instance.routerBalances(routerAddr, assetId);
@@ -205,27 +211,21 @@ describe("TransactionManager", function () {
     instance: Contract = transactionManagerReceiverSide,
   ) => {
     const router = _router ?? instance.signer;
+    const routerAddress = await router.getAddress();
 
     // Get starting + expected  balance
-    const startingBalance = await getOnchainBalance(assetId, await router.getAddress(), ethers.provider);
+    const startingBalance = await getOnchainBalance(assetId, routerAddress, ethers.provider);
     const expectedBalance = startingBalance.add(amount);
 
-    const startingLiquidity = await instance.routerBalances(await router.getAddress(), assetId);
+    const startingLiquidity = await instance.routerBalances(routerAddress, assetId);
     const expectedLiquidity = startingLiquidity.sub(amount);
 
-    // TODO: debug event emission wtf
-    // const event = new Promise(resolve => {
-    //   transactionManager.once("LiquidityRemoved", data => resolve(data));
-    // });
-    const tx = await instance.connect(router).removeLiquidity(amount, assetId, await router.getAddress());
+    const tx = await instance.connect(router).removeLiquidity(amount, assetId, routerAddress);
 
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
-    // const [receipt, payload] = await Promise.all([tx.wait(), event]);
-    // expect(payload).to.be.ok;
 
     // Verify receipt events
-    const routerAddress = await router.getAddress();
     await assertReceiptEvent(receipt, "LiquidityRemoved", {
       router: routerAddress,
       assetId,
@@ -471,12 +471,18 @@ describe("TransactionManager", function () {
     expect(balance).to.be.eq(expectedBalance);
   };
 
-  it("should deploy", async () => {
-    expect(transactionManager.address).to.be.a("string");
-  });
+  describe("constructor", async () => {
+    it("should deploy", async () => {
+      expect(transactionManager.address).to.be.a("string");
+    });
 
-  it("constructor initialize", async () => {
-    expect(await transactionManager.chainId()).to.eq(1337);
+    it("should set chainId", async () => {
+      expect(await transactionManager.chainId()).to.eq(1337);
+    });
+
+    it("should set renounced", async () => {
+      expect(await transactionManager.renounced()).to.be.false;
+    });
   });
 
   describe("renounce", () => {
@@ -484,10 +490,15 @@ describe("TransactionManager", function () {
       await expect(transactionManager.connect(other).renounce()).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it("should work and allow unregistered assets", async () => {
+    it("should work and allow unregistered assets + revert onlyOwner functions", async () => {
       const tx = await transactionManager.renounce();
       await tx.wait();
+      expect(await transactionManager.renounced()).to.be.true;
       await addAndAssertLiquidity(1, AddressZero, router, transactionManager);
+      // make sure `onlyOwner` functions fail
+      await expect(transactionManager.addRouter(Wallet.createRandom().address)).to.be.revertedWith(
+        "Ownable: caller is not the owner",
+      );
     });
   });
 
@@ -552,8 +563,8 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("#addLiquidity", () => {
-    it("should revert if param router address is addressZero", async () => {
+  describe("addLiquidity", () => {
+    it("should revert if router address is empty", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -572,7 +583,21 @@ describe("TransactionManager", function () {
       );
     });
 
-    it("should fail if its an unapproved asset", async () => {
+    it("should fail if it is an unapproved router && ownership isnt renounced", async () => {
+      const amount = "10";
+      const assetId = AddressZero;
+
+      // Remove router
+      const remove = await transactionManager.removeRouter(router.address);
+      await remove.wait();
+      expect(await transactionManager.approvedRouters(router.address)).to.be.false;
+
+      await expect(transactionManager.addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+        "addLiquidity: BAD_ROUTER",
+      );
+    });
+
+    it("should fail if its an unapproved asset && ownership isnt renounced", async () => {
       const amount = "10";
       const assetId = AddressZero;
 
@@ -586,7 +611,7 @@ describe("TransactionManager", function () {
       );
     });
 
-    it("should error if value is not present for Ether/Native token", async () => {
+    it("should fail if if msg.value == 0 for native asset", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -596,7 +621,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
-    it("should error if value is not equal to amount param for Ether/Native token", async () => {
+    it("should fail if msg.value != amount for native asset", async () => {
       const amount = "1";
       const falseValue = "2";
       const assetId = AddressZero;
@@ -607,7 +632,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
-    it("should error if value is non-zero for ERC20 token", async () => {
+    it("should fail if msg.value != 0 for ERC20 token", async () => {
       // addLiquidity: ETH_WITH_ERC_TRANSFER;
       const amount = "1";
       const assetId = tokenA.address;
@@ -617,7 +642,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
-    it("should error if transaction manager isn't approve for respective amount if ERC20", async () => {
+    it("should fail if transferFromERC20 fails", async () => {
       const amount = "1";
       const assetId = tokenA.address;
       await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
@@ -626,7 +651,24 @@ describe("TransactionManager", function () {
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
-    it("should work if it is renounced and using an unapproved asset", async () => {
+    it("should work if it is renounced && using an unapproved router", async () => {
+      const amount = "1";
+      const assetId = AddressZero;
+
+      // Remove asset
+      const remove = await transactionManager.removeRouter(router.address);
+      await remove.wait();
+      expect(await transactionManager.approvedRouters(router.address)).to.be.false;
+
+      // Renounce ownership
+      const renounce = await transactionManager.renounce();
+      await renounce.wait();
+      expect(await transactionManager.renounced()).to.be.true;
+
+      await addAndAssertLiquidity(amount, assetId, router);
+    });
+
+    it("should work if it is renounced && using an unapproved assetId", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -643,13 +685,13 @@ describe("TransactionManager", function () {
       await addAndAssertLiquidity(amount, assetId);
     });
 
-    it("happy case: addLiquity Native/Ether token", async () => {
+    it("should work for an approved router in approved native asset", async () => {
       const amount = "1";
       const assetId = AddressZero;
       await addAndAssertLiquidity(amount, assetId);
     });
 
-    it("happy case: addLiquity ERC20", async () => {
+    it("should work for an approved router in approved erc20", async () => {
       const amount = "1";
       const assetId = tokenA.address;
       await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
@@ -658,7 +700,7 @@ describe("TransactionManager", function () {
   });
 
   describe("#removeLiquidity", () => {
-    it("should revert if param recipient address is addressZero", async () => {
+    it("should revert if param recipient address is empty", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -667,7 +709,18 @@ describe("TransactionManager", function () {
       );
     });
 
-    it("should error if router Balance is lower than amount", async () => {
+    it("should revert if amount is 0", async () => {
+      const amount = "0";
+      const assetId = AddressZero;
+
+      await addAndAssertLiquidity("10", assetId);
+
+      await expect(
+        transactionManager.connect(router).removeLiquidity(amount, assetId, router.address),
+      ).to.be.revertedWith("removeLiquidity: AMOUNT_IS_ZERO");
+    });
+
+    it("should revert if router balance is lower than amount", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -676,7 +729,7 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("removeLiquidity: INSUFFICIENT_FUNDS");
     });
 
-    it("happy case: removeLiquidity Native/Ether token", async () => {
+    it("happy case: removeLiquidity native token", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
@@ -697,8 +750,9 @@ describe("TransactionManager", function () {
 
   describe("#prepare", () => {
     // TODO: revert and emit event test cases
-    // reentrant cases
-    it("should revert if param user is addressZero", async () => {
+    // - reentrant cases
+    // - rebasing test cases
+    it("should revert if param user is AddressZero", async () => {
       const { transaction, record } = await getTransactionData({ user: AddressZero });
       await expect(
         transactionManager
