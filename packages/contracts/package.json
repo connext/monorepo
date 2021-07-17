@@ -45,8 +45,8 @@
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^11.1.1",
-    "ts-node": "^10.1.0",
     "solidity-coverage": "^0.7.16",
+    "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   },
   "dependencies": {
