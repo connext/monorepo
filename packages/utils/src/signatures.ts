@@ -1,6 +1,6 @@
 import { Signer, Wallet, utils } from "ethers";
 
-import { encodeAuctionBid, encodeCancelData, encodeFulfillData, encodePrepareData } from "./encode";
+import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
 import { AuctionBid } from "./messaging";
 
 export const signFulfillTransactionPayload = (
@@ -40,22 +40,6 @@ export const recoverCancelTransactionPayload = (
   signature: string,
 ): string => {
   const payload = encodeCancelData(transactionId, relayerFee);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return utils.verifyMessage(utils.arrayify(hashed), signature);
-};
-
-export const signPrepareTransactionPayload = async (
-  transactionId: string,
-  amount: string,
-  signer: Signer,
-): Promise<string> => {
-  const payload = encodePrepareData(transactionId, amount);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return signer.signMessage(utils.arrayify(hashed));
-};
-
-export const recoverPrepareTransactionPayload = (transactionId: string, amount: string, signature: string): string => {
-  const payload = encodePrepareData(transactionId, amount);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return utils.verifyMessage(utils.arrayify(hashed), signature);
 };
