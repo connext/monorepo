@@ -548,7 +548,9 @@ function App(): React.ReactElement | null {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
               {() => (
                 <Button
-                  disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
+                  disabled={
+                    form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain") || !auctionResponse
+                  }
                   type="primary"
                   htmlType="submit"
                 >

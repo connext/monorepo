@@ -88,7 +88,7 @@ export class TransactionManager {
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
     try {
-      const txRes = await txManager.prepare(
+      const txRes = await txManager.connect(this.signer).prepare(
         {
           user: txData.user,
           router: txData.router,
@@ -133,7 +133,9 @@ export class TransactionManager {
     const { txData, relayerFee, signature } = cancelParams;
 
     try {
-      const txRes = await txManager.cancel(txData, relayerFee, signature, { from: this.signer.getAddress() });
+      const txRes = await txManager
+        .connect(this.signer)
+        .cancel(txData, relayerFee, signature, { from: this.signer.getAddress() });
       return txRes;
     } catch (e) {
       throw new Error(`cancel error ${JSON.stringify(e)}`);
@@ -154,7 +156,7 @@ export class TransactionManager {
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
     try {
-      const txRes = await txManager.fulfill(txData, relayerFee, signature, callData, {
+      const txRes = await txManager.connect(this.signer).fulfill(txData, relayerFee, signature, callData, {
         from: this.signer.getAddress(),
       });
       return txRes;
@@ -181,12 +183,15 @@ export class TransactionManager {
       throw new Error("No transactionManagerAddress configured for chainId: " + chainId.toString());
     }
 
-    const erc20 = new Contract(assetId, ERC20.abi, this.signer) as IERC20Minimal;
-    const connected = erc20.connect(config.provider);
-    const approved = await connected.allowance(signerAddress, txManager.address);
+    const erc20 = new Contract(
+      assetId,
+      ERC20.abi,
+      this.signer.provider ? this.signer : this.signer.connect(config.provider),
+    ) as IERC20Minimal;
+    const approved = await erc20.allowance(signerAddress, txManager.address);
     this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
     if (approved.lt(amount)) {
-      const approveTx = await connected.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount);
+      const approveTx = await erc20.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount);
       this.logger.info({ method, methodId, transactionHash: approveTx.hash }, "Submitted approve tx");
       return approveTx;
     } else {
