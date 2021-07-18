@@ -1777,27 +1777,27 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.0.2
     "@nomiclabs/hardhat-waffle": ^2.0.1
     "@openzeppelin/contracts": 4.2.0
-    "@sinclair/typebox": ^0.17.7
+    "@sinclair/typebox": ^0.17.8
     "@typechain/ethers-v5": ^7.0.1
     "@typechain/hardhat": ^2.1.2
     "@types/chai": ^4.2.21
     "@types/mocha": ^8.2.3
     "@types/node": ^15.14.1
-    "@typescript-eslint/eslint-plugin": ^4.28.2
+    "@typescript-eslint/eslint-plugin": ^4.28.3
     adv: ^0.1.5
-    ajv: ^8.6.1
+    ajv: ^8.6.2
     chai: ^4.3.4
     eslint: ^7.30.0
     ethereum-waffle: ^3.4.0
     ethers: ^5.4.1
     hardhat: ^2.4.3
-    hardhat-deploy: ^0.8.9
+    hardhat-deploy: ^0.8.11
     hardhat-gas-reporter: ^1.0.4
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^11.1.1
     solidity-coverage: ^0.7.16
-    ts-node: ^10.0.0
+    ts-node: ^10.1.0
     typechain: ^5.1.1
     typescript: ^4.3.5
   languageName: unknown
@@ -1823,7 +1823,7 @@ __metadata:
     ethers: ^5.4.1
     mocha: ^9.0.2
     nyc: ^15.1.0
-    pino: ^6.11.3
+    pino: ^6.12.0
     rimraf: ^3.0.2
     sinon: ^11.1.1
     ts-mocha: ^8.0.0
@@ -1839,20 +1839,20 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@graphql-codegen/cli": ^1.21.6
-    "@graphql-codegen/typescript": ^1.22.4
-    "@graphql-codegen/typescript-graphql-request": ^3.2.4
-    "@graphql-codegen/typescript-operations": ^1.18.3
-    "@sinclair/typebox": ^0.17.7
+    "@graphql-codegen/cli": ^1.21.7
+    "@graphql-codegen/typescript": ^1.23.0
+    "@graphql-codegen/typescript-graphql-request": ^3.2.5
+    "@graphql-codegen/typescript-operations": ^1.18.4
+    "@sinclair/typebox": ^0.17.8
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
     "@types/mocha": ^8.2.3
     "@types/pino": ^6.3.9
     "@types/sinon": ^10.0.2
-    "@typescript-eslint/eslint-plugin": ^4.28.2
+    "@typescript-eslint/eslint-plugin": ^4.28.3
     adv: ^0.1.5
-    ajv: ^8.6.1
+    ajv: ^8.6.2
     ajv-formats: ^2.1.0
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
@@ -1860,21 +1860,21 @@ __metadata:
     concurrently: ^6.2.0
     eslint: ^7.30.0
     ethers: ^5.4.1
-    fastify: ^3.18.1
+    fastify: ^3.19.1
     graphql: ^15.5.1
     graphql-request: ^3.4.0
     graphql-tag: ^2.12.5
     hyperid: ^2.3.1
     mocha: ^9.0.2
-    nodemon: ^2.0.10
+    nodemon: ^2.0.12
     nyc: ^15.1.0
-    pino: ^6.11.3
+    pino: ^6.12.0
     pino-pretty: ^5.1.1
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^11.1.1
     ts-mocha: ^8.0.0
-    ts-node: ^10.0.0
+    ts-node: ^10.1.0
     tslib: ^2.3.0
     typescript: ^4.3.5
   languageName: unknown
@@ -1887,14 +1887,14 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": ^0.17.7
+    "@sinclair/typebox": ^0.17.8
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
     "@types/mocha": ^8.2.3
     "@types/pino": ^6.3.9
     "@types/sinon": ^10.0.2
-    ajv: ^8.6.1
+    ajv: ^8.6.2
     ajv-formats: ^2.1.0
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
@@ -1906,7 +1906,7 @@ __metadata:
     hyperid: ^2.3.1
     mocha: ^9.0.2
     nyc: ^15.1.0
-    pino: ^6.11.3
+    pino: ^6.12.0
     rimraf: ^3.0.2
     sinon: ^11.1.1
     ts-mocha: ^8.0.0
@@ -1933,15 +1933,15 @@ __metadata:
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@types/eslint": ^7.2.14
+    "@types/eslint": ^7.28.0
     "@types/node": ^15.14.1
     "@types/react": ^17.0.14
     "@types/react-dom": ^17.0.9
-    antd: ^4.16.6
+    antd: ^4.16.7
     axios: ^0.21.1
     eslint: ^7.30.0
     ethers: ^5.4.1
-    pino: ^6.11.3
+    pino: ^6.12.0
     react: ^17.0.2
     react-dom: ^17.0.2
     react-scripts: ^4.0.3
@@ -1961,7 +1961,7 @@ __metadata:
     "@types/mocha": ^8.2.3
     "@types/pino": ^6.3.9
     "@types/sinon": ^10.0.2
-    "@typescript-eslint/eslint-plugin": ^4.28.2
+    "@typescript-eslint/eslint-plugin": ^4.28.3
     axios: ^0.21.1
     chai: 4.3.4
     chai-as-promised: 7.1.1
@@ -1971,7 +1971,7 @@ __metadata:
     mocha: ^9.0.2
     nyc: ^15.1.0
     p-queue: 6.6.2
-    pino: ^6.11.3
+    pino: ^6.12.0
     rimraf: ^3.0.2
     sinon: ^11.1.1
     ts-mocha: 8.0.0
@@ -1984,14 +1984,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-utils@workspace:packages/utils"
   dependencies:
-    "@sinclair/typebox": ^0.17.7
+    "@sinclair/typebox": ^0.17.8
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
     "@types/mocha": ^8.2.3
     "@types/pino": ^6.3.9
     "@types/sinon": ^10.0.2
-    "@typescript-eslint/eslint-plugin": ^4.28.2
+    "@typescript-eslint/eslint-plugin": ^4.28.3
     axios: ^0.21.1
     chai: 4.3.4
     chai-as-promised: 7.1.1
@@ -2002,7 +2002,7 @@ __metadata:
     hyperid: ^2.3.1
     mocha: ^9.0.2
     nyc: ^15.1.0
-    pino: ^6.11.3
+    pino: ^6.12.0
     rimraf: ^3.0.2
     sinon: ^11.1.1
     ts-mocha: ^8.0.0
@@ -2018,8 +2018,8 @@ __metadata:
   dependencies:
     "@jtbennett/ts-project-scripts": ^1.0.0-rc.4
     "@types/node": ^15.14.1
-    "@typescript-eslint/eslint-plugin": ^4.28.2
-    "@typescript-eslint/parser": ^4.28.2
+    "@typescript-eslint/eslint-plugin": ^4.28.3
+    "@typescript-eslint/parser": ^4.28.3
     concurrently: ^6.2.0
     eslint: ^7.30.0
     eslint-config-prettier: ^8.3.0
@@ -2737,7 +2737,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:^1.21.6":
+"@graphql-codegen/cli@npm:^1.21.7":
   version: 1.21.7
   resolution: "@graphql-codegen/cli@npm:1.21.7"
   dependencies:
@@ -2819,7 +2819,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/typescript-graphql-request@npm:^3.2.4":
+"@graphql-codegen/typescript-graphql-request@npm:^3.2.5":
   version: 3.2.5
   resolution: "@graphql-codegen/typescript-graphql-request@npm:3.2.5"
   dependencies:
@@ -2835,7 +2835,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/typescript-operations@npm:^1.18.3":
+"@graphql-codegen/typescript-operations@npm:^1.18.4":
   version: 1.18.4
   resolution: "@graphql-codegen/typescript-operations@npm:1.18.4"
   dependencies:
@@ -2850,7 +2850,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/typescript@npm:^1.22.4, @graphql-codegen/typescript@npm:^1.23.0":
+"@graphql-codegen/typescript@npm:^1.23.0":
   version: 1.23.0
   resolution: "@graphql-codegen/typescript@npm:1.23.0"
   dependencies:
@@ -3802,7 +3802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinclair/typebox@npm:^0.17.7":
+"@sinclair/typebox@npm:^0.17.8":
   version: 0.17.8
   resolution: "@sinclair/typebox@npm:0.17.8"
   checksum: 1f47212674bfcb12b5ba68f6fd9ee312d407d3d3612e328fdfb58dc41d13e51904c9cfe0d40856dc87937dceb234cd089fb13139b467262c01f12aa41f601184
@@ -4237,7 +4237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^7.2.14, @types/eslint@npm:^7.2.6":
+"@types/eslint@npm:^7.2.6, @types/eslint@npm:^7.28.0":
   version: 7.28.0
   resolution: "@types/eslint@npm:7.28.0"
   dependencies:
@@ -4446,9 +4446,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 16.3.2
-  resolution: "@types/node@npm:16.3.2"
-  checksum: 11896edc7022a40f8938e64f57e497b3110ca732bdef785f86f0a0a819609e9b78ad0c950dcaa59177bc299f2793489b605a3e713cdf7900a39031f0018e2134
+  version: 16.3.3
+  resolution: "@types/node@npm:16.3.3"
+  checksum: e597a54070815170d8f541c778900023f2522c27be9c56b2b8411d663da1ef5226f9d16ec158c5d9c84ddcc85551e3d02aa68046aa108b4c6085bc7c95a5bebb
   languageName: node
   linkType: hard
 
@@ -4756,7 +4756,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^4.28.2, @typescript-eslint/eslint-plugin@npm:^4.5.0":
+"@typescript-eslint/eslint-plugin@npm:^4.28.3, @typescript-eslint/eslint-plugin@npm:^4.5.0":
   version: 4.28.3
   resolution: "@typescript-eslint/eslint-plugin@npm:4.28.3"
   dependencies:
@@ -4808,7 +4808,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^4.28.2, @typescript-eslint/parser@npm:^4.5.0":
+"@typescript-eslint/parser@npm:^4.28.3, @typescript-eslint/parser@npm:^4.5.0":
   version: 4.28.3
   resolution: "@typescript-eslint/parser@npm:4.28.3"
   dependencies:
@@ -5423,7 +5423,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.0.1, ajv@npm:^8.6.1":
+"ajv@npm:^8.0.0, ajv@npm:^8.0.1, ajv@npm:^8.6.2":
   version: 8.6.2
   resolution: "ajv@npm:8.6.2"
   dependencies:
@@ -5557,7 +5557,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:^4.16.6":
+"antd@npm:^4.16.7":
   version: 4.16.7
   resolution: "antd@npm:4.16.7"
   dependencies:
@@ -8448,7 +8448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0, color-convert@npm:^1.9.1":
+"color-convert@npm:^1.9.0":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -8480,23 +8480,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-string@npm:^1.5.4":
-  version: 1.5.5
-  resolution: "color-string@npm:1.5.5"
+"color-string@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "color-string@npm:1.6.0"
   dependencies:
     color-name: ^1.0.0
     simple-swizzle: ^0.2.2
-  checksum: 3d7799f70d389214757c83bdc27380081dbeee18f90148b883ff7e86e9a599c68ccb8a956b7175e761dcd98d1061fdc58ca89ca4b1f6ca20f8ce05cc8c4e564a
+  checksum: d48692037a6d38bd1deb91886a075d8af82e4e8269c5ab33eadf174d8aa5e82753a2f3edfe6749e24e48898ea2eb76df706b603c65a721e10ddc57c5d6a078cf
   languageName: node
   linkType: hard
 
 "color@npm:^3.0.0":
-  version: 3.1.3
-  resolution: "color@npm:3.1.3"
+  version: 3.2.0
+  resolution: "color@npm:3.2.0"
   dependencies:
-    color-convert: ^1.9.1
-    color-string: ^1.5.4
-  checksum: d0f4139e986806aaacaa748d170c9778faed93695fb776cd27d9c5825424263eb9354f69033804d0d2d350d9831a31d14dddff045da00713499f279da97e602f
+    color-convert: ^2.0.1
+    color-string: ^1.6.0
+  checksum: f3e3a162253b0202b2b320871a0ff617493952d03529362bff6c204cfde926d70605d28e18bf6a0511794029e9c10b2bdf06c3b287076ae56fd63653016724ac
   languageName: node
   linkType: hard
 
@@ -10216,9 +10216,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.723":
-  version: 1.3.778
-  resolution: "electron-to-chromium@npm:1.3.778"
-  checksum: 8cde358a18a15708415bb284fb50ad56432139214f18b61e3703f28c4aabb238a7320240911cc02c9b20916a43763e093d83ef422f5cebdf42177e5d4c6b6e31
+  version: 1.3.779
+  resolution: "electron-to-chromium@npm:1.3.779"
+  checksum: 57682a1888b6358904d8ce5c79f4969bcfe88dbf3480fe487382c601a0508285a0477710f5da64df9e1a5533f38efd3fb1e3ba4f87de854fd8d990f7b47ed3f7
   languageName: node
   linkType: hard
 
@@ -12015,7 +12015,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^3.18.1":
+"fastify@npm:^3.19.1":
   version: 3.19.1
   resolution: "fastify@npm:3.19.1"
   dependencies:
@@ -13362,7 +13362,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.8.9":
+"hardhat-deploy@npm:^0.8.11":
   version: 0.8.11
   resolution: "hardhat-deploy@npm:0.8.11"
   dependencies:
@@ -18875,7 +18875,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nodemon@npm:^2.0.10":
+"nodemon@npm:^2.0.12":
   version: 2.0.12
   resolution: "nodemon@npm:2.0.12"
   dependencies:
@@ -20203,7 +20203,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"pino@npm:^6.11.3, pino@npm:^6.2.1":
+"pino@npm:^6.12.0, pino@npm:^6.2.1":
   version: 6.12.0
   resolution: "pino@npm:6.12.0"
   dependencies:
@@ -25916,7 +25916,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.0.0":
+"ts-node@npm:^10.1.0":
   version: 10.1.0
   resolution: "ts-node@npm:10.1.0"
   dependencies:
