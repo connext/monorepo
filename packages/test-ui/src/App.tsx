@@ -72,11 +72,14 @@ function App(): React.ReactElement | null {
       }
       const { chainId } = await signer.provider!.getNetwork();
       setInjectedProviderChainId(chainId);
-      const chainProviders: { [chainId: number]: providers.JsonRpcProvider } = {};
+      const chainProviders: { [chainId: number]: providers.FallbackProvider } = {};
       Object.entries(providerUrls).forEach(
-        ([chainId, url]) => (chainProviders[parseInt(chainId)] = new providers.JsonRpcProvider(url, parseInt(chainId))),
+        ([chainId, url]) =>
+          (chainProviders[parseInt(chainId)] = new providers.FallbackProvider([
+            new providers.JsonRpcProvider(url, parseInt(chainId)),
+          ])),
       );
-      const _sdk = await NxtpSdk.init(
+      const _sdk = new NxtpSdk(
         chainProviders,
         signer,
         pino({ level: "info" }),
@@ -233,7 +236,22 @@ function App(): React.ReactElement | null {
       alert("Please switch chains to the sending chain!");
       throw new Error("Wrong chain");
     }
-    await sdk.transfer(auctionResponse);
+    const transfer = await sdk.startTransfer(auctionResponse);
+    const event = await sdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === transfer.transactionId,
+    );
+
+    const finish = await sdk.finishTransfer(event);
+    console.log("finish: ", finish);
+
+    const fulfilled = await sdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === transfer.transactionId,
+    );
+    console.log("fulfilled: ", fulfilled);
   };
 
   const columns = [
@@ -530,7 +548,9 @@ function App(): React.ReactElement | null {
             <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
               {() => (
                 <Button
-                  disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
+                  disabled={
+                    form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain") || !auctionResponse
+                  }
                   type="primary"
                   htmlType="submit"
                 >
