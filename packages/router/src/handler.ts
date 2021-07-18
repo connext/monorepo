@@ -259,7 +259,7 @@ export class Handler {
         });
         this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
 
-        // TODO: this will wait for conformation, we should respond before tx is fully confirmed, i.e. in flight
+        // TODO: this will wait for confirmation, we should respond before tx is fully confirmed, i.e. in flight
         await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, inbox);
       } catch (e) {
         this.logger.error({ method, methodId, e: jsonifyError(e) }, "Error relaying transaction");
