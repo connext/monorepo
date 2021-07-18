@@ -193,7 +193,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
 
     // Sanity check: nonzero shares
-    require(shares > 0, "removeLiquidity: SHARES_IS_ZERO");
+    require(shares > 0, "removeLiquidity: ZERO_SHARES");
 
     // Get stored router shares
     uint256 routerShares = issuedShares[msg.sender][assetId];

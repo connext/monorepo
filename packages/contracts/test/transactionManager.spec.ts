@@ -217,7 +217,7 @@ describe("TransactionManager", function () {
     const startingBalance = await getOnchainBalance(assetId, routerAddress, ethers.provider);
     const expectedBalance = startingBalance.add(shares);
 
-    const startingLiquidity = await instance.routerBalances(routerAddress, assetId);
+    const startingLiquidity = await instance.getRouterBalance(routerAddress, assetId);
     const expectedLiquidity = startingLiquidity.sub(shares);
 
     const tx = await instance.connect(router).removeLiquidity(shares, assetId, routerAddress);
@@ -723,7 +723,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).removeLiquidity(amount, assetId, router.address),
-      ).to.be.revertedWith("removeLiquidity: AMOUNT_IS_ZERO");
+      ).to.be.revertedWith("removeLiquidity: ZERO_SHARES");
     });
 
     it("should revert if router balance is lower than amount", async () => {
@@ -889,7 +889,7 @@ describe("TransactionManager", function () {
 
     describe("failures when preparing on the sender chain", () => {
       it("should fail if amount is 0", async () => {
-        const { transaction, record } = await getTransactionData({}, { amount: "0" });
+        const { transaction, record } = await getTransactionData({}, { shares: "0" });
         await expect(
           transactionManager
             .connect(user)
@@ -979,13 +979,13 @@ describe("TransactionManager", function () {
       });
 
       it("should fail if router liquidity is lower than amount", async () => {
-        const { transaction, record } = await getTransactionData({}, { amount: "1000000" });
+        const { transaction, record } = await getTransactionData({}, { shares: "1000000" });
 
         await expect(
           transactionManagerReceiverSide
             .connect(router)
             .prepare(transaction, record.shares, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
+        ).to.be.revertedWith("prepare: INSUFFICIENT_FUNDS");
       });
     });
 
@@ -1275,32 +1275,6 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("fulfill: INVALID_SIGNATURE");
     });
 
-    it("should revert if the relayerFee > txData.shares", async () => {
-      const { transaction, record } = await getTransactionData();
-      const relayerFee = "1000000000";
-      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
-
-      const variant = {
-        shares: record.shares,
-        expiry: record.expiry,
-        preparedBlockNumber: blockNumber,
-      };
-
-      const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee, user);
-
-      await expect(
-        transactionManagerReceiverSide.connect(router).fulfill(
-          {
-            ...transaction,
-            ...variant,
-          },
-          relayerFee,
-          signature,
-          EmptyBytes,
-        ),
-      ).to.be.revertedWith("fulfill: INVALID_RELAYER_FEE");
-    });
-
     it("should revert if the hash of callData != txData.callDataHash", async () => {
       const prepareAmount = "10";
       const assetId = tokenA.address;
@@ -1320,7 +1294,7 @@ describe("TransactionManager", function () {
           callTo: counter.address,
           callDataHash: callDataHash,
         },
-        { amount: prepareAmount },
+        { shares: prepareAmount },
       );
       await approveTokens(prepareAmount, user, transactionManager.address);
 
@@ -1347,7 +1321,7 @@ describe("TransactionManager", function () {
         const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
         const variant = {
-          amount: record.shares,
+          shares: record.shares,
           expiry: record.expiry,
           preparedBlockNumber: blockNumber,
         };
@@ -1369,6 +1343,45 @@ describe("TransactionManager", function () {
     });
 
     describe("receiver chain (user) fulfill", () => {
+      it("should revert if the relayerFee > txData.shares", async () => {
+        const prepareAmount = "100";
+        const assetId = tokenA.address;
+        const relayerFee = "100000";
+
+        // Add receiving liquidity
+        await approveTokens(prepareAmount, router, transactionManagerReceiverSide.address, tokenA);
+        await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+        const { transaction, record } = await getTransactionData(
+          {
+            sendingAssetId: AddressZero,
+            receivingAssetId: assetId,
+            sendingChainId: (await transactionManager.chainId()).toNumber(),
+            receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+          },
+          { shares: prepareAmount },
+        );
+
+        // User prepares
+        await approveTokens(prepareAmount, user, transactionManagerReceiverSide.address, tokenA);
+        const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+        const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee, user);
+
+        await expect(
+          transactionManagerReceiverSide.connect(router).fulfill(
+            {
+              ...transaction,
+              ...record,
+              preparedBlockNumber: blockNumber,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith("fulfill: INVALID_RELAYER_FEE");
+      });
+
       it("should revert if the relayerFee > 0 and transferAsset fails", async () => {
         const prepareAmount = "100";
         const assetId = tokenA.address;
@@ -1385,7 +1398,7 @@ describe("TransactionManager", function () {
             sendingChainId: (await transactionManager.chainId()).toNumber(),
             receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
           },
-          { amount: prepareAmount },
+          { shares: prepareAmount },
         );
 
         // User prepares
@@ -1429,7 +1442,7 @@ describe("TransactionManager", function () {
             receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
             callTo: AddressZero,
           },
-          { amount: prepareAmount },
+          { shares: prepareAmount },
         );
 
         // User prepares
@@ -1473,7 +1486,7 @@ describe("TransactionManager", function () {
             receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
             callTo: Wallet.createRandom().address,
           },
-          { amount: prepareAmount },
+          { shares: prepareAmount },
         );
 
         // User prepares
@@ -1890,30 +1903,6 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith("cancel: ALREADY_COMPLETED");
     });
 
-    it("should fail if relayerFee > txData.shares", async () => {
-      const prepareAmount = "10";
-      const assetId = AddressZero;
-      const relayerFee = "15";
-
-      // Add receiving liquidity
-      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
-
-      const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
-
-      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
-      // User cancels
-      const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
-      await expect(
-        transactionManagerReceiverSide
-          .connect(user)
-          .cancel(
-            { ...transaction, shares: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
-            relayerFee,
-            signature,
-          ),
-      ).to.be.revertedWith("cancel: INVALID_RELAYER_FEE");
-    });
-
     describe("sending chain reverts (returns funds to user)", () => {
       it("should fail if expiry didn't pass yet & msg.sender != router", async () => {
         const relayerFee = constants.Zero;
@@ -1925,7 +1914,7 @@ describe("TransactionManager", function () {
             receivingAssetId: tokenB.address,
           },
           {
-            amount: prepareAmount,
+            shares: prepareAmount,
           },
         );
 
@@ -1936,7 +1925,7 @@ describe("TransactionManager", function () {
           transactionManager
             .connect(receiver)
             .cancel(
-              { ...transaction, amount: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
+              { ...transaction, shares: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
               relayerFee,
               signature,
             ),
@@ -1953,7 +1942,7 @@ describe("TransactionManager", function () {
             receivingAssetId: tokenB.address,
           },
           {
-            amount: prepareAmount,
+            shares: prepareAmount,
           },
         );
 
@@ -1973,6 +1962,39 @@ describe("TransactionManager", function () {
         ).to.be.revertedWith("transfer: SHOULD_REVERT");
       });
 
+      it("should fail if is expired & relayerFee > txData.shares", async () => {
+        const relayerFee = BigNumber.from(100);
+        const prepareAmount = "10";
+
+        const { transaction, record } = await getTransactionData(
+          {
+            sendingAssetId: AddressZero,
+            receivingAssetId: tokenB.address,
+          },
+          {
+            shares: prepareAmount,
+          },
+        );
+
+        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+        await setBlockTime(+record.expiry + 1_000);
+        const signature = await signCancelTransactionPayload(
+          transaction.transactionId,
+          relayerFee.toString(),
+          receiver,
+        );
+        await expect(
+          transactionManager
+            .connect(user)
+            .cancel(
+              { ...transaction, shares: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
+              relayerFee,
+              signature,
+            ),
+        ).to.be.revertedWith("cancel: INVALID_RELAYER_FEE");
+      });
+
       it("should error if is expired & relayerFee != 0 & signature is invalid & user is not sending", async () => {
         const relayerFee = BigNumber.from(1);
         const prepareAmount = "10";
@@ -1983,7 +2005,7 @@ describe("TransactionManager", function () {
             receivingAssetId: tokenB.address,
           },
           {
-            amount: prepareAmount,
+            shares: prepareAmount,
           },
         );
 
@@ -1999,7 +2021,7 @@ describe("TransactionManager", function () {
           transactionManager
             .connect(receiver)
             .cancel(
-              { ...transaction, amount: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
+              { ...transaction, shares: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
               relayerFee,
               signature,
             ),
@@ -2016,7 +2038,7 @@ describe("TransactionManager", function () {
             receivingAssetId: tokenB.address,
           },
           {
-            amount: prepareAmount,
+            shares: prepareAmount,
           },
         );
 
@@ -2046,7 +2068,7 @@ describe("TransactionManager", function () {
             receivingAssetId: tokenB.address,
           },
           {
-            amount: prepareAmount,
+            shares: prepareAmount,
           },
         );
 
@@ -2076,7 +2098,7 @@ describe("TransactionManager", function () {
         // Add receiving liquidity
         await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
 
-        const { transaction, record } = await getTransactionData({}, { amount: prepareAmount });
+        const { transaction, record } = await getTransactionData({}, { shares: prepareAmount });
 
         const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
@@ -2089,7 +2111,7 @@ describe("TransactionManager", function () {
           transactionManagerReceiverSide
             .connect(receiver)
             .cancel(
-              { ...transaction, amount: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
+              { ...transaction, shares: record.shares, expiry: record.expiry, preparedBlockNumber: blockNumber },
               relayerFee,
               signature,
             ),
