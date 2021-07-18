@@ -111,6 +111,14 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     );
   }
 
+  function getAmountFromShares(address assetId, uint256 shares) external view override returns (uint256) {
+    return getAmountFromIssuedShares(
+      shares,
+      outstandingShares[assetId],
+      Asset.getOwnBalance(assetId)
+    );
+  }
+
   /// @notice Removes any ownership privelenges. Used to allow 
   ///         arbitrary assets and routers
   function renounce() external override onlyOwner {

@@ -484,6 +484,36 @@ describe("TransactionManager", function () {
     });
   });
 
+  describe("getAmountFromShares", () => {
+    it("should work for 0 shares", async () => {
+      await addAndAssertLiquidity(1000, AddressZero, router, transactionManager);
+
+      expect(await transactionManager.getAmountFromShares(AddressZero, 0)).to.be.eq(0);
+    });
+
+    it("should work for 0 shares of 0 value contract", async () => {
+      expect(await transactionManager.getAmountFromShares(AddressZero, 0)).to.be.eq(0);
+    });
+
+    it("should work for partial shares of 0 value contract", async () => {
+      expect(await transactionManager.getAmountFromShares(AddressZero, 10000)).to.be.eq(0);
+    });
+
+    it("should work for 100% of shares", async () => {
+      const shares = 1000;
+      await addAndAssertLiquidity(shares, AddressZero, router, transactionManager);
+
+      expect(await transactionManager.getAmountFromShares(AddressZero, shares)).to.be.eq(shares);
+    });
+
+    it("should work for partial shares", async () => {
+      const shares = 1000;
+      await addAndAssertLiquidity(shares, AddressZero, router, transactionManager);
+
+      expect(await transactionManager.getAmountFromShares(AddressZero, shares / 2)).to.be.eq(shares / 2);
+    });
+  });
+
   describe("renounce", () => {
     it("should fail if not called by owner", async () => {
       await expect(transactionManager.connect(other).renounce()).to.be.revertedWith("Ownable: caller is not the owner");
@@ -987,6 +1017,25 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.shares, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
         ).to.be.revertedWith("prepare: INSUFFICIENT_FUNDS");
       });
+    });
+
+    it("should work for 0-valued transactions on receiving chain", async () => {
+      const prepareAmount = "0";
+      const assetId = AddressZero;
+
+      await addAndAssertLiquidity("100", assetId, router, transactionManagerReceiverSide);
+
+      await prepareAndAssert(
+        {
+          sendingAssetId: assetId,
+          receivingAssetId: assetId,
+          sendingChainId: 1337,
+          receivingChainId: 1338,
+        },
+        { shares: prepareAmount },
+        router,
+        transactionManagerReceiverSide,
+      );
     });
 
     it("should work if the contract has been renounced and using unapproved router", async () => {

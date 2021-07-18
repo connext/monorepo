@@ -116,6 +116,8 @@ interface ITransactionManager {
   // Getters
   function getRouterBalance(address assetId, address router) external returns (uint256);
 
+  function getAmountFromShares(address assetId, uint256 shares) external returns (uint256);
+
   // Owner only methods
   function renounce() external;
 
