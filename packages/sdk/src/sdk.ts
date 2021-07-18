@@ -494,22 +494,18 @@ export class NxtpSdk {
 
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionFulfilled, (data) => {
         if (chainId === data.txData.sendingChainId) {
-          return this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
+          this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
+        } else if (chainId === data.txData.receivingChainId) {
+          this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
         }
-        if (chainId === data.txData.receivingChainId) {
-          return this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
-        }
-        return;
       });
 
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionCancelled, (data) => {
         if (chainId === data.txData.sendingChainId) {
-          return this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
+          this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
+        } else if (chainId === data.txData.receivingChainId) {
+          this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
         }
-        if (chainId === data.txData.receivingChainId) {
-          return this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
-        }
-        return;
       });
     });
   }
