@@ -136,3 +136,40 @@ To add the lib to be a dependency of a consuming app (i.e. the router):
 Again, this can all be done without the tool, all it does is add some files and make some config changes.
 
 Note: We use `node-lib` as the template for all the packages. There are some other included templates like `browser-lib` which didn't work with our bundling. We might need to revisit things for bundling reqs.
+
+## Integration
+
+### Local Services
+
+In some cases it is desirable to develop against local blockchains and messaging services. To do that, run:
+
+- `yarn workspace @connext/nxtp-integration docker:services:up`
+- `bash setup-integration-test`
+
+The above commands run local chains and messaging and take care of local deployment. Modify `packages/router/config.json` to look similar to the following:
+
+```json
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "1337": {
+      "provider": ["http://localhost:8545"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    },
+    "1338": {
+      "provider": ["http://localhost:8546"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://localhost:4222",
+  "authUrl": "http://localhost:5040",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+}
+```
+
+Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
