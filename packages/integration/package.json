@@ -19,6 +19,8 @@
     "docker:messaging:down": "docker-compose -f ops/messaging.docker-compose.yml down",
     "docker:router:up": "docker-compose -f ops/router.docker-compose.yml up -d",
     "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
+    "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml up -d",
+    "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml down",
     "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
     "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
   },
