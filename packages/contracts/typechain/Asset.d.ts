@@ -18,34 +18,25 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface PercentageMathInterface extends ethers.utils.Interface {
+interface AssetInterface extends ethers.utils.Interface {
   functions: {
-    "HALF_PERCENT()": FunctionFragment;
-    "PERCENTAGE_FACTOR()": FunctionFragment;
+    "c_0xed7a44a4(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "HALF_PERCENT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PERCENTAGE_FACTOR",
-    values?: undefined
+    functionFragment: "c_0xed7a44a4",
+    values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "HALF_PERCENT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PERCENTAGE_FACTOR",
+    functionFragment: "c_0xed7a44a4",
     data: BytesLike
   ): Result;
 
   events: {};
 }
 
-export class PercentageMath extends BaseContract {
+export class Asset extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -86,35 +77,40 @@ export class PercentageMath extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: PercentageMathInterface;
+  interface: AssetInterface;
 
   functions: {
-    HALF_PERCENT(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<[BigNumber]>;
+    c_0xed7a44a4(
+      c__0xed7a44a4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
-  HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
-
-  PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
+  c_0xed7a44a4(
+    c__0xed7a44a4: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   callStatic: {
-    HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
+    c_0xed7a44a4(
+      c__0xed7a44a4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    HALF_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<BigNumber>;
+    c_0xed7a44a4(
+      c__0xed7a44a4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    HALF_PERCENT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PERCENTAGE_FACTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    c_0xed7a44a4(
+      c__0xed7a44a4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

@@ -873,6 +873,30 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+    ],
+    name: "getAmountFromShares",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+      {
         internalType: "address",
         name: "router",
         type: "address",

@@ -27,6 +27,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "addRouter(address)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getAmountFromShares(address,uint256)": FunctionFragment;
     "getRouterBalance(address,address)": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
@@ -89,6 +90,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAmountFromShares",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRouterBalance",
     values: [string, string]
   ): string;
@@ -137,6 +142,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAmountFromShares",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getRouterBalance",
     data: BytesLike
@@ -277,6 +286,12 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getAmountFromShares(
+      assetId: string,
+      shares: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getRouterBalance(
       assetId: string,
       router: string,
@@ -386,6 +401,12 @@ export class ITransactionManager extends BaseContract {
     relayerFee: BigNumberish,
     signature: BytesLike,
     callData: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getAmountFromShares(
+    assetId: string,
+    shares: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -558,6 +579,12 @@ export class ITransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getAmountFromShares(
+      assetId: string,
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getRouterBalance(
       assetId: string,
@@ -1004,6 +1031,12 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getAmountFromShares(
+      assetId: string,
+      shares: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     getRouterBalance(
       assetId: string,
       router: string,
@@ -1114,6 +1147,12 @@ export class ITransactionManager extends BaseContract {
       relayerFee: BigNumberish,
       signature: BytesLike,
       callData: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getAmountFromShares(
+      assetId: string,
+      shares: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
