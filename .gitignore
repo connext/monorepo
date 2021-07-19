@@ -5,10 +5,10 @@
 
 _tmp
 build
-dist
-lib
+dist*
+lib*
 coverage
-node_modules
+node_modules*
 *.tsBuildInfo
 
 .DS_Store
@@ -26,3 +26,4 @@ report.*.json
 
 ops/data
 **/*/.nyc_output/*
+packages/router/config.json

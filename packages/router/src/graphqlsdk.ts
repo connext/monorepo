@@ -637,9 +637,6 @@ export type GetSenderPrepareTransactionsQuery = (
         { __typename?: 'Router' }
         & Pick<Router, 'id'>
       ) }
-    )>, assetBalances: Array<(
-      { __typename?: 'AssetBalance' }
-      & Pick<AssetBalance, 'id' | 'amount'>
     )> }
   )> }
 );
@@ -664,9 +661,6 @@ export type GetReceiverPrepareTransactionsQuery = (
         { __typename?: 'Router' }
         & Pick<Router, 'id'>
       ) }
-    )>, assetBalances: Array<(
-      { __typename?: 'AssetBalance' }
-      & Pick<AssetBalance, 'id' | 'amount'>
     )> }
   )> }
 );
@@ -691,9 +685,6 @@ export type GetReceiverFulfillTransactionsQuery = (
         { __typename?: 'Router' }
         & Pick<Router, 'id'>
       ) }
-    )>, assetBalances: Array<(
-      { __typename?: 'AssetBalance' }
-      & Pick<AssetBalance, 'id' | 'amount'>
     )> }
   )> }
 );
@@ -718,9 +709,6 @@ export type GetSenderFulfillTransactionsQuery = (
         { __typename?: 'Router' }
         & Pick<Router, 'id'>
       ) }
-    )>, assetBalances: Array<(
-      { __typename?: 'AssetBalance' }
-      & Pick<AssetBalance, 'id' | 'amount'>
     )> }
   )> }
 );
@@ -765,6 +753,19 @@ export type GetFulfilledTransactionsQuery = (
   )> }
 );
 
+export type GetAssetBalanceQueryVariables = Exact<{
+  assetBalanceId: Scalars['ID'];
+}>;
+
+
+export type GetAssetBalanceQuery = (
+  { __typename?: 'Query' }
+  & { assetBalance?: Maybe<(
+    { __typename?: 'AssetBalance' }
+    & Pick<AssetBalance, 'amount'>
+  )> }
+);
+
 
 export const GetSenderPrepareTransactionsDocument = gql`
     query GetSenderPrepareTransactions($routerId: ID!, $sendingChainId: BigInt!) {
@@ -798,10 +799,6 @@ export const GetSenderPrepareTransactionsDocument = gql`
       encodedBid
       bidSignature
       prepareCaller
-    }
-    assetBalances {
-      id
-      amount
     }
   }
 }
@@ -838,10 +835,6 @@ export const GetReceiverPrepareTransactionsDocument = gql`
       encodedBid
       bidSignature
       prepareCaller
-    }
-    assetBalances {
-      id
-      amount
     }
   }
 }
@@ -880,10 +873,6 @@ export const GetReceiverFulfillTransactionsDocument = gql`
       callData
       fulfillCaller
     }
-    assetBalances {
-      id
-      amount
-    }
   }
 }
     `;
@@ -920,10 +909,6 @@ export const GetSenderFulfillTransactionsDocument = gql`
       signature
       callData
       fulfillCaller
-    }
-    assetBalances {
-      id
-      amount
     }
   }
 }
@@ -994,6 +979,13 @@ export const GetFulfilledTransactionsDocument = gql`
   }
 }
     `;
+export const GetAssetBalanceDocument = gql`
+    query GetAssetBalance($assetBalanceId: ID!) {
+  assetBalance(id: $assetBalanceId) {
+    amount
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
@@ -1019,6 +1011,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetFulfilledTransactions(variables?: GetFulfilledTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetFulfilledTransactionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetFulfilledTransactionsQuery>(GetFulfilledTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetFulfilledTransactions');
+    },
+    GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalance');
     }
   };
 }

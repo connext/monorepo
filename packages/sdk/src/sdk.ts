@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, Contract, providers, Signer, utils } from "ethers";
+import { constants, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -15,25 +15,24 @@ import {
   TransactionData,
   CancelParams,
   encrypt,
+  generateMessagingInbox,
+  AuctionResponse,
+  encodeAuctionBid,
+  recoverAuctionBid,
+  InvariantTransactionData,
+  signFulfillTransactionPayload,
+  MetaTxResponse,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
-import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import { IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 
-import { cancel, handleReceiverPrepare, prepare } from "./crossChainTransfer";
-import {
-  getActiveTransactionsByUser,
-  getVariantHashByInvariantData,
-  TransactionManagerEvents,
-  TransactionManagerListener,
-} from "./helper";
+import { TransactionManager, getTransactionManagerContractAddress } from "./transactionManager";
+import { TransactionManagerEvents } from "./listener";
 
 declare const ethereum: any;
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
-  router: Type.Optional(TAddress),
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   receivingChainId: TChainId,
@@ -41,9 +40,8 @@ export const CrossChainParamsSchema = Type.Object({
   callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
-  expiry: TIntegerString,
+  expiry: Type.Number(),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
-  infiniteApprove: Type.Optional(Type.Boolean()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -112,13 +110,6 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("kind")
   .addKeyword("modifier");
 
-export type SdkChains = {
-  [chainId: number]: {
-    provider: providers.JsonRpcProvider;
-    listener: TransactionManagerListener;
-  };
-};
-
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
     [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: Evt.create<SenderTransactionPrepareTokenApprovalPayload>(),
@@ -136,52 +127,51 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
 
-  private readonly fulfilling: { [id: string]: TransactionPreparedEvent & { chainId: number } } = {};
+  private readonly transactionManager: TransactionManager;
+  private readonly messaging: UserNxtpNatsMessagingService;
 
-  private constructor(
-    private readonly chains: SdkChains,
-    private readonly signer: Signer,
-    private readonly messaging: UserNxtpNatsMessagingService,
-    private readonly logger: BaseLogger,
-  ) {}
-
-  static async init(
-    chainProviders: {
-      [chainId: number]: providers.JsonRpcProvider;
+  constructor(
+    private readonly chainProviders: {
+      [chainId: number]: providers.FallbackProvider;
     },
-    signer: Signer,
-    logger: BaseLogger = pino(),
+    private readonly signer: Signer,
+    private readonly logger: BaseLogger = pino(),
     natsUrl?: string,
     authUrl?: string,
-  ): Promise<NxtpSdk> {
-    // Create messaging
-    const addr = await signer.getAddress();
-    const messaging = new UserNxtpNatsMessagingService({
-      signer,
-      logger: logger.child({ module: "NxtpMessaging", name: addr }),
-      natsUrl,
-      authUrl,
+    messaging?: UserNxtpNatsMessagingService,
+  ) {
+    if (messaging) {
+      this.messaging = messaging;
+    } else {
+      this.messaging = new UserNxtpNatsMessagingService({
+        signer,
+        logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
+        natsUrl,
+        authUrl,
+      });
+    }
+
+    const cc: {
+      [chainId: number]: {
+        provider: providers.FallbackProvider;
+        transactionManagerAddress: string;
+      };
+    } = {};
+    Object.entries(this.chainProviders).forEach(async ([_chainId, provider]) => {
+      const chainId = parseInt(_chainId);
+      cc[chainId] = {
+        provider,
+        transactionManagerAddress: getTransactionManagerContractAddress(chainId),
+      };
     });
+    this.transactionManager = new TransactionManager(
+      this.signer,
+      this.logger.child({ module: "TransactionManager" }),
+      cc,
+    );
 
     // Start up transaction manager listeners
-    const listeners = await Promise.all(
-      Object.entries(chainProviders).map(async ([chainId, chainProvider]) => {
-        const listener = new TransactionManagerListener(chainProvider, parseInt(chainId), logger);
-        return { chainId, listener, chainProvider };
-      }),
-    );
-    const chains: SdkChains = listeners.reduce((c, l) => {
-      c[parseInt(l.chainId)] = { listener: l.listener, provider: l.chainProvider };
-      return c;
-    }, {} as SdkChains);
-
-    const client = new NxtpSdk(chains, signer, messaging, logger.child({ module: "NxtpSdk", name: addr }));
-
-    client.setupListeners();
-
-    // TODO: check chain for any existing transactions that should be fulfilled
-    // or cancelled
-    return client;
+    this.setupListeners();
   }
 
   public async connectMessaging(bearerToken?: string): Promise<string> {
@@ -189,48 +179,32 @@ export class NxtpSdk {
     return token;
   }
 
-  public async transfer(
-    transferParams: CrossChainParams,
-  ): Promise<{ prepareReceipt: providers.TransactionReceipt; completed: TransactionCompletedEvent }> {
-    const method = "transfer";
+  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
+    const method = "getTransferQuote";
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, transferParams }, "Method started");
+    this.logger.info({ method, methodId, params }, "Method started");
 
     // Validate params schema
     const validate = ajv.compile(CrossChainParamsSchema);
-    const valid = validate(transferParams);
+    const valid = validate(params);
     if (!valid) {
       const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ error: validate.errors, transferParams }, "Invalid transfer params");
+      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid transfer params");
       throw new Error(`Invalid params - ${error}`);
     }
 
-    // only need to connect messaging on transfer
-    if (!this.messaging.isConnected()) {
-      await this.messaging.connect();
-    }
+    const user = await this.signer.getAddress();
 
-    const {
-      sendingAssetId,
-      receivingAssetId,
-      receivingAddress,
-      amount,
-      expiry,
-      callData: _callData,
-      sendingChainId,
-      receivingChainId,
-      callTo,
-      infiniteApprove,
-    } = transferParams;
-    if (!this.chains[sendingChainId] || !this.chains[receivingChainId]) {
+    const { sendingAssetId, sendingChainId, amount, receivingChainId, receivingAssetId, receivingAddress, expiry } =
+      params;
+    if (!this.chainProviders[sendingChainId] || !this.chainProviders[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
     }
 
-    const transactionId = transferParams.transactionId ?? getRandomBytes32();
+    const transactionId = params.transactionId ?? getRandomBytes32();
+    const callTo = params.callTo ?? constants.AddressZero;
+    const callData = params.callData ?? "0x";
 
-    const user = await this.signer.getAddress();
-
-    const callData = _callData ?? "0x";
     let encryptedCallData = "0x";
     const callDataHash = utils.keccak256(callData);
     if (callData !== "0x") {
@@ -244,9 +218,9 @@ export class NxtpSdk {
       } catch (error) {
         if (error.code === 4001) {
           // EIP-1193 userRejectedRequest error
-          console.log("We can't encrypt anything without the key.");
+          this.logger.info({ method, methodId }, "We can't encrypt anything without the key.");
         } else {
-          console.error(error);
+          this.logger.error({ method, methodId, error }, "Error getting encryption key");
         }
         throw error;
       }
@@ -254,254 +228,284 @@ export class NxtpSdk {
       encryptedCallData = await encrypt(callData, encryptionPublicKey);
     }
 
-    let router = transferParams.router;
-    if (!router) {
-      const auctionRes = await this.runAuction(transferParams);
-      router = auctionRes.router;
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
+    }
+
+    const inbox = generateMessagingInbox();
+    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
+      setTimeout(() => rej(), 10_000);
+      this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+        if (err) {
+          this.logger.error({ method, methodId, err }, "Error in auction response");
+          return;
+        }
+
+        // check router sig on bid
+        const signer = recoverAuctionBid(data.bid, data.bidSignature);
+        if (signer !== data.bid.router) {
+          this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
+          return;
+        }
+
+        // TODO: check contract for router liquidity
+
+        this.logger.info({ method, methodId, data }, "Received auction response");
+        res(data);
+      });
+    });
+
+    await this.messaging.publishAuctionRequest(
+      {
+        user,
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        receivingChainId,
+        receivingAssetId,
+        receivingAddress,
+        callTo,
+        callDataHash,
+        encryptedCallData,
+        expiry,
+        transactionId,
+      },
+      inbox,
+    );
+
+    this.logger.info({ method, methodId }, "Waiting up to 10 seconds for responses");
+    try {
+      const auctionResponse = await receivedResponsePromise;
+      this.logger.info({ method, methodId, auctionResponse }, "Received response");
+      return auctionResponse;
+    } catch (e) {
+      throw new Error("No response received");
+    }
+  }
+
+  public async startTransfer(
+    transferParams: AuctionResponse,
+    infiniteApprove = false,
+  ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
+    const method = "transfer";
+    const methodId = getRandomBytes32();
+    this.logger.info({ method, methodId, transferParams }, "Method started");
+
+    const { bid, bidSignature } = transferParams;
+    const {
+      user,
+      router,
+      sendingAssetId,
+      receivingAssetId,
+      receivingAddress,
+      amount,
+      expiry,
+      callDataHash,
+      encryptedCallData,
+      sendingChainId,
+      receivingChainId,
+      callTo,
+      transactionId,
+    } = bid;
+    const encodedBid = encodeAuctionBid(bid);
+
+    if (!this.chainProviders[sendingChainId] || !this.chainProviders[receivingChainId]) {
+      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
+    }
+
+    this.logger.info(
+      {
+        method,
+        methodId,
+        amount,
+        expiry,
+        encodedBid,
+        bidSignature,
+      },
+      "Preparing tx!",
+    );
+
+    if (sendingAssetId !== constants.AddressZero) {
+      const approveTx = await this.transactionManager.approveTokensIfNeeded(
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        infiniteApprove,
+      );
+
+      if (approveTx) {
+        this.evts.SenderTokenApprovalSubmitted.post({
+          assetId: sendingAssetId,
+          chainId: sendingChainId,
+          transactionResponse: approveTx,
+        });
+        const approveReceipt = await approveTx.wait(1); // TODO: confs
+        if (approveReceipt.status === 0) {
+          throw new Error("Approve transaction reverted onchain");
+        }
+        this.logger.info(
+          { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
+          "Mined approve tx",
+        );
+        this.evts.SenderTokenApprovalMined.post({
+          assetId: sendingAssetId,
+          chainId: sendingChainId,
+          transactionReceipt: approveReceipt,
+        });
+      }
     }
 
     // Prepare sender side tx
+    // TODO: validate expiry
+    const txData: InvariantTransactionData = {
+      user,
+      router,
+      sendingAssetId,
+      receivingAssetId,
+      sendingChainFallback: user,
+      callTo,
+      receivingAddress,
+      sendingChainId,
+      receivingChainId,
+      callDataHash,
+      transactionId,
+    };
     const params: PrepareParams = {
-      txData: {
-        user,
-        router,
-        sendingAssetId,
-        receivingAssetId,
-        sendingChainFallback: user, // TODO: for now
-        callTo: callTo ?? constants.AddressZero,
-        receivingAddress,
-        sendingChainId,
-        receivingChainId,
-        callDataHash,
-        transactionId,
-      },
+      txData,
       encryptedCallData,
-      bidSignature: "0x", // TODO
-      encodedBid: "0x", // TODO
+      bidSignature,
+      encodedBid,
       amount,
       expiry,
     };
-    let erc20;
-    if (sendingAssetId !== constants.AddressZero) {
-      erc20 = new Contract(sendingAssetId, ERC20.abi, this.signer) as IERC20Minimal;
-    }
-    const prepareReceipt = await prepare(
-      params,
-      this.chains[sendingChainId].listener.transactionManager,
-      this.signer.provider ? this.signer : this.signer.connect(this.chains[sendingChainId].provider),
-      this.evts,
-      this.logger,
-      erc20,
-      infiniteApprove,
-    );
-
-    // wait for completed event
-    const timeout = 300_000;
-    const completed = this.evts.ReceiverTransactionFulfilled.pipe(
-      (data) => data.txData.transactionId === transactionId,
-    ).waitFor(timeout);
-    const event = await completed;
-    return { prepareReceipt, completed: event };
-  }
-
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
-    const signerAddress = await this.signer.getAddress();
-    const transactionsForChains = await Promise.all(
-      Object.keys(this.chains).map(async (c): Promise<[chainId: number, txs: TransactionPreparedEvent[]]> => {
-        const chainId = parseInt(c);
-        const active = await getActiveTransactionsByUser(chainId, signerAddress, this.chains[chainId].provider);
-        return [chainId, active];
-      }),
-    );
-
-    // active transaction is determined by the combo of sender and receiver txs
-    const activeWithStatus = await Promise.all(
-      transactionsForChains.map(async ([chainId, txs]) => {
-        return await Promise.all(
-          txs.map(async (tx): Promise<(TransactionPreparedEvent & { status: NxtpSdkEvent }) | undefined> => {
-            if (tx.txData.receivingChainId === chainId) {
-              // receiver active transactions are automatically ReceiverTransactionPrepared
-              return {
-                txData: tx.txData,
-                status: NxtpSdkEvents.ReceiverTransactionPrepared,
-                bidSignature: tx.bidSignature,
-                caller: tx.caller,
-                encodedBid: tx.encodedBid,
-                encryptedCallData: tx.encryptedCallData,
-              };
-            } else if (tx.txData.sendingChainId === chainId) {
-              // use receiver status to determine sender side
-              const hash = await getVariantHashByInvariantData(
-                tx.txData.receivingChainId,
-                {
-                  user: tx.txData.user,
-                  router: tx.txData.router,
-                  sendingAssetId: tx.txData.sendingAssetId,
-                  receivingAssetId: tx.txData.receivingAssetId,
-                  sendingChainFallback: tx.txData.sendingChainFallback,
-                  callTo: tx.txData.callTo,
-                  receivingAddress: tx.txData.receivingAddress,
-                  sendingChainId: tx.txData.sendingChainId,
-                  receivingChainId: tx.txData.receivingChainId,
-                  callDataHash: tx.txData.callDataHash,
-                  transactionId: tx.txData.transactionId,
-                },
-                this.chains[tx.txData.receivingChainId].provider,
-              );
-              // default to receiver fulfilled
-              let status: NxtpSdkEvent = NxtpSdkEvents.ReceiverTransactionFulfilled;
-              if (hash === constants.HashZero) {
-                // if hash is empty, transfer has not been created on receiver side
-                status = NxtpSdkEvents.SenderTransactionPrepared;
-              } else {
-                // else check if its in active transfers, if so, its prepared
-                const receivingActiveTxs = transactionsForChains.find(([cId]) => cId === tx.txData.receivingChainId);
-                if (receivingActiveTxs) {
-                  const activeReceiving = receivingActiveTxs[1].find(
-                    (t) => t.txData.transactionId === tx.txData.transactionId,
-                  );
-                  if (activeReceiving) {
-                    status = NxtpSdkEvents.ReceiverTransactionPrepared;
-                  }
-                }
-              }
-              return {
-                txData: tx.txData,
-                status,
-                bidSignature: tx.bidSignature,
-                caller: tx.caller,
-                encodedBid: tx.encodedBid,
-                encryptedCallData: tx.encryptedCallData,
-              };
-            }
-            return undefined;
-          }),
-        );
-      }),
-    );
-    const filtered = activeWithStatus.flat().filter((x) => !!x);
-    const ids = filtered.map((t) => t?.txData.transactionId);
-    const deduped = filtered.filter((t, index) => !ids.includes(t?.txData.transactionId, index + 1));
-    const receiverPrepared = deduped.filter((d) => d?.status === NxtpSdkEvents.ReceiverTransactionPrepared);
-    // connect messaging if needed
-    if (receiverPrepared.length > 0) {
-      if (!this.messaging.isConnected()) {
-        await this.messaging.connect();
-      }
-    }
-    receiverPrepared.forEach(async (tx) => {
-      // rebroadcast sig
-      this.logger.info({ txData: tx!.txData }, "Rebroadcasting receiver prepare sig");
-      await handleReceiverPrepare(
-        {
-          txData: tx!.txData,
-          bidSignature: tx!.bidSignature,
-          caller: tx!.caller,
-          encodedBid: tx!.encodedBid,
-          encryptedCallData: tx!.encryptedCallData,
-        },
-        this.chains[tx!.txData.receivingChainId].listener.transactionManager,
-        this.signer,
-        this.messaging,
-        this.logger,
-      );
-      this.logger.info({ txData: tx!.txData }, "Broadcasted receiver prepare sig");
+    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params);
+    this.evts.SenderTransactionPrepareSubmitted.post({
+      prepareParams: params,
+      transactionResponse: prepareResponse,
     });
-    return deduped as { txData: TransactionData; status: NxtpSdkEvent }[];
-  }
 
-  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionReceipt> {
-    const tx = await cancel(cancelParams, this.chains[chainId].listener.transactionManager, this.signer, this.logger);
-    return tx;
-  }
-
-  public async runAuction(
-    _params: CrossChainParams,
-  ): Promise<{ router: string; encodedBid: string; bidSignature: string }> {
+    // TODO: fix block confs for chains
+    this.logger.info(
+      { method, methodId, transactionId, transactionHash: prepareResponse.hash },
+      "Submitted prepare tx",
+    );
     return {
-      router: "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a",
-      encodedBid: "0x",
-      bidSignature: "0x",
+      prepareResponse,
+      transactionId,
     };
   }
 
-  private setupListeners(): void {
-    Object.values(this.chains).forEach(({ listener }) => {
-      // Always broadcast signature when a receiver-side prepare event is emitted
-      this.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
-        const { txData, encodedBid, caller, bidSignature, encryptedCallData } = data;
-        if (txData.receivingChainId !== listener.chainId!) {
-          this.logger.debug(
-            {
-              transaction: txData.transactionId,
-              sendingChain: txData.sendingChainId,
-              receivingChain: txData.receivingChainId,
-              chainId: listener.chainId!,
-            },
-            "Nothing to handle",
-          );
-          return;
-        }
-        // Always automatically broadcast signatures for recieving chain
-        if (this.fulfilling[txData.transactionId]) {
-          // NOTE: this is more for debugging
-          // than anything, not harmful if
-          // metatxs are picked up 2x (other
-          // than relayers wasting gas)
-          this.logger.warn({ ...data }, "Already fulfilling, got an additional event");
-        }
-        // TODO: how to handle relayer fees here? will need before signing
-        this.logger.info({ ...data }, "Handling receiver tx prepared event");
-        this.fulfilling[txData.transactionId] = { ...data, chainId: listener.chainId };
-        if (!this.messaging.isConnected()) {
-          await this.messaging.connect();
-        }
-        await handleReceiverPrepare(
-          {
-            txData,
-            caller,
-            encryptedCallData,
-            bidSignature,
-            encodedBid,
-          },
-          listener.transactionManager,
-          this.signer,
-          this.messaging,
-          this.logger,
-        );
+  public async finishTransfer(
+    params: TransactionPreparedEvent,
+    useRelayers = true,
+  ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
+    const method = "finishTransfer";
+    const methodId = getRandomBytes32();
+    this.logger.info({ method, methodId, params, useRelayers }, "Method started");
 
-        delete this.fulfilling[txData.transactionId];
+    const { txData, encryptedCallData } = params;
+
+    // TODO
+    const relayerFee = "0";
+
+    // Generate signature
+    this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
+    const signature = await signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer);
+    this.logger.info({ method, methodId }, "Generated signature");
+
+    // Make sure user is on the receiving chain
+
+    // Submit fulfill to receiver chain
+    this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
+    let callData = "0x";
+    if (txData.callDataHash !== utils.keccak256(callData)) {
+      callData = await ethereum.request({
+        method: "eth_decrypt",
+        params: [encryptedCallData, txData.user],
+      });
+    }
+    this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Decrypted calldata");
+
+    if (useRelayers) {
+      const inbox = generateMessagingInbox();
+      const responseInbox = generateMessagingInbox();
+      const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
+        await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
+          this.logger.info({ method, methodId, data, err }, "MetaTx response received");
+          if (err) {
+            return reject(err);
+          }
+          this.logger.info({ method, methodId, inbox, data }, "Fulfill metaTx response received");
+          return resolve(data);
+        });
       });
 
+      await this.messaging.publishMetaTxRequest(
+        {
+          type: "Fulfill",
+          relayerFee,
+          to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+          chainId: txData.receivingChainId,
+          data: {
+            relayerFee,
+            signature,
+            txData,
+            callData,
+          },
+        },
+        inbox,
+      );
+      this.logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
+      const metaTxResponse = await responsePromise;
+      return { metaTxResponse };
+    } else {
+      const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
+        callData,
+        relayerFee,
+        signature,
+        txData,
+      });
+      return { fulfillResponse };
+    }
+  }
+
+  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+    return [];
+  }
+
+  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    const tx = await this.transactionManager.cancel(chainId, cancelParams);
+    return tx;
+  }
+
+  private setupListeners(): void {
+    Object.keys(this.chainProviders).forEach((_chainId) => {
+      const chainId = parseInt(_chainId);
       // Translate chain events to SDK external events
-      listener.attach(TransactionManagerEvents.TransactionPrepared, (data) => {
-        if (listener.chainId === data.txData.sendingChainId) {
+      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionPrepared, (data) => {
+        if (chainId === data.txData.sendingChainId) {
           return this.evts[NxtpSdkEvents.SenderTransactionPrepared].post(data);
         }
-        if (listener.chainId === data.txData.receivingChainId) {
+        if (chainId === data.txData.receivingChainId) {
           return this.evts[NxtpSdkEvents.ReceiverTransactionPrepared].post(data);
         }
         return;
       });
 
-      listener.attach(TransactionManagerEvents.TransactionFulfilled, (data) => {
-        if (listener.chainId === data.txData.sendingChainId) {
-          return this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
+      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionFulfilled, (data) => {
+        if (chainId === data.txData.sendingChainId) {
+          this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
+        } else if (chainId === data.txData.receivingChainId) {
+          this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
         }
-        if (listener.chainId === data.txData.receivingChainId) {
-          return this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
-        }
-        return;
       });
 
-      listener.attach(TransactionManagerEvents.TransactionCancelled, (data) => {
-        if (listener.chainId === data.txData.sendingChainId) {
-          return this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
+      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionCancelled, (data) => {
+        if (chainId === data.txData.sendingChainId) {
+          this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
+        } else if (chainId === data.txData.receivingChainId) {
+          this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
         }
-        if (listener.chainId === data.txData.receivingChainId) {
-          return this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
-        }
-        return;
       });
     });
   }

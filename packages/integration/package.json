@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -19,6 +19,8 @@
     "docker:messaging:down": "docker-compose -f ops/messaging.docker-compose.yml down",
     "docker:router:up": "docker-compose -f ops/router.docker-compose.yml up -d",
     "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
+    "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml up -d",
+    "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml down",
     "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
     "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
   },
@@ -33,7 +35,7 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.4.1",
-    "pino": "^6.11.3"
+    "pino": "^6.12.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",

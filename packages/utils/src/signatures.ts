@@ -1,46 +1,57 @@
-import { Signer, Wallet } from "ethers";
-import { arrayify, solidityKeccak256, verifyMessage } from "ethers/lib/utils";
+import { Signer, Wallet, utils } from "ethers";
 
-import { InvariantTransactionData, TransactionData } from "./transactionManager";
-import { encodeCancelData, encodeFulfillData } from "./encode";
+import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
+import { AuctionBid } from "./messaging";
 
 export const signFulfillTransactionPayload = (
-  data: TransactionData,
+  transactionId: string,
   relayerFee: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeFulfillData(data.transactionId, relayerFee);
-  const hash = solidityKeccak256(["bytes"], [payload]);
+  const payload = encodeFulfillData(transactionId, relayerFee);
+  const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
-  return signer.signMessage(arrayify(hash));
+  return signer.signMessage(utils.arrayify(hash));
 };
 
 export const recoverFulfilledTransactionPayload = (
-  data: TransactionData,
+  transactionId: string,
   relayerFee: string,
   signature: string,
 ): string => {
-  const payload = encodeFulfillData(data.transactionId, relayerFee);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return verifyMessage(arrayify(hashed), signature);
+  const payload = encodeFulfillData(transactionId, relayerFee);
+  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
+  return utils.verifyMessage(utils.arrayify(hashed), signature);
 };
 
 export const signCancelTransactionPayload = async (
-  txDataParams: InvariantTransactionData,
+  transactionId: string,
   relayerFee: string,
   signer: Signer,
 ): Promise<string> => {
-  const payload = encodeCancelData(txDataParams.transactionId, relayerFee);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return signer.signMessage(arrayify(hashed));
+  const payload = encodeCancelData(transactionId, relayerFee);
+  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
+  return signer.signMessage(utils.arrayify(hashed));
 };
 
 export const recoverCancelTransactionPayload = (
-  txDataParams: InvariantTransactionData,
+  transactionId: string,
   relayerFee: string,
   signature: string,
 ): string => {
-  const payload = encodeCancelData(txDataParams.transactionId, relayerFee);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return verifyMessage(arrayify(hashed), signature);
+  const payload = encodeCancelData(transactionId, relayerFee);
+  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
+  return utils.verifyMessage(utils.arrayify(hashed), signature);
+};
+
+export const signAuctionBid = async (bid: AuctionBid, signer: Signer): Promise<string> => {
+  const payload = encodeAuctionBid(bid);
+  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
+  return signer.signMessage(utils.arrayify(hashed));
+};
+
+export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
+  const payload = encodeAuctionBid(bid);
+  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
+  return utils.verifyMessage(utils.arrayify(hashed), signature);
 };

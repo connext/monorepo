@@ -1,4 +1,4 @@
-import { NxtpSdk } from "@connext/nxtp-sdk";
+import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -18,13 +18,13 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const tokenAddress1337 = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
 const tokenAddress1338 = tokenAddress1337;
-const txManagerAddress1337 = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+const txManagerAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const txManagerAddress1338 = txManagerAddress1337;
 const chainProviders = {
-  1337: new providers.JsonRpcProvider("http://localhost:8545"),
-  1338: new providers.JsonRpcProvider("http://localhost:8546"),
+  1337: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
+  1338: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
@@ -47,7 +47,7 @@ const txManager1338 = new Contract(
   sugarDaddy.connect(chainProviders[1338]),
 ) as TransactionManager;
 
-const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "info" });
+const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
 
 describe("Integration", () => {
   let userSdk: NxtpSdk;
@@ -70,6 +70,40 @@ describe("Integration", () => {
       const tx = await sugarDaddy.connect(chainProviders[1338]).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "ETH_GIFT to router mined: ");
+    }
+
+    const isRouter1337 = await txManager1337.approvedRouters(router);
+    const isRouter1338 = await txManager1338.approvedRouters(router);
+
+    if (!isRouter1337) {
+      logger.info({ chainId: 1337 }, "Adding router");
+      const tx = await txManager1337.addRouter(router);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Router added");
+    }
+
+    if (!isRouter1338) {
+      logger.info({ chainId: 1338 }, "Adding router");
+      const tx = await txManager1338.addRouter(router);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Router added");
+    }
+
+    const isAsset1337 = await txManager1337.approvedAssets(tokenAddress1337);
+    const isAsset1338 = await txManager1338.approvedAssets(tokenAddress1338);
+
+    if (!isAsset1337) {
+      logger.info({ chainId: 1337 }, "Adding Asset");
+      const tx = await txManager1337.addAssetId(tokenAddress1337);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Asset added");
+    }
+
+    if (!isAsset1338) {
+      logger.info({ chainId: 1338 }, "Adding Asset");
+      const tx = await txManager1338.addAssetId(tokenAddress1338);
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Asset added");
     }
 
     const liquidity1337 = await txManager1337.routerBalances(router, tokenAddress1337);
@@ -119,7 +153,7 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "TOKEN_GIFT to user mined: ");
     }
 
-    userSdk = await NxtpSdk.init(
+    userSdk = new NxtpSdk(
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest" }),
@@ -130,18 +164,35 @@ describe("Integration", () => {
 
   it("should send tokens", async function () {
     this.timeout(120_000);
-    const txs = await userSdk.getActiveTransactions();
-    expect(txs.length).to.eq(0);
-    const res = await userSdk.transfer({
+    const quote = await userSdk.getTransferQuote({
       amount: utils.parseEther("1").toString(),
-      expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(),
-      sendingChainId: 1337,
-      sendingAssetId: tokenAddress1337,
-      receivingChainId: 1338,
       receivingAssetId: tokenAddress1338,
+      sendingAssetId: tokenAddress1337,
       receivingAddress: userWallet.address,
-      router,
+      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+      sendingChainId: 1337,
+      receivingChainId: 1338,
     });
-    expect(res.prepareReceipt.status).to.be.eq(1);
+
+    const res = await userSdk.startTransfer(quote);
+    expect(res.prepareResponse.hash).to.be.ok;
+
+    const event = await userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const fulfillEventPromise = userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    // TODO: txservice doesnt seem to be returning properly, need to revisit this
+    userSdk.finishTransfer(event);
+    // expect(finishRes.metaTxResponse).to.be.ok;
+    const fulfillEvent = await fulfillEventPromise;
+    expect(fulfillEvent).to.be.ok;
   });
 });

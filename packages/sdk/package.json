@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sdk",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "> TODO: description",
   "author": "Connext",
   "license": "MIT",
@@ -24,13 +24,13 @@
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "^0.17.7",
-    "ajv": "^8.6.1",
+    "@sinclair/typebox": "^0.17.8",
+    "ajv": "^8.6.2",
     "ajv-formats": "^2.1.0",
     "ethers": "^5.4.1",
     "evt": "^1.9.14",
     "hyperid": "^2.3.1",
-    "pino": "^6.11.3"
+    "pino": "^6.12.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",

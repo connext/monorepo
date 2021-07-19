@@ -5,6 +5,7 @@ import { Type, Static } from "@sinclair/typebox";
 import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { utils } from "ethers";
 
 const ajv = addFormats(new Ajv(), [
   "date-time",
@@ -30,6 +31,7 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Number({ minimum: 1 }),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
+  minGas: Type.String(),
 });
 
 const NxtpRouterConfigSchema = Type.Object({
@@ -48,6 +50,8 @@ const NxtpRouterConfigSchema = Type.Object({
   authUrl: Type.String(),
   mnemonic: Type.String(),
 });
+
+const MIN_GAS = utils.parseEther("0.1");
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
 
@@ -106,22 +110,29 @@ export const getEnvConfig = (): NxtpRouterConfig => {
         ).contracts.TransactionManager.address;
       } catch (e) {}
     }
+    if (!chainConfig.minGas) {
+      nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
   });
 
+  const validate = ajv.compile(NxtpRouterConfigSchema);
+
+  const valid = validate(nxtpConfig);
+
+  if (!valid) {
+    console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
+    throw new Error(validate.errors?.map((err) => err.message).join(","));
+  }
+
+  console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
   return nxtpConfig;
 };
 
-const nxtpConfig: NxtpRouterConfig = getEnvConfig();
-const validate = ajv.compile(NxtpRouterConfigSchema);
+let nxtpConfig: NxtpRouterConfig | undefined;
 
-const valid = validate(nxtpConfig);
-
-if (!valid) {
-  console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
-  throw new Error(validate.errors?.map((err) => err.message).join(","));
-}
-
-const config = nxtpConfig as Omit<NxtpRouterConfig, "mnemonic"> & { mnemonic: string };
-console.log(JSON.stringify({ ...config, mnemonic: "********" }, null, 2));
-
-export const getConfig = (): Omit<NxtpRouterConfig, "mnemonic"> & { mnemonic: string } => config;
+export const getConfig = (): NxtpRouterConfig => {
+  if (!nxtpConfig) {
+    nxtpConfig = getEnvConfig();
+  }
+  return nxtpConfig;
+};

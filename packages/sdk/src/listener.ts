@@ -5,11 +5,8 @@ import {
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { providers } from "ethers";
 import { Evt } from "evt";
 import { BaseLogger } from "pino";
-
-import { getTransactionManagerContract } from "./contract";
 
 export const TransactionManagerEvents = {
   TransactionPrepared: "TransactionPrepared",
@@ -30,13 +27,12 @@ export class TransactionManagerListener {
     [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
-  public chainId?: number;
-  public transactionManager: TransactionManager;
 
-  constructor(provider: providers.JsonRpcProvider, chainId: number, private readonly logger: BaseLogger) {
-    const { instance } = getTransactionManagerContract(chainId, provider);
-    this.chainId = chainId;
-    this.transactionManager = instance;
+  constructor(
+    public readonly transactionManager: TransactionManager,
+    public readonly chainId: number,
+    private readonly logger: BaseLogger,
+  ) {
     this.establishListeners();
   }
 
@@ -56,19 +52,20 @@ export class TransactionManagerListener {
         transactionId: txData.transactionId,
         preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
         amount: txData.amount.toString(),
-        expiry: txData.expiry.toString(),
+        expiry: txData.expiry,
       };
     };
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
-      (_user, _router, _transactionId, txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+      (_user, _router, _transactionId, _txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+        const txData = processTxData(_txData);
         this.logger.info(
           { txData, caller, encryptedCallData, encodedBid, bidSignature },
           "TransactionManagerEvents.TransactionPrepared",
         );
         const payload: TransactionPreparedEvent = {
-          txData: processTxData(txData),
+          txData,
           caller,
           encryptedCallData,
           encodedBid,
@@ -80,13 +77,14 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
-      (_user, _router, _transactionId, txData, relayerFee, signature, callData, caller) => {
+      (_user, _router, _transactionId, _txData, relayerFee, signature, callData, caller) => {
+        const txData = processTxData(_txData);
         this.logger.info(
           { txData, relayerFee, signature, callData, caller },
           "TransactionManagerEvents.TransactionFulfilled",
         );
         const payload: TransactionFulfilledEvent = {
-          txData: processTxData(txData),
+          txData,
           signature: signature,
           relayerFee: relayerFee.toString(),
           callData,
@@ -98,10 +96,11 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionCancelled,
-      (_user, _router, _transactionId, txData, relayerFee, caller) => {
+      (_user, _router, _transactionId, _txData, relayerFee, caller) => {
+        const txData = processTxData(_txData);
         this.logger.info({ txData, relayerFee, caller }, "TransactionManagerEvents.TransactionCancelled");
         const payload: TransactionCancelledEvent = {
-          txData: processTxData(txData),
+          txData,
           relayerFee: relayerFee.toString(),
           caller,
         };

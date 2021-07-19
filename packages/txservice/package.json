@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-txservice",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "> TODO: description",
   "author": "Connext",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "@connext/nxtp-utils": "workspace:*",
     "@ethersproject/experimental": "^5.4.0",
     "@sinclair/typebox": "^0.17.7",
-    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
     "ajv": "^8.6.1",
     "ajv-formats": "^2.1.0",
     "axios": "^0.21.1",
@@ -33,7 +33,7 @@
     "evt": "^1.9.14",
     "hyperid": "^2.3.1",
     "p-queue": "6.6.2",
-    "pino": "^6.11.3"
+    "pino": "^6.12.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",

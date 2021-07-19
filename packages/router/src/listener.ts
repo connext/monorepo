@@ -6,7 +6,7 @@ import {
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
-import { TransactionManagerListener } from "./transactionManagerListener";
+import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
 
 /*
     Listener.ts
@@ -16,24 +16,27 @@ import { TransactionManagerListener } from "./transactionManagerListener";
 */
 export async function setupListeners(
   messagingService: RouterNxtpNatsMessagingService,
-  txManager: TransactionManagerListener,
+  txManager: SubgraphTransactionManagerListener,
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {
   logger.info("setupListeners");
   // Setup Messaging Service events
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
-  void messagingService.subscribeToAuctionRequest(async (data) => {
+  void messagingService.subscribeToAuctionRequest(async (data, inbox, err) => {
+    if (err) {
+      logger.error({ err }, "Error in auction request");
+    }
     // On every new auction broadcast, route to the new auction handler
-    await handler.handleNewAuction(data);
+    await handler.handleNewAuction(data, inbox);
   });
 
   // <from>.metatx
-  messagingService.subscribeToMetaTxRequest(async (data) => {
+  messagingService.subscribeToMetaTxRequest(async (data, inbox) => {
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
     logger.info({ data }, "Got metatx");
-    await handler.handleMetaTxRequest(data);
+    await handler.handleMetaTxRequest(data, inbox);
   });
 
   // Setup Subgraph events

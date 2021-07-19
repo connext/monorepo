@@ -50,12 +50,20 @@ library LibAsset {
       IERC20(assetId).transferFrom(from, to, amount);
     }
 
-    function approveERC20(
+    function increaseERC20Allowance(
       address assetId,
       address spender,
       uint256 amount
     ) internal {
-      IERC20(assetId).approve(spender, amount);
+      SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
+    }
+
+    function decreaseERC20Allowance(
+      address assetId,
+      address spender,
+      uint256 amount
+    ) internal {
+      SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
     }
 
     // This function is a wrapper for transfers of Ether or ERC20 tokens,

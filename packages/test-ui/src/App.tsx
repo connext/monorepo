@@ -3,7 +3,7 @@ import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
 import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { AuctionResponse, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { providerUrls, swapConfig } from "./constants";
@@ -14,6 +14,7 @@ function App(): React.ReactElement | null {
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
+  const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
     { txData: TransactionData; status: NxtpSdkEvent }[]
   >([]);
@@ -71,16 +72,19 @@ function App(): React.ReactElement | null {
       }
       const { chainId } = await signer.provider!.getNetwork();
       setInjectedProviderChainId(chainId);
-      const chainProviders: { [chainId: number]: providers.JsonRpcProvider } = {};
+      const chainProviders: { [chainId: number]: providers.FallbackProvider } = {};
       Object.entries(providerUrls).forEach(
-        ([chainId, url]) => (chainProviders[parseInt(chainId)] = new providers.JsonRpcProvider(url, parseInt(chainId))),
+        ([chainId, url]) =>
+          (chainProviders[parseInt(chainId)] = new providers.FallbackProvider([
+            new providers.JsonRpcProvider(url, parseInt(chainId)),
+          ])),
       );
-      const _sdk = await NxtpSdk.init(
+      const _sdk = new NxtpSdk(
         chainProviders,
         signer,
         pino({ level: "info" }),
-        "ws://localhost:4221",
-        "http://localhost:5040",
+        // "ws://localhost:4221",
+        // "http://localhost:5040",
       );
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
@@ -151,8 +155,6 @@ function App(): React.ReactElement | null {
       return;
     }
     if (injectedProviderChainId === targetChainId) {
-      console.log("targetChainId: ", targetChainId);
-      console.log("injectedProviderChainId: ", injectedProviderChainId);
       return;
     }
     if (!providerUrls[targetChainId]) {
@@ -187,15 +189,14 @@ function App(): React.ReactElement | null {
     }
   };
 
-  const transfer = async (
+  const getTransferQuote = async (
     sendingChainId: number,
     sendingAssetId: string,
     receivingChainId: number,
     receivingAssetId: string,
     amount: string,
-    routerAddress: string,
     receivingAddress: string,
-  ) => {
+  ): Promise<AuctionResponse | undefined> => {
     if (!sdk) {
       return;
     }
@@ -208,23 +209,49 @@ function App(): React.ReactElement | null {
     // Create txid
     const transactionId = getRandomBytes32();
 
-    try {
-      await sdk.transfer({
-        router: routerAddress,
-        sendingAssetId,
-        sendingChainId,
-        receivingChainId,
-        receivingAssetId,
-        receivingAddress,
-        amount,
-        transactionId,
-        expiry: (Math.floor(Date.now() / 1000) + 3600 * 24 * 3).toString(), // 3 days
-        // callData?: string;
-      });
-    } catch (e) {
-      console.log(e);
-      throw e;
+    const response = await sdk.getTransferQuote({
+      sendingAssetId,
+      sendingChainId,
+      receivingChainId,
+      receivingAssetId,
+      receivingAddress,
+      amount,
+      transactionId,
+      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
+    });
+    setAuctionResponse(response);
+    return response;
+  };
+
+  const transfer = async () => {
+    if (!sdk) {
+      return;
     }
+    if (!auctionResponse) {
+      alert("Please request quote first");
+      throw new Error("Please request quote first");
+    }
+
+    if (injectedProviderChainId !== auctionResponse.bid.sendingChainId) {
+      alert("Please switch chains to the sending chain!");
+      throw new Error("Wrong chain");
+    }
+    const transfer = await sdk.startTransfer(auctionResponse);
+    const event = await sdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === transfer.transactionId,
+    );
+
+    const finish = await sdk.finishTransfer(event);
+    console.log("finish: ", finish);
+
+    const fulfilled = await sdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === transfer.transactionId,
+    );
+    console.log("fulfilled: ", fulfilled);
   };
 
   const columns = [
@@ -268,7 +295,7 @@ function App(): React.ReactElement | null {
       dataIndex: "action",
       key: "action",
       render: (action: TransactionData) => {
-        if (Date.now() / 1000 > parseInt(action.expiry)) {
+        if (Date.now() / 1000 > action.expiry) {
           return (
             <Button
               type="link"
@@ -358,8 +385,8 @@ function App(): React.ReactElement | null {
                       tx.txData.transactionId.length - 1,
                     )}`,
                     expires:
-                      parseInt(tx.txData.expiry) > Date.now() / 1000
-                        ? `${((parseInt(tx.txData.expiry) - Date.now() / 1000) / 3600).toFixed(2)} hours`
+                      tx.txData.expiry > Date.now() / 1000
+                        ? `${((tx.txData.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
                         : "Expired",
                     action: tx.txData,
                   };
@@ -384,21 +411,8 @@ function App(): React.ReactElement | null {
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={(vals) => {
-              const sendingAssetId = swapConfig.find((sc) => sc.name === vals.asset)?.assets[vals.sendingChain];
-              const receivingAssetId = swapConfig.find((sc) => sc.name === vals.asset)?.assets[vals.receivingChain];
-              if (!sendingAssetId || !receivingAssetId) {
-                throw new Error("Configuration doesn't support selected swap");
-              }
-              transfer(
-                parseInt(vals.sendingChain),
-                sendingAssetId,
-                parseInt(vals.receivingChain),
-                receivingAssetId,
-                utils.parseEther(vals.amount).toString(),
-                vals.routerAddress,
-                vals.receivingAddress,
-              );
+            onFinish={() => {
+              transfer();
             }}
             onFieldsChange={(changed) => {
               console.log("changed: ", changed);
@@ -493,18 +507,50 @@ function App(): React.ReactElement | null {
               </Row>
             </Form.Item>
 
-            <Form.Item label="Router Address" name="routerAddress">
-              <Input placeholder="Optional for Testing" />
-            </Form.Item>
-
             <Form.Item label="Receiving Address" name="receivingAddress">
               <Input />
+            </Form.Item>
+
+            <Form.Item label="Received Amount" name="receivedAmount">
+              <Input
+                disabled
+                placeholder="..."
+                addonAfter={
+                  <Button
+                    type="primary"
+                    onClick={async () => {
+                      const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
+                        form.getFieldValue("sendingChain")
+                      ];
+                      const receivingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
+                        form.getFieldValue("receivingChain")
+                      ];
+                      if (!sendingAssetId || !receivingAssetId) {
+                        throw new Error("Configuration doesn't support selected swap");
+                      }
+                      const response = await getTransferQuote(
+                        parseInt(form.getFieldValue("sendingChain")),
+                        sendingAssetId,
+                        parseInt(form.getFieldValue("receivingChain")),
+                        receivingAssetId,
+                        utils.parseEther(form.getFieldValue("amount")).toString(),
+                        form.getFieldValue("receivingAddress"),
+                      );
+                      form.setFieldsValue({ receivedAmount: utils.formatEther(response!.bid.amountReceived) });
+                    }}
+                  >
+                    Get Quote
+                  </Button>
+                }
+              />
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
               {() => (
                 <Button
-                  disabled={form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")}
+                  disabled={
+                    form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain") || !auctionResponse
+                  }
                   type="primary"
                   htmlType="submit"
                 >
