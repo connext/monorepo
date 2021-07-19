@@ -125,7 +125,7 @@ export class ChainRpcProvider {
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
     this.isReady();
     const method = this.readTransaction.name;
-    return await this.retryWrapper(this.chainId, method, async () => {
+    return await this.retryWrapper(method, async () => {
       try {
         const readResult = await this.signer.call({
           to: tx.to,
