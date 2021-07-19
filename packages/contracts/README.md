@@ -66,6 +66,18 @@ Lets assume that by this point the user has already run the auction.
 
 The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the transactions all store the `preparedBlockNumber` on them, and the contract tracks the `activeTransactionBlocks` for each user in a `mapping(address => uint256[]`). This mapping adds the `block.number` each time a transaction is prepared, and removes the `preparedBlockNumber` on completion (both `fulfill` and `cancel`). By looking at these blocks, users and routers should be able to easily find the relevant events and determine the necessary actions without needing a store of their own.
 
+## Error Codes
+
+Error codes thrown by the contracts have the following structure:
+
+```js
+"#${prefix}:${code}";
+```
+
+where the `prefix` denotes which function or portion of the code the error is coming from and `code` corresponds to a given error message.
+
+The error definitions can be found [here](https://github.com/connext/nxtp/blob/c4-59/packages/contracts/src/errors.ts).
+
 ## Development
 
 ### Running the tests
