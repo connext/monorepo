@@ -17,6 +17,7 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, 
 // import types
 import { FulfillInterpreter, Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
 import { getOnchainBalance } from "./utils";
+import { getContractError } from "../src";
 
 const { AddressZero } = constants;
 const EmptyBytes = "0x";
@@ -571,7 +572,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(transactionManager.connect(router).addLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
-        "addLiquidity: ROUTER_EMPTY",
+        getContractError("addLiquidity: ROUTER_EMPTY"),
       );
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -581,7 +582,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "addLiquidity: AMOUNT_IS_ZERO",
+        getContractError("addLiquidity: AMOUNT_IS_ZERO"),
       );
     });
 
@@ -595,7 +596,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
       await expect(transactionManager.addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "addLiquidity: BAD_ROUTER",
+        getContractError("addLiquidity: BAD_ROUTER"),
       );
     });
 
@@ -609,7 +610,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
       await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "addLiquidity: BAD_ASSET",
+        getContractError("addLiquidity: BAD_ASSET"),
       );
     });
 
@@ -618,7 +619,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "addLiquidity: VALUE_MISMATCH",
+        getContractError("addLiquidity: VALUE_MISMATCH"),
       );
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -630,7 +631,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("addLiquidity: VALUE_MISMATCH");
+      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -640,7 +641,7 @@ describe("TransactionManager", function () {
       const assetId = tokenA.address;
       await expect(
         transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("addLiquidity: ETH_WITH_ERC_TRANSFER");
+      ).to.be.revertedWith(getContractError("addLiquidity: ETH_WITH_ERC_TRANSFER"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -710,7 +711,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(transactionManager.connect(router).removeLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
-        "removeLiquidity: RECIPIENT_EMPTY",
+        getContractError("removeLiquidity: RECIPIENT_EMPTY"),
       );
     });
 
@@ -722,7 +723,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).removeLiquidity(amount, assetId, router.address),
-      ).to.be.revertedWith("removeLiquidity: AMOUNT_IS_ZERO");
+      ).to.be.revertedWith(getContractError("removeLiquidity: AMOUNT_IS_ZERO"));
     });
 
     it("should revert if router balance is lower than amount", async () => {
@@ -731,7 +732,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).removeLiquidity(amount, assetId, router.address),
-      ).to.be.revertedWith("removeLiquidity: INSUFFICIENT_FUNDS");
+      ).to.be.revertedWith(getContractError("removeLiquidity: INSUFFICIENT_FUNDS"));
     });
 
     it("happy case: removeLiquidity native token", async () => {
@@ -765,7 +766,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: USER_EMPTY");
+      ).to.be.revertedWith(getContractError("prepare: USER_EMPTY"));
     });
 
     it("should revert if invariantData.router is AddressZero", async () => {
@@ -776,7 +777,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: ROUTER_EMPTY");
+      ).to.be.revertedWith(getContractError("prepare: ROUTER_EMPTY"));
     });
 
     it("should fail if it hasnt been renounced && using an unapproved router", async () => {
@@ -787,7 +788,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: BAD_ROUTER");
+      ).to.be.revertedWith(getContractError("prepare: BAD_ROUTER"));
     });
 
     it("should revert if invariantData.sendingChainFallback is AddressZero", async () => {
@@ -798,7 +799,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: SENDING_CHAIN_FALLBACK_EMPTY");
+      ).to.be.revertedWith(getContractError("prepare: SENDING_CHAIN_FALLBACK_EMPTY"));
     });
 
     it("should revert if invariantData.receivingAddress is AddressZero", async () => {
@@ -809,7 +810,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: RECEIVING_ADDRESS_EMPTY");
+      ).to.be.revertedWith(getContractError("prepare: RECEIVING_ADDRESS_EMPTY"));
     });
 
     it("should revert if invariantData.sendingChainId == invariantData.receivingChainId", async () => {
@@ -820,7 +821,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: SAME_CHAINIDS");
+      ).to.be.revertedWith(getContractError("prepare: SAME_CHAINIDS"));
     });
 
     it("should revert if invariantData.sendingChainId != transactionManager.chainId && invariantData.receivingChainId != transactionManager.chainId", async () => {
@@ -831,7 +832,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: INVALID_CHAINIDS");
+      ).to.be.revertedWith(getContractError("prepare: INVALID_CHAINIDS"));
     });
 
     it("should revert if invariantData.expiry - block.timestamp < MIN_TIMEOUT", async () => {
@@ -844,7 +845,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
+      ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_LOW"));
     });
 
     it("should revert if invariantData.expiry - block.timestamp == MIN_TIMEOUT", async () => {
@@ -856,7 +857,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: TIMEOUT_TOO_LOW");
+      ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_LOW"));
     });
 
     it("should revert if invariantData.expiry - block.timestamp > MAX_TIMEOUT", async () => {
@@ -869,7 +870,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: TIMEOUT_TOO_HIGH");
+      ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_HIGH"));
     });
 
     it("should revert if digest already exist", async () => {
@@ -883,7 +884,7 @@ describe("TransactionManager", function () {
           .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
             value: record.amount,
           }),
-      ).to.be.revertedWith("prepare: DIGEST_EXISTS");
+      ).to.be.revertedWith(getContractError("prepare: DIGEST_EXISTS"));
     });
 
     describe("failures when preparing on the sender chain", () => {
@@ -895,7 +896,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith("prepare: AMOUNT_IS_ZERO");
+        ).to.be.revertedWith(getContractError("prepare: AMOUNT_IS_ZERO"));
       });
 
       it("should fail if its not renounced && invariantData.sendingAssetId != an approved asset", async () => {
@@ -906,7 +907,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith("prepare: BAD_ASSET");
+        ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
       });
 
       it("should revert if msg.value == 0 && invariantData.sendingAssetId == native token", async () => {
@@ -916,7 +917,7 @@ describe("TransactionManager", function () {
           transactionManager
             .connect(user)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != amount && invariantData.sendingAssetId == native token", async () => {
@@ -928,7 +929,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: falseAmount,
             }),
-        ).to.be.revertedWith("prepare: VALUE_MISMATCH");
+        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != 0 && invariantData.sendingAssetId != native token", async () => {
@@ -940,7 +941,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith("prepare: ETH_WITH_ERC_TRANSFER");
+        ).to.be.revertedWith(getContractError("prepare: ETH_WITH_ERC_TRANSFER"));
       });
 
       it("should revert if ERC20.transferFrom fails", async () => {
@@ -962,7 +963,7 @@ describe("TransactionManager", function () {
           transactionManagerReceiverSide
             .connect(user)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith("prepare: ROUTER_MISMATCH");
+        ).to.be.revertedWith(getContractError("prepare: ROUTER_MISMATCH"));
       });
 
       it("should fail if msg.value != 0", async () => {
@@ -974,7 +975,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith("prepare: ETH_WITH_ROUTER_PREPARE");
+        ).to.be.revertedWith(getContractError("prepare: ETH_WITH_ROUTER_PREPARE"));
       });
 
       it("should fail if router liquidity is lower than amount", async () => {
@@ -984,7 +985,7 @@ describe("TransactionManager", function () {
           transactionManagerReceiverSide
             .connect(router)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith("prepare: INSUFFICIENT_LIQUIDITY");
+        ).to.be.revertedWith(getContractError("prepare: INSUFFICIENT_LIQUIDITY"));
       });
     });
 
@@ -1176,7 +1177,7 @@ describe("TransactionManager", function () {
           signature,
           EmptyBytes,
         ),
-      ).to.be.revertedWith("fulfill: INVALID_VARIANT_DATA");
+      ).to.be.revertedWith(getContractError("fulfill: INVALID_VARIANT_DATA"));
     });
 
     it("should revert if transaction has expired", async () => {
@@ -1210,7 +1211,7 @@ describe("TransactionManager", function () {
           signature,
           EmptyBytes,
         ),
-      ).to.be.revertedWith("fulfill: EXPIRED");
+      ).to.be.revertedWith(getContractError("fulfill: EXPIRED"));
     });
 
     it("should revert if transaction is already fulfilled (txData.preparedBlockNumber == 0)", async () => {
@@ -1241,7 +1242,7 @@ describe("TransactionManager", function () {
           signature,
           EmptyBytes,
         ),
-      ).to.be.revertedWith("fulfill: ALREADY_COMPLETED");
+      ).to.be.revertedWith(getContractError("fulfill: ALREADY_COMPLETED"));
     });
 
     it("should revert if param user didn't sign the signature", async () => {
@@ -1271,7 +1272,7 @@ describe("TransactionManager", function () {
           signature,
           EmptyBytes,
         ),
-      ).to.be.revertedWith("fulfill: INVALID_SIGNATURE");
+      ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
     });
 
     it("should revert if the relayerFee > txData.amount", async () => {
@@ -1297,7 +1298,7 @@ describe("TransactionManager", function () {
           signature,
           EmptyBytes,
         ),
-      ).to.be.revertedWith("fulfill: INVALID_RELAYER_FEE");
+      ).to.be.revertedWith(getContractError("fulfill: INVALID_RELAYER_FEE"));
     });
 
     it("should revert if the hash of callData != txData.callDataHash", async () => {
@@ -1336,7 +1337,7 @@ describe("TransactionManager", function () {
             signature,
             keccak256(EmptyBytes),
           ),
-      ).to.be.revertedWith("fulfill: INVALID_CALL_DATA");
+      ).to.be.revertedWith(getContractError("fulfill: INVALID_CALL_DATA"));
     });
 
     describe("sender chain (router) fulfill", () => {
@@ -1363,7 +1364,7 @@ describe("TransactionManager", function () {
             signature,
             EmptyBytes,
           ),
-        ).to.be.revertedWith("fulfill: ROUTER_MISMATCH");
+        ).to.be.revertedWith(getContractError("fulfill: ROUTER_MISMATCH"));
       });
     });
 
@@ -1853,7 +1854,7 @@ describe("TransactionManager", function () {
             relayerFee,
             signature,
           ),
-      ).to.be.revertedWith("cancel: INVALID_VARIANT_DATA");
+      ).to.be.revertedWith(getContractError("cancel: INVALID_VARIANT_DATA"));
     });
 
     it("should error if txData.preparedBlockNumber > 0 is (already fulfilled/cancelled)", async () => {
@@ -1886,7 +1887,7 @@ describe("TransactionManager", function () {
             relayerFee,
             signature,
           ),
-      ).to.be.revertedWith("cancel: ALREADY_COMPLETED");
+      ).to.be.revertedWith(getContractError("cancel: ALREADY_COMPLETED"));
     });
 
     it("should fail if relayerFee > txData.amount", async () => {
@@ -1910,7 +1911,7 @@ describe("TransactionManager", function () {
             relayerFee,
             signature,
           ),
-      ).to.be.revertedWith("cancel: INVALID_RELAYER_FEE");
+      ).to.be.revertedWith(getContractError("cancel: INVALID_RELAYER_FEE"));
     });
 
     describe("sending chain reverts (returns funds to user)", () => {
@@ -1939,7 +1940,7 @@ describe("TransactionManager", function () {
               relayerFee,
               signature,
             ),
-        ).to.be.revertedWith("cancel: ROUTER_MUST_CANCEL");
+        ).to.be.revertedWith(getContractError("cancel: ROUTER_MUST_CANCEL"));
       });
 
       it("should fail if expiry didn't pass yet & msg.sender == router & transferAsset fails", async () => {
@@ -2002,7 +2003,7 @@ describe("TransactionManager", function () {
               relayerFee,
               signature,
             ),
-        ).to.be.revertedWith("cancel: INVALID_SIGNATURE");
+        ).to.be.revertedWith(getContractError("cancel: INVALID_SIGNATURE"));
       });
 
       it("should error if is expired & relayerFee != 0 & user is sending & transfer to relayer fails", async () => {
@@ -2092,7 +2093,7 @@ describe("TransactionManager", function () {
               relayerFee,
               signature,
             ),
-        ).to.be.revertedWith("cancel: INVALID_SIGNATURE");
+        ).to.be.revertedWith(getContractError("cancel: INVALID_SIGNATURE"));
       });
     });
 
