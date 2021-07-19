@@ -332,7 +332,8 @@ export class Handler {
         );
       }
     } catch (e) {
-      if ((e.message as string).includes("DIGEST_EXISTS")) {
+      // prepare: DIGEST_EXISTS
+      if ((e.message as string).includes("#P:015")) {
         this.logger.warn(
           {
             method,
