@@ -147,7 +147,7 @@ export class ChainRpcProvider {
     }
 
     const { gasInitialBumpPercent, gasMinimum } = this.config;
-    return await this.retryWrapper<BigNumber>(this.chainId, method, async () => {
+    return await this.retryWrapper<BigNumber>(method, async () => {
       let gasPrice: BigNumber | undefined = undefined;
 
       if (this.chainId === 1) {
@@ -189,11 +189,17 @@ export class ChainRpcProvider {
   }
 
   public async getBalance(address: string): Promise<BigNumber> {
-    return this.provider.getBalance(address);
+    const method = this.getBalance.name;
+    return await this.retryWrapper<BigNumber>(method, async () => {
+      return await this.provider.getBalance(address);
+    });
   }
 
   public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
-    return this.provider.estimateGas(transaction);
+    const method = this.estimateGas.name;
+    return await this.retryWrapper<BigNumber>(method, async () => {
+      return await this.provider.estimateGas(transaction);
+    });
   }
 
   private async isReady(): Promise<boolean> {
@@ -236,7 +242,7 @@ export class ChainRpcProvider {
     return true;
   }
 
-  private async retryWrapper<T>(chainId: number, method: string, targetMethod: () => Promise<T>): Promise<T> {
+  private async retryWrapper<T>(method: string, targetMethod: () => Promise<T>): Promise<T> {
     let retries: number;
     const errors: { [attempt: number]: string | undefined } = {};
     for (retries = 1; retries < this.config.rpcProviderMaxRetries; retries++) {
@@ -248,7 +254,7 @@ export class ChainRpcProvider {
     }
     throw new ChainError(ChainError.reasons.RpcFailure, {
       method,
-      chainId,
+      chainId: this.chainId,
       errors,
     });
   }
