@@ -21,7 +21,7 @@ export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private _providers: providers.JsonRpcProvider[];
-  private provider: providers.JsonRpcProvider | providers.FallbackProvider;
+  private provider: providers.FallbackProvider;
   private signer: NonceManager;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
@@ -56,10 +56,7 @@ export class ChainRpcProvider {
       }
       return valid;
     });
-    if (filteredConfigs.length === 1) {
-      this.provider = new JsonRpcProvider(providerConfigs[0]);
-      this._providers = [this.provider];
-    } else if (filteredConfigs.length > 1) {
+    if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
         provider: new JsonRpcProvider({
           url: config.url,
