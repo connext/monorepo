@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig } from "./config";
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
 import { TransactionManager } from "./contract";
 
@@ -28,7 +28,7 @@ Object.entries(config.chainConfig).forEach(([chainId, config]) => {
   subgraphs[parseInt(chainId)] = config.subgraph;
   providers[parseInt(chainId)] = config.provider;
 });
-const subgraph = new SubgraphTransactionManagerListener(
+const subgraph = new Subgraph(
   subgraphs,
   wallet.address,
   logger.child({ module: "SubgraphTransactionManagerListener" }),

@@ -18,7 +18,7 @@ import { BaseLogger } from "pino";
 import { getConfig } from "./config";
 import { TransactionManager } from "./contract";
 import { TransactionStatus } from "./graphqlsdk";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 
 const hId = hyperid();
 
@@ -70,7 +70,7 @@ export const mutateExpiry = (expiry: number) => {
 export class Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly subgraph: SubgraphTransactionManagerListener,
+    private readonly subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,

@@ -617,13 +617,14 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type GetSenderPrepareTransactionsQueryVariables = Exact<{
+export type GetSenderTransactionsQueryVariables = Exact<{
   routerId: Scalars['ID'];
   sendingChainId: Scalars['BigInt'];
+  status?: Maybe<TransactionStatus>;
 }>;
 
 
-export type GetSenderPrepareTransactionsQuery = (
+export type GetSenderTransactionsQuery = (
   { __typename?: 'Query' }
   & { router?: Maybe<(
     { __typename?: 'Router' }
@@ -641,67 +642,20 @@ export type GetSenderPrepareTransactionsQuery = (
   )> }
 );
 
-export type GetReceiverPrepareTransactionsQueryVariables = Exact<{
+export type GetReceiverTransactionsQueryVariables = Exact<{
   routerId: Scalars['ID'];
   receivingChainId: Scalars['BigInt'];
+  status?: Maybe<TransactionStatus>;
 }>;
 
 
-export type GetReceiverPrepareTransactionsQuery = (
+export type GetReceiverTransactionsQuery = (
   { __typename?: 'Query' }
   & { router?: Maybe<(
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
       & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller'>
-      & { user: (
-        { __typename?: 'User' }
-        & Pick<User, 'id'>
-      ), router: (
-        { __typename?: 'Router' }
-        & Pick<Router, 'id'>
-      ) }
-    )> }
-  )> }
-);
-
-export type GetReceiverFulfillTransactionsQueryVariables = Exact<{
-  routerId: Scalars['ID'];
-  receivingChainId: Scalars['BigInt'];
-}>;
-
-
-export type GetReceiverFulfillTransactionsQuery = (
-  { __typename?: 'Query' }
-  & { router?: Maybe<(
-    { __typename?: 'Router' }
-    & { transactions: Array<(
-      { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
-      & { user: (
-        { __typename?: 'User' }
-        & Pick<User, 'id'>
-      ), router: (
-        { __typename?: 'Router' }
-        & Pick<Router, 'id'>
-      ) }
-    )> }
-  )> }
-);
-
-export type GetSenderFulfillTransactionsQueryVariables = Exact<{
-  routerId: Scalars['ID'];
-  sendingChainId: Scalars['BigInt'];
-}>;
-
-
-export type GetSenderFulfillTransactionsQuery = (
-  { __typename?: 'Query' }
-  & { router?: Maybe<(
-    { __typename?: 'Router' }
-    & { transactions: Array<(
-      { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'fulfillCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -733,12 +687,13 @@ export type GetTransactionQuery = (
   )> }
 );
 
-export type GetFulfilledTransactionsQueryVariables = Exact<{
+export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+  status?: Maybe<TransactionStatus>;
 }>;
 
 
-export type GetFulfilledTransactionsQuery = (
+export type GetTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
@@ -767,11 +722,11 @@ export type GetAssetBalanceQuery = (
 );
 
 
-export const GetSenderPrepareTransactionsDocument = gql`
-    query GetSenderPrepareTransactions($routerId: ID!, $sendingChainId: BigInt!) {
+export const GetSenderTransactionsDocument = gql`
+    query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
   router(id: $routerId) {
     transactions(
-      where: {status: Prepared, sendingChainId: $sendingChainId, chainId: $sendingChainId}
+      where: {status: $status, sendingChainId: $sendingChainId, chainId: $sendingChainId}
       orderBy: preparedBlockNumber
       orderDirection: desc
     ) {
@@ -803,11 +758,11 @@ export const GetSenderPrepareTransactionsDocument = gql`
   }
 }
     `;
-export const GetReceiverPrepareTransactionsDocument = gql`
-    query GetReceiverPrepareTransactions($routerId: ID!, $receivingChainId: BigInt!) {
+export const GetReceiverTransactionsDocument = gql`
+    query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
   router(id: $routerId) {
     transactions(
-      where: {status: Prepared, receivingChainId: $receivingChainId, chainId: $receivingChainId}
+      where: {status: $status, receivingChainId: $receivingChainId, chainId: $receivingChainId}
       orderBy: preparedBlockNumber
       orderDirection: desc
     ) {
@@ -835,80 +790,6 @@ export const GetReceiverPrepareTransactionsDocument = gql`
       encodedBid
       bidSignature
       prepareCaller
-    }
-  }
-}
-    `;
-export const GetReceiverFulfillTransactionsDocument = gql`
-    query GetReceiverFulfillTransactions($routerId: ID!, $receivingChainId: BigInt!) {
-  router(id: $routerId) {
-    transactions(
-      where: {status: Fulfilled, receivingChainId: $receivingChainId, chainId: $receivingChainId}
-      orderBy: preparedBlockNumber
-      orderDirection: desc
-    ) {
-      id
-      status
-      chainId
-      user {
-        id
-      }
-      router {
-        id
-      }
-      sendingAssetId
-      receivingAssetId
-      sendingChainFallback
-      receivingAddress
-      callTo
-      sendingChainId
-      receivingChainId
-      callDataHash
-      transactionId
-      amount
-      expiry
-      preparedBlockNumber
-      relayerFee
-      signature
-      callData
-      fulfillCaller
-    }
-  }
-}
-    `;
-export const GetSenderFulfillTransactionsDocument = gql`
-    query GetSenderFulfillTransactions($routerId: ID!, $sendingChainId: BigInt!) {
-  router(id: $routerId) {
-    transactions(
-      where: {status: Fulfilled, sendingChainId: $sendingChainId, chainId: $sendingChainId}
-      orderBy: preparedBlockNumber
-      orderDirection: desc
-    ) {
-      id
-      status
-      chainId
-      user {
-        id
-      }
-      router {
-        id
-      }
-      sendingAssetId
-      receivingAssetId
-      sendingChainFallback
-      receivingAddress
-      callTo
-      sendingChainId
-      receivingChainId
-      callDataHash
-      transactionId
-      amount
-      expiry
-      preparedBlockNumber
-      relayerFee
-      signature
-      callData
-      fulfillCaller
     }
   }
 }
@@ -948,9 +829,9 @@ export const GetTransactionDocument = gql`
   }
 }
     `;
-export const GetFulfilledTransactionsDocument = gql`
-    query GetFulfilledTransactions($transactionIds: [Bytes!]) {
-  transactions(where: {transactionId_in: $transactionIds, status: Fulfilled}) {
+export const GetTransactionsDocument = gql`
+    query GetTransactions($transactionIds: [Bytes!], $status: TransactionStatus) {
+  transactions(where: {transactionId_in: $transactionIds, status: $status}) {
     id
     status
     chainId
@@ -994,23 +875,17 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    GetSenderPrepareTransactions(variables: GetSenderPrepareTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSenderPrepareTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSenderPrepareTransactionsQuery>(GetSenderPrepareTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetSenderPrepareTransactions');
+    GetSenderTransactions(variables: GetSenderTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSenderTransactionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetSenderTransactionsQuery>(GetSenderTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetSenderTransactions');
     },
-    GetReceiverPrepareTransactions(variables: GetReceiverPrepareTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReceiverPrepareTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetReceiverPrepareTransactionsQuery>(GetReceiverPrepareTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReceiverPrepareTransactions');
-    },
-    GetReceiverFulfillTransactions(variables: GetReceiverFulfillTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReceiverFulfillTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetReceiverFulfillTransactionsQuery>(GetReceiverFulfillTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReceiverFulfillTransactions');
-    },
-    GetSenderFulfillTransactions(variables: GetSenderFulfillTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSenderFulfillTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSenderFulfillTransactionsQuery>(GetSenderFulfillTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetSenderFulfillTransactions');
+    GetReceiverTransactions(variables: GetReceiverTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReceiverTransactionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetReceiverTransactionsQuery>(GetReceiverTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReceiverTransactions');
     },
     GetTransaction(variables: GetTransactionQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionQuery>(GetTransactionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransaction');
     },
-    GetFulfilledTransactions(variables?: GetFulfilledTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetFulfilledTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetFulfilledTransactionsQuery>(GetFulfilledTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetFulfilledTransactions');
+    GetTransactions(variables?: GetTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionsQuery>(GetTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransactions');
     },
     GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalance');

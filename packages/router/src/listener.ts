@@ -6,7 +6,7 @@ import {
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 
 /*
     Listener.ts
@@ -16,7 +16,7 @@ import { SubgraphTransactionManagerListener } from "./transactionManagerListener
 */
 export async function setupListeners(
   messagingService: RouterNxtpNatsMessagingService,
-  txManager: SubgraphTransactionManagerListener,
+  txManager: Subgraph,
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {

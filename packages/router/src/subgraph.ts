@@ -8,7 +8,7 @@ import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
 const hId = hyperid();
 
-export class SubgraphTransactionManagerListener {
+export class Subgraph {
   private sdks: Record<number, Sdk> = {};
 
   constructor(
@@ -39,9 +39,10 @@ export class SubgraphTransactionManagerListener {
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const methodId = hId();
-        const query = await sdk.GetSenderPrepareTransactions({
+        const query = await sdk.GetSenderTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
+          status: TransactionStatus.Prepared,
         });
 
         if (query.router?.transactions.length ?? 0 > 0) {
@@ -109,9 +110,10 @@ export class SubgraphTransactionManagerListener {
       const sdk: Sdk = this.sdks[chainId];
       setInterval(async () => {
         const methodId = hId();
-        const senderQuery = await sdk.GetSenderPrepareTransactions({
+        const senderQuery = await sdk.GetSenderTransactions({
           routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
+          status: TransactionStatus.Prepared,
         });
 
         const txIds =
@@ -135,7 +137,7 @@ export class SubgraphTransactionManagerListener {
               this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
               return [];
             }
-            const query = await _sdk.GetFulfilledTransactions({ transactionIds: txIds });
+            const query = await _sdk.GetTransactions({ transactionIds: txIds, status: TransactionStatus.Fulfilled });
             return query.transactions;
           }),
         );
