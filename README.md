@@ -172,4 +172,10 @@ The above commands run local chains and messaging and take care of local deploym
 }
 ```
 
+Run the router locally with:
+
+`yarn workspace @connext/nxtp-router dev`
+
+The router will now hot reload and allow easy testing/debug.
+
 Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
