@@ -109,14 +109,11 @@ export class Subgraph {
         // if it is fulfilled, call the handleReceiverFulfill handler
         // if it is cancelled, call the handlerReceiverCancel handler
         // TODO: refactor to Evts or better yet, a structure that can be idempotent by default
-        console.log("chainId: ", chainId);
-        console.log("allSenderPrepared.router?.transactions: ", allSenderPrepared.router?.transactions);
 
         allSenderPrepared.router?.transactions.forEach((senderTx) => {
           const corresponding = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
           );
-          console.log("corresponding: ", corresponding);
           if (!corresponding) {
             // sender prepare
             this.senderPrepareHandler({
