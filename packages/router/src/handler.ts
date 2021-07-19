@@ -17,8 +17,7 @@ import { BaseLogger } from "pino";
 
 import { getConfig } from "./config";
 import { TransactionManager } from "./contract";
-import { TransactionStatus } from "./graphqlsdk";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 
 const hId = hyperid();
 
@@ -70,7 +69,7 @@ export const mutateExpiry = (expiry: number) => {
 export class Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly subgraph: SubgraphTransactionManagerListener,
+    private readonly subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,
@@ -387,37 +386,20 @@ export class Handler {
 
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
-  public async handleReceiverFulfill(data: TransactionFulfilledEvent): Promise<void> {
-    const method = "handleSenderPrepare";
+  public async handleReceiverFulfill(
+    senderEvent: TransactionPreparedEvent,
+    receiverEvent: TransactionFulfilledEvent,
+  ): Promise<void> {
+    const method = "handleReceiverFulfill";
     const methodId = hId();
-    this.logger.info({ method, methodId, data }, "Method start");
+    this.logger.info({ method, methodId, senderEvent, receiverEvent }, "Method start");
 
-    const { txData, signature, callData, relayerFee } = data;
+    const { txData, signature, callData, relayerFee } = receiverEvent;
 
     // Send to tx service
     this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
-    const senderTransaction = await this.subgraph.getTransactionForChain(
-      txData.transactionId,
-      txData.user,
-      txData.sendingChainId,
-    );
-    if (!senderTransaction) {
-      this.logger.error(
-        {
-          transactionId: txData.transactionId,
-          sendingChainId: txData.sendingChainId,
-          receivingChainId: txData.receivingChainId,
-        },
-        "Failed to find sender tx on receiver fulfill",
-      );
-      return;
-    }
-    if (senderTransaction.status !== TransactionStatus.Prepared) {
-      this.logger.warn({ method, methodId, senderTransaction }, "Sender transaction already fulfilled");
-      return;
-    }
     const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
-      txData: senderTransaction.txData,
+      txData: senderEvent.txData,
       signature,
       relayerFee,
       callData,

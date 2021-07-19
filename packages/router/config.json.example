@@ -13,7 +13,5 @@
     }
   },
   "logLevel": "info",
-  "natsUrl": "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222",
-  "authUrl": "https://auth.connext.network",
   "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 }

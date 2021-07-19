@@ -6,8 +6,20 @@ import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
 import { AuctionResponse, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
 
 import "./App.css";
-import { providerUrls, swapConfig } from "./constants";
+import { chainConfig, swapConfig } from "./constants";
 import { getBalance, mintTokens as _mintTokens } from "./utils";
+
+const chainProviders: Record<
+  number,
+  { provider: providers.FallbackProvider; subgraph?: string; transactionManagerAddress?: string }
+> = {};
+Object.entries(chainConfig).forEach(([chainId, { provider, subgraph, transactionManagerAddress }]) => {
+  chainProviders[parseInt(chainId)] = {
+    provider: new providers.FallbackProvider(provider.map((p) => new providers.JsonRpcProvider(p, parseInt(chainId)))),
+    subgraph,
+    transactionManagerAddress,
+  };
+});
 
 function App(): React.ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
@@ -18,6 +30,7 @@ function App(): React.ReactElement | null {
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
     { txData: TransactionData; status: NxtpSdkEvent }[]
   >([]);
+  const [selectedPool, setSelectedPool] = useState(swapConfig[0]);
 
   const [userBalance, setUserBalance] = useState<BigNumber>();
 
@@ -36,18 +49,18 @@ function App(): React.ReactElement | null {
       const address = await _signer.getAddress();
       console.log("address: ", address);
 
-      const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-        form.getFieldValue("sendingChain")
-      ];
+      const sendingChain = form.getFieldValue("sendingChain");
+      console.log("sendingChain: ", sendingChain);
+
+      const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[sendingChain];
+      console.log("sendingAssetId: ", sendingAssetId);
       if (!sendingAssetId) {
         throw new Error("Bad configuration for swap");
       }
-      console.log("sendingAssetId: ", sendingAssetId);
-      const _balance = await getBalance(
-        address,
-        sendingAssetId,
-        new providers.JsonRpcProvider(providerUrls[form.getFieldValue("sendingChain")]),
-      );
+      if (!chainProviders || !chainProviders[sendingChain]) {
+        throw new Error("No config for sendingChain");
+      }
+      const _balance = await getBalance(address, sendingAssetId, chainProviders[sendingChain].provider);
 
       setUserBalance(_balance);
       setSigner(_signer);
@@ -72,19 +85,12 @@ function App(): React.ReactElement | null {
       }
       const { chainId } = await signer.provider!.getNetwork();
       setInjectedProviderChainId(chainId);
-      const chainProviders: { [chainId: number]: providers.FallbackProvider } = {};
-      Object.entries(providerUrls).forEach(
-        ([chainId, url]) =>
-          (chainProviders[parseInt(chainId)] = new providers.FallbackProvider([
-            new providers.JsonRpcProvider(url, parseInt(chainId)),
-          ])),
-      );
       const _sdk = new NxtpSdk(
         chainProviders,
         signer,
         pino({ level: "info" }),
-        // "ws://localhost:4221",
-        // "http://localhost:5040",
+        process.env.REACT_APP_NATS_URL_OVERRIDE,
+        process.env.REACT_APP_AUTH_URL_OVERRIDE,
       );
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
@@ -157,7 +163,7 @@ function App(): React.ReactElement | null {
     if (injectedProviderChainId === targetChainId) {
       return;
     }
-    if (!providerUrls[targetChainId]) {
+    if (!chainConfig[targetChainId]) {
       throw new Error(`No provider configured for chain ${targetChainId}`);
     }
     const ethereum = (window as any).ethereum;
@@ -177,7 +183,7 @@ function App(): React.ReactElement | null {
         try {
           await ethereum.request({
             method: "wallet_addEthereumChain",
-            params: [{ chainId, rpcUrl: providerUrls[targetChainId] }],
+            params: [{ chainId, rpcUrl: chainConfig[targetChainId] }],
           });
         } catch (addError) {
           // handle "add" error
@@ -294,16 +300,37 @@ function App(): React.ReactElement | null {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (action: TransactionData) => {
-        if (Date.now() / 1000 > action.expiry) {
+      render: ({
+        txData,
+        status,
+        bidSignature,
+        caller,
+        encodedBid,
+        encryptedCallData,
+      }: {
+        txData: TransactionData;
+        status: NxtpSdkEvent;
+        bidSignature: string;
+        caller: string;
+        encodedBid: string;
+        encryptedCallData: string;
+      }) => {
+        if (Date.now() / 1000 > txData.expiry) {
           return (
             <Button
               type="link"
-              onClick={() =>
-                sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData: action }, action.sendingChainId)
-              }
+              onClick={() => sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData }, txData.sendingChainId)}
             >
               Cancel
+            </Button>
+          );
+        } else if (status === NxtpSdkEvents.ReceiverTransactionPrepared) {
+          return (
+            <Button
+              type="link"
+              onClick={() => sdk?.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
+            >
+              Finish
             </Button>
           );
         } else {
@@ -388,7 +415,7 @@ function App(): React.ReactElement | null {
                       tx.txData.expiry > Date.now() / 1000
                         ? `${((tx.txData.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
                         : "Expired",
-                    action: tx.txData,
+                    action: tx,
                   };
                 })}
               />
@@ -418,9 +445,9 @@ function App(): React.ReactElement | null {
               console.log("changed: ", changed);
             }}
             initialValues={{
-              sendingChain: "4",
-              receivingChain: "5",
-              asset: "TEST",
+              sendingChain: Object.keys(selectedPool.assets)[0],
+              receivingChain: Object.keys(selectedPool.assets)[1],
+              asset: selectedPool.name,
               amount: "1",
             }}
           >
@@ -429,8 +456,11 @@ function App(): React.ReactElement | null {
                 <Col span={16}>
                   <Form.Item name="sendingChain">
                     <Select>
-                      <Select.Option value="4">Rinkeby</Select.Option>
-                      <Select.Option value="5">Goerli</Select.Option>
+                      {Object.keys(selectedPool.assets).map((chainId) => (
+                        <Select.Option key={chainId} value={chainId}>
+                          {chainId}
+                        </Select.Option>
+                      ))}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -439,7 +469,9 @@ function App(): React.ReactElement | null {
                     {() => (
                       <Button
                         onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
-                        disabled={injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))}
+                        disabled={
+                          !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
+                        }
                       >
                         Switch To Chain {form.getFieldValue("sendingChain")}
                       </Button>
@@ -454,8 +486,11 @@ function App(): React.ReactElement | null {
                 <Col span={16}>
                   <Form.Item name="receivingChain">
                     <Select>
-                      <Select.Option value="4">Rinkeby</Select.Option>
-                      <Select.Option value="5">Goerli</Select.Option>
+                      {Object.keys(selectedPool.assets).map((chainId) => (
+                        <Select.Option key={chainId} value={chainId}>
+                          {chainId}
+                        </Select.Option>
+                      ))}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -466,8 +501,14 @@ function App(): React.ReactElement | null {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="asset">
-                    <Select>
-                      <Select.Option value="TEST">Test Token</Select.Option>
+                    <Select
+                      onChange={(value) => (value ? setSelectedPool(swapConfig[parseInt(value?.toString())]) : "")}
+                    >
+                      {swapConfig.map(({ name }) => (
+                        <Select.Option key={name} value={name}>
+                          {name}
+                        </Select.Option>
+                      ))}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -479,7 +520,7 @@ function App(): React.ReactElement | null {
                       </Button>
                     </Col>
                     <Col span={6}>
-                      <Button type="link" onClick={() => addToMetamask()}>
+                      <Button disabled={!web3Provider} type="link" onClick={() => addToMetamask()}>
                         Add to Metamask
                       </Button>
                     </Col>
@@ -517,6 +558,7 @@ function App(): React.ReactElement | null {
                 placeholder="..."
                 addonAfter={
                   <Button
+                    disabled={!web3Provider}
                     type="primary"
                     onClick={async () => {
                       const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
