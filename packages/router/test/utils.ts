@@ -33,14 +33,14 @@ export const fakeConfig: NxtpRouterConfig = {
   chainConfig: {
     1337: {
       confirmations: 1,
-      provider: ["http://example.com"],
+      providers: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
     },
     1338: {
       confirmations: 1,
-      provider: ["http://example.com"],
+      providers: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",

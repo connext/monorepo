@@ -21,7 +21,7 @@ import * as handlerUtils from "../src/handler";
 import { fakeConfig, senderPrepareData, receiverFulfillDataMock } from "./utils";
 import { parseEther } from "@ethersproject/units";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = pino({ level: process.env.LOG_LEVEL ?? "info" });
 
 const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
