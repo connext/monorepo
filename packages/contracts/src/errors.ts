@@ -46,7 +46,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
 export const getFullError = (error: string): string => {
   const [prefix, index] = error.split(":");
 
-  const fullError: string = ErrorsPrefix[prefix] + ":" + Errors[index];
+  const fullError: string = ErrorsPrefix[prefix].concat(":").concat(Errors[index]);
 
   return fullError;
 };
@@ -54,10 +54,10 @@ export const getFullError = (error: string): string => {
 export const getContractError = (error: string): string => {
   const [prefix_value, error_value] = error.split(":");
 
-  const shortError: string =
-    Object.keys(ErrorsPrefix).find((key) => ErrorsPrefix[key] === prefix_value.trim()) +
-    ":" +
-    Object.keys(Errors).find((key) => Errors[key] === error_value.trim());
+  const shortError: string = Object.keys(ErrorsPrefix)
+    .find((key) => ErrorsPrefix[key] === prefix_value.trim())!
+    .concat(":")
+    .concat(Object.keys(Errors).find((key) => Errors[key] === error_value.trim())!);
 
   return shortError;
 };
