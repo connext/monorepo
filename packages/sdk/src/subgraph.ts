@@ -62,7 +62,7 @@ export class Subgraph {
     const methodName = "getActiveTransactions";
     const methodId = hId();
 
-    const user = await this.user.getAddress();
+    const user = (await this.user.getAddress()).toLowerCase();
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
         const chainId = parseInt(c);
@@ -85,6 +85,7 @@ export class Subgraph {
         });
         const receiverForSenderPreparedIds = receiverForSenderPrepared.map((t) => t.transactionId);
 
+        // filter out everything that has a receiver prepared tx
         const senderPrepared = allSenderPrepared.filter(
           (tx) => !receiverForSenderPreparedIds.includes(tx.transactionId),
         );

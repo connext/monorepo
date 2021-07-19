@@ -448,7 +448,9 @@ function App(): React.ReactElement | null {
                     {() => (
                       <Button
                         onClick={() => switchChains(parseInt(form.getFieldValue("sendingChain")))}
-                        disabled={injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))}
+                        disabled={
+                          !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
+                        }
                       >
                         Switch To Chain {form.getFieldValue("sendingChain")}
                       </Button>
@@ -497,7 +499,7 @@ function App(): React.ReactElement | null {
                       </Button>
                     </Col>
                     <Col span={6}>
-                      <Button type="link" onClick={() => addToMetamask()}>
+                      <Button disabled={!web3Provider} type="link" onClick={() => addToMetamask()}>
                         Add to Metamask
                       </Button>
                     </Col>
@@ -535,6 +537,7 @@ function App(): React.ReactElement | null {
                 placeholder="..."
                 addonAfter={
                   <Button
+                    disabled={!web3Provider}
                     type="primary"
                     onClick={async () => {
                       const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
