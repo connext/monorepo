@@ -26,8 +26,9 @@ import {
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { TransactionManager, getTransactionManagerContractAddress } from "./transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContractAddress } from "./transactionManager";
 import { TransactionManagerEvents } from "./listener";
+import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
 declare const ethereum: any;
 
@@ -129,10 +130,15 @@ export class NxtpSdk {
 
   private readonly transactionManager: TransactionManager;
   private readonly messaging: UserNxtpNatsMessagingService;
+  private readonly subgraph: Subgraph;
 
   constructor(
-    private readonly chainProviders: {
-      [chainId: number]: providers.FallbackProvider;
+    private readonly chainConfig: {
+      [chainId: number]: {
+        provider: providers.FallbackProvider;
+        transactionManagerAddress?: string;
+        subgraph?: string;
+      };
     },
     private readonly signer: Signer,
     private readonly logger: BaseLogger = pino(),
@@ -151,24 +157,56 @@ export class NxtpSdk {
       });
     }
 
-    const cc: {
-      [chainId: number]: {
+    const txManagerConfig: Record<
+      number,
+      {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
-      };
-    } = {};
-    Object.entries(this.chainProviders).forEach(async ([_chainId, provider]) => {
-      const chainId = parseInt(_chainId);
-      cc[chainId] = {
-        provider,
-        transactionManagerAddress: getTransactionManagerContractAddress(chainId),
-      };
-    });
+      }
+    > = {};
+
+    const subgraphConfig: Record<
+      number,
+      {
+        subgraph: string;
+      }
+    > = {};
+
+    // create configs for subclasses based on passed-in config
+    Object.entries(this.chainConfig).forEach(
+      async ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
+        const chainId = parseInt(_chainId);
+
+        let transactionManagerAddress = _transactionManagerAddress;
+        if (!transactionManagerAddress) {
+          transactionManagerAddress = getDeployedTransactionManagerContractAddress(chainId);
+        }
+        if (!transactionManagerAddress) {
+          throw new Error(`Unable to get transactionManagerAddress for ${chainId}, please provide override`);
+        }
+        txManagerConfig[chainId] = {
+          provider,
+          transactionManagerAddress,
+        };
+
+        let subgraph = _subgraph;
+        if (!subgraph) {
+          subgraph = getDeployedSubgraphUri(chainId);
+        }
+        if (!subgraph) {
+          throw new Error(`Unable to get subgraph for ${chainId}, please provide override`);
+        }
+        subgraphConfig[chainId] = {
+          subgraph,
+        };
+      },
+    );
     this.transactionManager = new TransactionManager(
       this.signer,
+      txManagerConfig,
       this.logger.child({ module: "TransactionManager" }),
-      cc,
     );
+    this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
 
     // Start up transaction manager listeners
     this.setupListeners();
@@ -177,6 +215,11 @@ export class NxtpSdk {
   public async connectMessaging(bearerToken?: string): Promise<string> {
     const token = await this.messaging.connect(bearerToken);
     return token;
+  }
+
+  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+    const txs = await this.subgraph.getActiveTransactions();
+    return txs;
   }
 
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
@@ -197,7 +240,7 @@ export class NxtpSdk {
 
     const { sendingAssetId, sendingChainId, amount, receivingChainId, receivingAssetId, receivingAddress, expiry } =
       params;
-    if (!this.chainProviders[sendingChainId] || !this.chainProviders[receivingChainId]) {
+    if (!this.chainConfig[sendingChainId] || !this.chainConfig[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
     }
 
@@ -309,7 +352,7 @@ export class NxtpSdk {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
-    if (!this.chainProviders[sendingChainId] || !this.chainProviders[receivingChainId]) {
+    if (!this.chainConfig[sendingChainId] || !this.chainConfig[receivingChainId]) {
       throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
     }
 
@@ -469,17 +512,13 @@ export class NxtpSdk {
     }
   }
 
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
-    return [];
-  }
-
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
     const tx = await this.transactionManager.cancel(chainId, cancelParams);
     return tx;
   }
 
   private setupListeners(): void {
-    Object.keys(this.chainProviders).forEach((_chainId) => {
+    Object.keys(this.chainConfig).forEach((_chainId) => {
       const chainId = parseInt(_chainId);
       // Translate chain events to SDK external events
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionPrepared, (data) => {

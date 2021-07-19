@@ -22,10 +22,10 @@ const messaging = new RouterNxtpNatsMessagingService({
   natsUrl: config.natsUrl,
   logger,
 });
-const subgraphs: { [chainId: number]: string } = {};
-const providers: { [chainId: number]: string[] } = {};
+const subgraphs: Record<number, { subgraph: string }> = {};
+const providers: Record<number, string[]> = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  subgraphs[parseInt(chainId)] = config.subgraph;
+  subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
   providers[parseInt(chainId)] = config.provider;
 });
 const subgraph = new Subgraph(

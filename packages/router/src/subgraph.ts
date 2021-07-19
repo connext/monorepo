@@ -12,13 +12,13 @@ export class Subgraph {
   private sdks: Record<number, Sdk> = {};
 
   constructor(
-    private readonly chainConfig: { [chainId: number]: string },
+    private readonly chainConfig: Record<number, { subgraph: string }>,
     private readonly routerAddress: string,
     private readonly logger: BaseLogger,
     private readonly pollInterval = 15_000,
   ) {
-    Object.entries(this.chainConfig).forEach(([chainId, subgraphUrl]) => {
-      const client = new GraphQLClient(subgraphUrl);
+    Object.entries(this.chainConfig).forEach(([chainId, { subgraph }]) => {
+      const client = new GraphQLClient(subgraph);
       this.sdks[parseInt(chainId)] = getSdk(client);
     });
   }

@@ -4,12 +4,13 @@ export const getSenderTransactionsQuery = gql`
   query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
       transactions(
-        where: { status: $status, sendingChainId: $sendingChainId, chainId: $sendingChainId }
+        where: { status: $status, sendingChainId: $sendingChainId }
         orderBy: preparedBlockNumber
         orderDirection: desc
       ) {
         id
         status
+        chainId
         user {
           id
         }
@@ -32,6 +33,8 @@ export const getSenderTransactionsQuery = gql`
         encodedBid
         bidSignature
         prepareCaller
+        fulfillCaller
+        cancelCaller
       }
     }
   }
@@ -41,12 +44,13 @@ export const getReceiverTransactionsQuery = gql`
   query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
       transactions(
-        where: { status: $status, receivingChainId: $receivingChainId, chainId: $receivingChainId }
+        where: { status: $status, receivingChainId: $receivingChainId }
         orderBy: preparedBlockNumber
         orderDirection: desc
       ) {
         id
         status
+        chainId
         user {
           id
         }
@@ -69,6 +73,8 @@ export const getReceiverTransactionsQuery = gql`
         encodedBid
         bidSignature
         prepareCaller
+        fulfillCaller
+        cancelCaller
       }
     }
   }
@@ -138,7 +144,9 @@ export const getTransactionsByIdsQuery = gql`
       relayerFee
       signature
       callData
+      prepareCaller
       fulfillCaller
+      cancelCaller
     }
   }
 `;
