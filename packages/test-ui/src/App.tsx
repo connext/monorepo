@@ -330,7 +330,7 @@ function App(): React.ReactElement | null {
               type="link"
               onClick={() => sdk?.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
             >
-              Cancel
+              Finish
             </Button>
           );
         } else {

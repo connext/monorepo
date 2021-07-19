@@ -440,6 +440,7 @@ export class NxtpSdk {
 
   public async finishTransfer(
     params: TransactionPreparedEvent,
+    relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
     const method = "finishTransfer";
@@ -448,15 +449,14 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    // TODO
-    const relayerFee = "0";
-
     // Generate signature
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
     const signature = await signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer);
     this.logger.info({ method, methodId }, "Generated signature");
 
-    // Make sure user is on the receiving chain
+    if (!this.messaging.isConnected()) {
+      await this.messaging.connect();
+    }
 
     // Submit fulfill to receiver chain
     this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
