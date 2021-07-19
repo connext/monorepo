@@ -36,12 +36,6 @@ export const CancelEncoding = tidy(`tuple(
   string cancel
 )`);
 
-export const PrepareEncoding = tidy(`tuple(
-  bytes32 transactionId,
-  uint256 amount,
-  string prepare
-)`);
-
 export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
   return utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
@@ -62,10 +56,6 @@ export const encodeFulfillData = (transactionId: string, relayerFee: string): st
 
 export const encodeCancelData = (transactionId: string, relayerFee: string): string => {
   return utils.defaultAbiCoder.encode([CancelEncoding], [{ transactionId, cancel: "cancel", relayerFee }]);
-};
-
-export const encodePrepareData = (transactionId: string, amount: string): string => {
-  return utils.defaultAbiCoder.encode([PrepareEncoding], [{ transactionId, prepare: "prepare", amount }]);
 };
 
 ////// AUCTION
