@@ -10,17 +10,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-// Outstanding qs:
-// - what happens if you have unique user data, but duplicate tx ids?
-//   no requires here would catch this, the tx would be properly prepared
-//
-// - we validate all the inputs but the amount, bidSignature, and encodedBid.
-//   bidSignature and encodedBid could be used as slashing later, and their
-//   validation is out of scope of this function. But, do we want to be able
-//   to use this to send 0-value amounts? basically as some incentivized
-//   relayer? would that break bidding?
-
-
 /// @title TransactionManager
 /// @author Connext <support@connext.network>
 /// @notice This contract holds the logic to facilitate crosschain transactions.
@@ -336,6 +325,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Set the shares
       shares = amount;
 
+      // Handle internal accounting
       handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
 
       // Store the transaction variants
@@ -662,7 +652,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // Update the outstanding shares
         outstandingShares[txData.sendingAssetId] -= txData.shares;
 
-        // Return totality of locked funds to provided fallbacl
+        // Return totality of locked funds to provided fallback
         Asset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), amount);
       } else {
         // Sanity check relayer fee
