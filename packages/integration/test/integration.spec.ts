@@ -23,8 +23,16 @@ const tokenAddress1338 = tokenAddress1337;
 const txManagerAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const txManagerAddress1338 = txManagerAddress1337;
 const chainProviders = {
-  1337: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
-  1338: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
+  1337: {
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
+    transactionManagerAddress: txManagerAddress1337,
+    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+  },
+  1338: {
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
+    transactionManagerAddress: txManagerAddress1338,
+    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+  },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
@@ -32,19 +40,19 @@ const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 const sugarDaddy = new Wallet(fundedPk);
 const MIN_ETH = utils.parseEther("0.5");
 const ETH_GIFT = utils.parseEther("1");
-const token1337 = new Contract(tokenAddress1337, TestTokenABI, sugarDaddy.connect(chainProviders[1337]));
-const token1338 = new Contract(tokenAddress1338, TestTokenABI, sugarDaddy.connect(chainProviders[1338]));
+const token1337 = new Contract(tokenAddress1337, TestTokenABI, sugarDaddy.connect(chainProviders[1337].provider));
+const token1338 = new Contract(tokenAddress1338, TestTokenABI, sugarDaddy.connect(chainProviders[1338].provider));
 const MIN_TOKEN = utils.parseEther("5");
 const TOKEN_GIFT = utils.parseEther("10");
 const txManager1337 = new Contract(
   txManagerAddress1337,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[1337]),
+  sugarDaddy.connect(chainProviders[1337].provider),
 ) as TransactionManager;
 const txManager1338 = new Contract(
   txManagerAddress1338,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[1338]),
+  sugarDaddy.connect(chainProviders[1338].provider),
 ) as TransactionManager;
 
 const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
@@ -54,20 +62,24 @@ describe("Integration", () => {
   let userWallet: Wallet;
 
   before(async () => {
-    const balance1337 = await chainProviders[1337].getBalance(router);
-    const balance1338 = await chainProviders[1338].getBalance(router);
+    const balance1337 = await chainProviders[1337].provider.getBalance(router);
+    const balance1338 = await chainProviders[1338].provider.getBalance(router);
 
     // fund if necessary
     if (balance1337.lt(MIN_ETH)) {
       logger.info({ chainId: 1337 }, "Sending ETH_GIFT to router");
-      const tx = await sugarDaddy.connect(chainProviders[1337]).sendTransaction({ to: router, value: ETH_GIFT });
+      const tx = await sugarDaddy
+        .connect(chainProviders[1337].provider)
+        .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to router mined");
     }
 
     if (balance1338.lt(MIN_ETH)) {
       logger.info({ chainId: 1338 }, "Sending ETH_GIFT to router");
-      const tx = await sugarDaddy.connect(chainProviders[1338]).sendTransaction({ to: router, value: ETH_GIFT });
+      const tx = await sugarDaddy
+        .connect(chainProviders[1338].provider)
+        .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "ETH_GIFT to router mined: ");
     }
@@ -135,11 +147,11 @@ describe("Integration", () => {
     userWallet = Wallet.createRandom();
 
     // fund user sender side
-    const balance1337 = await chainProviders[1337].getBalance(userWallet.address);
+    const balance1337 = await chainProviders[1337].provider.getBalance(userWallet.address);
     if (balance1337.lt(MIN_ETH)) {
       logger.info({ chainId: 1337 }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
-        .connect(chainProviders[1337])
+        .connect(chainProviders[1337].provider)
         .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
       const receipt = await tx.wait();
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to user mined: ");

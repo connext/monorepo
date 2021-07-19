@@ -6,6 +6,7 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
+import { NATS_AUTH_URL, NATS_CLUSTER_URL } from "@connext/nxtp-utils";
 
 const ajv = addFormats(new Ajv(), [
   "date-time",
@@ -88,8 +89,8 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
-    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl,
-    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl,
+    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL,
+    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
     chainConfig: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)

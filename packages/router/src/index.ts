@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig } from "./config";
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
 import { TransactionManager } from "./contract";
 
@@ -22,16 +22,16 @@ const messaging = new RouterNxtpNatsMessagingService({
   natsUrl: config.natsUrl,
   logger,
 });
-const subgraphs: { [chainId: number]: string } = {};
+const subgraphs: Record<number, { subgraph: string }> = {};
 const chains: { [chainId: string]: ChainConfig } = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  subgraphs[parseInt(chainId)] = config.subgraph;
+  subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
   chains[chainId] = {
     confirmations: config.confirmations,
     providers: config.providers.map((url) => ({ url })),
   } as ChainConfig;
 });
-const subgraph = new SubgraphTransactionManagerListener(
+const subgraph = new Subgraph(
   subgraphs,
   wallet.address,
   logger.child({ module: "SubgraphTransactionManagerListener" }),

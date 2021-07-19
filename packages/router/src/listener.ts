@@ -6,7 +6,7 @@ import {
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 
 /*
     Listener.ts
@@ -16,7 +16,7 @@ import { SubgraphTransactionManagerListener } from "./transactionManagerListener
 */
 export async function setupListeners(
   messagingService: RouterNxtpNatsMessagingService,
-  txManager: SubgraphTransactionManagerListener,
+  subgraph: Subgraph,
   handler: Handler,
   logger: BaseLogger,
 ): Promise<void> {
@@ -40,13 +40,15 @@ export async function setupListeners(
   });
 
   // Setup Subgraph events
-  txManager.onSenderPrepare(async (data: TransactionPreparedEvent) => {
+  subgraph.onSenderPrepare(async (data: TransactionPreparedEvent) => {
     // On sender prepare, route to sender prepare handler
     await handler.handleSenderPrepare(data);
   });
 
-  txManager.onReceiverFulfill(async (data: TransactionFulfilledEvent) => {
-    // On receiver fulfill, route to receiver fulfill handler
-    await handler.handleReceiverFulfill(data);
-  });
+  subgraph.onReceiverFulfill(
+    async (senderEvent: TransactionPreparedEvent, receiverEvent: TransactionFulfilledEvent) => {
+      // On receiver fulfill, route to receiver fulfill handler
+      await handler.handleReceiverFulfill(senderEvent, receiverEvent);
+    },
+  );
 }
