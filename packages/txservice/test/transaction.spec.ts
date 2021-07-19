@@ -1,13 +1,8 @@
-import { providers, Signer, BigNumber } from "ethers";
-import { AddressZero, One, Zero } from "@ethersproject/constants";
-import { mkHash, mkAddress, jsonifyError } from "@connext/nxtp-utils";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
+import { providers, BigNumber } from "ethers";
+import { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
 
-import { TransactionService } from "../src/txservice";
-import { MinimalTransaction } from "../src/types";
-import { TransactionSigner } from "../src/signer";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainError } from "../src/error";
 import { Transaction } from "../src/transaction";

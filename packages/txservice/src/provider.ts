@@ -84,7 +84,6 @@ export class ChainRpcProvider {
   public async sendTransaction(
     tx: FullTransaction,
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
-    this.isReady();
     const method = this.sendTransaction.name;
     // Define task to send tx with proper nonce.
     const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
@@ -120,7 +119,6 @@ export class ChainRpcProvider {
   }
 
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
-    this.isReady();
     const method = this.readTransaction.name;
     return await this.retryWrapper(method, async () => {
       try {
@@ -199,47 +197,8 @@ export class ChainRpcProvider {
     });
   }
 
-  private async isReady(): Promise<boolean> {
-    // TODO: Do we need both ready and the check below, or is this redundant?
-    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
-    // errors due to the target node not being active yet. This will ensure we wait until the node is up
-    // and running smoothly.
-    const ready = await this.provider.ready;
-    if (!ready) {
-      // Error out, not enough providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotSynced);
-    }
-    // Ensure that provider(s) are synced.
-    let outOfSync = 0;
-    await Promise.all(
-      this._providers.map(async (provider) => {
-        try {
-          /* If not syncing, will return something like:
-           * {
-           *   "id": 1,
-           *   "jsonrpc": "2.0",
-           *   "result": false
-           * }
-           */
-          const result = await provider.send("eth_syncing", []);
-          if (result.result) {
-            outOfSync++;
-          }
-        } catch (e) {
-          outOfSync++;
-        }
-      }),
-    );
-    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
-    // we may necessarily need >1 provider to be in sync.
-    if (this._providers.length - outOfSync < this.quorum) {
-      // Error out, not enough providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotSynced);
-    }
-    return true;
-  }
-
   private async retryWrapper<T>(method: string, targetMethod: () => Promise<T>): Promise<T> {
+    this.isReady();
     let retries: number;
     const errors: { [attempt: number]: string | undefined } = {};
     for (retries = 1; retries < this.config.rpcProviderMaxRetries; retries++) {
@@ -254,5 +213,47 @@ export class ChainRpcProvider {
       chainId: this.chainId,
       errors,
     });
+  }
+
+  private async isReady(): Promise<boolean> {
+    // TODO: Do we need both ready and the check below, or is this redundant?
+    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
+    // errors due to the target node not being active yet. This will ensure we wait until the node is up
+    // and running smoothly.
+    const ready = await this.provider.ready;
+    if (!ready) {
+      // Error out, not enough providers are ready.
+      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    }
+    // TODO: Evaluate whether this.provider.ready covers all cases well enough, and whether we need
+    // the additional checks below:
+    // Ensure that provider(s) are synced.
+    // let outOfSync = 0;
+    // await Promise.all(
+    //   this._providers.map(async (provider) => {
+    //     try {
+    //       /* If not syncing, will return something like:
+    //        * {
+    //        *   "id": 1,
+    //        *   "jsonrpc": "2.0",
+    //        *   "result": false
+    //        * }
+    //        */
+    //       const result = await provider.send("eth_syncing", []);
+    //       if (result.result) {
+    //         outOfSync++;
+    //       }
+    //     } catch (e) {
+    //       outOfSync++;
+    //     }
+    //   }),
+    // );
+    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
+    // we may necessarily need >1 provider to be in sync.
+    // if (this._providers.length - outOfSync < this.quorum) {
+    //   // Error out, not enough providers are ready.
+    //   throw new ChainError(ChainError.reasons.ProviderNotSynced);
+    // }
+    return true;
   }
 }

@@ -69,6 +69,7 @@ export class Transaction {
     this._attempt++;
     if (!success) {
       const error = _response as Error;
+      // TODO: Is this necessary anymore?
       if (
         this.responses.length >= 1 &&
         (error.message.includes("nonce has already been used") ||

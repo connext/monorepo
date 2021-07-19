@@ -19,6 +19,7 @@ let transaction: SinonStubbedInstance<Transaction>;
 const log = pino({ level: "debug", name: "TransactionServiceTest" });
 describe("TransactionService unit test", () => {
   beforeEach(() => {
+    // TODO: TransactionSigner needed here ??
     signer = createStubInstance(TransactionSigner);
     signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
