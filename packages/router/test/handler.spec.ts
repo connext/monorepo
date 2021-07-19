@@ -12,7 +12,7 @@ import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "
 import pino from "pino";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { SubgraphTransactionManagerListener } from "../src/transactionManagerListener";
+import { Subgraph } from "../src/subgraph";
 import { Handler } from "../src/handler";
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
@@ -33,14 +33,14 @@ describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
   let txManager: SinonStubbedInstance<TxManager>;
-  let subgraph: SinonStubbedInstance<SubgraphTransactionManagerListener>;
+  let subgraph: SinonStubbedInstance<Subgraph>;
   let wallet: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 
   beforeEach(() => {
     messaging = createStubInstance(RouterNxtpNatsMessagingService);
 
-    subgraph = createStubInstance(SubgraphTransactionManagerListener);
+    subgraph = createStubInstance(Subgraph);
 
     txManager = createStubInstance(TxManager);
 
@@ -191,11 +191,15 @@ describe("Handler", () => {
         receivingAssetId: constants.AddressZero,
       };
 
+      const ethPrepareDataMock = senderPrepareData;
+      ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
+      ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
+
       subgraph.getTransactionForChain.resolves({
         status: TransactionStatus.Prepared,
         ...senderPrepareData,
       });
-      await handler.handleReceiverFulfill(ethRxFulfillDataMock);
+      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
       expect(data).to.deep.eq({
@@ -229,6 +233,10 @@ describe("Handler", () => {
         receivingAssetId: goerliTestTokenAddress,
       };
 
+      const tokenPrepareData = senderPrepareData;
+      tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
+      tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
+
       subgraph.getTransactionForChain.resolves({
         status: TransactionStatus.Prepared,
         bidSignature: "0x",
@@ -237,7 +245,7 @@ describe("Handler", () => {
         ...tokenRxFulfillDataMock,
       });
 
-      await handler.handleReceiverFulfill(tokenRxFulfillDataMock);
+      await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
 
