@@ -11,20 +11,14 @@ import { TransactionManagerEvent, TransactionManagerEventPayloads, TransactionMa
 
 const hId = hyperid();
 
-export const getTransactionManagerContractAddress = (chainId: number): string => {
-  // just for testing
-  let address: string;
-  if ([1337, 1338].includes(chainId)) {
-    address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
-  } else {
-    const record = (contractDeployments as any)[String(chainId)] ?? {};
-    const name = Object.keys(record)[0];
-    if (!name) {
-      throw new Error("Chain not supported yet, please contact connext team");
-    }
-
-    address = record[name]?.contracts?.TransactionManager?.address;
+export const getDeployedTransactionManagerContractAddress = (chainId: number): string | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
   }
+
+  const address = record[name]?.contracts?.TransactionManager?.address;
 
   return address;
 };
@@ -43,13 +37,13 @@ export class TransactionManager {
 
   constructor(
     private readonly signer: Signer,
-    private readonly logger: BaseLogger,
     _chainConfig: {
       [chainId: number]: {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
       };
     },
+    private readonly logger: BaseLogger,
   ) {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress }]) => {

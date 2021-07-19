@@ -1887,6 +1887,10 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@graphql-codegen/cli": ^1.21.7
+    "@graphql-codegen/typescript": ^1.23.0
+    "@graphql-codegen/typescript-graphql-request": ^3.2.5
+    "@graphql-codegen/typescript-operations": ^1.18.4
     "@sinclair/typebox": ^0.17.8
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
@@ -1902,6 +1906,9 @@ __metadata:
     eslint: ^7.30.0
     ethers: ^5.4.1
     evt: ^1.9.14
+    graphql: ^15.5.1
+    graphql-request: ^3.4.0
+    graphql-tag: ^2.12.5
     hardhat: ^2.4.3
     hyperid: ^2.3.1
     mocha: ^9.0.2
@@ -2085,9 +2092,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "@eslint/eslintrc@npm:0.4.2"
+"@eslint/eslintrc@npm:^0.4.3":
+  version: 0.4.3
+  resolution: "@eslint/eslintrc@npm:0.4.3"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.1.1
@@ -2098,7 +2105,7 @@ __metadata:
     js-yaml: ^3.13.1
     minimatch: ^3.0.4
     strip-json-comments: ^3.1.1
-  checksum: 60b66ce4257bf5c36a920dea83a056102fef746e7afd7100a6fe245a126ff455f67f4948e75d28ed73090bff8f8556b6a996e74a124911ca703440bc245dbc23
+  checksum: fa916db689fac96c749571f03f931448d896ce07c3da40079082f28621f52defa36cc0c88bfcdd8d19b9981a6549c3a9a3977953db2f6945aba1135bb83a3d35
   languageName: node
   linkType: hard
 
@@ -4348,7 +4355,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.3, @types/json-schema@npm:^7.0.5, @types/json-schema@npm:^7.0.7":
+"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.3, @types/json-schema@npm:^7.0.5, @types/json-schema@npm:^7.0.7, @types/json-schema@npm:^7.0.8":
   version: 7.0.8
   resolution: "@types/json-schema@npm:7.0.8"
   checksum: 435a3d18a88aeac7bc88c2cdd2c19466c62ce79303493edd72380cd4af9775c05f35d424d5e76ffe3f94575ebb535305c6cae928c5bfb9c39eafbfb6932520a1
@@ -5558,8 +5565,8 @@ __metadata:
   linkType: hard
 
 "antd@npm:^4.16.7":
-  version: 4.16.7
-  resolution: "antd@npm:4.16.7"
+  version: 4.16.8
+  resolution: "antd@npm:4.16.8"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/icons": ^4.6.2
@@ -5606,7 +5613,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 94fa0b5af084ce9868419c9a23657f5067c851eeed76d1e6e1c7b7688e0e2bc792d536e1df57a00dde6d0fa604eaecb65b455ad1b147f0bed848fedda271f43b
+  checksum: 44d7ee6f2ebaf02cbb84126768d1fdb3d888e2ccc92adb0682485524328cec43576fcb0e946ed0c94cd0aff9cc7cd2a417206c0ac52ee8f2049dfc0b6e407bdc
   languageName: node
   linkType: hard
 
@@ -8448,7 +8455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0":
+"color-convert@npm:^1.9.0, color-convert@npm:^1.9.3":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -8491,12 +8498,12 @@ __metadata:
   linkType: hard
 
 "color@npm:^3.0.0":
-  version: 3.2.0
-  resolution: "color@npm:3.2.0"
+  version: 3.2.1
+  resolution: "color@npm:3.2.1"
   dependencies:
-    color-convert: ^2.0.1
+    color-convert: ^1.9.3
     color-string: ^1.6.0
-  checksum: f3e3a162253b0202b2b320871a0ff617493952d03529362bff6c204cfde926d70605d28e18bf6a0511794029e9c10b2bdf06c3b287076ae56fd63653016724ac
+  checksum: 2cf9436cba4cf0cd2da88d82aa69cbad548a850ec24abc1a64930778aa4bc6ef2839b178d85fa2bc254b2a5b982e7db1040c05764f6161a1266880bb0dd14d4f
   languageName: node
   linkType: hard
 
@@ -10897,11 +10904,11 @@ __metadata:
   linkType: hard
 
 "eslint@npm:^7.11.0, eslint@npm:^7.30.0":
-  version: 7.30.0
-  resolution: "eslint@npm:7.30.0"
+  version: 7.31.0
+  resolution: "eslint@npm:7.31.0"
   dependencies:
     "@babel/code-frame": 7.12.11
-    "@eslint/eslintrc": ^0.4.2
+    "@eslint/eslintrc": ^0.4.3
     "@humanwhocodes/config-array": ^0.5.0
     ajv: ^6.10.0
     chalk: ^4.0.0
@@ -10942,7 +10949,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: 028048847e0252d6c972ac612fe37be55822ae2255d10d1bf68255749f7ae1364b2aa538cd95f3bc4d951fc7d36195e46b62fe8d215297ef9a6a8aeb8ca28a90
+  checksum: 38c000372bfafc3715da2d2b6db2a75d4b3b95ac2c20696d774185aa5b6118065a37d0a1292eaa91292e07f86d53a0993cf9bfb838a7a9b935524a125e21af98
   languageName: node
   linkType: hard
 
@@ -21815,8 +21822,8 @@ fsevents@~2.1.1:
   linkType: hard
 
 "rc-dialog@npm:~8.5.0, rc-dialog@npm:~8.5.1":
-  version: 8.5.2
-  resolution: "rc-dialog@npm:8.5.2"
+  version: 8.5.3
+  resolution: "rc-dialog@npm:8.5.3"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: ^2.2.6
@@ -21825,7 +21832,7 @@ fsevents@~2.1.1:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 4b051b157c0690db5af2064c8d9f4c7029d0d93393b8bde0e8152edacb5fa2a72fe7475cca746efd924eb223b4e1454997690ab8c9dec39fd9dff3f13fdb7c1f
+  checksum: bc42f9803ee49c878ab9f7c1bce5ced39f79f7e397fea598d8fa5eafdc9cef2ea53e7f09d6c665573d21c22f77c6b60bca533b1cab449d54b64c2eefdbc575fb
   languageName: node
   linkType: hard
 
@@ -23620,13 +23627,13 @@ resolve@^2.0.0-next.3:
   linkType: hard
 
 "schema-utils@npm:^3.0.0":
-  version: 3.1.0
-  resolution: "schema-utils@npm:3.1.0"
+  version: 3.1.1
+  resolution: "schema-utils@npm:3.1.1"
   dependencies:
-    "@types/json-schema": ^7.0.7
+    "@types/json-schema": ^7.0.8
     ajv: ^6.12.5
     ajv-keywords: ^3.5.2
-  checksum: 804b78a4d212eff70e072263ef241a5ef5b26684a1a9d2611879bb3fa8497637f3a0e8212053b4bf6e9d7ab8b12a1c98ad0fe8db23497e6a057579db8ded8313
+  checksum: c4f4c4c511a07ac7a0be5bf1da60b1756753effc3ff9c1f5153b0238f7e293aa4494466fb436b0a778d63e70e8e6b2cd6ac1d7a1cce176dde6e3f3e3a31d2962
   languageName: node
   linkType: hard
 
