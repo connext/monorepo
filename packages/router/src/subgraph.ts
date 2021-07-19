@@ -75,7 +75,7 @@ export class Subgraph {
       setInterval(async () => {
         // get all sender prepared txs
         const allSenderPrepared = await sdk.GetSenderTransactions({
-          routerId: this.routerAddress,
+          routerId: this.routerAddress.toLowerCase(),
           sendingChainId: chainId,
           status: TransactionStatus.Prepared,
         });
@@ -98,7 +98,7 @@ export class Subgraph {
               this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
               return [];
             }
-            const query = await _sdk.GetTransactions({ transactionIds: txIds });
+            const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
             return query.transactions;
           }),
         );
@@ -109,10 +109,14 @@ export class Subgraph {
         // if it is fulfilled, call the handleReceiverFulfill handler
         // if it is cancelled, call the handlerReceiverCancel handler
         // TODO: refactor to Evts or better yet, a structure that can be idempotent by default
+        console.log("chainId: ", chainId);
+        console.log("allSenderPrepared.router?.transactions: ", allSenderPrepared.router?.transactions);
+
         allSenderPrepared.router?.transactions.forEach((senderTx) => {
           const corresponding = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
           );
+          console.log("corresponding: ", corresponding);
           if (!corresponding) {
             // sender prepare
             this.senderPrepareHandler({
