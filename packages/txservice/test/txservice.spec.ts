@@ -10,13 +10,14 @@ import { ChainRpcProvider } from "../src/provider";
 import { tx, txReceipt, txResponse } from "./constants";
 import { ChainError } from "../src/error";
 
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
+
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
 let transaction: SinonStubbedInstance<Transaction>;
 
 /// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
 /// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
-const log = pino({ level: "debug", name: "TransactionServiceTest" });
 describe("TransactionService unit test", () => {
   beforeEach(() => {
     // TODO: TransactionSigner needed here ??
@@ -41,7 +42,7 @@ describe("TransactionService unit test", () => {
       },
     };
 
-    txService = new TransactionService(log, signer, { chains });
+    txService = new TransactionService(logger, signer, { chains });
     (txService as any).getProvider = (chainId: number) => chainProvider;
 
     transaction = Sinon.createStubInstance(Transaction);
