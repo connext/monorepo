@@ -115,7 +115,7 @@ export const getTransactionByIdQuery = gql`
 
 export const getTransactionsByIdsQuery = gql`
   query GetTransactions($transactionIds: [Bytes!], $status: TransactionStatus) {
-    transactions(where: { transactionId_in: $transactionIds, status: $status }) {
+    transactions(where: { transactionId_in: $transactionIds }) {
       id
       status
       chainId

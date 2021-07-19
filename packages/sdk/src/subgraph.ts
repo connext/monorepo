@@ -80,7 +80,6 @@ export class Subgraph {
           userId: user,
           status: TransactionStatus.Prepared,
         });
-
         const { transactions: receiverForSenderPrepared } = await subgraph.GetTransactions({
           transactionIds: allSenderPrepared.map((t) => t.transactionId),
         });
