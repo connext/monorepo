@@ -41,9 +41,6 @@ describe("TransactionService unit test", () => {
 
   describe("send", () => {
     // Error cases to handle:
-    // rpc failure
-    // provider stops responding
-    // no providers are in sync
     // nonce is expired
     // invalid data ?
 
