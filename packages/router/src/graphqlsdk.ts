@@ -630,7 +630,7 @@ export type GetSenderTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -655,7 +655,7 @@ export type GetReceiverTransactionsQuery = (
     { __typename?: 'Router' }
     & { transactions: Array<(
       { __typename?: 'Transaction' }
-      & Pick<Transaction, 'id' | 'status' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
+      & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
       & { user: (
         { __typename?: 'User' }
         & Pick<User, 'id'>
@@ -689,7 +689,6 @@ export type GetTransactionQuery = (
 
 export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  status?: Maybe<TransactionStatus>;
 }>;
 
 
@@ -732,6 +731,7 @@ export const GetSenderTransactionsDocument = gql`
     ) {
       id
       status
+      chainId
       user {
         id
       }
@@ -770,6 +770,7 @@ export const GetReceiverTransactionsDocument = gql`
     ) {
       id
       status
+      chainId
       user {
         id
       }
@@ -834,8 +835,8 @@ export const GetTransactionDocument = gql`
 }
     `;
 export const GetTransactionsDocument = gql`
-    query GetTransactions($transactionIds: [Bytes!], $status: TransactionStatus) {
-  transactions(where: {transactionId_in: $transactionIds, status: $status}) {
+    query GetTransactions($transactionIds: [Bytes!]) {
+  transactions(where: {transactionId_in: $transactionIds}) {
     id
     status
     chainId

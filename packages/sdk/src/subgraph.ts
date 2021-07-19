@@ -58,7 +58,16 @@ export class Subgraph {
     });
   }
 
-  async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+  async getActiveTransactions(): Promise<
+    {
+      txData: TransactionData;
+      status: NxtpSdkEvent;
+      bidSignature: string;
+      caller: string;
+      encodedBid: string;
+      encryptedCallData: string;
+    }[]
+  > {
     const methodName = "getActiveTransactions";
     const methodId = hId();
 
@@ -90,17 +99,39 @@ export class Subgraph {
           (tx) => !receiverForSenderPreparedIds.includes(tx.transactionId),
         );
 
-        const rxTxs: { txData: TransactionData; status: NxtpSdkEvent }[] = receiverPrepared.map((txData) => {
+        const rxTxs: {
+          txData: TransactionData;
+          status: NxtpSdkEvent;
+          bidSignature: string;
+          caller: string;
+          encodedBid: string;
+          encryptedCallData: string;
+        }[] = receiverPrepared.map((txData) => {
           return {
             txData: convertTransactionToTxData(txData),
             status: NxtpSdkEvents.ReceiverTransactionPrepared,
+            bidSignature: txData.bidSignature,
+            caller: txData.prepareCaller,
+            encodedBid: txData.encodedBid,
+            encryptedCallData: txData.encryptedCallData,
           };
         });
 
-        const senderTxs: { txData: TransactionData; status: NxtpSdkEvent }[] = senderPrepared.map((txData) => {
+        const senderTxs: {
+          txData: TransactionData;
+          status: NxtpSdkEvent;
+          bidSignature: string;
+          caller: string;
+          encodedBid: string;
+          encryptedCallData: string;
+        }[] = senderPrepared.map((txData) => {
           return {
             txData: convertTransactionToTxData(txData),
             status: NxtpSdkEvents.SenderTransactionPrepared,
+            bidSignature: txData.bidSignature,
+            caller: txData.prepareCaller,
+            encodedBid: txData.encodedBid,
+            encryptedCallData: txData.encryptedCallData,
           };
         });
         return rxTxs.concat(senderTxs);

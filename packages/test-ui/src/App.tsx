@@ -300,14 +300,35 @@ function App(): React.ReactElement | null {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (action: TransactionData) => {
-        if (Date.now() / 1000 > action.expiry) {
+      render: ({
+        txData,
+        status,
+        bidSignature,
+        caller,
+        encodedBid,
+        encryptedCallData,
+      }: {
+        txData: TransactionData;
+        status: NxtpSdkEvent;
+        bidSignature: string;
+        caller: string;
+        encodedBid: string;
+        encryptedCallData: string;
+      }) => {
+        if (Date.now() / 1000 > txData.expiry) {
           return (
             <Button
               type="link"
-              onClick={() =>
-                sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData: action }, action.sendingChainId)
-              }
+              onClick={() => sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData }, txData.sendingChainId)}
+            >
+              Cancel
+            </Button>
+          );
+        } else if (status === NxtpSdkEvents.ReceiverTransactionPrepared) {
+          return (
+            <Button
+              type="link"
+              onClick={() => sdk?.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
             >
               Cancel
             </Button>
@@ -394,7 +415,7 @@ function App(): React.ReactElement | null {
                       tx.txData.expiry > Date.now() / 1000
                         ? `${((tx.txData.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
                         : "Expired",
-                    action: tx.txData,
+                    action: tx,
                   };
                 })}
               />
