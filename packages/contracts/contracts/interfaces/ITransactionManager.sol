@@ -14,6 +14,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback; // funds sent here on cancel
     address receivingAddress;
+    address callTo;
     uint256 sendingChainId;
     uint256 receivingChainId;
     bytes32 callDataHash; // hashed to prevent free option
@@ -37,6 +38,7 @@ interface ITransactionManager {
     address receivingAssetId;
     address sendingChainFallback;
     address receivingAddress;
+    address callTo;
     bytes32 callDataHash;
     bytes32 transactionId;
     uint256 sendingChainId;
@@ -48,31 +50,67 @@ interface ITransactionManager {
 
   // The structure of the signed data for cancellations
   struct SignedCancelData {
-    bytes32 invariantDigest;
+    bytes32 transactionId;
     uint256 relayerFee;
     string cancel; // just the string "cancel"
   }
 
-  // The structure of the signed data for cancellations
+  // The structure of the signed data for fulfill
   struct SignedFulfillData {
-    bytes32 invariantDigest;
+    bytes32 transactionId;
     uint256 relayerFee;
   }
 
   // Liquidity events
-  event LiquidityAdded(address router, address assetId, uint256 amount);
+  event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
 
-  event LiquidityRemoved(address router, address assetId, uint256 amount, address recipient);
+  event LiquidityRemoved(address indexed router, address indexed assetId, uint256 amount, address recipient);
 
   // Transaction events
-  event TransactionPrepared(TransactionData txData, address caller, bytes encryptedCallData, bytes encodedBid, bytes bidSignature);
+  event TransactionPrepared(
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
+    TransactionData txData,
+    address caller,
+    bytes encryptedCallData,
+    bytes encodedBid,
+    bytes bidSignature
+  );
 
-  event TransactionFulfilled(TransactionData txData, uint256 relayerFee, bytes signature, address caller);
+  event TransactionFulfilled(
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
+    TransactionData txData,
+    uint256 relayerFee,
+    bytes signature,
+    bytes callData,
+    address caller
+  );
 
-  event TransactionCancelled(TransactionData txData, uint256 relayerFee, address caller);
+  event TransactionCancelled(
+    address indexed user,
+    address indexed router,
+    bytes32 indexed transactionId,
+    TransactionData txData,
+    uint256 relayerFee,
+    address caller
+  );
+
+  // Owner only methods
+  function renounce() external;
+
+  function addRouter(address router) external;
+
+  function removeRouter(address router) external;
+
+  function addAssetId(address assetId) external;
+
+  function removeAssetId(address assetId) external;
 
   // Router only methods
-  function addLiquidity(uint256 amount, address assetId) external payable;
+  function addLiquidity(uint256 amount, address assetId, address router) external payable;
 
   function removeLiquidity(
     uint256 amount,

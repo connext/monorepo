@@ -1,0 +1,17 @@
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "4": {
+      "provider": ["https://rinkeby.infura.io/v3/"],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+    },
+    "5": {
+      "provider": ["https://goerli.infura.io/v3/"],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+    }
+  },
+  "logLevel": "info",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+}

@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  router:
+    container_name: router-test
+    image: nxtp-router:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config/router/config.json:/home/node/router/config.json
+    networks:
+      - nxtp-test
+
+networks:
+  nxtp-test:

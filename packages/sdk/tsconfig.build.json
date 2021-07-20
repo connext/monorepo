@@ -5,6 +5,9 @@
     },
     {
       "path": "../contracts/tsconfig.build.json"
+    },
+    {
+      "path": "../txservice/tsconfig.build.json"
     }
   ],
   "extends": "../../config/tsconfig.node.json",
@@ -14,6 +17,6 @@
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": ["src/**/*.ts"],
   "exclude": ["test/**/*.ts"]
 }

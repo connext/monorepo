@@ -14,13 +14,13 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "assetId",
         type: "address",
@@ -31,6 +31,12 @@ const _abi = [
         name: "amount",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
     ],
     name: "LiquidityAdded",
     type: "event",
@@ -39,13 +45,13 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "assetId",
         type: "address",
@@ -69,6 +75,24 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         components: [
           {
@@ -99,6 +123,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -162,6 +191,24 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
+      {
         components: [
           {
             internalType: "address",
@@ -191,6 +238,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -248,6 +300,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -259,6 +317,24 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         components: [
           {
@@ -289,6 +365,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -363,6 +444,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+    ],
+    name: "addAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -372,10 +466,28 @@ const _abi = [
         name: "assetId",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
     ],
     name: "addLiquidity",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "addRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -410,6 +522,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -498,6 +615,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -573,6 +695,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -666,6 +793,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -741,6 +873,11 @@ const _abi = [
           {
             internalType: "address",
             name: "receivingAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "callTo",
             type: "address",
           },
           {
@@ -829,6 +966,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "callTo",
+            type: "address",
+          },
+          {
             internalType: "bytes32",
             name: "callDataHash",
             type: "bytes32",
@@ -875,6 +1017,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+    ],
+    name: "removeAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -891,6 +1046,26 @@ const _abi = [
       },
     ],
     name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "removeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounce",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

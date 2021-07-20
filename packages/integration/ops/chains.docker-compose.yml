@@ -1,0 +1,102 @@
+version: "3.8"
+
+services:
+  chain-1337:
+    container_name: chain-1337-test
+    image: trufflesuite/ganache-cli:latest
+    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 5 --verbose"
+    ports:
+      - 8545:8545
+    networks:
+      - nxtp-test
+  chain-1338:
+    container_name: chain-1338-test
+    image: trufflesuite/ganache-cli:latest
+    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 5 --verbose"
+    ports:
+      - 8546:8545
+    networks:
+      - nxtp-test
+
+  ######################
+
+  graph-node-1337:
+    container_name: graph-node-1337-test
+    image: graphprotocol/graph-node
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1337
+      - chain-1337
+    environment:
+      postgres_host: postgres-1337
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1337:8545"
+      GRAPH_LOG: info
+    networks:
+      - nxtp-test
+  postgres-1337:
+    container_name: postgres-1337-test
+    image: postgres
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    networks:
+      - nxtp-test
+  graph-node-1338:
+    container_name: graph-node-1338-test
+    image: graphprotocol/graph-node
+    ports:
+      - "9000:8000"
+      - "9001:8001"
+      - "9020:8020"
+      - "9030:8030"
+      - "9040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1338
+      - chain-1338
+    environment:
+      postgres_host: postgres-1338
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1338:8545"
+      GRAPH_LOG: info
+    networks:
+      - nxtp-test
+  postgres-1338:
+    container_name: postgres-1338-test
+    image: postgres
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    networks:
+      - nxtp-test
+  ipfs:
+    container_name: ipfs-test
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - "5001:5001"
+    networks:
+      - nxtp-test
+
+networks:
+  nxtp-test:

@@ -7,7 +7,7 @@ import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig } from "./config";
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
 import { TransactionManager } from "./contract";
 
@@ -22,17 +22,32 @@ const messaging = new RouterNxtpNatsMessagingService({
   natsUrl: config.natsUrl,
   logger,
 });
-const subgraphs: { [chainId: number]: string } = {};
-const providers: { [chainId: number]: string[] } = {};
+const subgraphs: Record<number, { subgraph: string }> = {};
+const providers: Record<number, string[]> = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  subgraphs[parseInt(chainId)] = config.subgraph;
+  subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
   providers[parseInt(chainId)] = config.provider;
 });
-const subgraph = new SubgraphTransactionManagerListener(subgraphs, wallet.address, logger);
-const txService = new TransactionService(logger, wallet, providers);
-const transactionManager = new TransactionManager(txService, wallet.address, logger);
+const subgraph = new Subgraph(
+  subgraphs,
+  wallet.address,
+  logger.child({ module: "SubgraphTransactionManagerListener" }),
+);
+const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, providers);
+const transactionManager = new TransactionManager(
+  txService,
+  wallet.address,
+  logger.child({ module: "TransactionManager" }),
+);
 
-const handler = new Handler(messaging, subgraph, transactionManager, logger);
+const handler = new Handler(
+  messaging,
+  subgraph,
+  transactionManager,
+  txService,
+  wallet,
+  logger.child({ module: "Handler" }),
+);
 
 export const AddLiquidityRequestSchema = Type.Object({
   chainId: TChainId,
@@ -60,6 +75,7 @@ export const RemoveLiquidityResponseSchema = Type.Object({
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
 
 server.addHook("onReady", async function () {
+  getConfig(); // validate config
   await messaging.connect();
   await setupListeners(messaging, subgraph, handler, logger);
 });
@@ -76,18 +92,21 @@ server.get("/config", async () => {
 
 server.post<{ Body: AddLiquidityRequest }>(
   "/add-liquidity",
-  //  TODO: make these work!
-  // { schema: { body: AddLiquidityRequestSchema, response: AddLiquidityResponseSchema } },
+  { schema: { body: AddLiquidityRequestSchema, response: { "2xx": AddLiquidityResponseSchema } } },
   async (req) => {
-    const result = await transactionManager.addLiquidity(req.body.chainId, req.body.amount, req.body.assetId);
+    const result = await transactionManager.addLiquidity(
+      req.body.chainId,
+      wallet.address,
+      req.body.amount,
+      req.body.assetId,
+    );
     return { transactionHash: result.transactionHash };
   },
 );
 
 server.get<{ Body: RemoveLiquidityRequest }>(
   "/remove-liquidity",
-  //  TODO: make these work!
-  // { schema: { body: RemoveLiquidityRequestSchema, response: RemoveLiquidityResponseSchema } },
+  { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
   async (req) => {
     const result = await transactionManager.removeLiquidity(
       req.body.chainId,

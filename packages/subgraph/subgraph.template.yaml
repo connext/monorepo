@@ -24,14 +24,14 @@ dataSources:
         - name: TransactionManager
           file: ./abis/TransactionManager.json
       eventHandlers:
-        - event: LiquidityAdded(address,address,uint256)
+        - event: LiquidityAdded(indexed address,indexed address,uint256,address)
           handler: handleLiquidityAdded
-        - event: LiquidityRemoved(address,address,uint256,address)
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: TransactionPrepared((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
+        - event: TransactionPrepared(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
           handler: handleTransactionPrepared
-        - event: TransactionFulfilled((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,address)
+        - event: TransactionFulfilled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,bytes,address)
           handler: handleTransactionFulfilled
-        - event: TransactionCancelled((address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,address)
+        - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,address)
           handler: handleTransactionCancelled
       file: ./src/mapping.ts

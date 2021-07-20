@@ -1,12 +1,12 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.0.4",
+  "version": "0.0.9",
   "private": true,
   "devDependencies": {
     "@jtbennett/ts-project-scripts": "^1.0.0-rc.4",
     "@types/node": "^15.14.1",
-    "@typescript-eslint/eslint-plugin": "^4.28.2",
-    "@typescript-eslint/parser": "^4.28.2",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
     "concurrently": "^6.2.0",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
@@ -17,6 +17,7 @@
   },
   "workspaces": [
     "packages/contracts",
+    "packages/integration",
     "packages/router",
     "packages/sdk",
     "packages/subgraph",
@@ -25,15 +26,17 @@
     "packages/utils"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run test",
+    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
+    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
     "tsp:root": "tsp",
-    "tsp": "tsp"
+    "tsp": "tsp",
+    "docker:router": "yarn workspace @connext/nxtp-router build && bash docker/build-router.sh",
+    "test:integration": "yarn workspace @connext/nxtp-integration docker:all:up && sleep 10s && docker ps -a && bash setup-integration-test.sh && yarn workspace @connext/nxtp-integration test && yarn workspace @connext/nxtp-integration docker:all:down"
   },
   "resolutions": {
     "assemblyscript": "git+https://github.com/AssemblyScript/assemblyscript.git#v0.6",

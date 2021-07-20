@@ -1,8 +1,10 @@
+[![Verify](https://github.com/connext/nxtp/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+
 # NXTP
 
 **N**oncustodial **X**chain **T**ransfer **P**rotocol.
 
-**Nxtp** is a lightweight protocol for generalized xchain transactions that retain the security properties of the underlying chain (i.e. it does **not** rely on any external validator set).
+**Nxtp** is a lightweight protocol for generalized xchain/xrollup transactions that retain the security properties of the underlying execution environment (i.e. it does **not** rely on any external validator set).
 
 The protocol is made up of a simple contract that uses a locking pattern to `prepare` and `fulfill` transactions, a network of offchain routers that participate in pricing auctions and pass calldata between chains, and a user-side sdk that finds routes and prompts onchain transactions.
 
@@ -134,3 +136,46 @@ To add the lib to be a dependency of a consuming app (i.e. the router):
 Again, this can all be done without the tool, all it does is add some files and make some config changes.
 
 Note: We use `node-lib` as the template for all the packages. There are some other included templates like `browser-lib` which didn't work with our bundling. We might need to revisit things for bundling reqs.
+
+## Integration
+
+### Local Services
+
+In some cases it is desirable to develop against local blockchains and messaging services. To do that, run:
+
+- `yarn workspace @connext/nxtp-integration docker:services:up`
+- `bash setup-integration-test`
+
+The above commands run local chains and messaging and take care of local deployment. Modify `packages/router/config.json` to look similar to the following:
+
+```json
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "1337": {
+      "provider": ["http://localhost:8545"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    },
+    "1338": {
+      "provider": ["http://localhost:8546"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://localhost:4222",
+  "authUrl": "http://localhost:5040",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+}
+```
+
+Run the router locally with:
+
+`yarn workspace @connext/nxtp-router dev`
+
+The router will now hot reload and allow easy testing/debug.
+
+Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.

@@ -7,6 +7,7 @@ export type InvariantTransactionData = {
   sendingAssetId: string;
   receivingAssetId: string;
   sendingChainFallback: string;
+  callTo: string;
   receivingAddress: string;
   sendingChainId: number;
   receivingChainId: number;
@@ -16,7 +17,7 @@ export type InvariantTransactionData = {
 
 export type VariantTransactionData = {
   amount: string;
-  expiry: string;
+  expiry: number;
   preparedBlockNumber: number;
 };
 export type TransactionData = InvariantTransactionData & VariantTransactionData;
@@ -36,7 +37,7 @@ export type SignedFulfillData = {
 export type PrepareParams = {
   txData: InvariantTransactionData;
   amount: string;
-  expiry: string;
+  expiry: number;
   encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
@@ -68,6 +69,7 @@ export type TransactionFulfilledEvent = {
   txData: TransactionData;
   signature: string;
   relayerFee: string;
+  callData: string;
   caller: string;
 };
 

@@ -13,6 +13,10 @@ export { AuthService } from "ts-natsutil";
 
 const hId = hyperid();
 
+const MESSAGE_PREFIX = `Hi there from Connext! Sign this message to make sure that no one can communicate on the Connext Network on your behalf. This will not cost you any Ether!
+  
+To stop hackers from using your wallet, here's a unique message ID that they can't guess: `;
+
 export class MessagingError extends NxtpError {
   static readonly type = "MessagingError";
   static readonly reasons = {
@@ -46,7 +50,7 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
   const address = await signer.getAddress();
   const nonceResponse = await axios.get(`${authUrl}/auth/${address}`);
   const nonce = nonceResponse.data;
-  const sig = await signer.signMessage(nonce);
+  const sig = await signer.signMessage(`${MESSAGE_PREFIX}${nonce}`);
   const verifyResponse: AxiosResponse<string> = await axios.post(`${authUrl}/auth`, {
     sig,
     signerAddress: address,
@@ -54,17 +58,7 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
   return verifyResponse.data;
 };
 
-export interface BasicMessaging {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  publish(subject: string, data: any): Promise<void>;
-  subscribe(subject: string, cb: (data: any) => any): Promise<void>;
-  unsubscribe(subject: string): Promise<void>;
-  flush(): Promise<void>;
-  request(subject: string, timeout: number, data: any): Promise<any>;
-}
-
-export class NatsBasicMessagingService implements BasicMessaging {
+export class NatsBasicMessagingService {
   private connection: INatsService | undefined;
   private log: BaseLogger;
 
@@ -98,7 +92,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
     this.signer = config.signer;
   }
 
-  private isConnected(): boolean {
+  public isConnected(): boolean {
     return !!this.connection?.isConnected();
   }
 
@@ -108,8 +102,10 @@ export class NatsBasicMessagingService implements BasicMessaging {
     }
   }
 
-  async connect(): Promise<void> {
-    if (!this.bearerToken) {
+  async connect(bearerToken?: string): Promise<string> {
+    if (bearerToken) {
+      this.bearerToken = bearerToken;
+    } else if (!this.bearerToken) {
       const token = await getBearerToken(this.authUrl!, this.signer)();
       this.bearerToken = token;
     }
@@ -136,6 +132,7 @@ export class NatsBasicMessagingService implements BasicMessaging {
         await this.connect();
       });
     }
+    return this.bearerToken;
   }
 
   async disconnect(): Promise<void> {
@@ -223,8 +220,44 @@ export type NxtpMessageEnvelope<T> = {
   inbox?: string;
 };
 
-export type AuctionPayload = { [k: string]: never };
-export type AuctionResponse = { [k: string]: never };
+export type AuctionPayload = {
+  user: string;
+  sendingChainId: number;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: number;
+  receivingAssetId: string;
+  receivingAddress: string;
+  expiry: number;
+  transactionId: string;
+  encryptedCallData: string;
+  callDataHash: string;
+  callTo: string;
+};
+
+export type AuctionBid = {
+  user: string;
+  router: string;
+  sendingChainId: number;
+  sendingAssetId: string;
+  amount: string;
+  receivingChainId: number;
+  receivingAssetId: string;
+  amountReceived: string;
+  receivingAddress: string;
+  transactionId: string;
+  expiry: number;
+  callDataHash: string;
+  callTo: string;
+  encryptedCallData: string;
+  sendingChainTxManagerAddress: string;
+  receivingChainTxManagerAddress: string;
+};
+
+export type AuctionResponse = {
+  bid: AuctionBid;
+  bidSignature: string;
+};
 
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
@@ -240,7 +273,6 @@ export type MetaTxPayload<T extends MetaTxTypes> = {
   to: string;
   data: MetaTxPayloads[T];
   chainId: number;
-  responseInbox: string;
 };
 export type MetaTxResponse = {
   transactionHash: string;
@@ -311,9 +343,9 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    *
    */
   async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
+    await this.subscribeToNxtpMessageWithInbox<AuctionPayload>(
       `*.*.${AUCTION_SUBJECT}`,
-      (data: AuctionResponse, inbox: string, err?: any) => {
+      (data: AuctionPayload, inbox: string, err?: any) => {
         return handler(data, inbox, err);
       },
     );
@@ -350,7 +382,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_SUBJECT}`, data, inbox);
     return { inbox };
   }
 
@@ -368,7 +400,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data);
+    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_SUBJECT}`, data, inbox);
     return { inbox };
   }
 

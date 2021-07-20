@@ -1,81 +1,13 @@
 import { gql } from "graphql-request";
 
-export const getSenderPrepareQuery = gql`
-  query GetSenderPrepareTransactions($routerId: ID!, $sendingChainId: BigInt!) {
+export const getSenderTransactionsQuery = gql`
+  query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
-      transactions(where: { status: Prepared, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
-        id
-        status
-        user {
-          id
-        }
-        router {
-          id
-        }
-        sendingAssetId
-        receivingAssetId
-        sendingChainFallback
-        receivingAddress
-        callDataHash
-        transactionId
-        sendingChainId
-        receivingChainId
-        amount
-        expiry
-        preparedBlockNumber
-        encryptedCallData
-        encodedBid
-        bidSignature
-        prepareCaller
-      }
-      assetBalances {
-        id
-        amount
-      }
-    }
-  }
-`;
-
-export const getReceiverPrepareQuery = gql`
-  query GetReceiverPrepareTransactions($routerId: ID!, $receivingChainId: BigInt!) {
-    router(id: $routerId) {
-      transactions(where: { status: Prepared, receivingChainId: $receivingChainId, chainId: $receivingChainId }) {
-        id
-        status
-        user {
-          id
-        }
-        router {
-          id
-        }
-        sendingAssetId
-        receivingAssetId
-        sendingChainFallback
-        receivingAddress
-        callDataHash
-        transactionId
-        sendingChainId
-        receivingChainId
-        amount
-        expiry
-        preparedBlockNumber
-        encryptedCallData
-        encodedBid
-        bidSignature
-        prepareCaller
-      }
-      assetBalances {
-        id
-        amount
-      }
-    }
-  }
-`;
-
-export const getReceiverFulfillQuery = gql`
-  query GetReceiverFulfillTransactions($routerId: ID!, $receivingChainId: BigInt!) {
-    router(id: $routerId) {
-      transactions(where: { status: Fulfilled, receivingChainId: $receivingChainId, chainId: $receivingChainId }) {
+      transactions(
+        where: { status: $status, sendingChainId: $sendingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         chainId
@@ -89,29 +21,33 @@ export const getReceiverFulfillQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
-        relayerFee
-        signature
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
         fulfillCaller
-      }
-      assetBalances {
-        id
-        amount
+        cancelCaller
       }
     }
   }
 `;
 
-export const getSenderFulfillQuery = gql`
-  query GetSenderFulfillTransactions($routerId: ID!, $sendingChainId: BigInt!) {
+export const getReceiverTransactionsQuery = gql`
+  query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
-      transactions(where: { status: Fulfilled, sendingChainId: $sendingChainId, chainId: $sendingChainId }) {
+      transactions(
+        where: { status: $status, receivingChainId: $receivingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
         status
         chainId
@@ -125,20 +61,20 @@ export const getSenderFulfillQuery = gql`
         receivingAssetId
         sendingChainFallback
         receivingAddress
-        callDataHash
-        transactionId
+        callTo
         sendingChainId
         receivingChainId
+        callDataHash
+        transactionId
         amount
         expiry
         preparedBlockNumber
-        relayerFee
-        signature
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
         fulfillCaller
-      }
-      assetBalances {
-        id
-        amount
+        cancelCaller
       }
     }
   }
@@ -160,10 +96,11 @@ export const getTransactionByIdQuery = gql`
       receivingAssetId
       sendingChainFallback
       receivingAddress
-      callDataHash
-      transactionId
+      callTo
       sendingChainId
       receivingChainId
+      callDataHash
+      transactionId
       amount
       expiry
       preparedBlockNumber
@@ -176,6 +113,48 @@ export const getTransactionByIdQuery = gql`
       prepareCaller
       fulfillCaller
       cancelCaller
+    }
+  }
+`;
+
+export const getTransactionsByIdsQuery = gql`
+  query GetTransactions($transactionIds: [Bytes!]) {
+    transactions(where: { transactionId_in: $transactionIds }) {
+      id
+      status
+      chainId
+      user {
+        id
+      }
+      router {
+        id
+      }
+      sendingAssetId
+      receivingAssetId
+      sendingChainFallback
+      receivingAddress
+      callTo
+      sendingChainId
+      receivingChainId
+      callDataHash
+      transactionId
+      amount
+      expiry
+      preparedBlockNumber
+      relayerFee
+      signature
+      callData
+      prepareCaller
+      fulfillCaller
+      cancelCaller
+    }
+  }
+`;
+
+export const getAssetBalanceById = gql`
+  query GetAssetBalance($assetBalanceId: ID!) {
+    assetBalance(id: $assetBalanceId) {
+      amount
     }
   }
 `;
