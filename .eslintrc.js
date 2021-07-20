@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ["./packages/**/tsconfig.json"],
   },
-  plugins: ["@typescript-eslint", "node", "import"],
+  plugins: ["@typescript-eslint", "eslint-plugin-tsdoc", "node", "import"],
   extends: [
     // Core eslint recommended rules.
     "eslint:recommended",
@@ -70,5 +70,8 @@ module.exports = {
         "newlines-between": "always",
       },
     ],
+
+    // ts doc breaking
+    "tsdoc/syntax": "warn",
   },
 };
