@@ -54,7 +54,7 @@ You can find the correct values in the `packages/contracts/deployments` director
 Then, prepare and deploy the subgraph for the appropriate chain. For example, for a rinkeby subgraph deployment, run:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy:rinkeby
+yarn workspace @connext/nxtp-subgraph deploy:rinkeby:staging
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.
