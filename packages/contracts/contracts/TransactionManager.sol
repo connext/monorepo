@@ -48,6 +48,16 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         unilaterally by the person owed funds on that chain (router for 
 ///         sending chain, user for receiving chain) prior to expiry.
 
+
+///         A note on internal accounting:
+///         To properly handle the cases where a token is rebasing/inflationary/
+///         deflationary, we think of funds sent to the contracts as claiming
+///         "shares" of the total balance of the contract, rather than tracking
+///         raw balances. This allows routers to keep earning inflation rewards
+///         when providing liquidity aave tokens, for example. Shares are
+///         created and issued when the contract receives funds, and burned when
+///         the contract disburses funds.
+
 contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev For percentage math (multiply by percent, divide by)
   using WadRayMath for uint256;
@@ -150,7 +160,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
   /// @param router The router you are adding liquidity on behalf of
-  function addLiquidity(uint256 amount, address assetId, address router) external payable override {
+  function addLiquidity(uint256 amount, address assetId, address router) external payable nonReentrant override {
     // Sanity check: router is sensible
     require(router != address(0), "#AL:001");
 
@@ -163,16 +173,19 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Asset is approved
     require(renounced || approvedAssets[assetId], "#AL:004");
 
-    handleFundsSentToContracts(amount, assetId, router);
-
     // Validate correct amounts are transferred
     if (Asset.isEther(assetId)) {
       require(msg.value == amount, "#AL:005");
     } else {
       require(msg.value == 0, "#AL:006");
-      // TODO: fix for fee on transfer
+      uint256 preTransfer = Asset.getOwnBalance(assetId);
       Asset.transferFromERC20(assetId, msg.sender, address(this), amount);
+      amount = Asset.getOwnBalance(assetId) - preTransfer;
     }
+
+    // NOTE: handle funds *after* getting true amount to address fee on transfer
+    // cases
+    handleFundsSentToContracts(amount, assetId, router);
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
@@ -271,7 +284,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
-  ) external payable override returns (TransactionData memory) {
+  ) external payable override nonReentrant returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "#P:009");
 
@@ -325,15 +338,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Asset is approved
       require(renounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
-      // Set the shares
-      shares = amount;
-
-      // Handle internal accounting
-      handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
-
-      // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);
-
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
       // lock their funds in the contract for the router to claim after
@@ -346,8 +350,22 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         require(msg.value == amount, "#P:005");
       } else {
         require(msg.value == 0, "#P:006");
+        uint256 preTransfer = Asset.getOwnBalance(invariantData.sendingAssetId);
         Asset.transferFromERC20(invariantData.sendingAssetId, msg.sender, address(this), amount);
+        amount = Asset.getOwnBalance(invariantData.sendingAssetId) - preTransfer;
       }
+
+      // NOTE: handle internal changes *after* funds transferred to handle
+      // fee on transfer cases
+
+      // Set the shares
+      shares = amount;
+
+      // Handle internal accounting
+      handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
+
+      // Store the transaction variants
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);      
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
