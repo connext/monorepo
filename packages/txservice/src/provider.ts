@@ -1,13 +1,12 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
-import { NonceManager } from "@ethersproject/experimental";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { ChainError } from "./error";
-import { FullTransaction, MinimalTransaction } from "./types";
+import { FullTransaction, MinimalTransaction, NxtpNonceManager } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
@@ -22,7 +21,7 @@ export class ChainRpcProvider {
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private _providers: providers.JsonRpcProvider[];
   private provider: providers.FallbackProvider;
-  private signer: NonceManager;
+  private signer: NxtpNonceManager;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
@@ -76,7 +75,7 @@ export class ChainRpcProvider {
     }
 
     // Using NonceManager to wrap signer here.
-    this.signer = new NonceManager(
+    this.signer = new NxtpNonceManager(
       typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider),
     );
   }

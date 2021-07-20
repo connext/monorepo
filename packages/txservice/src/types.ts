@@ -1,4 +1,5 @@
-import { BigNumber, BigNumberish } from "ethers";
+import { NonceManager } from "@ethersproject/experimental";
+import { BigNumber, BigNumberish, providers } from "ethers";
 
 import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
@@ -19,10 +20,7 @@ export type FullTransaction = {
 export class GasPrice {
   private _gasPrice?: BigNumber;
 
-  constructor(
-    private readonly limit: BigNumber,
-    private readonly provider: ChainRpcProvider,
-  ) {}
+  constructor(private readonly limit: BigNumber, private readonly provider: ChainRpcProvider) {}
 
   public async get(): Promise<BigNumber> {
     if (!this._gasPrice) {
@@ -45,6 +43,19 @@ export class GasPrice {
         gasPrice: value.toString(),
         max: this.limit.toString(),
       });
+    }
+  }
+}
+
+/* We use this class to wrap NonceManager to ensure re-broadcast (tx's with defined nonce) is handled
+ * correctly.
+ */
+export class NxtpNonceManager extends NonceManager {
+  sendTransaction(transaction: providers.TransactionRequest): Promise<providers.TransactionResponse> {
+    if (transaction.nonce) {
+      return this.signer.sendTransaction(transaction);
+    } else {
+      return super.sendTransaction(transaction);
     }
   }
 }
