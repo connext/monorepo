@@ -6,6 +6,17 @@ import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+  /// @notice Executes some arbitrary call data on a given address. The
+  ///         call data executes can be payable, and will have `amount` sent
+  ///         along with the function (or approved to the contract). If the
+  ///         call fails, rather than reverting, funds are sent directly to 
+  ///         some provided fallbaack address
+  /// @param callTo The address to execute the calldata on
+  /// @param assetId The assetId of the funds to approve to the contract or
+  ///                send along with the call
+  /// @param fallbackAddress The address to send funds to if the `call` fails
+  /// @param amount The amount to approve or send with the call
+  /// @param callData The data to execute
   function execute(
     address payable callTo,
     address assetId,
