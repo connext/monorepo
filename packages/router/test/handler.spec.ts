@@ -45,7 +45,6 @@ describe("Handler", () => {
     txManager = createStubInstance(TxManager);
 
     txService = createStubInstance(TransactionService);
-
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
