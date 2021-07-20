@@ -6,6 +6,7 @@ import { solidity } from "ethereum-waffle";
 use(solidity);
 
 // import types
+import { getContractError } from "../../src/errors";
 import { LibAssetTest } from "../../typechain/LibAssetTest";
 import { TestERC20 } from "../../typechain/TestERC20";
 import { BigNumber, constants } from "ethers";
@@ -119,6 +120,49 @@ describe("LibAsset", () => {
       await res.wait();
 
       expect(await token.balanceOf(receiver.address)).to.be.eq(amount);
+    });
+  });
+
+  describe("increaseERC20Allowance", () => {
+    it("should revert if its ether", async () => {
+      await expect(libAssetTest.increaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
+        getContractError("increaseERC20Allowance: NO_NATIVE_ASSET"),
+      );
+    });
+
+    it("should work", async () => {
+      const amount = 100;
+      const starting = await token.allowance(libAssetTest.address, other.address);
+
+      const tx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      await tx.wait();
+
+      const final = await token.allowance(libAssetTest.address, other.address);
+      expect(final).to.be.eq(starting.add(amount));
+    });
+  });
+
+  describe("decreaseERC20Allowance", () => {
+    it("should revert if its ether", async () => {
+      await expect(libAssetTest.decreaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
+        getContractError("decreaseERC20Allowance: NO_NATIVE_ASSET"),
+      );
+    });
+
+    it("should work", async () => {
+      const amount = 100;
+
+      // Increase allowance
+      const increaseTx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      await increaseTx.wait();
+
+      const starting = await token.allowance(libAssetTest.address, other.address);
+
+      const decreaseTx = await libAssetTest.decreaseERC20Allowance(token.address, other.address, 100);
+      await decreaseTx.wait();
+
+      const final = await token.allowance(libAssetTest.address, other.address);
+      expect(final).to.be.eq(starting.sub(amount));
     });
   });
 });
