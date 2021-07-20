@@ -2,18 +2,17 @@
   "adminToken": "blahblah",
   "chainConfig": {
     "4": {
-      "provider": ["https://rinkeby.infura.io/v3/"],
+      "provider": ["https://rinkeby.infura.io/v3/dda319320b664474bf11c4d9f542e8a0"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-staging"
     },
     "5": {
-      "provider": ["https://goerli.infura.io/v3/"],
+      "provider": ["https://goerli.infura.io/v3/dda319320b664474bf11c4d9f542e8a0"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-staging"
     }
   },
   "logLevel": "info",
   "natsUrl": "nats://172.17.0.1:4222",
   "authUrl": "http://172.17.0.1:5040",
-  "mnemonic": "forest captain result bullet mistake gaze water sick faint indoor page muffin"
 }
