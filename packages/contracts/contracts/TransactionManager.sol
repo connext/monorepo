@@ -49,7 +49,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         sending chain, user for receiving chain) prior to expiry.
 
 
-///         A note on internal accounting:
+///         Note on internal accounting:
 ///         To properly handle the cases where a token is rebasing/inflationary/
 ///         deflationary, we think of funds sent to the contracts as claiming
 ///         "shares" of the total balance of the contract, rather than tracking
@@ -59,10 +59,11 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         the contract disburses funds.
 
 contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
-  /// @dev For percentage math (multiply by percent, divide by)
+  /// @dev For shares math
   using WadRayMath for uint256;
 
   /// @dev Mapping of router or user to shares specific to asset
+  ///      incremented whenever a user sends funds to the contract
   mapping(address => mapping(address => uint256)) public issuedShares;
 
   /// @dev Mapping of total issued shares in contract per asset
@@ -92,6 +93,8 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
+  /// @dev The address of the external contract that will execute crosschain
+  ///      calldata
   IFulfillInterpreter private interpreter;
 
   constructor(uint256 _chainId, address _interpreter) {
@@ -218,7 +221,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(routerShares >= shares, "#RL:019");
 
     // Convert shares to amount
-    // TODO: is this the right outstanding value to use?
     uint256 amount = getAmountFromIssuedShares(
       shares,
       outstanding,
@@ -511,7 +513,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(msg.sender == txData.router, "#F:017");
 
       // Calculate the fulfilled amount from the percent
-      // TODO: is this the right outstanding amount / value?
       // NOTE: here only used for the event emission
       amount = getAmountFromIssuedShares(
         txData.shares,
@@ -530,7 +531,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // the relayer fee
 
       // Calculate the fulfilled amount from the percent
-      // TODO: is this the right outstanding amount / value?
       amount = getAmountFromIssuedShares(
         txData.shares,
         outstandingShares[txData.receivingAssetId],
@@ -539,7 +539,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Sanity check: fee <= amount. Allow `=` in case of only wanting
       // to execute 0-value crosschain tx, so only providing the fee
-      require(relayerFee <= amount, "fulfill: INVALID_RELAYER_FEE");
+      require(relayerFee <= amount, "#F:024");
 
       // NOTE: here you are on the recieiving chain, and the issued shares
       // for the router were already decremented on `prepare`, so only the
@@ -677,7 +677,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         Asset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), amount);
       } else {
         // Sanity check relayer fee
-        require(relayerFee <= amount, "cancel: INVALID_RELAYER_FEE");
+        require(relayerFee <= amount, "#C:024");
 
         // Update the issued shares for the user
         issuedShares[txData.user][txData.sendingAssetId] -= txData.shares;
