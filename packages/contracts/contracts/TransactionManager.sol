@@ -100,6 +100,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     );
   }
 
+  /// @notice Gets an amount from a given number of shares
+  /// @param assetId Asset identifier you want amount of
+  /// @param shares Number of shares you want converted to an amount of asset
   function getAmountFromShares(address assetId, uint256 shares) external view override returns (uint256) {
     return getAmountFromIssuedShares(
       shares,
@@ -757,11 +760,16 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       .rayToWad();
   }
 
+  /// @notice Increments issued and outstanding shares when funds are sent to
+  ///         this contract
+  /// @param amount Amount sent to contract
+  /// @param assetId Asset sent to contract
+  /// @param user Person who sent the funds/is claiming funds on the contract
   function handleFundsSentToContracts(
     uint256 amount,
     address assetId,
     address user
-  ) internal {
+  ) internal view {
     // Increment user issued shares
     issuedShares[user][assetId] += amount;
 
