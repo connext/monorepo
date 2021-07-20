@@ -8,7 +8,8 @@ import "solidity-coverage";
 import { HardhatUserConfig } from "hardhat/types";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
-const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
+// const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
+const chainId = 5;
 
 const mnemonic =
   process.env.SUGAR_DADDY ||
@@ -55,12 +56,14 @@ const config: HardhatUserConfig = {
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
-      url: urlOverride || "http://localhost:8545",
+      saveDeployments: true,
+      url: urlOverride || "https://rinkeby.infura.io/v3/dda319320b664474bf11c4d9f542e8a0",
     },
     goerli: {
       accounts: { mnemonic },
       chainId: 5,
-      url: urlOverride || "http://localhost:8545",
+      saveDeployments:true,
+      url: urlOverride || "https://goerli.infura.io/v3/dda319320b664474bf11c4d9f542e8a0",
     },
     kovan: {
       accounts: { mnemonic },
