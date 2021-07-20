@@ -85,41 +85,49 @@ export class TransactionService {
     let receipt: providers.TransactionReceipt | undefined;
 
     const transaction = this.createTx(chainId, tx);
+    const submit = async () => this.handleSubmit(await transaction.send());
 
-    while (!receipt) {
-      try {
-        /// SUBMIT
-        // First, send tx and get back a response.
-        const response = await transaction.send();
-        this.handleSubmit(response);
+    try {
+      /// SUBMIT
+      // First, send tx and get back a response.
+      await submit();
 
-        /// CONFIRM
-        // Now we wait for confirmation and get tx receipt.
-        receipt = await transaction.confirm();
-      } catch (e) {
-        // Check if the error was a confirmation timeout.
-        if (e.message === ChainError.reasons.ConfirmationTimeout) {
-          // If nonce expired, and we were unable to confirm, something went wrong and there's
-          // no reason to continue.
-          if (transaction.nonceExpired) {
-            throw new ChainError(ChainError.reasons.NonceExpired, { method });
-          }
-          // Bump the gas price up a bit for the next transaction attempt.
-          transaction.bumpGasPrice();
-        } else {
-          // Coerce error to be a ChainError.
-          let error = e;
-          const reason: string | undefined = ChainError.parseChainErrorReason(e.message);
-          if (reason) {
-            error = new ChainError(reason, { method });
+      /// CONFIRM
+      // Now we wait for confirmation and get tx receipt.
+      while (!receipt) {
+        // TODO: Replace this try catch with neverthrow model.
+        try {
+          receipt = await transaction.confirm();
+        } catch (e) {
+          // Check if the error was a confirmation timeout.
+          if (e.message === ChainError.reasons.ConfirmationTimeout) {
+            // If nonce expired, and we were unable to confirm, something went wrong and there's
+            // no reason to continue.
+            if (transaction.nonceExpired) {
+              throw new ChainError(ChainError.reasons.NonceExpired, { method });
+            }
+            // Bump the gas price up a bit for the next transaction attempt.
+            transaction.bumpGasPrice();
+            // Resubmit.
+            await submit();
           } else {
-            error = new ChainError(error.message, { method });
+            throw e;
           }
-          this.handleFail(error, receipt);
-          throw error;
         }
       }
+    } catch (e) {
+      // Coerce error to be a ChainError.
+      let error = e;
+      const reason: string | undefined = ChainError.parseChainErrorReason(e.message);
+      if (reason) {
+        error = new ChainError(reason, { method });
+      } else {
+        error = new ChainError(error.message, { method });
+      }
+      this.handleFail(error, receipt);
+      throw error;
     }
+
     // Success!
     this.handleConfirm(receipt);
     return receipt;

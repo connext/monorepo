@@ -124,7 +124,12 @@ export class Handler {
     const config = getConfig();
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
-    if (!sendingConfig.providers || !receivingConfig.providers) {
+    if (
+      !sendingConfig.providers ||
+      sendingConfig.providers.length === 0 ||
+      !receivingConfig.providers ||
+      receivingConfig.providers.length === 0
+    ) {
       this.logger.warn(
         {
           method,

@@ -15,7 +15,19 @@ export class Transaction {
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   public receipt?: providers.TransactionReceipt;
-  public nonce?: number;
+
+  private _nonce?: number;
+  public get nonce(): number | undefined {
+    return this._nonce;
+  }
+  private set nonce(value: number | undefined) {
+    if (typeof value === "undefined") {
+      throw new TypeError("Cannot set nonce to undefined.");
+    } else if (typeof this._nonce !== "undefined") {
+      throw new TypeError("Cannot overwrite already existing nonce value; nonce may only be set once per transaction!");
+    }
+    this._nonce = value;
+  }
   public nonceExpired = false;
 
   private _attempt = 0;
@@ -89,7 +101,7 @@ export class Transaction {
     const response = _response as providers.TransactionResponse;
 
     // Save nonce if applicable.
-    if (this.nonce === undefined) {
+    if (typeof this.nonce === "undefined") {
       this.nonce = response.nonce;
     } else if (this.nonce !== response.nonce) {
       // This should never happen, but we are logging just in case.

@@ -85,24 +85,18 @@ export class ChainRpcProvider {
     tx: FullTransaction,
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
     const method = this.sendTransaction.name;
+    await this.isReady();
     // Define task to send tx with proper nonce.
     const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
       try {
         // Send transaction using the passed in callback.
-        const { to, data, chainId, value, gasPrice } = tx;
-        let { nonce } = tx;
-        if (typeof nonce === "undefined") {
-          // Nonce hasn't been defined yet for the tx, indicating this is the first time it's being sent.
-          // NOTE: This signer is a NonceManager, and will manage its nonce internally. Thus, this method
-          // should always return the correct nonce.
-          nonce = await this.signer.getTransactionCount("pending");
-        }
+        const { to, data, chainId, value, gasPrice, nonce } = tx;
         const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({
           to,
           data,
           chainId,
           gasPrice,
-          nonce: nonce,
+          nonce,
           value: BigNumber.from(value || 0),
         });
         // Check to see if ethers returned undefined for the response; if so, handle as error case.
@@ -198,7 +192,7 @@ export class ChainRpcProvider {
   }
 
   private async retryWrapper<T>(method: string, targetMethod: () => Promise<T>): Promise<T> {
-    this.isReady();
+    await this.isReady();
     let retries: number;
     const errors: { [attempt: number]: string | undefined } = {};
     for (retries = 1; retries < this.config.rpcProviderMaxRetries; retries++) {
