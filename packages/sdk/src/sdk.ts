@@ -534,7 +534,7 @@ export class NxtpSdk {
   }
 
   private setupListeners(): void {
-    // idempotencu
+    // idempotency
     if (this.listenersEstablished) {
       return;
     }
