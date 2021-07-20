@@ -524,6 +524,7 @@ export class NxtpSdk {
 
   public establishListeners(): void {
     this.transactionManager.establishListeners();
+    this.setupListeners();
   }
 
   public removeAllListeners(): void {
