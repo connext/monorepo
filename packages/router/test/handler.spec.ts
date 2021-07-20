@@ -20,7 +20,7 @@ import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
 import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt } from "./utils";
 import { parseEther } from "@ethersproject/units";
-import { okAsync, ResultAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
