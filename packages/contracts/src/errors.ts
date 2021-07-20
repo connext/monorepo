@@ -30,6 +30,7 @@ export const Errors: ErrorsType = {
   "025": "INVALID_CALL_DATA",
   "026": "ROUTER_MUST_CANCEL",
   "027": "RECEIVING_ADDRESS_EMPTY",
+  "028": "ZERO_SHARES",
 };
 
 type ErrorsPrefixType = {

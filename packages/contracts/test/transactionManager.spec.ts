@@ -17,7 +17,7 @@ import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, 
 // import types
 import { FulfillInterpreter, Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
 import { getOnchainBalance } from "./utils";
-import { getContractError } from "../src";
+import { getContractError } from "../src/errors";
 
 const { AddressZero } = constants;
 const EmptyBytes = "0x";

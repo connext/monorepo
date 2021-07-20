@@ -190,7 +190,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero shares
-    require(shares > 0, "#RL:002");
+    require(shares > 0, "#RL:028");
 
     // Get stored router shares
     uint256 routerShares = issuedShares[msg.sender][assetId];
@@ -199,7 +199,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 outstanding = outstandingShares[assetId];
 
     // Sanity check: owns enough shares
-    require(routerShares >= shares, "#RL:008");
+    require(routerShares >= shares, "#RL:019");
 
     // Convert shares to amount
     // TODO: is this the right outstanding value to use?
@@ -364,7 +364,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Sanity check: contract has funds > amount on it
       // This will handle the 0-value case
-      require(Asset.getOwnBalance(invariantData.receivingAssetId) >= amount, "prepare: INSUFFICIENT_FUNDS");
+      require(Asset.getOwnBalance(invariantData.receivingAssetId) >= amount, "#P:008");
 
       // Calculate the shares from the amount
       shares = getIssuedSharesFromAmount(
