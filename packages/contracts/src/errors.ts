@@ -3,7 +3,7 @@ type ErrorsType = {
 };
 
 /**
- * @constant Errors Maps the error codes to human readable strings
+ * @remarks Maps the error codes to human readable strings
  */
 export const Errors: ErrorsType = {
   "001": "ROUTER_EMPTY",
@@ -41,7 +41,7 @@ type ErrorsPrefixType = {
 };
 
 /**
- * @constant ErrorsPrefix Describes the prefixex used throughout the contracts to indicate which function the error originates from
+ * @remarks Describes the prefixex used throughout the contracts to indicate which function the error originates from
  */
 export const ErrorsPrefix: ErrorsPrefixType = {
   "#AL": "addLiquidity",
@@ -56,7 +56,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
 /**
  * Gets the human readable error from the string returned from the contract
  *
- * @param error Contract error thrown
+ * @param error - Contract error thrown
  * @returns Human readable error string
  */
 export const getFullError = (error: string): string => {
@@ -70,7 +70,7 @@ export const getFullError = (error: string): string => {
 /**
  * Gets the contract error from the human readable string
  *
- * @param error Contract error
+ * @param error - Contract error
  * @returns Human readable translation of the error
  */
 export const getContractError = (error: string): string => {
