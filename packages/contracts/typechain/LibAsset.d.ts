@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -19,31 +18,25 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface FulfillInterpreterInterface extends ethers.utils.Interface {
+interface LibAssetInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x96d668da(bytes32)": FunctionFragment;
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
+    "c_0x6438e3c1(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "c_0x6438e3c1",
     values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "c_0x6438e3c1",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
 
   events: {};
 }
 
-export class FulfillInterpreter extends BaseContract {
+export class LibAsset extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -84,50 +77,23 @@ export class FulfillInterpreter extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: FulfillInterpreterInterface;
+  interface: LibAssetInterface;
 
   functions: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
-
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
-  c_0x96d668da(
-    c__0x96d668da: BytesLike,
+  c_0x6438e3c1(
+    c__0x6438e3c1: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
-  execute(
-    callTo: string,
-    assetId: string,
-    fallbackAddress: string,
-    amount: BigNumberish,
-    callData: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -135,34 +101,16 @@ export class FulfillInterpreter extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
