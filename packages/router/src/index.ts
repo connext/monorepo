@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
+import { jsonifyError, RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { Static, Type } from "@sinclair/typebox";
@@ -90,20 +90,6 @@ server.get("/config", async () => {
   };
 });
 
-server.post<{ Body: AddLiquidityRequest }>(
-  "/add-liquidity",
-  { schema: { body: AddLiquidityRequestSchema, response: { "2xx": AddLiquidityResponseSchema } } },
-  async (req) => {
-    const result = await transactionManager.addLiquidity(
-      req.body.chainId,
-      wallet.address,
-      req.body.amount,
-      req.body.assetId,
-    );
-    return { transactionHash: result.transactionHash };
-  },
-);
-
 server.get<{ Body: RemoveLiquidityRequest }>(
   "/remove-liquidity",
   { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
@@ -114,7 +100,11 @@ server.get<{ Body: RemoveLiquidityRequest }>(
       req.body.assetId,
       req.body.recipientAddress,
     );
-    return { transactionHash: result.transactionHash };
+    if (result.isOk()) {
+      return { transactionHash: result.value.transactionHash };
+    } else {
+      return { err: jsonifyError(result.error) };
+    }
   },
 );
 

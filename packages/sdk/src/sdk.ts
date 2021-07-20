@@ -280,8 +280,8 @@ export class NxtpSdk {
     const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
       this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
-        if (err) {
-          this.logger.error({ method, methodId, err }, "Error in auction response");
+        if (err || !data) {
+          this.logger.error({ method, methodId, err, data }, "Error in auction response");
           return;
         }
 
@@ -476,7 +476,7 @@ export class NxtpSdk {
       const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
         await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
           this.logger.info({ method, methodId, data, err }, "MetaTx response received");
-          if (err) {
+          if (err || !data) {
             return reject(err);
           }
           this.logger.info({ method, methodId, inbox, data }, "Fulfill metaTx response received");
