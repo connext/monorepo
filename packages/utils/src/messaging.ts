@@ -259,12 +259,14 @@ export type AuctionResponse = {
   bidSignature: string;
 };
 
+// TODO: fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
 
+// TODO: include `cancel`
 export type MetaTxTypes = "Fulfill";
 
 export type MetaTxPayload<T extends MetaTxTypes> = {
