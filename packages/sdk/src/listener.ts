@@ -27,6 +27,7 @@ export class TransactionManagerListener {
     [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
+  private listenersEstablished = false;
 
   constructor(
     public readonly transactionManager: TransactionManager,
@@ -36,7 +37,12 @@ export class TransactionManagerListener {
     this.establishListeners();
   }
 
-  private establishListeners(): void {
+  public establishListeners(): void {
+    // idempotency
+    if (this.listenersEstablished) {
+      return;
+    }
+
     const processTxData = (txData: any): TransactionData => {
       return {
         user: txData.user,
@@ -107,6 +113,14 @@ export class TransactionManagerListener {
         this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
       },
     );
+
+    this.listenersEstablished = true;
+  }
+
+  public removeAllListeners(event?: TransactionManagerEvent): void {
+    this.transactionManager.removeAllListeners(event);
+    this.detach(event);
+    this.listenersEstablished = false;
   }
 
   public attach<T extends TransactionManagerEvent>(

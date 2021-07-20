@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -47,6 +47,7 @@
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.0",
     "ethers": "^5.4.1",
+    "evt": "^1.10.1",
     "fastify": "^3.19.1",
     "graphql": "^15.5.1",
     "graphql-request": "^3.4.0",
