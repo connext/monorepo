@@ -1,12 +1,8 @@
-import {
-  RouterNxtpNatsMessagingService,
-  TransactionFulfilledEvent,
-  TransactionPreparedEvent,
-} from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
-import { Subgraph } from "./subgraph";
+import { Subgraph, SubgraphEvents } from "./subgraph";
 
 /*
     Listener.ts
@@ -40,15 +36,13 @@ export async function setupListeners(
   });
 
   // Setup Subgraph events
-  subgraph.onSenderPrepare(async (data: TransactionPreparedEvent) => {
+  subgraph.attach(SubgraphEvents.SenderTransactionPrepared, async ({ senderEvent }) => {
     // On sender prepare, route to sender prepare handler
-    await handler.handleSenderPrepare(data);
+    await handler.handleSenderPrepare(senderEvent);
   });
 
-  subgraph.onReceiverFulfill(
-    async (senderEvent: TransactionPreparedEvent, receiverEvent: TransactionFulfilledEvent) => {
-      // On receiver fulfill, route to receiver fulfill handler
-      await handler.handleReceiverFulfill(senderEvent, receiverEvent);
-    },
-  );
+  subgraph.attach(SubgraphEvents.ReceiverTransactionFulfilled, async ({ senderEvent, receiverEvent }) => {
+    // On receiver fulfill, route to receiver fulfill handler
+    await handler.handleReceiverFulfill(senderEvent, receiverEvent);
+  });
 }

@@ -1860,6 +1860,7 @@ __metadata:
     concurrently: ^6.2.0
     eslint: ^7.30.0
     ethers: ^5.4.1
+    evt: ^1.10.1
     fastify: ^3.19.1
     graphql: ^15.5.1
     graphql-request: ^3.4.0
@@ -11684,6 +11685,16 @@ __metadata:
     node-gyp: latest
     safe-buffer: ^5.1.1
   checksum: 529ceee780657a04e2b19ecbb685473f12aae05d5f9f794e36044f5ea602e1a0ba42bff4e1b7544a8a4164fbd9c585e69398b114f9925448d02c31c52c95cf26
+  languageName: node
+  linkType: hard
+
+"evt@npm:^1.10.1":
+  version: 1.10.1
+  resolution: "evt@npm:1.10.1"
+  dependencies:
+    minimal-polyfills: ^2.1.5
+    run-exclusive: ^2.2.14
+  checksum: 27118aec686e66da30b6bd7d8b7a4e153a9f865ecd2070ba1e1aca42e8c391c7c67a10fac746c656cb451859b8061930df5619a7f451c7e5157ddbeb06d06eeb
   languageName: node
   linkType: hard
 

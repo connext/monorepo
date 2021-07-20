@@ -182,6 +182,20 @@ export class TransactionManager {
     }
   }
 
+  public establishListeners(): void {
+    Object.values(this.chainConfig).forEach(({ listener }) => {
+      listener.establishListeners();
+    });
+  }
+
+  public removeAllListeners(event?: TransactionManagerEvent): void {
+    Object.entries(this.chainConfig).forEach(([c, { listener }]) => {
+      const chainId = parseInt(c);
+      listener.removeAllListeners(event);
+      this.detach(chainId, event);
+    });
+  }
+
   async getLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
     const txManager = this.chainConfig[chainId].transactionManager;
     if (!txManager) {

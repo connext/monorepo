@@ -127,10 +127,11 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
 
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
-
   private readonly transactionManager: TransactionManager;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
+
+  private listenersEstablished = false;
 
   constructor(
     private readonly chainConfig: {
@@ -140,7 +141,7 @@ export class NxtpSdk {
         subgraph?: string;
       };
     },
-    private readonly signer: Signer,
+    private signer: Signer,
     private readonly logger: BaseLogger = pino(),
     natsUrl?: string,
     authUrl?: string,
@@ -517,7 +518,26 @@ export class NxtpSdk {
     return tx;
   }
 
+  public changeInjectedSigner(signer: Signer) {
+    this.signer = signer;
+  }
+
+  public establishListeners(): void {
+    this.transactionManager.establishListeners();
+  }
+
+  public removeAllListeners(): void {
+    this.messaging.disconnect();
+    this.transactionManager.removeAllListeners();
+    this.detach();
+    this.listenersEstablished = false;
+  }
+
   private setupListeners(): void {
+    // idempotency
+    if (this.listenersEstablished) {
+      return;
+    }
     Object.keys(this.chainConfig).forEach((_chainId) => {
       const chainId = parseInt(_chainId);
       // Translate chain events to SDK external events
@@ -547,6 +567,7 @@ export class NxtpSdk {
         }
       });
     });
+    this.listenersEstablished = true;
   }
 
   // Listener methods
