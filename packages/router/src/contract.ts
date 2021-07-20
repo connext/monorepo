@@ -2,14 +2,43 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import { BigNumber, constants, providers } from "ethers";
-import { jsonifyError, FulfillParams, PrepareParams, CancelParams, validateAndParseAddress } from "@connext/nxtp-utils";
+import { constants, providers } from "ethers";
+import {
+  jsonifyError,
+  FulfillParams,
+  PrepareParams,
+  CancelParams,
+  NxtpError,
+  Values,
+  NxtpErrorJson,
+} from "@connext/nxtp-utils";
 import hyperid from "hyperid";
 import { BaseLogger } from "pino";
+import { errAsync, ResultAsync } from "neverthrow";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 
 const hId = hyperid();
+
+export class TransactionManagerError extends NxtpError {
+  static readonly type = "TransactionManagerError";
+  static readonly reasons = {
+    EncodingError: "Error encoding data",
+    TxServiceError: "Error from TransactionService",
+  };
+
+  constructor(
+    public readonly message: Values<typeof TransactionManagerError.reasons> | string,
+    public readonly context: {
+      txServiceError?: NxtpErrorJson;
+      encodingError?: NxtpErrorJson;
+      methodId: string;
+      method: string;
+    },
+  ) {
+    super(message, context, TransactionManagerError.type);
+  }
+}
 
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -24,87 +53,108 @@ export class TransactionManager {
     this.config = getConfig();
   }
 
-  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionReceipt> {
+  prepare(
+    chainId: number,
+    prepareParams: PrepareParams,
+  ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::prepare ";
     const methodId = hId();
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
-      {
-        user: txData.user,
-        router: txData.router,
-        sendingAssetId: txData.sendingAssetId,
-        receivingAssetId: txData.receivingAssetId,
-        sendingChainFallback: txData.sendingChainFallback,
-        callTo: txData.callTo,
-        receivingAddress: txData.receivingAddress,
-        sendingChainId: txData.sendingChainId,
-        receivingChainId: txData.receivingChainId,
-        callDataHash: txData.callDataHash,
-        transactionId: txData.transactionId,
-      },
-      amount,
-      expiry,
-      encryptedCallData,
-      encodedBid,
-      bidSignature,
-    ]);
-
+    let encodedData: string;
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      encodedData = this.txManagerInterface.encodeFunctionData("prepare", [
+        {
+          user: txData.user,
+          router: txData.router,
+          sendingAssetId: txData.sendingAssetId,
+          receivingAssetId: txData.receivingAssetId,
+          sendingChainFallback: txData.sendingChainFallback,
+          callTo: txData.callTo,
+          receivingAddress: txData.receivingAddress,
+          sendingChainId: txData.sendingChainId,
+          receivingChainId: txData.receivingChainId,
+          callDataHash: txData.callDataHash,
+          transactionId: txData.transactionId,
+        },
+        amount,
+        expiry,
+        encryptedCallData,
+        encodedBid,
+        bidSignature,
+      ]);
+    } catch (err) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          encodingError: jsonifyError(err),
+          method,
+          methodId,
+        }),
+      );
+    }
+
+    return ResultAsync.fromPromise(
+      this.txService.sendAndConfirmTx(chainId, {
         to: this.config.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
-        chainId: chainId,
+        chainId,
         from: this.signerAddress,
-      });
-      return txRes;
-    } catch (e) {
-      if (e.message.includes("DUPLICATE_DIGEST")) {
-        this.logger.warn(
-          { methodId, method, transactionId: txData.transactionId },
-          "Receiver tx already prepared, but resubmitted",
-        );
-      }
-      this.logger.error(
-        { methodId, method, error: jsonifyError(e), transactionId: txData.transactionId },
-        "Error sending receiver prepare tx",
-      );
-      throw e;
-    }
+      }),
+      (err) =>
+        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          txServiceError: jsonifyError(err as NxtpError),
+          methodId,
+          method,
+        }),
+    );
   }
 
-  async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionReceipt> {
+  fulfill(
+    chainId: number,
+    fulfillParams: FulfillParams,
+  ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::fulfill";
     const methodId = hId();
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
-
-    const fulfilData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
+    let fulfillData;
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
+      fulfillData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
+    } catch (err) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          encodingError: jsonifyError(err),
+          methodId,
+          method,
+        }),
+      );
+    }
+
+    return ResultAsync.fromPromise(
+      this.txService.sendAndConfirmTx(chainId, {
         chainId,
-        data: fulfilData,
+        data: fulfillData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
         value: 0,
         from: this.signerAddress,
-      });
-      return txRes;
-    } catch (e) {
-      // If fail -- something has gone really wrong here!! We need to figure out what ASAP.
-      this.logger.error(
-        { methodId, method, transactionId: fulfillParams.txData.transactionId, error: jsonifyError(e) },
-        "Error sending sender fulfill tx",
-      );
-      // TODO discuss this case!!
-      throw e;
-    }
+      }),
+      (err) =>
+        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          txServiceError: jsonifyError(err as NxtpError),
+          methodId,
+          method,
+        }),
+    );
   }
 
-  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionReceipt> {
+  cancel(
+    chainId: number,
+    cancelParams: CancelParams,
+  ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::cancel";
     const methodId = hId();
     this.logger.info({ method, methodId, cancelParams }, "Method start");
@@ -112,98 +162,83 @@ export class TransactionManager {
 
     const { txData, relayerFee, signature } = cancelParams;
 
-    const cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
-
+    let cancelData;
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
+      cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
+    } catch (err) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          encodingError: jsonifyError(err),
+          methodId,
+          method,
+        }),
+      );
+    }
+
+    return ResultAsync.fromPromise(
+      this.txService.sendAndConfirmTx(chainId, {
+        chainId,
         data: cancelData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
         value: 0,
         from: this.signerAddress,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`cancel error ${JSON.stringify(e)}`);
-    }
+      }),
+      (err) =>
+        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          txServiceError: jsonifyError(err as NxtpError),
+          methodId,
+          method,
+        }),
+    );
   }
 
-  async getLiquidity(chainId: number, assetId: string): Promise<string> {
-    const getLiquidityData = this.txManagerInterface.encodeFunctionData("routerBalances", [
-      this.signerAddress,
-      assetId,
-    ]);
-    const liquidity = await this.txService.readTx(chainId, {
-      chainId: chainId,
-      to: this.config.chainConfig[chainId].transactionManagerAddress,
-      value: 0,
-      data: getLiquidityData,
-    });
-    //decode hex data
-    const liquidityHex = this.txManagerInterface.decodeFunctionResult("routerBalances", liquidity);
-
-    console.log(`Liquidity Hex::Contract ${liquidityHex[0]}`);
-    return liquidityHex[0];
-  }
-
-  async addLiquidity(
-    chainId: number,
-    router: string,
-    amount: string,
-    assetId: string,
-  ): Promise<providers.TransactionReceipt> {
-    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
-    const bnAmount = BigNumber.from(amount);
-    const routerAddress = validateAndParseAddress(router);
-
-    const addLiquidityData = this.txManagerInterface.encodeFunctionData("addLiquidity", [
-      bnAmount,
-      assetId,
-      routerAddress,
-    ]);
-    try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
-        data: addLiquidityData,
-        to: nxtpContractAddress,
-        value: 0,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`Add liquidity error ${JSON.stringify(e)}`);
-    }
-  }
-
-  async removeLiquidity(
+  removeLiquidity(
     chainId: number,
     amount: string,
     assetId: string,
     recipientAddress: string | undefined,
-  ): Promise<providers.TransactionReceipt> {
+  ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
+    const method = "Contract::removeLiquidity";
+    const methodId = hId();
+    this.logger.info({ method, methodId, amount, assetId, recipientAddress }, "Method start");
+
     //should we remove liquidity for self if there isn't another address specified?
     if (!recipientAddress) {
       recipientAddress = this.signerAddress;
     }
 
     const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
-    const bnAmount = BigNumber.from(amount).toString();
 
-    const removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity", [
-      bnAmount,
-      assetId,
-      recipientAddress,
-    ]);
-
+    let removeLiquidityData;
     try {
-      const txRes = await this.txService.sendAndConfirmTx(chainId, {
-        chainId: chainId,
+      removeLiquidityData = this.txManagerInterface.encodeFunctionData("removeLiquidity", [
+        amount,
+        assetId,
+        recipientAddress,
+      ]);
+    } catch (err) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          encodingError: jsonifyError(err),
+          methodId,
+          method,
+        }),
+      );
+    }
+
+    return ResultAsync.fromPromise(
+      this.txService.sendAndConfirmTx(chainId, {
+        chainId,
         data: removeLiquidityData,
         to: nxtpContractAddress,
         value: 0,
-      });
-      return txRes;
-    } catch (e) {
-      throw new Error(`remove liquidity error ${JSON.stringify(e)}`);
-    }
+      }),
+      (err) =>
+        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          txServiceError: jsonifyError(err as NxtpError),
+          methodId,
+          method,
+        }),
+    );
   }
 }
