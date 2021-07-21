@@ -128,6 +128,11 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("kind")
   .addKeyword("modifier");
 
+/**
+ * Helper to generate evt instances for all SDK events
+ *
+ * @returns A container keyed on event names whos values contain the EVT instance for the keyed event
+ */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
     [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: Evt.create<SenderTransactionPrepareTokenApprovalPayload>(),
@@ -142,6 +147,10 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
 };
+
+/**
+ * @classdesc An error class containing all errors returned by the SDK
+ */
 export class NxtpSdkError extends NxtpError {
   static readonly type = "NxtpSdkError";
   static readonly reasons = {
@@ -167,7 +176,7 @@ export class NxtpSdkError extends NxtpError {
 }
 
 /**
- * Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
+ * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
  *
  */
 export class NxtpSdk {
@@ -283,6 +292,7 @@ export class NxtpSdk {
   /**
    * Fetches an estimated quote for a proposed crosschain transfer. Runs an auction to determine the `router` for a transaction and the estimated received value.
    *
+   * @param params - Params to create crosschain transfer with
    * @param params.callData - The calldata to execute on the receiving chain
    * @param params.sendingChainId - The originating chain (where user is sending funds from)
    * @param params.sendingAssetId - The originating asset of the funds the user is sending
@@ -403,6 +413,15 @@ export class NxtpSdk {
     }
   }
 
+  /**
+   * Begins a crosschain transfer by calling `prepare` on the sending chain.
+   *
+   * @param transferParams - The auction result (winning bid and associated signature)
+   * @param transferParams.bid - The winning action bid (includes all data needed to call prepare)
+   * @param transferParams.bidSignature - The signature of the router on the winning bid
+   * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
+   * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
+   */
   public async startTransfer(
     transferParams: AuctionResponse,
     infiniteApprove = false,
@@ -554,6 +573,14 @@ export class NxtpSdk {
       );
   }
 
+  /**
+   * Completes the transaction on the receiving chain. This function should either cancel the transaction if it is prepared incorrectly, or fulfill it if it is prepared correctly.
+   *
+   * @param params - The `TransactionPrepared` event payload from the receiving chain
+   * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
+   * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
+   * @returns
+   */
   public async finishTransfer(
     params: TransactionPreparedEvent,
     relayerFee = "0",
@@ -707,7 +734,20 @@ export class NxtpSdk {
     }
   }
 
+  /**
+   * Cancels the given transaction
+   *
+   * @param cancelParams - Arguments to submit to chain
+   * @param cancelParams.txData - TransactionData (invariant + variant) to be cancelled
+   * @param cancelParams.relayerFee - Fee to be paid for relaying transaction (only respected on sending chain cancellations post-expiry by the user)
+   * @param cancelParams.signature - User signature for relayer to use
+   * @param chainId - Chain to cancel the transaction on
+   * @returns A TransactionResponse when the transaction was submitted, not mined
+   */
+
+  // TODO: this just cancels a transaction, it is misnamed, has nothing to do with expiries
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    // TODO: verify that this is expired?
     return await this.transactionManager.cancel(chainId, cancelParams).match(
       (res) => res,
       (err) => {
@@ -716,15 +756,26 @@ export class NxtpSdk {
     );
   }
 
+  /**
+   * Changes the signer associated with the sdk
+   *
+   * @param signer - Signer to change to
+   */
   public changeInjectedSigner(signer: Signer) {
     this.signer = signer;
   }
 
+  /**
+   * Sets up all listeners on the transaction manager across all chains, and for autocompletion of txs on the sdk
+   */
   public establishListeners(): void {
     this.transactionManager.establishListeners();
     this.setupListeners();
   }
 
+  /**
+   * Turns off all listeners and disconnects messaging from the sdk
+   */
   public removeAllListeners(): void {
     this.messaging.disconnect();
     this.transactionManager.removeAllListeners();
@@ -770,6 +821,14 @@ export class NxtpSdk {
   }
 
   // Listener methods
+  /**
+   * Attaches a callback to the emitted event
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   */
   public attach<T extends NxtpSdkEvent>(
     event: T,
     callback: (data: NxtpSdkEventPayloads[T]) => void,
@@ -780,6 +839,15 @@ export class NxtpSdk {
     this.evts[event].pipe(filter).attach(...(args as [number, any]));
   }
 
+  /**
+   * Attaches a callback to the emitted event that will be executed one time and then detached.
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   *
+   */
   public attachOnce<T extends NxtpSdkEvent>(
     event: T,
     callback: (data: NxtpSdkEventPayloads[T]) => void,
@@ -790,6 +858,11 @@ export class NxtpSdk {
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }
 
+  /**
+   * Removes all attached handlers from the given event.
+   *
+   * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
+   */
   public detach<T extends NxtpSdkEvent>(event?: T): void {
     if (event) {
       this.evts[event].detach();
@@ -798,6 +871,16 @@ export class NxtpSdk {
     Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
+  /**
+   * Returns a promise that resolves when the event matching the filter is emitted
+   *
+   * @param event - The event name to wait for
+   * @param timeout - The ms to continue waiting before rejecting
+   * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
+   *
+   * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
+   *
+   */
   public waitFor<T extends NxtpSdkEvent>(
     event: T,
     timeout: number,

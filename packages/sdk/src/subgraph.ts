@@ -55,7 +55,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
 };
 
 /**
- * Handles all user-facing subgraph queries
+ * @classdesc Handles all user-facing subgraph queries
  */
 export class Subgraph {
   private sdks: Record<number, Sdk> = {};

@@ -20,6 +20,9 @@ import { TransactionManagerEvent, TransactionManagerEventPayloads, TransactionMa
 
 const hId = hyperid();
 
+/**
+ * @classdesc Defines the error thrown by the `TransactionManager` class
+ */
 export class TransactionManagerError extends NxtpError {
   static readonly type = "TransactionManagerError";
   static readonly reasons = {
@@ -60,7 +63,7 @@ export const getDeployedTransactionManagerContractAddress = (chainId: number): s
 };
 
 /**
- * Multi-chain wrapper around TranasctionManager contract
+ * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
  */
 export class TransactionManager {
   private chainConfig: {
@@ -114,6 +117,7 @@ export class TransactionManager {
    * Sends the prepare transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to prepare the transaction on (transactionData.sendingChainId)
+   * @param prepareParams - The arguments to be submitted to chain
    * @param prepareParams.txData - The `InvariantTransactionData` for the transaction being prepared
    * @param prepareParams.amount - The amount to be sent from the signer to the `Transactionmanager`
    * @param prepareParams.expiry - The timestamp the transaction will expire by
@@ -183,6 +187,7 @@ export class TransactionManager {
    * Sends the cancel transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to cancel the transaction
+   * @param cancelParams - The arguments to submit to chain
    * @param cancelParams.txData - The `TransactionData` (variant and invariant data) for the transaction being cancelled
    * @param cancelParams.relayerFee - The amount to be awarded to relayer for submitting the transaction to the `TransactionManager` (respected IFF on the sending chain and post-expiry)
    * @param cancelParams.signature - User's signature on cancel payload to be used by relayer when submitting transaction
@@ -231,6 +236,7 @@ export class TransactionManager {
    * Sends the fulfill transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to fulfill the transaction on (transactionData.receivingChainId)
+   * @param fulfillParams - The arguments to submit to chain
    * @param fulfillParams.txData - The `TransactionData` (variant and invariant data) for the transaction being fulfilled
    * @param fulfillParams.relayerFee - The amount to be awarded to relayer for submitting the transaction to the `TransactionManager`
    * @param fulfillParams.signature - User's signature on fulfill payload to be used by relayer when submitting transaction
@@ -286,6 +292,7 @@ export class TransactionManager {
    * @param assetId - The asset you want to increase allowance for
    * @param amount - The minimum approval amount
    * @param infiniteApprove - (optional) If true, approves the max value. Defaults to false.
+   *
    * @returns If successful, either returns `TransactionResponse` from the signer once the transaction has been submitted, not mined if the allowance was increased, or undefined if the allowance >= amount. If it errors, returns a `TransactionManagerError`.
    */
   approveTokensIfNeeded(
@@ -365,7 +372,7 @@ export class TransactionManager {
   /**
    * Removes all listeners for given event on the TransactionManager across all chains.
    *
-   * @param event - (optiona;) the event name you want to remove all listeners for. If not provided, removes all listeners on the contract for all events
+   * @param event - (optional) the event name you want to remove all listeners for. If not provided, removes all listeners on the contract for all events
    */
   public removeAllListeners(event?: TransactionManagerEvent): void {
     Object.entries(this.chainConfig).forEach(([c, { listener }]) => {
@@ -416,6 +423,8 @@ export class TransactionManager {
    * @param callback - The callback to invoke on event emission
    * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
    * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   *
+   * @returns void
    */
   public attach<T extends TransactionManagerEvent>(
     chainId: number,
@@ -435,6 +444,8 @@ export class TransactionManager {
    * @param callback - The callback to invoke on event emission
    * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
    * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   *
+   * @returns void
    */
   public attachOnce<T extends TransactionManagerEvent>(
     chainId: number,
@@ -451,6 +462,8 @@ export class TransactionManager {
    *
    * @param chainId - The chainId of the TransactionManager to remove the callback from
    * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
+   *
+   * @returns void
    */
   public detach<T extends TransactionManagerEvent>(chainId: number, event?: T): void {
     return this.chainConfig[chainId].listener.detach(event);
@@ -459,10 +472,13 @@ export class TransactionManager {
   /**
    * Returns a promise that resolves when the event matching the filter is emitted
    *
+   * @param chainId - The chain the `TransactionManager` should live on
    * @param event - The event name to wait for
    * @param timeout - The ms to continue waiting before rejecting
    * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
+   *
    * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
+   *
    */
   public waitFor<T extends TransactionManagerEvent>(
     chainId: number,
