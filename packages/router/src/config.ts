@@ -28,7 +28,7 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
-  provider: Type.Array(Type.String()),
+  providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),

@@ -22,11 +22,20 @@ import {
   InvariantTransactionData,
   signFulfillTransactionPayload,
   MetaTxResponse,
+  jsonifyError,
+  NxtpError,
+  NxtpErrorJson,
+  Values,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { TransactionManager, getDeployedTransactionManagerContractAddress } from "./transactionManager";
+import {
+  TransactionManager,
+  getDeployedTransactionManagerContractAddress,
+  TransactionManagerError,
+} from "./transactionManager";
 import { TransactionManagerEvents } from "./listener";
 import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
@@ -54,6 +63,7 @@ export const NxtpSdkEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
   SenderTransactionFulfilled: "SenderTransactionFulfilled",
   SenderTransactionCancelled: "SenderTransactionCancelled",
+  ReceiverPrepareSigned: "ReceiverPrepareSigned",
   ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
   ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
   ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
@@ -80,6 +90,12 @@ export type SenderTransactionPrepareSubmittedPayload = {
   transactionResponse: providers.TransactionResponse;
 };
 
+export type ReceiverPrepareSignedPayload = {
+  signature: string;
+  signer: string;
+  transactionId: string;
+};
+
 export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: SenderTransactionPrepareTokenApprovalPayload;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
@@ -87,6 +103,7 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
+  [NxtpSdkEvents.ReceiverPrepareSigned]: ReceiverPrepareSignedPayload;
   [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
@@ -119,11 +136,35 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload>(),
     [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
 };
+export class NxtpSdkError extends NxtpError {
+  static readonly type = "NxtpSdkError";
+  static readonly reasons = {
+    ApprovalError: "Error approving tokens",
+    SigningError: "Signing error",
+    MessagingError: "Messaging error",
+    TxError: "Transaction Error",
+  };
+
+  constructor(
+    public readonly message: Values<typeof TransactionManagerError.reasons> | string,
+    public readonly context: {
+      transactionId: string;
+      methodId: string;
+      method: string;
+      txError?: NxtpErrorJson;
+      signerError?: NxtpErrorJson;
+      messagingError?: NxtpErrorJson;
+    },
+  ) {
+    super(message, context, TransactionManagerError.type);
+  }
+}
 
 /**
  * Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
@@ -315,8 +356,8 @@ export class NxtpSdk {
     const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
       this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
-        if (err) {
-          this.logger.error({ method, methodId, err }, "Error in auction response");
+        if (err || !data) {
+          this.logger.error({ method, methodId, err, data }, "Error in auction response");
           return;
         }
 
@@ -405,33 +446,65 @@ export class NxtpSdk {
     );
 
     if (sendingAssetId !== constants.AddressZero) {
-      const approveTx = await this.transactionManager.approveTokensIfNeeded(
-        sendingChainId,
-        sendingAssetId,
-        amount,
-        infiniteApprove,
-      );
-
-      if (approveTx) {
-        this.evts.SenderTokenApprovalSubmitted.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionResponse: approveTx,
-        });
-        const approveReceipt = await approveTx.wait(1); // TODO: confs
-        if (approveReceipt.status === 0) {
-          throw new Error("Approve transaction reverted onchain");
-        }
-        this.logger.info(
-          { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
-          "Mined approve tx",
+      await this.transactionManager
+        .approveTokensIfNeeded(sendingChainId, sendingAssetId, amount, infiniteApprove)
+        .andThen((approveTx) => {
+          // handle optional approval
+          if (approveTx) {
+            this.evts.SenderTokenApprovalSubmitted.post({
+              assetId: sendingAssetId,
+              chainId: sendingChainId,
+              transactionResponse: approveTx,
+            });
+            return ResultAsync.fromPromise(
+              approveTx.wait(1),
+              (err) =>
+                new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+                  txError: jsonifyError(err as NxtpError),
+                  method,
+                  methodId,
+                }),
+            );
+          }
+          return okAsync(undefined);
+        })
+        .andThen((approveReceipt) => {
+          // handle optional approval
+          if (approveReceipt) {
+            if (approveReceipt?.status === 0) {
+              return errAsync(
+                new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+                  approveReceipt,
+                  method,
+                  methodId,
+                }),
+              );
+            }
+            this.logger.info(
+              { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
+              "Mined approve tx",
+            );
+            this.evts.SenderTokenApprovalMined.post({
+              assetId: sendingAssetId,
+              chainId: sendingChainId,
+              transactionReceipt: approveReceipt,
+            });
+          }
+          return okAsync(approveReceipt);
+        })
+        .match(
+          () => {
+            this.logger.info({ method, methodId }, "Approval complete");
+          },
+          (err) => {
+            throw new NxtpSdkError(NxtpSdkError.reasons.ApprovalError, {
+              txError: jsonifyError(err as TransactionManagerError),
+              transactionId,
+              methodId,
+              method,
+            });
+          },
         );
-        this.evts.SenderTokenApprovalMined.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionReceipt: approveReceipt,
-        });
-      }
     }
 
     // Prepare sender side tx
@@ -457,21 +530,28 @@ export class NxtpSdk {
       amount,
       expiry,
     };
-    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params);
-    this.evts.SenderTransactionPrepareSubmitted.post({
-      prepareParams: params,
-      transactionResponse: prepareResponse,
-    });
-
-    // TODO: fix block confs for chains
-    this.logger.info(
-      { method, methodId, transactionId, transactionHash: prepareResponse.hash },
-      "Submitted prepare tx",
-    );
-    return {
-      prepareResponse,
-      transactionId,
-    };
+    return await this.transactionManager
+      .prepare(sendingChainId, params)
+      .andThen((prepareResponse) => {
+        this.evts.SenderTransactionPrepareSubmitted.post({
+          prepareParams: params,
+          transactionResponse: prepareResponse,
+        });
+        return okAsync(prepareResponse);
+      })
+      .match(
+        (prepareResponse) => {
+          return { prepareResponse, transactionId };
+        },
+        (err) => {
+          throw new NxtpSdkError(NxtpSdkError.reasons.ApprovalError, {
+            txError: jsonifyError(err as TransactionManagerError),
+            transactionId,
+            methodId,
+            method,
+          });
+        },
+      );
   }
 
   public async finishTransfer(
@@ -485,72 +565,155 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    // Generate signature
+    const signerAddress = await this.signer.getAddress();
+
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
-    const signature = await signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer);
-    this.logger.info({ method, methodId }, "Generated signature");
-
-    if (!this.messaging.isConnected()) {
-      await this.messaging.connect();
-    }
-
-    // Submit fulfill to receiver chain
-    this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
-    let callData = "0x";
-    if (txData.callDataHash !== utils.keccak256(callData)) {
-      callData = await ethereum.request({
-        method: "eth_decrypt",
-        params: [encryptedCallData, txData.user],
+    const prepareRes = ResultAsync.fromPromise(
+      // Generate signature
+      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      (err) =>
+        new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
+          method,
+          methodId,
+          transactionId: txData.transactionId,
+          signerError: jsonifyError(err as Error),
+        }),
+    )
+      .andThen((signature) => {
+        this.logger.info({ method, methodId }, "Generated signature");
+        this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
+        if (!this.messaging.isConnected()) {
+          return ResultAsync.fromPromise(
+            this.messaging.connect(),
+            (err) =>
+              new NxtpSdkError(NxtpSdkError.reasons.MessagingError, {
+                method,
+                methodId,
+                transactionId: txData.transactionId,
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        }
+        return okAsync(signature);
+      })
+      .andThen((signature) => {
+        // Submit fulfill to receiver chain
+        this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
+        let callData = "0x";
+        if (txData.callDataHash !== utils.keccak256(callData)) {
+          return ResultAsync.fromPromise(
+            new Promise<{ callData: string; signature: string }>(async (res) => {
+              callData = await ethereum.request({
+                method: "eth_decrypt",
+                params: [encryptedCallData, txData.user],
+              });
+              res({ callData, signature });
+            }),
+            (err) =>
+              new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
+                method,
+                methodId,
+                transactionId: txData.transactionId,
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        }
+        return okAsync({ callData, signature });
       });
-    }
-    this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Decrypted calldata");
 
     if (useRelayers) {
-      const inbox = generateMessagingInbox();
-      const responseInbox = generateMessagingInbox();
-      const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
-        await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
-          this.logger.info({ method, methodId, data, err }, "MetaTx response received");
-          if (err) {
-            return reject(err);
-          }
-          this.logger.info({ method, methodId, inbox, data }, "Fulfill metaTx response received");
-          return resolve(data);
-        });
-      });
+      // send through messaging to metatx relayers
+      return await prepareRes
+        .andThen(({ callData, signature }) => {
+          const responseInbox = generateMessagingInbox();
 
-      await this.messaging.publishMetaTxRequest(
-        {
-          type: "Fulfill",
-          relayerFee,
-          to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
-          chainId: txData.receivingChainId,
-          data: {
-            relayerFee,
-            signature,
-            txData,
-            callData,
+          return ResultAsync.fromPromise(
+            new Promise<{ metaTxResponse?: MetaTxResponse; fulfillResponse?: providers.TransactionResponse }>(
+              async (resolve, reject) => {
+                if (!this.messaging.isConnected()) {
+                  await this.messaging.connect();
+                }
+
+                await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
+                  this.logger.info({ method, methodId, data, err }, "MetaTx response received");
+                  if (err || !data) {
+                    return reject(err);
+                  }
+                  this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
+                  return resolve({ metaTxResponse: data, fulfillResponse: undefined });
+                });
+
+                await this.messaging.publishMetaTxRequest(
+                  {
+                    type: "Fulfill",
+                    relayerFee,
+                    to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+                    chainId: txData.receivingChainId,
+                    data: {
+                      relayerFee,
+                      signature,
+                      txData,
+                      callData,
+                    },
+                  },
+                  responseInbox,
+                );
+              },
+            ),
+            (err) =>
+              new NxtpSdkError(NxtpSdkError.reasons.MessagingError, {
+                method,
+                methodId,
+                transactionId: txData.transactionId,
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        })
+        .match(
+          (res) => res,
+          (err) => {
+            throw err;
           },
-        },
-        inbox,
-      );
-      this.logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
-      const metaTxResponse = await responsePromise;
-      return { metaTxResponse };
+        );
     } else {
-      const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
-        callData,
-        relayerFee,
-        signature,
-        txData,
-      });
-      return { fulfillResponse };
+      return await prepareRes
+        .andThen(({ callData, signature }) => {
+          return this.transactionManager
+            .fulfill(txData.receivingChainId, {
+              callData,
+              relayerFee,
+              signature,
+              txData,
+            })
+            .map((t) => {
+              return { fulfillResponse: t, metaTxResponse: undefined };
+            })
+            .mapErr(
+              (err) =>
+                new NxtpSdkError(NxtpSdkError.reasons.TxError, {
+                  method,
+                  methodId,
+                  txError: jsonifyError(err),
+                  transactionId: txData.transactionId,
+                }),
+            );
+        })
+        .match(
+          (res) => res,
+          (err) => {
+            throw err;
+          },
+        );
     }
   }
 
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const tx = await this.transactionManager.cancel(chainId, cancelParams);
-    return tx;
+    return await this.transactionManager.cancel(chainId, cancelParams).match(
+      (res) => res,
+      (err) => {
+        throw err;
+      },
+    );
   }
 
   public changeInjectedSigner(signer: Signer) {

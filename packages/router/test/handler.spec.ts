@@ -18,8 +18,9 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock } from "./utils";
+import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt } from "./utils";
 import { parseEther } from "@ethersproject/units";
+import { okAsync } from "neverthrow";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -43,9 +44,11 @@ describe("Handler", () => {
     subgraph = createStubInstance(Subgraph);
 
     txManager = createStubInstance(TxManager);
+    txManager.prepare.returns(okAsync(fakeTxReceipt));
+    txManager.fulfill.returns(okAsync(fakeTxReceipt));
+    txManager.cancel.returns(okAsync(fakeTxReceipt));
 
     txService = createStubInstance(TransactionService);
-
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
@@ -87,7 +90,8 @@ describe("Handler", () => {
       await handler.handleNewAuction(auctionPayload, "_INBOX.abc");
       expect(messaging.publishAuctionResponse.callCount).to.eq(1);
       const publishCall = messaging.publishAuctionResponse.getCall(0);
-      expect(publishCall.args[0].bid).to.deep.eq({
+      expect(publishCall.args[0]).to.eq("_INBOX.abc");
+      expect(publishCall.args[1].bid).to.deep.eq({
         user: auctionPayload.user,
         router: mkAddress("0xb"),
         sendingChainId: auctionPayload.sendingChainId,
@@ -106,8 +110,7 @@ describe("Handler", () => {
         receivingChainTxManagerAddress:
           fakeConfig.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
       });
-      expect(publishCall.args[0].bidSignature).to.eq("0xabcdef");
-      expect(publishCall.args[1]).to.eq("_INBOX.abc");
+      expect(publishCall.args[1].bidSignature).to.eq("0xabcdef");
     });
   });
 

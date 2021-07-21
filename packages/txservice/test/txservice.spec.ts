@@ -1,81 +1,54 @@
-import { providers, Signer, BigNumber } from "ethers";
-import { AddressZero, One, Zero } from "@ethersproject/constants";
-import { mkHash, mkAddress } from "@connext/nxtp-utils";
-import { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
+import { Signer } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
-import { parseUnits } from "ethers/lib/utils";
 
 import { TransactionService } from "../src/txservice";
-import { MinimalTransaction } from "../src/types";
 import { TransactionSigner } from "../src/signer";
+import { Transaction } from "../src/transaction";
+import { ChainRpcProvider } from "../src/provider";
+import { tx, txReceipt, txResponse } from "./constants";
+import { ChainError } from "../src/error";
 
-const { JsonRpcProvider } = providers;
-type TransactionReceipt = providers.TransactionReceipt;
-type TransactionResponse = providers.TransactionResponse;
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
-let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
+let transaction: SinonStubbedInstance<Transaction>;
 
-const tx: MinimalTransaction = {
-  chainId: 1337,
-  to: AddressZero,
-  from: AddressZero,
-  data: "0x",
-  value: Zero,
-};
-
-const txResponse: TransactionResponse = {
-  chainId: 1337,
-  confirmations: 1,
-  data: "0x",
-  from: AddressZero,
-  gasLimit: One,
-  gasPrice: One,
-  hash: mkHash(),
-  nonce: 1,
-  value: Zero,
-  wait: () => Promise.resolve({} as TransactionReceipt),
-};
-
-const txReceipt: TransactionReceipt = {
-  blockHash: mkHash("0xabc"),
-  blockNumber: 123,
-  byzantium: true,
-  confirmations: 1,
-  contractAddress: mkAddress("0xa"),
-  cumulativeGasUsed: BigNumber.from(21000),
-  from: txResponse.from,
-  gasUsed: BigNumber.from(21000),
-  logs: [],
-  logsBloom: "0x",
-  to: mkAddress("0xbbb"),
-  transactionHash: txResponse.hash,
-  transactionIndex: 1,
-  status: 1,
-  effectiveGasPrice: One,
-  type: 0,
-};
-
-const log = pino({ level: "debug", name: "TransactionServiceTest" });
+/// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
+/// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
 describe("TransactionService unit test", () => {
   beforeEach(() => {
+    // TODO: TransactionSigner needed here ??
     signer = createStubInstance(TransactionSigner);
     signer.connect.returns(signer as any);
     (signer as any)._isSigner = true;
 
-    const _provider = createStubInstance(JsonRpcProvider);
-    _provider.getTransaction.resolves(txResponse);
-    _provider.sendTransaction.resolves(txResponse);
-    provider1337 = _provider;
-    (signer as any).provider = provider1337;
+    const chainProvider = createStubInstance(ChainRpcProvider);
+    // chainProvider.confirmationTimeout = 60_000;
+    // chainProvider.confirmationsRequired = txReceipt.confirmations;
 
-    txService = new TransactionService(log, signer, { 1337: [""], 1338: [""] }, {}, () => provider1337);
+    const chains = {
+      "1337": {
+        providers: [
+          { url: "https://-------------.com" },
+        ],
+        confirmations: 1,
+      },
+      "1338": {
+        providers: [{ url: "https://-------------.com" }],
+        confirmations: 1,
+      },
+    };
 
-    signer.sendTransaction.resolves(txResponse);
-    stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
-    stub(txService, "confirmTx").resolves(txReceipt);
+    txService = new TransactionService(logger, signer, { chains });
+    (txService as any).getProvider = (chainId: number) => chainProvider;
+
+    transaction = Sinon.createStubInstance(Transaction);
+    transaction.send.resolves(txResponse);
+    transaction.confirm.resolves(txReceipt);
+    (txService as any).createTx = () => transaction;
   });
 
   afterEach(() => {
@@ -83,39 +56,43 @@ describe("TransactionService unit test", () => {
     reset();
   });
 
-  describe("sendAndConfirmTx", () => {
-    // beforeEach(() => {
+  // TODO: Test read and events/listeners.
 
-    // });
+  describe("sendTx", () => {
+    // TODO: Error cases to handle:
+    // nonce is expired
+    // invalid data ?
 
-    // it("errors if cannot get a signer", async () => {
+    // TODO: Fix issue with this unit test.
+    it.skip("errors if cannot get provider", async () => {
+      // Replacing this method with the original fn not working.
+      (txService as any).getProvider = (TransactionService as any).getProvider;
+      await expect(txService.sendTx(99999, tx)).to.be.rejectedWith(ChainError.reasons.ProviderNotFound);
+    });
 
-    // });
+    it("retries transaction with higher gas price", async () => {
+      // We would expect transaction to reject with confirmation timeout in this edge case.
+      transaction.confirm.onCall(0).rejects(new ChainError(ChainError.reasons.ConfirmationTimeout));
+      transaction.confirm.onCall(1).resolves(txReceipt);
+      // This should send the tx, then attempt to confirm, fail, bump gas, and receive confirmation the second time.
+      const result = await txService.sendTx(1337, tx);
+      expect(result).to.deep.eq(txReceipt);
+      expect(transaction.confirm.callCount).to.equal(2);
+      expect(transaction.bumpGasPrice.callCount).to.equal(1);
+      
+    });
 
-    // it("errors if cannot get provider", async () => {
+    it("should throw if gas price goes above maximum", async () => {
+      transaction.bumpGasPrice.rejects(new ChainError(ChainError.reasons.MaxGasPriceReached));
 
-    // });
+    });
 
-    // it("if receipt status == 0, errors out", async () => {
-
-    // });
-
-    // it("retries transaction with higher gas price", async () => {
-
-    // });
-
-    // it("stops trying to send if at max gas price", async () => {
-
-    // });
-
-    it.skip("happy: confirmation on first loop", async () => {
-      const result = await txService.sendAndConfirmTx(1337, tx);
-
-      expect(signer.sendTransaction.callCount).eq(1);
-      const sendTransactionCall = signer.sendTransaction.getCall(0);
-      expect(sendTransactionCall.args[0]).eq(tx);
-
+    it("happy: tx sent and confirmed", async () => {
+      const result = await txService.sendTx(1337, tx);
       expect(result).to.deep.eq(txReceipt);
     });
+  });
+
+  describe("readTx", () => {
   });
 });
