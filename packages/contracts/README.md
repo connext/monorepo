@@ -117,7 +117,7 @@ You should use the `NETWORK_NAME` that corresponds to the correct network within
 
 To optionally verify the contracts (works with Etherscan-based networks):
 
-````sh
+```sh
 yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli \<NETWORK_NAME\>
 ```
 
@@ -125,7 +125,7 @@ Once the contracts have been deployed, export them using:
 
 ```sh
 yarn workspace @connext/nxtp-contracts export
-````
+```
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
 
