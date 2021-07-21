@@ -579,7 +579,8 @@ export class NxtpSdk {
    * @param params - The `TransactionPrepared` event payload from the receiving chain
    * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
    * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
-   * @returns
+   * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
+   * // TODO: fix this typing, if its either or the types should reflect that
    */
   public async finishTransfer(
     params: TransactionPreparedEvent,
