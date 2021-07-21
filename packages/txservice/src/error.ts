@@ -26,7 +26,8 @@ export class ChainError extends NxtpError {
     RpcFailure: "Could not execute RPC method.",
     ProviderNotSynced: "No provider(s) network were ready for execution.",
     ContractReadFailure: "Could not read from contract.",
-    ReplacementGasInvalid: "Gas for replacement tx was insufficient. (Gas must be greater than previous transaction's gas.)",
+    ReplacementGasInvalid:
+      "Gas for replacement tx was insufficient. (Gas must be greater than previous transaction's gas.)",
   };
 
   constructor(public readonly message: Values<typeof ChainError.reasons> | string, public readonly context: any = {}) {

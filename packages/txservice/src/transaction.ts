@@ -9,6 +9,9 @@ import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
 
+/**
+ * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
+ */
 export class Transaction {
   // We use a unique ID to internally track a transaction through logs.
   public id: hyperid.Instance = hyperid();
@@ -31,6 +34,11 @@ export class Transaction {
   public nonceExpired = false;
 
   private _attempt = 0;
+  /**
+   * Getter to return the internal attempt
+   *
+   * @returns The _attempt of the transction
+   */
   public get attempt(): number {
     return this._attempt;
   }
@@ -46,7 +54,11 @@ export class Transaction {
     this.gasPrice = new GasPrice(BigNumber.from(this.config.gasLimit), this.provider);
   }
 
-  /// Retrieves all data needed to format a full transaction.
+  /**
+   * Retrieves all data needed to format a full transaction.
+   *
+   * @returns A transaction that is ready to be sent to chain (with specified gasPrice and nonce iff rebroadcasting)
+   */
   public async getData(): Promise<FullTransaction> {
     const gasPrice = await this.gasPrice.get();
     return {
@@ -56,7 +68,11 @@ export class Transaction {
     };
   }
 
-  /// Makes a single attempt to send this transaction based on its current data.
+  /**
+   * Makes a single attempt to send this transaction based on its current data.
+   *
+   * @returns A TransactionResponse once the transaction has been mined
+   */
   public async send(): Promise<providers.TransactionResponse> {
     const method = this.send.name;
 
@@ -123,14 +139,12 @@ export class Transaction {
     return response;
   }
 
-  /* Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
-   * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
-   * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
+  /**
+   * Makes an attempt to confirm this transaction, waiting up to a designated period to achieve a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout. If all txs, including replacements, are reverted, throws ChainError.TxReverted.
    *
-   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
-   * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
-   * wait an extended period for the desired number of confirmations. If no further confirmations appear
-   * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
+   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will wait an extended period for the desired number of confirmations. If no further confirmations appear (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
+   *
+   * @returns A TransactionReceipt (or undefined if it did not confirm)
    */
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
     // Ensure we've submitted at least 1 tx.
@@ -182,7 +196,9 @@ export class Transaction {
     return this.receipt;
   }
 
-  /// Bump the gas price up by configured percentage.
+  /**
+   * Bumps the internal gas price up by configured percentage.
+   */
   public async bumpGasPrice() {
     const currentPrice = await this.gasPrice.get();
     // Scale up gas by percentage as specified by config.
@@ -198,7 +214,13 @@ export class Transaction {
     );
   }
 
-  /// This helper exists to ensure we are always logging the full transaction data and ID whenever we log info.
+  /**
+   * This helper exists to ensure we are always logging the full transaction data and ID whenever we log info.
+   *
+   * @param message - The message to log
+   * @param method - The method being logged
+   * @param info - Detailed information to log
+   */
   private async logInfo(message: string, method: string, info: any = {}) {
     const data = await this.getData();
     this.log.info(

@@ -1,4 +1,4 @@
-import { Signer, providers } from "ethers";
+import { Signer, providers, BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
 import { jsonifyError } from "@connext/nxtp-utils";
@@ -35,6 +35,9 @@ export interface NxtpTxServiceEventPayloads {
   [NxtpTxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
 }
 
+/**
+ * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
+ */
 export class TransactionService {
   // TODO: Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
@@ -79,7 +82,19 @@ export class TransactionService {
     });
   }
 
-  /// Send specified transaction on specified chain.
+  /**
+   * Send specified transaction on specified chain.
+   *
+   * @param chainId - Chain to send transaction on
+   * @param tx - Tx to send
+   * @param tx.chainId - Chain to send transaction on
+   * @param tx.to - Address to send tx to
+   * @param tx.value - Value to send tx with
+   * @param tx.data - Calldata to execute
+   * @param tx.from - (optional) Account to send tx from
+   * @returns TransactionReceipt once the tx is mined
+   */
+  // TODO: chainId doesnt need to be a param and enforced on minimal tx data structure
   public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     let receipt: providers.TransactionReceipt | undefined;
@@ -133,23 +148,57 @@ export class TransactionService {
     return receipt;
   }
 
-  /// Create a non-state changing contract call. Returns hexdata that needs to be decoded.
+  /**
+   * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
+   *
+   * @param chainId - Chain to read from
+   * @param tx - Data to read
+   * @param tx.chainId - Chain to read transaction on
+   * @param tx.to - Address to execute read on
+   * @param tx.value - Value to execute read tx with
+   * @param tx.data - Calldata to send
+   * @param tx.from - (optional) Account to send tx from
+   * @returns Encoded hexdata representing result of the read
+   */
+  // TODO: read will never have a value/from, why include it in the type
   public async readTx(chainId: number, tx: MinimalTransaction): Promise<string> {
     const provider = this.getProvider(chainId);
     return provider.readTransaction(tx);
   }
 
-  public async getBalance(chainId: number, address: string) {
+  /**
+   * Gets the native asset balance for an address
+   *
+   * @param chainId - Chain to read balance from
+   * @param address - Address to get balance of
+   * @returns BigNumber representation of asset balance
+   */
+  public async getBalance(chainId: number, address: string): Promise<BigNumber> {
     const provider = this.getProvider(chainId);
     return await provider.getBalance(address);
   }
 
-  public async estimateGas(chainId: number, transaction: providers.TransactionRequest) {
+  /**
+   * Returns an estimate of how much gas a given transaction would consume once sent.
+   *
+   * @param chainId - Chain to execute tx on
+   * @param transaction Transaction to estimate gas of
+   * @returns BigNumber representation of the approximate gas a given tx would consume
+   */
+  public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
     const provider = this.getProvider(chainId);
     return await provider.estimateGas(transaction);
   }
 
   /// LISTENER METHODS
+  /**
+   * Attaches a callback to the emitted event
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   */
   public attach<T extends NxtpTxServiceEvent>(
     event: T,
     callback: (data: NxtpTxServiceEventPayloads[T]) => void,
@@ -160,6 +209,15 @@ export class TransactionService {
     this.evts[event].pipe(filter).attach(...(args as [number, any]));
   }
 
+  /**
+   * Attaches a callback to the emitted event that will be executed one time and then detached.
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   *
+   */
   public attachOnce<T extends NxtpTxServiceEvent>(
     event: T,
     callback: (data: NxtpTxServiceEventPayloads[T]) => void,
@@ -170,6 +228,11 @@ export class TransactionService {
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }
 
+  /**
+   * Removes all attached handlers from the given event.
+   *
+   * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
+   */
   public detach<T extends NxtpTxServiceEvent>(event?: T): void {
     if (event) {
       this.evts[event].detach();
@@ -178,6 +241,16 @@ export class TransactionService {
     Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
+  /**
+   * Returns a promise that resolves when the event matching the filter is emitted
+   *
+   * @param event - The event name to wait for
+   * @param timeout - The ms to continue waiting before rejecting
+   * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
+   *
+   * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
+   *
+   */
   public waitFor<T extends NxtpTxServiceEvent>(
     event: T,
     timeout: number,
