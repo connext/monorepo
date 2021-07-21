@@ -7,7 +7,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { expect } from "@connext/nxtp-utils";
 
-import {ownerPk} from "./txManagerOwner";
+import { ownerPk, routerPk } from "./txManagerOwner";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -36,7 +36,7 @@ const router = "0xf0722640639Ec7Dc923E3d776c2BE78cD05312F9";
 
 const sugarDaddy = new Wallet(ownerPk);
 const MIN_ETH = utils.parseEther("0.5");
-const ETH_GIFT = utils.parseEther("1");
+const ETH_GIFT = utils.parseEther(".5");
 const token4 = new Contract(rinkebyTokenAddress, TestTokenABI, sugarDaddy.connect(chainProviders[4]));
 const token5 = new Contract(goerliTokenAddress, TestTokenABI, sugarDaddy.connect(chainProviders[5]));
 const MIN_TOKEN = utils.parseEther("5");
@@ -169,78 +169,140 @@ describe("Integration", () => {
     expect(rBalToken5.gt(MIN_TOKEN)).to.eq(true);
 
     let liquidity4 = await txManager4.routerBalances(router, rinkebyTokenAddress);
-    const liquidity5 = await txManager5.routerBalances(router, goerliTokenAddress);
+    let liquidity5 = await txManager5.routerBalances(router, goerliTokenAddress);
 
     //router adds its own liquidity
     if (liquidity4.lt(MIN_TOKEN)) {
       logger.info({ chainId: 4 }, "Adding liquidity");
-      // const allowance: BigNumber = await token4.allowance(router, txManager4.address);
+      const routerWallet = new Wallet(routerPk);
 
-      // if(allowance.lt(constants.MaxUint256)){
-      //   const approvetx = await token4.approve(txManager4.address, constants.MaxUint256, {gasLimit:6000000});
-      //   const receipt = await approvetx.wait();
-      //   logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "addLiquidity approved Rinkeby");
-      // }
-      const tx = await txManager4.addLiquidity(MIN_TOKEN, rinkebyTokenAddress, router);
+      const routerTxManager4 = new Contract(
+        txManagerRinkeby,
+        TransactionManagerArtifact.abi,
+        routerWallet.connect(chainProviders[4]),
+      ) as TransactionManager;
+
+      const routerToken4 = new Contract(rinkebyTokenAddress, TestTokenABI, routerWallet.connect(chainProviders[4]));
+
+      const allowance: BigNumber = await routerToken4.allowance(router, routerTxManager4.address);
+      console.log(allowance);
+
+      if(allowance.lt(constants.MaxUint256)){
+        const approvetx = await routerToken4.approve(routerTxManager4.address, constants.MaxUint256, {gasLimit:6000000});
+        const receipt = await approvetx.wait();
+        logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "addLiquidity approved Rinkeby");
+      }
+      const tx = await routerTxManager4.addLiquidity(MIN_TOKEN, rinkebyTokenAddress, router, {gasLimit:7000000});
       const receipt = await tx.wait();
       logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "addLiquidity mined Rinkeby");
 
       liquidity4 = await txManager4.routerBalances(router,rinkebyTokenAddress);
     }
 
-
-    // }
     expect(liquidity4.gte(MIN_TOKEN));
 
 
+    if (liquidity5.lt(MIN_TOKEN)) {
+      logger.info({ chainId: 5 }, "Adding liquidity goerli");
+      const routerWallet = new Wallet(routerPk);
+
+      const routerTxManager5 = new Contract(
+        txManagerGoerli,
+        TransactionManagerArtifact.abi,
+        routerWallet.connect(chainProviders[5]),
+      ) as TransactionManager;
+
+      const routerToken5 = new Contract(goerliTokenAddress, TestTokenABI, routerWallet.connect(chainProviders[5]));
+
+      const allowance: BigNumber = await routerToken5.allowance(router, routerTxManager5.address);
+      console.log(allowance);
+
+      if(allowance.lt(constants.MaxUint256)){
+        const approvetx = await routerToken5.approve(routerTxManager5.address, constants.MaxUint256, {gasLimit:6000000});
+        const receipt = await approvetx.wait();
+        logger.info({ transactionHash: receipt.transactionHash, chainId: 5 }, "addLiquidity approved Rinkeby");
+      }
+      const tx = await routerTxManager5.addLiquidity(MIN_TOKEN, goerliTokenAddress, router, {gasLimit:7000000});
+      const receipt = await tx.wait();
+      logger.info({ transactionHash: receipt.transactionHash, chainId: 5 }, "addLiquidity mined Rinkeby");
+
+      liquidity5 = await txManager4.routerBalances(router,goerliTokenAddress);
+    }
+
+    expect(liquidity5.gte(MIN_TOKEN));
+
   });
 
+  it(`Should create a random wallet, and fund it with 1 eth (from sugardaddy) then create transfer `, async()=>{
+    // const userWallet = Wallet.createRandom();
+    // console.log(`Random Wallet ${userWallet.address}  ${JSON.stringify(userWallet._signingKey())}  ${JSON.stringify(userWallet._mnemonic())}`);
+    //
+    // let userBal = await chainProviders[4].getBalance(userWallet.address);
+    // let userTokenBal = await token4.balanceOf(userWallet.address);
+    // if(userBal.lt(utils.parseEther("0.3"))){
+    //
+    //   logger.info({ chainId: 4 }, "Sending ETH_GIFT to user");
+    //   const tx = await sugarDaddy.connect(chainProviders[4]).sendTransaction({to:userWallet.address, value: ETH_GIFT});
+    //   const receipt = await tx.wait();
+    //   logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "ETH_GIFT to user mined: ");
+    //   userBal = await chainProviders[4].getBalance(userWallet.address);
+    // }
+    // if(userTokenBal.lt(MIN_TOKEN)){
+    //
+    //   logger.info({chainId:4}, "sending tokens to user");
+    //   const tx = await token4.mint(userWallet.address, TOKEN_GIFT);
+    //   const receipt = await tx.wait();
+    //   logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "TOKEN_GIFT to user mined: ");
+    //   userTokenBal = await token4.balanceOf(userWallet.address);
+    //
+    // }
+    // expect(userBal.gte(ETH_GIFT));
+    // expect(userTokenBal.gte(MIN_TOKEN));
 
-    //
-    //   // fund if necessary
-    //   if (liquidity4.lt(MIN_TOKEN)) {
-    //     logger.info({ chainId: 4 }, "Adding liquidity");
-    //     const approvetx = await token4.approve(txManager4.address, constants.MaxUint256);
-    //     const approveReceipt = await approvetx.wait();
-    //     logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 4 }, "addLiquidity approved");
-    //     const tx = await txManager4.addLiquidity(TOKEN_GIFT, rinkebyTokenAddress, router);
-    //     const receipt = await tx.wait();
-    //     logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "addLiquidity mined");
-    //   }
-    //
-    //   if (liquidity5.lt(MIN_TOKEN)) {
-    //     logger.info({ chainId: 1338 }, "Adding liquidity");
-    //     const approvetx = await token5.approve(txManager5.address, constants.MaxUint256);
-    //     const approveReceipt = await approvetx.wait();
-    //     logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 5 }, "addLiquidity approved");
-    //     const tx = await txManager5.addLiquidity(TOKEN_GIFT, goerliTokenAddress, router);
-    //     const receipt = await tx.wait();
-    //     logger.info({ transactionHash: receipt.transactionHash, chainId: 5 }, "addLiquidity mined");
-    //   }
-    // });
-    //
+  });
+  it(`Should send tokens`, async function(){
+    userSdk = new NxtpSdk(
+      chainProviders,
+      userWallet,
+      pino({name:"Integration Test"}),
+      "nats://localhost:4222",
+      "http://localhost:5040",
+    );
+    this?.timeout(120_000);
+    const quote = await userSdk.getTransferQuote({
+      amount: utils.parseEther(".5").toString(),
+      receivingAssetId: goerliTokenAddress,
+      sendingAssetId: rinkebyTokenAddress,
+      receivingAddress: userWallet.address,
+      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+      sendingChainId: 4,
+      receivingChainId: 5,
+    });
+      const res = await userSdk.startTransfer(quote);
+      expect(res.prepareResponse.hash).to.be.ok;
+
+      const event = await userSdk.waitFor(
+        NxtpSdkEvents.ReceiverTransactionPrepared,
+        100_000,
+        (data) => data.txData.transactionId === res.transactionId,
+      );
+
+      const fulfillEventPromise = userSdk.waitFor(
+        NxtpSdkEvents.ReceiverTransactionFulfilled,
+        100_000,
+        (data) => data.txData.transactionId === res.transactionId,
+      );
+
+    userSdk.finishTransfer(event);
+    const fulfillEvent = await fulfillEventPromise;
+    console.log(`${[res,event,fulfillEventPromise].map((self)=>{return JSON.stringify(self);})}`);
+    expect(fulfillEvent).to.be.ok;
+
+  });
     // beforeEach(async () => {
     //   userWallet = Wallet.createRandom();
     //
     //   // fund user sender side
-    //   const balance1337 = await chainProviders[4].getBalance(userWallet.address);
-    //   if (balance1337.lt(MIN_ETH)) {
-    //     logger.info({ chainId: 4 }, "Sending ETH_GIFT to user");
-    //     const tx = await sugarDaddy
-    //       .connect(chainProviders[4])
-    //       .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
-    //     const receipt = await tx.wait();
-    //     logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "ETH_GIFT to user mined: ");
-    //   }
-    //
-    //   const balanceToken1337 = await token4.balanceOf(userWallet.address);
-    //   if (balanceToken1337.lt(MIN_TOKEN)) {
-    //     logger.info({ chainId: 4 }, "Sending TOKEN_GIFT to user");
-    //     const tx = await token4.mint(userWallet.address, TOKEN_GIFT);
-    //     const receipt = await tx.wait();
-    //     logger.info({ transactionHash: receipt.transactionHash, chainId: 4 }, "TOKEN_GIFT to user mined: ");
-    //   }
-    //
     //   userSdk = new NxtpSdk(
     //     chainProviders,
     //     userWallet,
