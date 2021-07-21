@@ -39,13 +39,6 @@ import { Subgraph } from "./subgraph";
 
 const hId = hyperid();
 
-/**
- * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.
- *
- * @param str String to clean
- * @returns Cleaned version of the input
- */
-export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
 

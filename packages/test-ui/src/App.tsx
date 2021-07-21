@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
