@@ -15,7 +15,8 @@
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "deploy": "hardhat deploy",
-    "etherscan-verify": "hardhat etherscan-verify"
+    "etherscan-verify": "hardhat etherscan-verify",
+    "hardhat": "hardhat"
   },
   "main": "dist/index.js",
   "types": "typechain/index.ts",
@@ -54,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "adv": "^0.1.5",
     "ajv": "^8.6.2",
+    "dotenv": "^10.0.0",
     "eslint": "^7.30.0",
     "hardhat-deploy": "^0.8.11",
     "hardhat-gas-reporter": "^1.0.4",
