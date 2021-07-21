@@ -63,6 +63,7 @@ export const NxtpSdkEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
   SenderTransactionFulfilled: "SenderTransactionFulfilled",
   SenderTransactionCancelled: "SenderTransactionCancelled",
+  ReceiverPrepareSigned: "ReceiverPrepareSigned",
   ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
   ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
   ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
@@ -96,6 +97,7 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
+  [NxtpSdkEvents.ReceiverPrepareSigned]: string;
   [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
@@ -128,6 +130,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<string>(),
     [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
@@ -140,6 +143,7 @@ export class NxtpSdkError extends NxtpError {
     ApprovalError: "Error approving tokens",
     SigningError: "Signing error",
     MessagingError: "Messaging error",
+    TxError: "Transaction Error",
   };
 
   constructor(
@@ -486,7 +490,7 @@ export class NxtpSdk {
       amount,
       expiry,
     };
-    const prepareResponse = await this.transactionManager
+    return await this.transactionManager
       .prepare(sendingChainId, params)
       .andThen((prepareResponse) => {
         this.evts.SenderTransactionPrepareSubmitted.post({
@@ -496,7 +500,9 @@ export class NxtpSdk {
         return okAsync(prepareResponse);
       })
       .match(
-        (prepareResponse) => prepareResponse,
+        (prepareResponse) => {
+          return { prepareResponse, transactionId };
+        },
         (err) => {
           throw new NxtpSdkError(NxtpSdkError.reasons.ApprovalError, {
             txError: jsonifyError(err as TransactionManagerError),
@@ -506,11 +512,6 @@ export class NxtpSdk {
           });
         },
       );
-
-    return {
-      prepareResponse,
-      transactionId,
-    };
   }
 
   public async finishTransfer(
@@ -524,10 +525,9 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    // Generate signature
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
-
-    const signature = ResultAsync.fromPromise(
+    const prepareRes = ResultAsync.fromPromise(
+      // Generate signature
       signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
@@ -576,57 +576,101 @@ export class NxtpSdk {
           );
         }
         return okAsync({ callData, signature });
-      })
-      .andThen(({ callData, signature }) => {
-        this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Decrypted calldata");
       });
 
     if (useRelayers) {
-      const inbox = generateMessagingInbox();
-      const responseInbox = generateMessagingInbox();
-      const responsePromise = new Promise<MetaTxResponse>(async (resolve, reject) => {
-        await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
-          this.logger.info({ method, methodId, data, err }, "MetaTx response received");
-          if (err || !data) {
-            return reject(err);
-          }
-          this.logger.info({ method, methodId, inbox, data }, "Fulfill metaTx response received");
-          return resolve(data);
-        });
-      });
+      // send through messaging to metatx relayers
+      return await prepareRes
+        .andThen(({ callData, signature }) => {
+          const responseInbox = generateMessagingInbox();
 
-      await this.messaging.publishMetaTxRequest(
-        {
-          type: "Fulfill",
-          relayerFee,
-          to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
-          chainId: txData.receivingChainId,
-          data: {
-            relayerFee,
-            signature,
-            txData,
-            callData,
+          return ResultAsync.fromPromise(
+            new Promise<{ metaTxResponse?: MetaTxResponse; fulfillResponse?: providers.TransactionResponse }>(
+              async (resolve, reject) => {
+                if (!this.messaging.isConnected()) {
+                  await this.messaging.connect();
+                }
+
+                await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
+                  this.logger.info({ method, methodId, data, err }, "MetaTx response received");
+                  if (err || !data) {
+                    return reject(err);
+                  }
+                  this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
+                  return resolve({ metaTxResponse: data, fulfillResponse: undefined });
+                });
+
+                await this.messaging.publishMetaTxRequest(
+                  {
+                    type: "Fulfill",
+                    relayerFee,
+                    to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+                    chainId: txData.receivingChainId,
+                    data: {
+                      relayerFee,
+                      signature,
+                      txData,
+                      callData,
+                    },
+                  },
+                  responseInbox,
+                );
+              },
+            ),
+            (err) =>
+              new NxtpSdkError(NxtpSdkError.reasons.MessagingError, {
+                method,
+                methodId,
+                transactionId: txData.transactionId,
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        })
+        .match(
+          (res) => res,
+          (err) => {
+            throw err;
           },
-        },
-        inbox,
-      );
-      this.logger.info({ method, methodId, inbox }, "Fulfill metaTx request published");
-      const metaTxResponse = await responsePromise;
-      return { metaTxResponse };
+        );
     } else {
-      const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
-        callData,
-        relayerFee,
-        signature,
-        txData,
-      });
-      return { fulfillResponse };
+      return await prepareRes
+        .andThen(({ callData, signature }) => {
+          return this.transactionManager
+            .fulfill(txData.receivingChainId, {
+              callData,
+              relayerFee,
+              signature,
+              txData,
+            })
+            .map((t) => {
+              return { fulfillResponse: t, metaTxResponse: undefined };
+            })
+            .mapErr(
+              (err) =>
+                new NxtpSdkError(NxtpSdkError.reasons.TxError, {
+                  method,
+                  methodId,
+                  txError: jsonifyError(err),
+                  transactionId: txData.transactionId,
+                }),
+            );
+        })
+        .match(
+          (res) => res,
+          (err) => {
+            throw err;
+          },
+        );
     }
   }
 
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const tx = await this.transactionManager.cancel(chainId, cancelParams);
-    return tx;
+    return await this.transactionManager.cancel(chainId, cancelParams).match(
+      (res) => res,
+      (err) => {
+        throw err;
+      },
+    );
   }
 
   public changeInjectedSigner(signer: Signer) {
