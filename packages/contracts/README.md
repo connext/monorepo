@@ -105,6 +105,8 @@ export CHAIN_ID="<CHAIN_ID_HERE>"
 export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional to run verification task, but highly recommended
 ```
 
+You can also add a `.env` to the `packages/contracts` dir with the above env vars.
+
 Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
@@ -126,3 +128,11 @@ yarn workspace @connext/nxtp-contracts export
 ````
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
+
+## Helper Tasks
+
+There are helper tasks defined in the [`./src/contracts`](./src/contracts) directory. These can be run using the following example command structure:
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
+```
