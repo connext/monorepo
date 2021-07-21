@@ -96,7 +96,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendAndConfirmTx(chainId, {
+      this.txService.sendTx(chainId, {
         to: this.config.chainConfig[chainId].transactionManagerAddress,
         data: encodedData,
         value: constants.Zero,
@@ -135,7 +135,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendAndConfirmTx(chainId, {
+      this.txService.sendTx(chainId, {
         chainId,
         data: fulfillData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -176,7 +176,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendAndConfirmTx(chainId, {
+      this.txService.sendTx(chainId, {
         chainId,
         data: cancelData,
         to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -227,7 +227,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendAndConfirmTx(chainId, {
+      this.txService.sendTx(chainId, {
         chainId,
         data: removeLiquidityData,
         to: nxtpContractAddress,
