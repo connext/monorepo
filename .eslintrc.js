@@ -74,15 +74,16 @@ module.exports = {
       },
     ],
 
-    "jsdoc/implements-on-classes": 1, // Recommended
-    "jsdoc/require-description": 1,
-    "jsdoc/require-jsdoc": 1, // Recommended
-    "jsdoc/require-param": 1, // Recommended
-    "jsdoc/require-param-description": 1, // Recommended
-    "jsdoc/require-property": 1, // Recommended
-    "jsdoc/require-property-description": 1, // Recommended
-    "jsdoc/require-returns": 1, // Recommended
-    "jsdoc/require-returns-check": 1, // Recommended
-    "jsdoc/require-returns-description": 1, // Recommended
+    "require-jsdoc": [
+      1,
+      {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: false,
+          ClassDeclaration: false,
+          ArrowFunctionExpression: true,
+        },
+      },
+    ],
   },
 };

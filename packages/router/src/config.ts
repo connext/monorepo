@@ -56,6 +56,11 @@ const MIN_GAS = utils.parseEther("0.1");
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
 
+/**
+ * Gets and validates the router config from the environment.
+ *
+ * @returns The router config with sensible defaults
+ */
 export const getEnvConfig = (): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
@@ -131,6 +136,11 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
 let nxtpConfig: NxtpRouterConfig | undefined;
 
+/**
+ * Caches and returns the environment config
+ *
+ * @returns The config
+ */
 export const getConfig = (): NxtpRouterConfig => {
   if (!nxtpConfig) {
     nxtpConfig = getEnvConfig();

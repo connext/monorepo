@@ -50,6 +50,12 @@ export class TransactionManagerListener {
       return;
     }
 
+    /**
+     * Helper to translate contract-emitted events to properly typed ones
+     *
+     * @param txData - Contract emitted event
+     * @returns Properly typed contract event (handle BigNumbers)
+     */
     const processTxData = (txData: any): TransactionData => {
       return {
         user: txData.user,
