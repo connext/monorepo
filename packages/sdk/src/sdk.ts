@@ -90,6 +90,12 @@ export type SenderTransactionPrepareSubmittedPayload = {
   transactionResponse: providers.TransactionResponse;
 };
 
+export type ReceiverPrepareSignedPayload = {
+  signature: string;
+  signer: string;
+  transactionId: string;
+};
+
 export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: SenderTransactionPrepareTokenApprovalPayload;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
@@ -97,7 +103,7 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
-  [NxtpSdkEvents.ReceiverPrepareSigned]: string;
+  [NxtpSdkEvents.ReceiverPrepareSigned]: ReceiverPrepareSignedPayload;
   [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
@@ -130,7 +136,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
-    [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<string>(),
+    [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload>(),
     [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
@@ -525,6 +531,8 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
+    const signerAddress = await this.signer.getAddress();
+
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
@@ -539,6 +547,7 @@ export class NxtpSdk {
     )
       .andThen((signature) => {
         this.logger.info({ method, methodId }, "Generated signature");
+        this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
         if (!this.messaging.isConnected()) {
           return ResultAsync.fromPromise(
             this.messaging.connect(),
