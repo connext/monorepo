@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ["./packages/**/tsconfig.json"],
   },
-  plugins: ["@typescript-eslint", "eslint-plugin-tsdoc", "node", "import"],
+  plugins: ["@typescript-eslint", "eslint-plugin-jsdoc", "node", "import"],
   extends: [
     // Core eslint recommended rules.
     "eslint:recommended",
@@ -21,6 +21,9 @@ module.exports = {
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
+
+    // // JSDoc recommended
+    // "plugin:jsdoc/recommended",
   ],
   rules: {
     // Importing any package in the project will likely work in dev because
@@ -71,7 +74,15 @@ module.exports = {
       },
     ],
 
-    // ts doc breaking
-    "tsdoc/syntax": "warn",
+    "jsdoc/implements-on-classes": 1, // Recommended
+    "jsdoc/require-description": 1,
+    "jsdoc/require-jsdoc": 1, // Recommended
+    "jsdoc/require-param": 1, // Recommended
+    "jsdoc/require-param-description": 1, // Recommended
+    "jsdoc/require-property": 1, // Recommended
+    "jsdoc/require-property-description": 1, // Recommended
+    "jsdoc/require-returns": 1, // Recommended
+    "jsdoc/require-returns-check": 1, // Recommended
+    "jsdoc/require-returns-description": 1, // Recommended
   },
 };
