@@ -125,6 +125,10 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
   };
 };
 
+/**
+ * Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
+ *
+ */
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly transactionManager: TransactionManager;
@@ -213,16 +217,47 @@ export class NxtpSdk {
     this.setupListeners();
   }
 
+  /**
+   * Connects the messaging service used by the user
+   *
+   * @param bearerToken - (optional) The messaging bearer token. If not provided, one will be created and returned
+   *
+   * @returns The used bearer token
+   */
   public async connectMessaging(bearerToken?: string): Promise<string> {
     const token = await this.messaging.connect(bearerToken);
     return token;
   }
 
+  /**
+   * Gets all the transactions that could require user action from the subgraph across all configured chains
+   *
+   * @returns An array of the active transactions and their status
+   */
   public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
     const txs = await this.subgraph.getActiveTransactions();
     return txs;
   }
 
+  /**
+   * Fetches an estimated quote for a proposed crosschain transfer. Runs an auction to determine the `router` for a transaction and the estimated received value.
+   *
+   * @param params.callData - The calldata to execute on the receiving chain
+   * @param params.sendingChainId - The originating chain (where user is sending funds from)
+   * @param params.sendingAssetId - The originating asset of the funds the user is sending
+   * @param params.receivingChainId - The destination chain (where user wants the funds)
+   * @param params.receivingAssetId - The assetId of funds the user would like to receive on the receiving chain
+   * @param params.callTo - The address on the receiving chain to execute the callData on
+   * @param params.receivingAddress - The address the funds should be sent to on the destination chain if callTo/callData is empty, or the fallback address if the callTo/callData is specified
+   * @param params.amount - The amount the user will send on the sending chain. This is not necessarily the amount they will receive
+   * @param params.expiry - The expiry on the sending chain for the transfer
+   * @param params.transactionId - The unique identifier for the transfer
+   *
+   * @returns The auction response for the given transacton
+   *
+   * @remarks
+   * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
+   */
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
     const method = "getTransferQuote";
     const methodId = getRandomBytes32();

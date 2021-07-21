@@ -11,8 +11,12 @@ const hId = hyperid();
 
 /**
  * Gets hosted subgraph for applicable chains
- * @param chainId
- * @returns
+ *
+ * @param chainId - The chain you want the subgraph URI for
+ * @returns A string of the appropriate URI to access the hosted subgraph
+ *
+ * @remarks
+ * Currently only returns URIs for hosted subgraphs
  */
 export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
   switch (chainId) {
@@ -25,6 +29,12 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
   }
 };
 
+/**
+ * Converts subgraph transactions to properly typed TransactionData
+ *
+ * @param transaction Subgraph data
+ * @returns Properly formatted TransactionData
+ */
 const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
     user: transaction.user.id,
@@ -44,6 +54,9 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
   };
 };
 
+/**
+ * Handles all user-facing subgraph queries
+ */
 export class Subgraph {
   private sdks: Record<number, Sdk> = {};
 
@@ -58,6 +71,11 @@ export class Subgraph {
     });
   }
 
+  /**
+   * Gets the transactions that the user may need to take action on. Specifically, transactions that have been prepared on the sending chain, but have yet to be prepared or fulfilled on the receiving chain, or have yet to be cancelled on the sending chain
+   *
+   * @returns All active transactions for the instantiated user
+   */
   async getActiveTransactions(): Promise<
     {
       txData: TransactionData;

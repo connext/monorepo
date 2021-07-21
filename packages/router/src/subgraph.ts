@@ -360,6 +360,7 @@ export class Subgraph {
 
   /**
    * Returns a promise that resolves when the event matching the filter is emitted
+   *
    * @param event - The event name to wait for
    * @param timeout - The ms to continue waiting before rejecting
    * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
