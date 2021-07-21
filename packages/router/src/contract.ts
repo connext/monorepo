@@ -19,6 +19,10 @@ import { errAsync, ResultAsync } from "neverthrow";
 import { getConfig, NxtpRouterConfig } from "./config";
 
 const hId = hyperid();
+
+/**
+ * @classdesc Defines the error thrown by the `TransactionManager` class
+ */
 export class TransactionManagerError extends NxtpError {
   static readonly type = "TransactionManagerError";
   static readonly reasons = {
@@ -40,7 +44,7 @@ export class TransactionManagerError extends NxtpError {
 }
 
 /**
- * Handles any onchain interactions with the `TransactionManager` contracts, including transaction submissions and chain reads.
+ * @classdesc Handles any onchain interactions with the `TransactionManager` contracts, including transaction submissions and chain reads.
  */
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
@@ -59,6 +63,7 @@ export class TransactionManager {
    * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
    *
    * @param chainId - The chain you are preparing a transaction on
+   * @param prepareParams - Arguments to supply to contract
    * @param prepareParams.txData - The `InvariantTransactionData` for the transaction being prepared
    * @param prepareParams.amount - The amount to be deducted from the liquidity held by the router on the TransactionManager
    * @param prepareParams.expiry - The timestamp the transaction will expire by
@@ -132,6 +137,7 @@ export class TransactionManager {
    * Calls `fulfill` on the `TransactionManager` on the given chain. Can be used to submit the routers own fulfill transaction (on the sending chain), or to submit fulfill transactions where the router is acting as a relayer.
    *
    * @param chainId - The chain you are fulfilling a transaction on
+   * @param fulfillParams - The arguments to submit to chain
    * @param fulfillParams.txData - The `TransactionData` (invariant and variant) for the transaction you are fulfilling
    * @param fulfillParams.relayerFee - The `relayerFee` for the transaction
    * @param fulfillParams.signature - The `txData.user`'s signature used to unlock the transaction
@@ -180,6 +186,7 @@ export class TransactionManager {
   /**
    * Calls `cancel` on the `TransactionManager` on the given chain. Can be used to submit the routers own cancellation or to relay a user's cancellation request.
    * @param chainId - The chain you are cancelling a transaction on
+   * @param cancelParams - The arguments to submit to chain
    * @param cancelParams.txData - The `TransactionData` (invariant and variant) for the transaction you are cancelling
    * @param cancelParams.relayerFee - The relayer fee for the transaction
    * @param cancelParams.signature - The user signatures (if submitting as a relayer) on the relayerFee and transactionId

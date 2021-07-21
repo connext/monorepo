@@ -129,6 +129,7 @@ export class Handler {
   /**
    * Responds to new auctions with a bid if the router has sufficient funds for the transfer being auctioned.
    *
+   * @param data - The payload broadcast when starting an auction
    * @param data.user - The user who wants to transfer
    * @param data.sendingChainId - The originating chain (where router will claim funds from)
    * @param data.sendingAssetId - The originating asset (identifier of assets router will claim)
@@ -291,6 +292,7 @@ export class Handler {
   /**
    * Handles requests for transaction relayers. I.e. if a user sends a fulfill payload, submit it to chain on their behalf.
    *
+   * @param data - The payload broadcast for submitting the meta transaction
    * @param data.type - The type of transaction they are submitting
    * @param data.relayerFee - The fee for submission
    * @param data.to - The `TransactionManager` address
@@ -303,7 +305,6 @@ export class Handler {
    * @remarks
    * The transaction should be broadcast to an entire network of relayers who will race to claim the fee. If it is only broadcast to a *single* relayer, then they could collude with the transaction's router to cancel the receiver-side payment and fulfill the sender-side payment (since the signature has been revealed)
    *
-   * TODO: Make ^^ happen
    */
   public async handleMetaTxRequest(data: MetaTxPayload<any>, inbox: string): Promise<void> {
     // First log
@@ -362,6 +363,7 @@ export class Handler {
   /**
    * On sender prepare, router should mirror the data to receiver chain
    *
+   * @param inboundData - The TransactionManager emitted event
    * @param inboundData.txData - The transaction (invariant + variant) data submitted to the sending chain
    * @param inboundData.caller - The person who submitted the sender `prepare` event
    * @param inboundData.encryptedCallData - The user-encrypted calldata
@@ -481,11 +483,13 @@ export class Handler {
    *
    * Router should mirror the receiver fulfill data back to sender side to claim funds from the transaction (net gain should be the fee).
    *
+   * @param senderEvent - The sending chain TransactionPrepared event
    * @param senderEvent.txData - The transaction (invariant + variant) data submitted to the sending chain
    * @param senderEvent.caller - The person who submitted the sender `prepare` event
    * @param senderEvent.encryptedCallData - The user-encrypted calldata
    * @param senderEvent.encodedBid - The encoded winning auction bid for the transaction
    * @param senderEvent.bidSignature - The signature on the winning auction bid
+   * @param receiverEvent - The receiving chain TransactionFulfilled event
    * @param receiverEvent.txData - The transaction (invariant + variant) data submitted to the receiving chain
    * @param receiverEvent.signature - The signature on the receiving chain (used to unlock the sending chain)
    * @param receiverEvent.callData - The unencrypted calldata submitted on the receiving chain (will be disregarded on sending chain)
