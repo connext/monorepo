@@ -21,7 +21,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
-    (bool success, bytes memory returnData) = payable(callTo).call{value: isEther ? amount : 0}(callData);
+    (bool success,) = payable(callTo).call{value: isEther ? amount : 0}(callData);
 
     if (!success) {
       // If it fails, transfer to fallback
