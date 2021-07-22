@@ -5,7 +5,15 @@ import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
 
+import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
+
+import "./src/tasks/addRouter";
+import "./src/tasks/addAsset";
+import "./src/tasks/addLiquidity";
+import "./src/tasks/mintTestToken";
+
+dotEnvConfig();
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -55,12 +63,12 @@ const config: HardhatUserConfig = {
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     goerli: {
       accounts: { mnemonic },
       chainId: 5,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     kovan: {
       accounts: { mnemonic },

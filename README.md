@@ -1,4 +1,4 @@
-[![Verify](https://github.com/connext/nxtp/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+[![Verify](https://github.com/connext/nxtp/actions/workflows/build-docker-image-and-verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
 
 # NXTP
 
@@ -179,3 +179,10 @@ Run the router locally with:
 The router will now hot reload and allow easy testing/debug.
 
 Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
+
+## Publishing Packages
+
+- Update the [`CHANGELOG.md`](./CHANGELOG.md).
+- Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
+- Run `git push --follow-tags`.
+- The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.

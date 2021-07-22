@@ -19,16 +19,21 @@ export async function setupListeners(
   logger.info("setupListeners");
   // Setup Messaging Service events
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
-  void messagingService.subscribeToAuctionRequest(async (data, inbox, err) => {
-    if (err) {
-      logger.error({ err }, "Error in auction request");
+  void messagingService.subscribeToAuctionRequest(async (inbox, data, err) => {
+    if (err || !data) {
+      logger.error({ err, data }, "Error in auction request");
+      return;
     }
     // On every new auction broadcast, route to the new auction handler
     await handler.handleNewAuction(data, inbox);
   });
 
   // <from>.metatx
-  messagingService.subscribeToMetaTxRequest(async (data, inbox) => {
+  messagingService.subscribeToMetaTxRequest(async (inbox, data, err) => {
+    if (err || !data) {
+      logger.error({ err, data }, "Error in metatx request");
+      return;
+    }
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
     logger.info({ data }, "Got metatx");

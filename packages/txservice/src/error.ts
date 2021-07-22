@@ -24,6 +24,9 @@ export class ChainError extends NxtpError {
     NonceExpired: "Failed to confirm a tx whose nonce had expired.",
     InvalidResponse: "Did not receive valid tx response from ethers.",
     RpcFailure: "Could not execute RPC method.",
+    ProviderNotSynced: "No provider(s) network were ready for execution.",
+    ContractReadFailure: "Could not read from contract.",
+    ReplacementGasInvalid: "Gas for replacement tx was insufficient. (Gas must be greater than previous transaction's gas.)",
   };
 
   constructor(public readonly message: Values<typeof ChainError.reasons> | string, public readonly context: any = {}) {

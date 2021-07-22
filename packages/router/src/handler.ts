@@ -10,9 +10,13 @@ import {
   AuctionPayload,
   AuctionBid,
   signAuctionBid,
+  NxtpError,
+  Values,
+  NxtpErrorJson,
 } from "@connext/nxtp-utils";
 import { BigNumber, Wallet } from "ethers";
 import hyperid from "hyperid";
+import { errAsync, okAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
 import { getConfig } from "./config";
@@ -53,6 +57,28 @@ export interface TransactionDataParams {
   4. Dispatch a new message or tx to chain
   5. Update metrics
 */
+
+export class HandlerError extends NxtpError {
+  static readonly type = "TransactionManagerError";
+  static readonly reasons = {
+    MessagingError: "MessagingError",
+    TxServiceError: "Error from TransactionService",
+    TxAlreadyPrepared: "Transaction Already Prepared",
+  };
+
+  constructor(
+    public readonly message: Values<typeof HandlerError.reasons> | string,
+    public readonly context: {
+      messagingError?: NxtpErrorJson;
+      txServiceError?: NxtpErrorJson;
+      methodId: string;
+      method: string;
+      calling: string;
+    },
+  ) {
+    super(message, context, HandlerError.type);
+  }
+}
 
 export const mutateAmount = (amount: string) => {
   return calculateExchangeAmount(amount, SWAP_RATE);
@@ -124,7 +150,12 @@ export class Handler {
     const config = getConfig();
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
-    if (!sendingConfig.provider || !receivingConfig.provider) {
+    if (
+      !sendingConfig.providers ||
+      sendingConfig.providers.length === 0 ||
+      !receivingConfig.providers ||
+      receivingConfig.providers.length === 0
+    ) {
       this.logger.warn(
         {
           method,
@@ -214,16 +245,13 @@ export class Handler {
     // - Sign bid data
     const bidSignature = await signAuctionBid(bid, this.signer);
     // Next, dispatch bid to messaging service with the user address
-    await this.messagingService.publishAuctionResponse({ bid, bidSignature }, inbox);
+    await this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature });
     this.logger.info({ method, methodId, bid, bidSignature }, "Bid sent");
     // Last, update metrics
   }
 
   // HandleMetatxRequest
   // Purpose: If a user sends a FULFILL payload, submit it to chain on their behalf
-  // NOTE: One consideration here is that it's technically possible for router to
-  // just directly fulfill the sender side and leave the user hanging.
-  // How can we protect against this case? Maybe broadcast to all routers?
   public async handleMetaTxRequest(data: MetaTxPayload<any>, inbox: string): Promise<void> {
     // First log
     const method = "handleMetaTxRequest";
@@ -249,21 +277,30 @@ export class Handler {
       // TODO: make sure fee is something we want to accept
 
       this.logger.info({ method, methodId, chainId, data }, "Submitting tx");
-      try {
-        const tx = await this.txManager.fulfill(chainId, {
+      const res = await this.txManager
+        .fulfill(chainId, {
           txData: fulfillData.txData,
           relayerFee: fulfillData.relayerFee,
           signature: fulfillData.signature,
           callData: fulfillData.callData,
-        });
-        this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+        })
+        .map((tx) => {
+          this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Relayed transaction");
+          return tx;
+        })
+        .match<{ transactionHash: string; err?: NxtpErrorJson }>(
+          (tx) => {
+            return { transactionHash: tx.transactionHash };
+          },
+          (err) => {
+            return { transactionHash: "", err };
+          },
+        );
 
-        // TODO: this will wait for confirmation, we should respond before tx is fully confirmed, i.e. in flight
-        await this.messagingService.publishMetaTxResponse({ transactionHash: tx.transactionHash, chainId }, inbox);
-      } catch (e) {
-        this.logger.error({ method, methodId, e: jsonifyError(e) }, "Error relaying transaction");
-        // TODO: error response
-        await this.messagingService.publishMetaTxResponse({ transactionHash: "", chainId }, inbox);
+      try {
+        await this.messagingService.publishMetaTxResponse(inbox, { ...res, chainId });
+      } catch (err) {
+        this.logger.error({ method, methodId, err: jsonifyError(err) }, "Error messaging");
       }
     }
   }
@@ -309,79 +346,68 @@ export class Handler {
     // encode the data for contract call
     // Send to txService
     this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
-    try {
-      const txReceipt = await this.txManager.prepare(txData.receivingChainId, {
+    const res = await this.txManager
+      .prepare(txData.receivingChainId, {
         txData,
         amount: mutateAmount(txData.amount),
         expiry: mutateExpiry(txData.expiry),
         bidSignature,
         encodedBid,
         encryptedCallData,
-      });
-      if (txReceipt) {
-        this.logger.info(
-          {
-            method,
-            methodId,
-            txHash: txReceipt.transactionHash,
-            transactionId: txData.transactionId,
-            chainId: txData.receivingChainId,
-          },
-          "Receiver prepare tx confirmed",
-        );
-      }
-    } catch (e) {
-      // prepare: DIGEST_EXISTS
-      if ((e.message as string).includes("#P:015")) {
-        this.logger.warn(
-          {
-            method,
-            methodId,
-            transactionId: txData.transactionId,
-          },
-          "Tx Failed because it was already prepared, do not cancel",
-        );
-      } else {
-        // if the prepare tx fails, cancel the sender
-        this.logger.warn(
-          {
-            method,
-            methodId,
-            transactionId: txData.transactionId,
-            prepareError: jsonifyError(e),
-          },
-          "Could not prepare tx, cancelling",
-        );
-        try {
-          const cancelReceipt = await this.txManager.cancel(txData.sendingChainId, {
-            txData,
-            signature: "0x",
-            relayerFee: "0",
-          });
-          this.logger.info(
-            {
-              method,
-              methodId,
-              txHash: cancelReceipt.transactionHash,
-              transactionId: txData.transactionId,
-              chainId: txData.receivingChainId,
-            },
-            "Sender cancel tx confirmed",
-          );
-        } catch (e) {
-          this.logger.error(
+      })
+      .map((tx) => {
+        this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Prepared transaction");
+        return tx;
+      })
+      .mapErr((err) => {
+        if (err.message.includes("#P:015")) {
+          this.logger.warn(
             {
               method,
               methodId,
               transactionId: txData.transactionId,
-              prepareError: jsonifyError(e),
             },
-            "Could not cancel tx",
+            "Tx Failed because it was already prepared, do not cancel",
           );
+          return okAsync(undefined);
+        } else {
+          // if the prepare tx fails, cancel the sender
+          this.logger.warn(
+            {
+              method,
+              methodId,
+              transactionId: txData.transactionId,
+              prepareError: jsonifyError(err),
+            },
+            "Could not prepare tx, cancelling",
+          );
+          return this.txManager
+            .cancel(txData.sendingChainId, {
+              txData,
+              signature: "0x",
+              relayerFee: "0",
+            })
+            .map((tx) => {
+              this.logger.warn({ method, methodId, transactionHash: tx.transactionHash }, "Cancelled transaction");
+              return okAsync(tx);
+            })
+            .mapErr((err) => {
+              this.logger.error({ method, methodId, err: jsonifyError(err) }, "Error cancelling transaction");
+              return errAsync(
+                new HandlerError(HandlerError.reasons.TxServiceError, {
+                  method,
+                  methodId,
+                  calling: "txManager.cancel",
+                  txServiceError: jsonifyError(err),
+                }),
+              );
+            });
         }
-      }
+      });
+
+    if (res.isOk()) {
+      // If success, update metrics
     }
-    // If success, update metrics
   }
 
   // HandleReceiverFulfill
@@ -398,24 +424,21 @@ export class Handler {
 
     // Send to tx service
     this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
-    const txReceipt = await this.txManager.fulfill(txData.sendingChainId, {
-      txData: senderEvent.txData,
-      signature,
-      relayerFee,
-      callData,
-    });
-    if (txReceipt) {
-      this.logger.info(
-        {
-          method,
-          methodId,
-          txHash: txReceipt.transactionHash,
-          transactionId: txData.transactionId,
-          chainId: txData.receivingChainId,
-        },
-        "Receiver fulfill tx confirmed",
-      );
+
+    const res = await this.txManager
+      .fulfill(txData.sendingChainId, {
+        txData: senderEvent.txData,
+        signature,
+        relayerFee,
+        callData,
+      })
+      .map((tx) => {
+        this.logger.info({ method, methodId, transactionHash: tx.transactionHash }, "Prepared transaction");
+        return tx;
+      });
+
+    if (res.isOk()) {
+      // If success, update metrics
     }
-    // If success, update metrics
   }
 }
