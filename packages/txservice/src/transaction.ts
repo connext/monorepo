@@ -53,13 +53,13 @@ export class Transaction {
   /**
    * A data structure used for management of the lifecycle of one on-chain transaction.
    * 
-   * @param log The pino.BaseLogger instance we use for logging.
+   * @param logger The pino.BaseLogger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
    * @param config The overall shared config of TransactionService.
    */
   constructor(
-    private readonly log: BaseLogger,
+    private readonly logger: BaseLogger,
     private readonly provider: ChainRpcProvider,
     private readonly minTx: MinimalTransaction,
     private readonly config: TransactionServiceConfig,
@@ -88,7 +88,7 @@ export class Transaction {
    */
   public async send(): Promise<providers.TransactionResponse> {
     const method = this.send.name;
-
+  
     // Sanity check to make sure nonce is not expired.
     if (this.nonceExpired) {
       throw new ChainError(ChainError.reasons.NonceExpired, { method });
@@ -125,7 +125,7 @@ export class Transaction {
         this.nonceExpired = true;
         await this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
       } else {
-        this.log.error({ method, error }, "Failed to send tx");
+        this.logger.error({ method, error }, "Failed to send tx");
         throw _response;
       }
     }
@@ -136,7 +136,7 @@ export class Transaction {
       this.nonce = response.nonce;
     } else if (this.nonce !== response.nonce) {
       // This should never happen, but we are logging just in case.
-      this.log.warn(
+      this.logger.warn(
         {
           method,
           currentNonce: this.nonce,
@@ -205,7 +205,7 @@ export class Transaction {
         this.receipt = error.receipt;
         this.logInfo("Transaction reverted.", method, { receipt: error.receipt });
       } else {
-        this.log.error(
+        this.logger.error(
           {
             response,
             errorCode: error.code,
@@ -226,7 +226,7 @@ export class Transaction {
     // Scale up gas by percentage as specified by config.
     const bumpedGasPrice = currentPrice.add(currentPrice.mul(this.config.gasReplacementBumpPercent).div(100)).add(1);
     this.gasPrice.set(bumpedGasPrice);
-    this.log.info(
+    this.logger.info(
       {
         method: this.bumpGasPrice.name,
         previousGasPrice: currentPrice.toString(),
@@ -246,7 +246,7 @@ export class Transaction {
    */
   private async logInfo(message: string, method: string, info: any = {}) {
     const data = await this.getData();
-    this.log.info(
+    this.logger.info(
       {
         method,
         transactionId: this.id,

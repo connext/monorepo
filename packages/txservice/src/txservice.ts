@@ -62,7 +62,7 @@ export class TransactionService {
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
    * 
-   * @notice
+   * @remarks
    * Using the Signer instance passed into this constructor outside of the context of this
    * class is not recommended, and may cause issues with nonce being tracked improperly
    * due to the caching mechanisms used here.

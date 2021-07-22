@@ -17,6 +17,11 @@ export type FullTransaction = {
   gasPrice: BigNumber;
 } & MinimalTransaction;
 
+export type CachedGas = {
+  price: BigNumber;
+  timestamp: number;
+};
+
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
  */

@@ -7,7 +7,7 @@ import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { ChainError } from "./error";
-import { FullTransaction, MinimalTransaction, NxtpNonceManager } from "./types";
+import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
@@ -15,8 +15,6 @@ type CachedGas = {
   price: BigNumber;
   timestamp: number;
 };
-
-/// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
 
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
@@ -30,19 +28,31 @@ export class ChainRpcProvider {
 
   public confirmationsRequired: number;
   public confirmationTimeout: number;
-  public chainId: number;
 
+  /**
+   * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
+   * retries. Will ensure provider(s) are ready before any use case.
+   * 
+   * @param logger pino.BaseLogger used for logging.
+   * @param signer Signer instance or private key used for signing transactions.
+   * @param chainId The ID of the chain for which this class's providers will be servicing.
+   * @param chainConfig Configuration for this specified chain.
+   * @param providerConfigs Configuration for each provider that will be used with this chain.
+   * @param config The shared TransactionServiceConfig with general configuration.
+   * 
+   * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
+   * configuration.
+   */
   constructor(
-    private readonly log: BaseLogger,
+    private readonly logger: BaseLogger,
     signer: string | Signer,
-    chainId: number,
+    public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
     providerConfigs: ProviderConfig[],
     private readonly config: TransactionServiceConfig,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
-    this.chainId = chainId;
     // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
@@ -53,7 +63,7 @@ export class ChainRpcProvider {
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
-        this.log.error({ config }, "Configuration was invalid for provider.");
+        this.logger.error({ config }, "Configuration was invalid for provider.");
       }
       return valid;
     });
@@ -146,7 +156,7 @@ export class ChainRpcProvider {
           const { rapid } = gasNowResponse.data;
           gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
         } catch (e) {
-          this.log.warn({ error: e }, "Gasnow failed, using provider");
+          this.logger.warn({ error: e }, "Gasnow failed, using provider");
         }
       }
 
@@ -154,7 +164,7 @@ export class ChainRpcProvider {
         try {
           gasPrice = await this.provider.getGasPrice();
         } catch (e) {
-          this.log.error(
+          this.logger.error(
             { chainId: this.chainId, error: jsonifyError(e) },
             "getGasPrice failure, attempting to default to backup gas value.",
           );
