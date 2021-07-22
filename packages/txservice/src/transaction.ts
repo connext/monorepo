@@ -13,12 +13,15 @@ import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
  */
 export class Transaction {
-  // We use a unique ID to internally track a transaction through logs.
+  /// We use a unique ID to internally track a transaction through logs.
   public id: hyperid.Instance = hyperid();
-  // Responses, in the order of attempts made for this tx.
+  /// Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
+  /// Receipt that we received for the on-chain transaction that was mined with
+  /// the desired number of confirmations.
   public receipt?: providers.TransactionReceipt;
 
+  /// Internal nonce tracking.
   private _nonce?: number;
   public get nonce(): number | undefined {
     return this._nonce;
@@ -33,6 +36,7 @@ export class Transaction {
   }
   public nonceExpired = false;
 
+  /// Which transaction attempt we are on.
   private _attempt = 0;
   /**
    * Getter to return the internal attempt
@@ -43,8 +47,17 @@ export class Transaction {
     return this._attempt;
   }
 
+  /// Current set gas price.
   private gasPrice: GasPrice;
 
+  /**
+   * A data structure used for management of the lifecycle of one on-chain transaction.
+   * 
+   * @param log The pino.BaseLogger instance we use for logging.
+   * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
+   * @param minTx The minimum transaction data required to send a transaction.
+   * @param config The overall shared config of TransactionService.
+   */
   constructor(
     private readonly log: BaseLogger,
     private readonly provider: ChainRpcProvider,
@@ -142,11 +155,18 @@ export class Transaction {
   }
 
   /**
-   * Makes an attempt to confirm this transaction, waiting up to a designated period to achieve a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout. If all txs, including replacements, are reverted, throws ChainError.TxReverted.
-   *
-   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will wait an extended period for the desired number of confirmations. If no further confirmations appear (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
-   *
-   * @returns A TransactionReceipt (or undefined if it did not confirm)
+   * Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
+   * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
+   * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
+   * 
+   * @privateRemarks
+   * 
+   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
+   * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
+   * wait an extended period for the desired number of confirmations. If no further confirmations appear
+   * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
+   * 
+   * @returns A TransactionReceipt (or undefined if it did not confirm).
    */
   public async confirm(): Promise<providers.TransactionReceipt | undefined> {
     // Ensure we've submitted at least 1 tx.
@@ -199,7 +219,7 @@ export class Transaction {
   }
 
   /**
-   * Bumps the internal gas price up by configured percentage.
+   * Bump the gas price for this tx up by the configured percentage.
    */
   public async bumpGasPrice() {
     const currentPrice = await this.gasPrice.get();
@@ -217,11 +237,12 @@ export class Transaction {
   }
 
   /**
-   * This helper exists to ensure we are always logging the full transaction data and ID whenever we log info.
-   *
-   * @param message - The message to log
-   * @param method - The method being logged
-   * @param info - Detailed information to log
+   * This helper exists to ensure we are always logging the full transaction data
+   * and ID whenever we log info.
+   * 
+   * @param message The message string to log.
+   * @param method The caller method's string name.
+   * @param info Any additional info to log on top of the standard tx data stack.
    */
   private async logInfo(message: string, method: string, info: any = {}) {
     const data = await this.getData();
