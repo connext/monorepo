@@ -28,7 +28,6 @@ const hId = hyperid();
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
-export const BID_EXPIRY = () => Math.floor(Date.now() / 1000) + 60 * 5;
 
 export interface TransactionDataParams {
   user: string;
@@ -94,6 +93,8 @@ export const mutateExpiry = (expiry: number) => {
   }
   return rxExpiry;
 };
+
+export const getBidExpiry = () => Math.floor(Date.now() / 1000) + 60 * 5;
 
 export class Handler {
   constructor(
@@ -262,7 +263,7 @@ export class Handler {
           encryptedCallData,
           sendingChainTxManagerAddress: sendingConfig.transactionManagerAddress,
           receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
-          bidExpiry: BID_EXPIRY(),
+          bidExpiry: getBidExpiry(),
         };
 
         return ResultAsync.fromPromise(
