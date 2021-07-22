@@ -254,7 +254,8 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Make sure the hash is not a duplicate
     // NOTE: keccak256(abi.encode(invariantData)) is repeated due to stack
     // too deep errors
-    require(variantTransactionData[keccak256(abi.encode(invariantData))] == bytes32(0), "#P:015");
+    bytes32 digest = keccak256(abi.encode(invariantData));
+    require(variantTransactionData[digest] == bytes32(0), "#P:015");
 
     // NOTE: the `encodedBid` and `bidSignature` are simply passed through
     //       to the contract emitted event to ensure the availability of
@@ -272,7 +273,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(amount > 0, "#P:002");
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -310,7 +311,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(balance >= amount, "#P:019");
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
       // using unchecked because underflow protected against with require
