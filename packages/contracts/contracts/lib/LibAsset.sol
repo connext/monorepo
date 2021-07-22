@@ -15,20 +15,21 @@ library LibAsset {
     address constant NATIVE_ASSETID = address(0);
 
     function isEther(address assetId) internal pure returns (bool) {
-        return assetId == NATIVE_ASSETID;
+      return assetId == NATIVE_ASSETID;
     }
 
     function getOwnBalance(address assetId) internal view returns (uint256) {
-        return
-            isEther(assetId)
-                ? address(this).balance
-                : IERC20(assetId).balanceOf(address(this));
+      return
+        isEther(assetId)
+          ? address(this).balance
+          : IERC20(assetId).balanceOf(address(this));
     }
 
     function transferEther(address payable recipient, uint256 amount)
         internal
     {
-      recipient.transfer(amount);
+      (bool success,) = recipient.call{value: amount}("");
+      require(success, "#TE:029");
     }
 
     function transferERC20(
@@ -72,9 +73,8 @@ library LibAsset {
         address payable recipient,
         uint256 amount
     ) internal {
-        return
-            isEther(assetId)
-                ? transferEther(recipient, amount)
-                : transferERC20(assetId, recipient, amount);
+      isEther(assetId)
+        ? transferEther(recipient, amount)
+        : transferERC20(assetId, recipient, amount);
     }
 }
