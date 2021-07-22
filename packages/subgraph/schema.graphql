@@ -36,17 +36,20 @@ type Transaction @entity {
   transactionId: Bytes!
   sendingChainId: BigInt!
   receivingChainId: BigInt!
-  amount: BigInt!
   expiry: BigInt!
   preparedBlockNumber: BigInt!
 
   # TransactionPrepared
+  preparedShares: BigInt!
+  preparedAmount: BigInt!
   encryptedCallData: String!
   prepareCaller: Bytes
   bidSignature: Bytes!
   encodedBid: Bytes!
 
   # TransactionFulfilled
+  fulfilledShares: BigInt!
+  fulfilledAmount: BigInt!
   relayerFee: BigInt
   signature: Bytes
   callData: String

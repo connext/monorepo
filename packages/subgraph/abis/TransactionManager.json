@@ -5,6 +5,11 @@
         "internalType": "uint256",
         "name": "_chainId",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_interpreter",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -59,6 +64,12 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "shares",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       },
@@ -70,6 +81,25 @@
       }
     ],
     "name": "LiquidityRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -152,7 +182,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -170,6 +200,12 @@
         "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -267,7 +303,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -285,6 +321,12 @@
         "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -394,7 +436,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -412,6 +454,12 @@
         "internalType": "struct ITransactionManager.TransactionData",
         "name": "txData",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -443,6 +491,19 @@
   },
   {
     "inputs": [],
+    "name": "MAX_TIMEOUT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MIN_TIMEOUT",
     "outputs": [
       {
@@ -458,24 +519,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "assetId",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
-    "name": "activeTransactionBlocks",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "addAssetId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -499,6 +549,57 @@
     "name": "addLiquidity",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      }
+    ],
+    "name": "addRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "approvedAssets",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "approvedRouters",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -562,7 +663,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -652,7 +753,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -748,7 +849,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -843,7 +944,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -869,16 +970,101 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "assetId",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "shares",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAmountFromShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "assetId",
         "type": "address"
       }
     ],
-    "name": "getActiveTransactionBlocks",
+    "name": "getRouterBalance",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint256[]"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "issuedShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "outstandingShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1035,7 +1221,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "shares",
             "type": "uint256"
           },
           {
@@ -1060,8 +1246,21 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "assetId",
+        "type": "address"
+      }
+    ],
+    "name": "removeAssetId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "shares",
         "type": "uint256"
       },
       {
@@ -1084,24 +1283,53 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
+        "name": "router",
         "type": "address"
       }
     ],
-    "name": "routerBalances",
+    "name": "removeRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounce",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounced",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bool",
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

@@ -88,11 +88,12 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.transactionId = event.params.txData.transactionId;
   transaction.sendingChainId = event.params.txData.sendingChainId;
   transaction.receivingChainId = event.params.txData.receivingChainId;
-  transaction.amount = event.params.txData.amount;
   transaction.expiry = event.params.txData.expiry;
   transaction.preparedBlockNumber = event.params.txData.preparedBlockNumber;
 
   // TransactionPrepared specific
+  transaction.preparedAmount = event.params.amount;
+  transaction.preparedShares = event.params.txData.shares;
   transaction.prepareCaller = event.params.caller;
   transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
   transaction.encodedBid = event.params.encodedBid;
