@@ -43,6 +43,19 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "getTransactionManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
 
 export class IFulfillInterpreter__factory {
