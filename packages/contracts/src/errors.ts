@@ -18,19 +18,19 @@ export const Errors: ErrorsType = {
   "013": "TIMEOUT_TOO_LOW",
   "014": "TIMEOUT_TOO_HIGH",
   "015": "DIGEST_EXISTS",
-  "016": "USER_MISMATCH",
-  "017": "ROUTER_MISMATCH",
-  "018": "ETH_WITH_ROUTER_PREPARE",
-  "019": "INSUFFICIENT_LIQUIDITY",
-  "020": "INVALID_VARIANT_DATA",
-  "021": "EXPIRED",
-  "022": "ALREADY_COMPLETED",
-  "023": "INVALID_SIGNATURE",
-  "024": "INVALID_RELAYER_FEE",
-  "025": "INVALID_CALL_DATA",
-  "026": "ROUTER_MUST_CANCEL",
-  "027": "RECEIVING_ADDRESS_EMPTY",
-  "028": "NOT_TRANSACTION_MANAGER",
+  "016": "ROUTER_MISMATCH",
+  "017": "ETH_WITH_ROUTER_PREPARE",
+  "018": "INSUFFICIENT_LIQUIDITY",
+  "019": "INVALID_VARIANT_DATA",
+  "020": "EXPIRED",
+  "021": "ALREADY_COMPLETED",
+  "022": "INVALID_SIGNATURE",
+  "023": "INVALID_RELAYER_FEE",
+  "024": "INVALID_CALL_DATA",
+  "025": "ROUTER_MUST_CANCEL",
+  "026": "RECEIVING_ADDRESS_EMPTY",
+  "027": "NOT_TRANSACTION_MANAGER",
+  "028": "TRANSFER_FAILED",
 };
 
 type ErrorsPrefixType = {
@@ -43,6 +43,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#F": "fulfill",
   "#C": "cancel",
   "#OTM": "onlyTransactionManager",
+  "#TE": "transferEther",
 };
 
 export const getFullError = (error: string): string => {
