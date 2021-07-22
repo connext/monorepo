@@ -57,7 +57,7 @@ const txManager1338 = new Contract(
 
 const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
 
-describe("Integration", () => {
+describe.skip("Integration", () => {
   let userSdk: NxtpSdk;
   let userWallet: Wallet;
 

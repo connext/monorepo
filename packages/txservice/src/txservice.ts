@@ -49,6 +49,7 @@ export class TransactionService {
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
 
+  /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
     [NxtpTxServiceEvents.TransactionAttemptSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
     [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
@@ -98,13 +99,13 @@ export class TransactionService {
    * @param tx.from - (optional) Account to send tx from
    * @returns TransactionReceipt once the tx is mined
    */
-  // TODO: chainId doesnt need to be a param and enforced on minimal tx data structure
-  public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = hId();
-    this.logger.info({ method, methodId, chainId, tx }, "Method start");
+    this.logger.info({ method, methodId, tx }, "Method start");
 
     let receipt: providers.TransactionReceipt | undefined;
+    const { chainId } = tx;
 
     const transaction = this.createTx(chainId, tx);
     const submit = async () => this.handleSubmit(await transaction.send());
