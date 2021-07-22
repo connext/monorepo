@@ -45,7 +45,7 @@ library LibAsset {
       address to,
       uint256 amount
     ) internal {
-      SafeERC20.safeTransferFrom(IERC20(token), from, to, amount);
+      SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
     }
 
     function increaseERC20Allowance(
