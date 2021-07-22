@@ -252,8 +252,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(renounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
 
     // Make sure the hash is not a duplicate
-    // NOTE: keccak256(abi.encode(invariantData)) is repeated due to stack
-    // too deep errors
     bytes32 digest = keccak256(abi.encode(invariantData));
     require(variantTransactionData[digest] == bytes32(0), "#P:015");
 
