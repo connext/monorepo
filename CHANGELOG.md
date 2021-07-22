@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Add constructor param to skip setting up contract listeners.
+
 ## 0.0.10
 
 - [router, sdk] Refactor error handling.
