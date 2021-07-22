@@ -1554,7 +1554,7 @@ describe("TransactionManager", function () {
             signature,
             EmptyBytes,
           ),
-        ).to.be.revertedWith("fulfill: INVALID_RELAYER_FEE");
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_RELAYER_FEE"));
       });
 
       it("should revert if the relayerFee > 0 and transferAsset fails", async () => {
@@ -2227,7 +2227,7 @@ describe("TransactionManager", function () {
               relayerFee,
               signature,
             ),
-        ).to.be.revertedWith("cancel: INVALID_RELAYER_FEE");
+        ).to.be.revertedWith(getContractError("cancel: INVALID_RELAYER_FEE"));
       });
 
       it("should error if is expired & relayerFee != 0 & signature is invalid & user is not sending", async () => {
