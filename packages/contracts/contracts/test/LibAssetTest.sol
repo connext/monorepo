@@ -13,6 +13,8 @@ contract LibAssetTest {
   
   constructor() {}
 
+  fallback() external payable {}
+
   function isEther(address assetId) public pure returns (bool) {
     return LibAsset.isEther(assetId);
   }
