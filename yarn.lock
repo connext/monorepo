@@ -10251,9 +10251,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.723":
-  version: 1.3.782
-  resolution: "electron-to-chromium@npm:1.3.782"
-  checksum: 1378de8fdcb5bf1ab95fe05d6516f5ef1975081b0127b65d7ab19b6363b2663b6707a411e8b1ce149f57336ecee71ffc88378b55de0bb7b27d735ad67983550e
+  version: 1.3.784
+  resolution: "electron-to-chromium@npm:1.3.784"
+  checksum: c3f016e84ffbe1efec1ceaf2aafb0b8e9be7534baf33cd1636ab96af5a88fa16d6a991f652159ea8741a192cb79fb2f3005143b1ba65d8a55efb9728e29c46e0
   languageName: node
   linkType: hard
 
@@ -10752,8 +10752,8 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-jest@npm:^24.1.0":
-  version: 24.3.7
-  resolution: "eslint-plugin-jest@npm:24.3.7"
+  version: 24.4.0
+  resolution: "eslint-plugin-jest@npm:24.4.0"
   dependencies:
     "@typescript-eslint/experimental-utils": ^4.0.1
   peerDependencies:
@@ -10762,7 +10762,7 @@ __metadata:
   peerDependenciesMeta:
     "@typescript-eslint/eslint-plugin":
       optional: true
-  checksum: 744273aaabf2c427e287b9591e91ddc2141ab65bf6816ae8b7823ebf066a2d368b5c6db444da511a7b39e9389d5ee0891b5baf548f60313e5fbc3ac828cda2f2
+  checksum: 189a78413943822ad3b58e13906960815dca790035ed00eab796fe465b6f48855b7e2f40a1d30c5fa34bf205d9baa27fdf47cc58c9f402f7d7c358cd3dea8698
   languageName: node
   linkType: hard
 
@@ -12036,8 +12036,8 @@ __metadata:
   linkType: hard
 
 "fastify@npm:^3.19.1":
-  version: 3.19.1
-  resolution: "fastify@npm:3.19.1"
+  version: 3.19.2
+  resolution: "fastify@npm:3.19.2"
   dependencies:
     "@fastify/ajv-compiler": ^1.0.0
     abstract-logging: ^2.0.0
@@ -12048,14 +12048,14 @@ __metadata:
     find-my-way: ^4.0.0
     flatstr: ^1.0.12
     light-my-request: ^4.2.0
-    pino: ^6.2.1
+    pino: ^6.13.0
     proxy-addr: ^2.0.7
     readable-stream: ^3.4.0
     rfdc: ^1.1.4
     secure-json-parse: ^2.0.0
     semver: ^7.3.2
     tiny-lru: ^7.0.0
-  checksum: c0eb6be95e648f62965643978d137f2b322e4f4c3431792dd286b723ebf8b93059c64a8f1791e7d9c70c94e036dfb395c537a9b7405c024c424c55d0fbe07c89
+  checksum: 7e206fd7fdb6aa8f791c1a1a3414d5ad5ab3b0a17f42c909de3ad1a5526f2486906a8fbf817f459e2fc1133a1d0331b1dbc6ceb901049750e2ee9d763dc6f75b
   languageName: node
   linkType: hard
 
@@ -13427,8 +13427,8 @@ fsevents@~2.1.1:
   linkType: hard
 
 "hardhat@npm:^2.4.3":
-  version: 2.4.3
-  resolution: "hardhat@npm:2.4.3"
+  version: 2.5.0
+  resolution: "hardhat@npm:2.5.0"
   dependencies:
     "@ethereumjs/block": ^3.4.0
     "@ethereumjs/blockchain": ^5.4.0
@@ -13479,7 +13479,7 @@ fsevents@~2.1.1:
     ws: ^7.4.6
   bin:
     hardhat: internal/cli/cli.js
-  checksum: 862fce81f4cff565c08d7856a1ef6289c6426bf7a8477ab0665be30f5b0619414b01f46a96e96a25afddad99f355f43b435cc317933411d1722715e62bbef36b
+  checksum: d0e2c22f6db265b0ff4e610404e013add4e9d5b25422ab08299f2d5e58a4773e891a2710e958b92ee9a6681af755a99653d369ad7d8c791914a71edea44b80f5
   languageName: node
   linkType: hard
 
@@ -20230,7 +20230,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"pino@npm:^6.12.0, pino@npm:^6.2.1":
+"pino@npm:^6.12.0, pino@npm:^6.13.0":
   version: 6.13.0
   resolution: "pino@npm:6.13.0"
   dependencies:
@@ -21141,13 +21141,13 @@ fsevents@~2.1.1:
   linkType: hard
 
 "postcss@npm:^8.1.0":
-  version: 8.3.5
-  resolution: "postcss@npm:8.3.5"
+  version: 8.3.6
+  resolution: "postcss@npm:8.3.6"
   dependencies:
     colorette: ^1.2.2
     nanoid: ^3.1.23
     source-map-js: ^0.6.2
-  checksum: 87dc16efcf40286fad4ded0a433497ddbc55dfad3d7ddb200ba9c0761ec376280fa2c06a522628583c9284def85894c52bc361cffedf0679f4936370c084a145
+  checksum: 515c26472861ce0f3b0a7945b9ac4732756d2aab6b12950137f72c7c6d90967136ba56e878815edcbf132c5643005dad1e9bbcb14139a948802af10245a8f6e3
   languageName: node
   linkType: hard
 
