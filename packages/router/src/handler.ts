@@ -265,6 +265,7 @@ export class Handler {
           receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
           bidExpiry: getBidExpiry(),
         };
+        this.logger.info({ methodId, method, bid }, "Generated bid");
 
         return ResultAsync.fromPromise(
           signAuctionBid(bid, this.signer),
@@ -278,6 +279,7 @@ export class Handler {
         );
       })
       .andThen((bidSignature) => {
+        this.logger.info({ methodId, method, bidSignature }, "Signed bid");
         return ResultAsync.fromPromise(
           this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature }),
           (err) =>
