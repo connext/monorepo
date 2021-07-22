@@ -14,7 +14,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter, Ownable {
   }
 
   modifier onlyTransactionManager {
-    require(msg.sender == _transactionManager, "#OTM:028");
+    require(msg.sender == _transactionManager, "#OTM:027");
     _;
   }
 

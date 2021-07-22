@@ -91,7 +91,7 @@ describe("LibAsset", () => {
     it("should fail if transferring ether fails", async () => {
       await expect(
         libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000)),
-      ).to.be.revertedWith("#TE:029");
+      ).to.be.revertedWith("#TE:028");
     });
 
     it("happy case: transferEther", async () => {
