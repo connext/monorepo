@@ -1859,6 +1859,7 @@ __metadata:
     chai-as-promised: ^7.1.1
     chai-subset: ^1.6.0
     concurrently: ^6.2.0
+    dotenv: ^10.0.0
     eslint: ^7.30.0
     ethers: ^5.4.1
     evt: ^1.10.1

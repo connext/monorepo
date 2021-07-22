@@ -29,6 +29,7 @@ const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 
 const MUTATED_AMOUNT = "100";
 const MUTATED_EXPIRY = 123400;
+const BID_EXPIRY = 123401;
 
 describe("Handler", () => {
   let handler: Handler;
@@ -40,6 +41,7 @@ describe("Handler", () => {
 
   beforeEach(() => {
     messaging = createStubInstance(RouterNxtpNatsMessagingService);
+    messaging.publishAuctionResponse.resolves(undefined);
 
     subgraph = createStubInstance(Subgraph);
 
@@ -52,6 +54,7 @@ describe("Handler", () => {
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
+    stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
 
     wallet = createStubInstance(Wallet);
     (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
@@ -82,7 +85,7 @@ describe("Handler", () => {
     };
 
     beforeEach(() => {
-      subgraph.getAssetBalance.resolves(BigNumber.from(100));
+      subgraph.getAssetBalance.returns(okAsync(BigNumber.from(100)));
       txService.getBalance.resolves(parseEther("1"));
     });
 
@@ -92,6 +95,7 @@ describe("Handler", () => {
       const publishCall = messaging.publishAuctionResponse.getCall(0);
       expect(publishCall.args[0]).to.eq("_INBOX.abc");
       expect(publishCall.args[1].bid).to.deep.eq({
+        bidExpiry: BID_EXPIRY,
         user: auctionPayload.user,
         router: mkAddress("0xb"),
         sendingChainId: auctionPayload.sendingChainId,
@@ -198,10 +202,12 @@ describe("Handler", () => {
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
 
-      subgraph.getTransactionForChain.resolves({
-        status: TransactionStatus.Prepared,
-        ...senderPrepareData,
-      });
+      subgraph.getTransactionForChain.returns(
+        okAsync({
+          status: TransactionStatus.Prepared,
+          ...senderPrepareData,
+        }),
+      );
       await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
@@ -240,13 +246,15 @@ describe("Handler", () => {
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
-      subgraph.getTransactionForChain.resolves({
-        status: TransactionStatus.Prepared,
-        bidSignature: "0x",
-        encodedBid: "0x",
-        encryptedCallData: "0x",
-        ...tokenRxFulfillDataMock,
-      });
+      subgraph.getTransactionForChain.returns(
+        okAsync({
+          status: TransactionStatus.Prepared,
+          bidSignature: "0x",
+          encodedBid: "0x",
+          encryptedCallData: "0x",
+          ...tokenRxFulfillDataMock,
+        }),
+      );
 
       await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock);
       const call = txManager.fulfill.getCall(0);

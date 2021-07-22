@@ -16,8 +16,8 @@ describe("NxtpSdk", () => {
     (provider1337 as any)._isProvider = true;
     const provider1338 = provider1337;
     const chainConfig = {
-      1337: provider1337,
-      1338: provider1338,
+      1337: { provider: provider1337 },
+      1338: { provider: provider1338 },
     };
     const signer = createStubInstance(Wallet);
     signer.getAddress.resolves(mkAddress("0xaaa"));
@@ -26,6 +26,7 @@ describe("NxtpSdk", () => {
       chainConfig,
       signer,
       logger,
+      undefined,
       undefined,
       undefined,
       messaging as unknown as UserNxtpNatsMessagingService,

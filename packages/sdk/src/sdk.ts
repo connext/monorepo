@@ -185,6 +185,7 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
+    doNotStartContractListeners = false,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -252,7 +253,9 @@ export class NxtpSdk {
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
 
     // Start up transaction manager listeners
-    this.setupListeners();
+    if (!doNotStartContractListeners) {
+      this.setupListeners();
+    }
   }
 
   public async connectMessaging(bearerToken?: string): Promise<string> {
