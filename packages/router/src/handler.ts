@@ -449,19 +449,19 @@ export class Handler {
           },
           "Could not prepare tx",
         );
-        // const cancelRes = await this.txManager.cancel(txData.sendingChainId, {
-        //   txData,
-        //   signature: "0x",
-        //   relayerFee: "0",
-        // });
-        // if (cancelRes.isOk()) {
-        //   this.logger.warn(
-        //     { method, methodId, transactionHash: cancelRes.value.transactionHash },
-        //     "Cancelled transaction",
-        //   );
-        // } else {
-        //   this.logger.error({ method, methodId }, "Could not cancel transaction after error!");
-        // }
+        const cancelRes = await this.txManager.cancel(txData.sendingChainId, {
+          txData,
+          signature: "0x",
+          relayerFee: "0",
+        });
+        if (cancelRes.isOk()) {
+          this.logger.warn(
+            { method, methodId, transactionHash: cancelRes.value.transactionHash },
+            "Cancelled transaction",
+          );
+        } else {
+          this.logger.error({ method, methodId }, "Could not cancel transaction after error!");
+        }
       }
     }
   }
