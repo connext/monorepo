@@ -1,6 +1,10 @@
 # Vector Changelog
 
-## Next Release
+## 0.0.11
+
+- [sdk] Fix for signature sending bug.
+- [txservice] Fix for tx confirmed bug.
+- [sdk] Add constructor param to skip setting up contract listeners.
 
 ## 0.0.10
 

@@ -253,6 +253,7 @@ export type AuctionBid = {
   encryptedCallData: string;
   sendingChainTxManagerAddress: string;
   receivingChainTxManagerAddress: string;
+  bidExpiry: number;
 };
 
 export type AuctionResponse = {

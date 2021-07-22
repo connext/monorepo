@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,6 +46,7 @@
     "adv": "^0.1.5",
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.0",
+    "dotenv": "^10.0.0",
     "ethers": "^5.4.1",
     "evt": "^1.10.1",
     "fastify": "^3.19.1",

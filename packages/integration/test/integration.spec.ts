@@ -169,6 +169,7 @@ describe("Integration", () => {
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest" }),
+      undefined,
       "nats://localhost:4222",
       "http://localhost:5040",
     );
@@ -202,8 +203,9 @@ describe("Integration", () => {
     );
 
     // TODO: txservice doesnt seem to be returning properly, need to revisit this
-    userSdk.finishTransfer(event);
-    // expect(finishRes.metaTxResponse).to.be.ok;
+    const finishRes = await userSdk.finishTransfer(event);
+    console.log("finishRes: ", finishRes);
+    expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
   });
