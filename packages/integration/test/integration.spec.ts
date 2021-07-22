@@ -8,6 +8,7 @@ import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { expect } from "@connext/nxtp-utils";
 
 import { ownerPk, routerPk } from "./txManagerOwner";
+import { IntegrationAccountManager } from "./accountManager";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -261,42 +262,52 @@ describe("Integration", () => {
 
   });
   it(`Should send tokens`, async function(){
-    userSdk = new NxtpSdk(
-      chainProviders,
-      userWallet,
-      pino({name:"Integration Test"}),
-      "nats://localhost:4222",
-      "http://localhost:5040",
-    );
-    this?.timeout(120_000);
-    const quote = await userSdk.getTransferQuote({
-      amount: utils.parseEther(".5").toString(),
-      receivingAssetId: goerliTokenAddress,
-      sendingAssetId: rinkebyTokenAddress,
-      receivingAddress: userWallet.address,
-      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-      sendingChainId: 4,
-      receivingChainId: 5,
-    });
-      const res = await userSdk.startTransfer(quote);
-      expect(res.prepareResponse.hash).to.be.ok;
+    // userWallet =  Wallet.fromMnemonic("hard crumble culture volcano attract reveal husband identify spell unfair right double");
+    // userSdk = new NxtpSdk(
+    //   chainProviders,
+    //   userWallet,
+    //   pino({name:"Integration Test"}),
+    //   "nats://localhost:4222",
+    //   "http://localhost:5040",
+    // );
+    // this?.timeout(120_000);
+    // const quote = await userSdk.getTransferQuote({
+    //   amount: utils.parseEther(".5").toString(),
+    //   receivingAssetId: goerliTokenAddress,
+    //   sendingAssetId: rinkebyTokenAddress,
+    //   receivingAddress: userWallet.address,
+    //   expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+    //   sendingChainId: 4,
+    //   receivingChainId: 5,
+    // });
+    //   const res = await userSdk.startTransfer(quote);
+    //   expect(res.prepareResponse.hash).to.be.ok;
+    //
+    //   const event = await userSdk.waitFor(
+    //     NxtpSdkEvents.ReceiverTransactionPrepared,
+    //     100_000,
+    //     (data) => data.txData.transactionId === res.transactionId,
+    //   );
+    //
+    //   const fulfillEventPromise = userSdk.waitFor(
+    //     NxtpSdkEvents.ReceiverTransactionFulfilled,
+    //     100_000,
+    //     (data) => data.txData.transactionId === res.transactionId,
+    //   );
+    //
+    // userSdk.finishTransfer(event);
+    // const fulfillEvent = await fulfillEventPromise;
+    // console.log(`${[res,event,fulfillEventPromise].map((self)=>{return JSON.stringify(self);})}`);
+    // expect(fulfillEvent).to.be.ok;
+    this?.timeout(12000_000);
 
-      const event = await userSdk.waitFor(
-        NxtpSdkEvents.ReceiverTransactionPrepared,
-        100_000,
-        (data) => data.txData.transactionId === res.transactionId,
-      );
+    const integrationAccountManager = new IntegrationAccountManager("hard crumble culture volcano attract reveal husband identify spell unfair right double", 40);
+    const wallets = integrationAccountManager.getCanonicalWallets(40);
+    for(let i = 0; i < wallets?.length; i++){
+      const res = await integrationAccountManager.verifyAndReupAccountBalance(wallets[i].address);
+      console.log(res);
 
-      const fulfillEventPromise = userSdk.waitFor(
-        NxtpSdkEvents.ReceiverTransactionFulfilled,
-        100_000,
-        (data) => data.txData.transactionId === res.transactionId,
-      );
-
-    userSdk.finishTransfer(event);
-    const fulfillEvent = await fulfillEventPromise;
-    console.log(`${[res,event,fulfillEventPromise].map((self)=>{return JSON.stringify(self);})}`);
-    expect(fulfillEvent).to.be.ok;
+    }
 
   });
     // beforeEach(async () => {

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   router:
     container_name: router-test
-    image: "ghcr.io/connext/nxtp-router:latest"
+    image: "nxtp-router"
     ports:
       - 8080:8080
     volumes:
