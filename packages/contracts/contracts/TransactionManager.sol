@@ -246,6 +246,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     // Make sure the expiry is lower than max
     require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
 
+    // Assets are approved
+    require(renounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
+
+    require(renounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
+
     // Make sure the hash is not a duplicate
     // NOTE: keccak256(abi.encode(invariantData)) is repeated due to stack
     // too deep errors
@@ -265,9 +270,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
       require(amount > 0, "#P:002");
-
-      // Asset is approved
-      require(renounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
       // Store the transaction variants
       variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
