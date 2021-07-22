@@ -7,6 +7,9 @@ import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import { NATS_AUTH_URL, NATS_CLUSTER_URL } from "@connext/nxtp-utils";
+import { config as dotenvConfig } from "dotenv";
+
+dotenvConfig();
 
 const ajv = addFormats(new Ajv(), [
   "date-time",
