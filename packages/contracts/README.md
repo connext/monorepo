@@ -107,7 +107,7 @@ export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional to run verificati
 
 You can also add a `.env` to the `packages/contracts` dir with the above env vars.
 
-Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
+2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
 yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli
@@ -115,17 +115,17 @@ yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. 
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
 
-To optionally verify the contracts (works with Etherscan-based networks):
+3. (optional) To verify the contracts (works with Etherscan-based networks):
 
-````sh
+```sh
 yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli \<NETWORK_NAME\>
 ```
 
-Once the contracts have been deployed, export them using:
+4. Once the contracts have been deployed, export them using:
 
 ```sh
 yarn workspace @connext/nxtp-contracts export
-````
+```
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
 
