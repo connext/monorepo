@@ -2,15 +2,12 @@ import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
 import { getRandomBytes32, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import {
-  mkAddress,
   PrepareParams,
   FulfillParams,
-  getInvariantTransactionDigest,
-  getVariantTransactionDigest,
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
 } from "@connext/nxtp-utils";
-import { Wallet, utils, BigNumber, constants, providers, ContractReceipt } from "ethers";
+import { utils, constants } from "ethers";
 
 import {
   FulfillInterpreter,
@@ -25,7 +22,7 @@ import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/
 
 import pino, { BaseLogger } from "pino";
 import { getDeployedTransactionManagerContractAddress, TransactionManager, TransactionManagerError } from "../src";
-import { approveTokens, getOnchainBalance } from "./helper";
+import { approveTokens, addPrivileges, prepareAndAssert } from "./helper";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino();
@@ -116,20 +113,6 @@ describe("Transaction Manager", function () {
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
-
-  const addPrivileges = async (tm: TransactionManagerTypechain, routers: string[], assets: string[]) => {
-    for (const router of routers) {
-      const tx = await tm.addRouter(router);
-      await tx.wait();
-      expect(await tm.approvedRouters(router)).to.be.true;
-    }
-
-    for (const assetId of assets) {
-      const tx = await tm.addAssetId(assetId);
-      await tx.wait();
-      expect(await tm.approvedAssets(assetId)).to.be.true;
-    }
-  };
 
   before("create fixture loader", async () => {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
@@ -241,117 +224,6 @@ describe("Transaction Manager", function () {
       );
     });
 
-    const assertObject = (expected: any, returned: any) => {
-      const keys = Object.keys(expected);
-      keys.map((k) => {
-        if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
-          expect(typeof returned[k] === "object");
-          assertObject(expected[k], returned[k]);
-        } else {
-          expect(returned[k]).to.be.deep.eq((expected as any)[k]);
-        }
-      });
-    };
-
-    const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
-      expect(receipt.status).to.be.eq(1);
-      const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
-      expect(idx).to.not.be.eq(-1);
-      const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
-      assertObject(expected, decoded);
-    };
-
-    const prepareAndAssert = async (
-      txOverrides: Partial<InvariantTransactionData>,
-      recordOverrides: Partial<VariantTransactionData> = {},
-      preparer: Wallet = user,
-      instance: TransactionManagerTypechain = transactionManager,
-      encryptedCallData: string = EmptyBytes,
-    ) => {
-      const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
-
-      // Check if its the user
-      const userSending = preparer.address !== transaction.router;
-
-      // Get initial balances
-      const initialContractAmount = await getOnchainBalance(
-        userSending ? transaction.sendingAssetId : transaction.receivingAssetId,
-        instance.address,
-        ethers.provider,
-      );
-      const initialPreparerAmount = userSending
-        ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-        : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
-
-      const invariantDigest = getInvariantTransactionDigest(transaction);
-
-      expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(utils.formatBytes32String(""));
-      // Send tx
-      const prepareParams: PrepareParams = {
-        txData: transaction,
-        amount: record.amount,
-        expiry: record.expiry,
-        encryptedCallData: encryptedCallData,
-        encodedBid: EmptyBytes,
-        bidSignature: EmptyBytes,
-      };
-
-      const res = await userTransactionManager.prepare(transaction.sendingChainId, prepareParams);
-
-      expect(res.isOk()).to.be.true;
-
-      const receipt = await res.value.wait();
-      expect(receipt.status).to.be.eq(1);
-
-      const variantDigest = getVariantTransactionDigest({
-        amount: record.amount,
-        expiry: record.expiry,
-        preparedBlockNumber: receipt.blockNumber,
-      });
-
-      expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
-
-      // Verify receipt event
-      const txData = { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber };
-      await assertReceiptEvent(receipt, "TransactionPrepared", {
-        user: transaction.user,
-        router: transaction.router,
-        transactionId: transaction.transactionId,
-        txData,
-        caller: preparer.address,
-        encryptedCallData: encryptedCallData,
-        bidSignature: EmptyBytes,
-        encodedBid: EmptyBytes,
-      });
-
-      // Verify amount has been deducted from preparer
-      const finalPreparerAmount = userSending
-        ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-        : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
-      const expected = initialPreparerAmount.sub(record.amount);
-      expect(finalPreparerAmount).to.be.eq(
-        transaction.sendingAssetId === AddressZero && userSending
-          ? expected.sub(res.value.gasPrice!.mul(receipt.cumulativeGasUsed!))
-          : expected,
-      );
-
-      // TODO: add `getTransactionsByUser` assertion
-
-      // Verify amount has been added to contract
-      if (!userSending) {
-        // Router does not send funds
-        return receipt;
-      }
-      const finalContractAmount = await getOnchainBalance(
-        transaction.sendingAssetId,
-        instance.address,
-        ethers.provider,
-      );
-      expect(finalContractAmount).to.be.eq(initialContractAmount.add(record.amount));
-
-      return receipt;
-    };
-
     describe("prepare", () => {
       it("should error if unfamiliar chainId", async () => {
         const { transaction, record } = await getTransactionData();
@@ -397,7 +269,7 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        await prepareAndAssert(transaction, record, user, transactionManager);
+        await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
       });
     });
 
@@ -409,7 +281,13 @@ describe("Transaction Manager", function () {
         const InvalidChainId = 123;
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
@@ -433,7 +311,13 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
@@ -455,7 +339,13 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
@@ -484,7 +374,13 @@ describe("Transaction Manager", function () {
         const InvalidChainId = 123;
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
@@ -507,7 +403,13 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
@@ -530,7 +432,13 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
 
         const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
 
