@@ -346,6 +346,25 @@ export class Handler {
                 messagingError: jsonifyError(err as Error),
               }),
           );
+        })
+        .orElse((err) => {
+          this.logger.info({ method, methodId, transactionHash: "" }, "Error relaying transaction");
+          const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
+            method,
+            methodId,
+            calling: "txManager.fulfill",
+            txServiceError: jsonifyError(err),
+          });
+          return ResultAsync.fromPromise(
+            this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: "" }, jsonifyError(_err)),
+            (err) =>
+              new HandlerError(HandlerError.reasons.MessagingError, {
+                method,
+                methodId,
+                calling: "messagingService.publishMetaTxResponse",
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
         });
 
       if (res.isOk()) {
@@ -428,21 +447,28 @@ export class Handler {
             transactionId: txData.transactionId,
             prepareError: jsonifyError(res.error),
           },
-          "Could not prepare tx, cancelling",
+          "Could not prepare tx",
         );
-        const cancelRes = await this.txManager.cancel(txData.sendingChainId, {
-          txData,
-          signature: "0x",
-          relayerFee: "0",
-        });
-        if (cancelRes.isOk()) {
-          this.logger.warn(
-            { method, methodId, transactionHash: cancelRes.value.transactionHash },
-            "Cancelled transaction",
-          );
-        } else {
-          this.logger.error({ method, methodId }, "Could not cancel transaction after error!");
-        }
+        this.logger.error(
+          {
+            method,
+            methodId,
+          },
+          "Do not cancel ATM, figure out why we are in this case first",
+        );
+        // const cancelRes = await this.txManager.cancel(txData.sendingChainId, {
+        //   txData,
+        //   signature: "0x",
+        //   relayerFee: "0",
+        // });
+        // if (cancelRes.isOk()) {
+        //   this.logger.warn(
+        //     { method, methodId, transactionHash: cancelRes.value.transactionHash },
+        //     "Cancelled transaction",
+        //   );
+        // } else {
+        //   this.logger.error({ method, methodId }, "Could not cancel transaction after error!");
+        // }
       }
     }
   }
