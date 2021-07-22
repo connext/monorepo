@@ -306,7 +306,8 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       require(msg.value == 0, "#P:018");
 
       // Check that router has liquidity
-      require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "#P:019");
+      uint256 balance = routerBalances[invariantData.router][invariantData.receivingAssetId];
+      require(balance >= amount, "#P:019");
 
       // Store the transaction variants
       variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
@@ -314,7 +315,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Decrement the router liquidity
       // using unchecked because underflow protected against with require
       unchecked {
-        routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+        routerBalances[invariantData.router][invariantData.receivingAssetId] = balance - amount;
       }
     }
 
