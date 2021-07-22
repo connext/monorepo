@@ -169,6 +169,7 @@ describe("Integration", () => {
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest" }),
+      undefined,
       "nats://localhost:4222",
       "http://localhost:5040",
     );
