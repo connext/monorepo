@@ -1,7 +1,5 @@
 import { task } from "hardhat/config";
 
-import { TransactionManager } from "../../typechain";
-
 export default task("add-router", "Add a router")
   .addParam("router", "The router's address to add")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
@@ -18,7 +16,7 @@ export default task("add-router", "Add a router")
     }
     console.log("txManagerAddress: ", txManagerAddress);
 
-    const txManager: TransactionManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+    const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
     const tx = await txManager.addRouter(router, { from: namedAccounts.deployer });
     console.log("addRouter tx: ", tx);
   });
