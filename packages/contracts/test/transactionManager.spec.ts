@@ -32,7 +32,6 @@ describe("TransactionManager", function () {
   const [wallet, router, user, receiver, other] = waffle.provider.getWallets() as Wallet[];
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
-  let fulfillInterpreter: FulfillInterpreter;
   let counter: Counter;
   let tokenA: RevertableERC20;
   let tokenB: RevertableERC20;
@@ -43,18 +42,9 @@ describe("TransactionManager", function () {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
     const counterFactory = await ethers.getContractFactory("Counter");
     const RevertableERC20Factory = await ethers.getContractFactory("RevertableERC20");
-    const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    fulfillInterpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
-
-    transactionManager = (await transactionManagerFactory.deploy(
-      sendingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
-      receivingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
 
     tokenA = (await RevertableERC20Factory.deploy()) as RevertableERC20;
     tokenB = (await RevertableERC20Factory.deploy()) as RevertableERC20;
@@ -478,6 +468,11 @@ describe("TransactionManager", function () {
 
     it("should set chainId", async () => {
       expect(await transactionManager.chainId()).to.eq(1337);
+    });
+
+    it("should set interpreter", async () => {
+      const addr = await transactionManager.interpreter();
+      expect(utils.isAddress(addr)).to.be.true;
     });
 
     it("should set renounced", async () => {
