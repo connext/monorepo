@@ -1,5 +1,5 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers";
+import { BigNumber, providers, errors } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
 import { Logger } from "ethers/lib/utils";
@@ -85,11 +85,13 @@ export class Transaction {
       if (
         this.responses.length >= 1 &&
         (error.message.includes("nonce has already been used") ||
+          (error as any).reason.includes("nonce has already been used") ||
+          (error as any).code === errors.NONCE_EXPIRED ||
           // If we get a 'nonce is too low' message, a previous tx has been mined, and ethers thought
           // we were making another tx attempt with the same nonce.
-          error.message.includes("Transaction nonce is too low.") ||
+          error.message.includes("Transaction nonce is too low") ||
           // Another ethers message that we could potentially be getting back.
-          error.message.includes("There is another transaction with same nonce in the queue."))
+          error.message.includes("There is another transaction with same nonce in the queue"))
       ) {
         this.nonceExpired = true;
         await this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
