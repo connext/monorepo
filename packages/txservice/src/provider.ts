@@ -11,10 +11,8 @@ import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
-type CachedGas = {
-  price: BigNumber;
-  timestamp: number;
-};
+// TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
+// implement a lookback, etc.
 
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
@@ -92,6 +90,12 @@ export class ChainRpcProvider {
     );
   }
 
+  /**
+   * Send the transaction request to the provider.
+   * @param tx The full transaction data for the request.
+   * @returns An object containing the response or error if an error occurred,
+   * and a success boolean indicating whether the process did result in an error.
+   */
   public async sendTransaction(
     tx: FullTransaction,
   ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
@@ -123,6 +127,14 @@ export class ChainRpcProvider {
     return await this.queue.add(task);
   }
 
+  /**
+   * Execute a read transaction using the passed in transaction data, which includes
+   * the target contract which we are reading from.
+   * @param tx Minimal transaction data needed to read from chain.
+   * @returns A string of data read from chain.
+   * @throws ChainError.reasons.ContractReadFailure in the event of a failure
+   * to read from chain.
+   */
   public async readTransaction(tx: MinimalTransaction): Promise<string> {
     const method = this.readTransaction.name;
     return await this.retryWrapper(method, async () => {
@@ -138,6 +150,19 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Get the receipt for the transaction with the specified hash.
+   * @param hash The hexadecimal hash string of the transaction.
+   * @returns The ethers TransactionReceipt, if mined, otherwise null.
+   */
+  public async confirmTransaction(hash: string): Promise<providers.TransactionReceipt | null> {
+    return await this.provider.getTransactionReceipt(hash);
+  }
+
+  /**
+   * Get the current gas price for the chain for which this instance is servicing.
+   * @returns The BigNumber value for the current gas price.
+   */
   public async getGasPrice(): Promise<BigNumber> {
     const method = this.getGasPrice.name;
 
@@ -188,6 +213,14 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Get the current balance for the specified address.
+   *
+   * @param address The hexadecimal string address whose balance we are getting.
+   *
+   * @returns A BigNumber representing the current value held by the wallet at the
+   * specified address.
+   */
   public async getBalance(address: string): Promise<BigNumber> {
     const method = this.getBalance.name;
     return await this.retryWrapper<BigNumber>(method, async () => {
@@ -195,6 +228,13 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Estimate gas cost for the specified transaction.
+   *
+   * @param transaction The ethers TransactionRequest data in question.
+   *
+   * @returns A BigNumber representing the estimated gas value.
+   */
   public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
     const method = this.estimateGas.name;
     return await this.retryWrapper<BigNumber>(method, async () => {
@@ -202,6 +242,15 @@ export class ChainRpcProvider {
     });
   }
 
+  /// HELPERS
+  /**
+   * The retry wrapper used for executing multiple retries for RPC requests to providers.
+   * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
+   * or externally (for the provider's network).
+   * 
+   * @param method The string method name, used for logging.
+   * @param targetMethod The actual method callback to execute and wrap in retries.
+   */
   private async retryWrapper<T>(method: string, targetMethod: () => Promise<T>): Promise<T> {
     await this.isReady();
     let retries: number;
@@ -220,6 +269,10 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Checks whether our providers are ready for execution. Should be called every time we do any
+   * operation in this class.
+   */
   private async isReady(): Promise<boolean> {
     // TODO: Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
