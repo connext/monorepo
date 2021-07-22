@@ -787,7 +787,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     uint256 amount,
     address assetId,
     address user
-  ) internal view {
+  ) internal {
     // Increment user issued shares
     issuedShares[user][assetId] += amount;
 
