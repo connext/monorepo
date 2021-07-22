@@ -74,7 +74,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  IFulfillInterpreter public interpreter;
+  IFulfillInterpreter public immutable interpreter;
 
   constructor(uint256 _chainId) {
     chainId = _chainId;
