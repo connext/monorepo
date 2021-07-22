@@ -30,6 +30,7 @@ export const Errors: ErrorsType = {
   "025": "INVALID_CALL_DATA",
   "026": "ROUTER_MUST_CANCEL",
   "027": "RECEIVING_ADDRESS_EMPTY",
+  "028": "NOT_TRANSACTION_MANAGER",
 };
 
 type ErrorsPrefixType = {
@@ -41,6 +42,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#P": "prepare",
   "#F": "fulfill",
   "#C": "cancel",
+  "#OTM": "onlyTransactionManager",
 };
 
 export const getFullError = (error: string): string => {

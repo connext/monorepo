@@ -9,16 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-// Outstanding qs:
-// - what happens if you have unique user data, but duplicate tx ids?
-//   no requires here would catch this, the tx would be properly prepared
-//
-// - we validate all the inputs but the amount, bidSignature, and encodedBid.
-//   bidSignature and encodedBid could be used as slashing later, and their
-//   validation is out of scope of this function. But, do we want to be able
-//   to use this to send 0-value amounts? basically as some incentivized
-//   relayer? would that break bidding?
-
 
 /// @title TransactionManager
 /// @author Connext <support@connext.network>
@@ -84,11 +74,11 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  IFulfillInterpreter private interpreter;
+  IFulfillInterpreter public interpreter;
 
-  constructor(uint256 _chainId, address _interpreter) {
+  constructor(uint256 _chainId) {
     chainId = _chainId;
-    interpreter = FulfillInterpreter(_interpreter);
+    interpreter = new FulfillInterpreter(address(this));
   }
 
   /// @notice Removes any ownership privelenges. Used to allow 
