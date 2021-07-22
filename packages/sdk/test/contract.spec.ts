@@ -1,8 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
-import { getRandomBytes32 } from "@connext/nxtp-utils";
-import { mkAddress, PrepareParams } from "@connext/nxtp-utils";
-import { Wallet, BigNumberish, Contract, utils, BigNumber, constants } from "ethers";
+import { constants } from "ethers";
 
 import { FulfillInterpreter, Counter, TransactionManager, TestERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -11,7 +9,6 @@ import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Co
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
 import pino, { BaseLogger } from "pino";
-import { prepare, createEvts } from "../src";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino();
