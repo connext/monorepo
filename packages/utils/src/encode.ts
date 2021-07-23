@@ -113,7 +113,8 @@ export const AuctionBidEncoding = tidy(`tuple(
   address callTo,
   bytes encryptedCallData,
   address sendingChainTxManagerAddress,
-  address receivingChainTxManagerAddress
+  address receivingChainTxManagerAddress,
+  uint256 bidExpiry
 )`);
 
 /**

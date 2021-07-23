@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -22,14 +23,23 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IFulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
     "execute(address,address,address,uint256,bytes)": FunctionFragment;
+    "getTransactionManager()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "execute",
     values: [string, string, string, BigNumberish, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getTransactionManager",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getTransactionManager",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -86,6 +96,10 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   execute(
@@ -97,6 +111,10 @@ export class IFulfillInterpreter extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getTransactionManager(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     execute(
       callTo: string,
@@ -106,6 +124,8 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -119,6 +139,10 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -129,6 +153,10 @@ export class IFulfillInterpreter extends BaseContract {
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

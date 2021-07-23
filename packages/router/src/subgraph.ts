@@ -1,18 +1,44 @@
 import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import {
+  jsonifyError,
+  NxtpError,
+  NxtpErrorJson,
   TransactionCancelledEvent,
   TransactionData,
   TransactionFulfilledEvent,
   TransactionPreparedEvent,
+  Values,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import hyperid from "hyperid";
 import { Evt, VoidCtx, distinct } from "evt";
+import { ResultAsync } from "neverthrow";
 
-import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
+import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";
 
 const hId = hyperid();
+
+/**
+ * @classdesc Error thrown by the subgraph class
+ */
+export class SubgraphError extends NxtpError {
+  static readonly type = "SubgraphError";
+  static readonly reasons = {
+    SDKError: "Subgraph SDK error",
+  };
+
+  constructor(
+    public readonly message: Values<typeof SubgraphError.reasons> | string,
+    public readonly context: {
+      sdkError?: NxtpErrorJson;
+      methodId: string;
+      method: string;
+    },
+  ) {
+    super(message, context, SubgraphError.type);
+  }
+}
 
 /**
  * Converts subgraph transactions to properly typed TransactionData
@@ -20,6 +46,7 @@ const hId = hyperid();
  * @param transaction Subgraph data
  * @returns Properly formatted TransactionData
  */
+
 const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
     user: transaction.user.id,
@@ -140,11 +167,20 @@ export class Subgraph {
         }
         loopCt++;
         // get all sender prepared txs
-        const allSenderPrepared = await sdk.GetSenderTransactions({
-          routerId: this.routerAddress.toLowerCase(),
-          sendingChainId: chainId,
-          status: TransactionStatus.Prepared,
-        });
+        let allSenderPrepared: GetSenderTransactionsQuery;
+        try {
+          allSenderPrepared = await sdk.GetSenderTransactions({
+            routerId: this.routerAddress.toLowerCase(),
+            sendingChainId: chainId,
+            status: TransactionStatus.Prepared,
+          });
+        } catch (err) {
+          this.logger.error(
+            { method, methodId, error: jsonifyError(err) },
+            "Error in sdk.GetSenderTransactions, aborting loop interval",
+          );
+          return;
+        }
 
         // create list of txIds for each receiving chain
         const receivingChains: Record<string, string[]> = {};
@@ -157,25 +193,32 @@ export class Subgraph {
         });
 
         // get all existing txs corresponding to all the sender prepared txs by id
-        const queries = await Promise.all(
-          Object.entries(receivingChains).map(async ([cId, txIds]) => {
-            const _sdk = this.sdks[Number(cId)];
-            if (!_sdk) {
-              this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
-              return [];
-            }
-            const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
-            return query.transactions;
-          }),
-        );
-        const correspondingReceiverTxs = queries.flat();
+        let correspondingReceiverTxs: any[];
+        try {
+          const queries = await Promise.all(
+            Object.entries(receivingChains).map(async ([cId, txIds]) => {
+              const _sdk = this.sdks[Number(cId)];
+              if (!_sdk) {
+                this.logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
+                return [];
+              }
+              const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
+              return query.transactions;
+            }),
+          );
+          correspondingReceiverTxs = queries.flat();
+        } catch (err) {
+          this.logger.error(
+            { method, methodId, error: jsonifyError(err) },
+            "Error in sdk.GetTransactions, aborting loop interval",
+          );
+          return;
+        }
 
         // foreach sender prepared check if corresponding receiver exists
         // if it does not, call the handleSenderPrepare handler
         // if it is fulfilled, call the handleReceiverFulfill handler
         // if it is cancelled, call the handlerReceiverCancel handler
-        // TODO: refactor to Evts or better yet, a structure that can be idempotent by default
-
         allSenderPrepared.router?.transactions.forEach((senderTx) => {
           const corresponding = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
@@ -242,52 +285,60 @@ export class Subgraph {
    * @remarks
    * The `signature` and `relayerFee` can exist when the transaction is fulfilled or when the transaction was completed by a relayer (user is completing it on the sending-side chain).
    */
-  async getTransactionForChain(
+  getTransactionForChain(
     transactionId: string,
     user: string,
     chainId: number,
-  ): Promise<
+  ): ResultAsync<
     | {
         status: TransactionStatus;
         txData: TransactionData;
         encryptedCallData: string;
         encodedBid: string;
         bidSignature: string;
-        signature?: string; // only there when fulfilled
-        relayerFee?: string; // only there when fulfilled
+        signature?: string; // only there when fulfilled or cancelled
+        relayerFee?: string; // only there when fulfilled or cancelled
       }
-    | undefined
+    | undefined,
+    SubgraphError
   > {
+    const method = this.getTransactionForChain.name;
+    const methodId = hId();
     const sdk: Sdk = this.sdks[chainId];
-    const { transaction } = await sdk.GetTransaction({
-      transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + this.routerAddress.toLowerCase(),
+    return ResultAsync.fromPromise(
+      sdk.GetTransaction({
+        transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + this.routerAddress.toLowerCase(),
+      }),
+      (err) =>
+        new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, sdkError: jsonifyError(err as Error) }),
+    ).map(({ transaction }) => {
+      return transaction
+        ? {
+            status: transaction.status,
+            txData: {
+              user: transaction.user.id,
+              router: transaction.router.id,
+              sendingAssetId: transaction.sendingAssetId,
+              receivingAssetId: transaction.receivingAssetId,
+              sendingChainFallback: transaction.sendingChainFallback,
+              callTo: transaction.callTo,
+              receivingAddress: transaction.receivingAddress,
+              callDataHash: transaction.callDataHash,
+              transactionId: transaction.transactionId,
+              sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
+              receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
+              amount: transaction.amount,
+              expiry: transaction.expiry.toString(),
+              preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
+            },
+            encryptedCallData: transaction.encryptedCallData,
+            encodedBid: transaction.encodedBid,
+            bidSignature: transaction.bidSignature,
+            signature: transaction.signature,
+            relayerFee: transaction.relayerFee,
+          }
+        : undefined;
     });
-    return transaction
-      ? {
-          status: transaction.status,
-          txData: {
-            user: transaction.user.id,
-            router: transaction.router.id,
-            sendingAssetId: transaction.sendingAssetId,
-            receivingAssetId: transaction.receivingAssetId,
-            sendingChainFallback: transaction.sendingChainFallback,
-            callTo: transaction.callTo,
-            receivingAddress: transaction.receivingAddress,
-            callDataHash: transaction.callDataHash,
-            transactionId: transaction.transactionId,
-            sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
-            receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
-            amount: transaction.amount,
-            expiry: transaction.expiry.toString(),
-            preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
-          },
-          encryptedCallData: transaction.encryptedCallData,
-          encodedBid: transaction.encodedBid,
-          bidSignature: transaction.bidSignature,
-          signature: transaction.signature,
-          relayerFee: transaction.relayerFee,
-        }
-      : undefined;
   }
 
   /**
@@ -298,11 +349,16 @@ export class Subgraph {
    * @param chainId - The chain you want to determine liquidity on
    * @returns The available balance (or undefined)
    */
-  async getAssetBalance(assetId: string, chainId: number): Promise<BigNumber | undefined> {
+  getAssetBalance(assetId: string, chainId: number): ResultAsync<BigNumber, SubgraphError> {
+    const method = this.getAssetBalance.name;
+    const methodId = hId();
     const sdk: Sdk = this.sdks[chainId];
     const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
-    const res = await sdk.GetAssetBalance({ assetBalanceId });
-    return res.assetBalance?.amount ? BigNumber.from(res.assetBalance?.amount) : undefined;
+    return ResultAsync.fromPromise(
+      sdk.GetAssetBalance({ assetBalanceId }),
+      (err) =>
+        new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, sdkError: jsonifyError(err as Error) }),
+    ).map((res) => (res.assetBalance?.amount ? BigNumber.from(res.assetBalance?.amount) : constants.Zero));
   }
 
   // Listener methods

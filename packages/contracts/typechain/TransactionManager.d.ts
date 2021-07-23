@@ -33,6 +33,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "interpreter()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
@@ -120,6 +121,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
       BytesLike
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "interpreter",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "prepare",
@@ -204,6 +209,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "interpreter",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
@@ -378,6 +387,8 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    interpreter(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
@@ -522,6 +533,8 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  interpreter(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -725,6 +738,8 @@ export class TransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    interpreter(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1197,6 +1212,8 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    interpreter(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
@@ -1348,6 +1365,8 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    interpreter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

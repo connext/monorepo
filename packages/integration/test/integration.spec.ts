@@ -18,9 +18,9 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddress1337 = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
+const tokenAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const tokenAddress1338 = tokenAddress1337;
-const txManagerAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const txManagerAddress1337 = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddress1338 = txManagerAddress1337;
 const chainProviders = {
   1337: {
@@ -169,6 +169,7 @@ describe("Integration", () => {
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest" }),
+      undefined,
       "nats://localhost:4222",
       "http://localhost:5040",
     );
@@ -202,8 +203,9 @@ describe("Integration", () => {
     );
 
     // TODO: txservice doesnt seem to be returning properly, need to revisit this
-    userSdk.finishTransfer(event);
-    // expect(finishRes.metaTxResponse).to.be.ok;
+    const finishRes = await userSdk.finishTransfer(event);
+    console.log("finishRes: ", finishRes);
+    expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
   });

@@ -1,6 +1,7 @@
 import { Signer, providers, BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
+import hyperid from "hyperid";
 import { jsonifyError } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
@@ -8,6 +9,8 @@ import { ChainError } from "./error";
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
+
+const hId = hyperid();
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -54,7 +57,7 @@ export class TransactionService {
   private config: TransactionServiceConfig;
   private providers: Map<number, ChainRpcProvider> = new Map();
 
-  constructor(private readonly log: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
+  constructor(private readonly logger: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
     // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
@@ -71,13 +74,13 @@ export class TransactionService {
       const providers = chain.providers;
       if (providers.length === 0) {
         // TODO: This should be a config parser error (i.e. thrown in config parse).
-        this.log.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
+        this.logger.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
         throw new ChainError(ChainError.reasons.ProviderNotFound);
       }
       const chainIdNumber = parseInt(chainId);
       this.providers.set(
         chainIdNumber,
-        new ChainRpcProvider(this.log, signer, chainIdNumber, chain, providers, this.config),
+        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, providers, this.config),
       );
     });
   }
@@ -97,6 +100,9 @@ export class TransactionService {
   // TODO: chainId doesnt need to be a param and enforced on minimal tx data structure
   public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
+    const methodId = hId();
+    this.logger.info({ method, methodId, chainId, tx }, "Method start");
+
     let receipt: providers.TransactionReceipt | undefined;
 
     const transaction = this.createTx(chainId, tx);
@@ -263,7 +269,7 @@ export class TransactionService {
   /// Helper method to generate a transaction instance. Stubbed in unit tests in order to
   /// solely test the interface.
   private createTx(chainId: number, tx: MinimalTransaction) {
-    return new Transaction(this.log, this.getProvider(chainId), tx, this.config);
+    return new Transaction(this.logger, this.getProvider(chainId), tx, this.config);
   }
 
   /// Helper to wrap getting provider for specified chain ID.
@@ -278,7 +284,7 @@ export class TransactionService {
   /// Handle logging and event emitting on tx submit attempt.
   private handleSubmit(response: providers.TransactionResponse) {
     const method = this.sendTx.name;
-    this.log.info(
+    this.logger.info(
       {
         method,
         hash: response.hash,
@@ -293,14 +299,14 @@ export class TransactionService {
   /// Handle logging and event emitting on tx confirmation.
   private handleConfirm(receipt: providers.TransactionReceipt) {
     const method = this.sendTx.name;
-    this.log.info({ method, receipt }, "Tx mined.");
+    this.logger.info({ method, receipt }, "Tx mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
   /// Handle logging and event emitting on tx failure.
   private handleFail(error: ChainError, receipt?: providers.TransactionReceipt) {
     const method = this.sendTx.name;
-    this.log.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
+    this.logger.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

@@ -1,17 +1,14 @@
 import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
-import { getRandomBytes32 } from "@connext/nxtp-utils";
-import { mkAddress, PrepareParams } from "@connext/nxtp-utils";
-import { Wallet, BigNumberish, Contract, utils, BigNumber, constants } from "ethers";
+import { constants } from "ethers";
 
-import { FulfillInterpreter, Counter, TransactionManager, TestERC20 } from "@connext/nxtp-contracts/typechain";
+import { FulfillInterpreter, Counter, TransactionManager, TestERC20, ERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import FulfillInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contracts/interpreters/FulfillInterpreter.sol/FulfillInterpreter.json";
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
 import pino, { BaseLogger } from "pino";
-import { prepare, createEvts } from "../src";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino();
@@ -39,25 +36,12 @@ describe("TransactionManager", function () {
     );
     const counterFactory = await ethers.getContractFactory(CounterArtifact.abi, CounterArtifact.bytecode, wallet);
     const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
-    const interpreterFactory = await ethers.getContractFactory(
-      FulfillInterpreterArtifact.abi,
-      FulfillInterpreterArtifact.bytecode,
-      wallet,
-    );
 
-    const interpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
 
-    transactionManager = (await transactionManagerFactory.deploy(
-      sendingChainId,
-      interpreter.address,
-    )) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
-      receivingChainId,
-      interpreter.address,
-    )) as TransactionManager;
-
-    tokenA = (await testERC20Factory.deploy()) as TestERC20;
-    tokenB = (await testERC20Factory.deploy()) as TestERC20;
+    tokenA = (await testERC20Factory.deploy()) as ERC20;
+    tokenB = (await testERC20Factory.deploy()) as ERC20;
 
     counter = (await counterFactory.deploy()) as Counter;
 

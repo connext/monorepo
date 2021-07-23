@@ -23,21 +23,17 @@ const _abi = [
 ];
 
 const _bytecode =
-  "0x60e0610052600b82828239805160001a607314610045577f4e487b7100000000000000000000000000000000000000000000000000000000600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c80637a0beea8146038575b600080fd5b604e6004803603810190604a91906066565b6050565b005b50565b6000813590506060816096565b92915050565b600060208284031215607757600080fd5b60006083848285016053565b91505092915050565b6000819050919050565b609d81608c565b811460a757600080fd5b5056fea2646970667358221220d8137b70fb4856434c9ffbf0c451415754c55f5cfe3ea41d406e84063dab2e7e64736f6c63430008040033";
+  "0x60e0610052600b82828239805160001a607314610045577f4e487b7100000000000000000000000000000000000000000000000000000000600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c80637a0beea8146038575b600080fd5b604e6004803603810190604a91906066565b6050565b005b50565b6000813590506060816096565b92915050565b600060208284031215607757600080fd5b60006083848285016053565b91505092915050565b6000819050919050565b609d81608c565b811460a757600080fd5b5056fea2646970667358221220fa392da030c326dc4c10b700478c5c725272650f3126d79286d6568d67421a6964736f6c63430008040033";
 
 export class LibAsset__factory extends ContractFactory {
   constructor(signer?: Signer) {
     super(_abi, _bytecode, signer);
   }
 
-  deploy(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<LibAsset> {
+  deploy(overrides?: Overrides & { from?: string | Promise<string> }): Promise<LibAsset> {
     return super.deploy(overrides || {}) as Promise<LibAsset>;
   }
-  getDeployTransaction(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): TransactionRequest {
+  getDeployTransaction(overrides?: Overrides & { from?: string | Promise<string> }): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   attach(address: string): LibAsset {
@@ -51,10 +47,7 @@ export class LibAsset__factory extends ContractFactory {
   static createInterface(): LibAssetInterface {
     return new utils.Interface(_abi) as LibAssetInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): LibAsset {
+  static connect(address: string, signerOrProvider: Signer | Provider): LibAsset {
     return new Contract(address, _abi, signerOrProvider) as LibAsset;
   }
 }

@@ -3,9 +3,28 @@ pragma solidity 0.8.4;
 
 import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+  address private _transactionManager;
+
+  constructor(address transactionManager) {
+    _transactionManager = transactionManager;
+  }
+
+  /// @notice Errors if the sender is not the transaction manager
+  modifier onlyTransactionManager {
+    require(msg.sender == _transactionManager, "#OTM:027");
+    _;
+  }
+
+  /// @notice Returns the transaction manager address (only address that can 
+  ///         call the `execute` function)
+  function getTransactionManager() override external view returns (address) {
+    return _transactionManager;
+  }
+
   /// @notice Executes some arbitrary call data on a given address. The
   ///         call data executes can be payable, and will have `amount` sent
   ///         along with the function (or approved to the contract). If the
@@ -23,7 +42,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable nonReentrant {
+  ) override external payable nonReentrant onlyTransactionManager {
     // If it is not ether, approve the callTo
     bool isEther = LibAsset.isEther(assetId);
     if (!isEther) {
@@ -32,7 +51,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
-    (bool success,) = payable(callTo).call{value: isEther ? amount : 0}(callData);
+    (bool success,) = callTo.call{value: isEther ? amount : 0}(callData);
 
     if (!success) {
       // If it fails, transfer to fallback

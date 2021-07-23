@@ -6,7 +6,7 @@
 _tmp
 build
 dist*
-lib*
+lib
 coverage
 node_modules*
 *.tsBuildInfo
@@ -27,3 +27,5 @@ report.*.json
 ops/data
 **/*/.nyc_output/*
 packages/router/config.json
+packages/router/dev.config.json
+packages/router/prod.config.json

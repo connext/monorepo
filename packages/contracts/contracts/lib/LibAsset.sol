@@ -16,21 +16,19 @@ library LibAsset {
     ///      by convention
     address constant NATIVE_ASSETID = address(0);
 
-    using SafeERC20 for IERC20;
-
     /// @notice Determines whether the given assetId is the native asset
     /// @param assetId The asset identifier to evaluate
     function isEther(address assetId) internal pure returns (bool) {
-        return assetId == NATIVE_ASSETID;
+      return assetId == NATIVE_ASSETID;
     }
 
     /// @notice Gets the balance of the inheriting contract for the given asset
     /// @param assetId The asset identifier to get the balance of
     function getOwnBalance(address assetId) internal view returns (uint256) {
-        return
-            isEther(assetId)
-                ? address(this).balance
-                : IERC20(assetId).balanceOf(address(this));
+      return
+        isEther(assetId)
+          ? address(this).balance
+          : IERC20(assetId).balanceOf(address(this));
     }
 
     /// @notice Transfers ether from the inheriting contract to a given
@@ -40,7 +38,8 @@ library LibAsset {
     function transferEther(address payable recipient, uint256 amount)
         internal
     {
-        recipient.transfer(amount);
+      (bool success,) = recipient.call{value: amount}("");
+      require(success, "#TE:028");
     }
 
     /// @notice Transfers tokens from the inheriting contract to a given
@@ -53,7 +52,7 @@ library LibAsset {
         address recipient,
         uint256 amount
     ) internal {
-        IERC20(assetId).transfer(recipient, amount);
+      SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
     }
 
     /// @notice Transfers tokens from a sender to a given recipient
@@ -67,7 +66,7 @@ library LibAsset {
       address to,
       uint256 amount
     ) internal {
-      IERC20(assetId).transferFrom(from, to, amount);
+      SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
     }
 
     /// @notice Increases the allowance of a token to a spender
@@ -108,9 +107,8 @@ library LibAsset {
         address payable recipient,
         uint256 amount
     ) internal {
-        return
-            isEther(assetId)
-                ? transferEther(recipient, amount)
-                : transferERC20(assetId, recipient, amount);
+      isEther(assetId)
+        ? transferEther(recipient, amount)
+        : transferERC20(assetId, recipient, amount);
     }
 }
