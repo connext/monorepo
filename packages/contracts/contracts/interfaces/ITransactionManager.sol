@@ -61,6 +61,16 @@ interface ITransactionManager {
     uint256 relayerFee;
   }
 
+  // Adding/removing asset events
+  event RouterAdded(address indexed addedRouter, address indexed caller);
+
+  event RouterRemoved(address indexed removedRouter, address indexed caller);
+
+  // Adding/removing router events
+  event AssetAdded(address indexed addedAssetId, address indexed caller);
+
+  event AssetRemoved(address indexed removedAssetId, address indexed caller);
+
   // Liquidity events
   event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
 

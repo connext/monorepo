@@ -87,13 +87,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @notice Used to add routers that can transact crosschain
   /// @param router Router address to add
   function addRouter(address router) external override onlyOwner {
+    require(router != address(0), "#AR:001");
     approvedRouters[router] = true;
+    emit RouterAdded(router, msg.sender);
   }
 
   /// @notice Used to remove routers that can transact crosschain
   /// @param router Router address to remove
   function removeRouter(address router) external override onlyOwner {
+    require(router != address(0), "#RR:001");
     approvedRouters[router] = false;
+    emit RouterRemoved(router, msg.sender);
   }
 
   /// @notice Used to add assets on same chain as contract that can
@@ -101,6 +105,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @param assetId AssetId to add
   function addAssetId(address assetId) external override onlyOwner {
     approvedAssets[assetId] = true;
+    emit AssetAdded(assetId, msg.sender);
   }
 
   /// @notice Used to remove assets on same chain as contract that can
@@ -108,6 +113,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @param assetId AssetId to remove
   function removeAssetId(address assetId) external override onlyOwner {
     approvedAssets[assetId] = false;
+    emit AssetRemoved(assetId, msg.sender);
   }
 
   /// @notice This is used by any router to increase their available

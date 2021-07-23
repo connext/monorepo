@@ -482,10 +482,16 @@ describe("TransactionManager", function () {
       await expect(transactionManager.connect(other).addRouter(toAdd)).to.be.revertedWith("#OO:029");
     });
 
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(transactionManager.addRouter(toAdd)).to.be.revertedWith("#AR:001");
+    });
+
     it("should work", async () => {
       const toAdd = Wallet.createRandom().address;
       const tx = await transactionManager.addRouter(toAdd);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterAdded", { caller: receipt.from, addedRouter: toAdd });
       expect(await transactionManager.approvedRouters(toAdd)).to.be.true;
     });
   });
@@ -496,9 +502,15 @@ describe("TransactionManager", function () {
       await expect(transactionManager.connect(other).removeRouter(toAdd)).to.be.revertedWith("#OO:029");
     });
 
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(transactionManager.removeRouter(toAdd)).to.be.revertedWith("#RR:001");
+    });
+
     it("should work", async () => {
       const tx = await transactionManager.removeRouter(router.address);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, removedRouter: router.address });
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
     });
   });
@@ -513,7 +525,8 @@ describe("TransactionManager", function () {
     it("should work", async () => {
       const assetId = Wallet.createRandom().address;
       const tx = await transactionManager.addAssetId(assetId);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "AssetAdded", { caller: receipt.from, addedAssetId: assetId });
       expect(await transactionManager.approvedAssets(assetId)).to.be.true;
     });
   });
@@ -528,7 +541,8 @@ describe("TransactionManager", function () {
     it("should work", async () => {
       const assetId = AddressZero;
       const tx = await transactionManager.removeAssetId(assetId);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "AssetRemoved", { caller: receipt.from, removedAssetId: assetId });
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
     });
   });

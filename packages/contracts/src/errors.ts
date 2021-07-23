@@ -48,6 +48,8 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#TE": "transferEther",
   "#APO": "acceptProposedOwner",
   "#OO": "onlyOwner",
+  "#AR": "addRouter",
+  "#RR": "removeRouter",
 };
 
 export const getFullError = (error: string): string => {
