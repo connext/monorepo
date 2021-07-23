@@ -49,6 +49,7 @@ describe("Handler", () => {
     txManager.prepare.returns(okAsync(fakeTxReceipt));
     txManager.fulfill.returns(okAsync(fakeTxReceipt));
     txManager.cancel.returns(okAsync(fakeTxReceipt));
+    txManager.getRouterBalance.returns(okAsync(BigNumber.from(100)));
 
     txService = createStubInstance(TransactionService);
     stub(config, "getConfig").returns(fakeConfig);

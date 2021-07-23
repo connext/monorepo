@@ -53,8 +53,8 @@ export const fakeConfig: NxtpRouterConfig = {
     {
       name: "TEST",
       assets: [
-        { assetId: mkAddress("0x1"), chainId: 1337 },
-        { assetId: mkAddress("0x2"), chainId: 1338 },
+        { assetId: mkAddress("0xb"), chainId: 1337 },
+        { assetId: mkAddress("0xc"), chainId: 1338 },
       ],
     },
   ],
