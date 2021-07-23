@@ -10,7 +10,6 @@ import { getContractError } from "../../src/errors";
 import { LibAssetTest } from "../../typechain/LibAssetTest";
 import { TestERC20 } from "../../typechain/TestERC20";
 import { BigNumber, constants } from "ethers";
-import { getContractError } from "../../src";
 
 const { AddressZero } = constants;
 
@@ -61,7 +60,7 @@ describe("LibAsset", () => {
       await expect(libAssetTest.getOwnBalance("0x0f5d2fb29fb7d3cfee444a200298f468908cc940")).to.be.reverted;
     });
 
-    it.skip("should return native asset balance if AddressZero", async () => {
+    it("should return native asset balance if AddressZero", async () => {
       const amount = BigNumber.from(1);
       // const signer = await wallet.getSigner();
 
