@@ -144,7 +144,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 In some cases it is desirable to develop against local blockchains and messaging services. To do that, run:
 
 - `yarn workspace @connext/nxtp-integration docker:services:up`
-- `bash setup-integration-test`
+- `bash setup-integration-test.sh`
 
 The above commands run local chains and messaging and take care of local deployment. Modify `packages/router/config.json` to look similar to the following:
 
@@ -179,6 +179,8 @@ Run the router locally with:
 The router will now hot reload and allow easy testing/debug.
 
 Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
+
+When you are done, you can run `yarn docker:stop:all` to halt all running services.
 
 ## Publishing Packages
 
