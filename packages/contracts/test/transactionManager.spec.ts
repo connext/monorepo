@@ -950,6 +950,16 @@ describe("TransactionManager", function () {
     });
 
     describe("failures when preparing on the router chain", () => {
+      it("should fail if the callTo is not empty and not a contract", async () => {
+        const { transaction, record } = await getTransactionData({
+          callTo: Wallet.createRandom().address,
+        });
+        await expect(
+          transactionManagerReceiverSide
+            .connect(router)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("#P:031");
+      });
       it("should fail if msg.sender != invariantData.router", async () => {
         const { transaction, record } = await getTransactionData();
 
@@ -1467,7 +1477,7 @@ describe("TransactionManager", function () {
             receivingAssetId: assetId,
             sendingChainId: (await transactionManager.chainId()).toNumber(),
             receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
-            callTo: Wallet.createRandom().address,
+            callTo: counter.address,
           },
           { amount: prepareAmount },
         );

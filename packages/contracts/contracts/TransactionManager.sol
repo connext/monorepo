@@ -6,6 +6,7 @@ import "./interfaces/ITransactionManager.sol";
 import "./interpreters/FulfillInterpreter.sol";
 import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -299,6 +300,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // complete the sender-side transaction after the user completes the
       // receiver-side transactoin. The amount should be decremented to act as
       // a fee to incentivize the router to complete the transaction properly.
+
+      // Check that the callTo is a contract
+      // NOTE: This cannot happen on the sending chain (different chain 
+      // contexts), so a user could mistakenly create a transfer that must be
+      // cancelled if this is incorrect
+      require(invariantData.callTo == address(0) || Address.isContract(invariantData.callTo), "#P:031");
 
       // Check that the caller is the router
       require(msg.sender == invariantData.router, "#P:016");

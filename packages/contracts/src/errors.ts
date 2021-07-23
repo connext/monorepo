@@ -33,6 +33,7 @@ export const Errors: ErrorsType = {
   "028": "TRANSFER_FAILED",
   "029": "NOT_OWNER",
   "030": "DELAY_NOT_ELAPSED",
+  "031": "NOT_CONTRACT",
 };
 
 type ErrorsPrefixType = {
