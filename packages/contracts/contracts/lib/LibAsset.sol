@@ -14,23 +14,22 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 library LibAsset {
     address constant NATIVE_ASSETID = address(0);
 
-    using SafeERC20 for IERC20;
-
     function isEther(address assetId) internal pure returns (bool) {
-        return assetId == NATIVE_ASSETID;
+      return assetId == NATIVE_ASSETID;
     }
 
     function getOwnBalance(address assetId) internal view returns (uint256) {
-        return
-            isEther(assetId)
-                ? address(this).balance
-                : IERC20(assetId).balanceOf(address(this));
+      return
+        isEther(assetId)
+          ? address(this).balance
+          : IERC20(assetId).balanceOf(address(this));
     }
 
     function transferEther(address payable recipient, uint256 amount)
         internal
     {
-        recipient.transfer(amount);
+      (bool success,) = recipient.call{value: amount}("");
+      require(success, "#TE:028");
     }
 
     function transferERC20(
@@ -38,7 +37,7 @@ library LibAsset {
         address recipient,
         uint256 amount
     ) internal {
-        IERC20(assetId).transfer(recipient, amount);
+      SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
     }
 
     function transferFromERC20(
@@ -47,7 +46,7 @@ library LibAsset {
       address to,
       uint256 amount
     ) internal {
-      IERC20(assetId).transferFrom(from, to, amount);
+      SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
     }
 
     function increaseERC20Allowance(
@@ -74,9 +73,8 @@ library LibAsset {
         address payable recipient,
         uint256 amount
     ) internal {
-        return
-            isEther(assetId)
-                ? transferEther(recipient, amount)
-                : transferERC20(assetId, recipient, amount);
+      isEther(assetId)
+        ? transferEther(recipient, amount)
+        : transferERC20(assetId, recipient, amount);
     }
 }
