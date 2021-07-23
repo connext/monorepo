@@ -11,6 +11,11 @@ import {
 } from "../generated/TransactionManager/TransactionManager";
 import { Transaction, AssetBalance, Router, User } from "../generated/schema";
 
+/**
+ * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
+ *
+ * @param event - The contract event to update the subgraph record with
+ */
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   let router = Router.load(event.params.router.toHex());
   if (router == null) {
@@ -31,6 +36,11 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   assetBalance.save();
 }
 
+/**
+ * Updates the subgraph records when LiquidityRemoved events are emitted. Will create a Router record if it does not exist
+ *
+ * @param event - The contract event to update the subgraph record with
+ */
 export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   let router = Router.load(event.params.router.toHex());
   if (router == null) {
@@ -46,6 +56,11 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   assetBalance!.save();
 }
 
+/**
+ * Creates subgraph records when TransactionPrepared events are emitted.
+ *
+ * @param event - The contract event used to create the subgraph record
+ */
 export function handleTransactionPrepared(event: TransactionPrepared): void {
   // load user and router
   // router should have liquidity but it may not
@@ -113,6 +128,11 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   }
 }
 
+/**
+ * Updates subgraph records when TransactionFulfilled events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transactionId =
@@ -140,6 +160,11 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   }
 }
 
+/**
+ * Updates subgraph records when TransactionCancelled events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
 export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transactionId =

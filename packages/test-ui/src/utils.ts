@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 
 const TestTokenABI = [

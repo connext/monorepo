@@ -27,6 +27,14 @@ contract LibAssetTest {
     LibAsset.transferEther(recipient, amount);
   }
 
+  function increaseERC20Allowance(address assetId, address spender, uint256 amount) public {
+    LibAsset.increaseERC20Allowance(assetId, spender, amount);
+  }
+
+  function decreaseERC20Allowance(address assetId, address spender, uint256 amount) public {
+    LibAsset.decreaseERC20Allowance(assetId, spender, amount);
+  }
+
   function transferERC20(
     address assetId,
     address recipient,

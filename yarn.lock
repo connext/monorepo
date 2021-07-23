@@ -2041,6 +2041,7 @@ __metadata:
     concurrently: ^6.2.0
     eslint: ^7.30.0
     eslint-config-prettier: ^8.3.0
+    eslint-plugin-jsdoc: ^35.5.0
     eslint-plugin-node: ^11.1.0
     prettier: ^2.3.2
     rimraf: ^3.0.2
@@ -2100,6 +2101,17 @@ __metadata:
   version: 0.2.4
   resolution: "@ensdomains/resolver@npm:0.2.4"
   checksum: 0b356d85e433d99a1424d479de28543535151f61bbec4d24c463ed75c7c0f2980e93ef915183c690ff9901a3abb28a9af72f63d609dce4a0c17aec28123bb640
+  languageName: node
+  linkType: hard
+
+"@es-joy/jsdoccomment@npm:^0.9.0-alpha.1":
+  version: 0.9.0-alpha.1
+  resolution: "@es-joy/jsdoccomment@npm:0.9.0-alpha.1"
+  dependencies:
+    comment-parser: 1.1.6-beta.0
+    esquery: ^1.4.0
+    jsdoc-type-pratt-parser: 1.0.4
+  checksum: 7081a1b3b92bec1da945736afa153bdec702fb42273bdc4cf1a18957d3c9daf4787a0f713373ab5e5a2a422181141db8ff74a9daae02079e56aa94465e87fa76
   languageName: node
   linkType: hard
 
@@ -8593,6 +8605,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"comment-parser@npm:1.1.6-beta.0":
+  version: 1.1.6-beta.0
+  resolution: "comment-parser@npm:1.1.6-beta.0"
+  checksum: bd3f5e9c2c8afefca341f82b2c6671065fd29fe217bccc8ea638181bc3bb91bad962ef525d23a034395d62cc8b210571d7542c0adf26cc2b33bb70f318b99aea
+  languageName: node
+  linkType: hard
+
 "common-tags@npm:1.8.0, common-tags@npm:^1.8.0":
   version: 1.8.0
   resolution: "common-tags@npm:1.8.0"
@@ -9521,7 +9540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1":
+"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2":
   version: 4.3.2
   resolution: "debug@npm:4.3.2"
   dependencies:
@@ -10764,6 +10783,25 @@ __metadata:
     "@typescript-eslint/eslint-plugin":
       optional: true
   checksum: 744273aaabf2c427e287b9591e91ddc2141ab65bf6816ae8b7823ebf066a2d368b5c6db444da511a7b39e9389d5ee0891b5baf548f60313e5fbc3ac828cda2f2
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-jsdoc@npm:^35.5.0":
+  version: 35.5.0
+  resolution: "eslint-plugin-jsdoc@npm:35.5.0"
+  dependencies:
+    "@es-joy/jsdoccomment": ^0.9.0-alpha.1
+    comment-parser: 1.1.6-beta.0
+    debug: ^4.3.2
+    esquery: ^1.4.0
+    jsdoc-type-pratt-parser: ^1.0.4
+    lodash: ^4.17.21
+    regextras: ^0.8.0
+    semver: ^7.3.5
+    spdx-expression-parse: ^3.0.1
+  peerDependencies:
+    eslint: ^6.0.0 || ^7.0.0
+  checksum: e14ce15a4c397abf7f8deb84fabc339d442d6e3f993bf822faf4f7f732ade5faeeda56181df80a71b32d3fe211eef8e377fa5108904348b58e0aa63f020c3cbe
   languageName: node
   linkType: hard
 
@@ -16094,6 +16132,20 @@ fsevents@~2.1.1:
   version: 0.1.1
   resolution: "jsbn@npm:0.1.1"
   checksum: b530d48a64e6aff9523407856a54c5b9beee30f34a410612057f4fa097d90072fc8403c49604dacf0c3e7620dca43c2b7f0de3f954af611e43716a254c46f6f5
+  languageName: node
+  linkType: hard
+
+"jsdoc-type-pratt-parser@npm:1.0.4":
+  version: 1.0.4
+  resolution: "jsdoc-type-pratt-parser@npm:1.0.4"
+  checksum: b1b30567e41d06f1f1a77e79f6748af5b7f7e37ce0bfd9c62dddb4076d821c377eb8ba378ac67bf040b85044f7a6c4f55e76abb26ac19bd3e83219dc2d457052
+  languageName: node
+  linkType: hard
+
+"jsdoc-type-pratt-parser@npm:^1.0.4":
+  version: 1.0.8
+  resolution: "jsdoc-type-pratt-parser@npm:1.0.8"
+  checksum: 5112dd372500141638d2ce4bea0dc985a661db5e423a8cc0602ecb22287ef2695c02b717222dbf49f90746462420f3bc3e1a8a368b0dc8004fcee817a31ac8e5
   languageName: node
   linkType: hard
 
@@ -22754,6 +22806,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"regextras@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "regextras@npm:0.8.0"
+  checksum: 6c5d6a30d1e78a7148ab7a49c03d5a6477384e87a914e6b87e17f3350fc1dc4e59febea47d6e4564d69bbd76f5d6b9bd3fe4ad3565dce4b686d66a9a71b98096
+  languageName: node
+  linkType: hard
+
 "registry-auth-token@npm:^4.0.0":
   version: 4.2.1
   resolution: "registry-auth-token@npm:4.2.1"
@@ -24557,7 +24616,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"spdx-expression-parse@npm:^3.0.0":
+"spdx-expression-parse@npm:^3.0.0, spdx-expression-parse@npm:^3.0.1":
   version: 3.0.1
   resolution: "spdx-expression-parse@npm:3.0.1"
   dependencies:
