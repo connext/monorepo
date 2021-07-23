@@ -31,6 +31,9 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter, Ownable {
     bytes calldata callData
   ) override external payable nonReentrant onlyTransactionManager {
     // If it is not ether, approve the callTo
+    // We approve here rather than transfer since many external contracts
+    // simply require an approval, and it is unclear if they can handle 
+    // funds transferred directly to them (i.e. Uniswap)
     bool isEther = LibAsset.isEther(assetId);
     if (!isEther) {
       LibAsset.increaseERC20Allowance(assetId, callTo, amount);
