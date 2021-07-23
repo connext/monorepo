@@ -1,8 +1,6 @@
-import { jsonifyError } from "@connext/nxtp-utils";
-import { BigNumber, providers, errors } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
-import { Logger } from "ethers/lib/utils";
 
 import { TransactionServiceConfig } from "./config";
 import { ChainError } from "./error";
@@ -110,24 +108,8 @@ export class Transaction {
     this._attempt++;
     if (!success) {
       const error = _response as Error;
-      // TODO: Is this necessary anymore?
-      if (
-        this.responses.length >= 1 &&
-        (error.message.includes("nonce has already been used") ||
-          (error as any).reason.includes("nonce has already been used") ||
-          (error as any).code === errors.NONCE_EXPIRED ||
-          // If we get a 'nonce is too low' message, a previous tx has been mined, and ethers thought
-          // we were making another tx attempt with the same nonce.
-          error.message.includes("Transaction nonce is too low") ||
-          // Another ethers message that we could potentially be getting back.
-          error.message.includes("There is another transaction with same nonce in the queue"))
-      ) {
-        this.nonceExpired = true;
-        await this.logInfo("Tx reverted: nonce already used.", method, { error: error.message });
-      } else {
-        this.logger.error({ method, error }, "Failed to send tx");
-        throw _response;
-      }
+      this.logger.error({ method, error }, "Failed to send tx");
+      throw error;
     }
     const response = _response as providers.TransactionResponse;
 
@@ -135,7 +117,7 @@ export class Transaction {
     if (typeof this.nonce === "undefined") {
       this.nonce = response.nonce;
     } else if (this.nonce !== response.nonce) {
-      // This should never happen, but we are logging just in case.
+      // NOTE: This should never happen, but we are logging just in case.
       this.logger.warn(
         {
           method,
@@ -173,48 +155,39 @@ export class Transaction {
     if (this.responses.length === 0) {
       throw new ChainError(ChainError.reasons.TxNotFound);
     }
+    // Ensure we don't already have a receipt.
+    if (this.receipt != null) {
+      throw new ChainError(ChainError.reasons.TxAlreadyMined);
+    }
     const method = this.confirm.name;
     await this.logInfo("Confirming transaction...", method);
 
     // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
-    // the error it throws will give us the replacement's receipt.
+    // we'll get back the replacement's receipt from confirmTransaction.
     const response = this.responses[0];
-    try {
-      // TODO: Implement a timeout. This can be achieved with a Promise.race, but we must ensure a memory leak isn't possible.
-      this.receipt = await response.wait(this.provider.confirmationsRequired);
-    } catch (error) {
-      /* From ethers docs:
-       * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
-       * error.transaction - the original transaction
-       * error.transactionHash - the hash of the transaction
-       * error.receipt - the actual receipt, with the status of 0
-       *
-       * If the transaction is replaced by another transaction, a TRANSACTION_REPLACED error will be rejected with the following properties:
-       * error.hash - the hash of the original transaction which was replaced
-       * error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
-       * error.cancelled - a boolean; a "repriced" transaction is not considered cancelled, but "cancelled" and "replaced" are
-       * error.replacement - the replacement transaction (a TransactionResponse)
-       * error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
-       */
-      if (error.code === Logger.errors.TRANSACTION_REPLACED) {
-        // This will be the replacement receipt (see above).
-        this.receipt = error.receipt;
-        this.logInfo(`Transaction ${error.reason}.`, method, { receipt: error.receipt });
-      } else if (error.code === Logger.errors.CALL_EXCEPTION) {
-        // This will be the receipt with a status of 0.
-        this.receipt = error.receipt;
-        this.logInfo("Transaction reverted.", method, { receipt: error.receipt });
-      } else {
-        this.logger.error(
-          {
-            response,
-            errorCode: error.code,
-            error: jsonifyError(error),
-          },
-          "Received unexpected error code from response.wait!",
-        );
-      }
+    // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
+    // it will throw a ChainError.reasons.ConfirmationTimeout.
+    this.receipt = await this.provider.confirmTransaction(response, 1);
+    if (this.receipt == null) {
+      // Receipt is undefined or null. 
+      throw new ChainError(ChainError.reasons.TxNotFound);
+    } else if (this.receipt.status === 0) {
+      this.logInfo("Transaction reverted.", method, { receipt: this.receipt });
+      return this.receipt;
+    } else if (this.receipt.confirmations < this.provider.confirmationsRequired) {
+      // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
+      this.receipt = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
     }
+
+    // 
+    // this.logger.error(
+    //   {
+    //     response,
+    //     errorCode: error.code,
+    //     error: jsonifyError(error),
+    //   },
+    //   "Received unexpected error code from response.wait!",
+    // );
     return this.receipt;
   }
 

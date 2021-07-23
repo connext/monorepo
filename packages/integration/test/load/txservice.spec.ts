@@ -33,7 +33,7 @@ const txService = new TransactionService(
 );
 
 // TODO: Goal is to create a load test for txservice that sends a bunch of tokens to random wallets.
-describe("Load: TransactionService", () => {
+describe.only("Load: TransactionService", () => {
   before(async () => {
     const balance = await txService.getBalance(1337, sugarDaddy.address);
 

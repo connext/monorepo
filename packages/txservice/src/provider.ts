@@ -2,6 +2,7 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { Logger } from "ethers/lib/utils";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
@@ -30,14 +31,14 @@ export class ChainRpcProvider {
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
-   * 
+   *
    * @param logger pino.BaseLogger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig Configuration for this specified chain.
    * @param providerConfigs Configuration for each provider that will be used with this chain.
    * @param config The shared TransactionServiceConfig with general configuration.
-   * 
+   *
    * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
    * configuration.
    */
@@ -151,12 +152,72 @@ export class ChainRpcProvider {
   }
 
   /**
-   * Get the receipt for the transaction with the specified hash.
+   * Get the receipt for the transaction with the specified hash, optionally blocking
+   * until a specified timeout.
+   *
    * @param hash The hexadecimal hash string of the transaction.
+   * @param confirmations Optional parameter to override the configured number of confirmations
+   * required to validate the receipt.
+   * @param timeout Optional timeout parameter to override the configured parameter.
+   *
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
+   *
+   * @throws ChainError.reasons.ConfirmationTimeout if the wait for confirmation times out.
    */
-  public async confirmTransaction(hash: string): Promise<providers.TransactionReceipt | null> {
-    return await this.provider.getTransactionReceipt(hash);
+  public async confirmTransaction(
+    response: providers.TransactionResponse,
+    confirmations?: number,
+    timeout?: number,
+  ): Promise<providers.TransactionReceipt | undefined> {
+    await this.isReady();
+    try {
+      // The only way to access the functionality internal to ethers for handling replacement tx.
+      // See issue: https://github.com/ethers-io/ethers.js/issues/1775
+      return await (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
+      // Since response.wait does not allow us to pass in a timeout, we are accessing the internal method here
+      // to handle tx replacement.
+      // if (response.to && response.blockNumber) {
+      //   return await this.provider._waitForTransaction(response.hash, 1, timeout, {
+      //     data: response.data,
+      //     from: response.from,
+      //     nonce: response.nonce,
+      //     to: response.to!,
+      //     value: response.value,
+      //     startBlock: response.blockNumber,
+      //   });
+      // } else {
+      //   return await this.provider.waitForTransaction(response.hash, 1, timeout);
+      // }
+    } catch (error) {
+      /**
+       * From ethers docs:
+       * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
+       * error.transaction - the original transaction
+       * error.transactionHash - the hash of the transaction
+       * error.receipt - the actual receipt, with the status of 0
+       *
+       * If the transaction is replaced by another transaction, a TRANSACTION_REPLACED error will be rejected with the following properties:
+       * error.hash - the hash of the original transaction which was replaced
+       * error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
+       * error.cancelled - a boolean; a "repriced" transaction is not considered cancelled, but "cancelled" and "replaced" are
+       * error.replacement - the replacement transaction (a TransactionResponse)
+       * error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
+       */
+      switch(error.code) {
+        case Logger.errors.TRANSACTION_REPLACED:
+          // This will be the replacement receipt (see above).
+          return error.receipt;
+        case Logger.errors.CALL_EXCEPTION:
+          // This will be the receipt with a status of 0.
+          return error.receipt;
+        case Logger.errors.TIMEOUT:
+          // Wrap as ChainError timeout for convenience.
+          throw new ChainError(ChainError.reasons.ConfirmationTimeout);
+        default:
+          throw error;
+      }
+    }
+    // return await this.provider.getTransactionReceipt(response.hash);
   }
 
   /**
@@ -247,7 +308,7 @@ export class ChainRpcProvider {
    * The retry wrapper used for executing multiple retries for RPC requests to providers.
    * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
    * or externally (for the provider's network).
-   * 
+   *
    * @param method The string method name, used for logging.
    * @param targetMethod The actual method callback to execute and wrap in retries.
    */
