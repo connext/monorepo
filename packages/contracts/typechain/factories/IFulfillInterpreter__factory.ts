@@ -11,7 +11,67 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address payable",
+        name: "callTo",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address payable",
+        name: "fallbackAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "callData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "returnData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+    ],
+    name: "Executed",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "transactionId",
+        type: "bytes32",
+      },
       {
         internalType: "address payable",
         name: "callTo",

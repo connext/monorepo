@@ -23,7 +23,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface FulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
     "c_0x96d668da(bytes32)": FunctionFragment;
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
+    "execute(bytes32,address,address,address,uint256,bytes)": FunctionFragment;
     "getTransactionManager()": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -36,7 +36,7 @@ interface FulfillInterpreterInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTransactionManager",
@@ -72,9 +72,11 @@ interface FulfillInterpreterInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
@@ -128,6 +130,7 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<[void]>;
 
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -156,6 +159,7 @@ export class FulfillInterpreter extends BaseContract {
   ): Promise<void>;
 
   execute(
+    transactionId: BytesLike,
     callTo: string,
     assetId: string,
     fallbackAddress: string,
@@ -184,6 +188,7 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<void>;
 
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -205,6 +210,29 @@ export class FulfillInterpreter extends BaseContract {
   };
 
   filters: {
+    Executed(
+      transactionId?: BytesLike | null,
+      callTo?: null,
+      assetId?: null,
+      fallbackAddress?: null,
+      amount?: null,
+      callData?: null,
+      returnData?: null,
+      success?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string, string, boolean],
+      {
+        transactionId: string;
+        callTo: string;
+        assetId: string;
+        fallbackAddress: string;
+        amount: BigNumber;
+        callData: string;
+        returnData: string;
+        success: boolean;
+      }
+    >;
+
     OwnershipTransferred(
       previousOwner?: string | null,
       newOwner?: string | null
@@ -221,6 +249,7 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<BigNumber>;
 
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -250,6 +279,7 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
