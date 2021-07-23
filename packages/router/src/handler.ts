@@ -141,7 +141,7 @@ export class Handler {
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
     const result = await this.subgraph
-      .getAssetBalance(receivingAssetId, receivingChainId)
+      .getRouterShares(receivingAssetId, receivingChainId)
       .andThen((availableLiquidity) => {
         // validate liquidity
         if (availableLiquidity.lt(amountReceived)) {
@@ -382,7 +382,7 @@ export class Handler {
     const methodId = hId();
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
-    const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
+    const { txData, bidSignature, encodedBid, encryptedCallData, amount } = inboundData;
 
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
@@ -418,7 +418,7 @@ export class Handler {
     this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
     const res = await this.txManager.prepare(txData.receivingChainId, {
       txData,
-      amount: mutateAmount(txData.amount),
+      amount: mutateAmount(amount),
       expiry: mutateExpiry(txData.expiry),
       bidSignature,
       encodedBid,

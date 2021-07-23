@@ -1,4 +1,4 @@
-schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli
+schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-staging
 documents: "src/**/!(*.d).{ts,tsx}"
 generates:
   ./src/graphqlsdk.ts:

@@ -59,6 +59,7 @@ export type CancelParams = {
 // Events
 export type TransactionPreparedEvent = {
   txData: TransactionData;
+  amount: string;
   caller: string;
   encryptedCallData: string;
   encodedBid: string;

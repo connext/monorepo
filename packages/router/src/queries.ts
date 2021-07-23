@@ -27,6 +27,7 @@ export const getSenderTransactionsQuery = gql`
         callDataHash
         transactionId
         amount
+        shares
         expiry
         preparedBlockNumber
         encryptedCallData
@@ -67,6 +68,7 @@ export const getReceiverTransactionsQuery = gql`
         callDataHash
         transactionId
         amount
+        shares
         expiry
         preparedBlockNumber
         encryptedCallData
@@ -102,6 +104,7 @@ export const getTransactionByIdQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       encryptedCallData
@@ -139,6 +142,7 @@ export const getTransactionsByIdsQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       relayerFee
@@ -154,7 +158,7 @@ export const getTransactionsByIdsQuery = gql`
 export const getAssetBalanceById = gql`
   query GetAssetBalance($assetBalanceId: ID!) {
     assetBalance(id: $assetBalanceId) {
-      amount
+      shares
     }
   }
 `;

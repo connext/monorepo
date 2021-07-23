@@ -44,7 +44,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
     sendingChainId: parseInt(transaction.sendingChainId),
     sendingAssetId: transaction.sendingAssetId,
     sendingChainFallback: transaction.sendingChainFallback,
-    amount: transaction.amount,
+    shares: transaction.shares,
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
@@ -207,6 +207,7 @@ export class Subgraph {
             // sender prepare
             this.evts.SenderTransactionPrepared.evt.post({
               senderEvent: {
+                amount: senderTx.amount,
                 bidSignature: senderTx.bidSignature,
                 caller: senderTx.prepareCaller,
                 encodedBid: senderTx.encodedBid,
@@ -218,6 +219,7 @@ export class Subgraph {
             // receiver fulfilled
             this.evts.ReceiverTransactionFulfilled.evt.post({
               senderEvent: {
+                amount: senderTx.amount,
                 bidSignature: senderTx.bidSignature,
                 caller: senderTx.prepareCaller,
                 encodedBid: senderTx.encodedBid,
@@ -235,6 +237,7 @@ export class Subgraph {
           } else if (corresponding.status === TransactionStatus.Cancelled) {
             this.evts.ReceiverTransactionCancelled.evt.post({
               senderEvent: {
+                amount: senderTx.amount,
                 bidSignature: senderTx.bidSignature,
                 caller: senderTx.prepareCaller,
                 encodedBid: senderTx.encodedBid,
@@ -295,7 +298,7 @@ export class Subgraph {
               transactionId: transaction.transactionId,
               sendingChainId: BigNumber.from(transaction.sendingChainId).toNumber(),
               receivingChainId: BigNumber.from(transaction.receivingChainId).toNumber(),
-              amount: transaction.amount,
+              shares: transaction.shares,
               expiry: transaction.expiry.toString(),
               preparedBlockNumber: BigNumber.from(transaction.preparedBlockNumber).toNumber(),
             },
@@ -309,8 +312,8 @@ export class Subgraph {
     });
   }
 
-  getAssetBalance(assetId: string, chainId: number): ResultAsync<BigNumber, SubgraphError> {
-    const method = this.getAssetBalance.name;
+  getRouterShares(assetId: string, chainId: number): ResultAsync<BigNumber, SubgraphError> {
+    const method = this.getRouterShares.name;
     const methodId = hId();
     const sdk: Sdk = this.sdks[chainId];
     const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
@@ -318,7 +321,7 @@ export class Subgraph {
       sdk.GetAssetBalance({ assetBalanceId }),
       (err) =>
         new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, sdkError: jsonifyError(err as Error) }),
-    ).map((res) => (res.assetBalance?.amount ? BigNumber.from(res.assetBalance?.amount) : constants.Zero));
+    ).map((res) => (res.assetBalance?.shares ? BigNumber.from(res.assetBalance?.shares) : constants.Zero));
   }
 
   // Listener methods
