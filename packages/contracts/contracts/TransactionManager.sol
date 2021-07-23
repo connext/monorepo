@@ -256,7 +256,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Sanity check: router is sensible
     require(invariantData.router != address(0), "#P:001");
 
-    // Router is approved
+    // Router is approved *on both chains*
     require(renounced() || approvedRouters[invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
@@ -277,11 +277,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Make sure the expiry is lower than max
     require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
 
-    // Assets are approved
-    require(renounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
-
-    require(renounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
-
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
     require(variantTransactionData[digest] == bytes32(0), "#P:015");
@@ -300,6 +295,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
       require(amount > 0, "#P:002");
+
+      // Assets are approved
+      // NOTE: Cannot check this on receiving chain because of differing
+      // chain contexts
+      require(renounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
       // Store the transaction variants
       variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
@@ -334,6 +334,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // contexts), so a user could mistakenly create a transfer that must be
       // cancelled if this is incorrect
       require(invariantData.callTo == address(0) || Address.isContract(invariantData.callTo), "#P:031");
+
+      // Check that the asset is approved
+      // NOTE: This cannot happen on both chains because of differing chain 
+      // contexts. May be possible for user to create transaction that is not
+      // prepare-able on the receiver chain.
+      require(renounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
 
       // Check that the caller is the router
       require(msg.sender == invariantData.router, "#P:016");
