@@ -66,7 +66,7 @@ describe("RedisCache", () => {
       expect(val.toString()).to.eq("1");
     });
 
-    it.only("expires keys properly", async () => {
+    it("expires keys properly", async () => {
       await cache.addOutstandingLiquidity(
         1337,
         mkAddress("0x1"),
