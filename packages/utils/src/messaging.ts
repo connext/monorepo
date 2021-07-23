@@ -234,6 +234,7 @@ export type AuctionPayload = {
   encryptedCallData: string;
   callDataHash: string;
   callTo: string;
+  dryRun: boolean;
 };
 
 export type AuctionBid = {
