@@ -78,7 +78,7 @@ library LibAsset {
       address spender,
       uint256 amount
     ) internal {
-      require(!isEther(assetId), "#IA:029");
+      require(!isEther(assetId), "#IA:034");
       SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
     }
 
@@ -91,7 +91,7 @@ library LibAsset {
       address spender,
       uint256 amount
     ) internal {
-      require(!isEther(assetId), "#DA:029");
+      require(!isEther(assetId), "#DA:034");
       SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
     }
 
