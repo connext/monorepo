@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils } from "ethers";
+import { constants, providers, Signer, utils, BigNumber } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -41,6 +41,8 @@ import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
 export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
+export const MaxSlippageTolerance = "15.00"; // 15.0%
+export const DefaultSlippageTolerance = "0.10"; // 0.10%
 
 declare const ethereum: any; // TODO: what to do about node?
 
@@ -55,6 +57,7 @@ export const CrossChainParamsSchema = Type.Object({
   amount: TIntegerString,
   expiry: Type.Optional(Type.Number()),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
+  slippageTolerance: Type.Optional(Type.String()),
   dryRun: Type.Optional(Type.Boolean()),
 });
 
@@ -278,7 +281,6 @@ export class NxtpSdk {
     return txs;
   }
 
-  // TODO: add slippage tolerance
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
     const method = "getTransferQuote";
     const methodId = getRandomBytes32();
@@ -307,6 +309,7 @@ export class NxtpSdk {
       receivingChainId,
       receivingAssetId,
       receivingAddress,
+      slippageTolerance = DefaultSlippageTolerance,
       expiry: _expiry,
       dryRun,
     } = params;
@@ -315,6 +318,15 @@ export class NxtpSdk {
         method,
         methodId,
         configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
+    if (parseFloat(slippageTolerance) > parseFloat(MaxSlippageTolerance)) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Slippage Tolerance ${slippageTolerance}, must be lower than ${MaxSlippageTolerance}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -365,31 +377,80 @@ export class NxtpSdk {
     }
 
     const inbox = generateMessagingInbox();
-    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
+
+    let AuctionBids: AuctionResponse[] = [];
+
+    const receivedResponsePromise = await new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
-      this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+      this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
         if (err || !data) {
           this.logger.error({ method, methodId, err, data }, "Error in auction response");
-          return;
         }
-
         // dry run, return first response
-        if (!data.bidSignature) {
-          res(data);
+        else if (!data.bidSignature) {
+          AuctionBids.push(data);
           return;
+        } else {
+          AuctionBids.push(data);
+          if (AuctionBids.length >= 5) {
+            return;
+          }
         }
+      });
 
+      AuctionBids.sort((a, b) => {
+        return parseFloat(b.bid.amountReceived) - parseFloat(a.bid.amountReceived);
+      });
+
+      AuctionBids.map(async (data) => {
         // check router sig on bid
-        const signer = recoverAuctionBid(data.bid, data.bidSignature);
+        const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
         if (signer !== data.bid.router) {
           this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
           return;
         }
 
-        // TODO: check contract for router liquidity
-        // TODO: check response for receivedAmount for tolerance
+        // check contract for router liquidity
+        const routerLiq = await this.transactionManager.getRouterLiquidity(
+          receivingChainId,
+          data.bid.router,
+          receivingAssetId,
+        );
+        if (routerLiq.isOk()) {
+          if (routerLiq.value.lt(data.bid.amountReceived)) {
+            this.logger.error(
+              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+              `Router's liquidity low`,
+            );
+            return;
+          }
+        } else {
+          this.logger.error(
+            { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+            routerLiq.error.message,
+          );
+          return;
+        }
 
-        // TODO: compare multiple responses
+        // check if the price changes unfovorably by more than the slippage tolerance(percentage).
+        const priceImpact = ((parseFloat(data.bid.amountReceived) - parseFloat(amount)) / parseFloat(amount)) * 100;
+
+        if (priceImpact > parseFloat(slippageTolerance)) {
+          this.logger.error(
+            {
+              method,
+              methodId,
+              signer,
+              priceImpact: priceImpact,
+              bidAmount: data.bid.amount,
+              amountReceived: data.bid.amountReceived,
+              slippageTolerance: slippageTolerance,
+              router: data.bid.router,
+            },
+            "Invalid bid price: price impact is more than the slippage tolerance",
+          );
+          return;
+        }
 
         this.logger.info({ method, methodId, data }, "Received auction response");
         res(data);
