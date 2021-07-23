@@ -12,7 +12,6 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,65 +19,67 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface FulfillInterpreterInterface extends ethers.utils.Interface {
+interface ProposedOwnableInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x96d668da(bytes32)": FunctionFragment;
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
-    "getTransactionManager()": FunctionFragment;
+    "acceptProposedOwner()": FunctionFragment;
+    "c_0x3826e04d(bytes32)": FunctionFragment;
+    "delay()": FunctionFragment;
     "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "proposeNewOwner(address)": FunctionFragment;
+    "proposed()": FunctionFragment;
+    "proposedTimestamp()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x3826e04d",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTransactionManager",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
+    functionFragment: "proposeNewOwner",
     values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getTransactionManager",
+    functionFragment: "c_0x3826e04d",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
+    functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "transferOwnership",
+    functionFragment: "proposedTimestamp",
     data: BytesLike
   ): Result;
 
   events: {
+    "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export class FulfillInterpreter extends BaseContract {
+export class ProposedOwnable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -119,92 +120,81 @@ export class FulfillInterpreter extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: FulfillInterpreterInterface;
+  interface: ProposedOwnableInterface;
 
   functions: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getTransactionManager(overrides?: CallOverrides): Promise<[string]>;
+    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    renounceOwnership(
+    proposeNewOwner(
+      newlyProposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  c_0x96d668da(
-    c__0x96d668da: BytesLike,
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  c_0x3826e04d(
+    c__0x3826e04d: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
-  execute(
-    callTo: string,
-    assetId: string,
-    fallbackAddress: string,
-    amount: BigNumberish,
-    callData: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getTransactionManager(overrides?: CallOverrides): Promise<string>;
+  delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  renounceOwnership(
+  proposeNewOwner(
+    newlyProposed: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getTransactionManager(overrides?: CallOverrides): Promise<string>;
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
+    proposeNewOwner(
+      newlyProposed: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
+    OwnershipProposed(
+      proposedOwner?: string | null
+    ): TypedEventFilter<[string], { proposedOwner: string }>;
+
     OwnershipTransferred(
       previousOwner?: string | null,
       newOwner?: string | null
@@ -215,62 +205,50 @@ export class FulfillInterpreter extends BaseContract {
   };
 
   estimateGas: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getTransactionManager(overrides?: CallOverrides): Promise<BigNumber>;
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
+    proposeNewOwner(
+      newlyProposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTransactionManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
+    proposeNewOwner(
+      newlyProposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

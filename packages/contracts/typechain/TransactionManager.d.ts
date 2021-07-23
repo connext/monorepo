@@ -24,25 +24,29 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   functions: {
     "MAX_TIMEOUT()": FunctionFragment;
     "MIN_TIMEOUT()": FunctionFragment;
+    "acceptProposedOwner()": FunctionFragment;
     "addAssetId(address)": FunctionFragment;
     "addLiquidity(uint256,address,address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
+    "c_0x3826e04d(bytes32)": FunctionFragment;
+    "c_0xd8190500(bytes32)": FunctionFragment;
     "cancel(tuple,uint256,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
+    "delay()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
     "interpreter()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "proposeNewOwner(address)": FunctionFragment;
+    "proposed()": FunctionFragment;
+    "proposedTimestamp()": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
-    "renounce()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
     "variantTransactionData(bytes32)": FunctionFragment;
   };
 
@@ -52,6 +56,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "MIN_TIMEOUT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptProposedOwner",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
@@ -67,6 +75,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "approvedRouters",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x3826e04d",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xd8190500",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "cancel",
@@ -92,6 +108,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "chainId", values?: undefined): string;
+  encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fulfill",
     values: [
@@ -145,6 +162,15 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeAssetId",
     values: [string]
   ): string;
@@ -156,19 +182,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "renounce", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "routerBalances",
     values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "variantTransactionData",
@@ -181,6 +198,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "MIN_TIMEOUT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
@@ -197,8 +218,17 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "approvedRouters",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x3826e04d",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xd8190500",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "interpreter",
@@ -206,6 +236,15 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
     data: BytesLike
@@ -218,18 +257,9 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerBalances",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -240,6 +270,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   events: {
     "LiquidityAdded(address,address,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
+    "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
@@ -248,6 +279,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionFulfilled"): EventFragment;
@@ -302,6 +334,10 @@ export class TransactionManager extends BaseContract {
 
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     addAssetId(
       assetId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -326,6 +362,16 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     cancel(
       txData: {
         user: string;
@@ -349,6 +395,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     fulfill(
       txData: {
@@ -399,6 +447,15 @@ export class TransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    proposeNewOwner(
+      newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     removeAssetId(
       assetId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -416,14 +473,6 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    renounce(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     routerBalances(
@@ -431,11 +480,6 @@ export class TransactionManager extends BaseContract {
       arg1: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     variantTransactionData(
       arg0: BytesLike,
@@ -446,6 +490,10 @@ export class TransactionManager extends BaseContract {
   MAX_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
   MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
+
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   addAssetId(
     assetId: string,
@@ -467,6 +515,16 @@ export class TransactionManager extends BaseContract {
   approvedAssets(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+  c_0x3826e04d(
+    c__0x3826e04d: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0xd8190500(
+    c__0xd8190500: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   cancel(
     txData: {
@@ -491,6 +549,8 @@ export class TransactionManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   chainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   fulfill(
     txData: {
@@ -541,6 +601,15 @@ export class TransactionManager extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  proposeNewOwner(
+    newlyProposed: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
   removeAssetId(
     assetId: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -558,14 +627,6 @@ export class TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  renounce(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   routerBalances(
@@ -573,11 +634,6 @@ export class TransactionManager extends BaseContract {
     arg1: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   variantTransactionData(
     arg0: BytesLike,
@@ -588,6 +644,8 @@ export class TransactionManager extends BaseContract {
     MAX_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     addAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
 
@@ -603,6 +661,16 @@ export class TransactionManager extends BaseContract {
     approvedAssets(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     cancel(
       txData: {
@@ -659,6 +727,8 @@ export class TransactionManager extends BaseContract {
     >;
 
     chainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     fulfill(
       txData: {
@@ -773,6 +843,15 @@ export class TransactionManager extends BaseContract {
       }
     >;
 
+    proposeNewOwner(
+      newlyProposed: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
     removeAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
 
     removeLiquidity(
@@ -784,10 +863,6 @@ export class TransactionManager extends BaseContract {
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
-    renounce(overrides?: CallOverrides): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     routerBalances(
@@ -795,11 +870,6 @@ export class TransactionManager extends BaseContract {
       arg1: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     variantTransactionData(
       arg0: BytesLike,
@@ -827,6 +897,10 @@ export class TransactionManager extends BaseContract {
       [string, string, BigNumber, string],
       { router: string; assetId: string; amount: BigNumber; recipient: string }
     >;
+
+    OwnershipProposed(
+      proposedOwner?: string | null
+    ): TypedEventFilter<[string], { proposedOwner: string }>;
 
     OwnershipTransferred(
       previousOwner?: string | null,
@@ -1112,6 +1186,10 @@ export class TransactionManager extends BaseContract {
 
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<BigNumber>;
 
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     addAssetId(
       assetId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1133,6 +1211,16 @@ export class TransactionManager extends BaseContract {
 
     approvedRouters(
       arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1159,6 +1247,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<BigNumber>;
 
     chainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     fulfill(
       txData: {
@@ -1209,6 +1299,15 @@ export class TransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    proposeNewOwner(
+      newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
     removeAssetId(
       assetId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1226,25 +1325,12 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    renounce(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerBalances(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     variantTransactionData(
@@ -1257,6 +1343,10 @@ export class TransactionManager extends BaseContract {
     MAX_TIMEOUT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIN_TIMEOUT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     addAssetId(
       assetId: string,
@@ -1285,6 +1375,16 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     cancel(
       txData: {
         user: string;
@@ -1308,6 +1408,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fulfill(
       txData: {
@@ -1358,6 +1460,15 @@ export class TransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    proposeNewOwner(
+      newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     removeAssetId(
       assetId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1375,25 +1486,12 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounce(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     routerBalances(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     variantTransactionData(

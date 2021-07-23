@@ -15,17 +15,13 @@ import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils } from "ethers";
 
 // import types
-import { FulfillInterpreter, Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
-import { getOnchainBalance } from "./utils";
+import { Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
+import { assertReceiptEvent, getOnchainBalance, setBlockTime, transferOwnershipOnContract } from "./utils";
 import { getContractError } from "../src";
 
 const { AddressZero } = constants;
 const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
-
-const setBlockTime = async (desiredTimestamp: number) => {
-  await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
-};
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
@@ -98,6 +94,11 @@ describe("TransactionManager", function () {
     );
   });
 
+  const transferOwnership = async (newOwner: string = constants.AddressZero) => {
+    await transferOwnershipOnContract(newOwner, transactionManager);
+    // expect(await transactionManager.renounced()).to.be.eq(newOwner === constants.AddressZero);
+  };
+
   const getTransactionData = async (
     txOverrides: Partial<InvariantTransactionData> = {},
     recordOverrides: Partial<VariantTransactionData> = {},
@@ -118,9 +119,10 @@ describe("TransactionManager", function () {
     };
 
     const day = 24 * 60 * 60;
+    const block = await ethers.provider.getBlock("latest");
     const record = {
       amount: "10",
-      expiry: Math.floor(Date.now() / 1000) + day + 5_000,
+      expiry: block.timestamp + day + 5_000,
       preparedBlockNumber: 10,
       ...recordOverrides,
     };
@@ -133,26 +135,6 @@ describe("TransactionManager", function () {
     await approveTx.wait();
     const allowance = await token.allowance(approver.address, spender);
     expect(allowance).to.be.at.least(amount);
-  };
-
-  const assertObject = (expected: any, returned: any) => {
-    const keys = Object.keys(expected);
-    keys.map((k) => {
-      if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
-        expect(typeof returned[k] === "object");
-        assertObject(expected[k], returned[k]);
-      } else {
-        expect(returned[k]).to.be.deep.eq((expected as any)[k]);
-      }
-    });
-  };
-
-  const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
-    expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
-    expect(idx).to.not.be.eq(-1);
-    const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
-    assertObject(expected, decoded);
   };
 
   const addAndAssertLiquidity = async (
@@ -480,29 +462,24 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("renounce", () => {
-    it("should fail if not called by owner", async () => {
-      await expect(transactionManager.connect(other).renounce()).to.be.revertedWith("Ownable: caller is not the owner");
+  describe("renounced", () => {
+    it("should return false if owner is not renounced", async () => {
+      expect(await transactionManager.renounced()).to.be.false;
     });
 
-    it("should work and allow unregistered assets + revert onlyOwner functions", async () => {
-      const tx = await transactionManager.renounce();
-      await tx.wait();
+    it("should return true if owner is renounced", async () => {
+      // Propose new owner of address(0)
+      await transferOwnership();
+
+      // Check renounced
       expect(await transactionManager.renounced()).to.be.true;
-      await addAndAssertLiquidity(1, AddressZero, router, transactionManager);
-      // make sure `onlyOwner` functions fail
-      await expect(transactionManager.addRouter(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
     });
   });
 
   describe("addRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(transactionManager.connect(other).addRouter(toAdd)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
+      await expect(transactionManager.connect(other).addRouter(toAdd)).to.be.revertedWith("#OO:029");
     });
 
     it("should work", async () => {
@@ -516,9 +493,7 @@ describe("TransactionManager", function () {
   describe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(transactionManager.connect(other).removeRouter(toAdd)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
+      await expect(transactionManager.connect(other).removeRouter(toAdd)).to.be.revertedWith("#OO:029");
     });
 
     it("should work", async () => {
@@ -531,7 +506,7 @@ describe("TransactionManager", function () {
   describe("addAssetId", () => {
     it("should fail if not called by owner", async () => {
       await expect(transactionManager.connect(other).addAssetId(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
+        "#OO:029",
       );
     });
 
@@ -546,7 +521,7 @@ describe("TransactionManager", function () {
   describe("removeAssetId", () => {
     it("should fail if not called by owner", async () => {
       await expect(transactionManager.connect(other).removeAssetId(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
+        "#OO:029",
       );
     });
 
@@ -659,9 +634,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       await addAndAssertLiquidity(amount, assetId, router);
     });
@@ -676,9 +649,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       await addAndAssertLiquidity(amount, assetId);
     });
@@ -833,7 +804,8 @@ describe("TransactionManager", function () {
     it("should revert if invariantData.expiry - block.timestamp < MIN_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const hours12 = 12 * 60 * 60;
-      const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (timestamp + hours12 + 5_000).toString();
       await expect(
         transactionManager
           .connect(user)
@@ -845,7 +817,8 @@ describe("TransactionManager", function () {
 
     it("should revert if invariantData.expiry - block.timestamp == MIN_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
-      const expiry = (await transactionManager.MIN_TIMEOUT()).add(Math.floor(Date.now() / 1000)).toString();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (await transactionManager.MIN_TIMEOUT()).add(timestamp.toString());
       await expect(
         transactionManager
           .connect(user)
@@ -858,7 +831,8 @@ describe("TransactionManager", function () {
     it("should revert if invariantData.expiry - block.timestamp > MAX_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const days31 = 31 * 24 * 60 * 60;
-      const expiry = (Math.floor(Date.now() / 1000) + days31 + 5_000).toString();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (timestamp + days31 + 5_000).toString();
       await expect(
         transactionManager
           .connect(user)
@@ -1004,11 +978,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       // Prepare
+      const tenDays = 10 * 24 * 60 * 60;
+      const { timestamp } = await ethers.provider.getBlock("latest");
       await prepareAndAssert(
         {
           sendingAssetId: AddressZero,
@@ -1016,6 +990,7 @@ describe("TransactionManager", function () {
         },
         {
           amount: prepareAmount,
+          expiry: timestamp + tenDays, // increase expiry to 10 days in future because fast-forwarded
         },
       );
     });
@@ -1030,11 +1005,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       // Prepare
+      const tenDays = 10 * 24 * 60 * 60;
+      const { timestamp } = await ethers.provider.getBlock("latest");
       await prepareAndAssert(
         {
           sendingAssetId: assetId,
@@ -1042,6 +1017,7 @@ describe("TransactionManager", function () {
         },
         {
           amount: prepareAmount,
+          expiry: timestamp + tenDays, // increase expiry to 10 days in future because fast-forwarded
         },
       );
     });

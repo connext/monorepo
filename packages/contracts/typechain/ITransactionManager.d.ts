@@ -31,7 +31,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
-    "renounce()": FunctionFragment;
+    "renounced()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
@@ -122,7 +122,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "renounce", values?: undefined): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
   decodeFunctionResult(
@@ -145,7 +145,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
 
   events: {
     "LiquidityAdded(address,address,uint256,address)": EventFragment;
@@ -307,7 +307,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -413,7 +413,7 @@ export class ITransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  renounce(
+  renounced(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -603,7 +603,7 @@ export class ITransactionManager extends BaseContract {
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
-    renounce(overrides?: CallOverrides): Promise<void>;
+    renounced(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
@@ -1000,7 +1000,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -1107,7 +1107,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

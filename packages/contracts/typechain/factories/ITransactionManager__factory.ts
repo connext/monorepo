@@ -1065,8 +1065,14 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "renounce",
-    outputs: [],
+    name: "renounced",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

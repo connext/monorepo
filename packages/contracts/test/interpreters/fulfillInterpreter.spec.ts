@@ -4,9 +4,9 @@ import { solidity } from "ethereum-waffle";
 use(solidity);
 
 import { constants, Wallet } from "ethers";
-import { Counter, FulfillInterpreter, RevertableERC20 } from "../typechain";
-import { getContractError } from "../src";
-import { getOnchainBalance } from "./utils";
+import { Counter, FulfillInterpreter, RevertableERC20 } from "../../typechain";
+import { getContractError } from "../../src";
+import { getOnchainBalance } from "../utils";
 
 describe("FulfillInterpreter.sol", async () => {
   const createFixtureLoader = waffle.createFixtureLoader;
