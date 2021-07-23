@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -22,18 +21,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x96d668da(bytes32)": FunctionFragment;
     "execute(address,address,address,uint256,bytes)": FunctionFragment;
     "getTransactionManager()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x96d668da",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [string, string, string, BigNumberish, BytesLike]
@@ -42,40 +33,14 @@ interface FulfillInterpreterInterface extends ethers.utils.Interface {
     functionFragment: "getTransactionManager",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "c_0x96d668da",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTransactionManager",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
-  events: {
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  events: {};
 }
 
 export class FulfillInterpreter extends BaseContract {
@@ -122,11 +87,6 @@ export class FulfillInterpreter extends BaseContract {
   interface: FulfillInterpreterInterface;
 
   functions: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     execute(
       callTo: string,
       assetId: string,
@@ -137,23 +97,7 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<[string]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
-
-  c_0x96d668da(
-    c__0x96d668da: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
 
   execute(
     callTo: string,
@@ -166,23 +110,7 @@ export class FulfillInterpreter extends BaseContract {
 
   getTransactionManager(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     execute(
       callTo: string,
       assetId: string,
@@ -193,33 +121,11 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<void>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
-  filters: {
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { previousOwner: string; newOwner: string }
-    >;
-  };
+  filters: {};
 
   estimateGas: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     execute(
       callTo: string,
       assetId: string,
@@ -230,25 +136,9 @@ export class FulfillInterpreter extends BaseContract {
     ): Promise<BigNumber>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     execute(
       callTo: string,
       assetId: string,
@@ -260,17 +150,6 @@ export class FulfillInterpreter extends BaseContract {
 
     getTransactionManager(
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
