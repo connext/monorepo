@@ -281,7 +281,6 @@ export class NxtpSdk {
     return txs;
   }
 
-  // TODO: add slippage tolerance
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
     const method = "getTransferQuote";
     const methodId = getRandomBytes32();
@@ -378,22 +377,34 @@ export class NxtpSdk {
     }
 
     const inbox = generateMessagingInbox();
-    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
+
+    let AuctionBids: AuctionResponse[] = [];
+
+    const receivedResponsePromise = await new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
       this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
         if (err || !data) {
           this.logger.error({ method, methodId, err, data }, "Error in auction response");
-          return;
         }
-
         // dry run, return first response
-        if (!data.bidSignature) {
-          res(data);
+        else if (!data.bidSignature) {
+          AuctionBids.push(data);
           return;
+        } else {
+          AuctionBids.push(data);
+          if (AuctionBids.length >= 5) {
+            return;
+          }
         }
+      });
 
+      AuctionBids.sort((a, b) => {
+        return parseFloat(b.bid.amountReceived) - parseFloat(a.bid.amountReceived);
+      });
+
+      AuctionBids.map(async (data) => {
         // check router sig on bid
-        const signer = recoverAuctionBid(data.bid, data.bidSignature);
+        const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
         if (signer !== data.bid.router) {
           this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
           return;
@@ -440,7 +451,6 @@ export class NxtpSdk {
           );
           return;
         }
-        // TODO: compare multiple responses
 
         this.logger.info({ method, methodId, data }, "Received auction response");
         res(data);
