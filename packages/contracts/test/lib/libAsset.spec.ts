@@ -61,18 +61,17 @@ describe("LibAsset", () => {
     });
 
     it("should return native asset balance if AddressZero", async () => {
-      const amount = BigNumber.from(1);
+      const amount = utils.parseEther("1");
       // const signer = await wallet.getSigner();
 
       await wallet.sendTransaction({
         to: libAssetTest.address,
-        value: utils.parseEther(amount.toString()),
-        gasLimit: 21000,
+        value: amount,
       });
 
       const res = await libAssetTest.getOwnBalance(AddressZero);
       expect(BigNumber.isBigNumber(res)).to.be.true;
-      expect(res).to.be.eq(BigNumber.from(amount));
+      expect(res).to.be.eq(amount);
     });
 
     it("should return Erc20 asset balance if Non-AddressZero", async () => {
