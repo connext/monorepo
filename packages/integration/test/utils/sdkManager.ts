@@ -70,8 +70,9 @@ export class SdkManager {
   async transfer(
     params: Omit<CrossChainParams, "receivingAddress" | "expiry">,
     timeout: number,
+    _agent: SdkAgent,
   ): Promise<transactionInfo> {
-    const agent = this.getRandomAgent();
+    const agent = _agent ?? this.getRandomAgent();
 
     const transactionId = getRandomBytes32();
     const promise = agent.waitFor(SdkAgentEvents.TransactionCompleted, timeout);
@@ -97,8 +98,11 @@ export class SdkManager {
    * @param excluding - (optional) Agent to exclude from selection
    * @returns SdkAgent
    */
-  public getRandomAgent(excluding?: SdkAgent): SdkAgent {
-    const filtered = excluding ? this.agents.filter((n) => n.address !== excluding.address) : [...this.agents];
+  public getRandomAgent(excluding: SdkAgent[] = []): SdkAgent {
+    const filtered = this.agents.filter((n) => {
+      const addrs = excluding.map((e) => e.address);
+      return !addrs.includes(n.address);
+    });
     if (filtered.length === 0) {
       throw new Error("Failed to get random agent");
     }
