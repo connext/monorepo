@@ -88,16 +88,32 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @notice Used to add routers that can transact crosschain
   /// @param router Router address to add
   function addRouter(address router) external override onlyOwner {
+    // Sanity check: not empty
     require(router != address(0), "#AR:001");
+
+    // Sanity check: needs approval
+    require(approvedRouters[router] == false, "#AR:032");
+
+    // Update mapping
     approvedRouters[router] = true;
+
+    // Emit event
     emit RouterAdded(router, msg.sender);
   }
 
   /// @notice Used to remove routers that can transact crosschain
   /// @param router Router address to remove
   function removeRouter(address router) external override onlyOwner {
+    // Sanity check: not empty
     require(router != address(0), "#RR:001");
+
+    // Sanity check: needs removal
+    require(approvedRouters[router] == true, "#RR:033");
+
+    // Update mapping
     approvedRouters[router] = false;
+
+    // Emit event
     emit RouterRemoved(router, msg.sender);
   }
 
@@ -105,7 +121,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   ///         be transferred.
   /// @param assetId AssetId to add
   function addAssetId(address assetId) external override onlyOwner {
+    // Sanity check: needs approval
+    require(approvedAssets[assetId] == false, "#AA:032");
+
+    // Update mapping
     approvedAssets[assetId] = true;
+
+    // Emit event
     emit AssetAdded(assetId, msg.sender);
   }
 
@@ -113,7 +135,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   ///         be transferred.
   /// @param assetId AssetId to remove
   function removeAssetId(address assetId) external override onlyOwner {
+    // Sanity check: already approval
+    require(approvedAssets[assetId] == true, "#RA:033");
+
+    // Update mapping
     approvedAssets[assetId] = false;
+
+    // Emit event
     emit AssetRemoved(assetId, msg.sender);
   }
 

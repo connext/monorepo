@@ -487,6 +487,10 @@ describe("TransactionManager", function () {
       await expect(transactionManager.addRouter(toAdd)).to.be.revertedWith("#AR:001");
     });
 
+    it("should fail if its already added", async () => {
+      await expect(transactionManager.addRouter(router.address)).to.be.revertedWith("#AR:032");
+    });
+
     it("should work", async () => {
       const toAdd = Wallet.createRandom().address;
       const tx = await transactionManager.addRouter(toAdd);
@@ -507,6 +511,13 @@ describe("TransactionManager", function () {
       await expect(transactionManager.removeRouter(toAdd)).to.be.revertedWith("#RR:001");
     });
 
+    it("should fail if its already removed", async () => {
+      const tx = await transactionManager.removeRouter(router.address);
+      await tx.wait();
+
+      await expect(transactionManager.removeRouter(router.address)).to.be.revertedWith("#RR:033");
+    });
+
     it("should work", async () => {
       const tx = await transactionManager.removeRouter(router.address);
       const receipt = await tx.wait();
@@ -520,6 +531,10 @@ describe("TransactionManager", function () {
       await expect(transactionManager.connect(other).addAssetId(Wallet.createRandom().address)).to.be.revertedWith(
         "#OO:029",
       );
+    });
+
+    it("should fail if its already added", async () => {
+      await expect(transactionManager.addAssetId(AddressZero)).to.be.revertedWith("#AA:032");
     });
 
     it("should work", async () => {
@@ -536,6 +551,12 @@ describe("TransactionManager", function () {
       await expect(transactionManager.connect(other).removeAssetId(Wallet.createRandom().address)).to.be.revertedWith(
         "#OO:029",
       );
+    });
+
+    it("should fail if its already removed", async () => {
+      const assetId = Wallet.createRandom().address;
+
+      await expect(transactionManager.removeAssetId(assetId)).to.be.revertedWith("#RA:033");
     });
 
     it("should work", async () => {

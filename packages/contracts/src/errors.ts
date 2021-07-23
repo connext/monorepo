@@ -34,6 +34,8 @@ export const Errors: ErrorsType = {
   "029": "NOT_OWNER",
   "030": "DELAY_NOT_ELAPSED",
   "031": "NOT_CONTRACT",
+  "032": "ALREADY_ADDED",
+  "033": "NOT_ADDED",
 };
 
 type ErrorsPrefixType = {
