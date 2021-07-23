@@ -158,11 +158,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Sanity check: nonzero amounts
     require(amount > 0, "#AL:002");
 
+    // Store renounced() result in memory for gas
+    bool isRenounced = renounced();
+
     // Router is approved
-    require(renounced() || approvedRouters[router], "#AL:003");
+    require(isRenounced || approvedRouters[router], "#AL:003");
 
     // Asset is approved
-    require(renounced() || approvedAssets[assetId], "#AL:004");
+    require(isRenounced || approvedAssets[assetId], "#AL:004");
 
     // Update the router balances
     routerBalances[router][assetId] += amount;
