@@ -457,7 +457,21 @@ export class NxtpSdk {
     const encodedBid = encodeAuctionBid(bid);
 
     if (!this.chainConfig[sendingChainId] || !this.chainConfig[receivingChainId]) {
-      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
+      throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+        method,
+        methodId,
+        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        transactionId,
+      });
+    }
+
+    if (!bidSignature) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        transactionId,
+        paramsError: "bidSignature not available",
+      });
     }
 
     this.logger.info(
