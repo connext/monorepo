@@ -484,14 +484,16 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // locked.
 
         // First, transfer the funds to the helper if needed
-        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+        // Cache in mem for gas
+        bool isEther = LibAsset.isEther(txData.receivingAssetId);
+        if (!isEther && toSend > 0) {
           LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+        interpreter.execute{ value: isEther ? toSend : 0}(
           txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
