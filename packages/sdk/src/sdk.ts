@@ -380,7 +380,7 @@ export class NxtpSdk {
     const inbox = generateMessagingInbox();
     const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
-      this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+      this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
         if (err || !data) {
           this.logger.error({ method, methodId, err, data }, "Error in auction response");
           return;
@@ -399,7 +399,27 @@ export class NxtpSdk {
           return;
         }
 
-        // TODO: check contract for router liquidity
+        // check contract for router liquidity
+        const routerLiq = await this.transactionManager.getRouterLiquidity(
+          receivingChainId,
+          data.bid.router,
+          receivingAssetId,
+        );
+        if (routerLiq.isOk()) {
+          if (routerLiq.value.lt(data.bid.amountReceived)) {
+            this.logger.error(
+              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+              `Router's liquidity low`,
+            );
+            return;
+          }
+        } else {
+          this.logger.error(
+            { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+            routerLiq.error.message,
+          );
+          return;
+        }
 
         // check if the price changes unfovorably by more than the slippage tolerance(percentage).
         const priceImpact = ((parseFloat(data.bid.amountReceived) - parseFloat(amount)) / parseFloat(amount)) * 100;
