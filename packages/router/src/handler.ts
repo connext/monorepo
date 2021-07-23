@@ -13,10 +13,12 @@ import {
   NxtpError,
   Values,
   NxtpErrorJson,
+  recoverAuctionBid,
+  decodeAuctionBid,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
 import hyperid from "hyperid";
-import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
+import { combine, err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
 import { getConfig } from "./config";
@@ -65,6 +67,8 @@ export class HandlerError extends NxtpError {
     TxServiceError: "Error from Transaction Service",
     TxAlreadyPrepared: "Transaction already prepared",
     AuctionValidationError: "Error validating auction params",
+    EncodeError: "Error encoding",
+    PrepareValidationError: "Error validating sender prepare",
   };
 
   constructor(
@@ -73,6 +77,8 @@ export class HandlerError extends NxtpError {
       auctionError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
       txServiceError?: NxtpErrorJson;
+      encodingError?: NxtpErrorJson;
+      prepareError?: string;
       methodId: string;
       method: string;
       calling: string;
@@ -99,7 +105,7 @@ export const getBidExpiry = () => Math.floor(Date.now() / 1000) + 60 * 5;
 export class Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly subgraph: Subgraph,
+    private readonly _subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,
@@ -415,15 +421,72 @@ export class Handler {
 
     const { txData, bidSignature, encodedBid, encryptedCallData, amount } = inboundData;
 
-    // TODO: what if theres never a fulfill, where does receiver cancellation
-    // get handled? sender + receiver cancellation?
-
     // Validate the prepare data
     // TODO what needs to be validated here? Is this necessary? Assumption
     // that user is only sending stuff that makes sense is possibly ok since otherwise
     // they're losing gas costs
 
-    //calculateExchange
+    let bid: AuctionBid;
+    const validationRes = Result.fromThrowable(
+      decodeAuctionBid,
+      (err) =>
+        new HandlerError(HandlerError.reasons.EncodeError, {
+          method,
+          methodId,
+          calling: "decodeAuctionBid",
+          encodingError: jsonifyError(err as Error),
+        }),
+    )(encodedBid)
+      .andThen((_bid) => {
+        bid = _bid;
+        return Result.fromThrowable(
+          recoverAuctionBid,
+          (err) =>
+            new HandlerError(HandlerError.reasons.EncodeError, {
+              method,
+              methodId,
+              calling: "recoverAuctionBid",
+              encodingError: jsonifyError(err as Error),
+            }),
+        )(bid, bidSignature);
+      })
+      .andThen((recovered) => {
+        if (recovered !== this.signer.address) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              prepareError: "recovered !== this.signer.address",
+            }),
+          );
+        }
+        return ok(undefined);
+      })
+      .andThen(() => {
+        // TODO: anything else? seems unnecessary to validate everything
+        if (bid.amount !== amount || bid.transactionId !== txData.transactionId) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              prepareError: "Bid params not equal to tx data",
+            }),
+          );
+        }
+        return ok(undefined);
+      });
+
+    if (validationRes.isOk()) {
+      //
+    } else {
+      this.logger.error(
+        { method, methodId, transactionId: txData.transactionId, err: jsonifyError(validationRes.error as Error) },
+        "Error during validation",
+      );
+      // TODO: maybe cancel here
+    }
 
     // Next, prepare the outbound data
     // Must have:
