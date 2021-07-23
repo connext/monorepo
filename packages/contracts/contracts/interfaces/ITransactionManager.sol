@@ -48,17 +48,11 @@ interface ITransactionManager {
     uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
   }
 
-  // The structure of the signed data for cancellations
-  struct SignedCancelData {
-    bytes32 transactionId;
-    uint256 relayerFee;
-    string cancel; // just the string "cancel"
-  }
-
   // The structure of the signed data for fulfill
-  struct SignedFulfillData {
+  struct SignedData {
     bytes32 transactionId;
     uint256 relayerFee;
+    string functionIdentifier; // "fulfill" or "cancel"
   }
 
   // Adding/removing asset events
