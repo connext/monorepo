@@ -488,6 +488,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
         interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+          txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
           payable(txData.receivingAddress),

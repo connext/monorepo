@@ -6,7 +6,8 @@ use(solidity);
 import { constants, Wallet } from "ethers";
 import { Counter, FulfillInterpreter, RevertableERC20 } from "../../typechain";
 import { getContractError } from "../../src";
-import { getOnchainBalance } from "../utils";
+import { assertReceiptEvent, getOnchainBalance } from "../utils";
+import { getRandomBytes32 } from "@connext/nxtp-utils";
 
 describe("FulfillInterpreter.sol", async () => {
   const createFixtureLoader = waffle.createFixtureLoader;
@@ -54,7 +55,9 @@ describe("FulfillInterpreter.sol", async () => {
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, wallet.address, amount]);
 
       await expect(
-        fulfillInterpreter.connect(other).execute(counter.address, assetId, other.address, amount, data),
+        fulfillInterpreter
+          .connect(other)
+          .execute(getRandomBytes32(), counter.address, assetId, other.address, amount, data),
       ).to.be.revertedWith(getContractError("onlyTransactionManager: NOT_TRANSACTION_MANAGER"));
     });
 
@@ -62,14 +65,25 @@ describe("FulfillInterpreter.sol", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
+      const transactionId = getRandomBytes32();
 
       const preExecute = await counter.count();
       const balance = await getOnchainBalance(assetId, other.address, ethers.provider);
 
       const tx = await fulfillInterpreter
         .connect(wallet)
-        .execute(counter.address, assetId, other.address, amount, data, { value: amount });
-      await tx.wait();
+        .execute(transactionId, counter.address, assetId, other.address, amount, data, { value: amount });
+      const receipt = await tx.wait();
+      assertReceiptEvent(receipt, "Executed", {
+        transactionId,
+        callTo: counter.address,
+        assetId,
+        fallbackAddress: other.address,
+        amount,
+        callData: data,
+        returnData: "0x",
+        success: true,
+      });
 
       expect(await counter.count()).to.be.eq(preExecute.add(1));
       expect(await getOnchainBalance(assetId, other.address, ethers.provider)).to.be.eq(balance.add(amount));
@@ -79,6 +93,7 @@ describe("FulfillInterpreter.sol", async () => {
       const amount = "1000";
       const assetId = token.address;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
+      const transactionId = getRandomBytes32();
 
       const transferTx = await token.transfer(fulfillInterpreter.address, amount);
       await transferTx.wait();
@@ -88,8 +103,18 @@ describe("FulfillInterpreter.sol", async () => {
 
       const tx = await fulfillInterpreter
         .connect(wallet)
-        .execute(counter.address, assetId, other.address, amount, data);
-      await tx.wait();
+        .execute(transactionId, counter.address, assetId, other.address, amount, data);
+      const receipt = await tx.wait();
+      assertReceiptEvent(receipt, "Executed", {
+        transactionId,
+        callTo: counter.address,
+        assetId,
+        fallbackAddress: other.address,
+        amount,
+        callData: data,
+        returnData: "0x",
+        success: true,
+      });
 
       expect(await counter.count()).to.be.eq(preExecute.add(1));
       expect(await getOnchainBalance(assetId, other.address, ethers.provider)).to.be.eq(balance.add(amount));
@@ -99,6 +124,7 @@ describe("FulfillInterpreter.sol", async () => {
       const amount = "1000";
       const assetId = token.address;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
+      const transactionId = getRandomBytes32();
 
       const transferTx = await token.transfer(fulfillInterpreter.address, amount);
       await transferTx.wait();
@@ -113,8 +139,18 @@ describe("FulfillInterpreter.sol", async () => {
 
       const tx = await fulfillInterpreter
         .connect(wallet)
-        .execute(counter.address, assetId, wallet.address, amount, data);
-      await tx.wait();
+        .execute(transactionId, counter.address, assetId, wallet.address, amount, data);
+      const receipt = await tx.wait();
+      // TODO: whats the calldata returned when a revert happens?
+      assertReceiptEvent(receipt, "Executed", {
+        transactionId,
+        callTo: counter.address,
+        assetId,
+        fallbackAddress: wallet.address,
+        amount,
+        callData: data,
+        success: false,
+      });
 
       // Check count was not incremented
       expect(await counter.count()).to.be.eq(preExecute);

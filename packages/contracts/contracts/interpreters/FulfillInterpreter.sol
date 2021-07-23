@@ -23,6 +23,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter, Ownable {
   }
 
   function execute(
+    bytes32 transactionId,
     address payable callTo,
     address assetId,
     address payable fallbackAddress,
@@ -37,7 +38,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter, Ownable {
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
-    (bool success,) = callTo.call{value: isEther ? amount : 0}(callData);
+    (bool success, bytes memory returnData) = callTo.call{value: isEther ? amount : 0}(callData);
 
     if (!success) {
       // If it fails, transfer to fallback
@@ -47,5 +48,17 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter, Ownable {
         LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
       }
     }
+
+    // Emit event
+    emit Executed(
+      transactionId,
+      callTo,
+      assetId,
+      fallbackAddress,
+      amount,
+      callData,
+      returnData,
+      success
+    );
   }
 }
