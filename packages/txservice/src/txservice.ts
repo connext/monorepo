@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import { Signer, providers, BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";

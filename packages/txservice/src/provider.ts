@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
