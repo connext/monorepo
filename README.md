@@ -180,6 +180,8 @@ The router will now hot reload and allow easy testing/debug.
 
 Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
 
+When you are done, you can run `yarn docker:stop:all` to halt all running services.
+
 ## Publishing Packages
 
 - Update the [`CHANGELOG.md`](./CHANGELOG.md).
