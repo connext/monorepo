@@ -57,14 +57,14 @@ export class TransactionManagerListener {
         callDataHash: txData.callDataHash,
         transactionId: txData.transactionId,
         preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
-        amount: txData.amount.toString(),
+        shares: txData.shares.toString(),
         expiry: txData.expiry,
       };
     };
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
-      (_user, _router, _transactionId, _txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+      (_user, _router, _transactionId, _txData, amount, caller, encryptedCallData, encodedBid, bidSignature) => {
         const txData = processTxData(_txData);
         this.logger.info(
           { txData, caller, encryptedCallData, encodedBid, bidSignature },
@@ -72,6 +72,7 @@ export class TransactionManagerListener {
         );
         const payload: TransactionPreparedEvent = {
           txData,
+          amount,
           caller,
           encryptedCallData,
           encodedBid,

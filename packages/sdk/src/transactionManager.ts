@@ -308,8 +308,12 @@ export class TransactionManager {
     });
   }
 
-  getLiquidity(chainId: number, router: string, assetId: string): ResultAsync<BigNumber, TransactionManagerError> {
-    const method = "Contract::getLiquidity";
+  getRouterLiquidity(
+    chainId: number,
+    router: string,
+    assetId: string,
+  ): ResultAsync<BigNumber, TransactionManagerError> {
+    const method = "Contract::getRouterLiquidity";
     const methodId = hId();
 
     const txManager = this.chainConfig[chainId].transactionManager;
@@ -323,7 +327,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      txManager.routerBalances(router, assetId),
+      txManager.issuedShares(router, assetId),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
           method,

@@ -26,6 +26,7 @@ export const getSenderTransactionsQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       encryptedCallData
@@ -64,6 +65,7 @@ export const getReceiverTransactionsQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       encryptedCallData
@@ -98,6 +100,7 @@ export const getTransactionByIdQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       encryptedCallData
@@ -135,6 +138,7 @@ export const getTransactionsByIdsQuery = gql`
       callDataHash
       transactionId
       amount
+      shares
       expiry
       preparedBlockNumber
       relayerFee

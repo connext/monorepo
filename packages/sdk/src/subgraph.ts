@@ -32,7 +32,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
     sendingChainId: parseInt(transaction.sendingChainId),
     sendingAssetId: transaction.sendingAssetId,
     sendingChainFallback: transaction.sendingChainFallback,
-    amount: transaction.amount,
+    shares: transaction.shares,
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,

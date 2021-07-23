@@ -39,6 +39,9 @@ import {
 import { TransactionManagerEvents } from "./listener";
 import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
+export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
+
 declare const ethereum: any;
 
 export const CrossChainParamsSchema = Type.Object({
@@ -50,7 +53,7 @@ export const CrossChainParamsSchema = Type.Object({
   callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
-  expiry: Type.Number(),
+  expiry: Type.Optional(Type.Number()),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
 });
 
@@ -150,17 +153,23 @@ export class NxtpSdkError extends NxtpError {
     SigningError: "Signing error",
     MessagingError: "Messaging error",
     TxError: "Transaction Error",
+    ParamsError: "Invalid Parameters",
+    ConfigError: "Invalid Config",
+    AuctionError: "Auction Error",
   };
 
   constructor(
     public readonly message: Values<typeof TransactionManagerError.reasons> | string,
     public readonly context: {
+      paramsError?: string;
+      configError?: string;
       transactionId: string;
       methodId: string;
       method: string;
       txError?: NxtpErrorJson;
       signerError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
+      auctionError?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
@@ -279,15 +288,42 @@ export class NxtpSdk {
     if (!valid) {
       const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
       this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid transfer params");
-      throw new Error(`Invalid params - ${error}`);
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: params.transactionId ?? "",
+      });
     }
 
     const user = await this.signer.getAddress();
 
-    const { sendingAssetId, sendingChainId, amount, receivingChainId, receivingAssetId, receivingAddress, expiry } =
-      params;
+    const {
+      sendingAssetId,
+      sendingChainId,
+      amount,
+      receivingChainId,
+      receivingAssetId,
+      receivingAddress,
+      expiry: _expiry,
+    } = params;
     if (!this.chainConfig[sendingChainId] || !this.chainConfig[receivingChainId]) {
-      throw new Error(`Not configured for for chains ${sendingChainId} & ${receivingChainId}`);
+      throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+        method,
+        methodId,
+        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
+    const expiry = _expiry ?? getExpiry();
+    if (expiry - Date.now() / 1000 < getMinExpiryBuffer()) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Expiry too short, must be at least ${Date.now() / 1000 + getMinExpiryBuffer()}`,
+        transactionId: params.transactionId ?? "",
+      });
     }
 
     const transactionId = params.transactionId ?? getRandomBytes32();
@@ -305,13 +341,17 @@ export class NxtpSdk {
           params: [user], // you must have access to the specified account
         });
       } catch (error) {
+        let paramsError = "Error getting encryption key";
         if (error.code === 4001) {
           // EIP-1193 userRejectedRequest error
-          this.logger.info({ method, methodId }, "We can't encrypt anything without the key.");
-        } else {
-          this.logger.error({ method, methodId, error }, "Error getting encryption key");
+          paramsError = "User rejected encryption key request";
         }
-        throw error;
+        throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+          method,
+          methodId,
+          paramsError,
+          transactionId: params.transactionId ?? "",
+        });
       }
 
       encryptedCallData = await encrypt(callData, encryptionPublicKey);
@@ -368,7 +408,12 @@ export class NxtpSdk {
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
       return auctionResponse;
     } catch (e) {
-      throw new Error("No response received");
+      throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+        method,
+        methodId,
+        transactionId,
+        auctionError: "No response received",
+      });
     }
   }
 
