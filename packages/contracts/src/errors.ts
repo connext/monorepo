@@ -2,6 +2,9 @@ type ErrorsType = {
   [key: string]: string;
 };
 
+/**
+ * @remarks Maps the error codes to human readable strings
+ */
 export const Errors: ErrorsType = {
   "001": "ROUTER_EMPTY",
   "002": "AMOUNT_IS_ZERO",
@@ -36,17 +39,24 @@ export const Errors: ErrorsType = {
   "031": "NOT_CONTRACT",
   "032": "ALREADY_ADDED",
   "033": "NOT_ADDED",
+  "034": "NO_NATIVE_ASSET",
 };
 
 type ErrorsPrefixType = {
   [key: string]: string;
 };
+
+/**
+ * @remarks Describes the prefixex used throughout the contracts to indicate which function the error originates from
+ */
 export const ErrorsPrefix: ErrorsPrefixType = {
   "#AL": "addLiquidity",
   "#RL": "removeLiquidity",
   "#P": "prepare",
   "#F": "fulfill",
   "#C": "cancel",
+  "#IA": "increaseERC20Allowance",
+  "#DA": "decreaseERC20Allowance",
   "#OTM": "onlyTransactionManager",
   "#TE": "transferEther",
   "#APO": "acceptProposedOwner",
@@ -55,6 +65,12 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#RR": "removeRouter",
 };
 
+/**
+ * Gets the human readable error from the string returned from the contract
+ *
+ * @param error - Contract error thrown
+ * @returns Human readable error string
+ */
 export const getFullError = (error: string): string => {
   const [prefix, index] = error.split(":");
 
@@ -63,6 +79,12 @@ export const getFullError = (error: string): string => {
   return fullError;
 };
 
+/**
+ * Gets the contract error from the human readable string
+ *
+ * @param error - Contract error
+ * @returns Human readable translation of the error
+ */
 export const getContractError = (error: string): string => {
   const [prefix_value, error_value] = error.split(":");
 

@@ -1,5 +1,11 @@
 export type Values<E> = E[keyof E];
 
+/**
+ * Converts an error into a json object
+ *
+ * @param error - Error to convert
+ * @returns An error json
+ */
 export const jsonifyError = (error: NxtpError | Error): NxtpErrorJson => {
   if ((error as any).type) {
     return (error as NxtpError).toJson();
@@ -20,6 +26,11 @@ export type NxtpErrorJson = {
   stack?: string;
 };
 
+/**
+ * @classdesc The error class used throughout this repo. Defines a context object in addition to the standard message and name fields. The context can hold any information in json form that is relevant to the error
+ *
+ * Is also able to be hydrated from a json
+ */
 export class NxtpError extends Error {
   static readonly reasons: { [key: string]: string };
 
