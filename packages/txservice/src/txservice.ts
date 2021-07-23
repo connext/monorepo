@@ -139,11 +139,14 @@ export class TransactionService {
         } catch (e) {
           // Check if the error was a confirmation timeout.
           if (e.message === ChainError.reasons.ConfirmationTimeout) {
+
+            // NOTE: REMOVE - THIS SHOULD NEVER HAPPEN
             // If nonce expired, and we were unable to confirm, something went wrong and there's
             // no reason to continue.
             if (transaction.nonceExpired) {
               throw new ChainError(ChainError.reasons.NonceExpired, { method });
             }
+
             // Bump the gas price up a bit for the next transaction attempt.
             transaction.bumpGasPrice();
             // Resubmit.
