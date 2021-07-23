@@ -31,6 +31,8 @@ export const Errors: ErrorsType = {
   "026": "RECEIVING_ADDRESS_EMPTY",
   "027": "NOT_TRANSACTION_MANAGER",
   "028": "TRANSFER_FAILED",
+  "029": "NOT_OWNER",
+  "030": "DELAY_NOT_ELAPSED",
 };
 
 type ErrorsPrefixType = {
@@ -44,6 +46,8 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#C": "cancel",
   "#OTM": "onlyTransactionManager",
   "#TE": "transferEther",
+  "#APO": "acceptProposedOwner",
+  "#OO": "onlyOwner",
 };
 
 export const getFullError = (error: string): string => {

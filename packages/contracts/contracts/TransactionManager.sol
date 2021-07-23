@@ -4,8 +4,8 @@ pragma solidity 0.8.4;
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./interpreters/FulfillInterpreter.sol";
+import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -48,7 +48,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         unilaterally by the person owed funds on that chain (router for 
 ///         sending chain, user for receiving chain) prior to expiry.
 
-contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
+contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
@@ -57,9 +57,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
   /// @dev Mapping of allowed assetIds on same chain of contract
   mapping(address => bool) public approvedAssets;
-
-  /// @dev Indicates if the ownership has been renounced
-  bool public renounced = false;
 
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
@@ -81,11 +78,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     interpreter = new FulfillInterpreter(address(this));
   }
 
-  /// @notice Removes any ownership privelenges. Used to allow 
-  ///         arbitrary assets and routers
-  function renounce() external override onlyOwner {
-    renounced = true;
-    renounceOwnership();
+  /// @notice Indicates if the ownership has been renounced() by
+  ///         checking if current owner is address(0)
+  function renounced() public view override returns (bool) {
+    return owner() == address(0);
   }
 
   /// @notice Used to add routers that can transact crosschain
@@ -128,10 +124,10 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(amount > 0, "#AL:002");
 
     // Router is approved
-    require(renounced || approvedRouters[router], "#AL:003");
+    require(renounced() || approvedRouters[router], "#AL:003");
 
     // Asset is approved
-    require(renounced || approvedAssets[assetId], "#AL:004");
+    require(renounced() || approvedAssets[assetId], "#AL:004");
 
     // Update the router balances
     routerBalances[router][assetId] += amount;
@@ -226,7 +222,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require(invariantData.router != address(0), "#P:001");
 
     // Router is approved
-    require(renounced || approvedRouters[invariantData.router], "#P:003");
+    require(renounced() || approvedRouters[invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "#P:010");
@@ -247,9 +243,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
 
     // Assets are approved
-    require(renounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
+    require(renounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
-    require(renounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
+    require(renounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
 
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));

@@ -98,9 +98,10 @@ interface ITransactionManager {
     address caller
   );
 
-  // Owner only methods
-  function renounce() external;
+  // Helper methods
+  function renounced() external returns (bool);
 
+  // Owner only methods
   function addRouter(address router) external;
 
   function removeRouter(address router) external;
