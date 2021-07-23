@@ -14,7 +14,7 @@ import {
   Values,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import hyperid from "hyperid";
 import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
@@ -140,11 +140,11 @@ export class Handler {
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
-    const result = await this.subgraph
-      .getRouterShares(receivingAssetId, receivingChainId)
-      .andThen((availableLiquidity) => {
+    const result = await this.txManager
+      .getRouterBalance(receivingChainId, receivingAssetId) // TODO: try to use subgraph or something else
+      .andThen((balance) => {
         // validate liquidity
-        if (availableLiquidity.lt(amountReceived)) {
+        if (balance.lt(amountReceived)) {
           return errAsync(
             new HandlerError(HandlerError.reasons.AuctionValidationError, {
               calling: "",
@@ -154,7 +154,7 @@ export class Handler {
                 message: "Not enough availble liquidity for auction",
                 type: "Validation",
                 context: {
-                  availableLiquidity: availableLiquidity.toString(),
+                  balance: balance.toString(),
                   amount,
                   receivingAssetId,
                   receivingChainId,
@@ -190,6 +190,37 @@ export class Handler {
             }),
           );
         }
+
+        const allowedSwap = config.swapPools.find(
+          (pool) =>
+            pool.assets.find(
+              (a) => utils.getAddress(a.assetId) === utils.getAddress(sendingAssetId) && a.chainId === sendingChainId,
+            ) &&
+            pool.assets.find(
+              (a) =>
+                utils.getAddress(a.assetId) === utils.getAddress(receivingAssetId) && a.chainId === receivingChainId,
+            ),
+        );
+        if (!allowedSwap) {
+          return errAsync(
+            new HandlerError(HandlerError.reasons.AuctionValidationError, {
+              calling: "",
+              methodId,
+              method,
+              auctionError: {
+                message: "Allowed swap not part of config",
+                type: "Validation",
+                context: {
+                  sendingAssetId,
+                  sendingChainId,
+                  receivingChainId,
+                  receivingAssetId,
+                },
+              },
+            }),
+          );
+        }
+
         return combine([
           ResultAsync.fromPromise(
             this.txService.getBalance(sendingChainId, this.signer.address),
