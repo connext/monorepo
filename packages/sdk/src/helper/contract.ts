@@ -6,7 +6,7 @@ export const getTransactionManagerContractAddress = (chainId: number): string =>
   // just for testing
   let address: string;
   if ([1337, 1338].includes(chainId)) {
-    address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+    address = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
   } else {
     const record = (contractDeployments as any)[String(chainId)] ?? {};
     const name = Object.keys(record)[0];

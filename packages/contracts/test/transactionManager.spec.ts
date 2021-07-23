@@ -32,7 +32,6 @@ describe("TransactionManager", function () {
   const [wallet, router, user, receiver, other] = waffle.provider.getWallets() as Wallet[];
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
-  let fulfillInterpreter: FulfillInterpreter;
   let counter: Counter;
   let tokenA: RevertableERC20;
   let tokenB: RevertableERC20;
@@ -43,18 +42,9 @@ describe("TransactionManager", function () {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
     const counterFactory = await ethers.getContractFactory("Counter");
     const RevertableERC20Factory = await ethers.getContractFactory("RevertableERC20");
-    const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    fulfillInterpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
-
-    transactionManager = (await transactionManagerFactory.deploy(
-      sendingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
-      receivingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
 
     tokenA = (await RevertableERC20Factory.deploy()) as RevertableERC20;
     tokenB = (await RevertableERC20Factory.deploy()) as RevertableERC20;
@@ -480,6 +470,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.chainId()).to.eq(1337);
     });
 
+    it("should set interpreter", async () => {
+      const addr = await transactionManager.interpreter();
+      expect(utils.isAddress(addr)).to.be.true;
+    });
+
     it("should set renounced", async () => {
       expect(await transactionManager.renounced()).to.be.false;
     });
@@ -887,6 +882,28 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith(getContractError("prepare: DIGEST_EXISTS"));
     });
 
+    it("should fail if its not renounced && invariantData.sendingAssetId != an approved asset", async () => {
+      const { transaction, record } = await getTransactionData({ sendingAssetId: Wallet.createRandom().address });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
+    });
+
+    it("should fail if its not renounced && invariantData.receivingAssetId != an approved asset", async () => {
+      const { transaction, record } = await getTransactionData({ receivingAssetId: Wallet.createRandom().address });
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
+    });
+
     describe("failures when preparing on the sender chain", () => {
       it("should fail if amount is 0", async () => {
         const { transaction, record } = await getTransactionData({}, { amount: "0" });
@@ -897,17 +914,6 @@ describe("TransactionManager", function () {
               value: record.amount,
             }),
         ).to.be.revertedWith(getContractError("prepare: AMOUNT_IS_ZERO"));
-      });
-
-      it("should fail if its not renounced && invariantData.sendingAssetId != an approved asset", async () => {
-        const { transaction, record } = await getTransactionData({ sendingAssetId: Wallet.createRandom().address });
-        await expect(
-          transactionManager
-            .connect(user)
-            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-              value: record.amount,
-            }),
-        ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
       });
 
       it("should revert if msg.value == 0 && invariantData.sendingAssetId == native token", async () => {

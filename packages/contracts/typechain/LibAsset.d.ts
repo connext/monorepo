@@ -11,8 +11,6 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
-  Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,31 +18,25 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface IFulfillInterpreterInterface extends ethers.utils.Interface {
+interface LibAssetInterface extends ethers.utils.Interface {
   functions: {
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
-    "getTransactionManager()": FunctionFragment;
+    "c_0x6438e3c1(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTransactionManager",
-    values?: undefined
+    functionFragment: "c_0x6438e3c1",
+    values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getTransactionManager",
+    functionFragment: "c_0x6438e3c1",
     data: BytesLike
   ): Result;
 
   events: {};
 }
 
-export class IFulfillInterpreter extends BaseContract {
+export class LibAsset extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -85,78 +77,40 @@ export class IFulfillInterpreter extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: IFulfillInterpreterInterface;
+  interface: LibAssetInterface;
 
   functions: {
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getTransactionManager(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
-  execute(
-    callTo: string,
-    assetId: string,
-    fallbackAddress: string,
-    amount: BigNumberish,
-    callData: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getTransactionManager(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  c_0x6438e3c1(
+    c__0x6438e3c1: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   callStatic: {
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getTransactionManager(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    execute(
-      callTo: string,
-      assetId: string,
-      fallbackAddress: string,
-      amount: BigNumberish,
-      callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getTransactionManager(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    c_0x6438e3c1(
+      c__0x6438e3c1: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

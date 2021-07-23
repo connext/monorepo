@@ -9,6 +9,7 @@ use(solidity);
 import { LibAssetTest } from "../../typechain/LibAssetTest";
 import { TestERC20 } from "../../typechain/TestERC20";
 import { BigNumber, constants } from "ethers";
+import { getContractError } from "../../src";
 
 const { AddressZero } = constants;
 
@@ -88,16 +89,17 @@ describe("LibAsset", () => {
 
   describe("#transferEther", () => {
     it("should fail if transferring ether fails", async () => {
-      await expect(libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000))).to.be.reverted;
+      await expect(
+        libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000)),
+      ).to.be.revertedWith("#TE:028");
     });
 
-    it.skip("happy case: transferEther", async () => {
+    it("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
 
       await wallet.sendTransaction({
         to: libAssetTest.address,
         value: utils.parseEther(amount.toString()),
-        gasLimit: 21000,
       });
 
       await libAssetTest.connect(wallet).transferEther(receiver.address, amount);
