@@ -142,7 +142,7 @@ export class SdkManager {
         shortest,
         created: Object.entries(this.transactionInfo).length,
         completed: times.length,
-        cancelled: errored.length,
+        failed: errored.length,
       },
       "Transfer summary",
     );

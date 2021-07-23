@@ -3,7 +3,6 @@ import PriorityQueue from "p-queue";
 
 import { SdkAgent } from "../utils/sdkAgent";
 import { SdkManager, TransactionInfo } from "../utils/sdkManager";
-import { logger } from "ethers";
 
 const TIMEOUT = 15 * 60 * 100; // 15m in ms
 
@@ -53,10 +52,10 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       successful: results.length - errored.length,
       concurrency,
     };
-    logger.info(loopStats, "Increasing concurrency");
+    log.info(loopStats, "Increasing concurrency");
   }
 
-  logger.info({ maxConcurrency }, "Test complete");
+  log.info({ maxConcurrency }, "Test complete");
 };
 
 routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));
