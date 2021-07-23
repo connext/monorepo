@@ -55,6 +55,7 @@ export const CrossChainParamsSchema = Type.Object({
   amount: TIntegerString,
   expiry: Type.Optional(Type.Number()),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
+  dryRun: Type.Optional(Type.Boolean()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -307,6 +308,7 @@ export class NxtpSdk {
       receivingAssetId,
       receivingAddress,
       expiry: _expiry,
+      dryRun,
     } = params;
     if (!this.chainConfig[sendingChainId] || !this.chainConfig[receivingChainId]) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
@@ -371,6 +373,12 @@ export class NxtpSdk {
           return;
         }
 
+        // dry run, return first response
+        if (!data.bidSignature) {
+          res(data);
+          return;
+        }
+
         // check router sig on bid
         const signer = recoverAuctionBid(data.bid, data.bidSignature);
         if (signer !== data.bid.router) {
@@ -402,6 +410,7 @@ export class NxtpSdk {
         encryptedCallData,
         expiry,
         transactionId,
+        dryRun: !!dryRun,
       },
       inbox,
     );

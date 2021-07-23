@@ -259,7 +259,7 @@ export type AuctionBid = {
 
 export type AuctionResponse = {
   bid: AuctionBid;
-  bidSignature: string;
+  bidSignature?: string; // not included in dry run
 };
 
 export type MetaTxPayloads = {

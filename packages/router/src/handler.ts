@@ -135,6 +135,7 @@ export class Handler {
       callTo,
       transactionId,
       receivingAddress,
+      dryRun,
     } = data;
 
     // validate that assets/chains are supported and there is enough liquidity
@@ -318,7 +319,7 @@ export class Handler {
       .andThen((bidSignature) => {
         this.logger.info({ methodId, method, bidSignature }, "Signed bid");
         return ResultAsync.fromPromise(
-          this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature }),
+          this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature: dryRun ? undefined : bidSignature }),
           (err) =>
             new HandlerError(HandlerError.reasons.MessagingError, {
               calling: "messagingService.publishAuctionResponse",
