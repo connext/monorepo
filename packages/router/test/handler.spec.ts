@@ -82,10 +82,11 @@ describe("Handler", () => {
       encryptedCallData: "0x",
       callDataHash: mkBytes32("0xb"),
       callTo: mkAddress("0xe"),
+      dryRun: false,
     };
 
     beforeEach(() => {
-      subgraph.getAssetBalance.returns(okAsync(BigNumber.from(100)));
+      subgraph.getRouterShares.returns(okAsync(BigNumber.from(100)));
       txService.getBalance.resolves(parseEther("1"));
     });
 
@@ -141,7 +142,7 @@ describe("Handler", () => {
           receivingChainId: ethPrepareDataMock.txData.receivingChainId,
           callDataHash: ethPrepareDataMock.txData.callDataHash,
           transactionId: ethPrepareDataMock.txData.transactionId,
-          amount: ethPrepareDataMock.txData.amount,
+          shares: ethPrepareDataMock.txData.shares,
           expiry: ethPrepareDataMock.txData.expiry,
           preparedBlockNumber: ethPrepareDataMock.txData.preparedBlockNumber,
         },
@@ -177,7 +178,7 @@ describe("Handler", () => {
           receivingChainId: tokenPrepareData.txData.receivingChainId,
           callDataHash: tokenPrepareData.txData.callDataHash,
           transactionId: tokenPrepareData.txData.transactionId,
-          amount: tokenPrepareData.txData.amount,
+          shares: tokenPrepareData.txData.shares,
           expiry: tokenPrepareData.txData.expiry,
           preparedBlockNumber: tokenPrepareData.txData.preparedBlockNumber,
         },
@@ -227,7 +228,7 @@ describe("Handler", () => {
           receivingChainId: ethRxFulfillDataMock.txData.receivingChainId,
           callDataHash: ethRxFulfillDataMock.txData.callDataHash,
           transactionId: ethRxFulfillDataMock.txData.transactionId,
-          amount: ethRxFulfillDataMock.txData.amount,
+          shares: ethRxFulfillDataMock.txData.shares,
           expiry: ethRxFulfillDataMock.txData.expiry,
           preparedBlockNumber: ethRxFulfillDataMock.txData.preparedBlockNumber,
         },
@@ -276,7 +277,7 @@ describe("Handler", () => {
           receivingChainId: tokenRxFulfillDataMock.txData.receivingChainId,
           callDataHash: tokenRxFulfillDataMock.txData.callDataHash,
           transactionId: tokenRxFulfillDataMock.txData.transactionId,
-          amount: tokenRxFulfillDataMock.txData.amount,
+          shares: tokenRxFulfillDataMock.txData.shares,
           expiry: tokenRxFulfillDataMock.txData.expiry,
           preparedBlockNumber: tokenRxFulfillDataMock.txData.preparedBlockNumber,
         },

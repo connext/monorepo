@@ -49,6 +49,15 @@ export const fakeConfig: NxtpRouterConfig = {
   mnemonic: "hello world",
   natsUrl: "http://example.com",
   logLevel: "info",
+  swapPools: [
+    {
+      name: "TEST",
+      assets: [
+        { assetId: mkAddress("0x1"), chainId: 1337 },
+        { assetId: mkAddress("0x2"), chainId: 1338 },
+      ],
+    },
+  ],
 };
 
 export const invariantDataMock: InvariantTransactionData = {
@@ -66,7 +75,7 @@ export const invariantDataMock: InvariantTransactionData = {
 };
 
 export const variantDataMock: VariantTransactionData = {
-  amount: "123",
+  shares: "123",
   expiry: 123456,
   preparedBlockNumber: 1234,
 };
@@ -78,6 +87,7 @@ export const txDataMock: TransactionData = {
 
 export const senderPrepareData: TransactionPreparedEvent = {
   txData: txDataMock,
+  amount: "123",
   caller: mkAddress("0xf"),
   encryptedCallData: "0xabc",
   encodedBid: "0xdef",

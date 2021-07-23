@@ -61,7 +61,7 @@ export interface TransactionDataParams {
 */
 
 export class HandlerError extends NxtpError {
-  static readonly type = "TransactionManagerError";
+  static readonly type = "HandlerError";
   static readonly reasons = {
     MessagingError: "Messaging Service error",
     TxServiceError: "Error from Transaction Service",
