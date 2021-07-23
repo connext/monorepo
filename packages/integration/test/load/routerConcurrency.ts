@@ -1,7 +1,9 @@
 import pino from "pino";
-import { SdkAgent } from "../utils/sdkAgent";
+import PriorityQueue from "p-queue";
 
-import { SdkManager } from "../utils/sdkManager";
+import { SdkAgent } from "../utils/sdkAgent";
+import { SdkManager, TransactionInfo } from "../utils/sdkManager";
+import { logger } from "ethers";
 
 const TIMEOUT = 15 * 60 * 100; // 15m in ms
 
@@ -45,7 +47,16 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
 
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
     // TODO: process loop stats
+    const errored = results.filter((x: TransactionInfo) => !!x.error) as TransactionInfo[];
+    loopStats = {
+      errored: errored.length,
+      successful: results.length - errored.length,
+      concurrency,
+    };
+    logger.info(loopStats, "Increasing concurrency");
   }
+
+  logger.info({ maxConcurrency }, "Test complete");
 };
 
 routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));

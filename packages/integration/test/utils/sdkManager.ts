@@ -4,7 +4,7 @@ import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
 import { OnchainAccountManager } from "./accountManager";
 import { SdkAgent, SdkAgentEvents } from "./sdkAgent";
 
-type transactionInfo = {
+export type TransactionInfo = {
   start: number;
   end?: number;
   error?: string;
@@ -19,7 +19,7 @@ type transactionInfo = {
 // - better config setup
 // - metrics?
 export class SdkManager {
-  public readonly transactionInfo: { [transactionId: string]: transactionInfo } = {};
+  public readonly transactionInfo: { [transactionId: string]: TransactionInfo } = {};
 
   private constructor(private readonly onchainMgmt: OnchainAccountManager, private readonly agents: SdkAgent[]) {}
 
@@ -71,7 +71,7 @@ export class SdkManager {
     params: Omit<CrossChainParams, "receivingAddress" | "expiry">,
     timeout: number,
     _agent: SdkAgent,
-  ): Promise<transactionInfo> {
+  ): Promise<TransactionInfo> {
     const agent = _agent ?? this.getRandomAgent();
 
     const transactionId = getRandomBytes32();
