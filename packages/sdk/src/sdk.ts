@@ -42,7 +42,7 @@ import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
 export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
 
-declare const ethereum: any;
+declare const ethereum: any; // TODO: what to do about node?
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
@@ -73,7 +73,6 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-// TODO: is this the event payload we want? anything else?
 export type TransactionCompletedEvent = TransactionFulfilledEvent;
 
 export type SenderTransactionPrepareTokenApprovalPayload = {
@@ -193,6 +192,7 @@ export class NxtpSdk {
       };
     },
     private signer: Signer,
+    network?: "testnet" | "mainnet", // TODO
     private readonly logger: BaseLogger = pino(),
     doNotStartContractListeners = false,
     natsUrl?: string,
@@ -277,6 +277,7 @@ export class NxtpSdk {
     return txs;
   }
 
+  // TODO: add slippage tolerance
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
     const method = "getTransferQuote";
     const methodId = getRandomBytes32();
@@ -378,6 +379,9 @@ export class NxtpSdk {
         }
 
         // TODO: check contract for router liquidity
+        // TODO: check response for receivedAmount for tolerance
+
+        // TODO: compare multiple responses
 
         this.logger.info({ method, methodId, data }, "Received auction response");
         res(data);
@@ -515,7 +519,6 @@ export class NxtpSdk {
     }
 
     // Prepare sender side tx
-    // TODO: validate expiry
     const txData: InvariantTransactionData = {
       user,
       router,
@@ -595,7 +598,6 @@ export class NxtpSdk {
         return okAsync(undefined);
       })
       .andThen(() => {
-        // Submit fulfill to receiver chain
         this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
         let callData = "0x";
         if (txData.callDataHash !== utils.keccak256(callData)) {
