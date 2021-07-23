@@ -24,10 +24,10 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
     assetBalance.router = router.id;
-    assetBalance.amount = new BigInt(0);
+    assetBalance.shares = new BigInt(0);
   }
   // add new amount
-  assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
+  assetBalance.shares = assetBalance!.shares.plus(event.params.amount);
   assetBalance.save();
 }
 
@@ -42,7 +42,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   let assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
   // add new amount
-  assetBalance!.amount = assetBalance!.amount.minus(event.params.amount);
+  assetBalance!.shares = assetBalance!.shares.minus(event.params.shares);
   assetBalance!.save();
 }
 
@@ -92,8 +92,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.preparedBlockNumber = event.params.txData.preparedBlockNumber;
 
   // TransactionPrepared specific
-  transaction.preparedAmount = event.params.amount;
-  transaction.preparedShares = event.params.txData.shares;
+  transaction.amount = event.params.amount;
+  transaction.shares = event.params.txData.shares;
   transaction.prepareCaller = event.params.caller;
   transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
   transaction.encodedBid = event.params.encodedBid;
@@ -109,7 +109,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   if (chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.shares = assetBalance.shares.minus(event.params.txData.shares);
     assetBalance.save();
   }
 }
@@ -134,9 +134,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
       assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
+      assetBalance.shares = new BigInt(0);
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
+    assetBalance.shares = assetBalance.shares.plus(event.params.txData.shares);
     assetBalance.save();
   }
 }
@@ -159,9 +159,9 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
       assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
+      assetBalance.shares = new BigInt(0);
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
+    assetBalance.shares = assetBalance.shares.plus(event.params.txData.shares);
     assetBalance.save();
   }
 }

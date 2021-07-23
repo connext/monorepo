@@ -1,6 +1,6 @@
 type AssetBalance @entity {
   id: ID!
-  amount: BigInt!
+  shares: BigInt!
   router: Router!
 }
 
@@ -38,18 +38,16 @@ type Transaction @entity {
   receivingChainId: BigInt!
   expiry: BigInt!
   preparedBlockNumber: BigInt!
+  shares: BigInt!
+  amount: BigInt!
 
   # TransactionPrepared
-  preparedShares: BigInt!
-  preparedAmount: BigInt!
   encryptedCallData: String!
   prepareCaller: Bytes
   bidSignature: Bytes!
   encodedBid: Bytes!
 
   # TransactionFulfilled
-  fulfilledShares: BigInt!
-  fulfilledAmount: BigInt!
   relayerFee: BigInt
   signature: Bytes
   callData: String
