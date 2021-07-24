@@ -329,8 +329,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.router != address(0), "#P:001");
 
     // Router is approved *on both chains*
-    bool isRenounced = renounced(); // cache for gas
-    require(isRenounced || approvedRouters[invariantData.router], "#P:003");
+    // NOTE: renounced() not cached due to stack too deep
+    require(renounced() || approvedRouters[invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "#P:010");
@@ -351,8 +351,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
 
     // Make sure the hash is not a duplicate
-    bytes32 digest = keccak256(abi.encode(invariantData));
-    require(variantTransactionData[digest] == bytes32(0), "#P:015");
+    // NOTE: keccak256(abi.encode(invariantData)) not cached due to stack 
+    // too deep
+    require(variantTransactionData[keccak256(abi.encode(invariantData))] == bytes32(0), "#P:015");
 
     // NOTE: the `encodedBid` and `bidSignature` are simply passed through
     //       to the contract emitted event to ensure the availability of
@@ -375,7 +376,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Assets are approved
       // NOTE: Cannot check this on receiving chain because of differing
       // chain contexts
-      require(isRenounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
+      require(renounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -404,7 +405,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);      
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);   
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
@@ -426,7 +427,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // NOTE: This cannot happen on both chains because of differing chain 
       // contexts. May be possible for user to create transaction that is not
       // prepare-able on the receiver chain.
-      require(isRenounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
+      require(renounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
 
       // Check that the caller is the router
       require(msg.sender == invariantData.router, "#P:016");
@@ -622,15 +623,15 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // First, transfer the funds to the helper if needed
 
         // Cache in mem for gas
-        bool isEther = Asset.isEther(txData.receivingAssetId);
-        if (!isEther && toSend > 0) {
+        // bool isEther = Asset.isEther(txData.receivingAssetId);
+        if (!Asset.isEther(txData.receivingAssetId) && toSend > 0) {
           Asset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: isEther ? toSend : 0}(
+        interpreter.execute{ value: Asset.isEther(txData.receivingAssetId) ? toSend : 0}(
           txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,

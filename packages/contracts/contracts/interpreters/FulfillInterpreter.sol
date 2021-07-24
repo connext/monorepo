@@ -47,7 +47,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
     // funds transferred directly to them (i.e. Uniswap)
-    bool isEther = LibAsset.isEther(assetId);
+    bool isEther = Asset.isEther(assetId);
     if (!isEther) {
       Asset.increaseERC20Allowance(assetId, callTo, amount);
     }
