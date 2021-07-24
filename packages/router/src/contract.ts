@@ -2,7 +2,7 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import { constants, providers } from "ethers";
+import { constants, providers, Wallet } from "ethers";
 import {
   jsonifyError,
   FulfillParams,
@@ -49,6 +49,7 @@ export class TransactionManagerError extends NxtpError {
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
   private readonly config: NxtpRouterConfig;
+  private readonly wallet: Wallet;
 
   constructor(
     private readonly txService: TransactionService,
@@ -57,6 +58,13 @@ export class TransactionManager {
   ) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
     this.config = getConfig();
+    this.wallet = Wallet.fromMnemonic(this.config.mnemonic);
+  }
+
+  getProvider(chainId: number): providers.FallbackProvider {
+    return new providers.FallbackProvider(
+      this.config.chainConfig[chainId].providers.map((url) => new providers.JsonRpcProvider(url, chainId)),
+    );
   }
 
   /**
@@ -83,6 +91,8 @@ export class TransactionManager {
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
+
+    const provider = this.getProvider(chainId);
 
     let encodedData: string;
     try {
@@ -117,12 +127,24 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx(chainId, {
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        data: encodedData,
-        value: constants.Zero,
-        chainId,
-        from: this.signerAddress,
+      // this.txService.sendTx(chainId, {
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   data: encodedData,
+      //   value: constants.Zero,
+      //   chainId,
+      //   from: this.signerAddress,
+      // }),
+      new Promise(async (res) => {
+        const response = await this.wallet.connect(provider).sendTransaction({
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          data: encodedData,
+          value: constants.Zero,
+          from: this.signerAddress,
+        });
+        this.logger.info({ method, methodId, response }, "Tx submitted");
+        const receipt = await response.wait();
+        this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
+        res(receipt);
       }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
@@ -152,8 +174,10 @@ export class TransactionManager {
     const methodId = hId();
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
+    const provider = this.getProvider(chainId);
+
     const { txData, relayerFee, signature, callData } = fulfillParams;
-    let fulfillData;
+    let fulfillData: string;
     try {
       fulfillData = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
     } catch (err) {
@@ -167,12 +191,24 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx(chainId, {
-        chainId,
-        data: fulfillData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
+      // this.txService.sendTx(chainId, {
+      //   chainId,
+      //   data: fulfillData,
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   value: 0,
+      //   from: this.signerAddress,
+      // }),
+      new Promise(async (res) => {
+        const response = await this.wallet.connect(provider).sendTransaction({
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          data: fulfillData,
+          value: constants.Zero,
+          from: this.signerAddress,
+        });
+        this.logger.info({ method, methodId, response }, "Tx submitted");
+        const receipt = await response.wait();
+        this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
+        res(receipt);
       }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
@@ -201,9 +237,11 @@ export class TransactionManager {
     this.logger.info({ method, methodId, cancelParams }, "Method start");
     // encode and call tx service
 
+    const provider = this.getProvider(chainId);
+
     const { txData, relayerFee, signature } = cancelParams;
 
-    let cancelData;
+    let cancelData: string;
     try {
       cancelData = this.txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
     } catch (err) {
@@ -217,12 +255,24 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx(chainId, {
-        chainId,
-        data: cancelData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
+      // this.txService.sendTx(chainId, {
+      //   chainId,
+      //   data: cancelData,
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   value: 0,
+      //   from: this.signerAddress,
+      // }),
+      new Promise(async (res) => {
+        const response = await this.wallet.connect(provider).sendTransaction({
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          data: cancelData,
+          value: constants.Zero,
+          from: this.signerAddress,
+        });
+        this.logger.info({ method, methodId, response }, "Tx submitted");
+        const receipt = await response.wait();
+        this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
+        res(receipt);
       }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
