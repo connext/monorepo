@@ -55,7 +55,7 @@ const txManager1338 = new Contract(
   sugarDaddy.connect(chainProviders[1338].provider),
 ) as TransactionManager;
 
-const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "debug" });
+const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
 
 describe("Integration", () => {
   let userSdk: NxtpSdk;
