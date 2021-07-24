@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
@@ -16,6 +17,7 @@ type CachedGas = {
 };
 
 /// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
+
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).

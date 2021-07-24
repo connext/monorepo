@@ -15,24 +15,19 @@ import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils } from "ethers";
 
 // import types
-import { FulfillInterpreter, Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
-import { getOnchainBalance } from "./utils";
 import { getContractError } from "../src/errors";
+import { Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
+import { assertReceiptEvent, getOnchainBalance, setBlockTime, transferOwnershipOnContract } from "./utils";
 
 const { AddressZero } = constants;
 const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
-
-const setBlockTime = async (desiredTimestamp: number) => {
-  await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
-};
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("TransactionManager", function () {
   const [wallet, router, user, receiver, other] = waffle.provider.getWallets() as Wallet[];
   let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
-  let fulfillInterpreter: FulfillInterpreter;
   let counter: Counter;
   let tokenA: RevertableERC20;
   let tokenB: RevertableERC20;
@@ -43,18 +38,9 @@ describe("TransactionManager", function () {
     const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
     const counterFactory = await ethers.getContractFactory("Counter");
     const RevertableERC20Factory = await ethers.getContractFactory("RevertableERC20");
-    const interpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
 
-    fulfillInterpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
-
-    transactionManager = (await transactionManagerFactory.deploy(
-      sendingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
-      receivingChainId,
-      fulfillInterpreter.address,
-    )) as TransactionManager;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManager;
+    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(receivingChainId)) as TransactionManager;
 
     tokenA = (await RevertableERC20Factory.deploy()) as RevertableERC20;
     tokenB = (await RevertableERC20Factory.deploy()) as RevertableERC20;
@@ -108,6 +94,11 @@ describe("TransactionManager", function () {
     );
   });
 
+  const transferOwnership = async (newOwner: string = constants.AddressZero) => {
+    await transferOwnershipOnContract(newOwner, transactionManager);
+    // expect(await transactionManager.renounced()).to.be.eq(newOwner === constants.AddressZero);
+  };
+
   const getTransactionData = async (
     txOverrides: Partial<InvariantTransactionData> = {},
     recordOverrides: Partial<VariantTransactionData> = {},
@@ -128,9 +119,10 @@ describe("TransactionManager", function () {
     };
 
     const day = 24 * 60 * 60;
+    const block = await ethers.provider.getBlock("latest");
     const record = {
       shares: "10",
-      expiry: Math.floor(Date.now() / 1000) + day + 5_000,
+      expiry: block.timestamp + day + 5_000,
       preparedBlockNumber: 10,
       ...recordOverrides,
     };
@@ -143,26 +135,6 @@ describe("TransactionManager", function () {
     await approveTx.wait();
     const allowance = await token.allowance(approver.address, spender);
     expect(allowance).to.be.at.least(amount);
-  };
-
-  const assertObject = (expected: any, returned: any) => {
-    const keys = Object.keys(expected);
-    keys.map((k) => {
-      if (typeof expected[k] === "object" && !BigNumber.isBigNumber(expected[k])) {
-        expect(typeof returned[k] === "object");
-        assertObject(expected[k], returned[k]);
-      } else {
-        expect(returned[k]).to.be.deep.eq((expected as any)[k]);
-      }
-    });
-  };
-
-  const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
-    expect(receipt.status).to.be.eq(1);
-    const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
-    expect(idx).to.not.be.eq(-1);
-    const decoded = receipt.events![idx].decode!(receipt.events![idx].data, receipt.events![idx].topics);
-    assertObject(expected, decoded);
   };
 
   const addAndAssertLiquidity = async (
@@ -598,6 +570,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.chainId()).to.eq(1337);
     });
 
+    it("should set interpreter", async () => {
+      const addr = await transactionManager.interpreter();
+      expect(utils.isAddress(addr)).to.be.true;
+    });
+
     it("should set renounced", async () => {
       expect(await transactionManager.renounced()).to.be.false;
     });
@@ -633,35 +610,40 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("renounce", () => {
-    it("should fail if not called by owner", async () => {
-      await expect(transactionManager.connect(other).renounce()).to.be.revertedWith("Ownable: caller is not the owner");
+  describe("renounced", () => {
+    it("should return false if owner is not renounced", async () => {
+      expect(await transactionManager.renounced()).to.be.false;
     });
 
-    it("should work and allow unregistered assets + revert onlyOwner functions", async () => {
-      const tx = await transactionManager.renounce();
-      await tx.wait();
+    it("should return true if owner is renounced", async () => {
+      // Propose new owner of address(0)
+      await transferOwnership();
+
+      // Check renounced
       expect(await transactionManager.renounced()).to.be.true;
-      await addAndAssertLiquidity(1, AddressZero, router, transactionManager);
-      // make sure `onlyOwner` functions fail
-      await expect(transactionManager.addRouter(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
     });
   });
 
   describe("addRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(transactionManager.connect(other).addRouter(toAdd)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
+      await expect(transactionManager.connect(other).addRouter(toAdd)).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(transactionManager.addRouter(toAdd)).to.be.revertedWith("#AR:001");
+    });
+
+    it("should fail if its already added", async () => {
+      await expect(transactionManager.addRouter(router.address)).to.be.revertedWith("#AR:032");
     });
 
     it("should work", async () => {
       const toAdd = Wallet.createRandom().address;
       const tx = await transactionManager.addRouter(toAdd);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterAdded", { caller: receipt.from, addedRouter: toAdd });
       expect(await transactionManager.approvedRouters(toAdd)).to.be.true;
     });
   });
@@ -669,14 +651,25 @@ describe("TransactionManager", function () {
   describe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(transactionManager.connect(other).removeRouter(toAdd)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
-      );
+      await expect(transactionManager.connect(other).removeRouter(toAdd)).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(transactionManager.removeRouter(toAdd)).to.be.revertedWith("#RR:001");
+    });
+
+    it("should fail if its already removed", async () => {
+      const tx = await transactionManager.removeRouter(router.address);
+      await tx.wait();
+
+      await expect(transactionManager.removeRouter(router.address)).to.be.revertedWith("#RR:033");
     });
 
     it("should work", async () => {
       const tx = await transactionManager.removeRouter(router.address);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, removedRouter: router.address });
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
     });
   });
@@ -684,14 +677,19 @@ describe("TransactionManager", function () {
   describe("addAssetId", () => {
     it("should fail if not called by owner", async () => {
       await expect(transactionManager.connect(other).addAssetId(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
+        "#OO:029",
       );
+    });
+
+    it("should fail if its already added", async () => {
+      await expect(transactionManager.addAssetId(AddressZero)).to.be.revertedWith("#AA:032");
     });
 
     it("should work", async () => {
       const assetId = Wallet.createRandom().address;
       const tx = await transactionManager.addAssetId(assetId);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "AssetAdded", { caller: receipt.from, addedAssetId: assetId });
       expect(await transactionManager.approvedAssets(assetId)).to.be.true;
     });
   });
@@ -699,14 +697,21 @@ describe("TransactionManager", function () {
   describe("removeAssetId", () => {
     it("should fail if not called by owner", async () => {
       await expect(transactionManager.connect(other).removeAssetId(Wallet.createRandom().address)).to.be.revertedWith(
-        "Ownable: caller is not the owner",
+        "#OO:029",
       );
+    });
+
+    it("should fail if its already removed", async () => {
+      const assetId = Wallet.createRandom().address;
+
+      await expect(transactionManager.removeAssetId(assetId)).to.be.revertedWith("#RA:033");
     });
 
     it("should work", async () => {
       const assetId = AddressZero;
       const tx = await transactionManager.removeAssetId(assetId);
-      await tx.wait();
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "AssetRemoved", { caller: receipt.from, removedAssetId: assetId });
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
     });
   });
@@ -812,9 +817,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       await addAndAssertLiquidity(amount, assetId, router);
     });
@@ -829,9 +832,7 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       await addAndAssertLiquidity(amount, assetId);
     });
@@ -986,7 +987,8 @@ describe("TransactionManager", function () {
     it("should revert if invariantData.expiry - block.timestamp < MIN_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const hours12 = 12 * 60 * 60;
-      const expiry = (Math.floor(Date.now() / 1000) + hours12 + 5_000).toString();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (timestamp + hours12 + 5_000).toString();
       await expect(
         transactionManager
           .connect(user)
@@ -996,10 +998,24 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_LOW"));
     });
 
+    it("should revert if invariantData.expiry - block.timestamp == MIN_TIMEOUT", async () => {
+      const { transaction, record } = await getTransactionData();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (await transactionManager.MIN_TIMEOUT()).add(timestamp.toString());
+      await expect(
+        transactionManager
+          .connect(user)
+          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.amount,
+          }),
+      ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_LOW"));
+    });
+
     it("should revert if invariantData.expiry - block.timestamp > MAX_TIMEOUT", async () => {
       const { transaction, record } = await getTransactionData();
       const days31 = 31 * 24 * 60 * 60;
-      const expiry = (Math.floor(Date.now() / 1000) + days31 + 5_000).toString();
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      const expiry = (timestamp + days31 + 5_000).toString();
       await expect(
         transactionManager
           .connect(user)
@@ -1091,7 +1107,29 @@ describe("TransactionManager", function () {
       });
     });
 
-    describe("failures when preparing on the receiving chain", () => {
+    describe("failures when preparing on the router chain", () => {
+      it("should fail if the callTo is not empty and not a contract", async () => {
+        const { transaction, record } = await getTransactionData({
+          callTo: Wallet.createRandom().address,
+        });
+        await expect(
+          transactionManagerReceiverSide
+            .connect(router)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+        ).to.be.revertedWith("#P:031");
+      });
+
+      it("should fail if its not renounced && invariantData.receivingAssetId != an approved asset", async () => {
+        const { transaction, record } = await getTransactionData({ receivingAssetId: Wallet.createRandom().address });
+        await expect(
+          transactionManagerReceiverSide
+            .connect(router)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
+      });
+
       it("should fail if msg.sender != invariantData.router", async () => {
         const { transaction, record } = await getTransactionData();
 
@@ -1173,11 +1211,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       // Prepare
+      const tenDays = 10 * 24 * 60 * 60;
+      const { timestamp } = await ethers.provider.getBlock("latest");
       await prepareAndAssert(
         {
           sendingAssetId: AddressZero,
@@ -1185,6 +1223,7 @@ describe("TransactionManager", function () {
         },
         {
           shares: prepareAmount,
+          expiry: timestamp + tenDays, // increase expiry to 10 days in future because fast-forwarded
         },
       );
     });
@@ -1199,11 +1238,11 @@ describe("TransactionManager", function () {
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
       // Renounce ownership
-      const renounce = await transactionManager.renounce();
-      await renounce.wait();
-      expect(await transactionManager.renounced()).to.be.true;
+      await transferOwnership();
 
       // Prepare
+      const tenDays = 10 * 24 * 60 * 60;
+      const { timestamp } = await ethers.provider.getBlock("latest");
       await prepareAndAssert(
         {
           sendingAssetId: assetId,
@@ -1211,6 +1250,7 @@ describe("TransactionManager", function () {
         },
         {
           shares: prepareAmount,
+          expiry: timestamp + tenDays, // increase expiry to 10 days in future because fast-forwarded
         },
       );
     });
@@ -1659,7 +1699,7 @@ describe("TransactionManager", function () {
             receivingAssetId: assetId,
             sendingChainId: (await transactionManager.chainId()).toNumber(),
             receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
-            callTo: Wallet.createRandom().address,
+            callTo: counter.address,
           },
           { shares: prepareAmount },
         );

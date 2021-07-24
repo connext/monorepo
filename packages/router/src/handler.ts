@@ -25,9 +25,22 @@ import { getConfig } from "./config";
 import { TransactionManager } from "./contract";
 import { Subgraph } from "./subgraph";
 
+/**
+ * Handler.ts
+
+  The goal of this file is to handle all inbound events and dispatch messages
+  or new onchain txs as needed.
+
+  Each handler method should do the following:
+  1. Log what it's doing
+  2. Validate the event data (in some cases not necessary if onchain validation)
+  3. Prepare parameters for next action
+  4. Dispatch a new message or tx to chain
+  5. Update metrics
+ */
+
 const hId = hyperid();
 
-export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
 
@@ -45,20 +58,6 @@ export interface TransactionDataParams {
   expiry: number;
   blockNumber: number;
 }
-
-/*
-  Handler.ts
-
-  The goal of this file is to handle all inbound events and dispatch messages
-  or new onchain txs as needed.
-
-  Each handler method should do the following:
-  1. Log what it's doing
-  2. Validate the event data (in some cases not necessary if onchain validation)
-  3. Prepare parameters for next action
-  4. Dispatch a new message or tx to chain
-  5. Update metrics
-*/
 
 export class HandlerError extends NxtpError {
   static readonly type = "HandlerError";
@@ -88,11 +87,29 @@ export class HandlerError extends NxtpError {
   }
 }
 
+/**
+ * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.
+ *
+ * @param amount The amount of the transaction on the sending chain
+ * @returns The amount, less fees as determined by the SWAP_RATE
+ *
+ * @remarks
+ * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * SWAP_RATE`
+ */
 export const mutateAmount = (amount: string) => {
   return calculateExchangeAmount(amount, SWAP_RATE);
 };
 
-export const mutateExpiry = (expiry: number) => {
+/**
+ * Returns the expiry - EXPIRY_DECREMENT to ensure the receiving-side transfer expires prior to the sending-side transfer.
+ *
+ * @param expiry The expiry of the transaction on the sending chain
+ * @returns The expiry for the receiving-chain transaction (expires sooner than the sending-chain transaction)
+ *
+ * @remarks
+ * Recieiving chain expires first to force the secret to be revealed on the receiving side before the sending side expires
+ */
+export const mutateExpiry = (expiry: number): number => {
   const rxExpiry = expiry - EXPIRY_DECREMENT;
   if (rxExpiry < Date.now() / 1000) {
     throw new Error("Expiration already happened, cant prepare");
@@ -100,8 +117,16 @@ export const mutateExpiry = (expiry: number) => {
   return rxExpiry;
 };
 
+/**
+ * Gets the expiry on a given auction bid
+ *
+ * @returns Expiry time of a given bid in s
+ */
 export const getBidExpiry = () => Math.floor(Date.now() / 1000) + 60 * 5;
 
+/**
+ * Contains all callback logic for events and messages received by the router
+ */
 export class Handler {
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
@@ -115,8 +140,25 @@ export class Handler {
   }
 
   // HandleNewAuction
-  // Purpose: Respond to auction with bid if router has sufficient funds for transfer
-  // NOTE: This does not need to be implemented as part of MVP
+  /**
+   * Responds to new auctions with a bid if the router has sufficient funds for the transfer being auctioned.
+   *
+   * @param data - The payload broadcast when starting an auction
+   * @param data.user - The user who wants to transfer
+   * @param data.sendingChainId - The originating chain (where router will claim funds from)
+   * @param data.sendingAssetId - The originating asset (identifier of assets router will claim)
+   * @param data.amount - The amount to be transferred
+   * @param data.receivingChainId - The destination chain (where router will provide liquidity)
+   * @param data.receivingAssetId - The destination asset (identifier of assets router will claim)
+   * @param data.receivingAddress - Where the funds will be sent to directly on the receiving chain (if callTo is address(0)), or as a fallback if the calldata fails
+   * @param data.expiry - The expiry of the transaction on the originating chain
+   * @param data.transactionId - The unique identifier of the transaction
+   * @param data.encryptedCallData - The user-encrypted calldata to execute on the receiving chain
+   * @param data.callDataHash - The hash of the unencrypted calldata to execute on the receiving chain
+   * @param data.callTo - The contract address to execute the calldata on
+   * @param inbox - The inbox to publish the auction response to (where the initiator of the auction will be listening for bids)
+   * @returns An empty promise
+   */
   public async handleNewAuction(data: AuctionPayload, inbox: string): Promise<void> {
     const method = this.handleNewAuction.name;
     const methodId = hId();
@@ -339,7 +381,23 @@ export class Handler {
   }
 
   // HandleMetatxRequest
-  // Purpose: If a user sends a FULFILL payload, submit it to chain on their behalf
+  /**
+   * Handles requests for transaction relayers. I.e. if a user sends a fulfill payload, submit it to chain on their behalf.
+   *
+   * @param data - The payload broadcast for submitting the meta transaction
+   * @param data.type - The type of transaction they are submitting
+   * @param data.relayerFee - The fee for submission
+   * @param data.to - The `TransactionManager` address
+   * // TODO: is ^^ even correct
+   * @param data.data - The payload for the given `type` of transaction
+   * @param data.chainId - The chain to send the transaction on
+   * @param inbox - The inbox to publish the metatx response to
+   * @returns Empty promise
+   *
+   * @remarks
+   * The transaction should be broadcast to an entire network of relayers who will race to claim the fee. If it is only broadcast to a *single* relayer, then they could collude with the transaction's router to cancel the receiver-side payment and fulfill the sender-side payment (since the signature has been revealed)
+   *
+   */
   public async handleMetaTxRequest(data: MetaTxPayload<any>, inbox: string): Promise<void> {
     // First log
     const method = this.handleMetaTxRequest.name;
@@ -414,7 +472,20 @@ export class Handler {
   }
 
   // HandleSenderPrepare
-  // Purpose: On sender PREPARE, router should mirror the data to receiver chain
+  /**
+   * On sender prepare, router should mirror the data to receiver chain
+   *
+   * @param inboundData - The TransactionManager emitted event
+   * @param inboundData.txData - The transaction (invariant + variant) data submitted to the sending chain
+   * @param inboundData.caller - The person who submitted the sender `prepare` event
+   * @param inboundData.encryptedCallData - The user-encrypted calldata
+   * @param inboundData.encodedBid - The encoded winning auction bid for the transaction
+   * @param inboundData.bidSignature - The signature on the winning auction bid
+   * @returns Empty promise
+   *
+   * @remarks
+   * Should cancel the transsaction on the sending chain if it fails to prepare on the receiving chain. Will also prepare with a lower amount and lower expiry then what was prepared with on the receiving chain.
+   */
   public async handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void> {
     const method = "handleSenderPrepare";
     const methodId = hId();
@@ -570,6 +641,26 @@ export class Handler {
 
   // HandleReceiverFulfill
   // Purpose: Router should mirror the receiver fulfill data back to sender side
+  /**
+   *
+   * Router should mirror the receiver fulfill data back to sender side to claim funds from the transaction (net gain should be the fee).
+   *
+   * @param senderEvent - The sending chain TransactionPrepared event
+   * @param senderEvent.txData - The transaction (invariant + variant) data submitted to the sending chain
+   * @param senderEvent.caller - The person who submitted the sender `prepare` event
+   * @param senderEvent.encryptedCallData - The user-encrypted calldata
+   * @param senderEvent.encodedBid - The encoded winning auction bid for the transaction
+   * @param senderEvent.bidSignature - The signature on the winning auction bid
+   * @param receiverEvent - The receiving chain TransactionFulfilled event
+   * @param receiverEvent.txData - The transaction (invariant + variant) data submitted to the receiving chain
+   * @param receiverEvent.signature - The signature on the receiving chain (used to unlock the sending chain)
+   * @param receiverEvent.callData - The unencrypted calldata submitted on the receiving chain (will be disregarded on sending chain)
+   * @param receiverEvent.caller - The msg.sender from the receiving chain `fulfill` transaction
+   * @returns Empty promise
+   *
+   * @remarks
+   * At this point, router cannot cancel. The router must submit the transaction to reclaim the funds.
+   */
   public async handleReceiverFulfill(
     senderEvent: TransactionPreparedEvent,
     receiverEvent: TransactionFulfilledEvent,

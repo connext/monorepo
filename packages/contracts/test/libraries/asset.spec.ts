@@ -7,6 +7,7 @@ use(solidity);
 
 // import types
 import { AssetTest } from "../../typechain/AssetTest";
+import { getContractError } from "../../src/errors";
 import { TestERC20 } from "../../typechain/TestERC20";
 import { BigNumber, constants } from "ethers";
 
@@ -59,19 +60,18 @@ describe("LibAsset", () => {
       await expect(libAssetTest.getOwnBalance("0x0f5d2fb29fb7d3cfee444a200298f468908cc940")).to.be.reverted;
     });
 
-    it.skip("should return native asset balance if AddressZero", async () => {
-      const amount = BigNumber.from(1);
+    it("should return native asset balance if AddressZero", async () => {
+      const amount = utils.parseEther("1");
       // const signer = await wallet.getSigner();
 
       await wallet.sendTransaction({
         to: libAssetTest.address,
-        value: utils.parseEther(amount.toString()),
-        gasLimit: 21000,
+        value: amount,
       });
 
       const res = await libAssetTest.getOwnBalance(AddressZero);
       expect(BigNumber.isBigNumber(res)).to.be.true;
-      expect(res).to.be.eq(BigNumber.from(amount));
+      expect(res).to.be.eq(amount);
     });
 
     it("should return Erc20 asset balance if Non-AddressZero", async () => {
@@ -88,16 +88,17 @@ describe("LibAsset", () => {
 
   describe("#transferEther", () => {
     it("should fail if transferring ether fails", async () => {
-      await expect(libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000))).to.be.reverted;
+      await expect(
+        libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000)),
+      ).to.be.revertedWith("#TE:028");
     });
 
-    it.skip("happy case: transferEther", async () => {
+    it("happy case: transferEther", async () => {
       const amount = BigNumber.from(1);
 
       await wallet.sendTransaction({
         to: libAssetTest.address,
         value: utils.parseEther(amount.toString()),
-        gasLimit: 21000,
       });
 
       await libAssetTest.connect(wallet).transferEther(receiver.address, amount);
@@ -119,6 +120,49 @@ describe("LibAsset", () => {
       await res.wait();
 
       expect(await token.balanceOf(receiver.address)).to.be.eq(amount);
+    });
+  });
+
+  describe("increaseERC20Allowance", () => {
+    it("should revert if its ether", async () => {
+      await expect(libAssetTest.increaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
+        getContractError("increaseERC20Allowance: NO_NATIVE_ASSET"),
+      );
+    });
+
+    it("should work", async () => {
+      const amount = 100;
+      const starting = await token.allowance(libAssetTest.address, other.address);
+
+      const tx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      await tx.wait();
+
+      const final = await token.allowance(libAssetTest.address, other.address);
+      expect(final).to.be.eq(starting.add(amount));
+    });
+  });
+
+  describe("decreaseERC20Allowance", () => {
+    it("should revert if its ether", async () => {
+      await expect(libAssetTest.decreaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
+        getContractError("decreaseERC20Allowance: NO_NATIVE_ASSET"),
+      );
+    });
+
+    it("should work", async () => {
+      const amount = 100;
+
+      // Increase allowance
+      const increaseTx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      await increaseTx.wait();
+
+      const starting = await token.allowance(libAssetTest.address, other.address);
+
+      const decreaseTx = await libAssetTest.decreaseERC20Allowance(token.address, other.address, 100);
+      await decreaseTx.wait();
+
+      const final = await token.allowance(libAssetTest.address, other.address);
+      expect(final).to.be.eq(starting.sub(amount));
     });
   });
 });

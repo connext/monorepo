@@ -17,11 +17,18 @@ export type FullTransaction = {
   gasPrice: BigNumber;
 } & MinimalTransaction;
 
+/**
+ * @classdesc Handles getting gas prices and enforcing maximums for transactions
+ */
 export class GasPrice {
   private _gasPrice?: BigNumber;
 
   constructor(private readonly limit: BigNumber, private readonly provider: ChainRpcProvider) {}
 
+  /**
+   * Gets the current gas price
+   * @returns BigNumber representation of gas price
+   */
   public async get(): Promise<BigNumber> {
     if (!this._gasPrice) {
       const value = await this.provider.getGasPrice();
@@ -31,12 +38,20 @@ export class GasPrice {
     return BigNumber.from(this._gasPrice);
   }
 
+  /**
+   * Validates + sets the current gas price
+   *
+   * @param value - Gas price to set
+   */
   public set(value: BigNumber) {
     this.validate(value);
     this._gasPrice = value;
   }
 
-  /// Check to see if the gas price provided is past the max. If so, throw.
+  /**
+   * Check to see if the gas price provided is past the max. If so, throw.
+   * @param value Gas price to validate
+   */
   private validate(value: BigNumber) {
     if (value.gt(this.limit)) {
       throw new ChainError(ChainError.reasons.MaxGasPriceReached, {
@@ -47,8 +62,9 @@ export class GasPrice {
   }
 }
 
-/* We use this class to wrap NonceManager to ensure re-broadcast (tx's with defined nonce) is handled
- * correctly.
+/**
+ * @classdesc We use this class to wrap NonceManager to ensure re-broadcast (tx's with defined nonce) is handled correctly.
+ *
  */
 export class NxtpNonceManager extends NonceManager {
   sendTransaction(transaction: providers.TransactionRequest): Promise<providers.TransactionResponse> {

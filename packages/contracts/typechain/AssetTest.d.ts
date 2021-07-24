@@ -21,7 +21,9 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface AssetTestInterface extends ethers.utils.Interface {
   functions: {
+    "decreaseERC20Allowance(address,address,uint256)": FunctionFragment;
     "getOwnBalance(address)": FunctionFragment;
+    "increaseERC20Allowance(address,address,uint256)": FunctionFragment;
     "isEther(address)": FunctionFragment;
     "transferAsset(address,address,uint256)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
@@ -29,8 +31,16 @@ interface AssetTestInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "decreaseERC20Allowance",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getOwnBalance",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "increaseERC20Allowance",
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "isEther", values: [string]): string;
   encodeFunctionData(
@@ -47,7 +57,15 @@ interface AssetTestInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "decreaseERC20Allowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getOwnBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "increaseERC20Allowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isEther", data: BytesLike): Result;
@@ -111,10 +129,24 @@ export class AssetTest extends BaseContract {
   interface: AssetTestInterface;
 
   functions: {
+    decreaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    increaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     isEther(assetId: string, overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -139,7 +171,21 @@ export class AssetTest extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  decreaseERC20Allowance(
+    assetId: string,
+    spender: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   getOwnBalance(assetId: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  increaseERC20Allowance(
+    assetId: string,
+    spender: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   isEther(assetId: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -164,10 +210,24 @@ export class AssetTest extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    decreaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    increaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     isEther(assetId: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -195,9 +255,23 @@ export class AssetTest extends BaseContract {
   filters: {};
 
   estimateGas: {
+    decreaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    increaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     isEther(assetId: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -224,9 +298,23 @@ export class AssetTest extends BaseContract {
   };
 
   populateTransaction: {
+    decreaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     getOwnBalance(
       assetId: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    increaseERC20Allowance(
+      assetId: string,
+      spender: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     isEther(

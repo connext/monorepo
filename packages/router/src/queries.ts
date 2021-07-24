@@ -1,5 +1,7 @@
 import { gql } from "graphql-request";
 
+// Contains all subgraph queries used by router
+
 export const getSenderTransactionsQuery = gql`
   query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {

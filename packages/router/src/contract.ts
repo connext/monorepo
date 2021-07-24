@@ -20,6 +20,9 @@ import { getConfig, NxtpRouterConfig } from "./config";
 
 const hId = hyperid();
 
+/**
+ * @classdesc Defines the error thrown by the `TransactionManager` class
+ */
 export class TransactionManagerError extends NxtpError {
   static readonly type = "TransactionManagerError";
   static readonly reasons = {
@@ -43,6 +46,9 @@ export class TransactionManagerError extends NxtpError {
   }
 }
 
+/**
+ * @classdesc Handles any onchain interactions with the `TransactionManager` contracts, including transaction submissions and chain reads.
+ */
 export class TransactionManager {
   private readonly txManagerInterface: TTransactionManager["interface"];
   private readonly config: NxtpRouterConfig;
@@ -57,6 +63,21 @@ export class TransactionManager {
     this.config = config ?? getConfig();
   }
 
+  /**
+   * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
+   *
+   * @param chainId - The chain you are preparing a transaction on
+   * @param prepareParams - Arguments to supply to contract
+   * @param prepareParams.txData - The `InvariantTransactionData` for the transaction being prepared
+   * @param prepareParams.amount - The amount to be deducted from the liquidity held by the router on the TransactionManager
+   * @param prepareParams.expiry - The timestamp the transaction will expire by
+   * @param prepareParams.encryptedCallData - The user-encrypted calldata to be executed on the receiving chain
+   * @param prepareParams.encodedBid - The encoded auction bid
+   * @param prepareParams.bidSignature - The signature on the winning bid
+   *
+   * @returns If successful, returns `TransactionReceipt` from the prepare transaction sent to the `TransactionManager.sol`. If it fails, returns a `TransactionManagerError`
+   *
+   */
   prepare(
     chainId: number,
     prepareParams: PrepareParams,
@@ -130,6 +151,17 @@ export class TransactionManager {
     );
   }
 
+  /**
+   * Calls `fulfill` on the `TransactionManager` on the given chain. Can be used to submit the routers own fulfill transaction (on the sending chain), or to submit fulfill transactions where the router is acting as a relayer.
+   *
+   * @param chainId - The chain you are fulfilling a transaction on
+   * @param fulfillParams - The arguments to submit to chain
+   * @param fulfillParams.txData - The `TransactionData` (invariant and variant) for the transaction you are fulfilling
+   * @param fulfillParams.relayerFee - The `relayerFee` for the transaction
+   * @param fulfillParams.signature - The `txData.user`'s signature used to unlock the transaction
+   * @param fulfillParams.callData - The unencrypted calldata that corresponds to the `txData.callDataHash`
+   * @returns If successful, returns the `TransactionReceipt` from the fulfill transaction sent to the `TransactionManager.sol`. If it fails, returns a `TransactionManagerError`
+   */
   fulfill(
     chainId: number,
     fulfillParams: FulfillParams,
@@ -183,6 +215,15 @@ export class TransactionManager {
     );
   }
 
+  /**
+   * Calls `cancel` on the `TransactionManager` on the given chain. Can be used to submit the routers own cancellation or to relay a user's cancellation request.
+   * @param chainId - The chain you are cancelling a transaction on
+   * @param cancelParams - The arguments to submit to chain
+   * @param cancelParams.txData - The `TransactionData` (invariant and variant) for the transaction you are cancelling
+   * @param cancelParams.relayerFee - The relayer fee for the transaction
+   * @param cancelParams.signature - The user signatures (if submitting as a relayer) on the relayerFee and transactionId
+   * @returns If successful, returns the `TransactionReceipt` from the cancel transaction sent to the `TransactionManager.sol`. If it fails, returns a `TransactionManagerError`
+   */
   cancel(
     chainId: number,
     cancelParams: CancelParams,
@@ -238,6 +279,15 @@ export class TransactionManager {
     );
   }
 
+  /**
+   * Removes liquidity from the `TransactionManager` on the provided chain.
+   *
+   * @param chainId - The chain to interact with
+   * @param amount - The amount of liquidity you want to remove
+   * @param assetId - The assetId (token address or address(0) for native asset) of the asset you'd like to remove liquidity from onchain.
+   * @param recipientAddress - The address you'd like the funds to be sent to
+   * @returns If successful, returns `TransactionReceipt` for the removeLiquidity transaction. If it fails, returns a `TransactionManagerError`
+   */
   removeLiquidity(
     chainId: number,
     amount: string,
