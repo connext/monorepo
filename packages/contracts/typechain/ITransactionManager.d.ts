@@ -31,7 +31,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
-    "renounce()": FunctionFragment;
+    "renounced()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
@@ -122,7 +122,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "renounce", values?: undefined): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
   decodeFunctionResult(
@@ -145,18 +145,26 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "renounce", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
 
   events: {
+    "AssetAdded(address,address)": EventFragment;
+    "AssetRemoved(address,address)": EventFragment;
     "LiquidityAdded(address,address,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
+    "RouterAdded(address,address)": EventFragment;
+    "RouterRemoved(address,address)": EventFragment;
     "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionFulfilled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionPrepared"): EventFragment;
@@ -307,7 +315,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -413,7 +421,7 @@ export class ITransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  renounce(
+  renounced(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -603,10 +611,26 @@ export class ITransactionManager extends BaseContract {
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
-    renounce(overrides?: CallOverrides): Promise<void>;
+    renounced(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
+    AssetAdded(
+      addedAssetId?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { addedAssetId: string; caller: string }
+    >;
+
+    AssetRemoved(
+      removedAssetId?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { removedAssetId: string; caller: string }
+    >;
+
     LiquidityAdded(
       router?: string | null,
       assetId?: string | null,
@@ -625,6 +649,22 @@ export class ITransactionManager extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber, string],
       { router: string; assetId: string; amount: BigNumber; recipient: string }
+    >;
+
+    RouterAdded(
+      addedRouter?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { addedRouter: string; caller: string }
+    >;
+
+    RouterRemoved(
+      removedRouter?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { removedRouter: string; caller: string }
     >;
 
     TransactionCancelled(
@@ -1000,7 +1040,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -1107,7 +1147,7 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounce(
+    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

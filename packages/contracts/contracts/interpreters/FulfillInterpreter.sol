@@ -37,6 +37,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
   /// @param amount The amount to approve or send with the call
   /// @param callData The data to execute
   function execute(
+    bytes32 transactionId,
     address payable callTo,
     address assetId,
     address payable fallbackAddress,
@@ -44,6 +45,9 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     bytes calldata callData
   ) override external payable nonReentrant onlyTransactionManager {
     // If it is not ether, approve the callTo
+    // We approve here rather than transfer since many external contracts
+    // simply require an approval, and it is unclear if they can handle 
+    // funds transferred directly to them (i.e. Uniswap)
     bool isEther = LibAsset.isEther(assetId);
     if (!isEther) {
       LibAsset.increaseERC20Allowance(assetId, callTo, amount);
@@ -51,7 +55,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
-    (bool success,) = callTo.call{value: isEther ? amount : 0}(callData);
+    (bool success, bytes memory returnData) = callTo.call{value: isEther ? amount : 0}(callData);
 
     if (!success) {
       // If it fails, transfer to fallback
@@ -61,5 +65,17 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
         LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
       }
     }
+
+    // Emit event
+    emit Executed(
+      transactionId,
+      callTo,
+      assetId,
+      fallbackAddress,
+      amount,
+      callData,
+      returnData,
+      success
+    );
   }
 }

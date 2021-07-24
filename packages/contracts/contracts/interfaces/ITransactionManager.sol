@@ -48,18 +48,22 @@ interface ITransactionManager {
     uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
   }
 
-  // The structure of the signed data for cancellations
-  struct SignedCancelData {
+  // The structure of the signed data for fulfill
+  struct SignedData {
     bytes32 transactionId;
     uint256 relayerFee;
-    string cancel; // just the string "cancel"
+    string functionIdentifier; // "fulfill" or "cancel"
   }
 
-  // The structure of the signed data for fulfill
-  struct SignedFulfillData {
-    bytes32 transactionId;
-    uint256 relayerFee;
-  }
+  // Adding/removing asset events
+  event RouterAdded(address indexed addedRouter, address indexed caller);
+
+  event RouterRemoved(address indexed removedRouter, address indexed caller);
+
+  // Adding/removing router events
+  event AssetAdded(address indexed addedAssetId, address indexed caller);
+
+  event AssetRemoved(address indexed removedAssetId, address indexed caller);
 
   // Liquidity events
   event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
@@ -98,9 +102,10 @@ interface ITransactionManager {
     address caller
   );
 
-  // Owner only methods
-  function renounce() external;
+  // Helper methods
+  function renounced() external returns (bool);
 
+  // Owner only methods
   function addRouter(address router) external;
 
   function removeRouter(address router) external;

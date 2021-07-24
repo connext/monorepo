@@ -34,7 +34,12 @@ export const Errors: ErrorsType = {
   "026": "RECEIVING_ADDRESS_EMPTY",
   "027": "NOT_TRANSACTION_MANAGER",
   "028": "TRANSFER_FAILED",
-  "029": "NO_NATIVE_ASSET",
+  "029": "NOT_OWNER",
+  "030": "DELAY_NOT_ELAPSED",
+  "031": "NOT_CONTRACT",
+  "032": "ALREADY_ADDED",
+  "033": "NOT_ADDED",
+  "034": "NO_NATIVE_ASSET",
 };
 
 type ErrorsPrefixType = {
@@ -54,6 +59,10 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#DA": "decreaseERC20Allowance",
   "#OTM": "onlyTransactionManager",
   "#TE": "transferEther",
+  "#APO": "acceptProposedOwner",
+  "#OO": "onlyOwner",
+  "#AR": "addRouter",
+  "#RR": "removeRouter",
 };
 
 /**
