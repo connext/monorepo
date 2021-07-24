@@ -10,6 +10,7 @@ export type { IFulfillInterpreter } from "./IFulfillInterpreter";
 export type { ITransactionManager } from "./ITransactionManager";
 export type { FulfillInterpreter } from "./FulfillInterpreter";
 export type { ProposedOwnable } from "./ProposedOwnable";
+export type { AssetTest } from "./AssetTest";
 export type { Counter } from "./Counter";
 export type { RevertableERC20 } from "./RevertableERC20";
 export type { TestERC20 } from "./TestERC20";
@@ -24,6 +25,7 @@ export { IFulfillInterpreter__factory } from "./factories/IFulfillInterpreter__f
 export { ITransactionManager__factory } from "./factories/ITransactionManager__factory";
 export { FulfillInterpreter__factory } from "./factories/FulfillInterpreter__factory";
 export { ProposedOwnable__factory } from "./factories/ProposedOwnable__factory";
+export { AssetTest__factory } from "./factories/AssetTest__factory";
 export { Counter__factory } from "./factories/Counter__factory";
 export { RevertableERC20__factory } from "./factories/RevertableERC20__factory";
 export { TestERC20__factory } from "./factories/TestERC20__factory";
