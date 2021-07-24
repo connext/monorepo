@@ -10,10 +10,10 @@ import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, Chain
 import {
   parseError,
   RpcError,
+  TransactionError,
   TransactionReadError,
   TransactionServiceFailure,
 } from "./error";
-// import { ChainError } from "./error";
 import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
