@@ -51,8 +51,8 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  *         each chain (initiator). Additionally, transactions can be cancelled 
  *         unilaterally by the person owed funds on that chain (router for 
  *         sending chain, user for receiving chain) prior to expiry.
-
-
+ *
+ *
  *         NOTE on internal accounting:
  *         To properly handle the cases where a token is rebasing/inflationary/
  *         deflationary, we think of funds sent to the contracts as claiming
