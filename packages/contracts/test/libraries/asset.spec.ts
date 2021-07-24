@@ -45,12 +45,12 @@ describe("LibAsset", () => {
 
   describe("#isEther", () => {
     it("should return true if assetId is AddressZero", async () => {
-      const res = await libAssetTest.isEther(AddressZero);
+      const res = await libAssetTest.isNativeAsset(AddressZero);
       expect(res).to.be.true;
     });
 
     it("should return false if assetId is Non-AddressZero", async () => {
-      const res = await libAssetTest.isEther("0x0f5d2fb29fb7d3cfee444a200298f468908cc942");
+      const res = await libAssetTest.isNativeAsset("0x0f5d2fb29fb7d3cfee444a200298f468908cc942");
       expect(res).to.be.false;
     });
   });

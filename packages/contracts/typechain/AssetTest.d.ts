@@ -24,7 +24,7 @@ interface AssetTestInterface extends ethers.utils.Interface {
     "decreaseERC20Allowance(address,address,uint256)": FunctionFragment;
     "getOwnBalance(address)": FunctionFragment;
     "increaseERC20Allowance(address,address,uint256)": FunctionFragment;
-    "isEther(address)": FunctionFragment;
+    "isNativeAsset(address)": FunctionFragment;
     "transferAsset(address,address,uint256)": FunctionFragment;
     "transferERC20(address,address,uint256)": FunctionFragment;
     "transferEther(address,uint256)": FunctionFragment;
@@ -42,7 +42,10 @@ interface AssetTestInterface extends ethers.utils.Interface {
     functionFragment: "increaseERC20Allowance",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "isEther", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "isNativeAsset",
+    values: [string]
+  ): string;
   encodeFunctionData(
     functionFragment: "transferAsset",
     values: [string, string, BigNumberish]
@@ -68,7 +71,10 @@ interface AssetTestInterface extends ethers.utils.Interface {
     functionFragment: "increaseERC20Allowance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "isEther", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isNativeAsset",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferAsset",
     data: BytesLike
@@ -148,7 +154,10 @@ export class AssetTest extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    isEther(assetId: string, overrides?: CallOverrides): Promise<[boolean]>;
+    isNativeAsset(
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     transferAsset(
       assetId: string,
@@ -187,7 +196,7 @@ export class AssetTest extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  isEther(assetId: string, overrides?: CallOverrides): Promise<boolean>;
+  isNativeAsset(assetId: string, overrides?: CallOverrides): Promise<boolean>;
 
   transferAsset(
     assetId: string,
@@ -229,7 +238,7 @@ export class AssetTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isEther(assetId: string, overrides?: CallOverrides): Promise<boolean>;
+    isNativeAsset(assetId: string, overrides?: CallOverrides): Promise<boolean>;
 
     transferAsset(
       assetId: string,
@@ -274,7 +283,10 @@ export class AssetTest extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    isEther(assetId: string, overrides?: CallOverrides): Promise<BigNumber>;
+    isNativeAsset(
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     transferAsset(
       assetId: string,
@@ -317,7 +329,7 @@ export class AssetTest extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    isEther(
+    isNativeAsset(
       assetId: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

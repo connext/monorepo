@@ -15,8 +15,8 @@ contract AssetTest {
 
   receive() external payable {}
 
-  function isEther(address assetId) public pure returns (bool) {
-    return Asset.isEther(assetId);
+  function isNativeAsset(address assetId) public pure returns (bool) {
+    return Asset.isNativeAsset(assetId);
   }
 
   function getOwnBalance(address assetId) public view returns (uint256) {

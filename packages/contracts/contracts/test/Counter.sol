@@ -21,7 +21,7 @@ contract Counter {
   }
 
   function incrementAndSend(address assetId, address recipient, uint256 amount) public payable {
-    if (Asset.isEther(assetId)) {
+    if (Asset.isNativeAsset(assetId)) {
       require(msg.value == amount, "incrementAndSend: INVALID_ETH_AMOUNT");
     } else {
       require(msg.value == 0, "incrementAndSend: ETH_WITH_ERC");

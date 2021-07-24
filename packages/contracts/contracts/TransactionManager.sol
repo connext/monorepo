@@ -12,88 +12,115 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 
-/// @title TransactionManager
-/// @author Connext <support@connext.network>
-/// @notice This contract holds the logic to facilitate crosschain transactions.
-///         Transactions go through three phases:
-///
-///         1. Route Auction: User broadcasts to our network signalling their 
-///         desired route. Routers respond with sealed bids containing 
-///         commitments to fulfilling the transaction within a certain time and 
-///         price range.
-///
-///         2. Prepare: Once the auction is completed, the transaction can be 
-///         prepared. The user submits a transaction to `TransactionManager` 
-///         contract on sender-side chain containing router's signed bid. This 
-///         transaction locks up the users funds on the sending chiain. Upon 
-///         detecting an event containing their signed bid from the chain, 
-///         router submits the same transaction to `TransactionManager` on the 
-///         receiver-side chain, and locks up a corresponding amount of 
-///         liquidity. The amount locked on the receiving chain is `sending 
-///         amount - auction fee` so the router is incentivized to complete the 
-///         transaction.
-///
-///         3. Fulfill: Upon detecting the `TransactionPrepared` event on the 
-///         receiver-side chain, the user signs a message and sends it to a 
-///         relayer, who will earn a fee for submission. The relayer (which may 
-///         be the router) then submits the message to the `TransactionManager` 
-///         to complete their transaction on receiver-side chain and claim the 
-///         funds locked by the router. A relayer is used here to allow users 
-///         to submit transactions with arbitrary calldata on the receiving 
-///         chain without needing gas to do so. The router then submits the 
-///         same signed message and completes transaction on sender-side, 
-///         unlocking the original `amount`.
-///
-///         If a transaction is not fulfilled within a fixed timeout, it 
-///         reverts and can be reclaimed by the party that called `prepare` on 
-///         each chain (initiator). Additionally, transactions can be cancelled 
-///         unilaterally by the person owed funds on that chain (router for 
-///         sending chain, user for receiving chain) prior to expiry.
+/**
+ *
+ * @title TransactionManager
+ * @author Connext <support@connext.network>
+ * @notice This contract holds the logic to facilitate crosschain transactions.
+ *         Transactions go through three phases in the happy case:
+ *
+ *         1. Route Auction (offchain): User broadcasts to our network 
+ *         signalling their desired route. Routers respond with sealed bids 
+ *         containing commitments to fulfilling the transaction within a 
+ *         certain time and price range.
+ *
+ *         2. Prepare: Once the auction is completed, the transaction can be 
+ *         prepared. The user submits a transaction to `TransactionManager` 
+ *         contract on sender-side chain containing router's signed bid. This 
+ *         transaction locks up the users funds on the sending chain. Upon 
+ *         detecting an event containing their signed bid from the chain, 
+ *         router submits the same transaction to `TransactionManager` on the 
+ *         receiver-side chain, and locks up a corresponding amount of 
+ *         liquidity. The amount locked on the receiving chain is `sending 
+ *         amount - auction fee` so the router is incentivized to complete the 
+ *         transaction.
+ *
+ *         3. Fulfill: Upon detecting the `TransactionPrepared` event on the 
+ *         receiver-side chain, the user signs a message and sends it to a 
+ *         relayer, who will earn a fee for submission. The relayer (which may 
+ *         be the router) then submits the message to the `TransactionManager` 
+ *         to complete their transaction on receiver-side chain and claim the 
+ *         funds locked by the router. A relayer is used here to allow users 
+ *         to submit transactions with arbitrary calldata on the receiving 
+ *         chain without needing gas to do so. The router then submits the 
+ *         same signed message and completes transaction on sender-side, 
+ *         unlocking the original `amount`.
+ *
+ *         If a transaction is not fulfilled within a fixed timeout, it 
+ *         reverts and can be reclaimed by the party that called `prepare` on 
+ *         each chain (initiator). Additionally, transactions can be cancelled 
+ *         unilaterally by the person owed funds on that chain (router for 
+ *         sending chain, user for receiving chain) prior to expiry.
 
 
-///         Note on internal accounting:
-///         To properly handle the cases where a token is rebasing/inflationary/
-///         deflationary, we think of funds sent to the contracts as claiming
-///         "shares" of the total balance of the contract, rather than tracking
-///         raw balances. This allows routers to keep earning inflation rewards
-///         when providing liquidity aave tokens, for example. Shares are
-///         created and issued when the contract receives funds, and burned when
-///         the contract disburses funds.
+ *         NOTE on internal accounting:
+ *         To properly handle the cases where a token is rebasing/inflationary/
+ *         deflationary, we think of funds sent to the contracts as claiming
+ *         "shares" of the total balance of the contract, rather than tracking
+ *         raw balances. This allows routers to keep earning inflation rewards
+ *         when providing liquidity aTokens, for example. Shares are
+ *         created and issued when the contract receives funds, and burned when
+ *         the contract disburses funds. During a crosschain transaction, they
+ *         are deducted from the routers issued shares.
+ */
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionManager {
-  /// @dev For shares math
+  /**
+   * @dev To preserve precision when performing shares math
+   */
   using WadRayMath for uint256;
 
-  /// @dev Mapping of router or user to shares specific to asset
-  ///      incremented whenever a user sends funds to the contract
+  /**
+   * @dev Mapping of contract depositor to shares of specific asset.
+   *      Incremented whenever funds sebt to the contract, or when a
+   *      router fulfills a transfer.
+   */
   mapping(address => mapping(address => uint256)) public issuedShares;
 
-  /// @dev Mapping of total issued shares in contract per asset
-  ///      This is incremented any time funds are sent to the
-  ///      contract, and decremented from the contract.
+  /**
+   * @dev Mapping of total issued shares in contract per asset.
+   *      This is incremented any time funds are sent to the
+   *      contract, and decremented when they are sent from 
+   *      the contract.
+   */
   mapping(address => uint256) public outstandingShares;
 
-  /// @dev Mapping of allowed router addresses
+  /**
+   * @dev Mapping of allowed router addresses. Must be added to both
+   *      sending and receiving chains when forwarding a transfer.
+   */
   mapping(address => bool) public approvedRouters;
 
-  /// @dev Mapping of allowed assetIds on same chain of contract
+  /**
+   * @dev Mapping of allowed assetIds on same chain as contract
+   */
   mapping(address => bool) public approvedAssets;
 
-  /// @dev Mapping of hash of `InvariantTransactionData` to the hash
-  //       of the `VariantTransactionData`
+  /**
+   * @dev Mapping of hash of `InvariantTransactionData` to the hash
+   *      of the `VariantTransactionData`
+   */
   mapping(bytes32 => bytes32) public variantTransactionData;
 
-  /// @dev The chain id of the contract, is passed in to avoid any evm issues
+  /**
+   * @dev The chain id of the contract, is passed in to avoid any evm issues
+   */
   uint256 public immutable chainId;
 
-  /// @dev Minimum timeout (will be the lowest on the receiving chain)
+  /**
+   * @dev Minimum timeout (will be the lowest on the receiving chain)
+   */
   uint256 public constant MIN_TIMEOUT = 1 days; // 24 hours
 
-  /// @dev Maximum timeout
+  /**
+   * @dev Maximum timeout (will be the highest on the sending chain)
+   */
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  /// @dev The address of the external contract that will execute crosschain
-  ///      calldata
+  /**
+   * @dev The address of the external contract that will execute crosschain
+   *      calldata
+   */
   IFulfillInterpreter public immutable interpreter;
 
   constructor(uint256 _chainId) {
@@ -101,9 +128,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     interpreter = new FulfillInterpreter(address(this));
   }
 
-  /// @notice Gets amounts from router percentages
-  /// @param router Router you want balance of
-  /// @param assetId Asset for percentage
+  /**
+   * @notice Gets amounts from router issued shares
+   * @param router Router you want balance of
+   * @param assetId Asset for percentage
+   */
   function getRouterBalance(address router, address assetId) external view override returns (uint256) {
     return getAmountFromIssuedShares(
       issuedShares[router][assetId],
@@ -112,9 +141,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     );
   }
 
-  /// @notice Gets an amount from a given number of shares
-  /// @param assetId Asset identifier you want amount of
-  /// @param shares Number of shares you want converted to an amount of asset
+  /**
+   * @notice Gets an amount from a given number of shares
+   * @param assetId Asset identifier you want amount of
+   * @param shares Number of shares you want converted to an amount of asset
+   */
   function getAmountFromShares(address assetId, uint256 shares) external view override returns (uint256) {
     return getAmountFromIssuedShares(
       shares,
@@ -123,14 +154,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     );
   }
 
-  /// @notice Indicates if the ownership has been renounced() by
-  ///         checking if current owner is address(0)
+  /**
+   * @notice Indicates if the ownership has been renounced() by
+   *         checking if current owner is address(0)
+   */
   function renounced() public view override returns (bool) {
     return owner() == address(0);
   }
 
-  /// @notice Used to add routers that can transact crosschain
-  /// @param router Router address to add
+  /**
+   * @notice Used to add routers that can transact crosschain
+   * @param router Router address to add
+   */
   function addRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#AR:001");
@@ -145,8 +180,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit RouterAdded(router, msg.sender);
   }
 
-  /// @notice Used to remove routers that can transact crosschain
-  /// @param router Router address to remove
+  /**
+   * @notice Used to remove routers that can transact crosschain
+   * @param router Router address to remove
+   */
   function removeRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#RR:001");
@@ -161,9 +198,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit RouterRemoved(router, msg.sender);
   }
 
-  /// @notice Used to add assets on same chain as contract that can
-  ///         be transferred.
-  /// @param assetId AssetId to add
+  /**
+   * @notice Used to add assets on same chain as contract that can
+   *         be transferred.
+   * @param assetId AssetId to add
+   */
   function addAssetId(address assetId) external override onlyOwner {
     // Sanity check: needs approval
     require(approvedAssets[assetId] == false, "#AA:032");
@@ -175,9 +214,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit AssetAdded(assetId, msg.sender);
   }
 
-  /// @notice Used to remove assets on same chain as contract that can
-  ///         be transferred.
-  /// @param assetId AssetId to remove
+  /**
+   * @notice Used to remove assets on same chain as contract that can
+   *         be transferred.
+   * @param assetId AssetId to remove
+   */
   function removeAssetId(address assetId) external override onlyOwner {
     // Sanity check: already approval
     require(approvedAssets[assetId] == true, "#RA:033");
@@ -189,12 +230,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit AssetRemoved(assetId, msg.sender);
   }
 
-  /// @notice This is used by any router to increase their available
-  ///         liquidity for a given asset.
-  /// @param amount The amount of liquidity to add for the router
-  /// @param assetId The address (or `address(0)` if native asset) of the
-  ///                asset you're adding liquidity for
-  /// @param router The router you are adding liquidity on behalf of
+  /**
+   * @notice This is used by any router to increase their available
+   *         liquidity for a given asset.
+   * @param amount The amount of liquidity to add for the router
+   * @param assetId The address (or `address(0)` if native asset) of the
+   *                asset you're adding liquidity for
+   * @param router The router you are adding liquidity on behalf of
+   */
   function addLiquidity(uint256 amount, address assetId, address router) external payable nonReentrant override {
     // Sanity check: router is sensible
     require(router != address(0), "#AL:001");
@@ -212,7 +255,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(isRenounced || approvedAssets[assetId], "#AL:004");
 
     // Validate correct amounts are transferred
-    if (Asset.isEther(assetId)) {
+    if (Asset.isNativeAsset(assetId)) {
       require(msg.value == amount, "#AL:005");
     } else {
       require(msg.value == 0, "#AL:006");
@@ -229,12 +272,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit LiquidityAdded(router, assetId, amount, msg.sender);
   }
 
-  /// @notice This is used by any router to decrease their available
-  ///         liquidity for a given asset.
-  /// @param shares The amount of liquidity to remove for the router in shares
-  /// @param assetId The address (or `address(0)` if native asset) of the
-  ///                asset you're removing liquidity for
-  /// @param recipient The address that will receive the liquidity being removed
+  /**
+   * @notice This is used by any router to decrease their available
+   *         liquidity for a given asset.
+   * @param shares The amount of liquidity to remove for the router in shares
+   * @param assetId The address (or `address(0)` if native asset) of the
+   *                asset you're removing liquidity for
+   * @param recipient The address that will receive the liquidity being removed
+   */
   function removeLiquidity(
     uint256 shares,
     address assetId,
@@ -284,36 +329,38 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     );
   }
 
-  /// @notice This function creates a crosschain transaction. When called on
-  ///         the sending chain, the user is expected to lock up funds. When
-  ///         called on the receiving chain, the router deducts the transfer
-  ///         amount from the available liquidity. The majority of the
-  ///         information about a given transfer does not change between chains,
-  ///         with three notable exceptions: `amount`, `expiry`, and 
-  ///         `preparedBlock`. The `amount` and `expiry` are decremented
-  ///         between sending and receiving chains to provide an incentive for 
-  ///         the router to complete the transaction and time for the router to
-  ///         fulfill the transaction on the sending chain after the unlocking
-  ///         signature is revealed, respectively.
-  /// @param invariantData The data for a crosschain transaction that will
-  ///                      not change between sending and receiving chains.
-  ///                      The hash of this data is used as the key to store 
-  ///                      the inforamtion that does change between chains 
-  ///                      (amount, expiry,preparedBlock) for verification
-  /// @param amount The amount of the transaction on this chain
-  /// @param expiry The block.timestamp when the transaction will no longer be
-  ///               fulfillable and is freely cancellable on this chain
-  /// @param encryptedCallData The calldata to be executed when the tx is
-  ///                          fulfilled. Used in the function to allow the user
-  ///                          to reconstruct the tx from events. Hash is stored
-  ///                          onchain to prevent shenanigans.
-  /// @param encodedBid The encoded bid that was accepted by the user for this
-  ///                   crosschain transfer. It is supplied as a param to the
-  ///                   function but is only used in event emission
-  /// @param bidSignature The signature of the bidder on the encoded bid for
-  ///                     this transaction. Only used within the function for
-  ///                     event emission. The validity of the bid and
-  ///                     bidSignature are enforced offchain
+  /**
+   * @notice This function creates a crosschain transaction. When called on
+   *         the sending chain, the user is expected to lock up funds. When
+   *         called on the receiving chain, the router deducts the transfer
+   *         amount from the available liquidity. The majority of the
+   *         information about a given transfer does not change between chains,
+   *         with three notable exceptions: `amount`, `expiry`, and 
+   *         `preparedBlock`. The `amount` and `expiry` are decremented
+   *         between sending and receiving chains to provide an incentive for 
+   *         the router to complete the transaction and time for the router to
+   *         fulfill the transaction on the sending chain after the unlocking
+   *         signature is revealed, respectively.
+   * @param invariantData The data for a crosschain transaction that will
+   *                      not change between sending and receiving chains.
+   *                      The hash of this data is used as the key to store 
+   *                      the inforamtion that does change between chains 
+   *                      (amount, expiry,preparedBlock) for verification
+   * @param amount The amount of the transaction on this chain
+   * @param expiry The block.timestamp when the transaction will no longer be
+   *               fulfillable and is freely cancellable on this chain
+   * @param encryptedCallData The calldata to be executed when the tx is
+   *                          fulfilled. Used in the function to allow the user
+   *                          to reconstruct the tx from events. Hash is stored
+   *                          onchain to prevent shenanigans.
+   * @param encodedBid The encoded bid that was accepted by the user for this
+   *                   crosschain transfer. It is supplied as a param to the
+   *                   function but is only used in event emission
+   * @param bidSignature The signature of the bidder on the encoded bid for
+   *                     this transaction. Only used within the function for
+   *                     event emission. The validity of the bid and
+   *                     bidSignature are enforced offchain
+   */
   function prepare(
     InvariantTransactionData calldata invariantData,
     uint256 amount,
@@ -386,7 +433,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Validate correct amounts on msg and transfer from user to
       // contract
-      if (Asset.isEther(invariantData.sendingAssetId)) {
+      if (Asset.isNativeAsset(invariantData.sendingAssetId)) {
         require(msg.value == amount, "#P:005");
       } else {
         require(msg.value == 0, "#P:006");
@@ -493,25 +540,27 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
 
 
-  /// @notice This function completes a crosschain transaction. When called on
-  ///         the receiving chain, the user reveals their signature on the
-  ///         invariant parts of the transaction data and is sent the 
-  ///         appropriate amount. The router then uses this signature to
-  ///         unlock the corresponding funds on the receiving chain, which are
-  ///         then added back to their available liquidity. The user includes a
-  ///         relayer fee since it is not assumed they will have gas on the
-  ///         receiving chain. This function *must* be called before the
-  ///         transaction expiry has elapsed.
-  /// @param txData All of the data (invariant and variant) for a crosschain
-  ///               transaction. The variant data provided is checked against
-  ///               what was stored when the `prepare` function was called.
-  /// @param relayerFee The fee that should go to the relayer when they are
-  ///                   calling the function on the receiving chain for the user
-  /// @param signature The users signature on the invariant data + fee that
-  ///                  can be used by the router to unlock the transaction on 
-  ///                  the sending chain
-  /// @param callData The calldata to be sent to and executed by the 
-  ///                 `FulfillHelper`
+  /**
+   * @notice This function completes a crosschain transaction. When called on
+   *         the receiving chain, the user reveals their signature on the
+   *         transactionId and is sent the amount corresponding to the number
+   *         of shares the router locked when calling `prepare`. The router 
+   *         then uses this signature to unlock the corresponding funds on the 
+   *         receiving chain, which are then added back to their available 
+   *         liquidity. The user includes a relayer fee since it is not 
+   *         assumed they will have gas on the receiving chain. This function 
+   *         *must* be called before the transaction expiry has elapsed.
+   * @param txData All of the data (invariant and variant) for a crosschain
+   *               transaction. The variant data provided is checked against
+   *               what was stored when the `prepare` function was called.
+   * @param relayerFee The fee that should go to the relayer when they are
+   *                   calling the function on the receiving chain for the user
+   * @param signature The users signature on the transaction id + fee that
+   *                  can be used by the router to unlock the transaction on 
+   *                  the sending chain
+   * @param callData The calldata to be sent to and executed by the 
+   *                 `FulfillHelper`
+   */
   function fulfill(
     TransactionData calldata txData,
     uint256 relayerFee,
@@ -623,15 +672,15 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // First, transfer the funds to the helper if needed
 
         // Cache in mem for gas
-        // bool isEther = Asset.isEther(txData.receivingAssetId);
-        if (!Asset.isEther(txData.receivingAssetId) && toSend > 0) {
+        // bool isNativeAsset = Asset.isNativeAsset(txData.receivingAssetId);
+        if (!Asset.isNativeAsset(txData.receivingAssetId) && toSend > 0) {
           Asset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: Asset.isEther(txData.receivingAssetId) ? toSend : 0}(
+        interpreter.execute{ value: Asset.isNativeAsset(txData.receivingAssetId) ? toSend : 0}(
           txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
@@ -659,20 +708,22 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     return txData;
   }
 
-  /// @notice Any crosschain transaction can be cancelled after it has been
-  ///         created to prevent indefinite lock up of funds. After the
-  ///         transaction has expired, anyone can cancel it. Before the
-  ///         expiry, only the recipient of the funds on the given chain is
-  ///         able to cancel. On the sending chain, this means only the router
-  ///         is able to cancel before the expiry, while only the user can
-  ///         prematurely cancel on the receiving chain.
-  /// @param txData All of the data (invariant and variant) for a crosschain
-  ///               transaction. The variant data provided is checked against
-  ///               what was stored when the `prepare` function was called.
-  /// @param relayerFee The fee that should go to the relayer when they are
-  ///                   calling the function for the user
-  /// @param signature The user's signature that allows a transaction to be
-  ///                  cancelled on the receiving chain.
+  /**
+   * @notice Any crosschain transaction can be cancelled after it has been
+   *         created to prevent indefinite lock up of funds. After the
+   *         transaction has expired, anyone can cancel it. Before the
+   *         expiry, only the recipient of the funds on the given chain is
+   *         able to cancel. On the sending chain, this means only the router
+   *         is able to cancel before the expiry, while only the user can
+   *         prematurely cancel on the receiving chain.
+   * @param txData All of the data (invariant and variant) for a crosschain
+   *               transaction. The variant data provided is checked against
+   *               what was stored when the `prepare` function was called.
+   * @param relayerFee The fee that should go to the relayer when they are
+   *                   calling the function for the user
+   * @param signature The user's signature that allows a transaction to be
+   *                  cancelled by a relayer
+   */
   function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature)
     external
     override
@@ -794,10 +845,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// Private functions ///
   //////////////////////////
 
-  /// @notice Gets an amount from a given issued and authorized shares
-  /// @param _issuedShares Ownership to convert for a given user
-  /// @param _outstandingShares Total shares for 
-  /// @param value Total balance to claim portion of
+  /**
+   * @notice Gets an amount from a given issued and authorized shares
+   * @param _issuedShares Ownership to convert for a given user
+   * @param _outstandingShares Total shares for 
+   * @param value Total balance to claim portion of
+   */
   function getAmountFromIssuedShares(
     uint256 _issuedShares,
     uint256 _outstandingShares,
@@ -813,10 +866,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       .rayToWad();
   }
 
-  /// @notice Converts an amount to a given number of issued shares
-  /// @param amount Amount you wish to convert
-  /// @param _outstandingShares Total number of shares authorized
-  /// @param value Total value you want ownership of
+  /**
+   * @notice Converts an amount to a given number of issued shares
+   * @param amount Amount you wish to convert
+   * @param _outstandingShares Total number of shares authorized
+   * @param value Total value you want ownership of
+   */
   function getIssuedSharesFromAmount(
     uint256 amount,
     uint256 _outstandingShares,
@@ -832,11 +887,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       .rayToWad();
   }
 
-  /// @notice Increments issued and outstanding shares when funds are sent to
-  ///         this contract
-  /// @param amount Amount sent to contract
-  /// @param assetId Asset sent to contract
-  /// @param user Person who sent the funds/is claiming funds on the contract
+  /** 
+   * @notice Increments issued and outstanding shares when funds are sent to
+   *         this contract
+   * @param amount Amount sent to contract
+   * @param assetId Asset sent to contract
+   * @param user Person who sent the funds/is claiming funds on the contract
+   */
   function handleFundsSentToContracts(
     uint256 amount,
     address assetId,
@@ -849,14 +906,16 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     outstandingShares[assetId] += amount;
   }
 
-  /// @notice Recovers the signer from the signature provided to the `fulfill`
-  ///         function. Returns the address recovered
-  /// @param transactionId Transaction identifier of tx being fulfilled
-  /// @param relayerFee The fee paid to the relayer for submitting the fulfill
-  ///                   tx on behalf of the user.
-  /// @param functionIdentifier The function the signature is being used for.
-  ///                           Either `fulfill` or `cancel`
-  /// @param signature The signature you are recovering the signer from
+  /**
+   * @notice Recovers the signer from the signature provided to the `fulfill`
+   *         function. Returns the address recovered
+   * @param transactionId Transaction identifier of tx being fulfilled
+   * @param relayerFee The fee paid to the relayer for submitting the fulfill
+   *                   tx on behalf of the user.
+   * @param functionIdentifier The function the signature is being used for.
+   *                           Either `fulfill` or `cancel`
+   * @param signature The signature you are recovering the signer from
+   */
   function recoverSignature(
     bytes32 transactionId,
     uint256 relayerFee,
@@ -874,9 +933,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
   }
 
-  /// @notice Returns the hash of only the invariant portions of a given
-  ///         crosschain transaction
-  /// @param txData TransactionData to hash
+  /**
+   * @notice Returns the hash of only the invariant portions of a given
+   *         crosschain transaction
+   * @param txData TransactionData to hash
+   */
   function hashInvariantTransactionData(TransactionData calldata txData) internal pure returns (bytes32) {
     InvariantTransactionData memory invariant = InvariantTransactionData({
       user: txData.user,
@@ -894,11 +955,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     return keccak256(abi.encode(invariant));
   }
 
-  /// @notice Returns the hash of only the variant portions of a given
-  ///         crosschain transaction
-  /// @param shares shares to hash
-  /// @param expiry expiry to hash
-  /// @param preparedBlockNumber preparedBlockNumber to hash
+  /**
+   * @notice Returns the hash of only the variant portions of a given
+   *         crosschain transaction
+   * @param shares shares to hash
+   * @param expiry expiry to hash
+   * @param preparedBlockNumber preparedBlockNumber to hash
+   */
   function hashVariantTransactionData(
     uint256 shares,
     uint256 expiry,
