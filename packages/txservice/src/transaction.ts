@@ -13,7 +13,7 @@ import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } f
  */
 export class Transaction {
   // We use a unique ID to internally track a transaction through logs.
-  public id: hyperid.Instance = hyperid();
+  public id: string = hyperid()();
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   // Receipt that we received for the on-chain transaction that was mined with
@@ -141,18 +141,6 @@ export class Transaction {
       // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
       // If there isn't a lastPrice, we're going to skip this validation step.
       const lastPrice = this.responses[this.responses.length - 1].gasPrice;
-
-      /// TEST - REMOVE
-      const currentPrice = this.gasPrice.get();
-      this.logger.info(
-        {
-          lastPrice: lastPrice?.toString(),
-          currentPrice: currentPrice.toString(),
-          check: lastPrice ? currentPrice.lte(lastPrice) : "last price unknown!!",
-        },
-        "GAS PRICE CHECK.",
-      );
-
       if (lastPrice && (this.gasPrice.get()).lte(lastPrice)) {
         throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
       }
@@ -163,10 +151,11 @@ export class Transaction {
       throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
     }
 
-    // Send the tx.
-    const result = await this.provider.sendTransaction(this.data);
     // Increment transaction attempts made.
     this._attempt++;
+
+    // Send the tx.
+    const result = await this.provider.sendTransaction(this.data);
 
     // If we experienced an error, throw.
     if (result.isErr()) {

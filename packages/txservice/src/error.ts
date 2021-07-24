@@ -105,10 +105,26 @@ export class TimeoutError extends TransactionError {
   /**
    * An error indicating that an operation (typically confirmation) timed out.
    */
-  static readonly type = TransactionReplaced.name;
+  static readonly type = TimeoutError.name;
 
   constructor(public readonly context: any = {}) {
     super("Operation timed out.");
+  }
+}
+
+export class ServerError extends TransactionError {
+  /**
+   * An error indicating that an operation on the node server (such as validation
+   * before submitting a transaction) occurred.
+   * 
+   * This error could directly come from geth, or be altered by the node server,
+   * depending on which service is used. As a result, we coerce this to a single error
+   * type.
+   */
+  static readonly type = ServerError.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Server error occurred");
   }
 }
 
@@ -167,7 +183,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
-      return new RpcError(RpcError.reasons.ServerError, context);
+      return new ServerError(context);
     default:
       throw error;
   }

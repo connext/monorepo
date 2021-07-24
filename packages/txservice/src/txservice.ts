@@ -124,28 +124,45 @@ export class TransactionService {
     this.logger.info({ method, methodId, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
+    this.logger.debug("Sending transaction.", { ...transaction.data });
 
-    while (!transaction.didFinish()) {
-      try {
-        await transaction.submit();
-        this.handleSubmit(transaction);
-      } catch(error) {
-        // IF this is the first attempt, throw.
-        // Otherwise, we should go ahead and get the receipt.
-        if (transaction.attempt <= 1) {
-          throw error;
+    try {
+      while (!transaction.didFinish()) {
+        try {
+          // TODO: Perform submit within the handle method?
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+          await transaction.submit();
+          this.handleSubmit(transaction);
+        } catch (error) {
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          if (error instanceof TransactionServiceFailure) {
+            // TODO: Might be worth attempting to confirm first?
+            // TransactionService infrastructure failed - error must be escalated for visiblity.
+            throw error;
+          }
+          // IF this is the first attempt, throw.
+          // Otherwise, we should go ahead and get the receipt.
+          if (transaction.attempt <= 1) {
+            throw error;
+          }
+        }
+
+        try {
+          // TODO: Perform submit within the handle method?
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+          await transaction.confirm();
+          this.handleConfirm(transaction);
+        } catch (error) {
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          if (error instanceof TimeoutError) {
+            transaction.bumpGasPrice();
+          } else {
+            throw error;
+          }
         }
       }
-
-      try {
-        await transaction.confirm();
-        this.handleConfirm(transaction);
-      } catch (error) {
-        if (error instanceof TimeoutError) {
-          transaction.bumpGasPrice();
-        }
-        throw error;
-      }
+    } catch (error) {
+      this.handleFail(error, transaction);
     }
 
     // Success!
@@ -306,11 +323,12 @@ export class TransactionService {
     this.logger.debug(
       {
         method,
+        id: transaction.id,
         hash: response.hash,
         gas: (response.gasPrice ?? "unknown").toString(),
         nonce: response.nonce,
       },
-      "Tx submitted.",
+      "Transaction submitted.",
     );
     this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
   }
@@ -322,7 +340,7 @@ export class TransactionService {
   private handleConfirm(transaction: Transaction) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt!;
-    this.logger.debug({ method, receipt }, "Tx mined.");
+    this.logger.debug({ method, id: transaction.id, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
@@ -332,9 +350,10 @@ export class TransactionService {
    * @param receipt The transaction receipt received back from reverted tx, if
    * applicable.
    */
-  private handleFail(error: TransactionError, receipt?: providers.TransactionReceipt) {
+  private handleFail(error: TransactionError, transaction: Transaction) {
     const method = this.sendTx.name;
-    this.logger.debug({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
+    const receipt = transaction.receipt;
+    this.logger.debug({ method, id: transaction.id, receipt, error: jsonifyError(error) }, "Transaction failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }
