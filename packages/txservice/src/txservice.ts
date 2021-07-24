@@ -4,12 +4,15 @@ import { BaseLogger } from "pino";
 import { Evt } from "evt";
 import hyperid from "hyperid";
 import { jsonifyError } from "@connext/nxtp-utils";
+import { okAsync, errAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { ChainError } from "./error";
+// import { ChainError } from "./error";
+
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
+import { TransactionErrorCode, TransactionServiceError, TransactionServiceFailure } from "./error";
 
 const hId = hyperid();
 
@@ -61,12 +64,12 @@ export class TransactionService {
 
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
-   * 
+   *
    * @remarks
    * Using the Signer instance passed into this constructor outside of the context of this
    * class is not recommended, and may cause issues with nonce being tracked improperly
    * due to the caching mechanisms used here.
-   * 
+   *
    * @param logger The pino.BaseLogger used for logging.
    * @param signer The Signer or Wallet instance, or private key, for signing transactions.
    * @param config At least a partial configuration used by TransactionService for chains,
@@ -89,8 +92,9 @@ export class TransactionService {
       const providers = chain.providers;
       if (providers.length === 0) {
         // TODO: This should be a config parser error (i.e. thrown in config parse).
-        this.logger.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
-        throw new ChainError(ChainError.reasons.ProviderNotFound);
+        const error = `Provider configurations not found for chainID: ${chainId}`;
+        this.logger.error({ chainId, providers }, error);
+        throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
       this.providers.set(
@@ -101,7 +105,8 @@ export class TransactionService {
   }
 
   /**
-   * Send specified transaction on specified chain. Will emit events throughout its lifecycle.
+   * Send specified transaction on specified chain and wait for the configured number of confirmations.
+   * Will emit events throughout its lifecycle.
    *
    * @param chainId - Chain to send transaction on
    * @param tx - Tx to send
@@ -120,58 +125,117 @@ export class TransactionService {
     const methodId = hId();
     this.logger.info({ method, methodId, tx }, "Method start");
 
-    let receipt: providers.TransactionReceipt | undefined;
+    const transaction = Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
 
-    const transaction = this.createTx(tx);
-    const submit = async () => this.handleSubmit(await transaction.send());
+    // FLOW:
+    // 1 Submit tx.
 
-    try {
-      /// SUBMIT
-      // First, send tx and get back a response.
-      await submit();
+    // 2 Wait for receipt.
+    //   - Confirmation Timeout
+    //      -> bump gas
+    //      -> 1
+    //   - Reverted
+    //   -
+    // 3 If receipt times out, bump gas and resubmit.
+    // 4
 
-      /// CONFIRM
-      // Now we wait for confirmation and get tx receipt.
-      while (!receipt) {
-        // TODO: Replace this try catch with neverthrow model.
-        try {
-          receipt = await transaction.confirm();
-        } catch (e) {
-          // Check if the error was a confirmation timeout.
-          if (e.message === ChainError.reasons.ConfirmationTimeout) {
+    // while (!receipt) {
+    //   /// SUBMIT
+    //   // First, send tx and get back a response.
+    //   const result = await transaction.submit();
+    //   if (result.isOk()) {
+    //     const response = result.value;
+    //     this.handleSubmit(response);
+    //   } else {
+    //     //   - If we already have a response:
+    //     //     -> confirm
+    //     //   - else:
+    //     //     -> throw
+    //   }
 
-            // NOTE: REMOVE - THIS SHOULD NEVER HAPPEN
-            // If nonce expired, and we were unable to confirm, something went wrong and there's
-            // no reason to continue.
-            if (transaction.nonceExpired) {
-              throw new ChainError(ChainError.reasons.NonceExpired, { method });
-            }
+    //   receipt = await transaction.confirm();
+    //   if (result.isOk
+    // }
 
-            // Bump the gas price up a bit for the next transaction attempt.
-            transaction.bumpGasPrice();
-            // Resubmit.
-            await submit();
-          } else {
-            throw e;
-          }
-        }
-      }
-    } catch (e) {
-      // Coerce error to be a ChainError.
-      let error = e;
-      const reason: string | undefined = ChainError.parseChainErrorReason(e.message);
-      if (reason) {
-        error = new ChainError(reason, { method });
-      } else {
-        error = new ChainError(error.message, { method });
-      }
-      this.handleFail(error, receipt);
-      throw error;
-    }
+    // if (transaction.responses.length === 0) {
+    //   // If we haven't got a response back, we can safely elevate this error.
+    //   throw error;
+    // } else if (error instanceof TransactionServiceFailure) {
+    //   // Some part of txservice infrastructure failed. We need to ensure this error
+    //   // is logged and escalated.
+    //   this.logger.error({}, "TransactionServiceFailure occurred for transaction.");
+    //   throw error;
+    // }
+
+    // } catch (error) {
+    //   // Ensure that this is a
+
+    //   switch (error) {
+    //     case TransactionErrorCode.TIMEOUT:
+    //       // bump gas
+    //       break;
+    //     case TransactionErrorCode.RPC_ERROR:
+    //       // throw
+    //       break;
+    //     case TransactionErrorCode.REVERTED:
+    //       // throw
+    //       break;
+    //     default:
+    //       this.logger.error(
+    //         { transaction: transaction.getData() },
+    //         "TransactionServiceFailure occurred for transaction.",
+    //       );
+    //       throw error;
+    //   }
+    // }
+
+    // const result = await ResultAsync.fromPromise(transaction.submit(), (error) => {
+    //   if (transaction.responses.length === 0) {
+    //     handleError(error);
+    //   }
+    // })
+    // .andThen((response) => {
+
+    // });
+
+    //   try {
+    //     try {
+    //       this.handleSubmit(await transaction.submit());
+    //     } catch (error) {}
+
+    //     /// CONFIRM
+    //     // Now we wait for required number of confirmations and get tx receipt.
+    //     try {
+    //       receipt = await transaction.confirm();
+    //     } catch (error) {
+    //       // Check if the error was a confirmation timeout.
+    //       if (error.message === ChainError.reasons.ConfirmationTimeout) {
+    //         // Bump the gas price up a bit for the next transaction attempt.
+    //         transaction.bumpGasPrice();
+    //         continue;
+    //       }
+    //     }
+    //   } catch (error) {
+    //     const reason = error.reason || error.message;
+    //     // If we received an unexpected error, indicating a TransactionService failure, log it!
+    //     if (!(reason in Transaction.ValidLifecycleErrors)) {
+    //       this.logger.error(
+    //         {
+    //           receipt: receipt,
+    //           error: jsonifyError(error),
+    //         },
+    //         "Received unexpected error from transaction process!",
+    //       );
+    //     }
+
+    //     this.handleFail(error, receipt);
+    //     throw error;
+    //   }
+    // }
 
     // Success!
-    this.handleConfirm(receipt);
-    return receipt;
+    // this.handleConfirm(receipt);
+    // return receipt;
   }
 
   /**
@@ -188,8 +252,12 @@ export class TransactionService {
    */
   // TODO: read will never have a value/from, why include it in the type
   public async readTx(tx: MinimalTransaction): Promise<string> {
-    const provider = this.getProvider(tx.chainId);
-    return provider.readTransaction(tx);
+    const result = await this.getProvider(tx.chainId).readTransaction(tx);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /**
@@ -201,8 +269,12 @@ export class TransactionService {
    * specified address.
    */
   public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    const provider = this.getProvider(chainId);
-    return await provider.getBalance(address);
+    const result = await this.getProvider(chainId).getBalance(address);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /**
@@ -214,8 +286,12 @@ export class TransactionService {
    * @returns BigNumber representation of the approximate gas a given tx would consume
    */
   public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const provider = this.getProvider(chainId);
-    return await provider.estimateGas(transaction);
+    const result = await this.getProvider(chainId).estimateGas(transaction);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /// LISTENER METHODS
@@ -288,14 +364,6 @@ export class TransactionService {
   }
 
   /// HELPERS
-  /** Helper method to generate a transaction instance. Stubbed in unit tests in order to
-   *  solely test the interface.
-   *  @param tx The minimal transaction data needed to send transaction to chain.
-   */
-  private createTx(tx: MinimalTransaction) {
-    return new Transaction(this.logger, this.getProvider(tx.chainId), tx, this.config);
-  }
-
   /**
    * Helper to wrap getting provider for specified chain ID.
    * @param chainId The ID of the chain for which we want a provider.
@@ -306,7 +374,9 @@ export class TransactionService {
   private getProvider(chainId: number): ChainRpcProvider {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
-      throw new ChainError(ChainError.reasons.ProviderNotFound);
+      throw new TransactionServiceFailure(
+        `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
+      );
     }
     return this.providers.get(chainId)!;
   }
@@ -317,7 +387,7 @@ export class TransactionService {
    */
   private handleSubmit(response: providers.TransactionResponse) {
     const method = this.sendTx.name;
-    this.logger.info(
+    this.logger.debug(
       {
         method,
         hash: response.hash,
@@ -335,7 +405,7 @@ export class TransactionService {
    */
   private handleConfirm(receipt: providers.TransactionReceipt) {
     const method = this.sendTx.name;
-    this.logger.info({ method, receipt }, "Tx mined.");
+    this.logger.debug({ method, receipt }, "Tx mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
@@ -347,7 +417,7 @@ export class TransactionService {
    */
   private handleFail(error: ChainError, receipt?: providers.TransactionReceipt) {
     const method = this.sendTx.name;
-    this.logger.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
+    this.logger.debug({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

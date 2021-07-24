@@ -26,20 +26,20 @@ export type CachedGas = {
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
  */
 export class GasPrice {
-  private _gasPrice?: BigNumber;
+  private _gasPrice: BigNumber;
 
-  constructor(private readonly limit: BigNumber, private readonly provider: ChainRpcProvider) {}
+  constructor(
+    public readonly baseValue: BigNumber,
+    public readonly limit: BigNumber,
+  ) {
+    this._gasPrice = baseValue;
+  }
 
   /**
    * Gets the current gas price
    * @returns BigNumber representation of gas price
    */
-  public async get(): Promise<BigNumber> {
-    if (!this._gasPrice) {
-      const value = await this.provider.getGasPrice();
-      this.validate(value);
-      this._gasPrice = value;
-    }
+  public get(): BigNumber {
     return BigNumber.from(this._gasPrice);
   }
 

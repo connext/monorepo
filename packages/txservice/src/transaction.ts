@@ -1,40 +1,67 @@
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
+import { Result } from "neverthrow";
+import { Logger } from "ethers/lib/utils";
 
 import { TransactionServiceConfig } from "./config";
-import { ChainError } from "./error";
+// import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
+import { TransactionError, TransactionErrorCode, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
  */
 export class Transaction {
-  /// We use a unique ID to internally track a transaction through logs.
+  // We use a unique ID to internally track a transaction through logs.
   public id: hyperid.Instance = hyperid();
-  /// Responses, in the order of attempts made for this tx.
+  // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
-  /// Receipt that we received for the on-chain transaction that was mined with
-  /// the desired number of confirmations.
+  // Receipt that we received for the on-chain transaction that was mined with
+  // the desired number of confirmations.
   public receipt?: providers.TransactionReceipt;
 
-  /// Internal nonce tracking.
+  /**
+   * Retrieves all data needed to format a full transaction, including current gas price set, nonce, etc.
+   */
+  public get data(): FullTransaction {
+    return {
+      ...this.minTx,
+      gasPrice: this.gasPrice.get(),
+      nonce: this.nonce,
+    };
+  }
+
+  // Internal nonce tracking.
   private _nonce?: number;
   public get nonce(): number | undefined {
     return this._nonce;
   }
   private set nonce(value: number | undefined) {
-    if (typeof value === "undefined") {
-      throw new TypeError("Cannot set nonce to undefined.");
+    if (value == null) {
+      throw new TypeError(`Cannot set nonce to ${value}.`);
     } else if (typeof this._nonce !== "undefined") {
-      throw new TypeError("Cannot overwrite already existing nonce value; nonce may only be set once per transaction!");
+      if (value === this._nonce) {
+        // Safely return: the value passed in is the same as the current nonce.
+        // This has the added affect of having this setter perform as a validator.
+        return;
+      }
+      // For some reason, the nonce changed. Log this occurance as a critical failure.
+      this.logger.error(
+        {
+          currentNonce: this.nonce,
+          responseNonce: value,
+          transactionId: this.id,
+        },
+        "Attempt made to overwrite nonce!",
+      );
+      throw new TransactionServiceFailure("Cannot overwrite already existing nonce value; nonce may only be set once per transaction!");
     }
     this._nonce = value;
   }
-  public nonceExpired = false;
 
-  /// Which transaction attempt we are on.
+  // Which transaction attempt we are on.
   private _attempt = 0;
   /**
    * Getter to return the internal attempt
@@ -45,38 +72,58 @@ export class Transaction {
     return this._attempt;
   }
 
-  /// Current set gas price.
-  private gasPrice: GasPrice;
-
   /**
    * A data structure used for management of the lifecycle of one on-chain transaction.
+   *
+   * @param logger The pino.BaseLogger instance we use for logging.
+   * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
+   * @param minTx The minimum transaction data required to send a transaction.
+   * @param config The overall shared config of TransactionService.
+   */
+  private constructor(
+    private readonly logger: BaseLogger,
+    private readonly provider: ChainRpcProvider,
+    private readonly minTx: MinimalTransaction,
+    private readonly config: TransactionServiceConfig,
+    private readonly gasPrice: GasPrice,
+  ) {}
+
+  /**
+   * Static constructor method to generate a transaction instance, as it requires some
+   * async operations. Stubbed in unit tests in order to solely test the interface.
    * 
    * @param logger The pino.BaseLogger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
    * @param config The overall shared config of TransactionService.
    */
-  constructor(
-    private readonly logger: BaseLogger,
-    private readonly provider: ChainRpcProvider,
-    private readonly minTx: MinimalTransaction,
-    private readonly config: TransactionServiceConfig,
-  ) {
-    this.gasPrice = new GasPrice(BigNumber.from(this.config.gasLimit), this.provider);
+  static async create(
+    logger: BaseLogger,
+    provider: ChainRpcProvider,
+    minTx: MinimalTransaction,
+    config: TransactionServiceConfig,
+  ): Promise<Transaction> {
+    const result = await provider.getGasPrice();
+    if (result.isErr()) {
+      throw result.error;
+    }
+    const gasPrice = new GasPrice(result.value, BigNumber.from(config.gasLimit));
+    return new Transaction(
+      logger,
+      provider,
+      minTx,
+      config,
+      gasPrice,
+    );
   }
 
   /**
-   * Retrieves all data needed to format a full transaction.
-   *
-   * @returns A transaction that is ready to be sent to chain (with specified gasPrice and nonce iff rebroadcasting)
+   * Specifies whether the transaction has been completed - meaning that it's been
+   * mined and has received the target number of confirmations.
+   * @returns boolean indicating whether the transaction is completed.
    */
-  public async getData(): Promise<FullTransaction> {
-    const gasPrice = await this.gasPrice.get();
-    return {
-      ...this.minTx,
-      gasPrice,
-      nonce: this.nonce,
-    };
+  public didFinish(): boolean {
+    return (!!this.receipt && this.receipt.confirmations >= this.provider.confirmationsRequired);
   }
 
   /**
@@ -84,65 +131,62 @@ export class Transaction {
    *
    * @returns A TransactionResponse once the transaction has been mined
    */
-  public async send(): Promise<providers.TransactionResponse> {
-    const method = this.send.name;
-  
-    // Sanity check to make sure nonce is not expired.
-    if (this.nonceExpired) {
-      throw new ChainError(ChainError.reasons.NonceExpired, { method });
-    }
+  public async submit() {
+    const method = this.submit.name;
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
     if (this.responses.length > 0) {
-      const lastPrice = this.responses[this.responses.length - 1].gasPrice;
       // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
       // If there isn't a lastPrice, we're going to skip this validation step.
-      if (lastPrice && (await this.gasPrice.get()) <= lastPrice) {
-        throw new ChainError(ChainError.reasons.ReplacementGasInvalid);
+      const lastPrice = this.responses[this.responses.length - 1].gasPrice;
+
+      /// TEST - REMOVE
+      const currentPrice = this.gasPrice.get();
+      this.logger.info(
+        {
+          lastPrice: lastPrice?.toString(),
+          currentPrice: currentPrice.toString(),
+          check: lastPrice ? currentPrice.lte(lastPrice) : "last price unknown!!",
+        },
+        "GAS PRICE CHECK.",
+      );
+
+      if (lastPrice && (this.gasPrice.get()).lte(lastPrice)) {
+        throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
       }
     }
 
-    const data = await this.getData();
-    await this.logInfo("Sending transaction...", this.confirm.name);
-    const { response: _response, success } = await this.provider.sendTransaction(data);
-    this._attempt++;
-    if (!success) {
-      const error = _response as Error;
-      this.logger.error({ method, error }, "Failed to send tx");
-      throw error;
+    // Check to make sure we haven't already mined this transaction.
+    if (this.didFinish()) {
+      throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
     }
-    const response = _response as providers.TransactionResponse;
 
-    // Save nonce if applicable.
-    if (typeof this.nonce === "undefined") {
-      this.nonce = response.nonce;
-    } else if (this.nonce !== response.nonce) {
-      // NOTE: This should never happen, but we are logging just in case.
-      this.logger.warn(
-        {
-          method,
-          currentNonce: this.nonce,
-          responseNonce: response.nonce,
-          transactionId: this.id,
-          transactionData: data,
-        },
-        "NONCE WAS CHANGED DURING TX SEND LOOP.",
-      );
+    // Send the tx.
+    const result = await this.provider.sendTransaction(this.data);
+    // Increment transaction attempts made.
+    this._attempt++;
+
+    // If we experienced an error
+    if (result.isErr()) {
+      throw result.error;
     }
+    const response = result.value;
+
+    // Save nonce (if applicable; if not, this is a validation step to ensure nonce
+    // remains the same).
+    this.nonce = response.nonce;
 
     // Add this response to our local response history.
     this.responses.push(response);
-    await this.logInfo("Transaction successfully sent.", this.confirm.name);
-    return response;
   }
 
   /**
    * Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
    * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
    * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
-   * 
+   *
    * @privateRemarks
-   * 
+   *
    * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
    * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
    * wait an extended period for the desired number of confirmations. If no further confirmations appear
@@ -150,52 +194,71 @@ export class Transaction {
    * 
    * @returns A TransactionReceipt (or undefined if it did not confirm).
    */
-  public async confirm(): Promise<providers.TransactionReceipt | undefined> {
+  public async confirm() {
+    const method = this.confirm.name;
+
     // Ensure we've submitted at least 1 tx.
     if (this.responses.length === 0) {
-      throw new ChainError(ChainError.reasons.TxNotFound);
+      throw new TransactionServiceFailure("Transaction confirm was called, but no transaction has been sent.", { method });
     }
+
     // Ensure we don't already have a receipt.
     if (this.receipt != null) {
-      throw new ChainError(ChainError.reasons.TxAlreadyMined);
+      throw new TransactionServiceFailure("Transaction confirm was called, but we already have receipt.", { method });
     }
-    const method = this.confirm.name;
-    await this.logInfo("Confirming transaction...", method);
 
     // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
     // we'll get back the replacement's receipt from confirmTransaction.
-    const response = this.responses[0];
+    let response = this.responses[0];
+
     // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
-    // it will throw a ChainError.reasons.ConfirmationTimeout.
-    this.receipt = await this.provider.confirmTransaction(response, 1);
-    if (this.receipt == null) {
-      // Receipt is undefined or null. 
-      throw new ChainError(ChainError.reasons.TxNotFound);
-    } else if (this.receipt.status === 0) {
-      this.logInfo("Transaction reverted.", method, { receipt: this.receipt });
-      return this.receipt;
-    } else if (this.receipt.confirmations < this.provider.confirmationsRequired) {
-      // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
-      this.receipt = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
+    // it will throw a TransactionTimeout error.
+    const result = await this.provider.confirmTransaction(response, 1);
+    if (result.isErr()) {
+      const { error } = result;
+      if (error instanceof TransactionReplaced) {
+        // TODO: Should we handle error.reason?:
+        // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
+
+        // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
+        this.receipt = error.receipt;
+        // error.replacement - the replacement transaction (a TransactionResponse)
+        response = error.replacement;
+      } else if (error instanceof TransactionReverted) {
+        // NOTE: This is the official receipt with status of 0, so it's safe to say the
+        // transaction was in fact reverted and we should throw here.
+        this.receipt = error.receipt;
+        throw error; 
+      } else {
+        throw error;
+      }
+    } else {
+      this.receipt = result.value;
     }
 
-    // 
-    // this.logger.error(
-    //   {
-    //     response,
-    //     errorCode: error.code,
-    //     error: jsonifyError(error),
-    //   },
-    //   "Received unexpected error code from response.wait!",
-    // );
-    return this.receipt;
+    if (this.receipt == null) {
+      // Receipt is undefined or null. This normally should never occur.
+      throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", { method, receipt: this.receipt });
+    } else if (this.receipt.status === 0) {
+      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.");
+    }
+
+    if (this.receipt.confirmations < this.provider.confirmationsRequired) {
+      // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
+      // TODO: Maybe set timeout to confirmationsRequired * confirmationTimeout...
+      const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
+      if (result.isErr()) {
+        throw result.error;
+      }
+      this.receipt = result.value;
+    }
   }
 
   /**
    * Bump the gas price for this tx up by the configured percentage.
    */
-  public async bumpGasPrice() {
-    const currentPrice = await this.gasPrice.get();
+  public bumpGasPrice() {
+    const currentPrice = this.gasPrice.get();
     // Scale up gas by percentage as specified by config.
     const bumpedGasPrice = currentPrice.add(currentPrice.mul(this.config.gasReplacementBumpPercent).div(100)).add(1);
     this.gasPrice.set(bumpedGasPrice);
@@ -206,31 +269,6 @@ export class Transaction {
         newGasPrice: bumpedGasPrice.toString(),
       },
       "Bumping tx gas price for reattempt.",
-    );
-  }
-
-  /**
-   * This helper exists to ensure we are always logging the full transaction data
-   * and ID whenever we log info.
-   * 
-   * @param message The message string to log.
-   * @param method The caller method's string name.
-   * @param info Any additional info to log on top of the standard tx data stack.
-   */
-  private async logInfo(message: string, method: string, info: any = {}) {
-    const data = await this.getData();
-    this.logger.info(
-      {
-        method,
-        transactionId: this.id,
-        transactionData: {
-          ...data,
-          gasPrice: (data.gasPrice ?? "none").toString(),
-          value: data.value.toString(),
-        },
-        ...info,
-      },
-      message,
     );
   }
 }
