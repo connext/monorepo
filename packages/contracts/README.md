@@ -15,7 +15,7 @@ There are two main offchain agents:
 1. **User**: The person initiating the crosschain transaction. Their ultimate desire is to move `assetA` on `chainA` to `assetB` on `chainB`. They are willing to pay a fee denominated in `assetA` on `chainA` to accomplish this, and may want to execute some contract call with `assetB` on `chainB` when they transfer. The system does not make any assumptions about their liveness or their ability to maintain a data store.
 2. **Router**: The person providing liquidity to facilitate crosschain transactions. Routers earn fees on their available liquidity of `assetB` on `chainB` (continuing the above example), and they are willing to accept a fee denominated in `assetA` on `chainA`. There are no imposed storage requirements, though a router is assumed to be online through the duration of the transfer acceptance (via participation in an auction) to the provision of liquidity on the receiver chain.
 
-When using NXTP to perform a crosschain swap, a user first locks liquidity of `assetA` on `chainA`, waits for the router to lock `assetB` on `chainB`, and finally is able to unlock the funds by providing a signature and submitting it to a contract that exists on `chainB`. The router can use this same signature to unlock the funds the user locked on `chainA`. If something goes wrong, or the payment expires, the transfer may also be cancelled, and the funds returned to their original owner.
+When using NXTP to perform a crosschain swap, a user first locks liquidity of `assetA` on `chainA`, waits for the router to lock `assetB` on `chainB`, and finally is able to unlock the funds by providing a signature and submitting it to a contract that exists on `chainB`. The router can use this same signature to unlock the funds the user locked on `chainA`. If something goes wrong, or the payment expires, the transfer may be cancelled, and the funds returned to their original owner.
 
 ### Transaction Lifecycle
 
@@ -23,15 +23,15 @@ When using NXTP to perform a crosschain swap, a user first locks liquidity of `a
 
 Transactions go through three phases:
 
-1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range. This step allows the user to select which router will participate in the transaction.
-2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chain. Upon detecting an event containing their signed bid from the chain, router submits the same data to the `TransactionManager` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - fee` so the router is incentivized to complete the transaction (they pocket the difference).
+1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
+2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chain. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - auction fee` so the router is incentivized to complete the transaction.
 3. **Fulfill**: Upon detecting the `TransactionPrepared` event on the receiver-side chain, the user signs a message and sends it to a relayer, who will earn a fee for submission. The relayer (which may be the router) then submits the message to the `TransactionManager` to complete their transaction on receiver-side chain and claim the funds locked by the router. A relayer is used here to allow users to submit transactions with arbitrary calldata on the receiving chain without needing gas to do so. The router then submits the same signed message and completes transaction on sender-side, unlocking the original `amount`.
 
 If a transaction is not fulfilled within a fixed timeout, it reverts and can be reclaimed by the party that called `prepare` on each chain (initiator). Additionally, transactions can be cancelled unilaterally by the person owed funds on that chain (router for sending chain, user for receiving chain) prior to expiry.
 
 ### Key Principles
 
-- `TransactionManager` _is_ our data store. Neither participant should require a store to complete crosschain transactions. All information to `prepare`, `fulfill`, or `cancel` transactions should be retrievable through contract events. If a user goes offline and returns, they should be able to read the onchain data to determine which transactions require the actions, and the data needed to execute them.
+- `TransactionManager` _is_ our data store. Neither participant should require a store to complete crosschain transactions. All information to `prepare`, `fulfill`, or `cancel` transactions should be retrievable through contract events. If a user goes offline and returns, they should be able to read the onchain data to determine which actions are required to complete transactions, and the data needed to execute them.
 - `TransactionManager` is also how we pass messages most of the time -- the events are used as a mechanism for broadcasting data to the counterparty. This removes the need for the majority messaging overhead.
 - The user should be able to use relayers for any actions that need to be taken on the receiving chain. It should _not_ be assumed that they have gas on that chain.
 - The `amount` and `expiry` should be decremented from the sending to the receiving chain. The `amount` is decremented to allow the router to take some profits for facilitating the transaction upon unlocking the sender-chain transfer. The `expiry` is decremented so the receiver-side is _guaranteed_ to be completed (either cancellable or fulfilled) before the sender-side.
@@ -64,7 +64,11 @@ Lets assume that by this point the user has already run the auction.
 
 ### Offline Protections
 
-The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the transactions all store the `preparedBlockNumber` on them, and the contract tracks the `activeTransactionBlocks` for each user in a `mapping(address => uint256[]`). This mapping adds the `block.number` each time a transaction is prepared, and removes the `preparedBlockNumber` on completion (both `fulfill` and `cancel`). By looking at these blocks, users and routers should be able to easily find the relevant events and determine the necessary actions without needing a store of their own.
+The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the `prepare` function will take in more parameters than are strictly needed so the relevant data can be emitted through events. Then users and routers can rely on either subgraphs or event polling to determine the necessary active transfers, and gather all data needed to complete them.
+
+### Internal Accounting
+
+To properly handle the cases where a token is rebasing/inflationary/deflationary, we think of funds sent to the contracts as claiming "shares" of the total balance of the contract, rather than tracking raw balances. This allows routers to keep earning inflation rewards when providing liquidity aTokens, for example. Shares are created and issued when the contract receives funds, and burned when the contract disburses funds. During a crosschain transaction, they are deducted from the routers issued shares so they cannot be reused.
 
 ## Error Codes
 
@@ -80,15 +84,37 @@ The error definitions can be found [here](https://github.com/connext/nxtp/blob/c
 
 ## Development
 
-### Running the tests
+### Building
 
-To run the contract tests, run the following from the `modules/contracts` directory:
+First, install and build all the packages from the root:
 
 ```sh
-yarn test
+nxtp$ yarn && yarn build:all
+```
+
+Then, if you are only making updates to the contracts package, rebuild by running:
+
+```sh
+nxtp$ yarn  workspace @connext/nxtp-contracts build
+```
+
+### Running the tests
+
+To run the contract tests, run the following from the root directory:
+
+```sh
+nxtp$ yarn workspace @connext/nxtp-contracts test
 ```
 
 This command will output the gas estimates, as well as test coverage of the suites by default. There is no need to deploy or build the repo before running the tests, which will run against a local [hardhat](https://hardhat.org) network.
+
+To run the coverage tests, run the following from the root directory:
+
+```sh
+nxtp$ yarn workspace @connext/nxtp-contracts coverage
+```
+
+This command will output the coverage status instead of the gas estimates.
 
 ### Contract Deployment
 
