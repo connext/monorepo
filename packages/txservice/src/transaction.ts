@@ -1,14 +1,12 @@
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
 import hyperid from "hyperid";
-import { Result } from "neverthrow";
-import { Logger } from "ethers/lib/utils";
 
 import { TransactionServiceConfig } from "./config";
 // import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
-import { TransactionError, TransactionErrorCode, TransactionServiceFailure } from "./error";
+import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -31,6 +29,10 @@ export class Transaction {
       gasPrice: this.gasPrice.get(),
       nonce: this.nonce,
     };
+  }
+
+  public get latestResponse(): providers.TransactionResponse {
+    return this.responses[this.responses.length - 1];
   }
 
   // Internal nonce tracking.
@@ -166,14 +168,14 @@ export class Transaction {
     // Increment transaction attempts made.
     this._attempt++;
 
-    // If we experienced an error
+    // If we experienced an error, throw.
     if (result.isErr()) {
       throw result.error;
     }
     const response = result.value;
 
-    // Save nonce (if applicable; if not, this is a validation step to ensure nonce
-    // remains the same).
+    // Save nonce if applicable; if not, this is a validation step to ensure nonce
+    // remains the same.
     this.nonce = response.nonce;
 
     // Add this response to our local response history.
@@ -219,7 +221,6 @@ export class Transaction {
       if (error instanceof TransactionReplaced) {
         // TODO: Should we handle error.reason?:
         // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
-
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         this.receipt = error.receipt;
         // error.replacement - the replacement transaction (a TransactionResponse)
@@ -245,9 +246,10 @@ export class Transaction {
 
     if (this.receipt.confirmations < this.provider.confirmationsRequired) {
       // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
-      // TODO: Maybe set timeout to confirmationsRequired * confirmationTimeout...
+      // TODO: Maybe set timeout to confirmationsRequired * confirmationTimeout...?
       const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
       if (result.isErr()) {
+        // No errors should occur during this confirmation attempt.
         throw result.error;
       }
       this.receipt = result.value;

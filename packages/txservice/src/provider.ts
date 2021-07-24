@@ -7,7 +7,12 @@ import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
-import { parseError, TransactionError, TransactionErrorCode, TransactionServiceFailure } from "./error";
+import {
+  parseError,
+  RpcError,
+  TransactionReadError,
+  TransactionServiceFailure,
+} from "./error";
 // import { ChainError } from "./error";
 import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
 
@@ -83,7 +88,9 @@ export class ChainRpcProvider {
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
-      throw new TransactionServiceFailure(`No valid providers were supplied in configuration for chain ${this.chainId}.`)
+      throw new TransactionServiceFailure(
+        `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+      );
     }
 
     // Using NonceManager to wrap signer here.
@@ -152,7 +159,7 @@ export class ChainRpcProvider {
         });
         return readResult;
       } catch (e) {
-        throw new TransactionError(TransactionErrorCode.CONTRACT_READ_ERROR, { error: jsonifyError(e) });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error: jsonifyError(e) });
       }
     });
   }
@@ -193,45 +200,44 @@ export class ChainRpcProvider {
 
     return this.resultWrapper<BigNumber>(this.getGasPrice.name, async () => {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
-        let gasPrice: BigNumber | undefined = undefined;
+      let gasPrice: BigNumber | undefined = undefined;
 
-        if (this.chainId === 1) {
-          try {
-            const gasNowResponse = await axios.get(`https://www.gasnow.org/api/v3/gas/price`);
-            const { rapid } = gasNowResponse.data;
-            gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
-          } catch (e) {
-            this.logger.warn({ error: e }, "Gasnow failed, using provider");
-          }
+      if (this.chainId === 1) {
+        try {
+          const gasNowResponse = await axios.get(`https://www.gasnow.org/api/v3/gas/price`);
+          const { rapid } = gasNowResponse.data;
+          gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
+        } catch (e) {
+          this.logger.warn({ error: e }, "Gasnow failed, using provider");
         }
-
-        if (!gasPrice) {
-          try {
-            gasPrice = await this.provider.getGasPrice();
-          } catch (e) {
-            this.logger.error(
-              { chainId: this.chainId, error: jsonifyError(e) },
-              "getGasPrice failure, attempting to default to backup gas value.",
-            );
-            // Default to initial gas price, if available. Otherwise, throw.
-            gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
-            if (!gasPrice) {
-              throw e;
-            }
-          }
-          gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
-        }
-
-        // If the gas price is less than the gas minimum, bump it up to minimum.
-        if (gasPrice.lt(gasMinimum)) {
-          gasPrice = BigNumber.from(gasMinimum);
-        }
-
-        // Cache the latest gas price.
-        this.cachedGas = { price: gasPrice, timestamp: Date.now() };
-        return gasPrice;
       }
-    );
+
+      if (!gasPrice) {
+        try {
+          gasPrice = await this.provider.getGasPrice();
+        } catch (e) {
+          this.logger.error(
+            { chainId: this.chainId, error: jsonifyError(e) },
+            "getGasPrice failure, attempting to default to backup gas value.",
+          );
+          // Default to initial gas price, if available. Otherwise, throw.
+          gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
+          if (!gasPrice) {
+            throw e;
+          }
+        }
+        gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
+      }
+
+      // If the gas price is less than the gas minimum, bump it up to minimum.
+      if (gasPrice.lt(gasMinimum)) {
+        gasPrice = BigNumber.from(gasMinimum);
+      }
+
+      // Cache the latest gas price.
+      this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+      return gasPrice;
+    });
   }
 
   /**
@@ -270,32 +276,14 @@ export class ChainRpcProvider {
    * @param method The string method name, used for logging.
    * @param targetMethod The actual method callback to execute and wrap in retries.
    */
-  private resultWrapper<T>(
-    method: string,
-    targetMethod: () => Promise<T>,
-    retry: boolean = false,
-  ): ResultAsync<T, TransactionError> {
+  private resultWrapper<T>(method: string, targetMethod: () => Promise<T>): ResultAsync<T, TransactionError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
-        let retries: number;
-        const maxRetries = retry ? this.config.rpcProviderMaxRetries : 1;
-        const errors: { [attempt: number]: string | undefined } = {};
-        for (retries = 1; retries < maxRetries; retries++) {
-          try {
-            return targetMethod();
-          } catch (e) {
-            errors[retries] = e.message;
-          }
-        }
-        // All retries failed.
-        throw new TransactionError(TransactionErrorCode.RPC_ERROR, {
-          method,
-          chainId: this.chainId,
-          errors,
-        });
+        // TODO: Reimplement retry ability.
+        return targetMethod();
       }),
       (error) => {
-        // TODO: Parse error
+        // Parse error into TransactionError, etc.
         throw parseError(error);
       },
     );
@@ -314,10 +302,9 @@ export class ChainRpcProvider {
     const ready = await this.provider.ready;
     if (!ready) {
       // Error out, not enough providers are ready.
-      throw new TransactionError(TransactionErrorCode.RPC_ERROR, {
+      throw new RpcError(RpcError.reasons.OutOfSync, {
         method,
         chainId: this.chainId,
-        error: "Provider(s) not in sync.",
       });
     }
     // TODO: Evaluate whether this.provider.ready covers all cases well enough, and whether we need
