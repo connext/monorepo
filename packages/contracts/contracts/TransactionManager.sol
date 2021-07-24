@@ -244,7 +244,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero shares
-    require(shares > 0, "#RL:028");
+    require(shares > 0, "#RL:035");
 
     // Get stored router shares
     uint256 routerShares = issuedShares[msg.sender][assetId];
@@ -253,7 +253,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 outstanding = outstandingShares[assetId];
 
     // Sanity check: owns enough shares
-    require(routerShares >= shares, "#RL:019");
+    require(routerShares >= shares, "#RL:018");
 
     // Convert shares to amount
     uint256 amount = getAmountFromIssuedShares(
@@ -447,7 +447,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       );
 
       // Check that router has liquidity
-      require(issuedShares[invariantData.router][invariantData.receivingAssetId] >= shares, "#P:019");
+      require(issuedShares[invariantData.router][invariantData.receivingAssetId] >= shares, "#P:018");
 
       // Store the transaction variants
       variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);
@@ -731,7 +731,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         Asset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), amount);
       } else {
         // Sanity check relayer fee
-        require(relayerFee <= amount, "#C:024");
+        require(relayerFee <= amount, "#C:023");
 
         // Update the issued shares for the user
         issuedShares[txData.user][txData.sendingAssetId] -= txData.shares;

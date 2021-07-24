@@ -94,9 +94,9 @@ describe("TransactionManager", function () {
     );
   });
 
-  const transferOwnership = async (newOwner: string = constants.AddressZero) => {
-    await transferOwnershipOnContract(newOwner, transactionManager);
-    // expect(await transactionManager.renounced()).to.be.eq(newOwner === constants.AddressZero);
+  const transferOwnership = async (newOwner: string = constants.AddressZero, instance = transactionManager) => {
+    await transferOwnershipOnContract(newOwner, instance);
+    expect(await instance.renounced()).to.be.eq(newOwner === constants.AddressZero);
   };
 
   const getTransactionData = async (
@@ -1005,8 +1005,8 @@ describe("TransactionManager", function () {
       await expect(
         transactionManager
           .connect(user)
-          .prepare(transaction, record.amount, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-            value: record.amount,
+          .prepare(transaction, record.shares, expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+            value: record.shares,
           }),
       ).to.be.revertedWith(getContractError("prepare: TIMEOUT_TOO_LOW"));
     });
@@ -1115,7 +1115,7 @@ describe("TransactionManager", function () {
         await expect(
           transactionManagerReceiverSide
             .connect(router)
-            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
+            .prepare(transaction, record.shares, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
         ).to.be.revertedWith("#P:031");
       });
 
@@ -1124,8 +1124,8 @@ describe("TransactionManager", function () {
         await expect(
           transactionManagerReceiverSide
             .connect(router)
-            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
-              value: record.amount,
+            .prepare(transaction, record.shares, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.shares,
             }),
         ).to.be.revertedWith(getContractError("prepare: BAD_ASSET"));
       });
@@ -1163,9 +1163,9 @@ describe("TransactionManager", function () {
       });
 
       it("should fail if router liquidity is lower than amount", async () => {
-        const { transaction, record } = await getTransactionData({ router: receiver.address }, { shares: "1000000" });
+        await transferOwnership(constants.AddressZero, transactionManagerReceiverSide);
 
-        await (await transactionManagerReceiverSide.renounce()).wait();
+        const { transaction, record } = await getTransactionData({ router: receiver.address }, { shares: "1000000" });
 
         // Another router adds liquidity
         await addAndAssertLiquidity(
