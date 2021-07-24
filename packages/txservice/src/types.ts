@@ -1,8 +1,7 @@
 import { NonceManager } from "@ethersproject/experimental";
 import { BigNumber, BigNumberish, providers } from "ethers";
 
-import { ChainError } from "./error";
-import { ChainRpcProvider } from "./provider";
+import { TransactionServiceFailure } from "./error";
 
 export type MinimalTransaction = {
   chainId: number;
@@ -28,10 +27,7 @@ export type CachedGas = {
 export class GasPrice {
   private _gasPrice: BigNumber;
 
-  constructor(
-    public readonly baseValue: BigNumber,
-    public readonly limit: BigNumber,
-  ) {
+  constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
     this._gasPrice = baseValue;
   }
 
@@ -59,7 +55,7 @@ export class GasPrice {
    */
   private validate(value: BigNumber) {
     if (value.gt(this.limit)) {
-      throw new ChainError(ChainError.reasons.MaxGasPriceReached, {
+      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
         gasPrice: value.toString(),
         max: this.limit.toString(),
       });
