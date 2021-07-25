@@ -112,9 +112,9 @@ export class TransactionService {
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
-   * 
+   *
    * @returns TransactionReceipt once the tx is mined if the transaction was successful.
-   * 
+   *
    * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
    * something went wrong within TransactionService process.
    */
@@ -163,6 +163,7 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction);
+      throw error;
     }
 
     // Success!
@@ -214,7 +215,7 @@ export class TransactionService {
    *
    * @param chainId - Chain to execute tx on
    * @param transaction Transaction to estimate gas of
-   * 
+   *
    * @returns BigNumber representation of the approximate gas a given tx would consume
    */
   public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
