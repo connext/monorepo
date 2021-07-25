@@ -24,7 +24,6 @@ interface ITransactionManager {
   // Holds all data that varies between sending and receiving
   // chains. The hash of this is stored onchain to ensure the
   // information passed in is valid.
-  // TODO: do we want to store prepared amount?
   struct VariantTransactionData {
     uint256 shares;
     uint256 expiry;

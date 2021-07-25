@@ -451,7 +451,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       handleFundsSentToContracts(amount, invariantData.sendingAssetId, invariantData.user);
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number);   
+      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(shares, expiry, block.number); 
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
