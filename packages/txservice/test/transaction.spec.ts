@@ -17,7 +17,7 @@ let transaction: Transaction;
 let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
 
 const log = pino({ level: "debug", name: "TransactionServiceTest" });
-describe("TransactionService unit test", () => {
+describe.skip("TransactionService unit test", () => {
   beforeEach(() => {
     chainProvider = createStubInstance(ChainRpcProvider);
     chainProvider.confirmationTimeout = 60_000;
@@ -72,7 +72,7 @@ describe("TransactionService unit test", () => {
     it("happy: send returns correct response", async () => {
       const response = await transaction.send();
       // Expect response to be correct.
-      
+
       expect(response).to.deep.eq(txResponse);
       // Ensure that we called the nested chain provider method.
       expect(chainProvider.sendTransaction.callCount).eq(1);
