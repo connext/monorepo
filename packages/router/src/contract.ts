@@ -127,13 +127,6 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      // this.txService.sendTx(chainId, {
-      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
-      //   data: encodedData,
-      //   value: constants.Zero,
-      //   chainId,
-      //   from: this.signerAddress,
-      // }),
       new Promise(async (res) => {
         const response = await this.wallet.connect(provider).sendTransaction({
           to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -146,6 +139,13 @@ export class TransactionManager {
         this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
         res(receipt);
       }),
+      // this.txService.sendTx({
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   data: encodedData,
+      //   value: constants.Zero,
+      //   chainId,
+      //   from: this.signerAddress,
+      // }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -191,13 +191,6 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      // this.txService.sendTx(chainId, {
-      //   chainId,
-      //   data: fulfillData,
-      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
-      //   value: 0,
-      //   from: this.signerAddress,
-      // }),
       new Promise(async (res) => {
         const response = await this.wallet.connect(provider).sendTransaction({
           to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -210,6 +203,13 @@ export class TransactionManager {
         this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
         res(receipt);
       }),
+      // this.txService.sendTx({
+      //   chainId,
+      //   data: fulfillData,
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   value: 0,
+      //   from: this.signerAddress,
+      // }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -255,13 +255,6 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      // this.txService.sendTx(chainId, {
-      //   chainId,
-      //   data: cancelData,
-      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
-      //   value: 0,
-      //   from: this.signerAddress,
-      // }),
       new Promise(async (res) => {
         const response = await this.wallet.connect(provider).sendTransaction({
           to: this.config.chainConfig[chainId].transactionManagerAddress,
@@ -274,6 +267,13 @@ export class TransactionManager {
         this.logger.info({ method, methodId, txHash: receipt.transactionHash }, "Tx mined");
         res(receipt);
       }),
+      // this.txService.sendTx({
+      //   chainId,
+      //   data: cancelData,
+      //   to: this.config.chainConfig[chainId].transactionManagerAddress,
+      //   value: 0,
+      //   from: this.signerAddress,
+      // }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -327,7 +327,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx(chainId, {
+      this.txService.sendTx({
         chainId,
         data: removeLiquidityData,
         to: nxtpContractAddress,
