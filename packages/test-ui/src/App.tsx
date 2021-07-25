@@ -253,13 +253,6 @@ function App(): React.ReactElement | null {
 
     const finish = await sdk.finishTransfer(event);
     console.log("finish: ", finish);
-
-    const fulfilled = await sdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === transfer.transactionId,
-    );
-    console.log("fulfilled: ", fulfilled);
   };
 
   const columns = [
