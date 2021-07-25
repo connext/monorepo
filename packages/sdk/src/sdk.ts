@@ -478,7 +478,7 @@ export class NxtpSdk {
 
         // check if the price changes unfovorably by more than the slippage tolerance(percentage).
         const priceImpact =
-          (parseFloat(BigNumber.from(data.bid.amountReceived).sub(amount).toString()) / parseFloat(amount)) * 100;
+          (parseFloat(BigNumber.from(amount).sub(data.bid.amountReceived).toString()) / parseFloat(amount)) * 100;
 
         if (priceImpact > parseFloat(slippageTolerance)) {
           this.logger.error(
