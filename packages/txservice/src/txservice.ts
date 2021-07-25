@@ -134,7 +134,7 @@ export class TransactionService {
           await transaction.submit();
           this.handleSubmit(transaction);
         } catch (error) {
-          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          this.logger.warn(`(${transaction.id}, ${transaction.attempt}) ${error}`);
           if (error instanceof TransactionServiceFailure) {
             // TODO: Might be worth attempting to confirm first?
             // TransactionService infrastructure failed - error must be escalated for visiblity.
@@ -321,7 +321,7 @@ export class TransactionService {
   private handleSubmit(transaction: Transaction) {
     const method = this.sendTx.name;
     const response = transaction.latestResponse;
-    this.logger.debug(
+    this.logger.info(
       {
         method,
         id: transaction.id,
@@ -341,7 +341,7 @@ export class TransactionService {
   private handleConfirm(transaction: Transaction) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt!;
-    this.logger.debug({ method, id: transaction.id, receipt }, "Transaction mined.");
+    this.logger.info({ method, id: transaction.id, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
