@@ -37,10 +37,7 @@ export class TransactionReadError extends TransactionError {
     ContractReadError: "An exception occurred while trying to read from the contract.",
   };
 
-  constructor(
-    public readonly reason: Values<typeof TransactionReverted.reasons>,
-    public readonly context: any = {},
-  ) {
+  constructor(public readonly reason: Values<typeof TransactionReverted.reasons>, public readonly context: any = {}) {
     super(reason);
   }
 }
@@ -116,7 +113,7 @@ export class ServerError extends TransactionError {
   /**
    * An error indicating that an operation on the node server (such as validation
    * before submitting a transaction) occurred.
-   * 
+   *
    * This error could directly come from geth, or be altered by the node server,
    * depending on which service is used. As a result, we coerce this to a single error
    * type.
@@ -163,6 +160,11 @@ export class TransactionServiceFailure extends NxtpError {
   }
 }
 
+/**
+ * Parses error strings into strongly typed NxtpError.
+ * @param error from ethers.js package
+ * @returns NxtpError
+ */
 export const parseError = (error: any): NxtpError => {
   const context = { error: jsonifyError(error) };
   switch (error.code) {
