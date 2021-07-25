@@ -2,21 +2,24 @@
 import { jsonifyError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { okAsync, ResultAsync } from "neverthrow";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
-import { ChainError } from "./error";
-import { FullTransaction, MinimalTransaction, NxtpNonceManager } from "./types";
+import {
+  parseError,
+  RpcError,
+  TransactionError,
+  TransactionReadError,
+  TransactionServiceFailure,
+} from "./error";
+import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
 
 const { JsonRpcProvider, FallbackProvider } = providers;
 
-type CachedGas = {
-  price: BigNumber;
-  timestamp: number;
-};
-
-/// Could use a more encompassing name, e.g. ChainRpcDispatch, etc
+// TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
+// implement a lookback, etc.
 
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
@@ -30,19 +33,31 @@ export class ChainRpcProvider {
 
   public confirmationsRequired: number;
   public confirmationTimeout: number;
-  public chainId: number;
 
+  /**
+   * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
+   * retries. Will ensure provider(s) are ready before any use case.
+   *
+   * @param logger pino.BaseLogger used for logging.
+   * @param signer Signer instance or private key used for signing transactions.
+   * @param chainId The ID of the chain for which this class's providers will be servicing.
+   * @param chainConfig Configuration for this specified chain.
+   * @param providerConfigs Configuration for each provider that will be used with this chain.
+   * @param config The shared TransactionServiceConfig with general configuration.
+   *
+   * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
+   * configuration.
+   */
   constructor(
-    private readonly log: BaseLogger,
+    private readonly logger: BaseLogger,
     signer: string | Signer,
-    chainId: number,
+    public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
     providerConfigs: ProviderConfig[],
     private readonly config: TransactionServiceConfig,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
-    this.chainId = chainId;
     // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
@@ -53,7 +68,7 @@ export class ChainRpcProvider {
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
-        this.log.error({ config }, "Configuration was invalid for provider.");
+        this.logger.error({ config }, "Configuration was invalid for provider.");
       }
       return valid;
     });
@@ -73,7 +88,9 @@ export class ChainRpcProvider {
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
-      throw new ChainError(ChainError.reasons.ProviderNotFound);
+      throw new TransactionServiceFailure(
+        `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+      );
     }
 
     // Using NonceManager to wrap signer here.
@@ -82,40 +99,59 @@ export class ChainRpcProvider {
     );
   }
 
-  public async sendTransaction(
-    tx: FullTransaction,
-  ): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> {
-    const method = this.sendTransaction.name;
-    await this.isReady();
-    // Define task to send tx with proper nonce.
-    const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
-      try {
-        // Send transaction using the passed in callback.
-        const { to, data, chainId, value, gasPrice, nonce } = tx;
-        const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({
-          to,
-          data,
-          chainId,
-          gasPrice,
-          nonce,
-          value: BigNumber.from(value || 0),
-        });
-        // Check to see if ethers returned undefined for the response; if so, handle as error case.
-        if (typeof response === "undefined") {
-          throw new ChainError(ChainError.reasons.FailedToSendTx, { method, ...tx, nonce });
+  /**
+   * Send the transaction request to the provider.
+   * @param tx The full transaction data for the request.
+   * @returns An object containing the response or error if an error occurred,
+   * and a success boolean indicating whether the process did result in an error.
+   */
+  public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
+    return this.resultWrapper<providers.TransactionResponse>(this.sendTransaction.name, async () => {
+      // Define task to send tx with proper nonce.
+      const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
+        try {
+          // Send transaction using the passed in callback.
+          const { to, data, chainId, value, gasPrice, nonce } = tx;
+          const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({
+            to,
+            data,
+            chainId,
+            gasPrice,
+            nonce,
+            value: BigNumber.from(value || 0),
+          });
+          if (response == null) {
+            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
+            throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
+              transaction: tx,
+              response,
+            });
+          }
+          return { response, success: true };
+        } catch (e) {
+          return { response: e, success: false };
         }
-        return { response, success: true };
-      } catch (e) {
-        return { response: e, success: false };
+      };
+      // Queue up the execution of the transaction.
+      const result = await this.queue.add(task);
+      if (result.success) {
+        return result.response as providers.TransactionResponse;
+      } else {
+        throw result.response;
       }
-    };
-    // Queue up the execution of the transaction.
-    return await this.queue.add(task);
+    });
   }
 
-  public async readTransaction(tx: MinimalTransaction): Promise<string> {
-    const method = this.readTransaction.name;
-    return await this.retryWrapper(method, async () => {
+  /**
+   * Execute a read transaction using the passed in transaction data, which includes
+   * the target contract which we are reading from.
+   * @param tx Minimal transaction data needed to read from chain.
+   * @returns A string of data read from chain.
+   * @throws ChainError.reasons.ContractReadFailure in the event of a failure
+   * to read from chain.
+   */
+  public readTransaction(tx: MinimalTransaction): ResultAsync<string, TransactionError> {
+    return this.resultWrapper<string>(this.readTransaction.name, async () => {
       try {
         const readResult = await this.signer.call({
           to: tx.to,
@@ -123,21 +159,47 @@ export class ChainRpcProvider {
         });
         return readResult;
       } catch (e) {
-        throw new ChainError(ChainError.reasons.ContractReadFailure, { error: jsonifyError(e) });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error: jsonifyError(e) });
       }
     });
   }
 
-  public async getGasPrice(): Promise<BigNumber> {
-    const method = this.getGasPrice.name;
+  /**
+   * Get the receipt for the transaction with the specified hash, optionally blocking
+   * until a specified timeout.
+   *
+   * @param hash The hexadecimal hash string of the transaction.
+   * @param confirmations Optional parameter to override the configured number of confirmations
+   * required to validate the receipt.
+   * @param timeout Optional timeout parameter to override the configured parameter.
+   *
+   * @returns The ethers TransactionReceipt, if mined, otherwise null.
+   *
+   */
+  public confirmTransaction(
+    response: providers.TransactionResponse,
+    confirmations?: number,
+    timeout?: number,
+  ): ResultAsync<providers.TransactionReceipt, TransactionError> {
+    return this.resultWrapper<providers.TransactionReceipt>(this.confirmTransaction.name, () => {
+      // The only way to access the functionality internal to ethers for handling replacement tx.
+      // See issue: https://github.com/ethers-io/ethers.js/issues/1775
+      return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
+    });
+  }
 
+  /**
+   * Get the current gas price for the chain for which this instance is servicing.
+   * @returns The BigNumber value for the current gas price.
+   */
+  public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
     if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
-      return this.cachedGas.price;
+      return okAsync(this.cachedGas.price);
     }
 
-    const { gasInitialBumpPercent, gasMinimum } = this.config;
-    return await this.retryWrapper<BigNumber>(method, async () => {
+    return this.resultWrapper<BigNumber>(this.getGasPrice.name, async () => {
+      const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
       if (this.chainId === 1) {
@@ -146,7 +208,7 @@ export class ChainRpcProvider {
           const { rapid } = gasNowResponse.data;
           gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
         } catch (e) {
-          this.log.warn({ error: e }, "Gasnow failed, using provider");
+          this.logger.warn({ error: e }, "Gasnow failed, using provider");
         }
       }
 
@@ -154,7 +216,7 @@ export class ChainRpcProvider {
         try {
           gasPrice = await this.provider.getGasPrice();
         } catch (e) {
-          this.log.error(
+          this.logger.error(
             { chainId: this.chainId, error: jsonifyError(e) },
             "getGasPrice failure, attempting to default to backup gas value.",
           );
@@ -178,39 +240,61 @@ export class ChainRpcProvider {
     });
   }
 
-  public async getBalance(address: string): Promise<BigNumber> {
-    const method = this.getBalance.name;
-    return await this.retryWrapper<BigNumber>(method, async () => {
+  /**
+   * Get the current balance for the specified address.
+   *
+   * @param address The hexadecimal string address whose balance we are getting.
+   *
+   * @returns A BigNumber representing the current value held by the wallet at the
+   * specified address.
+   */
+  public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
+    return this.resultWrapper<BigNumber>(this.getBalance.name, async () => {
       return await this.provider.getBalance(address);
     });
   }
 
-  public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const method = this.estimateGas.name;
-    return await this.retryWrapper<BigNumber>(method, async () => {
+  /**
+   * Estimate gas cost for the specified transaction.
+   *
+   * @param transaction The ethers TransactionRequest data in question.
+   *
+   * @returns A BigNumber representing the estimated gas value.
+   */
+  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
+    return this.resultWrapper<BigNumber>(this.estimateGas.name, async () => {
       return await this.provider.estimateGas(transaction);
     });
   }
 
-  private async retryWrapper<T>(method: string, targetMethod: () => Promise<T>): Promise<T> {
-    await this.isReady();
-    let retries: number;
-    const errors: { [attempt: number]: string | undefined } = {};
-    for (retries = 1; retries < this.config.rpcProviderMaxRetries; retries++) {
-      try {
-        return await targetMethod();
-      } catch (e) {
-        errors[retries] = e.message;
-      }
-    }
-    throw new ChainError(ChainError.reasons.RpcFailure, {
-      method,
-      chainId: this.chainId,
-      errors,
-    });
+  /// HELPERS
+  /**
+   * The result wrapper used for executing multiple retries for RPC requests to providers.
+   * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
+   * or externally (for the provider's network).
+   *
+   * @param method The string method name, used for logging.
+   * @param targetMethod The actual method callback to execute and wrap in retries.
+   */
+  private resultWrapper<T>(method: string, targetMethod: () => Promise<T>): ResultAsync<T, TransactionError> {
+    return ResultAsync.fromPromise(
+      this.isReady().then(() => {
+        // TODO: Reimplement retry ability.
+        return targetMethod();
+      }),
+      (error) => {
+        // Parse error into TransactionError, etc.
+        throw parseError(error);
+      },
+    );
   }
 
+  /**
+   * Checks whether our providers are ready for execution. Should be called every time we do any
+   * operation in this class.
+   */
   private async isReady(): Promise<boolean> {
+    const method = this.isReady.name;
     // TODO: Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
@@ -218,7 +302,10 @@ export class ChainRpcProvider {
     const ready = await this.provider.ready;
     if (!ready) {
       // Error out, not enough providers are ready.
-      throw new ChainError(ChainError.reasons.ProviderNotSynced);
+      throw new RpcError(RpcError.reasons.OutOfSync, {
+        method,
+        chainId: this.chainId,
+      });
     }
     // TODO: Evaluate whether this.provider.ready covers all cases well enough, and whether we need
     // the additional checks below:

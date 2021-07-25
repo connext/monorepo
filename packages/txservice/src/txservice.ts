@@ -6,10 +6,10 @@ import hyperid from "hyperid";
 import { jsonifyError } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { ChainError } from "./error";
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
+import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
 
 const hId = hyperid();
 
@@ -22,7 +22,7 @@ export type TxServiceConfirmedEvent = {
 };
 
 export type TxServiceFailedEvent = {
-  error: ChainError;
+  error: TransactionError;
   receipt?: providers.TransactionReceipt;
 };
 
@@ -49,6 +49,7 @@ export class TransactionService {
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
 
+  /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
     [NxtpTxServiceEvents.TransactionAttemptSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
     [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
@@ -58,6 +59,19 @@ export class TransactionService {
   private config: TransactionServiceConfig;
   private providers: Map<number, ChainRpcProvider> = new Map();
 
+  /**
+   * A singleton-like interface for handling all logic related to conducting on-chain transactions.
+   *
+   * @remarks
+   * Using the Signer instance passed into this constructor outside of the context of this
+   * class is not recommended, and may cause issues with nonce being tracked improperly
+   * due to the caching mechanisms used here.
+   *
+   * @param logger The pino.BaseLogger used for logging.
+   * @param signer The Signer or Wallet instance, or private key, for signing transactions.
+   * @param config At least a partial configuration used by TransactionService for chains,
+   * providers, etc.
+   */
   constructor(private readonly logger: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
     // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
@@ -75,8 +89,9 @@ export class TransactionService {
       const providers = chain.providers;
       if (providers.length === 0) {
         // TODO: This should be a config parser error (i.e. thrown in config parse).
-        this.logger.error({ chainId, providers }, `Provider configurations not found for chainID: ${chainId}`);
-        throw new ChainError(ChainError.reasons.ProviderNotFound);
+        const error = `Provider configurations not found for chainID: ${chainId}`;
+        this.logger.error({ chainId, providers }, error);
+        throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
       this.providers.set(
@@ -87,7 +102,8 @@ export class TransactionService {
   }
 
   /**
-   * Send specified transaction on specified chain.
+   * Send specified transaction on specified chain and wait for the configured number of confirmations.
+   * Will emit events throughout its lifecycle.
    *
    * @param chainId - Chain to send transaction on
    * @param tx - Tx to send
@@ -96,63 +112,62 @@ export class TransactionService {
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
-   * @returns TransactionReceipt once the tx is mined
+   * 
+   * @returns TransactionReceipt once the tx is mined if the transaction was successful.
+   * 
+   * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
+   * something went wrong within TransactionService process.
    */
-  // TODO: chainId doesnt need to be a param and enforced on minimal tx data structure
-  public async sendTx(chainId: number, tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = hId();
-    this.logger.info({ method, methodId, chainId, tx }, "Method start");
+    this.logger.info({ method, methodId, tx }, "Method start");
 
-    let receipt: providers.TransactionReceipt | undefined;
-
-    const transaction = this.createTx(chainId, tx);
-    const submit = async () => this.handleSubmit(await transaction.send());
+    const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
+    this.logger.debug("Sending transaction.", { ...transaction.data });
 
     try {
-      /// SUBMIT
-      // First, send tx and get back a response.
-      await submit();
-
-      /// CONFIRM
-      // Now we wait for confirmation and get tx receipt.
-      while (!receipt) {
-        // TODO: Replace this try catch with neverthrow model.
+      while (!transaction.didFinish()) {
         try {
-          receipt = await transaction.confirm();
-        } catch (e) {
-          // Check if the error was a confirmation timeout.
-          if (e.message === ChainError.reasons.ConfirmationTimeout) {
-            // If nonce expired, and we were unable to confirm, something went wrong and there's
-            // no reason to continue.
-            if (transaction.nonceExpired) {
-              throw new ChainError(ChainError.reasons.NonceExpired, { method });
-            }
-            // Bump the gas price up a bit for the next transaction attempt.
+          // TODO: Perform submit within the handle method?
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+          await transaction.submit();
+          this.handleSubmit(transaction);
+        } catch (error) {
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          if (error instanceof TransactionServiceFailure) {
+            // TODO: Might be worth attempting to confirm first?
+            // TransactionService infrastructure failed - error must be escalated for visiblity.
+            throw error;
+          }
+          // IF this is the first attempt, throw.
+          // Otherwise, we should go ahead and get the receipt.
+          if (transaction.attempt <= 1) {
+            throw error;
+          }
+        }
+
+        try {
+          // TODO: Perform submit within the handle method?
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+          await transaction.confirm();
+          this.handleConfirm(transaction);
+        } catch (error) {
+          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          if (error instanceof TimeoutError) {
             transaction.bumpGasPrice();
-            // Resubmit.
-            await submit();
           } else {
-            throw e;
+            throw error;
           }
         }
       }
-    } catch (e) {
-      // Coerce error to be a ChainError.
-      let error = e;
-      const reason: string | undefined = ChainError.parseChainErrorReason(e.message);
-      if (reason) {
-        error = new ChainError(reason, { method });
-      } else {
-        error = new ChainError(error.message, { method });
-      }
-      this.handleFail(error, receipt);
-      throw error;
+    } catch (error) {
+      this.handleFail(error, transaction);
     }
 
     // Success!
-    this.handleConfirm(receipt);
-    return receipt;
+    this.handleConfirm(transaction);
+    return transaction.receipt!;
   }
 
   /**
@@ -165,24 +180,33 @@ export class TransactionService {
    * @param tx.value - Value to execute read tx with
    * @param tx.data - Calldata to send
    * @param tx.from - (optional) Account to send tx from
-   * @returns Encoded hexdata representing result of the read
+   * @returns Encoded hexdata representing result of the read from the chain.
    */
   // TODO: read will never have a value/from, why include it in the type
-  public async readTx(chainId: number, tx: MinimalTransaction): Promise<string> {
-    const provider = this.getProvider(chainId);
-    return provider.readTransaction(tx);
+  public async readTx(tx: MinimalTransaction): Promise<string> {
+    const result = await this.getProvider(tx.chainId).readTransaction(tx);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /**
    * Gets the native asset balance for an address
    *
-   * @param chainId - Chain to read balance from
-   * @param address - Address to get balance of
-   * @returns BigNumber representation of asset balance
+   * @param chainId - The ID of the chain for which this call is related.
+   * @param address - The hexadecimal string address whose balance we are getting.
+   * @returns BigNumber representing the current value held by the wallet at the
+   * specified address.
    */
   public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    const provider = this.getProvider(chainId);
-    return await provider.getBalance(address);
+    const result = await this.getProvider(chainId).getBalance(address);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /**
@@ -190,11 +214,16 @@ export class TransactionService {
    *
    * @param chainId - Chain to execute tx on
    * @param transaction Transaction to estimate gas of
+   * 
    * @returns BigNumber representation of the approximate gas a given tx would consume
    */
   public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const provider = this.getProvider(chainId);
-    return await provider.estimateGas(transaction);
+    const result = await this.getProvider(chainId).estimateGas(transaction);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /// LISTENER METHODS
@@ -267,47 +296,64 @@ export class TransactionService {
   }
 
   /// HELPERS
-  /// Helper method to generate a transaction instance. Stubbed in unit tests in order to
-  /// solely test the interface.
-  private createTx(chainId: number, tx: MinimalTransaction) {
-    return new Transaction(this.logger, this.getProvider(chainId), tx, this.config);
-  }
-
-  /// Helper to wrap getting provider for specified chain ID.
+  /**
+   * Helper to wrap getting provider for specified chain ID.
+   * @param chainId The ID of the chain for which we want a provider.
+   * @returns The ChainRpcProvider for that chain.
+   * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
+   * that ID.
+   */
   private getProvider(chainId: number): ChainRpcProvider {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
-      throw new ChainError(ChainError.reasons.ProviderNotFound);
+      throw new TransactionServiceFailure(
+        `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
+      );
     }
     return this.providers.get(chainId)!;
   }
 
-  /// Handle logging and event emitting on tx submit attempt.
-  private handleSubmit(response: providers.TransactionResponse) {
+  /**
+   * Handle logging and event emitting on tx submit attempt.
+   * @param response The transaction response received back from that attempt.
+   */
+  private handleSubmit(transaction: Transaction) {
     const method = this.sendTx.name;
-    this.logger.info(
+    const response = transaction.latestResponse;
+    this.logger.debug(
       {
         method,
+        id: transaction.id,
         hash: response.hash,
         gas: (response.gasPrice ?? "unknown").toString(),
         nonce: response.nonce,
       },
-      "Tx submitted.",
+      "Transaction submitted.",
     );
     this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
   }
 
-  /// Handle logging and event emitting on tx confirmation.
-  private handleConfirm(receipt: providers.TransactionReceipt) {
+  /**
+   * Handle logging and event emitting on tx confirmation.
+   * @param receipt The transaction receipt received back.
+   */
+  private handleConfirm(transaction: Transaction) {
     const method = this.sendTx.name;
-    this.logger.info({ method, receipt }, "Tx mined.");
+    const receipt = transaction.receipt!;
+    this.logger.debug({ method, id: transaction.id, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
-  /// Handle logging and event emitting on tx failure.
-  private handleFail(error: ChainError, receipt?: providers.TransactionReceipt) {
+  /**
+   * Handle logging and event emitting on tx failure.
+   * @param error The TransactionError that occurred during the transaction lifecycle.
+   * @param receipt The transaction receipt received back from reverted tx, if
+   * applicable.
+   */
+  private handleFail(error: TransactionError, transaction: Transaction) {
     const method = this.sendTx.name;
-    this.logger.error({ method, receipt, error: jsonifyError(error) }, "Tx failed.");
+    const receipt = transaction.receipt;
+    this.logger.debug({ method, id: transaction.id, receipt, error: jsonifyError(error) }, "Transaction failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

@@ -1987,6 +1987,7 @@ __metadata:
     evt: ^1.9.14
     hyperid: ^2.3.1
     mocha: ^9.0.2
+    neverthrow: ^4.2.2
     nyc: ^15.1.0
     p-queue: 6.6.2
     pino: ^6.12.0
