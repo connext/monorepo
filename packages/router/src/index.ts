@@ -16,6 +16,7 @@ const server = fastify();
 const config = getConfig();
 const wallet = Wallet.fromMnemonic(config.mnemonic);
 const logger = pino({ name: wallet.address, level: config.logLevel });
+logger.info({ signer: wallet.address }, "Created signer from mnemonic");
 const messaging = new RouterNxtpNatsMessagingService({
   signer: wallet,
   authUrl: config.authUrl,

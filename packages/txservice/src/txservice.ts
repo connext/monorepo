@@ -112,9 +112,9 @@ export class TransactionService {
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
-   * 
+   *
    * @returns TransactionReceipt once the tx is mined if the transaction was successful.
-   * 
+   *
    * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
    * something went wrong within TransactionService process.
    */
@@ -134,7 +134,7 @@ export class TransactionService {
           await transaction.submit();
           this.handleSubmit(transaction);
         } catch (error) {
-          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          this.logger.warn(`(${transaction.id}, ${transaction.attempt}) ${error}`);
           if (error instanceof TransactionServiceFailure) {
             // TODO: Might be worth attempting to confirm first?
             // TransactionService infrastructure failed - error must be escalated for visiblity.
@@ -163,6 +163,7 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction);
+      throw error;
     }
 
     // Success!
@@ -214,7 +215,7 @@ export class TransactionService {
    *
    * @param chainId - Chain to execute tx on
    * @param transaction Transaction to estimate gas of
-   * 
+   *
    * @returns BigNumber representation of the approximate gas a given tx would consume
    */
   public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
@@ -320,7 +321,7 @@ export class TransactionService {
   private handleSubmit(transaction: Transaction) {
     const method = this.sendTx.name;
     const response = transaction.latestResponse;
-    this.logger.debug(
+    this.logger.info(
       {
         method,
         id: transaction.id,
@@ -340,7 +341,7 @@ export class TransactionService {
   private handleConfirm(transaction: Transaction) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt!;
-    this.logger.debug({ method, id: transaction.id, receipt }, "Transaction mined.");
+    this.logger.info({ method, id: transaction.id, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
