@@ -422,7 +422,7 @@ export class NxtpSdk {
 
     const inbox = generateMessagingInbox();
 
-    let AuctionBids: AuctionResponse[] = [];
+    let auctionBids: AuctionResponse[] = [];
 
     const receivedResponsePromise = await new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
@@ -432,21 +432,21 @@ export class NxtpSdk {
         }
         // dry run, return first response
         else if (!data.bidSignature) {
-          AuctionBids.push(data);
+          auctionBids.push(data);
           return;
         } else {
-          AuctionBids.push(data);
-          if (AuctionBids.length >= 5) {
+          auctionBids.push(data);
+          if (auctionBids.length >= 5) {
             return;
           }
         }
       });
 
-      AuctionBids.sort((a, b) => {
-        return parseFloat(b.bid.amountReceived) - parseFloat(a.bid.amountReceived);
+      auctionBids.sort((a, b) => {
+        return BigNumber.from(b.bid.amountReceived).sub(a.bid.amountReceived).toNumber();
       });
 
-      AuctionBids.map(async (data) => {
+      auctionBids.map(async (data) => {
         // check router sig on bid
         const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
         if (signer !== data.bid.router) {
@@ -477,7 +477,8 @@ export class NxtpSdk {
         }
 
         // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-        const priceImpact = ((parseFloat(data.bid.amountReceived) - parseFloat(amount)) / parseFloat(amount)) * 100;
+        const priceImpact =
+          (parseFloat(BigNumber.from(data.bid.amountReceived).sub(amount).toString()) / parseFloat(amount)) * 100;
 
         if (priceImpact > parseFloat(slippageTolerance)) {
           this.logger.error(
