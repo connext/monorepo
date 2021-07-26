@@ -600,7 +600,7 @@ export class Handler {
       })
       .andThen(() => {
         // TODO: anything else? seems unnecessary to validate everything
-        if (bid.amount !== txData.amount || bid.transactionId !== txData.transactionId) {
+        if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
               method,
