@@ -305,6 +305,7 @@ export type AuctionPayload = {
   encryptedCallData: string;
   callDataHash: string;
   callTo: string;
+  dryRun: boolean;
 };
 
 export type AuctionBid = {
@@ -329,7 +330,7 @@ export type AuctionBid = {
 
 export type AuctionResponse = {
   bid: AuctionBid;
-  bidSignature: string;
+  bidSignature?: string; // not included in dry run
 };
 
 // TODO: fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
@@ -350,7 +351,7 @@ export type MetaTxPayload<T extends MetaTxTypes> = {
   chainId: number;
 };
 export type MetaTxResponse = {
-  transactionHash?: string;
+  transactionHash: string;
   chainId: number;
 };
 
