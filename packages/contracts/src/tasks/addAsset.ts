@@ -19,4 +19,9 @@ export default task("add-asset", "Add a asset")
     const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
     const tx = await txManager.addAssetId(assetId, { from: namedAccounts.deployer });
     console.log("addAssetId tx: ", tx);
+    const receipt = await tx.wait();
+    console.log("addAssetId tx mined: ", receipt.transactionHash);
+
+    const isAssetApproved = await txManager.approvedAssets(assetId);
+    console.log("isAssetApproved: ", isAssetApproved);
   });

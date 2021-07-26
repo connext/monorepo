@@ -150,6 +150,16 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 Information about common integration flows.
 
+### Setup Router for TransactionManager
+
+There's an easy hardhat script to run that sets up a router, adds assets, and adds liquidity. Run it by calling:
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat setup-test-router --router 0x0EC26F03e3dBA9bb5162D28fD5a3378A25f168d1 --network rinkeby
+```
+
+There are other configurable options. Note: You must use the deployer mnemonic. If you don't have it, ask a team member.
+
 ### Running Test UI and Router Locally Against Live Chains
 
 - Spin up local messaging (optional but good idea to not use prod messaging):
@@ -158,7 +168,7 @@ Information about common integration flows.
 yarn workspace @connext/nxtp-integration docker:messaging:up
 ```
 
-- Create router `packages/router/config.json`. Configure for live chains and the desired messaging. Hint: The mnemonic in `packages/integration/ops/config/router/config.json` is funded and configured on the deployed testnets. Otherwise you need to use the Hardhat scripts to set everything up. Be careful if others are using it as well. Best practice is to create your own mnemonic and set everything up yourself (TODO: add instructions for this):
+- Create router `packages/router/config.json`. Configure for live chains and the desired messaging. If you have not set up your mnemonic with the `TransactionManager`, see the [instructions](#setup-router-for-TransactionManager):
 
 ```json
 {

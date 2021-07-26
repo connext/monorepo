@@ -33,5 +33,10 @@ export default task("mint", "Mint test tokens")
       const erc20 = await ethers.getContractAt("TestERC20", assetIdAddress);
       const tx = await erc20.mint(mintTo, amount, { from: namedAccounts.deployer });
       console.log("mint tx: ", tx);
+      const receipt = await tx.wait();
+      console.log("mint tx mined: ", receipt.transactionHash);
+
+      const balance = await erc20.balanceOf(mintTo);
+      console.log("balance: ", balance.toString());
     },
   );
