@@ -351,7 +351,7 @@ export class TransactionManager {
   }
 
   getRouterBalance(chainId: number, assetId: string): ResultAsync<BigNumber, TransactionManagerError> {
-    const method = "Contract::removeLiquidity";
+    const method = "Contract::getRouterBalance";
     const methodId = hId();
     this.logger.info({ method, methodId, chainId, assetId }, "Method start");
 
