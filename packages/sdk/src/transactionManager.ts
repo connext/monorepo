@@ -135,7 +135,7 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId].transactionManager;
+    const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
@@ -205,7 +205,7 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId].transactionManager;
+    const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
@@ -256,7 +256,7 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId].transactionManager;
+    const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
@@ -307,7 +307,7 @@ export class TransactionManager {
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
     const config = this.chainConfig[chainId];
-    const txManager = this.chainConfig[chainId].transactionManager;
+    const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
@@ -398,7 +398,7 @@ export class TransactionManager {
     const method = "Contract::getLiquidity";
     const methodId = hId();
 
-    const txManager = this.chainConfig[chainId].transactionManager;
+    const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {

@@ -1,7 +1,5 @@
 import { task } from "hardhat/config";
 
-import { TransactionManager, TestERC20 } from "../../typechain";
-
 export default task("setup-test-router", "Add router and test assets")
   .addParam("router", "Router address")
   .addOptionalParam("assetId", "Override token address")
@@ -35,7 +33,7 @@ export default task("setup-test-router", "Add router and test assets")
         amount = "2500000000000000000000000";
       }
 
-      const txManager: TransactionManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+      const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
 
       const isRouterApproved = await txManager.approvedRouters(router);
       console.log("isRouterApproved: ", isRouterApproved);
@@ -52,7 +50,7 @@ export default task("setup-test-router", "Add router and test assets")
       console.log("Asset approved");
 
       if (assetId !== ethers.constants.AddressZero) {
-        const erc20: TestERC20 = await ethers.getContractAt("TestERC20", assetId);
+        const erc20 = await ethers.getContractAt("TestERC20", assetId);
         const balance = await erc20.balanceOf(namedAccounts.deployer);
         console.log("balance: ", balance.toString());
         if (balance.lt(amount)) {
