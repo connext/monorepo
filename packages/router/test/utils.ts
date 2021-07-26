@@ -6,6 +6,7 @@ import {
   TransactionData,
   TransactionPreparedEvent,
   TransactionFulfilledEvent,
+  AuctionBid,
 } from "@connext/nxtp-utils";
 import { providers, constants } from "ethers";
 
@@ -49,6 +50,15 @@ export const fakeConfig: NxtpRouterConfig = {
   mnemonic: "hello world",
   natsUrl: "http://example.com",
   logLevel: "info",
+  swapPools: [
+    {
+      name: "TEST",
+      assets: [
+        { assetId: mkAddress("0xc"), chainId: 1337 },
+        { assetId: mkAddress("0xf"), chainId: 1338 },
+      ],
+    },
+  ],
 };
 
 export const invariantDataMock: InvariantTransactionData = {
@@ -71,6 +81,26 @@ export const variantDataMock: VariantTransactionData = {
   preparedBlockNumber: 1234,
 };
 
+export const auctionBidMock: AuctionBid = {
+  user: invariantDataMock.user,
+  router: invariantDataMock.router,
+  sendingAssetId: invariantDataMock.sendingAssetId,
+  receivingAssetId: invariantDataMock.receivingAssetId,
+  receivingAddress: invariantDataMock.receivingAddress,
+  sendingChainId: invariantDataMock.sendingChainId,
+  receivingChainId: invariantDataMock.receivingChainId,
+  callTo: invariantDataMock.callTo,
+  callDataHash: invariantDataMock.callDataHash,
+  transactionId: invariantDataMock.transactionId,
+  amount: variantDataMock.amount,
+  sendingChainTxManagerAddress: mkAddress("0x1"),
+  receivingChainTxManagerAddress: mkAddress("0x2"),
+  expiry: variantDataMock.expiry,
+  encryptedCallData: "0x",
+  amountReceived: "120",
+  bidExpiry: 123457,
+};
+
 export const txDataMock: TransactionData = {
   ...invariantDataMock,
   ...variantDataMock,
@@ -80,7 +110,7 @@ export const senderPrepareData: TransactionPreparedEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
   encryptedCallData: "0xabc",
-  encodedBid: "0xdef",
+  encodedBid: "0xdefa",
   bidSignature: "0xbca",
 };
 

@@ -8,6 +8,7 @@ import {
   RequestContext,
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
+import * as connextUtils from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -20,7 +21,7 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt } from "./utils";
+import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -59,6 +60,7 @@ describe("Handler", () => {
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
     stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
+    stub(connextUtils, "decodeAuctionBid").returns(auctionBidMock);
 
     wallet = createStubInstance(Wallet);
     (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
@@ -76,16 +78,17 @@ describe("Handler", () => {
     const auctionPayload: AuctionPayload = {
       user: mkAddress("0xa"),
       sendingChainId: 1337,
-      sendingAssetId: mkAddress("0xb"),
+      sendingAssetId: mkAddress("0xc"),
       amount: "1",
       receivingChainId: 1338,
-      receivingAssetId: mkAddress("0xc"),
+      receivingAssetId: mkAddress("0xf"),
       receivingAddress: mkAddress("0xd"),
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId: mkBytes32("0xa"),
       encryptedCallData: "0x",
       callDataHash: mkBytes32("0xb"),
       callTo: mkAddress("0xe"),
+      dryRun: false,
     };
 
     beforeEach(() => {
@@ -123,7 +126,7 @@ describe("Handler", () => {
   });
 
   describe("handleSenderPrepare", () => {
-    it("should send prepare for receiving chain with ETH asset", async () => {
+    it.only("should send prepare for receiving chain with ETH asset", async () => {
       const ethPrepareDataMock = senderPrepareData;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
