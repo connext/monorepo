@@ -14,7 +14,7 @@ import {
   Values,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import hyperid from "hyperid";
 import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
@@ -64,6 +64,7 @@ export class HandlerError extends NxtpError {
     TxServiceError: "Error from Transaction Service",
     TxAlreadyPrepared: "Transaction already prepared",
     AuctionValidationError: "Error validating auction params",
+    ConfigError: "Config error",
   };
 
   constructor(
@@ -72,6 +73,7 @@ export class HandlerError extends NxtpError {
       auctionError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
       txServiceError?: NxtpErrorJson;
+      configError?: string;
       methodId: string;
       method: string;
       calling: string;
@@ -122,6 +124,8 @@ export const getBidExpiry = () => Math.floor(Date.now() / 1000) + 60 * 5;
  * Contains all callback logic for events and messages received by the router
  */
 export class Handler {
+  private receiverPreparing: Map<string, boolean> = new Map();
+  private senderFulfilling: Map<string, boolean> = new Map();
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
     private readonly subgraph: Subgraph,
@@ -367,9 +371,29 @@ export class Handler {
     this.logger.info({ method, methodId, data }, "Method start");
 
     const { chainId } = data;
+    const config = getConfig();
+    const chainConfig = config.chainConfig[chainId];
+    if (!chainConfig) {
+      const err = new HandlerError(HandlerError.reasons.ConfigError, {
+        calling: "getConfig",
+        methodId,
+        method,
+        configError: `No chainConfig for ${chainId}`,
+      });
+      this.logger.error({ method, methodId, err: err.toJson() }, "Error in config");
+    }
 
     if (data.type === "Fulfill") {
       const fulfillData: MetaTxFulfillPayload = data.data;
+      if (utils.getAddress(data.to) !== utils.getAddress(chainConfig.transactionManagerAddress)) {
+        const err = new HandlerError(HandlerError.reasons.ConfigError, {
+          calling: "chainConfig.transactionManagerAddress",
+          methodId,
+          method,
+          configError: `Provided transactionManagerAddress does not map to our configured transactionManagerAddress`,
+        });
+        this.logger.error({ method, methodId, err: err.toJson() }, "Error in config");
+      }
       // Validate that metatx request matches with known data about fulfill
       // Is this needed? Can we just submit to chain without validating?
       // Technically this is ok, but perhaps we want to validate only for our own
@@ -455,6 +479,14 @@ export class Handler {
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
 
+    if (this.receiverPreparing.get(txData.transactionId)) {
+      this.logger.error(
+        { methodId, method, transactionId: txData.transactionId },
+        "Already fulfilling, this should not be happening!",
+      );
+      return;
+    }
+
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
 
@@ -486,6 +518,7 @@ export class Handler {
     // - AssetId
     // encode the data for contract call
     // Send to txService
+    this.receiverPreparing.set(txData.transactionId, true);
     this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
     const res = await this.txManager.prepare(txData.receivingChainId, {
       txData,
@@ -542,6 +575,7 @@ export class Handler {
         // }
       }
     }
+    this.receiverPreparing.delete(txData.transactionId);
   }
 
   // HandleReceiverFulfill
@@ -576,6 +610,16 @@ export class Handler {
 
     const { txData, signature, callData, relayerFee } = receiverEvent;
 
+    if (this.senderFulfilling.get(txData.transactionId)) {
+      this.logger.error(
+        { methodId, method, transactionId: txData.transactionId },
+        "Already fulfilling, this should not be happening!",
+      );
+      return;
+    }
+
+    this.senderFulfilling.set(txData.transactionId, true);
+
     // Send to tx service
     this.logger.info({ method, methodId, transactionId: txData.transactionId, signature }, "Sending sender fulfill tx");
 
@@ -590,7 +634,9 @@ export class Handler {
       this.logger.info({ method, methodId, transactionHash: res.value.transactionHash }, "Fulfilled transaction");
       // If success, update metrics
     } else {
-      this.logger.error({ method, methodId, err: jsonifyError(res.error) }, "Fulfilled transaction");
+      this.logger.error({ method, methodId, err: jsonifyError(res.error) }, "Error fulfilling transaction");
     }
+
+    this.senderFulfilling.delete(txData.transactionId);
   }
 }
