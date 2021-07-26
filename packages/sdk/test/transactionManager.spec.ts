@@ -10,13 +10,11 @@ import {
 import { utils, constants } from "ethers";
 
 import {
-  FulfillInterpreter,
   Counter,
   TransactionManager as TransactionManagerTypechain,
   TestERC20,
 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import FulfillInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contracts/interpreters/FulfillInterpreter.sol/FulfillInterpreter.json";
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
@@ -87,21 +85,10 @@ describe("Transaction Manager", function () {
     );
     const counterFactory = await ethers.getContractFactory(CounterArtifact.abi, CounterArtifact.bytecode, wallet);
     const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
-    const interpreterFactory = await ethers.getContractFactory(
-      FulfillInterpreterArtifact.abi,
-      FulfillInterpreterArtifact.bytecode,
-      wallet,
-    );
 
-    const interpreter = (await interpreterFactory.deploy()) as FulfillInterpreter;
-
-    transactionManager = (await transactionManagerFactory.deploy(
-      sendingChainId,
-      interpreter.address,
-    )) as TransactionManagerTypechain;
+    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManagerTypechain;
     transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
       receivingChainId,
-      interpreter.address,
     )) as TransactionManagerTypechain;
 
     tokenA = (await testERC20Factory.deploy()) as TestERC20;
