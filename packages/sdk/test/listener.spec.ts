@@ -1,16 +1,9 @@
 import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
 import { getRandomBytes32, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
-import {
-  PrepareParams,
-  FulfillParams,
-  signCancelTransactionPayload,
-  signFulfillTransactionPayload,
-} from "@connext/nxtp-utils";
 import { utils, constants, Wallet, ContractReceipt } from "ethers";
 
 import {
-  FulfillInterpreter,
   Counter,
   TransactionManager as TransactionManagerTypechain,
   TestERC20,
@@ -19,18 +12,14 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import pino, { BaseLogger } from "pino";
+import pino from "pino";
 import { TransactionManagerListener, TransactionManagerEvents } from "../src";
 import { approveTokens, addPrivileges, assertReceiptEvent } from "./helper";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino();
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
-
-const setBlockTime = async (desiredTimestamp: number) => {
-  await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
-};
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Transaction Manager", function () {
@@ -195,9 +184,7 @@ describe("Transaction Manager", function () {
         sendingChainId,
         logger,
       );
-      sendingSideTransactionManagerListener.attach(TransactionManagerEvents.TransactionPrepared, (data) => {
-        console.log("SenderTransactionPrepared:", data);
-      });
+      sendingSideTransactionManagerListener.attach(TransactionManagerEvents.TransactionPrepared, (data) => {});
       await approveTokens(transactionManager.address, record.shares, user, tokenA);
       const { blockNumber } = await prepare(transaction, record, transactionManager, user);
     });

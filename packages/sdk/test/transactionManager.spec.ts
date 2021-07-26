@@ -1,4 +1,4 @@
-import { ethers, waffle } from "hardhat";
+import env, { ethers, waffle } from "hardhat";
 import { expect } from "chai";
 import { getRandomBytes32, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import {
@@ -23,7 +23,7 @@ import { getDeployedTransactionManagerContractAddress, TransactionManager, Trans
 import { approveTokens, addPrivileges, prepareAndAssert } from "./helper";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino();
+const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 
