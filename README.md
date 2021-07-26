@@ -235,13 +235,13 @@ The above commands run local chains and messaging and take care of local deploym
   "adminToken": "blahblah",
   "chainConfig": {
     "1337": {
-      "provider": ["http://localhost:8545"],
+      "providers": ["http://localhost:8545"],
       "confirmations": 1,
       "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
-      "provider": ["http://localhost:8546"],
+      "providers": ["http://localhost:8546"],
       "confirmations": 1,
       "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
