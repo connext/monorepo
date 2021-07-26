@@ -642,7 +642,7 @@ export class NxtpSdk {
         const responseInbox = generateMessagingInbox();
 
         return ResultAsync.fromPromise(
-          new Promise<MetaTxResponse>(async (resolve, reject) => {
+          new Promise<MetaTxResponse>(async (resolve) => {
             if (!this.messaging.isConnected()) {
               await this.messaging.connect();
             }
@@ -650,9 +650,14 @@ export class NxtpSdk {
             await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
               this.logger.info({ method, methodId, data, err }, "MetaTx response received");
               if (err || !data) {
-                return reject(err);
+                this.logger.warn(
+                  { method, methodId, err, data },
+                  "Did not get a proper response, waiting for more responses",
+                );
+                return;
               }
               this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
+              this.messaging.unsubscribe(responseInbox);
               return resolve(data);
             });
 
@@ -767,6 +772,7 @@ export class NxtpSdk {
       const chainId = parseInt(_chainId);
       // Translate chain events to SDK external events
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionPrepared, (data) => {
+        this.logger.info({ data, event: TransactionManagerEvents.TransactionPrepared, chainId }, "Received event");
         if (chainId === data.txData.sendingChainId) {
           return this.evts[NxtpSdkEvents.SenderTransactionPrepared].post(data);
         }
@@ -777,6 +783,7 @@ export class NxtpSdk {
       });
 
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionFulfilled, (data) => {
+        this.logger.info({ data, event: TransactionManagerEvents.TransactionFulfilled, chainId }, "Received event");
         if (chainId === data.txData.sendingChainId) {
           this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
         } else if (chainId === data.txData.receivingChainId) {
@@ -785,6 +792,7 @@ export class NxtpSdk {
       });
 
       this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionCancelled, (data) => {
+        this.logger.info({ data, event: TransactionManagerEvents.TransactionCancelled, chainId }, "Received event");
         if (chainId === data.txData.sendingChainId) {
           this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
         } else if (chainId === data.txData.receivingChainId) {
