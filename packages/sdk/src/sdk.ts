@@ -654,7 +654,7 @@ export class NxtpSdk {
 
             await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
               this.logger.info({ method, methodId, data, err }, "MetaTx response received");
-              if (err || !data) {
+              if (err || !data || !data.transactionHash || data.transactionHash === "") {
                 this.logger.warn(
                   { method, methodId, err, data },
                   "Did not get a proper response, waiting for more responses",

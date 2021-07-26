@@ -352,7 +352,7 @@ export type MetaTxPayload<T extends MetaTxTypes> = {
   chainId: number;
 };
 export type MetaTxResponse = {
-  transactionHash: string;
+  transactionHash?: string;
   chainId: number;
 };
 
