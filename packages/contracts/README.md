@@ -136,7 +136,7 @@ You can also add a `.env` to the `packages/contracts` dir with the above env var
 2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli
+yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
 ```
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
@@ -144,7 +144,7 @@ You should use the `NETWORK_NAME` that corresponds to the correct network within
 3. (optional) To verify the contracts (works with Etherscan-based networks):
 
 ```sh
-yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli \<NETWORK_NAME\>
+yarn workspace @connext/nxtp-contracts etherscan-verify --solc-input --network goerli \<NETWORK_NAME\>
 ```
 
 4. Once the contracts have been deployed, export them using:
