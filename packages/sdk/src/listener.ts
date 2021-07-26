@@ -7,7 +7,7 @@ import {
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { Evt } from "evt";
 import { BaseLogger } from "pino";
-import { BigNumber } from "ethers";
+import { BigNumber, providers } from "ethers";
 
 export const TransactionManagerEvents = {
   TransactionPrepared: "TransactionPrepared",
@@ -16,10 +16,15 @@ export const TransactionManagerEvents = {
 } as const;
 export type TransactionManagerEvent = typeof TransactionManagerEvents[keyof typeof TransactionManagerEvents];
 
+export type WrappedEvent<T> = T & { transactionReceipt: providers.TransactionReceipt };
+export type SdkTransactionPreparedEvent = WrappedEvent<TransactionPreparedEvent>;
+export type SdkTransactionFulfilledEvent = WrappedEvent<TransactionFulfilledEvent>;
+export type SdkTransactionCancelledEvent = WrappedEvent<TransactionCancelledEvent>;
+
 export interface TransactionManagerEventPayloads {
-  [TransactionManagerEvents.TransactionPrepared]: TransactionPreparedEvent;
-  [TransactionManagerEvents.TransactionFulfilled]: TransactionFulfilledEvent;
-  [TransactionManagerEvents.TransactionCancelled]: TransactionCancelledEvent;
+  [TransactionManagerEvents.TransactionPrepared]: SdkTransactionPreparedEvent;
+  [TransactionManagerEvents.TransactionFulfilled]: SdkTransactionFulfilledEvent;
+  [TransactionManagerEvents.TransactionCancelled]: SdkTransactionCancelledEvent;
 }
 
 /**
@@ -27,9 +32,9 @@ export interface TransactionManagerEventPayloads {
  */
 export class TransactionManagerListener {
   private readonly evts = {
-    [TransactionManagerEvents.TransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [TransactionManagerEvents.TransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [TransactionManagerEvents.TransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [TransactionManagerEvents.TransactionPrepared]: Evt.create<SdkTransactionPreparedEvent>(),
+    [TransactionManagerEvents.TransactionFulfilled]: Evt.create<SdkTransactionFulfilledEvent>(),
+    [TransactionManagerEvents.TransactionCancelled]: Evt.create<SdkTransactionCancelledEvent>(),
   };
   private listenersEstablished = false;
 
@@ -78,18 +83,29 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionPrepared,
-      (_user, _router, _transactionId, _txData, caller, encryptedCallData, encodedBid, bidSignature) => {
+      (
+        _user,
+        _router,
+        _transactionId,
+        _txData,
+        caller,
+        encryptedCallData,
+        encodedBid,
+        bidSignature,
+        transactionReceipt,
+      ) => {
         const txData = processTxData(_txData);
         this.logger.info(
-          { txData, caller, encryptedCallData, encodedBid, bidSignature },
+          { txData, caller, encryptedCallData, encodedBid, bidSignature, transactionReceipt },
           "TransactionManagerEvents.TransactionPrepared",
         );
-        const payload: TransactionPreparedEvent = {
+        const payload: SdkTransactionPreparedEvent = {
           txData,
           caller,
           encryptedCallData,
           encodedBid,
           bidSignature,
+          transactionReceipt,
         };
         this.evts[TransactionManagerEvents.TransactionPrepared].post(payload);
       },
@@ -97,18 +113,19 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionFulfilled,
-      (_user, _router, _transactionId, _txData, relayerFee, signature, callData, caller) => {
+      (_user, _router, _transactionId, _txData, relayerFee, signature, callData, caller, transactionReceipt) => {
         const txData = processTxData(_txData);
         this.logger.info(
-          { txData, relayerFee, signature, callData, caller },
+          { txData, relayerFee, signature, callData, caller, transactionReceipt },
           "TransactionManagerEvents.TransactionFulfilled",
         );
-        const payload: TransactionFulfilledEvent = {
+        const payload: SdkTransactionFulfilledEvent = {
           txData,
           signature: signature,
           relayerFee: relayerFee.toString(),
           callData,
           caller,
+          transactionReceipt,
         };
         this.evts[TransactionManagerEvents.TransactionFulfilled].post(payload);
       },
@@ -116,13 +133,17 @@ export class TransactionManagerListener {
 
     this.transactionManager.on(
       TransactionManagerEvents.TransactionCancelled,
-      (_user, _router, _transactionId, _txData, relayerFee, caller) => {
+      (_user, _router, _transactionId, _txData, relayerFee, caller, transactionReceipt) => {
         const txData = processTxData(_txData);
-        this.logger.info({ txData, relayerFee, caller }, "TransactionManagerEvents.TransactionCancelled");
-        const payload: TransactionCancelledEvent = {
+        this.logger.info(
+          { txData, relayerFee, caller, transactionReceipt },
+          "TransactionManagerEvents.TransactionCancelled",
+        );
+        const payload: SdkTransactionCancelledEvent = {
           txData,
           relayerFee: relayerFee.toString(),
           caller,
+          transactionReceipt,
         };
         this.evts[TransactionManagerEvents.TransactionCancelled].post(payload);
       },
