@@ -133,7 +133,7 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly type = TransactionServiceFailure.name;
 
   static readonly reasons = {
-    UnpredictableGasLimit: "The gas limit could not be estimated.",
+    UnpredictableGasLimit: "The gas estimate could not be determined.",
     Timeout: "Timeout occurred during an RPC operation.",
     ReplacementUnderpriced:
       "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
@@ -187,6 +187,6 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.SERVER_ERROR:
       return new ServerError(context);
     default:
-      throw error;
+      return error;
   }
 };

@@ -117,6 +117,7 @@ export class TransactionService {
    *
    * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
    * something went wrong within TransactionService process.
+   * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
   public async sendTx(tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
