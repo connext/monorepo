@@ -2,16 +2,14 @@ import axios, { AxiosResponse } from "axios";
 import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
-import hyperid from "hyperid";
 
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
 import { FulfillParams } from "./transactionManager";
+import { getUuid } from "./request";
 
 export { AuthService } from "ts-natsutil";
-
-const hId = hyperid();
 
 const MESSAGE_PREFIX = `Hi there from Connext! Sign this message to make sure that no one can communicate on the Connext Network on your behalf. This will not cost you any Ether!
   
@@ -361,7 +359,7 @@ export type MetaTxResponse = {
  * @returns A unique inbox string to receive replies to
  */
 export const generateMessagingInbox = (): string => {
-  return `_INBOX.${hId()}`;
+  return `_INBOX.${getUuid()}`;
 };
 
 export const AUCTION_SUBJECT = "auction";

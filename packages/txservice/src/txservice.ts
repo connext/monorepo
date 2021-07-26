@@ -2,16 +2,13 @@
 import { Signer, providers, BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import hyperid from "hyperid";
-import { jsonifyError } from "@connext/nxtp-utils";
+import { getUuid, jsonifyError } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
-
-const hId = hyperid();
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -120,7 +117,7 @@ export class TransactionService {
    */
   public async sendTx(tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);

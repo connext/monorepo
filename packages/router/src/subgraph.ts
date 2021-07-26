@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import {
+  getUuid,
   jsonifyError,
   NxtpError,
   NxtpErrorJson,
@@ -11,13 +12,10 @@ import {
   Values,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
-import hyperid from "hyperid";
 import { Evt, VoidCtx, distinct } from "evt";
 import { ResultAsync } from "neverthrow";
 
 import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";
-
-const hId = hyperid();
 
 /**
  * @classdesc Error thrown by the subgraph class
@@ -149,7 +147,7 @@ export class Subgraph {
    */
   private subgraphLoop() {
     const method = "startLoop";
-    const methodId = hId();
+    const methodId = getUuid();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
@@ -302,7 +300,7 @@ export class Subgraph {
     SubgraphError
   > {
     const method = this.getTransactionForChain.name;
-    const methodId = hId();
+    const methodId = getUuid();
     const sdk: Sdk = this.sdks[chainId];
     return ResultAsync.fromPromise(
       sdk.GetTransaction({
@@ -350,7 +348,7 @@ export class Subgraph {
    */
   getAssetBalance(assetId: string, chainId: number): ResultAsync<BigNumber, SubgraphError> {
     const method = this.getAssetBalance.name;
-    const methodId = hId();
+    const methodId = getUuid();
     const sdk: Sdk = this.sdks[chainId];
     const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
     return ResultAsync.fromPromise(

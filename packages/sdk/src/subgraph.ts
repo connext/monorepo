@@ -1,13 +1,10 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import hyperid from "hyperid";
-import { TransactionData } from "@connext/nxtp-utils";
+import { getUuid, TransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 
 import { NxtpSdkEvent, NxtpSdkEvents } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
-
-const hId = hyperid();
 
 /**
  * Gets hosted subgraph for applicable chains
@@ -87,7 +84,7 @@ export class Subgraph {
     }[]
   > {
     const methodName = "getActiveTransactions";
-    const methodId = hId();
+    const methodId = getUuid();
 
     const user = (await this.user.getAddress()).toLowerCase();
     const txs = await Promise.all(

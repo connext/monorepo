@@ -13,9 +13,9 @@ import {
   NxtpError,
   Values,
   NxtpErrorJson,
+  getUuid,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
-import hyperid from "hyperid";
 import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
@@ -36,8 +36,6 @@ import { Subgraph } from "./subgraph";
   4. Dispatch a new message or tx to chain
   5. Update metrics
  */
-
-const hId = hyperid();
 
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
@@ -159,7 +157,7 @@ export class Handler {
    */
   public async handleNewAuction(data: AuctionPayload, inbox: string): Promise<void> {
     const method = this.handleNewAuction.name;
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, data, inbox }, "Method start");
 
     const {
@@ -367,7 +365,7 @@ export class Handler {
   public async handleMetaTxRequest(data: MetaTxPayload<any>, inbox: string): Promise<void> {
     // First log
     const method = this.handleMetaTxRequest.name;
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, data }, "Method start");
 
     const { chainId } = data;
@@ -478,7 +476,7 @@ export class Handler {
    */
   public async handleSenderPrepare(inboundData: TransactionPreparedEvent): Promise<void> {
     const method = "handleSenderPrepare";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, inboundData }, "Method start");
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
@@ -609,7 +607,7 @@ export class Handler {
     receiverEvent: TransactionFulfilledEvent,
   ): Promise<void> {
     const method = this.handleReceiverFulfill.name;
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, senderEvent, receiverEvent }, "Method start");
 
     const { txData, signature, callData, relayerFee } = receiverEvent;

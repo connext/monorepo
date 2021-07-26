@@ -1,5 +1,6 @@
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
+import { getUuid } from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { constants, providers } from "ethers";
@@ -12,13 +13,10 @@ import {
   Values,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
-import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import { errAsync, ResultAsync } from "neverthrow";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-
-const hId = hyperid();
 
 /**
  * @classdesc Defines the error thrown by the `TransactionManager` class
@@ -79,7 +77,7 @@ export class TransactionManager {
     prepareParams: PrepareParams,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::prepare ";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
@@ -149,7 +147,7 @@ export class TransactionManager {
     fulfillParams: FulfillParams,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::fulfill";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
@@ -197,7 +195,7 @@ export class TransactionManager {
     cancelParams: CancelParams,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::cancel";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, cancelParams }, "Method start");
     // encode and call tx service
 
@@ -249,7 +247,7 @@ export class TransactionManager {
     recipientAddress: string | undefined,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::removeLiquidity";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, amount, assetId, recipientAddress }, "Method start");
 
     //should we remove liquidity for self if there isn't another address specified?
