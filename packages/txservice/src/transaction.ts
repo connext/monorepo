@@ -1,12 +1,12 @@
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
+import { getUuid } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig } from "./config";
 // import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
 import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
-import { getUuid } from "@connext/nxtp-utils";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast

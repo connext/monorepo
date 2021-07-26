@@ -8,8 +8,6 @@ import {
   TAddress,
   UserNxtpNatsMessagingService,
   PrepareParams,
-  TransactionCancelledEvent,
-  TransactionFulfilledEvent,
   TransactionPreparedEvent,
   TChainId,
   TransactionData,
@@ -74,9 +72,6 @@ export const NxtpSdkEvents = {
   ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
-
-// TODO: is this the event payload we want? anything else?
-export type TransactionCompletedEvent = TransactionFulfilledEvent;
 
 export type SenderTransactionPrepareTokenApprovalPayload = {
   assetId: string;

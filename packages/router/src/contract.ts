@@ -1,10 +1,11 @@
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
-import { getUuid, RequestContext } from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { constants, providers } from "ethers";
 import {
+  getUuid,
+  RequestContext,
   jsonifyError,
   FulfillParams,
   PrepareParams,
