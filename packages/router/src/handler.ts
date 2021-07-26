@@ -17,7 +17,8 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
-import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
+import { recoverAuctionBid, decodeAuctionBid } from "@connext/nxtp-utils";
+import { combine, err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
 import { getConfig } from "./config";
@@ -57,13 +58,15 @@ export interface TransactionDataParams {
 }
 
 export class HandlerError extends NxtpError {
-  static readonly type = "TransactionManagerError";
+  static readonly type = "HandlerError";
   static readonly reasons = {
     MessagingError: "Messaging Service error",
     TxServiceError: "Error from Transaction Service",
     TxAlreadyPrepared: "Transaction already prepared",
     AuctionValidationError: "Error validating auction params",
     ConfigError: "Config error",
+    EncodeError: "Error encoding",
+    PrepareValidationError: "Error validating sender prepare",
   };
 
   constructor(
@@ -74,6 +77,8 @@ export class HandlerError extends NxtpError {
       txServiceError?: NxtpErrorJson;
       configError?: string;
       requestContext: RequestContext;
+      encodingError?: NxtpErrorJson;
+      prepareError?: string;
       methodId: string;
       method: string;
       calling: string;
@@ -128,7 +133,7 @@ export class Handler {
   private senderFulfilling: Map<string, boolean> = new Map();
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly subgraph: Subgraph,
+    private readonly _subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,
@@ -175,6 +180,7 @@ export class Handler {
       callTo,
       transactionId,
       receivingAddress,
+      dryRun,
     } = data;
 
     // validate that assets/chains are supported and there is enough liquidity
@@ -186,11 +192,11 @@ export class Handler {
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
-    const result = await this.subgraph
-      .getAssetBalance(receivingAssetId, receivingChainId)
-      .andThen((availableLiquidity) => {
+    const result = await this.txManager
+      .getRouterBalance(receivingChainId, receivingAssetId) // TODO: try to use subgraph or something else
+      .andThen((balance) => {
         // validate liquidity
-        if (availableLiquidity.lt(amountReceived)) {
+        if (balance.lt(amountReceived)) {
           return errAsync(
             new HandlerError(HandlerError.reasons.AuctionValidationError, {
               calling: "",
@@ -201,7 +207,7 @@ export class Handler {
                 message: "Not enough availble liquidity for auction",
                 type: "Validation",
                 context: {
-                  availableLiquidity: availableLiquidity.toString(),
+                  balance: balance.toString(),
                   amount,
                   receivingAssetId,
                   receivingChainId,
@@ -238,6 +244,38 @@ export class Handler {
             }),
           );
         }
+
+        const allowedSwap = config.swapPools.find(
+          (pool) =>
+            pool.assets.find(
+              (a) => utils.getAddress(a.assetId) === utils.getAddress(sendingAssetId) && a.chainId === sendingChainId,
+            ) &&
+            pool.assets.find(
+              (a) =>
+                utils.getAddress(a.assetId) === utils.getAddress(receivingAssetId) && a.chainId === receivingChainId,
+            ),
+        );
+        if (!allowedSwap) {
+          return errAsync(
+            new HandlerError(HandlerError.reasons.AuctionValidationError, {
+              calling: "",
+              methodId,
+              method,
+              requestContext,
+              auctionError: {
+                message: "Allowed swap not part of config",
+                type: "Validation",
+                context: {
+                  sendingAssetId,
+                  sendingChainId,
+                  receivingChainId,
+                  receivingAssetId,
+                },
+              },
+            }),
+          );
+        }
+
         return combine([
           ResultAsync.fromPromise(
             this.txService.getBalance(sendingChainId, this.signer.address),
@@ -333,7 +371,7 @@ export class Handler {
       .andThen((bidSignature) => {
         this.logger.info({ methodId, method, requestContext, bidSignature }, "Signed bid");
         return ResultAsync.fromPromise(
-          this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature }),
+          this.messagingService.publishAuctionResponse(inbox, { bid, bidSignature: dryRun ? undefined : bidSignature }),
           (err) =>
             new HandlerError(HandlerError.reasons.MessagingError, {
               calling: "messagingService.publishAuctionResponse",
@@ -407,79 +445,79 @@ export class Handler {
         });
         this.logger.error({ method, methodId, requestContext, err: err.toJson() }, "Error in config");
       }
-      // Validate that metatx request matches with known data about fulfill
-      // Is this needed? Can we just submit to chain without validating?
-      // Technically this is ok, but perhaps we want to validate only for our own
-      // logging purposes.
-      // Would also be bad if router had no gas here
-      // Next, prepare the tx object
-      // - Get chainId from data
-      // - Get fulfill fee from data and validate it covers gas
-      // - etc.
-      // Send to txService
-      // Update metrics
 
-      // TODO: make sure fee is something we want to accept
+      if (data.type === "Fulfill") {
+        const fulfillData: MetaTxFulfillPayload = data.data;
+        // Validate that metatx request matches with known data about fulfill
+        // Is this needed? Can we just submit to chain without validating?
+        // Technically this is ok, but perhaps we want to validate only for our own
+        // logging purposes.
+        // Would also be bad if router had no gas here
+        // Next, prepare the tx object
+        // - Get chainId from data
+        // - Get fulfill fee from data and validate it covers gas
+        // - etc.
+        // Send to txService
+        // Update metrics
 
-      this.logger.info({ method, methodId, requestContext, chainId, data }, "Submitting tx");
-      const res = await this.txManager
-        .fulfill(
-          chainId,
-          {
-            txData: fulfillData.txData,
-            relayerFee: fulfillData.relayerFee,
-            signature: fulfillData.signature,
-            callData: fulfillData.callData,
-          },
-          requestContext,
-        )
-        .andThen((tx) => {
-          this.logger.info(
-            { method, methodId, requestContext, transactionHash: tx.transactionHash },
-            "Relayed transaction",
-          );
-          return ResultAsync.fromPromise(
-            this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash }),
-            (err) =>
-              new HandlerError(HandlerError.reasons.MessagingError, {
-                method,
-                methodId,
-                requestContext,
-                calling: "messagingService.publishMetaTxResponse",
-                messagingError: jsonifyError(err as Error),
-              }),
-          );
-        })
-        .orElse((err) => {
-          this.logger.error({ method, methodId, requestContext }, "Error relaying transaction");
-          const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
-            method,
-            methodId,
+        // TODO: make sure fee is something we want to accept
+
+        this.logger.info({ method, methodId, requestContext, chainId, data }, "Submitting tx");
+        const res = await this.txManager
+          .fulfill(
+            chainId,
+            {
+              txData: fulfillData.txData,
+              relayerFee: fulfillData.relayerFee,
+              signature: fulfillData.signature,
+              callData: fulfillData.callData,
+            },
             requestContext,
-            calling: "txManager.fulfill",
-            txServiceError: jsonifyError(err),
+          )
+          .andThen((tx) => {
+            this.logger.info(
+              { method, methodId, requestContext, transactionHash: tx.transactionHash },
+              "Relayed transaction",
+            );
+            return ResultAsync.fromPromise(
+              this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash }),
+              (err) =>
+                new HandlerError(HandlerError.reasons.MessagingError, {
+                  method,
+                  methodId,
+                  requestContext,
+                  calling: "messagingService.publishMetaTxResponse",
+                  messagingError: jsonifyError(err as Error),
+                }),
+            );
+          })
+          .orElse((err) => {
+            this.logger.error({ method, methodId, requestContext }, "Error relaying transaction");
+            const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
+              method,
+              methodId,
+              requestContext,
+              calling: "txManager.fulfill",
+              txServiceError: jsonifyError(err),
+            });
+            return ResultAsync.fromPromise(
+              this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: "" }, jsonifyError(_err)),
+              (err) =>
+                new HandlerError(HandlerError.reasons.MessagingError, {
+                  method,
+                  requestContext,
+                  methodId,
+                  calling: "messagingService.publishMetaTxResponse",
+                  messagingError: jsonifyError(err as Error),
+                }),
+            );
           });
-          return ResultAsync.fromPromise(
-            this.messagingService.publishMetaTxResponse(
-              inbox,
-              { chainId, transactionHash: undefined },
-              jsonifyError(_err),
-            ),
-            (err) =>
-              new HandlerError(HandlerError.reasons.MessagingError, {
-                method,
-                requestContext,
-                methodId,
-                calling: "messagingService.publishMetaTxResponse",
-                messagingError: jsonifyError(err as Error),
-              }),
-          );
-        });
 
-      if (res.isOk()) {
-        this.logger.info({ method, methodId, requestContext }, "Method complete");
-      } else {
-        this.logger.error({ method, methodId, requestContext, err: jsonifyError(res.error) }, "Error occurred");
+        if (res.isOk()) {
+          this.logger.info({ method, methodId, requestContext }, "Method complete");
+        } else {
+          this.logger.error({ method, methodId, requestContext, err: jsonifyError(res.error) }, "Error occurred");
+        }
       }
     }
   }
@@ -525,7 +563,71 @@ export class Handler {
     // that user is only sending stuff that makes sense is possibly ok since otherwise
     // they're losing gas costs
 
-    //calculateExchange
+    let bid: AuctionBid;
+    const validationRes = Result.fromThrowable(
+      decodeAuctionBid,
+      (err) =>
+        new HandlerError(HandlerError.reasons.EncodeError, {
+          method,
+          methodId,
+          calling: "decodeAuctionBid",
+          requestContext,
+          encodingError: jsonifyError(err as Error),
+        }),
+    )(encodedBid)
+      .andThen((_bid) => {
+        bid = _bid;
+        return Result.fromThrowable(
+          recoverAuctionBid,
+          (err) =>
+            new HandlerError(HandlerError.reasons.EncodeError, {
+              method,
+              methodId,
+              calling: "recoverAuctionBid",
+              requestContext,
+              encodingError: jsonifyError(err as Error),
+            }),
+        )(bid, bidSignature);
+      })
+      .andThen((recovered) => {
+        if (recovered !== this.signer.address) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              requestContext,
+              prepareError: "recovered !== this.signer.address",
+            }),
+          );
+        }
+        return ok(undefined);
+      })
+      .andThen(() => {
+        // TODO: anything else? seems unnecessary to validate everything
+        if (bid.amount !== txData.amount || bid.transactionId !== txData.transactionId) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              requestContext,
+              prepareError: "Bid params not equal to tx data",
+            }),
+          );
+        }
+        return ok(undefined);
+      });
+
+    if (validationRes.isOk()) {
+      //
+    } else {
+      this.logger.error(
+        { method, methodId, transactionId: txData.transactionId, err: jsonifyError(validationRes.error as Error) },
+        "Error during validation",
+      );
+      // TODO: maybe cancel here
+    }
 
     // Next, prepare the outbound data
     // Must have:
@@ -565,6 +667,7 @@ export class Handler {
       },
       requestContext,
     );
+    this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
 
     if (res.isOk()) {
       this.logger.info(
@@ -618,7 +721,6 @@ export class Handler {
         // }
       }
     }
-    this.receiverPreparing.delete(txData.transactionId);
   }
 
   // HandleReceiverFulfill
@@ -693,7 +795,5 @@ export class Handler {
         "Error fulfilling transaction",
       );
     }
-
-    this.senderFulfilling.delete(txData.transactionId);
   }
 }
