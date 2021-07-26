@@ -42,8 +42,9 @@ import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
 export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
-export const MaxSlippageTolerance = "15.00"; // 15.0%
-export const DefaultSlippageTolerance = "0.10"; // 0.10%
+export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
+export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
+export const AUCTION_TIMEOUT = 6_000;
 
 declare const ethereum: any; // TODO: what to do about node?
 
@@ -352,7 +353,7 @@ export class NxtpSdk {
       receivingChainId,
       receivingAssetId,
       receivingAddress,
-      slippageTolerance = DefaultSlippageTolerance,
+      slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
     } = params;
@@ -365,11 +366,11 @@ export class NxtpSdk {
       });
     }
 
-    if (parseFloat(slippageTolerance) > parseFloat(MaxSlippageTolerance)) {
+    if (parseFloat(slippageTolerance) > parseFloat(MAX_SLIPPAGE_TOLERANCE)) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Slippage Tolerance ${slippageTolerance}, must be lower than ${MaxSlippageTolerance}`,
+        paramsError: `Slippage Tolerance ${slippageTolerance}, must be lower than ${MAX_SLIPPAGE_TOLERANCE}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -423,11 +424,11 @@ export class NxtpSdk {
 
     let auctionBids: AuctionResponse[] = [];
 
-    const receivedResponsePromise = new Promise<AuctionResponse>(async (res) => {
+    const receivedResponsePromise = new Promise<AuctionResponse>(async (res, rej) => {
       await new Promise<void>((ext) => {
         setTimeout(() => {
           ext();
-        }, 10_000);
+        }, AUCTION_TIMEOUT);
         this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
           if (err || !data) {
             this.logger.error({ method, methodId, err, data }, "Error in auction response");
@@ -437,6 +438,60 @@ export class NxtpSdk {
             auctionBids.push(data);
             ext();
           } else {
+            // validate bid
+            // check router sig on bid
+            const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
+            if (signer !== data.bid.router) {
+              this.logger.error(
+                { method, methodId, signer, router: data.bid.router },
+                "Invalid router signature on bid",
+              );
+              return;
+            }
+
+            // check contract for router liquidity
+            const routerLiq = await this.transactionManager.getRouterLiquidity(
+              receivingChainId,
+              data.bid.router,
+              receivingAssetId,
+            );
+            if (routerLiq.isOk()) {
+              if (routerLiq.value.lt(data.bid.amountReceived)) {
+                this.logger.error(
+                  { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+                  `Router's liquidity low`,
+                );
+                return;
+              }
+            } else {
+              this.logger.error(
+                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+                routerLiq.error.message,
+              );
+              return;
+            }
+
+            // check if the price changes unfovorably by more than the slippage tolerance(percentage).
+            const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
+            const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
+
+            if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
+              this.logger.error(
+                {
+                  method,
+                  methodId,
+                  signer,
+                  lowerBound: lowerBound,
+                  bidAmount: data.bid.amount,
+                  amountReceived: data.bid.amountReceived,
+                  slippageTolerance: slippageTolerance,
+                  router: data.bid.router,
+                },
+                "Invalid bid price: price impact is more than the slippage tolerance",
+              );
+              return;
+            }
+
             auctionBids.push(data);
             if (auctionBids.length >= 5) {
               ext();
@@ -445,65 +500,23 @@ export class NxtpSdk {
         });
       });
 
-      this.logger.info({ method, methodId, auctionBids }, "auction bids received");
-      auctionBids.sort((a, b) => {
-        return BigNumber.from(b.bid.amountReceived).sub(a.bid.amountReceived).toNumber();
-      });
-
-      auctionBids.map(async (data) => {
-        // check router sig on bid
-        const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
-        if (signer !== data.bid.router) {
-          this.logger.error({ method, methodId, signer, router: data.bid.router }, "Invalid router signature on bid");
-          return;
-        }
-
-        // check contract for router liquidity
-        const routerLiq = await this.transactionManager.getRouterLiquidity(
-          receivingChainId,
-          data.bid.router,
-          receivingAssetId,
+      if (auctionBids.length === 0) {
+        rej(
+          new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+            method,
+            methodId,
+            transactionId,
+            auctionError: "No bids",
+          }),
         );
-        if (routerLiq.isOk()) {
-          if (routerLiq.value.lt(data.bid.amountReceived)) {
-            this.logger.error(
-              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-              `Router's liquidity low`,
-            );
-            return;
-          }
-        } else {
-          this.logger.error(
-            { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-            routerLiq.error.message,
-          );
-          return;
-        }
+      }
 
-        // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-        const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-        const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
-
-        if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
-          this.logger.error(
-            {
-              method,
-              methodId,
-              signer,
-              lowerBound: lowerBound,
-              bidAmount: data.bid.amount,
-              amountReceived: data.bid.amountReceived,
-              slippageTolerance: slippageTolerance,
-              router: data.bid.router,
-            },
-            "Invalid bid price: price impact is more than the slippage tolerance",
-          );
-          return;
-        }
-
-        this.logger.info({ method, methodId, data }, "Received auction response");
-        res(data);
+      this.logger.info({ method, methodId, auctionBids }, "Auction bids received");
+      auctionBids.sort((a, b) => {
+        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: check this logic
       });
+
+      res(auctionBids[0]);
     });
 
     await this.messaging.publishAuctionRequest(
@@ -525,7 +538,7 @@ export class NxtpSdk {
       inbox,
     );
 
-    this.logger.info({ method, methodId }, "Waiting up to 10 seconds for responses");
+    this.logger.info({ method, methodId }, "Waiting up to 6 seconds for responses");
     try {
       const auctionResponse = await receivedResponsePromise;
       this.logger.info({ method, methodId, auctionResponse }, "Received response");

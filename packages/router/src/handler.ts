@@ -571,7 +571,7 @@ export class Handler {
     )(encodedBid)
       .andThen((_bid) => {
         bid = _bid;
-        this.logger.info({ method, methodId, requestContext }, "Decoded bid from event");
+        this.logger.info({ method, methodId, requestContext, bid }, "Decoded bid from event");
         return Result.fromThrowable(
           recoverAuctionBid,
           (err) =>
