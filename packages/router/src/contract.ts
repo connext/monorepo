@@ -374,58 +374,6 @@ export class TransactionManager {
     const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
     if (!nxtpContractAddress) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
-          chainId,
-          methodId,
-          method,
-        }),
-      );
-    }
-
-    let routerBalancesData;
-    try {
-      routerBalancesData = this.txManagerInterface.encodeFunctionData("routerBalances", [this.signerAddress, assetId]);
-    } catch (err) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
-          chainId,
-          encodingError: jsonifyError(err),
-          methodId,
-          method,
-        }),
-      );
-    }
-
-    return ResultAsync.fromPromise(
-      this.txService.readTx({
-        chainId,
-        data: routerBalancesData,
-        to: nxtpContractAddress,
-        value: 0,
-      }),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
-          chainId,
-          txServiceError: jsonifyError(err as NxtpError),
-          chainId,
-          methodId,
-          method,
-        }),
-    ).map((encodedData) => {
-      const decoded = this.txManagerInterface.decodeFunctionResult("routerBalances", encodedData);
-      console.log("decoded: ", decoded);
-      return BigNumber.from(decoded[0]);
-    });
-  }
-
-  getRouterBalance(chainId: number, assetId: string): ResultAsync<BigNumber, TransactionManagerError> {
-    const method = "Contract::getRouterBalance";
-    const methodId = getUuid();
-    this.logger.info({ method, methodId, chainId, assetId }, "Method start");
-
-    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
-    if (!nxtpContractAddress) {
-      return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
           chainId,
           configError: "No contract exists for chain",

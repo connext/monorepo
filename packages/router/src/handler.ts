@@ -611,7 +611,7 @@ export class Handler {
       })
       .andThen(() => {
         // TODO: anything else? seems unnecessary to validate everything
-        if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
+        if (!BigNumber.from(bid.amount).eq(amount) || bid.transactionId !== txData.transactionId) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
               method,
@@ -671,7 +671,7 @@ export class Handler {
       txData.receivingChainId,
       {
         txData,
-        amount: mutateAmount(txData.amount),
+        amount: mutateAmount(amount),
         expiry: mutateExpiry(txData.expiry),
         bidSignature,
         encodedBid,
