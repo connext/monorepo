@@ -1,8 +1,8 @@
 import { jsonifyError, NxtpError, NxtpErrorJson, Values } from "@connext/nxtp-utils";
 import Redis from "ioredis";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import hyperid from "hyperid";
+import { errAsync, ResultAsync } from "neverthrow";
 import { BigNumber, constants } from "ethers";
+import hyperid from "hyperid";
 
 const hId = hyperid();
 
