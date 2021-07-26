@@ -1,7 +1,5 @@
 import { task } from "hardhat/config";
 
-import { TransactionManager, TestERC20 } from "../../typechain";
-
 export default task("add-liquidity", "Add liquidity for a router")
   .addParam("router", "Router address")
   .addParam("assetId", "Token address")
@@ -25,9 +23,9 @@ export default task("add-liquidity", "Add liquidity for a router")
       }
       console.log("txManagerAddress: ", txManagerAddress);
 
-      const txManager: TransactionManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+      const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
       if (assetId !== ethers.constants.AddressZero) {
-        const erc20: TestERC20 = await ethers.getContractAt("TestERC20", assetId);
+        const erc20 = await ethers.getContractAt("TestERC20", assetId);
         const balance = await erc20.balanceOf(namedAccounts.deployer);
         console.log("balance: ", balance.toString());
         if (balance.lt(amount)) {
