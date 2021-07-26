@@ -209,12 +209,12 @@ export class NxtpSdk {
       };
     },
     private signer: Signer,
-    network?: "testnet" | "mainnet", // TODO
     private readonly logger: BaseLogger = pino(),
     doNotStartContractListeners = false,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
+    network?: "testnet" | "mainnet", // TODO
   ) {
     if (messaging) {
       this.messaging = messaging;
@@ -425,7 +425,7 @@ export class NxtpSdk {
 
     let auctionBids: AuctionResponse[] = [];
 
-    const receivedResponsePromise = await new Promise<AuctionResponse>((res, rej) => {
+    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
       setTimeout(() => rej(), 10_000);
       this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
         if (err || !data) {
@@ -442,7 +442,7 @@ export class NxtpSdk {
           }
         }
       });
-
+      this.logger.info({ method, methodId, auctionBids }, "auction bids received");
       auctionBids.sort((a, b) => {
         return BigNumber.from(b.bid.amountReceived).sub(a.bid.amountReceived).toNumber();
       });
