@@ -94,7 +94,7 @@ export const auctionBidMock: AuctionBid = {
   callTo: invariantDataMock.callTo,
   callDataHash: invariantDataMock.callDataHash,
   transactionId: invariantDataMock.transactionId,
-  amount: variantDataMock.amount,
+  amount: variantDataMock.shares,
   sendingChainTxManagerAddress: mkAddress("0x1"),
   receivingChainTxManagerAddress: mkAddress("0x2"),
   expiry: variantDataMock.expiry,

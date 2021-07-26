@@ -125,6 +125,7 @@ export const AuctionBidEncoding = tidy(`tuple(
  * @returns Encoded bid
  */
 export const encodeAuctionBid = (bid: AuctionBid): string => {
+  console.log("***** trying to encode bid", bid);
   return utils.defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
 };
 
