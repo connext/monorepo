@@ -1,8 +1,7 @@
 import { NonceManager } from "@ethersproject/experimental";
 import { BigNumber, BigNumberish, providers } from "ethers";
 
-import { ChainError } from "./error";
-import { ChainRpcProvider } from "./provider";
+import { TransactionServiceFailure } from "./error";
 
 export type MinimalTransaction = {
   chainId: number;
@@ -17,24 +16,26 @@ export type FullTransaction = {
   gasPrice: BigNumber;
 } & MinimalTransaction;
 
+export type CachedGas = {
+  price: BigNumber;
+  timestamp: number;
+};
+
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
  */
 export class GasPrice {
-  private _gasPrice?: BigNumber;
+  private _gasPrice: BigNumber;
 
-  constructor(private readonly limit: BigNumber, private readonly provider: ChainRpcProvider) {}
+  constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
+    this._gasPrice = baseValue;
+  }
 
   /**
    * Gets the current gas price
    * @returns BigNumber representation of gas price
    */
-  public async get(): Promise<BigNumber> {
-    if (!this._gasPrice) {
-      const value = await this.provider.getGasPrice();
-      this.validate(value);
-      this._gasPrice = value;
-    }
+  public get(): BigNumber {
     return BigNumber.from(this._gasPrice);
   }
 
@@ -54,7 +55,7 @@ export class GasPrice {
    */
   private validate(value: BigNumber) {
     if (value.gt(this.limit)) {
-      throw new ChainError(ChainError.reasons.MaxGasPriceReached, {
+      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
         gasPrice: value.toString(),
         max: this.limit.toString(),
       });

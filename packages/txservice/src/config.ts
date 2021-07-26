@@ -125,7 +125,9 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasLimit: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
 
-  defaultConfirmationTimeout: 60_000,
+  // NOTE: This should be the amount of time we are willing to wait for a transaction
+  // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
+  defaultConfirmationTimeout: 30_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
 
