@@ -26,6 +26,7 @@ import {
   NxtpError,
   NxtpErrorJson,
   Values,
+  calculateExchangeAmount,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -477,16 +478,16 @@ export class NxtpSdk {
         }
 
         // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-        const priceImpact =
-          (parseFloat(BigNumber.from(amount).sub(data.bid.amountReceived).toString()) / parseFloat(amount)) * 100;
+        const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
+        const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
 
-        if (priceImpact > parseFloat(slippageTolerance)) {
+        if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
           this.logger.error(
             {
               method,
               methodId,
               signer,
-              priceImpact: priceImpact,
+              lowerBound: lowerBound,
               bidAmount: data.bid.amount,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
