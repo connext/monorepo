@@ -571,6 +571,7 @@ export class Handler {
     )(encodedBid)
       .andThen((_bid) => {
         bid = _bid;
+        this.logger.info({ method, methodId, requestContext }, "Decoded bid from event");
         return Result.fromThrowable(
           recoverAuctionBid,
           (err) =>
@@ -614,13 +615,19 @@ export class Handler {
       });
 
     if (validationRes.isOk()) {
-      //
+      this.logger.info({ method, methodId, requestContext }, "Validated input");
     } else {
       this.logger.error(
-        { method, methodId, transactionId: txData.transactionId, err: jsonifyError(validationRes.error as Error) },
+        {
+          method,
+          methodId,
+          requestContext,
+          transactionId: txData.transactionId,
+          err: jsonifyError(validationRes.error as Error),
+        },
         "Error during validation",
       );
-      // TODO: maybe cancel here
+      return;
     }
 
     // Next, prepare the outbound data
