@@ -118,8 +118,8 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Asset added");
     }
 
-    const liquidity1337 = await txManager1337.routerBalances(router, tokenAddress1337);
-    const liquidity1338 = await txManager1338.routerBalances(router, tokenAddress1338);
+    const liquidity1337 = await txManager1337.getRouterBalance(router, tokenAddress1337);
+    const liquidity1338 = await txManager1338.getRouterBalance(router, tokenAddress1338);
 
     // fund if necessary
     if (liquidity1337.lt(MIN_TOKEN)) {
