@@ -49,5 +49,9 @@ export default task("add-liquidity", "Add liquidity for a router")
         value: assetId === ethers.constants.AddressZero ? amount : 0,
       });
       console.log("addLiquidity tx: ", tx);
+      const receipt = await tx.wait();
+      console.log("addLiquidity tx mined: ", receipt.transactionHash);
+      const liquidity = await txManager.routerBalances(router, assetId);
+      console.log("liquidity: ", liquidity.toString());
     },
   );
