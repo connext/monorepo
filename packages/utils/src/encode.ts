@@ -26,7 +26,7 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
 )`);
 
 export const VariantTransactionDataEncoding = tidy(`tuple(
-  uint256 shares,
+  uint256 amount,
   uint256 expiry,
   uint256 preparedBlockNumber
 )`);
