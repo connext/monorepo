@@ -388,7 +388,11 @@ export class TransactionManager {
    * @param assetId - The asset you want to check the liquidity of
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
-  getLiquidity(chainId: number, router: string, assetId: string): ResultAsync<BigNumber, TransactionManagerError> {
+  getRouterLiquidity(
+    chainId: number,
+    router: string,
+    assetId: string,
+  ): ResultAsync<BigNumber, TransactionManagerError> {
     const method = "Contract::getLiquidity";
     const methodId = getUuid();
 
