@@ -22,13 +22,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IFulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
+    "execute(bytes32,address,address,address,uint256,bytes)": FunctionFragment;
     "getTransactionManager()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTransactionManager",
@@ -41,7 +41,11 @@ interface IFulfillInterpreterInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
 }
 
 export class IFulfillInterpreter extends BaseContract {
@@ -89,6 +93,7 @@ export class IFulfillInterpreter extends BaseContract {
 
   functions: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -103,6 +108,7 @@ export class IFulfillInterpreter extends BaseContract {
   };
 
   execute(
+    transactionId: BytesLike,
     callTo: string,
     assetId: string,
     fallbackAddress: string,
@@ -117,6 +123,7 @@ export class IFulfillInterpreter extends BaseContract {
 
   callStatic: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -128,10 +135,34 @@ export class IFulfillInterpreter extends BaseContract {
     getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    Executed(
+      transactionId?: BytesLike | null,
+      callTo?: null,
+      assetId?: null,
+      fallbackAddress?: null,
+      amount?: null,
+      callData?: null,
+      returnData?: null,
+      success?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string, string, boolean],
+      {
+        transactionId: string;
+        callTo: string;
+        assetId: string;
+        fallbackAddress: string;
+        amount: BigNumber;
+        callData: string;
+        returnData: string;
+        success: boolean;
+      }
+    >;
+  };
 
   estimateGas: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -147,6 +178,7 @@ export class IFulfillInterpreter extends BaseContract {
 
   populateTransaction: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,

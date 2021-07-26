@@ -244,7 +244,7 @@ function App(): React.ReactElement | null {
       alert("Please switch chains to the sending chain!");
       throw new Error("Wrong chain");
     }
-    const transfer = await sdk.startTransfer(auctionResponse);
+    const transfer = await sdk.startTransfer(auctionResponse, true);
     const event = await sdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,
       100_000,
@@ -253,13 +253,6 @@ function App(): React.ReactElement | null {
 
     const finish = await sdk.finishTransfer(event);
     console.log("finish: ", finish);
-
-    const fulfilled = await sdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === transfer.transactionId,
-    );
-    console.log("fulfilled: ", fulfilled);
   };
 
   const columns = [

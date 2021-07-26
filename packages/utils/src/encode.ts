@@ -31,15 +31,10 @@ export const VariantTransactionDataEncoding = tidy(`tuple(
   uint256 preparedBlockNumber
 )`);
 
-export const FulfillEncoding = tidy(`tuple(
-  bytes32 transactionId,
-  uint256 relayerFee
-)`);
-
-export const CancelEncoding = tidy(`tuple(
+export const SignedDataEncoding = tidy(`tuple(
   bytes32 transactionId,
   uint256 relayerFee,
-  string cancel
+  string functionIdentifier
 )`);
 
 /**
@@ -82,7 +77,10 @@ export const getVariantTransactionDigest = (txDataParams: VariantTransactionData
  * @returns Encoded fulfill payload
  */
 export const encodeFulfillData = (transactionId: string, relayerFee: string): string => {
-  return utils.defaultAbiCoder.encode([FulfillEncoding], [{ transactionId, relayerFee }]);
+  return utils.defaultAbiCoder.encode(
+    [SignedDataEncoding],
+    [{ transactionId, relayerFee, functionIdentifier: "fulfill" }],
+  );
 };
 
 /**
@@ -93,7 +91,10 @@ export const encodeFulfillData = (transactionId: string, relayerFee: string): st
  * @returns  Encoded cancel payload
  */
 export const encodeCancelData = (transactionId: string, relayerFee: string): string => {
-  return utils.defaultAbiCoder.encode([CancelEncoding], [{ transactionId, cancel: "cancel", relayerFee }]);
+  return utils.defaultAbiCoder.encode(
+    [SignedDataEncoding],
+    [{ transactionId, relayerFee, functionIdentifier: "cancel" }],
+  );
 };
 
 ////// AUCTION

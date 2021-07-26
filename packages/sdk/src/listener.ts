@@ -7,6 +7,7 @@ import {
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { Evt } from "evt";
 import { BaseLogger } from "pino";
+import { BigNumber } from "ethers";
 
 export const TransactionManagerEvents = {
   TransactionPrepared: "TransactionPrepared",
@@ -71,7 +72,7 @@ export class TransactionManagerListener {
         transactionId: txData.transactionId,
         preparedBlockNumber: txData.preparedBlockNumber.toNumber(),
         amount: txData.amount.toString(),
-        expiry: txData.expiry,
+        expiry: BigNumber.from(txData.expiry).toNumber(),
       };
     };
 
