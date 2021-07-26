@@ -1,9 +1,11 @@
 import {
   AuctionPayload,
+  createRequestContext,
   FulfillParams,
   mkAddress,
   mkBytes32,
   PrepareParams,
+  RequestContext,
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -18,11 +20,11 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt } from "./utils";
+import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = pino({ level: "info" /** process.env.LOG_LEVEL ?? "silent" */ });
 
 const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
@@ -31,6 +33,8 @@ const MUTATED_AMOUNT = "100";
 const MUTATED_EXPIRY = 123400;
 const BID_EXPIRY = 123401;
 
+const requestContext = createRequestContext("TEST") as unknown as RequestContext;
+
 describe("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
@@ -38,6 +42,8 @@ describe("Handler", () => {
   let subgraph: SinonStubbedInstance<Subgraph>;
   let wallet: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
+
+  const addr = mkAddress("0xb");
 
   beforeEach(() => {
     messaging = createStubInstance(RouterNxtpNatsMessagingService);
@@ -55,9 +61,10 @@ describe("Handler", () => {
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
     stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
+    stub(handlerUtils, "recoverAuctionSigner").returns(addr);
 
     wallet = createStubInstance(Wallet);
-    (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
+    (wallet as any).address = addr; // need to do this differently bc the function doesnt exist on the interface
     wallet.signMessage.resolves("0xabcdef");
 
     handler = new Handler(messaging as any, subgraph as any, txManager as any, txService as any, wallet, logger);
@@ -72,16 +79,17 @@ describe("Handler", () => {
     const auctionPayload: AuctionPayload = {
       user: mkAddress("0xa"),
       sendingChainId: 1337,
-      sendingAssetId: mkAddress("0xb"),
+      sendingAssetId: mkAddress("0xc"),
       amount: "1",
       receivingChainId: 1338,
-      receivingAssetId: mkAddress("0xc"),
+      receivingAssetId: mkAddress("0xf"),
       receivingAddress: mkAddress("0xd"),
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId: mkBytes32("0xa"),
       encryptedCallData: "0x",
       callDataHash: mkBytes32("0xb"),
       callTo: mkAddress("0xe"),
+      dryRun: false,
     };
 
     beforeEach(() => {
@@ -90,7 +98,7 @@ describe("Handler", () => {
     });
 
     it("happy: should publish auction response for a valid swap", async () => {
-      await handler.handleNewAuction(auctionPayload, "_INBOX.abc");
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
       expect(messaging.publishAuctionResponse.callCount).to.eq(1);
       const publishCall = messaging.publishAuctionResponse.getCall(0);
       expect(publishCall.args[0]).to.eq("_INBOX.abc");
@@ -123,7 +131,7 @@ describe("Handler", () => {
       const ethPrepareDataMock = senderPrepareData;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
-      await handler.handleSenderPrepare(ethPrepareDataMock);
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
       expect(txManager.prepare.callCount).to.be.eq(1);
       const call = txManager.prepare.getCall(0);
@@ -159,7 +167,7 @@ describe("Handler", () => {
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
       // TODO: where is approve??
-      await handler.handleSenderPrepare(tokenPrepareData);
+      await handler.handleSenderPrepare(tokenPrepareData, requestContext);
 
       expect(txManager.prepare.callCount).to.be.eq(1);
       const call = txManager.prepare.getCall(0);
@@ -208,7 +216,7 @@ describe("Handler", () => {
           ...senderPrepareData,
         }),
       );
-      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock);
+      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
       expect(data).to.deep.eq({
@@ -256,7 +264,7 @@ describe("Handler", () => {
         }),
       );
 
-      await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock);
+      await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock, requestContext);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
 

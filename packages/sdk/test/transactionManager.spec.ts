@@ -473,10 +473,10 @@ describe("Transaction Manager", function () {
       it.skip("happy case", async () => {});
     });
 
-    describe("getLiquidity", () => {
+    describe("getRouterLiquidity", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
-        const res = await routerTransactionManager.getLiquidity(InvalidChainId, router.address, tokenB.address);
+        const res = await routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address);
 
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
@@ -485,7 +485,7 @@ describe("Transaction Manager", function () {
       });
 
       it("should error if txService error", async () => {
-        const res = await routerTransactionManager.getLiquidity(sendingChainId, router.address, "0x");
+        const res = await routerTransactionManager.getRouterLiquidity(sendingChainId, router.address, "0x");
 
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
@@ -494,7 +494,7 @@ describe("Transaction Manager", function () {
       });
 
       it("happy case", async () => {
-        const res = await routerTransactionManager.getLiquidity(receivingChainId, router.address, tokenB.address);
+        const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
 
         expect(res.isOk()).to.be.true;
         expect(res.value.toString()).to.be.eq(routerFunds);

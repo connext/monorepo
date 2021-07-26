@@ -1,4 +1,4 @@
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { createRequestContext, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { Handler } from "./handler";
@@ -29,7 +29,8 @@ export async function setupListeners(
       return;
     }
     // On every new auction broadcast, route to the new auction handler
-    await handler.handleNewAuction(data, inbox);
+    const requestContext = createRequestContext("subscribeToAuctionRequest");
+    await handler.handleNewAuction(data, inbox, requestContext);
   });
 
   // <from>.metatx
@@ -40,18 +41,21 @@ export async function setupListeners(
     }
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
-    logger.info({ data }, "Got metatx");
-    await handler.handleMetaTxRequest(data, inbox);
+    const requestContext = createRequestContext("SubgraphEvents.SenderTransactionPrepared");
+    logger.info({ data, requestContext }, "Got metatx");
+    await handler.handleMetaTxRequest(data, inbox, requestContext);
   });
 
   // Setup Subgraph events
   subgraph.attach(SubgraphEvents.SenderTransactionPrepared, async ({ senderEvent }) => {
     // On sender prepare, route to sender prepare handler
-    await handler.handleSenderPrepare(senderEvent);
+    const requestContext = createRequestContext("SenderTransactionPrepared");
+    await handler.handleSenderPrepare(senderEvent, requestContext);
   });
 
   subgraph.attach(SubgraphEvents.ReceiverTransactionFulfilled, async ({ senderEvent, receiverEvent }) => {
     // On receiver fulfill, route to receiver fulfill handler
-    await handler.handleReceiverFulfill(senderEvent, receiverEvent);
+    const requestContext = createRequestContext("SubgraphEvents.ReceiverTransactionFulfilled");
+    await handler.handleReceiverFulfill(senderEvent, receiverEvent, requestContext);
   });
 }

@@ -2,8 +2,10 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 import { TransactionService } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
-import { constants, providers } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 import {
+  getUuid,
+  RequestContext,
   jsonifyError,
   FulfillParams,
   PrepareParams,
@@ -12,13 +14,10 @@ import {
   Values,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
-import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import { errAsync, ResultAsync } from "neverthrow";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-
-const hId = hyperid();
 
 /**
  * @classdesc Defines the error thrown by the `TransactionManager` class
@@ -26,15 +25,19 @@ const hId = hyperid();
 export class TransactionManagerError extends NxtpError {
   static readonly type = "TransactionManagerError";
   static readonly reasons = {
+    NoTransactionManagerAddress: "No transactionManager found for chain",
     EncodingError: "Error encoding data",
     TxServiceError: "Error from TransactionService",
+    ConfigError: "Configuration error",
   };
 
   constructor(
     public readonly message: Values<typeof TransactionManagerError.reasons> | string,
     public readonly context: {
+      chainId: number;
       txServiceError?: NxtpErrorJson;
       encodingError?: NxtpErrorJson;
+      configError?: string;
       methodId: string;
       method: string;
     },
@@ -54,9 +57,10 @@ export class TransactionManager {
     private readonly txService: TransactionService,
     private readonly signerAddress: string,
     private readonly logger: BaseLogger,
+    config?: NxtpRouterConfig,
   ) {
     this.txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
-    this.config = getConfig();
+    this.config = config ?? getConfig();
   }
 
   /**
@@ -77,12 +81,25 @@ export class TransactionManager {
   prepare(
     chainId: number,
     prepareParams: PrepareParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::prepare ";
-    const methodId = hId();
-    this.logger.info({ method, methodId, prepareParams }, "Method start");
+    const methodId = getUuid();
+    this.logger.info({ method, methodId, requestContext, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
+
+    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
+    if (!nxtpContractAddress) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
+          configError: "No contract exists for chain",
+          methodId,
+          method,
+        }),
+      );
+    }
 
     let encodedData: string;
     try {
@@ -109,6 +126,7 @@ export class TransactionManager {
     } catch (err) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
           encodingError: jsonifyError(err),
           method,
           methodId,
@@ -117,15 +135,19 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        data: encodedData,
-        value: constants.Zero,
-        chainId,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          chainId,
           txServiceError: jsonifyError(err as NxtpError),
           methodId,
           method,
@@ -147,10 +169,23 @@ export class TransactionManager {
   fulfill(
     chainId: number,
     fulfillParams: FulfillParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::fulfill";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
+
+    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
+    if (!nxtpContractAddress) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
+          configError: "No contract exists for chain",
+          methodId,
+          method,
+        }),
+      );
+    }
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
     let fulfillData;
@@ -159,6 +194,7 @@ export class TransactionManager {
     } catch (err) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
           encodingError: jsonifyError(err),
           methodId,
           method,
@@ -167,15 +203,19 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        chainId,
-        data: fulfillData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          chainId,
+          data: fulfillData,
+          to: nxtpContractAddress,
+          value: 0,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          chainId,
           txServiceError: jsonifyError(err as NxtpError),
           methodId,
           method,
@@ -195,13 +235,26 @@ export class TransactionManager {
   cancel(
     chainId: number,
     cancelParams: CancelParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::cancel";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, cancelParams }, "Method start");
     // encode and call tx service
 
     const { txData, relayerFee, signature } = cancelParams;
+
+    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
+    if (!nxtpContractAddress) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
+          configError: "No contract exists for chain",
+          methodId,
+          method,
+        }),
+      );
+    }
 
     let cancelData;
     try {
@@ -209,6 +262,7 @@ export class TransactionManager {
     } catch (err) {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
           encodingError: jsonifyError(err),
           methodId,
           method,
@@ -217,15 +271,19 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        chainId,
-        data: cancelData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          chainId,
+          data: cancelData,
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          value: 0,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          chainId,
           txServiceError: jsonifyError(err as NxtpError),
           methodId,
           method,
@@ -247,9 +305,10 @@ export class TransactionManager {
     amount: string,
     assetId: string,
     recipientAddress: string | undefined,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::removeLiquidity";
-    const methodId = hId();
+    const methodId = getUuid();
     this.logger.info({ method, methodId, amount, assetId, recipientAddress }, "Method start");
 
     //should we remove liquidity for self if there isn't another address specified?
@@ -257,7 +316,17 @@ export class TransactionManager {
       recipientAddress = this.signerAddress;
     }
 
-    const nxtpContractAddress = getConfig().chainConfig[chainId].transactionManagerAddress;
+    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
+    if (!nxtpContractAddress) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
+          configError: "No contract exists for chain",
+          methodId,
+          method,
+        }),
+      );
+    }
 
     let removeLiquidityData;
     try {
@@ -270,6 +339,7 @@ export class TransactionManager {
       return errAsync(
         new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
           encodingError: jsonifyError(err),
+          chainId,
           methodId,
           method,
         }),
@@ -277,18 +347,73 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
+      this.txService.sendTx(
+        {
+          chainId,
+          data: removeLiquidityData,
+          to: nxtpContractAddress,
+          value: 0,
+        },
+        requestContext,
+      ),
+      (err) =>
+        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          txServiceError: jsonifyError(err as NxtpError),
+          chainId,
+          methodId,
+          method,
+        }),
+    );
+  }
+
+  getRouterBalance(chainId: number, assetId: string): ResultAsync<BigNumber, TransactionManagerError> {
+    const method = "Contract::getRouterBalance";
+    const methodId = getUuid();
+    this.logger.info({ method, methodId, chainId, assetId }, "Method start");
+
+    const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
+    if (!nxtpContractAddress) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
+          chainId,
+          methodId,
+          method,
+        }),
+      );
+    }
+
+    let routerBalancesData;
+    try {
+      routerBalancesData = this.txManagerInterface.encodeFunctionData("routerBalances", [this.signerAddress, assetId]);
+    } catch (err) {
+      return errAsync(
+        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+          chainId,
+          encodingError: jsonifyError(err),
+          methodId,
+          method,
+        }),
+      );
+    }
+
+    return ResultAsync.fromPromise(
+      this.txService.readTx({
         chainId,
-        data: removeLiquidityData,
+        data: routerBalancesData,
         to: nxtpContractAddress,
         value: 0,
       }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+          chainId,
           txServiceError: jsonifyError(err as NxtpError),
           methodId,
           method,
         }),
-    );
+    ).map((encodedData) => {
+      const decoded = this.txManagerInterface.decodeFunctionResult("routerBalances", encodedData);
+      console.log("decoded: ", decoded);
+      return BigNumber.from(decoded[0]);
+    });
   }
 }

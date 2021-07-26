@@ -6,7 +6,7 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
-import { NATS_AUTH_URL, NATS_CLUSTER_URL } from "@connext/nxtp-utils";
+import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
@@ -38,6 +38,16 @@ export const TChainConfig = Type.Object({
   minGas: Type.String(),
 });
 
+export const TSwapPool = Type.Object({
+  name: Type.Optional(Type.String()),
+  assets: Type.Array(
+    Type.Object({
+      chainId: TChainId,
+      assetId: TAddress,
+    }),
+  ),
+});
+
 const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
   chainConfig: Type.Dict(TChainConfig),
@@ -53,6 +63,7 @@ const NxtpRouterConfigSchema = Type.Object({
   natsUrl: Type.String(),
   authUrl: Type.String(),
   mnemonic: Type.String(),
+  swapPools: Type.Array(TSwapPool),
 });
 
 const MIN_GAS = utils.parseEther("0.1");
@@ -105,6 +116,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
+    swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
   };
 
@@ -114,9 +126,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {}
     }
     if (!chainConfig.minGas) {
