@@ -115,7 +115,7 @@ export const prepareAndAssert = async (
   );
   const initialPreparerAmount = userSending
     ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-    : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
+    : await instance.getRouterBalance(transaction.router, transaction.receivingAssetId);
 
   const invariantDigest = getInvariantTransactionDigest(transaction);
 
@@ -123,7 +123,7 @@ export const prepareAndAssert = async (
   // Send tx
   const prepareParams: PrepareParams = {
     txData: transaction,
-    amount: record.amount,
+    amount: record.shares,
     expiry: record.expiry,
     encryptedCallData: encryptedCallData,
     encodedBid: EmptyBytes,
@@ -138,7 +138,7 @@ export const prepareAndAssert = async (
   expect(receipt.status).to.be.eq(1);
 
   const variantDigest = getVariantTransactionDigest({
-    amount: record.amount,
+    shares: record.shares,
     expiry: record.expiry,
     preparedBlockNumber: receipt.blockNumber,
   });
@@ -161,8 +161,8 @@ export const prepareAndAssert = async (
   // Verify amount has been deducted from preparer
   const finalPreparerAmount = userSending
     ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
-    : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
-  const expected = initialPreparerAmount.sub(record.amount);
+    : await instance.getRouterBalance(transaction.router, transaction.receivingAssetId);
+  const expected = initialPreparerAmount.sub(record.shares);
   expect(finalPreparerAmount).to.be.eq(
     transaction.sendingAssetId === AddressZero && userSending
       ? expected.sub(res.value.gasPrice!.mul(receipt.cumulativeGasUsed!))
@@ -177,7 +177,7 @@ export const prepareAndAssert = async (
     return receipt;
   }
   const finalContractAmount = await getOnchainBalance(transaction.sendingAssetId, instance.address, ethers.provider);
-  expect(finalContractAmount).to.be.eq(initialContractAmount.add(record.amount));
+  expect(finalContractAmount).to.be.eq(initialContractAmount.add(record.shares));
 
   return receipt;
 };

@@ -69,7 +69,7 @@ describe("Transaction Manager", function () {
 
     const day = 24 * 60 * 60;
     const record = {
-      amount: "10",
+      shares: "10",
       expiry: Math.floor(Date.now() / 1000) + day + 5_000,
       preparedBlockNumber: 10,
       ...recordOverrides,
@@ -218,7 +218,7 @@ describe("Transaction Manager", function () {
 
         const prepareParams: PrepareParams = {
           txData: transaction,
-          amount: record.amount,
+          amount: record.shares,
           expiry: record.expiry,
           encryptedCallData: EmptyBytes,
           encodedBid: EmptyBytes,
@@ -238,7 +238,7 @@ describe("Transaction Manager", function () {
 
         const prepareParams: PrepareParams = {
           txData: transaction,
-          amount: record.amount,
+          amount: record.shares,
           expiry: record.expiry,
           encryptedCallData: EmptyBytes,
           encodedBid: EmptyBytes,
@@ -255,7 +255,7 @@ describe("Transaction Manager", function () {
 
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
       });
     });
@@ -267,7 +267,7 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
         const InvalidChainId = 123;
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -297,7 +297,7 @@ describe("Transaction Manager", function () {
       it("should error if transaction fails", async () => {
         const { transaction, record } = await getTransactionData();
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -325,7 +325,7 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -360,7 +360,7 @@ describe("Transaction Manager", function () {
         const { transaction, record } = await getTransactionData();
         const InvalidChainId = 123;
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -389,7 +389,7 @@ describe("Transaction Manager", function () {
       it("should error if transaction fails", async () => {
         const { transaction, record } = await getTransactionData();
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -418,7 +418,7 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
 
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        await approveTokens(transactionManager.address, record.shares, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
           record,
@@ -476,7 +476,7 @@ describe("Transaction Manager", function () {
     describe("getLiquidity", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
-        const res = await routerTransactionManager.getLiquidity(InvalidChainId, router.address, tokenB.address);
+        const res = await routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address);
 
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
@@ -485,7 +485,7 @@ describe("Transaction Manager", function () {
       });
 
       it("should error if txService error", async () => {
-        const res = await routerTransactionManager.getLiquidity(sendingChainId, router.address, "0x");
+        const res = await routerTransactionManager.getRouterLiquidity(sendingChainId, router.address, "0x");
 
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
@@ -494,7 +494,7 @@ describe("Transaction Manager", function () {
       });
 
       it("happy case", async () => {
-        const res = await routerTransactionManager.getLiquidity(receivingChainId, router.address, tokenB.address);
+        const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
 
         expect(res.isOk()).to.be.true;
         expect(res.value.toString()).to.be.eq(routerFunds);

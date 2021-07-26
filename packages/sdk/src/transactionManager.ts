@@ -169,7 +169,10 @@ export class TransactionManager {
           encryptedCallData,
           encodedBid,
           bidSignature,
-          { value: constants.Zero, from: this.signer.getAddress() },
+          {
+            value: txData.sendingAssetId === constants.AddressZero ? amount : constants.Zero,
+            from: this.signer.getAddress(),
+          },
         ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {

@@ -71,7 +71,7 @@ describe("Transaction Manager", function () {
 
     const day = 24 * 60 * 60;
     const record = {
-      amount: "10",
+      shares: "10",
       expiry: Math.floor(Date.now() / 1000) + day + 5_000,
       preparedBlockNumber: 10,
       ...recordOverrides,
@@ -155,13 +155,13 @@ describe("Transaction Manager", function () {
       .connect(preparer)
       .prepare(
         transaction,
-        record.amount,
+        record.shares,
         record.expiry,
         encryptedCallData,
         EmptyBytes,
         EmptyBytes,
         transaction.sendingAssetId === AddressZero && preparer.address !== transaction.router
-          ? { value: record.amount }
+          ? { value: record.shares }
           : {},
       );
     const receipt = await prepareTx.wait();
@@ -198,7 +198,7 @@ describe("Transaction Manager", function () {
       sendingSideTransactionManagerListener.attach(TransactionManagerEvents.TransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
       });
-      await approveTokens(transactionManager.address, record.amount, user, tokenA);
+      await approveTokens(transactionManager.address, record.shares, user, tokenA);
       const { blockNumber } = await prepare(transaction, record, transactionManager, user);
     });
   });
