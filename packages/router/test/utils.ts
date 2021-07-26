@@ -7,6 +7,8 @@ import {
   TransactionPreparedEvent,
   TransactionFulfilledEvent,
   AuctionBid,
+  encodeAuctionBid,
+  mkSig,
 } from "@connext/nxtp-utils";
 import { providers, constants } from "ethers";
 
@@ -110,8 +112,8 @@ export const senderPrepareData: TransactionPreparedEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
   encryptedCallData: "0xabc",
-  encodedBid: "0xdefa",
-  bidSignature: "0xbca",
+  encodedBid: encodeAuctionBid(auctionBidMock),
+  bidSignature: mkSig("0xeee"),
 };
 
 export const receiverFulfillDataMock: TransactionFulfilledEvent = {
