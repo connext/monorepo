@@ -192,8 +192,8 @@ export class Handler {
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
-    const result = await this.txManager
-      .getRouterBalance(receivingChainId, receivingAssetId) // TODO: try to use subgraph or something else
+    const result = await this._subgraph
+      .getAssetBalance(receivingAssetId, receivingChainId)
       .andThen((balance) => {
         // validate liquidity
         if (balance.lt(amountReceived)) {
@@ -434,7 +434,6 @@ export class Handler {
     }
 
     if (data.type === "Fulfill") {
-      const fulfillData: MetaTxFulfillPayload = data.data;
       if (utils.getAddress(data.to) !== utils.getAddress(chainConfig.transactionManagerAddress)) {
         const err = new HandlerError(HandlerError.reasons.ConfigError, {
           requestContext,
@@ -446,78 +445,76 @@ export class Handler {
         this.logger.error({ method, methodId, requestContext, err: err.toJson() }, "Error in config");
       }
 
-      if (data.type === "Fulfill") {
-        const fulfillData: MetaTxFulfillPayload = data.data;
-        // Validate that metatx request matches with known data about fulfill
-        // Is this needed? Can we just submit to chain without validating?
-        // Technically this is ok, but perhaps we want to validate only for our own
-        // logging purposes.
-        // Would also be bad if router had no gas here
-        // Next, prepare the tx object
-        // - Get chainId from data
-        // - Get fulfill fee from data and validate it covers gas
-        // - etc.
-        // Send to txService
-        // Update metrics
+      const fulfillData: MetaTxFulfillPayload = data.data;
+      // Validate that metatx request matches with known data about fulfill
+      // Is this needed? Can we just submit to chain without validating?
+      // Technically this is ok, but perhaps we want to validate only for our own
+      // logging purposes.
+      // Would also be bad if router had no gas here
+      // Next, prepare the tx object
+      // - Get chainId from data
+      // - Get fulfill fee from data and validate it covers gas
+      // - etc.
+      // Send to txService
+      // Update metrics
 
-        // TODO: make sure fee is something we want to accept
+      // TODO: make sure fee is something we want to accept
 
-        this.logger.info({ method, methodId, requestContext, chainId, data }, "Submitting tx");
-        const res = await this.txManager
-          .fulfill(
-            chainId,
-            {
-              txData: fulfillData.txData,
-              relayerFee: fulfillData.relayerFee,
-              signature: fulfillData.signature,
-              callData: fulfillData.callData,
-            },
+      this.logger.info({ method, methodId, requestContext, chainId, data }, "Submitting tx");
+      const res = await this.txManager
+        .fulfill(
+          chainId,
+          {
+            txData: fulfillData.txData,
+            relayerFee: fulfillData.relayerFee,
+            signature: fulfillData.signature,
+            callData: fulfillData.callData,
+          },
+          requestContext,
+        )
+        .andThen((tx) => {
+          this.logger.info(
+            { method, methodId, requestContext, transactionHash: tx.transactionHash },
+            "Relayed transaction",
+          );
+          return ResultAsync.fromPromise(
+            this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash }),
+            (err) =>
+              new HandlerError(HandlerError.reasons.MessagingError, {
+                method,
+                methodId,
+                requestContext,
+                calling: "messagingService.publishMetaTxResponse",
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        })
+        .orElse((err) => {
+          this.logger.error({ method, methodId, requestContext }, "Error relaying transaction");
+          const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
+            method,
+            methodId,
             requestContext,
-          )
-          .andThen((tx) => {
-            this.logger.info(
-              { method, methodId, requestContext, transactionHash: tx.transactionHash },
-              "Relayed transaction",
-            );
-            return ResultAsync.fromPromise(
-              this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash }),
-              (err) =>
-                new HandlerError(HandlerError.reasons.MessagingError, {
-                  method,
-                  methodId,
-                  requestContext,
-                  calling: "messagingService.publishMetaTxResponse",
-                  messagingError: jsonifyError(err as Error),
-                }),
-            );
-          })
-          .orElse((err) => {
-            this.logger.error({ method, methodId, requestContext }, "Error relaying transaction");
-            const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
-              method,
-              methodId,
-              requestContext,
-              calling: "txManager.fulfill",
-              txServiceError: jsonifyError(err),
-            });
-            return ResultAsync.fromPromise(
-              this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: "" }, jsonifyError(_err)),
-              (err) =>
-                new HandlerError(HandlerError.reasons.MessagingError, {
-                  method,
-                  requestContext,
-                  methodId,
-                  calling: "messagingService.publishMetaTxResponse",
-                  messagingError: jsonifyError(err as Error),
-                }),
-            );
+            calling: "txManager.fulfill",
+            txServiceError: jsonifyError(err),
           });
+          return ResultAsync.fromPromise(
+            this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: "" }, jsonifyError(_err)),
+            (err) =>
+              new HandlerError(HandlerError.reasons.MessagingError, {
+                method,
+                requestContext,
+                methodId,
+                calling: "messagingService.publishMetaTxResponse",
+                messagingError: jsonifyError(err as Error),
+              }),
+          );
+        });
 
-        if (res.isOk()) {
-          this.logger.info({ method, methodId, requestContext }, "Method complete");
-        } else {
-          this.logger.error({ method, methodId, requestContext, err: jsonifyError(res.error) }, "Error occurred");
-        }
+      if (res.isOk()) {
+        this.logger.info({ method, methodId, requestContext }, "Method complete");
+      } else {
+        this.logger.error({ method, methodId, requestContext, err: jsonifyError(res.error) }, "Error occurred");
       }
     }
   }
@@ -548,10 +545,7 @@ export class Handler {
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
 
     if (this.receiverPreparing.get(txData.transactionId)) {
-      this.logger.error(
-        { methodId, method, requestContext, transactionId: txData.transactionId },
-        "Already fulfilling, this should not be happening!",
-      );
+      this.logger.info({ methodId, method, requestContext, transactionId: txData.transactionId }, "Already fulfilling");
       return;
     }
 
@@ -721,6 +715,7 @@ export class Handler {
         // }
       }
     }
+    this.receiverPreparing.delete(txData.transactionId);
   }
 
   // HandleReceiverFulfill
@@ -757,10 +752,7 @@ export class Handler {
     const { txData, signature, callData, relayerFee } = receiverEvent;
 
     if (this.senderFulfilling.get(txData.transactionId)) {
-      this.logger.error(
-        { methodId, method, requestContext, transactionId: txData.transactionId },
-        "Already fulfilling, this should not be happening!",
-      );
+      this.logger.info({ methodId, method, requestContext, transactionId: txData.transactionId }, "Already fulfilling");
       return;
     }
 
@@ -795,5 +787,7 @@ export class Handler {
         "Error fulfilling transaction",
       );
     }
+
+    this.senderFulfilling.delete(txData.transactionId);
   }
 }

@@ -95,20 +95,17 @@ export interface SubgraphEventPayloads {
  * @returns A container keyed on event names with values of the Evt instance used for that event
  */
 export const createEvts = (): {
-  [K in SubgraphEvent]: { evt: Evt<SubgraphEventPayloads[K]>; flushCxt: VoidCtx };
+  [K in SubgraphEvent]: { evt: Evt<SubgraphEventPayloads[K]> };
 } => {
   return {
     [SubgraphEvents.SenderTransactionPrepared]: {
       evt: Evt.create<SenderTransactionPreparedPayload>(),
-      flushCxt: Evt.newCtx(),
     },
     [SubgraphEvents.ReceiverTransactionFulfilled]: {
       evt: Evt.create<ReceiverTransactionFulfilledPayload>(),
-      flushCxt: Evt.newCtx(),
     },
     [SubgraphEvents.ReceiverTransactionCancelled]: {
       evt: Evt.create<ReceiverTransactionCancelledPayload>(),
-      flushCxt: Evt.newCtx(),
     },
   };
 };
@@ -151,18 +148,7 @@ export class Subgraph {
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
-      let loopCt = 0;
       setInterval(async () => {
-        // flush every 20 loop iterations
-        if (loopCt === 20) {
-          this.logger.info({ method, methodId }, "Flushing EVT contexts");
-          // flush contexts
-          Object.values(this.evts).forEach(({ flushCxt }) => {
-            flushCxt.done();
-          });
-          loopCt = 0;
-        }
-        loopCt++;
         // get all sender prepared txs
         let allSenderPrepared: GetSenderTransactionsQuery;
         try {
@@ -374,10 +360,7 @@ export class Subgraph {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    this.evts[event].evt
-      .pipe(filter)
-      .pipe(distinct((data) => data.senderEvent.txData.transactionId, this.evts[event].flushCxt))
-      .attach(...(args as [number, any]));
+    this.evts[event].evt.pipe(filter).attach(...(args as [number, any]));
   }
 
   /**
