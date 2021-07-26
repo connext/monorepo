@@ -425,23 +425,28 @@ export class NxtpSdk {
 
     let auctionBids: AuctionResponse[] = [];
 
-    const receivedResponsePromise = new Promise<AuctionResponse>((res, rej) => {
-      setTimeout(() => rej(), 10_000);
-      this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
-        if (err || !data) {
-          this.logger.error({ method, methodId, err, data }, "Error in auction response");
-        }
-        // dry run, return first response
-        else if (!data.bidSignature) {
-          auctionBids.push(data);
-          return;
-        } else {
-          auctionBids.push(data);
-          if (auctionBids.length >= 5) {
-            return;
+    const receivedResponsePromise = new Promise<AuctionResponse>(async (res) => {
+      await new Promise<void>((ext) => {
+        setTimeout(() => {
+          ext();
+        }, 10_000);
+        this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
+          if (err || !data) {
+            this.logger.error({ method, methodId, err, data }, "Error in auction response");
           }
-        }
+          // dry run, return first response
+          else if (!data.bidSignature) {
+            auctionBids.push(data);
+            ext();
+          } else {
+            auctionBids.push(data);
+            if (auctionBids.length >= 5) {
+              ext();
+            }
+          }
+        });
       });
+
       this.logger.info({ method, methodId, auctionBids }, "auction bids received");
       auctionBids.sort((a, b) => {
         return BigNumber.from(b.bid.amountReceived).sub(a.bid.amountReceived).toNumber();
