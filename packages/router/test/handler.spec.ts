@@ -8,7 +8,6 @@ import {
   RequestContext,
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
-import * as connextUtils from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -25,7 +24,7 @@ import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, 
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = pino({ level: "info" /** process.env.LOG_LEVEL ?? "silent" */ });
 
 const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
@@ -44,6 +43,8 @@ describe("Handler", () => {
   let wallet: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 
+  const addr = mkAddress("0xb");
+
   beforeEach(() => {
     messaging = createStubInstance(RouterNxtpNatsMessagingService);
     messaging.publishAuctionResponse.resolves(undefined);
@@ -60,10 +61,10 @@ describe("Handler", () => {
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
     stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
-    stub(connextUtils, "decodeAuctionBid").returns(auctionBidMock);
+    stub(handlerUtils, "recoverAuctionSigner").returns(addr);
 
     wallet = createStubInstance(Wallet);
-    (wallet as any).address = mkAddress("0xb"); // need to do this differently bc the function doesnt exist on the interface
+    (wallet as any).address = addr; // need to do this differently bc the function doesnt exist on the interface
     wallet.signMessage.resolves("0xabcdef");
 
     handler = new Handler(messaging as any, subgraph as any, txManager as any, txService as any, wallet, logger);
@@ -126,7 +127,7 @@ describe("Handler", () => {
   });
 
   describe("handleSenderPrepare", () => {
-    it.only("should send prepare for receiving chain with ETH asset", async () => {
+    it("should send prepare for receiving chain with ETH asset", async () => {
       const ethPrepareDataMock = senderPrepareData;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;

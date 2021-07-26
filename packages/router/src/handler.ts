@@ -17,14 +17,13 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
-import { recoverAuctionBid, decodeAuctionBid } from "@connext/nxtp-utils";
+import { decodeAuctionBid, recoverAuctionBid } from "@connext/nxtp-utils";
 import { combine, err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
 import { getConfig } from "./config";
 import { TransactionManager } from "./contract";
 import { Subgraph } from "./subgraph";
-
 /**
  * Handler.ts
 
@@ -87,6 +86,17 @@ export class HandlerError extends NxtpError {
     super(message, context, HandlerError.type);
   }
 }
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
+ * @param bid - Bid information that should've been signed
+ * @param signature - Signature to recover signer of
+ * @returns Recovered signer
+ */
+export const recoverAuctionSigner = (bid: AuctionBid, signature: string): string => {
+  return recoverAuctionBid(bid, signature);
+};
 
 /**
  * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.
@@ -573,12 +583,12 @@ export class Handler {
         bid = _bid;
         this.logger.info({ method, methodId, requestContext, bid }, "Decoded bid from event");
         return Result.fromThrowable(
-          recoverAuctionBid,
+          recoverAuctionSigner,
           (err) =>
             new HandlerError(HandlerError.reasons.EncodeError, {
               method,
               methodId,
-              calling: "recoverAuctionBid",
+              calling: "recoverAuctionSigner",
               requestContext,
               encodingError: jsonifyError(err as Error),
             }),
