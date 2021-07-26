@@ -4,7 +4,7 @@ import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
 import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { AuctionResponse, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { AuctionResponse, getRandomBytes32, TransactionData, TransactionPreparedEvent } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { chainConfig, swapConfig } from "./constants";
@@ -248,6 +248,24 @@ function App(): React.ReactElement | null {
     console.log("transfer: ", transfer);
   };
 
+  const finishTransfer = async ({
+    bidSignature,
+    caller,
+    encodedBid,
+    encryptedCallData,
+    txData,
+  }: TransactionPreparedEvent) => {
+    if (!sdk) {
+      return;
+    }
+
+    const finish = await sdk.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData });
+    console.log("finish: ", finish);
+    setActiveTransferTableColumns(
+      activeTransferTableColumns.filter((t) => t.txData.transactionId !== txData.transactionId),
+    );
+  };
+
   const columns = [
     {
       title: "Transaction Id",
@@ -316,7 +334,7 @@ function App(): React.ReactElement | null {
           return (
             <Button
               type="link"
-              onClick={() => sdk?.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
+              onClick={() => finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
             >
               Finish
             </Button>
