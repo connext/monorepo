@@ -12,7 +12,7 @@ import {
   Values,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
-import { Evt, VoidCtx, distinct } from "evt";
+import { Evt } from "evt";
 import { ResultAsync } from "neverthrow";
 
 import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";

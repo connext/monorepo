@@ -40,8 +40,12 @@ import {
 import { TransactionManagerEvents } from "./listener";
 import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
 
+/** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+
+/** Gets the min expiry buffer to validate */
 export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
+
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
@@ -213,7 +217,7 @@ export class NxtpSdk {
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
-    network?: "testnet" | "mainnet", // TODO
+    _network?: "testnet" | "mainnet", // TODO
   ) {
     if (messaging) {
       this.messaging = messaging;
@@ -422,7 +426,7 @@ export class NxtpSdk {
 
     const inbox = generateMessagingInbox();
 
-    let auctionBids: AuctionResponse[] = [];
+    const auctionBids: AuctionResponse[] = [];
 
     const receivedResponsePromise = new Promise<AuctionResponse>(async (res, rej) => {
       await new Promise<void>((ext) => {

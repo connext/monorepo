@@ -128,6 +128,11 @@ export const encodeAuctionBid = (bid: AuctionBid): string => {
   return utils.defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
 };
 
+/**
+ * Decode bid
+ * @param data - Data to decode
+ * @returns Decoded bid
+ */
 export const decodeAuctionBid = (data: string): AuctionBid => {
   const [decoded] = utils.defaultAbiCoder.decode([AuctionBidEncoding], data);
   return {

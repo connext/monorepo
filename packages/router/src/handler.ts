@@ -15,9 +15,10 @@ import {
   NxtpErrorJson,
   getUuid,
   RequestContext,
+  decodeAuctionBid,
+  recoverAuctionBid,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
-import { decodeAuctionBid, recoverAuctionBid } from "@connext/nxtp-utils";
 import { combine, err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
