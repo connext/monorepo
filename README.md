@@ -208,7 +208,7 @@ yarn workspace @connext/nxtp-router dev
 
 - Create `packages/test-ui/.env`. Configure for live chains and the desired messaging:
 
-```
+```sh
 REACT_APP_CHAIN_CONFIG='{"4":{"provider":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"provider":["https://goerli.infura.io/v3/af2f28bdb95d40edb06226a46106f5f9","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
 REACT_APP_SWAP_CONFIG='[{"name":"TEST","assets":{"4":"0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198","5":"0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682"}}]'
 #REACT_APP_NATS_URL_OVERRIDE=ws://localhost:4221
