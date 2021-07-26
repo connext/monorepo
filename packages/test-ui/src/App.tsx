@@ -245,14 +245,7 @@ function App(): React.ReactElement | null {
       throw new Error("Wrong chain");
     }
     const transfer = await sdk.startTransfer(auctionResponse, true);
-    const event = await sdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionPrepared,
-      100_000,
-      (data) => data.txData.transactionId === transfer.transactionId,
-    );
-
-    const finish = await sdk.finishTransfer(event);
-    console.log("finish: ", finish);
+    console.log("transfer: ", transfer);
   };
 
   const columns = [
@@ -553,7 +546,7 @@ function App(): React.ReactElement | null {
                 placeholder="..."
                 addonAfter={
                   <Button
-                    disabled={!web3Provider}
+                    disabled={!web3Provider || injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
                     type="primary"
                     onClick={async () => {
                       const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
