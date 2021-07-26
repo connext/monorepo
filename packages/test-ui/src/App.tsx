@@ -323,7 +323,16 @@ function App(): React.ReactElement | null {
           return (
             <Button
               type="link"
-              onClick={() => sdk?.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
+              onClick={() =>
+                sdk?.finishTransfer({
+                  bidSignature,
+                  caller,
+                  encodedBid,
+                  encryptedCallData,
+                  txData,
+                  amount: txData.shares,
+                })
+              }
             >
               Finish
             </Button>
@@ -396,7 +405,7 @@ function App(): React.ReactElement | null {
                 columns={columns}
                 dataSource={activeTransferTableColumns.map((tx) => {
                   return {
-                    amount: tx.txData.amount,
+                    amount: tx.txData.shares,
                     status: tx.status,
                     sendingChain: tx.txData.sendingChainId.toString(),
                     receivingChain: tx.txData.receivingChainId.toString(),
