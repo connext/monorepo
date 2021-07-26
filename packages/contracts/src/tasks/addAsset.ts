@@ -1,7 +1,5 @@
 import { task } from "hardhat/config";
 
-import { TransactionManager } from "../../typechain";
-
 export default task("add-asset", "Add a asset")
   .addParam("assetId", "Token address")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
@@ -18,7 +16,7 @@ export default task("add-asset", "Add a asset")
     }
     console.log("txManagerAddress: ", txManagerAddress);
 
-    const txManager: TransactionManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+    const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
     const tx = await txManager.addAssetId(assetId, { from: namedAccounts.deployer });
     console.log("addAssetId tx: ", tx);
     const receipt = await tx.wait();
