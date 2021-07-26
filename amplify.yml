@@ -15,4 +15,3 @@ applications:
           - "**/*"
       cache:
         paths:
-          - node_modules/**/*

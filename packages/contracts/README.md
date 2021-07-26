@@ -4,7 +4,7 @@
 
 ### Video Walkthrough
 
-[![Security walkthrough video](https://img.youtube.com/vi/ABEOIKzEshA/0.jpg)](https://www.youtube.com/watch?v=ABEOIKzEshA)
+[Security walkthrough video](https://youtu.be/dQ64SOu5B2s)
 
 ### TLDR
 

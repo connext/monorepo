@@ -1,5 +1,9 @@
 # Vector Changelog
 
+## 0.0.12
+
+- [txservice] Bugfixes.
+
 ## 0.0.11
 
 - [sdk] Fix for signature sending bug.
