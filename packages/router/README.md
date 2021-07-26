@@ -2,6 +2,12 @@
 
 ## TLDR
 
+### Video Walkthrough
+
+If even this looks like too much reading, video walkthrough of the code can be found [here](https://youtu.be/qApqoUXplyU).
+
+### High Level Overview
+
 The router is an automated actor that is in charge of providing liquidity and facilitates cross-chain swaps. The basic operation of the router is:
 
 - Listen for user swap requests.
