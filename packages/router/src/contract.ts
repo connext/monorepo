@@ -382,7 +382,7 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.readTx(chainId, {
+      this.txService.readTx({
         chainId,
         data: issuedSharesData,
         to: nxtpContractAddress,
