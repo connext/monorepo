@@ -430,7 +430,7 @@ export class Handler {
           );
         })
         .orElse((err) => {
-          this.logger.info({ method, methodId, transactionHash: "" }, "Error relaying transaction");
+          this.logger.error({ method, methodId, transactionHash: "" }, "Error relaying transaction");
           const _err = new HandlerError(HandlerError.reasons.TxServiceError, {
             method,
             methodId,
