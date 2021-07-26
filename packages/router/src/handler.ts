@@ -438,7 +438,11 @@ export class Handler {
             txServiceError: jsonifyError(err),
           });
           return ResultAsync.fromPromise(
-            this.messagingService.publishMetaTxResponse(inbox, { chainId, transactionHash: "" }, jsonifyError(_err)),
+            this.messagingService.publishMetaTxResponse(
+              inbox,
+              { chainId, transactionHash: undefined },
+              jsonifyError(_err),
+            ),
             (err) =>
               new HandlerError(HandlerError.reasons.MessagingError, {
                 method,
