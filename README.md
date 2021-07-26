@@ -196,7 +196,16 @@ yarn workspace @connext/nxtp-integration docker:messaging:up
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "..." // use your own mnemonic!
+  "mnemonic": "...", // use your own mnemonic!
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
+        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+      ]
+    }
+  ]
 }
 ```
 
@@ -208,8 +217,8 @@ yarn workspace @connext/nxtp-router dev
 
 - Create `packages/test-ui/.env`. Configure for live chains and the desired messaging:
 
-```
-REACT_APP_CHAIN_CONFIG='{"4":{"provider":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"provider":["https://goerli.infura.io/v3/af2f28bdb95d40edb06226a46106f5f9","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
+```sh
+REACT_APP_CHAIN_CONFIG='{"4":{"provider":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"provider":["https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
 REACT_APP_SWAP_CONFIG='[{"name":"TEST","assets":{"4":"0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198","5":"0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682"}}]'
 #REACT_APP_NATS_URL_OVERRIDE=ws://localhost:4221
 #REACT_APP_AUTH_URL_OVERRIDE=http://localhost:5040
