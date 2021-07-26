@@ -4,7 +4,7 @@ import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
 import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { AuctionResponse, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { AuctionResponse, getRandomBytes32, TransactionData, TransactionPreparedEvent } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { chainConfig, swapConfig } from "./constants";
@@ -245,14 +245,25 @@ function App(): React.ReactElement | null {
       throw new Error("Wrong chain");
     }
     const transfer = await sdk.startTransfer(auctionResponse, true);
-    const event = await sdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionPrepared,
-      100_000,
-      (data) => data.txData.transactionId === transfer.transactionId,
-    );
+    console.log("transfer: ", transfer);
+  };
 
-    const finish = await sdk.finishTransfer(event);
+  const finishTransfer = async ({
+    bidSignature,
+    caller,
+    encodedBid,
+    encryptedCallData,
+    txData,
+  }: TransactionPreparedEvent) => {
+    if (!sdk) {
+      return;
+    }
+
+    const finish = await sdk.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData });
     console.log("finish: ", finish);
+    setActiveTransferTableColumns(
+      activeTransferTableColumns.filter((t) => t.txData.transactionId !== txData.transactionId),
+    );
   };
 
   const columns = [
@@ -323,16 +334,7 @@ function App(): React.ReactElement | null {
           return (
             <Button
               type="link"
-              onClick={() =>
-                sdk?.finishTransfer({
-                  bidSignature,
-                  caller,
-                  encodedBid,
-                  encryptedCallData,
-                  txData,
-                  amount: txData.shares,
-                })
-              }
+              onClick={() => finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
             >
               Finish
             </Button>
@@ -562,7 +564,7 @@ function App(): React.ReactElement | null {
                 placeholder="..."
                 addonAfter={
                   <Button
-                    disabled={!web3Provider}
+                    disabled={!web3Provider || injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))}
                     type="primary"
                     onClick={async () => {
                       const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[

@@ -126,9 +126,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {}
     }
     if (!chainConfig.minGas) {

@@ -2,16 +2,13 @@
 import { Signer, providers, BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import hyperid from "hyperid";
-import { jsonifyError } from "@connext/nxtp-utils";
+import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { MinimalTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
-
-const hId = hyperid();
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -118,10 +115,10 @@ export class TransactionService {
    * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
    * something went wrong within TransactionService process.
    */
-  public async sendTx(tx: MinimalTransaction): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: MinimalTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
-    const methodId = hId();
-    this.logger.info({ method, methodId, tx }, "Method start");
+    const methodId = getUuid();
+    this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
     this.logger.debug("Sending transaction.", { ...transaction.data });
@@ -130,11 +127,17 @@ export class TransactionService {
       while (!transaction.didFinish()) {
         try {
           // TODO: Perform submit within the handle method?
-          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+          this.logger.debug(
+            { method, methodId, requestContext },
+            `(${transaction.id}, ${transaction.attempt}) Submitting tx...`,
+          );
           await transaction.submit();
-          this.handleSubmit(transaction);
+          this.handleSubmit(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          this.logger.warn(
+            { method, methodId, requestContext },
+            `(${transaction.id}, ${transaction.attempt}) ${error}`,
+          );
           if (error instanceof TransactionServiceFailure) {
             // TODO: Might be worth attempting to confirm first?
             // TransactionService infrastructure failed - error must be escalated for visiblity.
@@ -149,11 +152,17 @@ export class TransactionService {
 
         try {
           // TODO: Perform submit within the handle method?
-          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+          this.logger.debug(
+            { method, methodId, requestContext },
+            `(${transaction.id}, ${transaction.attempt}) Confirming tx...`,
+          );
           await transaction.confirm();
-          this.handleConfirm(transaction);
+          this.handleConfirm(transaction, requestContext);
         } catch (error) {
-          this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
+          this.logger.debug(
+            { method, methodId, requestContext },
+            `(${transaction.id}, ${transaction.attempt}) ${error}`,
+          );
           if (error instanceof TimeoutError) {
             transaction.bumpGasPrice();
           } else {
@@ -162,12 +171,12 @@ export class TransactionService {
         }
       }
     } catch (error) {
-      this.handleFail(error, transaction);
+      this.handleFail(error, transaction, requestContext);
       throw error;
     }
 
     // Success!
-    this.handleConfirm(transaction);
+    this.handleConfirm(transaction, requestContext);
     return transaction.receipt!;
   }
 
@@ -318,7 +327,7 @@ export class TransactionService {
    * Handle logging and event emitting on tx submit attempt.
    * @param response The transaction response received back from that attempt.
    */
-  private handleSubmit(transaction: Transaction) {
+  private handleSubmit(transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
     const response = transaction.latestResponse;
     this.logger.info(
@@ -328,6 +337,7 @@ export class TransactionService {
         hash: response.hash,
         gas: (response.gasPrice ?? "unknown").toString(),
         nonce: response.nonce,
+        requestContext,
       },
       "Transaction submitted.",
     );
@@ -338,10 +348,10 @@ export class TransactionService {
    * Handle logging and event emitting on tx confirmation.
    * @param receipt The transaction receipt received back.
    */
-  private handleConfirm(transaction: Transaction) {
+  private handleConfirm(transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt!;
-    this.logger.info({ method, id: transaction.id, receipt }, "Transaction mined.");
+    this.logger.info({ method, id: transaction.id, requestContext, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
@@ -351,10 +361,13 @@ export class TransactionService {
    * @param receipt The transaction receipt received back from reverted tx, if
    * applicable.
    */
-  private handleFail(error: TransactionError, transaction: Transaction) {
+  private handleFail(error: TransactionError, transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.debug({ method, id: transaction.id, receipt, error: jsonifyError(error) }, "Transaction failed.");
+    this.logger.debug(
+      { method, id: transaction.id, receipt, requestContext, error: jsonifyError(error) },
+      "Transaction failed.",
+    );
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

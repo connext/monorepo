@@ -1,4 +1,8 @@
-# Vector Changelog
+# NXTP Changelog
+
+## Next Release
+
+- [sdk] Add `transactionReceipt` to all applicable events.
 
 ## 0.0.12
 

@@ -7,16 +7,10 @@ import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
-import {
-  parseError,
-  RpcError,
-  TransactionError,
-  TransactionReadError,
-  TransactionServiceFailure,
-} from "./error";
+import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
 import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
 
-const { JsonRpcProvider, FallbackProvider } = providers;
+const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
 // TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
@@ -74,11 +68,14 @@ export class ChainRpcProvider {
     });
     if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
-        provider: new JsonRpcProvider({
-          url: config.url,
-          user: config.user,
-          password: config.password,
-        }),
+        provider: new StaticJsonRpcProvider(
+          {
+            url: config.url,
+            user: config.user,
+            password: config.password,
+          },
+          this.chainId,
+        ),
         priority: config.priority ?? 1,
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,

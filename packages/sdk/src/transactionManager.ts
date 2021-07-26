@@ -9,16 +9,14 @@ import {
   NxtpErrorJson,
   Values,
   jsonifyError,
+  getUuid,
 } from "@connext/nxtp-utils";
-import hyperid from "hyperid";
 import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionManagerEvent, TransactionManagerEventPayloads, TransactionManagerListener } from "./listener";
-
-const hId = hyperid();
 
 /**
  * @classdesc Defines the error thrown by the `TransactionManager` class
@@ -131,7 +129,7 @@ export class TransactionManager {
     prepareParams: PrepareParams,
   ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
     const method = "Contract::prepare";
-    const methodId = hId();
+    const methodId = getUuid();
 
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
@@ -204,7 +202,7 @@ export class TransactionManager {
     cancelParams: CancelParams,
   ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
     const method = "Contract::cancel";
-    const methodId = hId();
+    const methodId = getUuid();
 
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
@@ -255,7 +253,7 @@ export class TransactionManager {
     fulfillParams: FulfillParams,
   ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
     const method = "Contract::fulfill";
-    const methodId = hId();
+    const methodId = getUuid();
 
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
@@ -305,7 +303,7 @@ export class TransactionManager {
     infiniteApprove = false,
   ): ResultAsync<providers.TransactionResponse | undefined, TransactionManagerError> {
     const method = "Contract::approveTokensIfNeeded";
-    const methodId = hId();
+    const methodId = getUuid();
 
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
@@ -399,7 +397,7 @@ export class TransactionManager {
     assetId: string,
   ): ResultAsync<BigNumber, TransactionManagerError> {
     const method = "Contract::getLiquidity";
-    const methodId = hId();
+    const methodId = getUuid();
 
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {

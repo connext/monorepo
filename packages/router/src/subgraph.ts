@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { BaseLogger } from "pino";
 import {
+  getUuid,
   jsonifyError,
   NxtpError,
   NxtpErrorJson,
@@ -11,13 +12,10 @@ import {
   Values,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
-import hyperid from "hyperid";
-import { Evt, VoidCtx, distinct } from "evt";
+import { Evt } from "evt";
 import { ResultAsync } from "neverthrow";
 
 import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";
-
-const hId = hyperid();
 
 /**
  * @classdesc Error thrown by the subgraph class
@@ -97,20 +95,17 @@ export interface SubgraphEventPayloads {
  * @returns A container keyed on event names with values of the Evt instance used for that event
  */
 export const createEvts = (): {
-  [K in SubgraphEvent]: { evt: Evt<SubgraphEventPayloads[K]>; flushCxt: VoidCtx };
+  [K in SubgraphEvent]: { evt: Evt<SubgraphEventPayloads[K]> };
 } => {
   return {
     [SubgraphEvents.SenderTransactionPrepared]: {
       evt: Evt.create<SenderTransactionPreparedPayload>(),
-      flushCxt: Evt.newCtx(),
     },
     [SubgraphEvents.ReceiverTransactionFulfilled]: {
       evt: Evt.create<ReceiverTransactionFulfilledPayload>(),
-      flushCxt: Evt.newCtx(),
     },
     [SubgraphEvents.ReceiverTransactionCancelled]: {
       evt: Evt.create<ReceiverTransactionCancelledPayload>(),
-      flushCxt: Evt.newCtx(),
     },
   };
 };
@@ -149,22 +144,11 @@ export class Subgraph {
    */
   private subgraphLoop() {
     const method = "startLoop";
-    const methodId = hId();
+    const methodId = getUuid();
     Object.keys(this.chainConfig).forEach(async (cId) => {
       const chainId = parseInt(cId);
       const sdk: Sdk = this.sdks[chainId];
-      let loopCt = 0;
       setInterval(async () => {
-        // flush every 20 loop iterations
-        if (loopCt === 20) {
-          this.logger.info({ method, methodId }, "Flushing EVT contexts");
-          // flush contexts
-          Object.values(this.evts).forEach(({ flushCxt }) => {
-            flushCxt.done();
-          });
-          loopCt = 0;
-        }
-        loopCt++;
         // get all sender prepared txs
         let allSenderPrepared: GetSenderTransactionsQuery;
         try {
@@ -305,7 +289,7 @@ export class Subgraph {
     SubgraphError
   > {
     const method = this.getTransactionForChain.name;
-    const methodId = hId();
+    const methodId = getUuid();
     const sdk: Sdk = this.sdks[chainId];
     return ResultAsync.fromPromise(
       sdk.GetTransaction({
@@ -353,7 +337,7 @@ export class Subgraph {
    */
   getRouterShares(assetId: string, chainId: number): ResultAsync<BigNumber, SubgraphError> {
     const method = this.getRouterShares.name;
-    const methodId = hId();
+    const methodId = getUuid();
     const sdk: Sdk = this.sdks[chainId];
     const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
     return ResultAsync.fromPromise(
@@ -379,10 +363,7 @@ export class Subgraph {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    this.evts[event].evt
-      .pipe(filter)
-      .pipe(distinct((data) => data.senderEvent.txData.transactionId, this.evts[event].flushCxt))
-      .attach(...(args as [number, any]));
+    this.evts[event].evt.pipe(filter).attach(...(args as [number, any]));
   }
 
   /**

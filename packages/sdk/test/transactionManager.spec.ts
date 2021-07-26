@@ -473,7 +473,7 @@ describe("Transaction Manager", function () {
       it.skip("happy case", async () => {});
     });
 
-    describe("getLiquidity", () => {
+    describe("getRouterLiquidity", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         const res = await routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address);
