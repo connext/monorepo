@@ -1,9 +1,11 @@
 import {
   AuctionPayload,
+  createRequestContext,
   FulfillParams,
   mkAddress,
   mkBytes32,
   PrepareParams,
+  RequestContext,
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -30,6 +32,8 @@ const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 const MUTATED_AMOUNT = "100";
 const MUTATED_EXPIRY = 123400;
 const BID_EXPIRY = 123401;
+
+const requestContext = createRequestContext("TEST") as unknown as RequestContext;
 
 describe("Handler", () => {
   let handler: Handler;
@@ -90,7 +94,7 @@ describe("Handler", () => {
     });
 
     it("happy: should publish auction response for a valid swap", async () => {
-      await handler.handleNewAuction(auctionPayload, "_INBOX.abc");
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
       expect(messaging.publishAuctionResponse.callCount).to.eq(1);
       const publishCall = messaging.publishAuctionResponse.getCall(0);
       expect(publishCall.args[0]).to.eq("_INBOX.abc");
@@ -123,7 +127,7 @@ describe("Handler", () => {
       const ethPrepareDataMock = senderPrepareData;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
-      await handler.handleSenderPrepare(ethPrepareDataMock);
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
       expect(txManager.prepare.callCount).to.be.eq(1);
       const call = txManager.prepare.getCall(0);
@@ -159,7 +163,7 @@ describe("Handler", () => {
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
       // TODO: where is approve??
-      await handler.handleSenderPrepare(tokenPrepareData);
+      await handler.handleSenderPrepare(tokenPrepareData, requestContext);
 
       expect(txManager.prepare.callCount).to.be.eq(1);
       const call = txManager.prepare.getCall(0);
@@ -208,7 +212,7 @@ describe("Handler", () => {
           ...senderPrepareData,
         }),
       );
-      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock);
+      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
       expect(data).to.deep.eq({
@@ -256,7 +260,7 @@ describe("Handler", () => {
         }),
       );
 
-      await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock);
+      await handler.handleReceiverFulfill(tokenPrepareData, tokenRxFulfillDataMock, requestContext);
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
 

@@ -1,6 +1,6 @@
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import { TransactionService } from "@connext/nxtp-txservice";
-import { getUuid } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { Interface } from "ethers/lib/utils";
 import { constants, providers } from "ethers";
@@ -75,10 +75,11 @@ export class TransactionManager {
   prepare(
     chainId: number,
     prepareParams: PrepareParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::prepare ";
     const methodId = getUuid();
-    this.logger.info({ method, methodId, prepareParams }, "Method start");
+    this.logger.info({ method, methodId, requestContext, prepareParams }, "Method start");
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
@@ -115,13 +116,16 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        data: encodedData,
-        value: constants.Zero,
-        chainId,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -145,6 +149,7 @@ export class TransactionManager {
   fulfill(
     chainId: number,
     fulfillParams: FulfillParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::fulfill";
     const methodId = getUuid();
@@ -165,13 +170,16 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        chainId,
-        data: fulfillData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          chainId,
+          data: fulfillData,
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          value: 0,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -193,6 +201,7 @@ export class TransactionManager {
   cancel(
     chainId: number,
     cancelParams: CancelParams,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::cancel";
     const methodId = getUuid();
@@ -215,13 +224,16 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        chainId,
-        data: cancelData,
-        to: this.config.chainConfig[chainId].transactionManagerAddress,
-        value: 0,
-        from: this.signerAddress,
-      }),
+      this.txService.sendTx(
+        {
+          chainId,
+          data: cancelData,
+          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          value: 0,
+          from: this.signerAddress,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),
@@ -245,6 +257,7 @@ export class TransactionManager {
     amount: string,
     assetId: string,
     recipientAddress: string | undefined,
+    requestContext: RequestContext,
   ): ResultAsync<providers.TransactionReceipt, TransactionManagerError> {
     const method = "Contract::removeLiquidity";
     const methodId = getUuid();
@@ -275,12 +288,15 @@ export class TransactionManager {
     }
 
     return ResultAsync.fromPromise(
-      this.txService.sendTx({
-        chainId,
-        data: removeLiquidityData,
-        to: nxtpContractAddress,
-        value: 0,
-      }),
+      this.txService.sendTx(
+        {
+          chainId,
+          data: removeLiquidityData,
+          to: nxtpContractAddress,
+          value: 0,
+        },
+        requestContext,
+      ),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
           txServiceError: jsonifyError(err as NxtpError),

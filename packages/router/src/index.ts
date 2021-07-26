@@ -1,6 +1,13 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { jsonifyError, RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
+import {
+  createRequestContext,
+  jsonifyError,
+  RouterNxtpNatsMessagingService,
+  TAddress,
+  TChainId,
+  TDecimalString,
+} from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { Static, Type } from "@sinclair/typebox";
@@ -98,11 +105,13 @@ server.get<{ Body: RemoveLiquidityRequest }>(
   "/remove-liquidity",
   { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
   async (req) => {
+    const requestContext = createRequestContext("/remove-liquidity");
     const result = await transactionManager.removeLiquidity(
       req.body.chainId,
       req.body.amount,
       req.body.assetId,
       req.body.recipientAddress,
+      requestContext,
     );
     if (result.isOk()) {
       return { transactionHash: result.value.transactionHash };

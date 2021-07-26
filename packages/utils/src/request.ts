@@ -7,6 +7,6 @@ export type RequestContext = {
   origin: string;
 };
 
-export const createRequestContext = (origin: string) => {
-  id: getUuid(), origin;
+export const createRequestContext = (origin: string): RequestContext => {
+  return { id: getUuid(), origin };
 };
