@@ -37,7 +37,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEventPayloads, SubgraphEvents } from "./subgraph";
+import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;

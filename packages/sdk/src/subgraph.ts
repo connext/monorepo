@@ -8,10 +8,10 @@ import {
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
+import { Evt } from "evt";
 
 import { NxtpSdkEvent } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
-import { Evt } from "evt";
 
 /**
  * Gets hosted subgraph for applicable chains
@@ -219,10 +219,10 @@ export class Subgraph {
               if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
                 const tx = {
                   txData: convertTransactionToTxData(correspondingReceiverTx),
-                  signature: correspondingReceiverTx.signature!,
-                  relayerFee: correspondingReceiverTx.relayerFee!,
+                  signature: correspondingReceiverTx.signature,
+                  relayerFee: correspondingReceiverTx.relayerFee,
                   callData: correspondingReceiverTx.callData!,
-                  caller: correspondingReceiverTx.fulfillCaller!,
+                  caller: correspondingReceiverTx.fulfillCaller,
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
