@@ -7,7 +7,7 @@ export type Values<E> = E[keyof E];
  * @returns An error json
  */
 export const jsonifyError = (error: NxtpError | Error): NxtpErrorJson => {
-  if ((error as any).type) {
+  if ((error as any).toJson && typeof (error as any).toJson === "function") {
     return (error as NxtpError).toJson();
   }
   return {
