@@ -31,7 +31,7 @@ const chainProviders = {
   1338: {
     provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
     transactionManagerAddress: txManagerAddress1338,
-    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+    subgraph: "http://localhost:9000/subgraphs/name/connext/nxtp",
   },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
@@ -122,6 +122,16 @@ describe("Integration", () => {
     const liquidity1338 = await txManager1338.routerBalances(router, tokenAddress1338);
 
     // fund if necessary
+    logger.info(
+      {
+        liquidity: liquidity1337.toString(),
+        asset: tokenAddress1337,
+        chain: 1337,
+        router,
+        transactionManager: txManager1337.address,
+      },
+      "Liquidity available",
+    );
     if (liquidity1337.lt(MIN_TOKEN)) {
       logger.info({ chainId: 1337 }, "Adding liquidity");
       const approvetx = await token1337.approve(txManager1337.address, constants.MaxUint256);
@@ -132,6 +142,16 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "addLiquidity mined");
     }
 
+    logger.info(
+      {
+        liquidity: liquidity1338.toString(),
+        asset: tokenAddress1338,
+        chain: 1338,
+        router,
+        transactionManager: txManager1338.address,
+      },
+      "Liquidity available",
+    );
     if (liquidity1338.lt(MIN_TOKEN)) {
       logger.info({ chainId: 1338 }, "Adding liquidity");
       const approvetx = await token1338.approve(txManager1338.address, constants.MaxUint256);
@@ -168,7 +188,7 @@ describe("Integration", () => {
     userSdk = new NxtpSdk(
       chainProviders,
       userWallet,
-      pino({ name: "IntegrationTest" }),
+      pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
       "nats://localhost:4222",
       "http://localhost:5040",
     );
