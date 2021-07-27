@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, providers, Signer } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
