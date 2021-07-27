@@ -27,6 +27,10 @@ import {
   NxtpErrorJson,
   Values,
   calculateExchangeAmount,
+  NATS_AUTH_URL,
+  NATS_WS_URL,
+  NATS_AUTH_TESTNET_URL,
+  NATS_WS_TESTNET_URL,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -49,12 +53,6 @@ export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
-
-export const DEFAULT_MAINNET_NATS = "";
-export const DEFAULT_MAINNET_AUTH = "";
-
-export const DEFAULT_TESTNET_NATS = "";
-export const DEFAULT_TESTNET_AUTH = "";
 
 declare const ethereum: any; // TODO: what to do about node?
 
@@ -228,8 +226,8 @@ export class NxtpSdk {
     if (messaging) {
       this.messaging = messaging;
     } else {
-      const _natsUrl = natsUrl ?? network === "mainnet" ? DEFAULT_MAINNET_NATS : DEFAULT_TESTNET_NATS;
-      const _authUrl = authUrl ?? network === "mainnet" ? DEFAULT_MAINNET_AUTH : DEFAULT_TESTNET_AUTH;
+      const _natsUrl = natsUrl ?? network === "mainnet" ? NATS_WS_URL : NATS_WS_TESTNET_URL;
+      const _authUrl = authUrl ?? network === "mainnet" ? NATS_AUTH_URL : NATS_AUTH_TESTNET_URL;
 
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
