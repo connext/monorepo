@@ -115,11 +115,10 @@ export class Subgraph {
       const client = new GraphQLClient(subgraph);
       this.sdks[parseInt(chainId)] = getSdk(client);
     });
+    this.subgraphLoop();
   }
 
   private subgraphLoop(): void {
-    const method = "subgraphLoop";
-    const methodId = getUuid();
     setInterval(async () => {
       await this.getActiveTransactions();
     }, this.pollInterval);
