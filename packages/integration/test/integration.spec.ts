@@ -28,16 +28,14 @@ const CHAIN_BOB = 5;
 
 const chainProviders = {
   [CHAIN_ALICE]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/93ef29ccde6449debec459493c9d07a3")]),
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
     transactionManagerAddress: txManagerAddressAlice,
-    // subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
-    subgraph: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-staging",
+    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
   },
   [CHAIN_BOB]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("https://goerli.infura.io/v3/55b1cf0f39d04e4c9084f1b9bea7e41f")]),
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
     transactionManagerAddress: txManagerAddressBob,
-    // subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
-    subgraph: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-staging",
+    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
   },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
