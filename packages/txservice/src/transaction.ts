@@ -31,10 +31,6 @@ export class Transaction {
     };
   }
 
-  public get latestResponse(): providers.TransactionResponse {
-    return this.responses[this.responses.length - 1];
-  }
-
   // Internal nonce tracking.
   private _nonce?: number;
   public get nonce(): number | undefined {
@@ -116,9 +112,8 @@ export class Transaction {
   }
 
   /**
-   * Specifies whether the transaction has been completed - meaning that it's been
-   * mined and has received the target number of confirmations.
-   * @returns boolean indicating whether the transaction is completed.
+   * Specifies whether the transaction has been submitted.
+   * @returns boolean indicating whether the transaction is submitted.
    */
   public didSubmit(): boolean {
     return this.responses.length > 0;

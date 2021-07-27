@@ -316,9 +316,9 @@ export class TransactionService {
    * Handle logging and event emitting on tx submit attempt.
    * @param response The transaction response received back from that attempt.
    */
-  private async submitTransaction(transaction: Transaction, requestContext: RequestContext) {
+  private async submitTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, requestContext }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
     const response = await transaction.submit();
     this.logger.info(
       {
@@ -327,7 +327,7 @@ export class TransactionService {
         hash: response.hash,
         gas: (response.gasPrice ?? "unknown").toString(),
         nonce: response.nonce,
-        requestContext,
+        context,
       },
       "Tx submitted.",
     );
@@ -338,15 +338,15 @@ export class TransactionService {
    * Handle logging and event emitting on tx confirmation.
    * @param receipt The transaction receipt received back.
    */
-  private async confirmTransaction(transaction: Transaction, requestContext: RequestContext) {
+  private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, requestContext }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
     const receipt = await transaction.confirm();
     this.logger.info(
       {
         method,
         id: transaction.id,
-        requestContext,
+        context,
         receipt: {
           to: receipt.to,
           from: receipt.from,
@@ -367,11 +367,11 @@ export class TransactionService {
    * @param receipt The transaction receipt received back from reverted tx, if
    * applicable.
    */
-  private handleFail(error: TransactionError, transaction: Transaction, requestContext: RequestContext) {
+  private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
     this.logger.error(
-      { method, id: transaction.id, receipt, requestContext, error: jsonifyError(error) },
+      { method, id: transaction.id, receipt, context, error: jsonifyError(error) },
       "Tx failed.",
     );
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });

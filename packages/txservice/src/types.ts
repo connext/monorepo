@@ -1,5 +1,4 @@
-import { NonceManager } from "@ethersproject/experimental";
-import { BigNumber, BigNumberish, providers } from "ethers";
+import { BigNumber, BigNumberish, providers, Signer } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
@@ -59,20 +58,6 @@ export class GasPrice {
         gasPrice: value.toString(),
         max: this.limit.toString(),
       });
-    }
-  }
-}
-
-/**
- * @classdesc We use this class to wrap NonceManager to ensure re-broadcast (tx's with defined nonce) is handled correctly.
- *
- */
-export class NxtpNonceManager extends NonceManager {
-  sendTransaction(transaction: providers.TransactionRequest): Promise<providers.TransactionResponse> {
-    if (transaction.nonce) {
-      return this.signer.sendTransaction(transaction);
-    } else {
-      return super.sendTransaction(transaction);
     }
   }
 }

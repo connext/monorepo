@@ -8,7 +8,7 @@ import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
-import { FullTransaction, MinimalTransaction, NxtpNonceManager, CachedGas } from "./types";
+import { FullTransaction, MinimalTransaction, CachedGas } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -20,13 +20,18 @@ export class ChainRpcProvider {
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private _providers: providers.JsonRpcProvider[];
   private provider: providers.FallbackProvider;
-  private signer: NxtpNonceManager;
+  private signer: Signer;
   private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
 
   public confirmationsRequired: number;
   public confirmationTimeout: number;
+
+  // The current nonce of the signer is tracked locally here. It will be used for comparison
+  // to the nonce we get back from the pending transaction count call to our providers.
+  // NOTE: Should not be accessed outside of the helper methods, getNonce and incrementNonce.
+  private _nonce = 0;
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -90,10 +95,7 @@ export class ChainRpcProvider {
       );
     }
 
-    // Using NonceManager to wrap signer here.
-    this.signer = new NxtpNonceManager(
-      typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider),
-    );
+    this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
   }
 
   /**
@@ -107,16 +109,26 @@ export class ChainRpcProvider {
       // Define task to send tx with proper nonce.
       const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
         try {
-          // Send transaction using the passed in callback.
-          const { to, data, chainId, value, gasPrice, nonce } = tx;
-          const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction({
-            to,
-            data,
-            chainId,
-            gasPrice,
-            nonce,
-            value: BigNumber.from(value || 0),
-          });
+          // Do any parsing and value handling work here if necessary.
+          const transaction = {
+            to: tx.to,
+            data: tx.data,
+            chainId: tx.chainId,
+            gasPrice: tx.gasPrice,
+            nonce: tx.nonce,
+            value: BigNumber.from(tx.value || 0),
+          };
+          let response: providers.TransactionResponse | undefined;
+          if (transaction.nonce) {
+            response = await this.signer.sendTransaction(transaction);
+          } else {
+            const nonce = await this.getNonce();
+            // NOTE: This can fail. If we throw an error here, increment nonce will never be called.
+            response = await this.signer.sendTransaction({ ...transaction, nonce });
+            this.incrementNonce();
+          }
+
+          // const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction();
           if (response == null) {
             // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
             throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
@@ -334,5 +346,66 @@ export class ChainRpcProvider {
     //   throw new ChainError(ChainError.reasons.ProviderNotSynced);
     // }
     return true;
+  }
+
+  /**
+   * Get the current nonce value for our signer.
+   *
+   * @remarks
+   * This method will poll all providers to get the current nonce for this address,
+   * then return the highest value among them and the nonce we have set in local memory.
+   *
+   * We do not use FallbackProvider directly here. We will throw an error if we are unable
+   * to retrieve the nonce value from any of our providers - even if we have a valid nonce
+   * in local memory. Because if all providers are failing (out of sync, network failure,
+   * API failure), then we won't be able to do anything with this nonce anyway.
+   *
+   * The reasoning behind this is simple: FallbackProvider, depending on how its been
+   * configured, will usually send a transaction to 1 provider (although sometimes more).
+   * As a result, the actual number of pending transactions for this signer (which
+   * determines our nonce) will only be accurate for that provider.
+   *
+   * If we query all providers, we guarantee we'll get the most up to date pending tx
+   * count. It's a bit of sledgehammer fix to the issue, but it'll do for now.
+   *
+   * NOTE: Caller should still be prepared to get the incorrect nonce back. For instance,
+   * if the provider that just handled our sent tx has suddenly gone offline, this
+   * method may give the wrong nonce. This can be solved by making additional calls to
+   * submit the tx.
+   *
+   * @returns A number value for the current nonce.
+   * 
+   * @throws RpcError if we fail to get transaction count from all providers.
+   */
+  private async getNonce(): Promise<number> {
+    const address = this.signer.getAddress();
+    const errors: any[] = [];
+    const pending = await Promise.all(
+      this._providers.map(async (provider) => {
+        try {
+          return await provider.getTransactionCount(address, "pending");
+        } catch (e) {
+          errors.push(e);
+          return -1;
+        }
+      }),
+    );
+    if (errors.length === this._providers.length) {
+      // All of our attempts to get transaction count failed.
+      throw new RpcError(RpcError.reasons.NetworkError, {
+        rpcError: "Could not get transaction count from any providers.",
+        errors,
+      });
+    }
+    // Update nonce value to greatest of all nonce values retrieved.
+    this._nonce = Math.max(...pending, this._nonce);
+    return this._nonce;
+  }
+
+  /**
+   * Increment the local nonce for our signer by 1.
+   */
+  private incrementNonce() {
+    this._nonce++;
   }
 }
