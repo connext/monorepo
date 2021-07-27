@@ -17,6 +17,10 @@ The router is an automated actor that is in charge of providing liquidity and fa
 - Monitor `TransactionManager` contract events across all chains for `TransactionFulfilled` events where `router` matches the configured router's signer address and `receivingChainId` matches the chain of the event.
 - Call `fulfill` on the sending chain with the signature emitted from the `TransactionFulfilled` event.
 
+## Architecture
+
+![RouterArchitecture](../documentation/assets/Router.png)
+
 ## Local Development
 
 ### Running the Router
