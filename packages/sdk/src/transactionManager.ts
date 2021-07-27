@@ -16,8 +16,6 @@ import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { TransactionManagerEvent, TransactionManagerEventPayloads, TransactionManagerListener } from "./listener";
-
 /**
  * @classdesc Defines the error thrown by the `TransactionManager` class
  */
@@ -68,7 +66,6 @@ export class TransactionManager {
     [chainId: number]: {
       provider: providers.FallbackProvider;
       transactionManager: TTransactionManager;
-      listener: TransactionManagerListener;
     };
   };
 
@@ -91,11 +88,6 @@ export class TransactionManager {
       ) as TTransactionManager;
       this.chainConfig[parseInt(chainId)] = {
         transactionManager,
-        listener: new TransactionManagerListener(
-          transactionManager,
-          parseInt(chainId),
-          logger.child({ module: "TransactionManagerListener", chainId }),
-        ),
         provider,
       };
     });
@@ -359,28 +351,6 @@ export class TransactionManager {
   }
 
   /**
-   * Sets up the TransactionManager listeners for each chain
-   */
-  public establishListeners(): void {
-    Object.values(this.chainConfig).forEach(({ listener }) => {
-      listener.establishListeners();
-    });
-  }
-
-  /**
-   * Removes all listeners for given event on the TransactionManager across all chains.
-   *
-   * @param event - (optional) the event name you want to remove all listeners for. If not provided, removes all listeners on the contract for all events
-   */
-  public removeAllListeners(event?: TransactionManagerEvent): void {
-    Object.entries(this.chainConfig).forEach(([c, { listener }]) => {
-      const chainId = parseInt(c);
-      listener.removeAllListeners(event);
-      this.detach(chainId, event);
-    });
-  }
-
-  /**
    * Returns the available liquidity for the given router of the given asset on the `TransactionManager` contract for the specified chain.
    *
    * @param chainId - The chain you want to check liquidity on
@@ -415,79 +385,5 @@ export class TransactionManager {
           txError: jsonifyError(err as NxtpError),
         }),
     );
-  }
-
-  /**
-   * Attaches a callback to the emitted event
-   *
-   * @param chainId - The chainId of the TransactionManager to register the listener for
-   * @param event - The event name to attach a handler for
-   * @param callback - The callback to invoke on event emission
-   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
-   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
-   *
-   * @returns void
-   */
-  public attach<T extends TransactionManagerEvent>(
-    chainId: number,
-    event: T,
-    callback: (data: TransactionManagerEventPayloads[T]) => void,
-    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
-    timeout?: number,
-  ): void {
-    return this.chainConfig[chainId].listener.attach(event, callback, filter, timeout);
-  }
-
-  /**
-   * Attaches a callback to the emitted event that will be executed one time and then detached.
-   *
-   * @param chainId - The chainId of the TransactionManager to register the listener for
-   * @param event - The event name to attach a handler for
-   * @param callback - The callback to invoke on event emission
-   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
-   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
-   *
-   * @returns void
-   */
-  public attachOnce<T extends TransactionManagerEvent>(
-    chainId: number,
-    event: T,
-    callback: (data: TransactionManagerEventPayloads[T]) => void,
-    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
-    timeout?: number,
-  ): void {
-    return this.chainConfig[chainId].listener.attach(event, callback, filter, timeout);
-  }
-
-  /**
-   * Removes all attached handlers from the given event.
-   *
-   * @param chainId - The chainId of the TransactionManager to remove the callback from
-   * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
-   *
-   * @returns void
-   */
-  public detach<T extends TransactionManagerEvent>(chainId: number, event?: T): void {
-    return this.chainConfig[chainId].listener.detach(event);
-  }
-
-  /**
-   * Returns a promise that resolves when the event matching the filter is emitted
-   *
-   * @param chainId - The chain the `TransactionManager` should live on
-   * @param event - The event name to wait for
-   * @param timeout - The ms to continue waiting before rejecting
-   * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
-   *
-   * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
-   *
-   */
-  public waitFor<T extends TransactionManagerEvent>(
-    chainId: number,
-    event: T,
-    timeout: number,
-    filter: (data: TransactionManagerEventPayloads[T]) => boolean = (_data: TransactionManagerEventPayloads[T]) => true,
-  ): Promise<TransactionManagerEventPayloads[T]> {
-    return this.chainConfig[chainId].listener.waitFor(event, timeout, filter);
   }
 }

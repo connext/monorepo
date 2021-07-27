@@ -37,8 +37,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { TransactionManagerEvents } from "./listener";
-import { getDeployedSubgraphUri, Subgraph } from "./subgraph";
+import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -201,8 +200,6 @@ export class NxtpSdk {
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
 
-  private listenersEstablished = false;
-
   constructor(
     private readonly chainConfig: {
       [chainId: number]: {
@@ -213,7 +210,6 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
-    doNotStartContractListeners = false,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -280,11 +276,6 @@ export class NxtpSdk {
       this.logger.child({ module: "TransactionManager" }),
     );
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
-
-    // Start up transaction manager listeners
-    if (!doNotStartContractListeners) {
-      this.setupListeners();
-    }
   }
 
   /**
@@ -894,58 +885,10 @@ export class NxtpSdk {
   }
 
   /**
-   * Sets up all listeners on the transaction manager across all chains, and for autocompletion of txs on the sdk
-   */
-  public establishListeners(): void {
-    this.transactionManager.establishListeners();
-    this.setupListeners();
-  }
-
-  /**
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
     this.messaging.disconnect();
-    this.transactionManager.removeAllListeners();
-    this.detach();
-    this.listenersEstablished = false;
-  }
-
-  private setupListeners(): void {
-    // idempotency
-    if (this.listenersEstablished) {
-      return;
-    }
-    Object.keys(this.chainConfig).forEach((_chainId) => {
-      const chainId = parseInt(_chainId);
-      // Translate chain events to SDK external events
-      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionPrepared, (data) => {
-        if (chainId === data.txData.sendingChainId) {
-          return this.evts[NxtpSdkEvents.SenderTransactionPrepared].post(data);
-        }
-        if (chainId === data.txData.receivingChainId) {
-          return this.evts[NxtpSdkEvents.ReceiverTransactionPrepared].post(data);
-        }
-        return;
-      });
-
-      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionFulfilled, (data) => {
-        if (chainId === data.txData.sendingChainId) {
-          this.evts[NxtpSdkEvents.SenderTransactionFulfilled].post(data);
-        } else if (chainId === data.txData.receivingChainId) {
-          this.evts[NxtpSdkEvents.ReceiverTransactionFulfilled].post(data);
-        }
-      });
-
-      this.transactionManager.attach(chainId, TransactionManagerEvents.TransactionCancelled, (data) => {
-        if (chainId === data.txData.sendingChainId) {
-          this.evts[NxtpSdkEvents.SenderTransactionCancelled].post(data);
-        } else if (chainId === data.txData.receivingChainId) {
-          this.evts[NxtpSdkEvents.ReceiverTransactionCancelled].post(data);
-        }
-      });
-    });
-    this.listenersEstablished = true;
   }
 
   // Listener methods
@@ -964,7 +907,11 @@ export class NxtpSdk {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    this.evts[event].pipe(filter).attach(...(args as [number, any]));
+    if (Object.keys(SubgraphEvents).includes(event)) {
+      this.subgraph.attach(event as SubgraphEvent, callback as any, filter as any);
+    } else {
+      this.evts[event].pipe(filter).attach(...(args as [number, any]));
+    }
   }
 
   /**
@@ -983,7 +930,11 @@ export class NxtpSdk {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
+    if (Object.keys(SubgraphEvents).includes(event)) {
+      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any);
+    } else {
+      this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
+    }
   }
 
   /**
@@ -993,10 +944,16 @@ export class NxtpSdk {
    */
   public detach<T extends NxtpSdkEvent>(event?: T): void {
     if (event) {
+      if (Object.keys(SubgraphEvents).includes(event)) {
+        this.subgraph.detach(event as SubgraphEvent);
+      } else {
+        this.evts[event].detach();
+      }
       this.evts[event].detach();
-      return;
+    } else {
+      Object.values(this.evts).forEach((evt) => evt.detach());
+      this.subgraph.detach();
     }
-    Object.values(this.evts).forEach((evt) => evt.detach());
   }
 
   /**
@@ -1014,6 +971,10 @@ export class NxtpSdk {
     timeout: number,
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
   ): Promise<NxtpSdkEventPayloads[T]> {
-    return this.evts[event].pipe(filter).waitFor(timeout) as Promise<NxtpSdkEventPayloads[T]>;
+    if (Object.keys(SubgraphEvents).includes(event)) {
+      return this.subgraph.waitFor(event as SubgraphEvent, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
+    } else {
+      return this.evts[event].pipe(filter).waitFor(timeout);
+    }
   }
 }

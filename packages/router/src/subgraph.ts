@@ -145,10 +145,10 @@ export class Subgraph {
   private subgraphLoop() {
     const method = "startLoop";
     const methodId = getUuid();
-    Object.keys(this.chainConfig).forEach(async (cId) => {
-      const chainId = parseInt(cId);
-      const sdk: Sdk = this.sdks[chainId];
-      setInterval(async () => {
+    setInterval(async () => {
+      Object.keys(this.chainConfig).forEach(async (cId) => {
+        const chainId = parseInt(cId);
+        const sdk: Sdk = this.sdks[chainId];
         // get all sender prepared txs
         let allSenderPrepared: GetSenderTransactionsQuery;
         try {
@@ -252,8 +252,8 @@ export class Subgraph {
             });
           }
         });
-      }, this.pollInterval);
-    });
+      });
+    }, this.pollInterval);
   }
 
   /**
