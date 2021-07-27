@@ -259,7 +259,16 @@ The above commands run local chains and messaging and take care of local deploym
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
+        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
+      ]
+    }
+  ]
 }
 ```
 
