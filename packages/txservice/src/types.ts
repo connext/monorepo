@@ -1,5 +1,4 @@
-import { NonceManager } from "@ethersproject/experimental";
-import { BigNumber, BigNumberish, providers } from "ethers";
+import { BigNumber, BigNumberish, providers, Signer } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
@@ -67,12 +66,44 @@ export class GasPrice {
  * @classdesc We use this class to wrap NonceManager to ensure re-broadcast (tx's with defined nonce) is handled correctly.
  *
  */
-export class NxtpNonceManager extends NonceManager {
-  sendTransaction(transaction: providers.TransactionRequest): Promise<providers.TransactionResponse> {
+export class NxtpNonceManager {
+  private nonce = 0;
+
+  constructor(private readonly signer: Signer) {}
+
+  private async getNonce() {
+    // Should handle outside of class usage by getting all pending transactions
+    const pending = await this.signer.getTransactionCount("pending");
+    // Update nonce value to greater of the two.
+    this.nonce = Math.max(pending, this.nonce);
+    return this.nonce;
+  }
+
+  private incrementNonce() {
+    this.nonce++;
+  }
+
+  /**
+   * @remarks
+   *
+   * This should only ever be called within the context of the serialized transaction queue.
+   */
+  async sendTransaction(transaction: providers.TransactionRequest): Promise<providers.TransactionResponse> {
     if (transaction.nonce) {
       return this.signer.sendTransaction(transaction);
     } else {
-      return super.sendTransaction(transaction);
+      const nonce = await this.getNonce();
+      // NOTE: This can fail. If we throw an error here, increment nonce will never be called.
+      const result = await this.signer.sendTransaction({ ...transaction, nonce });
+      this.incrementNonce();
+      return result;
     }
+  }
+
+  call(tx: MinimalTransaction): Promise<string> {
+    return this.signer.call({
+      to: tx.to,
+      data: tx.data,
+    });
   }
 }
