@@ -105,7 +105,6 @@ export class TransactionService {
    * Send specified transaction on specified chain and wait for the configured number of confirmations.
    * Will emit events throughout its lifecycle.
    *
-   * @param chainId - Chain to send transaction on
    * @param tx - Tx to send
    * @param tx.chainId - Chain to send transaction on
    * @param tx.to - Address to send tx to
@@ -152,7 +151,6 @@ export class TransactionService {
           // TODO: Perform submit within the handle method?
           this.logger.debug(`(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
           await transaction.confirm();
-          this.handleConfirm(transaction);
         } catch (error) {
           this.logger.debug(`(${transaction.id}, ${transaction.attempt}) ${error}`);
           if (error instanceof TimeoutError) {
