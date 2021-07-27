@@ -328,7 +328,7 @@ export class TransactionService {
    * @param response The transaction response received back from that attempt.
    */
   private handleSubmit(transaction: Transaction, requestContext: RequestContext) {
-    const method = this.sendTx.name;
+    const method = this.handleSubmit.name;
     const response = transaction.latestResponse;
     this.logger.info(
       {
@@ -349,7 +349,7 @@ export class TransactionService {
    * @param receipt The transaction receipt received back.
    */
   private handleConfirm(transaction: Transaction, requestContext: RequestContext) {
-    const method = this.sendTx.name;
+    const method = this.handleConfirm.name;
     const receipt = transaction.receipt!;
     this.logger.info({ method, id: transaction.id, requestContext, receipt }, "Transaction mined.");
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
@@ -362,7 +362,7 @@ export class TransactionService {
    * applicable.
    */
   private handleFail(error: TransactionError, transaction: Transaction, requestContext: RequestContext) {
-    const method = this.sendTx.name;
+    const method = this.handleFail.name;
     const receipt = transaction.receipt;
     this.logger.debug(
       { method, id: transaction.id, receipt, requestContext, error: jsonifyError(error) },
