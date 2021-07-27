@@ -37,7 +37,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEventPayloads } from "./subgraph";
+import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEventPayloads, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -912,11 +912,7 @@ export class NxtpSdk {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    if (
-      [NxtpSdkEvents.SenderTransactionPrepared, NxtpSdkEvents.ReceiverTransactionPrepared].includes(
-        event as "SenderTransactionPrepared" | "ReceiverTransactionPrepared", // so stupid...
-      )
-    ) {
+    if (Object.keys(SubgraphEvents).includes(event)) {
       this.subgraph.attach(event as SubgraphEvent, callback as any, filter as any);
     } else {
       this.evts[event].pipe(filter).attach(...(args as [number, any]));
@@ -939,11 +935,7 @@ export class NxtpSdk {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
-    if (
-      [NxtpSdkEvents.SenderTransactionPrepared, NxtpSdkEvents.ReceiverTransactionPrepared].includes(
-        event as "SenderTransactionPrepared" | "ReceiverTransactionPrepared", // so stupid...
-      )
-    ) {
+    if (Object.keys(SubgraphEvents).includes(event)) {
       this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any);
     } else {
       this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
@@ -957,11 +949,7 @@ export class NxtpSdk {
    */
   public detach<T extends NxtpSdkEvent>(event?: T): void {
     if (event) {
-      if (
-        [NxtpSdkEvents.SenderTransactionPrepared, NxtpSdkEvents.ReceiverTransactionPrepared].includes(
-          event as "SenderTransactionPrepared" | "ReceiverTransactionPrepared", // so stupid...
-        )
-      ) {
+      if (Object.keys(SubgraphEvents).includes(event)) {
         this.subgraph.detach(event as SubgraphEvent);
       } else {
         this.evts[event].detach();
@@ -988,11 +976,7 @@ export class NxtpSdk {
     timeout: number,
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
   ): Promise<NxtpSdkEventPayloads[T]> {
-    if (
-      [NxtpSdkEvents.SenderTransactionPrepared, NxtpSdkEvents.ReceiverTransactionPrepared].includes(
-        event as "SenderTransactionPrepared" | "ReceiverTransactionPrepared", // so stupid...
-      )
-    ) {
+    if (Object.keys(SubgraphEvents).includes(event)) {
       return this.subgraph.waitFor(event as SubgraphEvent, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
     } else {
       return this.evts[event].pipe(filter).waitFor(timeout);
