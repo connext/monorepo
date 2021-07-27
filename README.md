@@ -10,7 +10,7 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 
 ## Transaction Lifecycle
 
-![HighLevelFlow](https://github.com/connext/nxtp/blob/main/packages/documentation/assets/HighLevelFlow.png)
+![HighLevelFlow](./packages/documentation/assets/HighLevelFlow.png)
 
 Transactions go through three phases:
 
