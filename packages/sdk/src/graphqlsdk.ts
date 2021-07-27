@@ -683,7 +683,6 @@ export type GetTransactionQuery = (
 
 export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  status?: Maybe<TransactionStatus>;
 }>;
 
 
@@ -813,7 +812,7 @@ export const GetTransactionDocument = gql`
 }
     `;
 export const GetTransactionsDocument = gql`
-    query GetTransactions($transactionIds: [Bytes!], $status: TransactionStatus) {
+    query GetTransactions($transactionIds: [Bytes!]) {
   transactions(where: {transactionId_in: $transactionIds}) {
     id
     status
