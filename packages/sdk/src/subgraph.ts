@@ -164,6 +164,7 @@ export class Subgraph {
             const _sdk = this.sdks[parseInt(chainId)];
             if (!_sdk) {
               this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+              return undefined;
             }
             const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
               transactionIds: senderTxs.map((tx) => tx.transactionId),
@@ -253,6 +254,7 @@ export class Subgraph {
         return activeFlattened;
       }),
     );
+
     const all = txs.flat();
     this.logger.info({ methodId, methodName, all }, "Queried active txs");
     return all;
