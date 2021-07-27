@@ -21,6 +21,7 @@ export type TransactionInfo = {
 export class SdkManager {
   public readonly transactionInfo: { [transactionId: string]: TransactionInfo } = {};
 
+
   private constructor(private readonly onchainMgmt: OnchainAccountManager, private readonly agents: SdkAgent[]) {}
 
   static async connect(mnemonic: string, numberUsers: number, natsUrl?: string, authUrl?: string): Promise<SdkManager> {
@@ -33,6 +34,7 @@ export class SdkManager {
       Array(numberUsers)
         .fill(0)
         .map((_, idx) => {
+          console.log(`Wallet idx${idx}, wallet addy: ${onchain.wallets[idx].address}`);
           return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], natsUrl, authUrl);
         }),
     );

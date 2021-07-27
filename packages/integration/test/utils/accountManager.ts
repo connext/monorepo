@@ -27,16 +27,19 @@ export class OnchainAccountManager {
   async init(num_wallets: number): Promise<BigNumber[]> {
     const wallets = this.getCanonicalWallets(num_wallets);
     const resultBalances: BigNumber[] = [];
-    if (wallets) {
+
+      await Promise.all(
       wallets.map(async (wallet) => {
         const res = await this.verifyAndReupAccountBalance(wallet.address);
-        resultBalances.push(res);
-      });
-    }
+        return resultBalances.push(res);
+      })
+      );
     return resultBalances;
+
   }
 
   async verifyAndReupAccountBalance(account: string): Promise<BigNumber> {
+
     let bal = await this.chainProviders["4"].getBalance(account);
 
     if (bal && bal.lt(this.USER_MIN_ETH)) {
@@ -53,17 +56,13 @@ export class OnchainAccountManager {
     return bal;
   }
 
-  getCanonicalWallets(num: number): Wallet[] | undefined {
+  getCanonicalWallets(num: number): Wallet[]  {
     const wallets: Wallet[] = [];
     for (let i = 0; i < num; i++) {
       if (this.wallets[i]) {
         wallets.push(this.wallets[i]);
       }
     }
-    if (wallets.length === 0) {
-      return undefined;
-    } else {
       return wallets;
-    }
   }
 }

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   router:
     container_name: router-test
-    image: "nxtp-router"
+    image: "nxtp-router:latest"
     ports:
       - 8080:8080
     volumes:

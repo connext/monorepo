@@ -41,12 +41,16 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       .map((_) => {
         const agent = manager.getRandomAgent(agents);
         agents.push(agent);
+        //@ts-ignore
         return manager.transfer({}, TIMEOUT, agent);
       });
+    //@ts-ignore
 
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
     // TODO: process loop stats
-    const errored = results.filter((x: TransactionInfo) => !!x.error) as TransactionInfo[];
+    //@ts-ignore
+
+    const errored = results.filter((x: TransactionInfo) => !!x.error) ;
     loopStats = {
       errored: errored.length,
       successful: results.length - errored.length,
