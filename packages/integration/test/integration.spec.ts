@@ -59,7 +59,7 @@ const txManagerReceiving = new Contract(
   sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
 ) as TransactionManager;
 
-const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "debug" });
+const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
 
 describe("Integration", () => {
   let userSdk: NxtpSdk;
@@ -80,12 +80,12 @@ describe("Integration", () => {
     }
 
     if (balanceReceiving.lt(MIN_ETH)) {
-      logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to router");
+      logger.info({ chainId: RECEIVING_CHAIN }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy
-        .connect(chainProviders[SENDING_CHAIN].provider)
+        .connect(chainProviders[RECEIVING_CHAIN].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "ETH_GIFT to router mined: ");
     }
 
     const isRouterSending = await txManagerSending.approvedRouters(router);
