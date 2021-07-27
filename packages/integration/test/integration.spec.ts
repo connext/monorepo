@@ -18,20 +18,26 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddress1337 = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
-const tokenAddress1338 = tokenAddress1337;
-const txManagerAddress1337 = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
-const txManagerAddress1338 = txManagerAddress1337;
+const tokenAddressAlice = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const tokenAddressBob = tokenAddressAlice;
+const txManagerAddressAlice = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+const txManagerAddressBob = txManagerAddressAlice;
+
+const CHAIN_ALICE = 4;
+const CHAIN_BOB = 5;
+
 const chainProviders = {
-  1337: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
-    transactionManagerAddress: txManagerAddress1337,
-    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+  [CHAIN_ALICE]: {
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/93ef29ccde6449debec459493c9d07a3")]),
+    transactionManagerAddress: txManagerAddressAlice,
+    // subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+    subgraph: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-staging",
   },
-  1338: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
-    transactionManagerAddress: txManagerAddress1338,
-    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+  [CHAIN_BOB]: {
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("https://goerli.infura.io/v3/55b1cf0f39d04e4c9084f1b9bea7e41f")]),
+    transactionManagerAddress: txManagerAddressBob,
+    // subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+    subgraph: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-staging",
   },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
@@ -40,106 +46,106 @@ const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 const sugarDaddy = new Wallet(fundedPk);
 const MIN_ETH = utils.parseEther("0.5");
 const ETH_GIFT = utils.parseEther("1");
-const token1337 = new Contract(tokenAddress1337, TestTokenABI, sugarDaddy.connect(chainProviders[1337].provider));
-const token1338 = new Contract(tokenAddress1338, TestTokenABI, sugarDaddy.connect(chainProviders[1338].provider));
+const tokenAlice = new Contract(tokenAddressAlice, TestTokenABI, sugarDaddy.connect(chainProviders[CHAIN_ALICE].provider));
+const tokenBob = new Contract(tokenAddressBob, TestTokenABI, sugarDaddy.connect(chainProviders[CHAIN_BOB].provider));
 const MIN_TOKEN = utils.parseEther("5");
 const TOKEN_GIFT = utils.parseEther("10");
-const txManager1337 = new Contract(
-  txManagerAddress1337,
+const txManagerAlice = new Contract(
+  txManagerAddressAlice,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[1337].provider),
+  sugarDaddy.connect(chainProviders[CHAIN_ALICE].provider),
 ) as TransactionManager;
-const txManager1338 = new Contract(
-  txManagerAddress1338,
+const txManagerBob = new Contract(
+  txManagerAddressBob,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[1338].provider),
+  sugarDaddy.connect(chainProviders[CHAIN_BOB].provider),
 ) as TransactionManager;
 
-const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
+const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "debug" });
 
 describe("Integration", () => {
   let userSdk: NxtpSdk;
   let userWallet: Wallet;
 
   before(async () => {
-    const balance1337 = await chainProviders[1337].provider.getBalance(router);
-    const balance1338 = await chainProviders[1338].provider.getBalance(router);
+    const balanceAlice = await chainProviders[CHAIN_ALICE].provider.getBalance(router);
+    const balanceBob = await chainProviders[CHAIN_BOB].provider.getBalance(router);
 
     // fund if necessary
-    if (balance1337.lt(MIN_ETH)) {
-      logger.info({ chainId: 1337 }, "Sending ETH_GIFT to router");
+    if (balanceAlice.lt(MIN_ETH)) {
+      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy
-        .connect(chainProviders[1337].provider)
+        .connect(chainProviders[CHAIN_ALICE].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to router mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to router mined");
     }
 
-    if (balance1338.lt(MIN_ETH)) {
-      logger.info({ chainId: 1338 }, "Sending ETH_GIFT to router");
+    if (balanceBob.lt(MIN_ETH)) {
+      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy
-        .connect(chainProviders[1338].provider)
+        .connect(chainProviders[CHAIN_ALICE].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "ETH_GIFT to router mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to router mined: ");
     }
 
-    const isRouter1337 = await txManager1337.approvedRouters(router);
-    const isRouter1338 = await txManager1338.approvedRouters(router);
+    const isRouterAlice = await txManagerAlice.approvedRouters(router);
+    const isRouterBob = await txManagerBob.approvedRouters(router);
 
-    if (!isRouter1337) {
-      logger.info({ chainId: 1337 }, "Adding router");
-      const tx = await txManager1337.addRouter(router);
+    if (!isRouterAlice) {
+      logger.info({ chainId: CHAIN_ALICE }, "Adding router");
+      const tx = await txManagerAlice.addRouter(router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Router added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "Router added");
     }
 
-    if (!isRouter1338) {
-      logger.info({ chainId: 1338 }, "Adding router");
-      const tx = await txManager1338.addRouter(router);
+    if (!isRouterBob) {
+      logger.info({ chainId: CHAIN_BOB }, "Adding router");
+      const tx = await txManagerBob.addRouter(router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Router added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "Router added");
     }
 
-    const isAsset1337 = await txManager1337.approvedAssets(tokenAddress1337);
-    const isAsset1338 = await txManager1338.approvedAssets(tokenAddress1338);
+    const isAssetAlice = await txManagerAlice.approvedAssets(tokenAddressAlice);
+    const isAssetBob = await txManagerBob.approvedAssets(tokenAddressBob);
 
-    if (!isAsset1337) {
-      logger.info({ chainId: 1337 }, "Adding Asset");
-      const tx = await txManager1337.addAssetId(tokenAddress1337);
+    if (!isAssetAlice) {
+      logger.info({ chainId: CHAIN_ALICE }, "Adding Asset");
+      const tx = await txManagerAlice.addAssetId(tokenAddressAlice);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "Asset added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "Asset added");
     }
 
-    if (!isAsset1338) {
-      logger.info({ chainId: 1338 }, "Adding Asset");
-      const tx = await txManager1338.addAssetId(tokenAddress1338);
+    if (!isAssetBob) {
+      logger.info({ chainId: CHAIN_BOB }, "Adding Asset");
+      const tx = await txManagerBob.addAssetId(tokenAddressBob);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "Asset added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "Asset added");
     }
 
-    const liquidity1337 = await txManager1337.routerBalances(router, tokenAddress1337);
-    const liquidity1338 = await txManager1338.routerBalances(router, tokenAddress1338);
+    const liquidityAlice = await txManagerAlice.routerBalances(router, tokenAddressAlice);
+    const liquidityBob = await txManagerBob.routerBalances(router, tokenAddressBob);
 
     // fund if necessary
-    if (liquidity1337.lt(MIN_TOKEN)) {
-      logger.info({ chainId: 1337 }, "Adding liquidity");
-      const approvetx = await token1337.approve(txManager1337.address, constants.MaxUint256);
+    if (liquidityAlice.lt(MIN_TOKEN)) {
+      logger.info({ chainId: CHAIN_ALICE }, "Adding liquidity");
+      const approvetx = await tokenAlice.approve(txManagerAlice.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 1337 }, "addLiquidity approved");
-      const tx = await txManager1337.addLiquidity(TOKEN_GIFT, tokenAddress1337, router);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: CHAIN_ALICE }, "addLiquidity approved");
+      const tx = await txManagerAlice.addLiquidity(TOKEN_GIFT, tokenAddressAlice, router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "addLiquidity mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "addLiquidity mined");
     }
 
-    if (liquidity1338.lt(MIN_TOKEN)) {
-      logger.info({ chainId: 1338 }, "Adding liquidity");
-      const approvetx = await token1338.approve(txManager1338.address, constants.MaxUint256);
+    if (liquidityBob.lt(MIN_TOKEN)) {
+      logger.info({ chainId: CHAIN_BOB }, "Adding liquidity");
+      const approvetx = await tokenBob.approve(txManagerBob.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: 1338 }, "addLiquidity approved");
-      const tx = await txManager1338.addLiquidity(TOKEN_GIFT, tokenAddress1338, router);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: CHAIN_BOB }, "addLiquidity approved");
+      const tx = await txManagerBob.addLiquidity(TOKEN_GIFT, tokenAddressBob, router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1338 }, "addLiquidity mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "addLiquidity mined");
     }
   });
 
@@ -147,22 +153,22 @@ describe("Integration", () => {
     userWallet = Wallet.createRandom();
 
     // fund user sender side
-    const balance1337 = await chainProviders[1337].provider.getBalance(userWallet.address);
-    if (balance1337.lt(MIN_ETH)) {
-      logger.info({ chainId: 1337 }, "Sending ETH_GIFT to user");
+    const balanceAlice = await chainProviders[CHAIN_ALICE].provider.getBalance(userWallet.address);
+    if (balanceAlice.lt(MIN_ETH)) {
+      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
-        .connect(chainProviders[1337].provider)
+        .connect(chainProviders[CHAIN_ALICE].provider)
         .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "ETH_GIFT to user mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to user mined: ");
     }
 
-    const balanceToken1337 = await token1337.balanceOf(userWallet.address);
-    if (balanceToken1337.lt(MIN_TOKEN)) {
-      logger.info({ chainId: 1337 }, "Sending TOKEN_GIFT to user");
-      const tx = await token1337.mint(userWallet.address, TOKEN_GIFT);
+    const balanceTokenAlice = await tokenAlice.balanceOf(userWallet.address);
+    if (balanceTokenAlice.lt(MIN_TOKEN)) {
+      logger.info({ chainId: CHAIN_ALICE }, "Sending TOKEN_GIFT to user");
+      const tx = await tokenAlice.mint(userWallet.address, TOKEN_GIFT);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: 1337 }, "TOKEN_GIFT to user mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "TOKEN_GIFT to user mined: ");
     }
 
     userSdk = new NxtpSdk(
@@ -179,12 +185,12 @@ describe("Integration", () => {
     this.timeout(120_000);
     const quote = await userSdk.getTransferQuote({
       amount: utils.parseEther("1").toString(),
-      receivingAssetId: tokenAddress1338,
-      sendingAssetId: tokenAddress1337,
+      receivingAssetId: tokenAddressBob,
+      sendingAssetId: tokenAddressAlice,
       receivingAddress: userWallet.address,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-      sendingChainId: 1337,
-      receivingChainId: 1338,
+      sendingChainId: CHAIN_ALICE,
+      receivingChainId: CHAIN_BOB,
     });
 
     const res = await userSdk.startTransfer(quote);

@@ -57,7 +57,6 @@ export class TransactionReverted extends TransactionError {
   static readonly reasons = {
     InsufficientFunds: "Not enough funds in wallet.",
     AlreadyMined: "Transaction already mined.",
-    NonceExpired: "Nonce for this transaction is already expired.",
     /**
      * From ethers docs:
      * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
@@ -98,6 +97,8 @@ export class TransactionReplaced extends TransactionError {
   }
 }
 
+// TODO: Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
+// being missing. They won't function as proper NxtpErrors, essentially.
 export class TimeoutError extends TransactionError {
   /**
    * An error indicating that an operation (typically confirmation) timed out.
@@ -106,6 +107,21 @@ export class TimeoutError extends TransactionError {
 
   constructor(public readonly context: any = {}) {
     super("Operation timed out.");
+  }
+}
+
+export class NonceExpired extends TransactionReverted {
+  /**
+   * An error indicating that we got a "nonce expired" message back from
+   * ethers while conducting sendTransaction.
+   * 
+   * This is a TransactionReverted extension, as it indicates the transaction
+   * was in fact reverted.
+   */
+  static readonly type = NonceExpired.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Nonce for this transaction is already expired.");
   }
 }
 
@@ -133,7 +149,7 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly type = TransactionServiceFailure.name;
 
   static readonly reasons = {
-    UnpredictableGasLimit: "The gas limit could not be estimated.",
+    UnpredictableGasLimit: "The gas estimate could not be determined.",
     Timeout: "Timeout occurred during an RPC operation.",
     ReplacementUnderpriced:
       "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
@@ -166,7 +182,7 @@ export class TransactionServiceFailure extends NxtpError {
  * @returns NxtpError
  */
 export const parseError = (error: any): NxtpError => {
-  const context = { error: jsonifyError(error) };
+  const context = { error };
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
       return new TransactionReplaced(error.receipt, error.replacment, context);
@@ -175,7 +191,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.CALL_EXCEPTION:
       return new TransactionReverted(TransactionReverted.reasons.CallException, error.receipt, context);
     case Logger.errors.NONCE_EXPIRED:
-      return new TransactionReverted(TransactionReverted.reasons.NonceExpired, error.receipt, context);
+      return new NonceExpired(context);
     case Logger.errors.REPLACEMENT_UNDERPRICED:
       return new TransactionServiceFailure(TransactionServiceFailure.reasons.ReplacementUnderpriced, context);
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
@@ -187,6 +203,6 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.SERVER_ERROR:
       return new ServerError(context);
     default:
-      throw error;
+      return error;
   }
 };

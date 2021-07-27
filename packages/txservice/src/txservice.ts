@@ -102,7 +102,6 @@ export class TransactionService {
    * Send specified transaction on specified chain and wait for the configured number of confirmations.
    * Will emit events throughout its lifecycle.
    *
-   * @param chainId - Chain to send transaction on
    * @param tx - Tx to send
    * @param tx.chainId - Chain to send transaction on
    * @param tx.to - Address to send tx to
@@ -114,6 +113,7 @@ export class TransactionService {
    *
    * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
    * something went wrong within TransactionService process.
+   * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
   public async sendTx(tx: MinimalTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
@@ -125,14 +125,9 @@ export class TransactionService {
 
     try {
       while (!transaction.didFinish()) {
+        // Submit step.
         try {
-          // TODO: Perform submit within the handle method?
-          this.logger.debug(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) Submitting tx...`,
-          );
-          await transaction.submit();
-          this.handleSubmit(transaction, requestContext);
+          await this.submitTransaction(transaction, requestContext);
         } catch (error) {
           this.logger.warn(
             { method, methodId, requestContext },
@@ -150,20 +145,17 @@ export class TransactionService {
           }
         }
 
+        // Confirm step.
         try {
-          // TODO: Perform submit within the handle method?
-          this.logger.debug(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) Confirming tx...`,
-          );
-          await transaction.confirm();
-          this.handleConfirm(transaction, requestContext);
+          await this.confirmTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.debug(
+          this.logger.warn(
             { method, methodId, requestContext },
             `(${transaction.id}, ${transaction.attempt}) ${error}`,
           );
           if (error instanceof TimeoutError) {
+            // This will bump gas price and loop back around starting at the
+            // submit step.
             transaction.bumpGasPrice();
           } else {
             throw error;
@@ -175,15 +167,12 @@ export class TransactionService {
       throw error;
     }
 
-    // Success!
-    this.handleConfirm(transaction, requestContext);
     return transaction.receipt!;
   }
 
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
-   * @param chainId - Chain to read from
    * @param tx - Data to read
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
@@ -327,9 +316,10 @@ export class TransactionService {
    * Handle logging and event emitting on tx submit attempt.
    * @param response The transaction response received back from that attempt.
    */
-  private handleSubmit(transaction: Transaction, requestContext: RequestContext) {
+  private async submitTransaction(transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
-    const response = transaction.latestResponse;
+    this.logger.info({ method, requestContext }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+    const response = await transaction.submit();
     this.logger.info(
       {
         method,
@@ -339,7 +329,7 @@ export class TransactionService {
         nonce: response.nonce,
         requestContext,
       },
-      "Transaction submitted.",
+      "Tx submitted.",
     );
     this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
   }
@@ -348,10 +338,26 @@ export class TransactionService {
    * Handle logging and event emitting on tx confirmation.
    * @param receipt The transaction receipt received back.
    */
-  private handleConfirm(transaction: Transaction, requestContext: RequestContext) {
+  private async confirmTransaction(transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
-    const receipt = transaction.receipt!;
-    this.logger.info({ method, id: transaction.id, requestContext, receipt }, "Transaction mined.");
+    this.logger.info({ method, requestContext }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+    const receipt = await transaction.confirm();
+    this.logger.info(
+      {
+        method,
+        id: transaction.id,
+        requestContext,
+        receipt: {
+          to: receipt.to,
+          from: receipt.from,
+          gasUsed: receipt.gasUsed.toString(),
+          contractAddress: receipt.contractAddress,
+          transactionHash: receipt.transactionHash,
+          blockHash: receipt.blockHash,
+        },
+      },
+      "Tx mined.",
+    );
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
@@ -364,9 +370,9 @@ export class TransactionService {
   private handleFail(error: TransactionError, transaction: Transaction, requestContext: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.debug(
+    this.logger.error(
       { method, id: transaction.id, receipt, requestContext, error: jsonifyError(error) },
-      "Transaction failed.",
+      "Tx failed.",
     );
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
