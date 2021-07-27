@@ -215,7 +215,7 @@ export class Handler {
               method,
               requestContext,
               auctionError: {
-                message: "Not enough availble liquidity for auction",
+                message: "Not enough available liquidity for auction",
                 type: "Validation",
                 context: {
                   balance: balance.toString(),
