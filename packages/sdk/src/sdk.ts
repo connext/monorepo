@@ -885,11 +885,6 @@ export class NxtpSdk {
   }
 
   /**
-   * Sets up all listeners on the transaction manager across all chains, and for autocompletion of txs on the sdk
-   */
-  public establishListeners(): void {}
-
-  /**
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
