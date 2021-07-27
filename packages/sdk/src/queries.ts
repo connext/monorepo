@@ -137,6 +137,9 @@ export const getTransactionsByIdsQuery = gql`
       amount
       expiry
       preparedBlockNumber
+      encryptedCallData
+      encodedBid
+      bidSignature
       relayerFee
       signature
       callData

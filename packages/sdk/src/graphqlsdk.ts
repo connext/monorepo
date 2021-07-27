@@ -690,7 +690,7 @@ export type GetTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'relayerFee' | 'signature' | 'callData' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'callData' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -835,6 +835,9 @@ export const GetTransactionsDocument = gql`
     amount
     expiry
     preparedBlockNumber
+    encryptedCallData
+    encodedBid
+    bidSignature
     relayerFee
     signature
     callData

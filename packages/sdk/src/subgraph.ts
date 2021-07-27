@@ -137,7 +137,7 @@ export class Subgraph {
 
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
-        const user = await this.user.getAddress();
+        const user = (await this.user.getAddress()).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
 
@@ -166,7 +166,7 @@ export class Subgraph {
               this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
             }
             const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
-              transactionIds: senderTxs.map((tx) => tx.txData.transactionId),
+              transactionIds: senderTxs.map((tx) => tx.transactionId),
             });
 
             return senderTxs.map((senderTx): ActiveTransaction | undefined => {
@@ -197,11 +197,11 @@ export class Subgraph {
               }
               if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
                 const tx = {
-                  txData: convertTransactionToTxData(senderTx),
-                  bidSignature: senderTx.bidSignature,
-                  caller: senderTx.prepareCaller,
-                  encodedBid: senderTx.encodedBid,
-                  encryptedCallData: senderTx.encryptedCallData,
+                  txData: convertTransactionToTxData(correspondingReceiverTx),
+                  bidSignature: correspondingReceiverTx.bidSignature,
+                  caller: correspondingReceiverTx.prepareCaller,
+                  encodedBid: correspondingReceiverTx.encodedBid,
+                  encryptedCallData: correspondingReceiverTx.encryptedCallData,
                 };
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -217,11 +217,11 @@ export class Subgraph {
               }
               if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
                 const tx = {
-                  txData: convertTransactionToTxData(senderTx),
-                  signature: senderTx.signature,
-                  relayerFee: senderTx.relayerFee,
-                  callData: senderTx.callData,
-                  caller: senderTx.fulfillCaller,
+                  txData: convertTransactionToTxData(correspondingReceiverTx),
+                  signature: correspondingReceiverTx.signature!,
+                  relayerFee: correspondingReceiverTx.relayerFee!,
+                  callData: correspondingReceiverTx.callData!,
+                  caller: correspondingReceiverTx.fulfillCaller!,
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
@@ -233,9 +233,9 @@ export class Subgraph {
               }
               if (correspondingReceiverTx.status === TransactionStatus.Cancelled) {
                 const tx = {
-                  txData: convertTransactionToTxData(senderTx),
-                  relayerFee: senderTx.relayerFee,
-                  caller: senderTx.fulfillCaller,
+                  txData: convertTransactionToTxData(correspondingReceiverTx),
+                  relayerFee: correspondingReceiverTx.relayerFee,
+                  caller: correspondingReceiverTx.fulfillCaller,
                 };
                 // if receiver is cancelled, its a receiver cancelled
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
@@ -253,8 +253,8 @@ export class Subgraph {
         return activeFlattened;
       }),
     );
-    this.logger.debug({ methodId, methodName, txs }, "Queried active txs");
     const all = txs.flat();
+    this.logger.info({ methodId, methodName, all }, "Queried active txs");
     return all;
   }
 

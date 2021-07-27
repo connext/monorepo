@@ -90,7 +90,6 @@ function App(): React.ReactElement | null {
         chainProviders,
         signer,
         pino({ level: "info" }),
-        undefined,
         process.env.REACT_APP_NATS_URL_OVERRIDE,
         process.env.REACT_APP_AUTH_URL_OVERRIDE,
       );
@@ -124,8 +123,17 @@ function App(): React.ReactElement | null {
         console.log("ReceiverTransactionPrepared:", data);
         const { txData } = data;
         const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
-        activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
-        setActiveTransferTableColumns(activeTransferTableColumns);
+        if (index === -1) {
+          const table = activeTransferTableColumns;
+          table.push({
+            txData,
+            status: NxtpSdkEvents.SenderTransactionPrepared,
+          });
+          setActiveTransferTableColumns(table);
+        } else {
+          activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
+          setActiveTransferTableColumns(activeTransferTableColumns);
+        }
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
@@ -261,9 +269,11 @@ function App(): React.ReactElement | null {
 
     const finish = await sdk.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData });
     console.log("finish: ", finish);
-    setActiveTransferTableColumns(
-      activeTransferTableColumns.filter((t) => t.txData.transactionId !== txData.transactionId),
-    );
+    if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
+      setActiveTransferTableColumns(
+        activeTransferTableColumns.filter((t) => t.txData.transactionId !== txData.transactionId),
+      );
+    }
   };
 
   const columns = [
