@@ -50,6 +50,12 @@ export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 
+export const DEFAULT_MAINNET_NATS = "";
+export const DEFAULT_MAINNET_AUTH = "";
+
+export const DEFAULT_TESTNET_NATS = "";
+export const DEFAULT_TESTNET_AUTH = "";
+
 declare const ethereum: any; // TODO: what to do about node?
 
 export const CrossChainParamsSchema = Type.Object({
@@ -217,16 +223,19 @@ export class NxtpSdk {
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
-    _network?: "testnet" | "mainnet", // TODO
+    network: "testnet" | "mainnet" = "mainnet",
   ) {
     if (messaging) {
       this.messaging = messaging;
     } else {
+      const _natsUrl = natsUrl ?? network === "mainnet" ? DEFAULT_MAINNET_NATS : DEFAULT_TESTNET_NATS;
+      const _authUrl = authUrl ?? network === "mainnet" ? DEFAULT_MAINNET_AUTH : DEFAULT_TESTNET_AUTH;
+
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
         logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl,
-        authUrl,
+        natsURL: _natsUrl,
+        authUrl: _authUrl,
       });
     }
 
