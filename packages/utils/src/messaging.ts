@@ -39,6 +39,9 @@ export const NATS_WS_URL = "wss://websocket.connext.provide.network";
 export const NATS_CLUSTER_URL =
   "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222";
 
+export const NATS_AUTH_TESTNET_URL = "http://localhost:5040";
+export const NATS_WS_TESTNET_URL = "nats://localhost:4222";
+
 export type MessagingConfig = {
   signer: Signer;
   authUrl?: string;
