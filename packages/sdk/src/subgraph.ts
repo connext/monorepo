@@ -1,9 +1,15 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { getUuid, TransactionData, TransactionFulfilledEvent, TransactionPreparedEvent } from "@connext/nxtp-utils";
+import {
+  getUuid,
+  TransactionCancelledEvent,
+  TransactionData,
+  TransactionFulfilledEvent,
+  TransactionPreparedEvent,
+} from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 
-import { NxtpSdkEvent, NxtpSdkEvents } from "./sdk";
+import { NxtpSdkEvent } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 import { Evt } from "evt";
 
@@ -56,6 +62,7 @@ export const SubgraphEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
   ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
   ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
+  ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
 } as const;
 export type SubgraphEvent = typeof SubgraphEvents[keyof typeof SubgraphEvents];
 
@@ -63,6 +70,7 @@ export interface SubgraphEventPayloads {
   [SubgraphEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
   [SubgraphEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
   [SubgraphEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
+  [SubgraphEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
 }
 
 /**
@@ -76,6 +84,7 @@ export const createSubgraphEvts = (): {
     [SubgraphEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [SubgraphEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
     [SubgraphEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
+    [SubgraphEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
   };
 };
 
@@ -132,131 +141,121 @@ export class Subgraph {
         const user = await this.user.getAddress();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
-        // receiver side prepared = ReceiverPrepared
-        const { transactions: receiverPrepared } = await subgraph.GetReceiverTransactions({
-          userId: user,
-          receivingChainId: chainId,
-          status: TransactionStatus.Prepared,
-        });
 
-        // sender prepared + no receiver side = SenderPrepared
-        const { transactions: allSenderPrepared } = await subgraph.GetSenderTransactions({
+        // get all sender prepared
+        const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({
           sendingChainId: chainId,
           userId: user,
           status: TransactionStatus.Prepared,
         });
-        const { transactions: receiverForSenderPrepared } = await subgraph.GetTransactions({
-          transactionIds: allSenderPrepared.map((t) => t.transactionId),
-        });
-        const receiverForSenderPreparedIds = receiverForSenderPrepared.map((t) => t.transactionId);
 
-        // filter out everything that has a receiver prepared tx
-        const senderPrepared = allSenderPrepared.filter(
-          (tx) => !receiverForSenderPreparedIds.includes(tx.transactionId),
+        // for each, break up receiving txs by chain
+        const senderPerChain: Record<number, any[]> = {};
+        senderPrepared.forEach((tx) => {
+          if (!senderPerChain[tx.receivingChainId]) {
+            senderPerChain[tx.receivingChainId] = [tx];
+          } else {
+            senderPerChain[tx.receivingChainId].push(tx);
+          }
+        });
+
+        // for each chain in each of the sets of txs, get the corresponding receiver txs
+        const activeTxs = await Promise.all(
+          Object.entries(senderPerChain).map(async ([chainId, senderTxs]) => {
+            const _sdk = this.sdks[parseInt(chainId)];
+            if (!_sdk) {
+              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+            }
+            const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
+              transactionIds: senderTxs.map((tx) => tx.txData.transactionId),
+            });
+
+            return senderTxs.map((senderTx): ActiveTransaction | undefined => {
+              const correspondingReceiverTx = correspondingReceiverTxs.find(
+                (tx) => tx.transactionId === senderTx.transactionId,
+              );
+
+              const active = this.activeTxs.get(senderTx.transactionId);
+              if (!correspondingReceiverTx) {
+                // if receiver doesnt exist, its a sender prepared
+                // if we are not tracking it
+                const tx = {
+                  txData: convertTransactionToTxData(senderTx),
+                  bidSignature: senderTx.bidSignature,
+                  caller: senderTx.prepareCaller,
+                  encodedBid: senderTx.encodedBid,
+                  encryptedCallData: senderTx.encryptedCallData,
+                };
+                if (!active) {
+                  this.evts.SenderTransactionPrepared.post(tx);
+                  this.activeTxs.set(senderTx.transactionId, {
+                    ...tx,
+                    status: SubgraphEvents.SenderTransactionPrepared,
+                  });
+                }
+                return { ...tx, status: SubgraphEvents.SenderTransactionPrepared };
+                // otherwise we are already tracking, no change
+              }
+              if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
+                const tx = {
+                  txData: convertTransactionToTxData(senderTx),
+                  bidSignature: senderTx.bidSignature,
+                  caller: senderTx.prepareCaller,
+                  encodedBid: senderTx.encodedBid,
+                  encryptedCallData: senderTx.encryptedCallData,
+                };
+                // if receiver is prepared, its a receiver prepared
+                // if we are not tracking it or the status changed post an event
+                if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {
+                  this.evts.ReceiverTransactionPrepared.post(tx);
+                  this.activeTxs.set(senderTx.transactionId, {
+                    ...tx,
+                    status: SubgraphEvents.ReceiverTransactionPrepared,
+                  });
+                }
+                return { ...tx, status: SubgraphEvents.ReceiverTransactionPrepared };
+                // otherwise we are already tracking, no change
+              }
+              if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
+                const tx = {
+                  txData: convertTransactionToTxData(senderTx),
+                  signature: senderTx.signature,
+                  relayerFee: senderTx.relayerFee,
+                  callData: senderTx.callData,
+                  caller: senderTx.fulfillCaller,
+                };
+                // if receiver is fulfilled, its a receiver fulfilled
+                // if we are not tracking it or the status changed post an event
+                if (active) {
+                  this.evts.ReceiverTransactionFulfilled.post(tx);
+                  this.activeTxs.delete(senderTx.transactionId);
+                }
+                return undefined; // no longer active
+              }
+              if (correspondingReceiverTx.status === TransactionStatus.Cancelled) {
+                const tx = {
+                  txData: convertTransactionToTxData(senderTx),
+                  relayerFee: senderTx.relayerFee,
+                  caller: senderTx.fulfillCaller,
+                };
+                // if receiver is cancelled, its a receiver cancelled
+                if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
+                  this.evts.ReceiverTransactionCancelled.post(tx);
+                  this.activeTxs.delete(senderTx.transactionId);
+                }
+                return undefined; // no longer active
+              }
+              return undefined;
+            });
+          }),
         );
 
-        const rxTxs: ActiveTransaction[] = receiverPrepared.map((txData) => {
-          const tx: ActiveTransaction = {
-            txData: convertTransactionToTxData(txData),
-            bidSignature: txData.bidSignature,
-            caller: txData.prepareCaller,
-            encodedBid: txData.encodedBid,
-            encryptedCallData: txData.encryptedCallData,
-            status: SubgraphEvents.SenderTransactionPrepared,
-          };
-          // if it doesn't exist in the map, we need to post about it
-          // also if it is in the SenderPrepared status, update the status and post about it
-          const existing = this.activeTxs.get(tx.txData.transactionId);
-          if (!existing || existing.status === NxtpSdkEvents.SenderTransactionPrepared) {
-            this.evts.ReceiverTransactionPrepared.post({
-              txData: convertTransactionToTxData(tx.txData),
-              bidSignature: tx.bidSignature,
-              caller: tx.caller,
-              encodedBid: tx.encodedBid,
-              encryptedCallData: tx.encryptedCallData,
-            });
-            // add to map
-            this.activeTxs.set(tx.txData.transactionId, tx);
-          }
-          // else it's already there
-          return {
-            txData: convertTransactionToTxData(txData),
-            status: NxtpSdkEvents.ReceiverTransactionPrepared,
-            bidSignature: txData.bidSignature,
-            caller: txData.prepareCaller,
-            encodedBid: txData.encodedBid,
-            encryptedCallData: txData.encryptedCallData,
-          };
-        });
-
-        const senderTxs: ActiveTransaction[] = senderPrepared.map((txData) => {
-          const tx: ActiveTransaction = {
-            txData: convertTransactionToTxData(txData),
-            bidSignature: txData.bidSignature,
-            caller: txData.prepareCaller,
-            encodedBid: txData.encodedBid,
-            encryptedCallData: txData.encryptedCallData,
-            status: SubgraphEvents.SenderTransactionPrepared,
-          };
-          // if it doesn't exist in the map, we need to post about it
-          if (!this.activeTxs.has(txData.transactionId)) {
-            this.evts.SenderTransactionPrepared.post(tx);
-            // add to map
-            this.activeTxs.set(txData.transactionId, tx);
-          }
-          // else it's already there
-          return {
-            txData: convertTransactionToTxData(txData),
-            status: NxtpSdkEvents.SenderTransactionPrepared,
-            bidSignature: txData.bidSignature,
-            caller: txData.prepareCaller,
-            encodedBid: txData.encodedBid,
-            encryptedCallData: txData.encryptedCallData,
-          };
-        });
-        return rxTxs.concat(senderTxs);
+        const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
+        return activeFlattened;
       }),
     );
     this.logger.debug({ methodId, methodName, txs }, "Queried active txs");
     const all = txs.flat();
-
-    // get statuses for txs we are already tracking so we can determine which ones have been fulfilled
-    const allIds = all.map((tx) => tx.txData.transactionId);
-    const unknownTxs = [...this.activeTxs]
-      .filter(([, tx]) => !allIds.includes(tx.txData.transactionId))
-      .map(([, tx]) => tx); // get just the array of txs from the map
-    const unknownPerChain: Record<number, ActiveTransaction[]> = {};
-    unknownTxs.forEach((tx) => {
-      if (!unknownPerChain[tx.txData.receivingChainId]) {
-        unknownPerChain[tx.txData.receivingChainId] = [tx];
-      } else {
-        unknownPerChain[tx.txData.receivingChainId].push(tx);
-      }
-    });
-
-    // dont await this, can happen in the bg
-    Object.entries(unknownPerChain).map(async ([chainId, txs]) => {
-      const _sdk = this.sdks[parseInt(chainId)];
-      if (!_sdk) {
-        this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
-      }
-      const _txs = await _sdk.GetTransactions({ transactionIds: txs.map((tx) => tx.txData.transactionId) });
-      _txs.transactions.forEach((tx) => {
-        if (tx.status === TransactionStatus.Fulfilled) {
-          this.evts.ReceiverTransactionFulfilled.post({
-            callData: tx.callData!,
-            signature: tx.signature!,
-            relayerFee: tx.relayerFee!,
-            caller: tx.fulfillCaller!,
-            txData: convertTransactionToTxData(tx),
-          });
-          this.activeTxs.delete(tx.transactionId);
-        } else if (tx.status === TransactionStatus.Cancelled) {
-          this.activeTxs.delete(tx.transactionId);
-        }
-      });
-    });
-
     return all;
   }
 
