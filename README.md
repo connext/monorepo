@@ -69,6 +69,8 @@ These are **important** and everyone must adhere to them:
 
 # Local Dev
 
+## Yarn Setup
+
 We are using a Yarn 2 Workspace-based monorepo structure. The individual workspaces are within the `packages/` directory. This repo structure was heavily inspired by [create-ts-project](https://github.com/jtbennett/create-ts-project). The goal is to minimize 3rd party dependencies, and expose the configurations so that they can be transparently managed.
 
 There are a few top-level scripts that can be used:
@@ -89,7 +91,7 @@ You should be able to do everything from the root and not need to go into the in
 
 `yarn workspace @connext/nxtp-txservice add ethers`
 
-## First time setup
+### First time setup
 
 Make sure you are on the latest yarn version:
 
@@ -97,7 +99,7 @@ Make sure you are on the latest yarn version:
 
 Try running `yarn` to update everything. If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
 
-## Common Tasks
+### Common Tasks
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
@@ -110,7 +112,7 @@ Run test-ui:
 
 - `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
 
-## Running Test
+### Running Tests
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
@@ -121,7 +123,7 @@ Run test:
 
 - `yarn workspace @connext/nxtp-contracts test` - Runs test.
 
-## Adding Packages
+### Adding Packages
 
 To add a new package that can be shared by the rest of the repo, you can use some convenience scripts that we have installed:
 
@@ -137,9 +139,98 @@ Again, this can all be done without the tool, all it does is add some files and 
 
 Note: We use `node-lib` as the template for all the packages. There are some other included templates like `browser-lib` which didn't work with our bundling. We might need to revisit things for bundling reqs.
 
+### Publishing Packages
+
+- Update the [`CHANGELOG.md`](./CHANGELOG.md).
+- Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
+- Run `git push --follow-tags`.
+- The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.
+
 ## Integration
 
-### Local Services
+Information about common integration flows.
+
+### Setup Router for TransactionManager
+
+There's an easy hardhat script to run that sets up a router, adds assets, and adds liquidity. Run it by calling:
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat setup-test-router --router 0x0EC26F03e3dBA9bb5162D28fD5a3378A25f168d1 --network rinkeby
+```
+
+There are other configurable options. Note: You must use the deployer mnemonic. If you don't have it, ask a team member.
+
+### Running Test UI and Router Locally Against Live Chains
+
+- Spin up local messaging (optional but good idea to not use prod messaging):
+
+```sh
+yarn workspace @connext/nxtp-integration docker:messaging:up
+```
+
+- Create router `packages/router/config.json`. Configure for live chains and the desired messaging. If you have not set up your mnemonic with the `TransactionManager`, see the [instructions](#setup-router-for-TransactionManager):
+
+```json
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "4": {
+      "providers": [
+        "https://rinkeby.infura.io/v3/...",
+        "https://rinkeby.infura.io/v3/...",
+        "https://rinkeby.infura.io/v3/..."
+      ],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+    },
+    "5": {
+      "providers": [
+        "https://goerli.infura.io/v3/...",
+        "https://goerli.infura.io/v3/...",
+        "https://goerli.infura.io/v3/..."
+      ],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://localhost:4222",
+  "authUrl": "http://localhost:5040",
+  "mnemonic": "...", // use your own mnemonic!
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
+        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+      ]
+    }
+  ]
+}
+```
+
+- Spin up local router:
+
+```sh
+yarn workspace @connext/nxtp-router dev
+```
+
+- Create `packages/test-ui/.env`. Configure for live chains and the desired messaging:
+
+```sh
+REACT_APP_CHAIN_CONFIG='{"4":{"provider":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"provider":["https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
+REACT_APP_SWAP_CONFIG='[{"name":"TEST","assets":{"4":"0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198","5":"0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682"}}]'
+#REACT_APP_NATS_URL_OVERRIDE=ws://localhost:4221
+#REACT_APP_AUTH_URL_OVERRIDE=http://localhost:5040
+```
+
+- Spin up local `test-ui`:
+
+```sh
+yarn workspace @connext/nxtp-test-ui dev
+```
+
+### Local Messaging and Chains
 
 In some cases it is desirable to develop against local blockchains and messaging services. To do that, run:
 
@@ -153,13 +244,13 @@ The above commands run local chains and messaging and take care of local deploym
   "adminToken": "blahblah",
   "chainConfig": {
     "1337": {
-      "provider": ["http://localhost:8545"],
+      "providers": ["http://localhost:8545"],
       "confirmations": 1,
       "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
-      "provider": ["http://localhost:8546"],
+      "providers": ["http://localhost:8546"],
       "confirmations": 1,
       "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
@@ -181,10 +272,3 @@ The router will now hot reload and allow easy testing/debug.
 Now you can run `yarn workspace @connext/nxtp-integration test` to run integration tests against a local machine.
 
 When you are done, you can run `yarn docker:stop:all` to halt all running services.
-
-## Publishing Packages
-
-- Update the [`CHANGELOG.md`](./CHANGELOG.md).
-- Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
-- Run `git push --follow-tags`.
-- The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.

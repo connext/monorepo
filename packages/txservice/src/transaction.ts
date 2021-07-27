@@ -1,6 +1,6 @@
 import { BigNumber, providers } from "ethers";
 import { BaseLogger } from "pino";
-import hyperid from "hyperid";
+import { getUuid } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig } from "./config";
 // import { ChainError } from "./error";
@@ -13,7 +13,7 @@ import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } f
  */
 export class Transaction {
   // We use a unique ID to internally track a transaction through logs.
-  public id: string = hyperid()();
+  public id: string = getUuid();
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   // Receipt that we received for the on-chain transaction that was mined with
@@ -58,7 +58,9 @@ export class Transaction {
         },
         "Attempt made to overwrite nonce!",
       );
-      throw new TransactionServiceFailure("Cannot overwrite already existing nonce value; nonce may only be set once per transaction!");
+      throw new TransactionServiceFailure(
+        "Cannot overwrite already existing nonce value; nonce may only be set once per transaction!",
+      );
     }
     this._nonce = value;
   }
@@ -93,7 +95,7 @@ export class Transaction {
   /**
    * Static constructor method to generate a transaction instance, as it requires some
    * async operations. Stubbed in unit tests in order to solely test the interface.
-   * 
+   *
    * @param logger The pino.BaseLogger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
@@ -110,13 +112,7 @@ export class Transaction {
       throw result.error;
     }
     const gasPrice = new GasPrice(result.value, BigNumber.from(config.gasLimit));
-    return new Transaction(
-      logger,
-      provider,
-      minTx,
-      config,
-      gasPrice,
-    );
+    return new Transaction(logger, provider, minTx, config, gasPrice);
   }
 
   /**
@@ -125,7 +121,7 @@ export class Transaction {
    * @returns boolean indicating whether the transaction is completed.
    */
   public didFinish(): boolean {
-    return (!!this.receipt && this.receipt.confirmations >= this.provider.confirmationsRequired);
+    return !!this.receipt && this.receipt.confirmations >= this.provider.confirmationsRequired;
   }
 
   /**
@@ -141,7 +137,7 @@ export class Transaction {
       // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
       // If there isn't a lastPrice, we're going to skip this validation step.
       const lastPrice = this.responses[this.responses.length - 1].gasPrice;
-      if (lastPrice && (this.gasPrice.get()).lte(lastPrice)) {
+      if (lastPrice && this.gasPrice.get().lte(lastPrice)) {
         throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
       }
     }
@@ -182,7 +178,7 @@ export class Transaction {
    * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
    * wait an extended period for the desired number of confirmations. If no further confirmations appear
    * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
-   * 
+   *
    * @returns A TransactionReceipt (or undefined if it did not confirm).
    */
   public async confirm() {
@@ -190,7 +186,9 @@ export class Transaction {
 
     // Ensure we've submitted at least 1 tx.
     if (this.responses.length === 0) {
-      throw new TransactionServiceFailure("Transaction confirm was called, but no transaction has been sent.", { method });
+      throw new TransactionServiceFailure("Transaction confirm was called, but no transaction has been sent.", {
+        method,
+      });
     }
 
     // Ensure we don't already have a receipt.
@@ -218,7 +216,7 @@ export class Transaction {
         // NOTE: This is the official receipt with status of 0, so it's safe to say the
         // transaction was in fact reverted and we should throw here.
         this.receipt = error.receipt;
-        throw error; 
+        throw error;
       } else {
         throw error;
       }
@@ -228,7 +226,10 @@ export class Transaction {
 
     if (this.receipt == null) {
       // Receipt is undefined or null. This normally should never occur.
-      throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", { method, receipt: this.receipt });
+      throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
+        method,
+        receipt: this.receipt,
+      });
     } else if (this.receipt.status === 0) {
       throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.");
     }

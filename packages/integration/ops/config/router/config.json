@@ -17,5 +17,14 @@
   "logLevel": "info",
   "natsUrl": "nats://172.17.0.1:4222",
   "authUrl": "http://172.17.0.1:5040",
-  "mnemonic": "model best tree august jump gate degree deputy glow since super enter"
+  "mnemonic": "model best tree august jump gate degree deputy glow since super enter",
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
+        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+      ]
+    }
+  ]
 }

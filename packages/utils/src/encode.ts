@@ -127,3 +127,31 @@ export const AuctionBidEncoding = tidy(`tuple(
 export const encodeAuctionBid = (bid: AuctionBid): string => {
   return utils.defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
 };
+
+/**
+ * Decode bid
+ * @param data - Data to decode
+ * @returns Decoded bid
+ */
+export const decodeAuctionBid = (data: string): AuctionBid => {
+  const [decoded] = utils.defaultAbiCoder.decode([AuctionBidEncoding], data);
+  return {
+    user: decoded.user,
+    router: decoded.router,
+    sendingAssetId: decoded.sendingAssetId,
+    sendingChainId: decoded.sendingChainId,
+    amount: decoded.amount.toString(),
+    receivingAssetId: decoded.receivingAssetId,
+    receivingChainId: decoded.receivingChainId,
+    receivingAddress: decoded.receivingAddress,
+    amountReceived: decoded.amountReceived.toString(),
+    transactionId: decoded.transactionId,
+    callDataHash: decoded.callDataHash,
+    encryptedCallData: decoded.encryptedCallData,
+    callTo: decoded.callTo,
+    bidExpiry: decoded.bidExpiry.toNumber(),
+    expiry: decoded.expiry.toNumber(),
+    receivingChainTxManagerAddress: decoded.receivingChainTxManagerAddress,
+    sendingChainTxManagerAddress: decoded.sendingChainTxManagerAddress,
+  };
+};
