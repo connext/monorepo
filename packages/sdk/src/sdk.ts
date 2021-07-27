@@ -232,7 +232,7 @@ export class NxtpSdk {
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
         logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsURL: _natsUrl,
+        natsUrl: _natsUrl,
         authUrl: _authUrl,
       });
     }
