@@ -18,24 +18,24 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddressAlice = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
-const tokenAddressBob = tokenAddressAlice;
-const txManagerAddressAlice = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
-const txManagerAddressBob = txManagerAddressAlice;
+const tokenAddressSending = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const tokenAddressReceiving = tokenAddressSending;
+const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+const txManagerAddressReceiving = txManagerAddressSending;
 
-const CHAIN_ALICE = 4;
-const CHAIN_BOB = 5;
+const SENDING_CHAIN = 1337;
+const RECEIVING_CHAIN = 1338;
 
 const chainProviders = {
-  [CHAIN_ALICE]: {
+  [SENDING_CHAIN]: {
     provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
-    transactionManagerAddress: txManagerAddressAlice,
+    transactionManagerAddress: txManagerAddressSending,
     subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
   },
-  [CHAIN_BOB]: {
+  [RECEIVING_CHAIN]: {
     provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
-    transactionManagerAddress: txManagerAddressBob,
-    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+    transactionManagerAddress: txManagerAddressReceiving,
+    subgraph: "http://localhost:9000/subgraphs/name/connext/nxtp",
   },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
@@ -44,19 +44,19 @@ const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 const sugarDaddy = new Wallet(fundedPk);
 const MIN_ETH = utils.parseEther("0.5");
 const ETH_GIFT = utils.parseEther("1");
-const tokenAlice = new Contract(tokenAddressAlice, TestTokenABI, sugarDaddy.connect(chainProviders[CHAIN_ALICE].provider));
-const tokenBob = new Contract(tokenAddressBob, TestTokenABI, sugarDaddy.connect(chainProviders[CHAIN_BOB].provider));
+const tokenSending = new Contract(tokenAddressSending, TestTokenABI, sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider));
+const tokenReceiving = new Contract(tokenAddressReceiving, TestTokenABI, sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider));
 const MIN_TOKEN = utils.parseEther("5");
 const TOKEN_GIFT = utils.parseEther("10");
-const txManagerAlice = new Contract(
-  txManagerAddressAlice,
+const txManagerSending = new Contract(
+  txManagerAddressSending,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[CHAIN_ALICE].provider),
+  sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
 ) as TransactionManager;
-const txManagerBob = new Contract(
-  txManagerAddressBob,
+const txManagerReceiving = new Contract(
+  txManagerAddressReceiving,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[CHAIN_BOB].provider),
+  sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
 ) as TransactionManager;
 
 const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "debug" });
@@ -66,84 +66,104 @@ describe("Integration", () => {
   let userWallet: Wallet;
 
   before(async () => {
-    const balanceAlice = await chainProviders[CHAIN_ALICE].provider.getBalance(router);
-    const balanceBob = await chainProviders[CHAIN_BOB].provider.getBalance(router);
+    const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(router);
+    const balanceReceiving = await chainProviders[RECEIVING_CHAIN].provider.getBalance(router);
 
     // fund if necessary
-    if (balanceAlice.lt(MIN_ETH)) {
-      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to router");
+    if (balanceSending.lt(MIN_ETH)) {
+      logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy
-        .connect(chainProviders[CHAIN_ALICE].provider)
+        .connect(chainProviders[SENDING_CHAIN].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to router mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined");
     }
 
-    if (balanceBob.lt(MIN_ETH)) {
-      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to router");
+    if (balanceReceiving.lt(MIN_ETH)) {
+      logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to router");
       const tx = await sugarDaddy
-        .connect(chainProviders[CHAIN_ALICE].provider)
+        .connect(chainProviders[SENDING_CHAIN].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to router mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined: ");
     }
 
-    const isRouterAlice = await txManagerAlice.approvedRouters(router);
-    const isRouterBob = await txManagerBob.approvedRouters(router);
+    const isRouterSending = await txManagerSending.approvedRouters(router);
+    const isRouterReceiving = await txManagerReceiving.approvedRouters(router);
 
-    if (!isRouterAlice) {
-      logger.info({ chainId: CHAIN_ALICE }, "Adding router");
-      const tx = await txManagerAlice.addRouter(router);
+    if (!isRouterSending) {
+      logger.info({ chainId: SENDING_CHAIN }, "Adding router");
+      const tx = await txManagerSending.addRouter(router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "Router added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "Router added");
     }
 
-    if (!isRouterBob) {
-      logger.info({ chainId: CHAIN_BOB }, "Adding router");
-      const tx = await txManagerBob.addRouter(router);
+    if (!isRouterReceiving) {
+      logger.info({ chainId: RECEIVING_CHAIN }, "Adding router");
+      const tx = await txManagerReceiving.addRouter(router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "Router added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "Router added");
     }
 
-    const isAssetAlice = await txManagerAlice.approvedAssets(tokenAddressAlice);
-    const isAssetBob = await txManagerBob.approvedAssets(tokenAddressBob);
+    const isAssetSending = await txManagerSending.approvedAssets(tokenAddressSending);
+    const isAssetReceiving = await txManagerReceiving.approvedAssets(tokenAddressReceiving);
 
-    if (!isAssetAlice) {
-      logger.info({ chainId: CHAIN_ALICE }, "Adding Asset");
-      const tx = await txManagerAlice.addAssetId(tokenAddressAlice);
+    if (!isAssetSending) {
+      logger.info({ chainId: SENDING_CHAIN }, "Adding Asset");
+      const tx = await txManagerSending.addAssetId(tokenAddressSending);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "Asset added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "Asset added");
     }
 
-    if (!isAssetBob) {
-      logger.info({ chainId: CHAIN_BOB }, "Adding Asset");
-      const tx = await txManagerBob.addAssetId(tokenAddressBob);
+    if (!isAssetReceiving) {
+      logger.info({ chainId: RECEIVING_CHAIN }, "Adding Asset");
+      const tx = await txManagerReceiving.addAssetId(tokenAddressReceiving);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "Asset added");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "Asset added");
     }
 
-    const liquidityAlice = await txManagerAlice.routerBalances(router, tokenAddressAlice);
-    const liquidityBob = await txManagerBob.routerBalances(router, tokenAddressBob);
+    const liquiditySending = await txManagerSending.routerBalances(router, tokenAddressSending);
+    const liquidityReceiving = await txManagerReceiving.routerBalances(router, tokenAddressReceiving);
 
     // fund if necessary
-    if (liquidityAlice.lt(MIN_TOKEN)) {
-      logger.info({ chainId: CHAIN_ALICE }, "Adding liquidity");
-      const approvetx = await tokenAlice.approve(txManagerAlice.address, constants.MaxUint256);
+    logger.info(
+      {
+        liquidity: liquiditySending.toString(),
+        asset: tokenAddressSending,
+        chain: SENDING_CHAIN,
+        router,
+        transactionManager: txManagerSending.address,
+      },
+      "Liquidity available",
+    );
+    if (liquiditySending.lt(MIN_TOKEN)) {
+      logger.info({ chainId: SENDING_CHAIN }, "Adding liquidity");
+      const approvetx = await tokenSending.approve(txManagerSending.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: CHAIN_ALICE }, "addLiquidity approved");
-      const tx = await txManagerAlice.addLiquidity(TOKEN_GIFT, tokenAddressAlice, router);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity approved");
+      const tx = await txManagerSending.addLiquidity(TOKEN_GIFT, tokenAddressSending, router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "addLiquidity mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity mined");
     }
 
-    if (liquidityBob.lt(MIN_TOKEN)) {
-      logger.info({ chainId: CHAIN_BOB }, "Adding liquidity");
-      const approvetx = await tokenBob.approve(txManagerBob.address, constants.MaxUint256);
+    logger.info(
+      {
+        liquidity: liquidityReceiving.toString(),
+        asset: tokenAddressReceiving,
+        chain: RECEIVING_CHAIN,
+        router,
+        transactionManager: txManagerReceiving.address,
+      },
+      "Liquidity available",
+    );
+    if (liquidityReceiving.lt(MIN_TOKEN)) {
+      logger.info({ chainId: RECEIVING_CHAIN }, "Adding liquidity");
+      const approvetx = await tokenReceiving.approve(txManagerReceiving.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait();
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: CHAIN_BOB }, "addLiquidity approved");
-      const tx = await txManagerBob.addLiquidity(TOKEN_GIFT, tokenAddressBob, router);
+      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity approved");
+      const tx = await txManagerReceiving.addLiquidity(TOKEN_GIFT, tokenAddressReceiving, router);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_BOB }, "addLiquidity mined");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity mined");
     }
   });
 
@@ -151,29 +171,28 @@ describe("Integration", () => {
     userWallet = Wallet.createRandom();
 
     // fund user sender side
-    const balanceAlice = await chainProviders[CHAIN_ALICE].provider.getBalance(userWallet.address);
-    if (balanceAlice.lt(MIN_ETH)) {
-      logger.info({ chainId: CHAIN_ALICE }, "Sending ETH_GIFT to user");
+    const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(userWallet.address);
+    if (balanceSending.lt(MIN_ETH)) {
+      logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
-        .connect(chainProviders[CHAIN_ALICE].provider)
+        .connect(chainProviders[SENDING_CHAIN].provider)
         .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "ETH_GIFT to user mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to user mined: ");
     }
 
-    const balanceTokenAlice = await tokenAlice.balanceOf(userWallet.address);
-    if (balanceTokenAlice.lt(MIN_TOKEN)) {
-      logger.info({ chainId: CHAIN_ALICE }, "Sending TOKEN_GIFT to user");
-      const tx = await tokenAlice.mint(userWallet.address, TOKEN_GIFT);
+    const balanceTokenSending = await tokenSending.balanceOf(userWallet.address);
+    if (balanceTokenSending.lt(MIN_TOKEN)) {
+      logger.info({ chainId: SENDING_CHAIN }, "Sending TOKEN_GIFT to user");
+      const tx = await tokenSending.mint(userWallet.address, TOKEN_GIFT);
       const receipt = await tx.wait();
-      logger.info({ transactionHash: receipt.transactionHash, chainId: CHAIN_ALICE }, "TOKEN_GIFT to user mined: ");
+      logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "TOKEN_GIFT to user mined: ");
     }
 
     userSdk = new NxtpSdk(
       chainProviders,
       userWallet,
-      pino({ name: "IntegrationTest" }),
-      undefined,
+      pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
       "nats://localhost:4222",
       "http://localhost:5040",
     );
@@ -183,12 +202,12 @@ describe("Integration", () => {
     this.timeout(120_000);
     const quote = await userSdk.getTransferQuote({
       amount: utils.parseEther("1").toString(),
-      receivingAssetId: tokenAddressBob,
-      sendingAssetId: tokenAddressAlice,
+      receivingAssetId: tokenAddressReceiving,
+      sendingAssetId: tokenAddressSending,
       receivingAddress: userWallet.address,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-      sendingChainId: CHAIN_ALICE,
-      receivingChainId: CHAIN_BOB,
+      sendingChainId: SENDING_CHAIN,
+      receivingChainId: RECEIVING_CHAIN,
     });
 
     const res = await userSdk.startTransfer(quote);

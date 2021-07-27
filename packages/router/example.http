@@ -9,8 +9,8 @@
 ### CONFIG
 GET {{routerUrl}}/config
 
-### ADD LIQUIDITY
-POST {{routerUrl}}/add-liquidity
+### REMOVE LIQUIDITY
+POST {{routerUrl}}/remove-liquidity
 Content-Type: application/json
 
 {

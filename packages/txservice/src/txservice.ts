@@ -316,10 +316,16 @@ export class TransactionService {
    * Handle logging and event emitting on tx submit attempt.
    * @param response The transaction response received back from that attempt.
    */
+<<<<<<< HEAD
   private async submitTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
     const response = await transaction.submit();
+=======
+  private handleSubmit(transaction: Transaction, requestContext: RequestContext) {
+    const method = this.handleSubmit.name;
+    const response = transaction.latestResponse;
+>>>>>>> main
     this.logger.info(
       {
         method,
@@ -338,6 +344,7 @@ export class TransactionService {
    * Handle logging and event emitting on tx confirmation.
    * @param receipt The transaction receipt received back.
    */
+<<<<<<< HEAD
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
@@ -358,6 +365,12 @@ export class TransactionService {
       },
       "Tx mined.",
     );
+=======
+  private handleConfirm(transaction: Transaction, requestContext: RequestContext) {
+    const method = this.handleConfirm.name;
+    const receipt = transaction.receipt!;
+    this.logger.info({ method, id: transaction.id, requestContext, receipt }, "Transaction mined.");
+>>>>>>> main
     this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
   }
 
@@ -367,8 +380,13 @@ export class TransactionService {
    * @param receipt The transaction receipt received back from reverted tx, if
    * applicable.
    */
+<<<<<<< HEAD
   private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
+=======
+  private handleFail(error: TransactionError, transaction: Transaction, requestContext: RequestContext) {
+    const method = this.handleFail.name;
+>>>>>>> main
     const receipt = transaction.receipt;
     this.logger.error(
       { method, id: transaction.id, receipt, context, error: jsonifyError(error) },
