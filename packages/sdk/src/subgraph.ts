@@ -185,6 +185,7 @@ export class Subgraph {
                   caller: senderTx.prepareCaller,
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
+                  transactionHash: senderTx.transactionHash,
                 };
                 if (!active) {
                   this.evts.SenderTransactionPrepared.post(tx);
@@ -203,6 +204,7 @@ export class Subgraph {
                   caller: correspondingReceiverTx.prepareCaller,
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
+                  transactionHash: correspondingReceiverTx.transactionHash,
                 };
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -223,6 +225,7 @@ export class Subgraph {
                   relayerFee: correspondingReceiverTx.relayerFee,
                   callData: correspondingReceiverTx.callData!,
                   caller: correspondingReceiverTx.fulfillCaller,
+                  transactionHash: correspondingReceiverTx.transactionHash,
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
@@ -237,6 +240,7 @@ export class Subgraph {
                   txData: convertTransactionToTxData(correspondingReceiverTx),
                   relayerFee: correspondingReceiverTx.relayerFee,
                   caller: correspondingReceiverTx.fulfillCaller,
+                  transactionHash: correspondingReceiverTx.transactionHash,
                 };
                 // if receiver is cancelled, its a receiver cancelled
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
