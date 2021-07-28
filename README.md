@@ -63,9 +63,9 @@ These are **important** and everyone must adhere to them:
 
 1. Follow the Unix philosophy for every file and function. For instance, a `listeners.ts` file should _only_ handle setting up listeners and then route to a corresponding `handler`. This keeps all business logic consolidated, making it easy to test and read.
 
-1. Every file and function should be unit tested. The scope of this codebase is very small, so it shouldn't be difficult to do this.
+2. Every file and function should be unit tested. The scope of this codebase is very small, so it shouldn't be difficult to do this.
 
-1. Build for future hires and contributors. Every function should have a top-level comment that describes what it does, and internal comments breaking down each step. Files should have comments delineating their reponsibilities. Remember: Good code is **never surprising**.
+3. Build for future hires and contributors. Every function should have a top-level comment that describes what it does, and internal comments breaking down each step. Files should have comments delineating their reponsibilities. Remember: Good code is **never surprising**.
 
 # Local Dev
 
@@ -259,7 +259,16 @@ The above commands run local chains and messaging and take care of local deploym
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
+        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
+      ]
+    }
+  ]
 }
 ```
 

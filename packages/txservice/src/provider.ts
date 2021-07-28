@@ -150,10 +150,7 @@ export class ChainRpcProvider {
   public readTransaction(tx: MinimalTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(this.readTransaction.name, async () => {
       try {
-        const readResult = await this.signer.call({
-          to: tx.to,
-          data: tx.data,
-        });
+        const readResult = await this.signer.call(tx);
         return readResult;
       } catch (e) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error: jsonifyError(e) });

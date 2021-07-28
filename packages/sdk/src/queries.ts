@@ -114,7 +114,7 @@ export const getTransactionByIdQuery = gql`
 `;
 
 export const getTransactionsByIdsQuery = gql`
-  query GetTransactions($transactionIds: [Bytes!], $status: TransactionStatus) {
+  query GetTransactions($transactionIds: [Bytes!]) {
     transactions(where: { transactionId_in: $transactionIds }) {
       id
       status
@@ -137,6 +137,9 @@ export const getTransactionsByIdsQuery = gql`
       amount
       expiry
       preparedBlockNumber
+      encryptedCallData
+      encodedBid
+      bidSignature
       relayerFee
       signature
       callData

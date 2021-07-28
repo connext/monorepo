@@ -149,7 +149,13 @@ export class NatsBasicMessagingService {
       this.log.child({ module: "Messaging-Nats" }),
     );
 
-    const natsConnection = await service.connect();
+    let natsConnection;
+    try {
+      natsConnection = await service.connect();
+    } catch (e) {
+      this.bearerToken = undefined;
+      throw e;
+    }
     this.connection = service;
     this.log.debug(`Connected!`);
     if (typeof natsConnection.addEventListener === "function") {

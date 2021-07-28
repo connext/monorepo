@@ -92,7 +92,7 @@ export class TransactionManager {
     const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
     if (!nxtpContractAddress) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
           chainId,
           configError: "No contract exists for chain",
           methodId,
@@ -137,7 +137,7 @@ export class TransactionManager {
     return ResultAsync.fromPromise(
       this.txService.sendTx(
         {
-          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          to: nxtpContractAddress,
           data: encodedData,
           value: constants.Zero,
           chainId,
@@ -178,7 +178,7 @@ export class TransactionManager {
     const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
     if (!nxtpContractAddress) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
           chainId,
           configError: "No contract exists for chain",
           methodId,
@@ -247,7 +247,7 @@ export class TransactionManager {
     const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
     if (!nxtpContractAddress) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
           chainId,
           configError: "No contract exists for chain",
           methodId,
@@ -275,7 +275,7 @@ export class TransactionManager {
         {
           chainId,
           data: cancelData,
-          to: this.config.chainConfig[chainId].transactionManagerAddress,
+          to: nxtpContractAddress,
           value: 0,
           from: this.signerAddress,
         },
@@ -319,7 +319,7 @@ export class TransactionManager {
     const nxtpContractAddress = this.config.chainConfig[chainId].transactionManagerAddress;
     if (!nxtpContractAddress) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.EncodingError, {
+        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
           chainId,
           configError: "No contract exists for chain",
           methodId,

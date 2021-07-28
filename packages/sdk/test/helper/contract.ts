@@ -1,8 +1,8 @@
-import { ethers, waffle } from "hardhat";
+import { ethers } from "hardhat";
 import { expect } from "chai";
 import { InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { PrepareParams, getInvariantTransactionDigest, getVariantTransactionDigest } from "@connext/nxtp-utils";
-import { Wallet, utils, BigNumber, constants, providers, ContractReceipt } from "ethers";
+import { Wallet, utils, BigNumber, constants, ContractReceipt } from "ethers";
 
 import {
   FulfillInterpreter,
@@ -15,14 +15,11 @@ import FulfillInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contra
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import pino, { BaseLogger } from "pino";
 import { TransactionManager } from "../../src";
 import { getOnchainBalance } from "./util";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino();
 const EmptyBytes = "0x";
-const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 
 export const setBlockTime = async (desiredTimestamp: number) => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
