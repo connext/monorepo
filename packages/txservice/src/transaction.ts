@@ -6,7 +6,7 @@ import { TransactionServiceConfig } from "./config";
 // import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
-import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { NonceExpired, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -29,10 +29,6 @@ export class Transaction {
       gasPrice: this.gasPrice.get(),
       nonce: this.nonce,
     };
-  }
-
-  public get latestResponse(): providers.TransactionResponse {
-    return this.responses[this.responses.length - 1];
   }
 
   // Internal nonce tracking.
@@ -116,6 +112,14 @@ export class Transaction {
   }
 
   /**
+   * Specifies whether the transaction has been submitted.
+   * @returns boolean indicating whether the transaction is submitted.
+   */
+  public didSubmit(): boolean {
+    return this.responses.length > 0;
+  }
+
+  /**
    * Specifies whether the transaction has been completed - meaning that it's been
    * mined and has received the target number of confirmations.
    * @returns boolean indicating whether the transaction is completed.
@@ -129,7 +133,7 @@ export class Transaction {
    *
    * @returns A TransactionResponse once the transaction has been mined
    */
-  public async submit() {
+  public async submit(): Promise<providers.TransactionResponse> {
     const method = this.submit.name;
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
@@ -151,12 +155,43 @@ export class Transaction {
     this._attempt++;
 
     // Send the tx.
-    const result = await this.provider.sendTransaction(this.data);
+    let result = await this.provider.sendTransaction(this.data);
 
     // If we experienced an error, throw.
     if (result.isErr()) {
+      // TODO: This is the sledgehammer fix to the nonce expired problem. Would be nice
+      // to see a more elegant solution.
+      // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
+      // trying to send here.
+      let { error } = result;
+      if (error instanceof NonceExpired) {
+        let nonceErrorCount = 1;
+        this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
+        while (!this.didSubmit) {
+          result = await this.provider.sendTransaction(this.data);
+          if (result.isErr()) {
+            error = result.error;
+
+            if (error instanceof NonceExpired) {
+              nonceErrorCount++;
+              this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
+            } else {
+              // If for some reason, we get an error here other than nonce expired, we want
+              // to throw.
+              throw error;
+            }
+          }
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    // TODO: Bad code
+    if (result.isErr()) {
       throw result.error;
     }
+
     const response = result.value;
 
     // Save nonce if applicable; if not, this is a validation step to ensure nonce
@@ -165,6 +200,7 @@ export class Transaction {
 
     // Add this response to our local response history.
     this.responses.push(response);
+    return response;
   }
 
   /**
@@ -181,7 +217,7 @@ export class Transaction {
    *
    * @returns A TransactionReceipt (or undefined if it did not confirm).
    */
-  public async confirm() {
+  public async confirm(): Promise<providers.TransactionReceipt> {
     const method = this.confirm.name;
 
     // Ensure we've submitted at least 1 tx.
@@ -244,6 +280,8 @@ export class Transaction {
       }
       this.receipt = result.value;
     }
+
+    return this.receipt;
   }
 
   /**

@@ -46,3 +46,15 @@ export const txReceipt: TransactionReceipt = {
   effectiveGasPrice: One,
   type: 0,
 };
+
+export const makeChaiReadable = (obj: any) => {
+  const result = {};
+  Object.keys(obj).forEach(key => {
+    if (BigNumber.isBigNumber(obj[key])) {
+      result[key] = BigNumber.from(obj[key]).toString();
+    } else {
+      result[key] = obj[key];
+    }
+  });
+  return result;
+};

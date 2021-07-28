@@ -256,7 +256,9 @@ export class Subgraph {
     );
 
     const all = txs.flat();
-    this.logger.info({ methodId, methodName, all }, "Queried active txs");
+    if (all.length > 0) {
+      this.logger.info({ methodId, methodName, all }, "Queried active txs");
+    }
     return all;
   }
 
