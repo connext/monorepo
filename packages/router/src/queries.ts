@@ -25,6 +25,7 @@ export const getSenderPrepareQuery = gql`
         receivingChainId
         callDataHash
         transactionId
+        transactionHash
         amount
         expiry
         preparedBlockNumber
@@ -62,6 +63,7 @@ export const getReceiverPrepareQuery = gql`
         receivingChainId
         callDataHash
         transactionId
+        transactionHash
         amount
         expiry
         preparedBlockNumber
@@ -171,6 +173,7 @@ export const getTransactionByIdQuery = gql`
       receivingChainId
       callDataHash
       transactionId
+      transactionHash
       amount
       expiry
       preparedBlockNumber
@@ -208,6 +211,7 @@ export const getFulfilledTransactionsByIdsQuery = gql`
       receivingChainId
       callDataHash
       transactionId
+      transactionHash
       amount
       expiry
       preparedBlockNumber

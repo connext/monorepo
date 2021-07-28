@@ -1,18 +1,20 @@
 {
   "adminToken": "blahblah",
   "chainConfig": {
-    "4": {
-      "provider": ["https://rinkeby.infura.io/v3/dda319320b664474bf11c4d9f542e8a0"],
+    "1337": {
+      "providers": ["http://172.17.0.1:8545"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-staging"
+      "subgraph": "http://172.17.0.1:8000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
-    "5": {
-      "provider": ["https://goerli.infura.io/v3/dda319320b664474bf11c4d9f542e8a0"],
+    "1338": {
+      "providers": ["http://172.17.0.1:8546"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-staging"
+      "subgraph": "http://172.17.0.1:9000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
   "logLevel": "info",
   "natsUrl": "nats://172.17.0.1:4222",
-  "authUrl": "http://host.docker.internal:5040",
+  "authUrl": "http://host.docker.internal:5040"
 }

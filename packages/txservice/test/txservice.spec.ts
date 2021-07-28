@@ -1,81 +1,82 @@
-import { providers, Signer, BigNumber } from "ethers";
-import { AddressZero, One, Zero } from "@ethersproject/constants";
-import { mkHash, mkAddress } from "@connext/nxtp-utils";
-import { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
+import { providers, Signer, Wallet } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
-import { parseUnits } from "ethers/lib/utils";
 
 import { TransactionService } from "../src/txservice";
-import { MinimalTransaction } from "../src/types";
-import { TransactionSigner } from "../src/signer";
+import { Transaction } from "../src/transaction";
+import { ChainRpcProvider } from "../src/provider";
+import { makeChaiReadable, tx, txReceipt, txResponse } from "./constants";
+import { TimeoutError } from "../src/error";
+import { getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
 
-const { JsonRpcProvider } = providers;
-type TransactionReceipt = providers.TransactionReceipt;
-type TransactionResponse = providers.TransactionResponse;
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let signer: SinonStubbedInstance<Signer>;
 let txService: TransactionService;
-let provider1337: SinonStubbedInstance<providers.JsonRpcProvider>;
-
-const tx: MinimalTransaction = {
-  chainId: 1337,
-  to: AddressZero,
-  from: AddressZero,
-  data: "0x",
-  value: Zero,
+let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
+let transaction: SinonStubbedInstance<Transaction>;
+let context: RequestContext = {
+  id: "",
+  origin: "",
 };
 
-const txResponse: TransactionResponse = {
-  chainId: 1337,
-  confirmations: 1,
-  data: "0x",
-  from: AddressZero,
-  gasLimit: One,
-  gasPrice: One,
-  hash: mkHash(),
-  nonce: 1,
-  value: Zero,
-  wait: () => Promise.resolve({} as TransactionReceipt),
-};
+/// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
+/// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
+describe("TransactionService", () => {
+  let didFinish = false;
+  let confirmCount = 0;
+  let confirmAttemptShouldSucceed = 0;
 
-const txReceipt: TransactionReceipt = {
-  blockHash: mkHash("0xabc"),
-  blockNumber: 123,
-  byzantium: true,
-  confirmations: 1,
-  contractAddress: mkAddress("0xa"),
-  cumulativeGasUsed: BigNumber.from(21000),
-  from: txResponse.from,
-  gasUsed: BigNumber.from(21000),
-  logs: [],
-  logsBloom: "0x",
-  to: mkAddress("0xbbb"),
-  transactionHash: txResponse.hash,
-  transactionIndex: 1,
-  status: 1,
-  effectiveGasPrice: One,
-  type: 0,
-};
-
-const log = pino({ level: "debug", name: "TransactionServiceTest" });
-describe("TransactionService unit test", () => {
   beforeEach(() => {
-    signer = createStubInstance(TransactionSigner);
-    signer.connect.returns(signer as any);
-    (signer as any)._isSigner = true;
+    didFinish = false;
+    confirmCount = 0;
 
-    const _provider = createStubInstance(JsonRpcProvider);
-    _provider.getTransaction.resolves(txResponse);
-    _provider.sendTransaction.resolves(txResponse);
-    provider1337 = _provider;
-    (signer as any).provider = provider1337;
+    chainProvider = createStubInstance(ChainRpcProvider);
+    transaction = createStubInstance(Transaction);
+    signer = createStubInstance(Wallet);
+    signer.connect.resolves(true);
+    // chainProvider.confirmationTimeout = 60_000;
+    // chainProvider.confirmationsRequired = txReceipt.confirmations;
 
-    txService = new TransactionService(log, signer, { 1337: [""], 1338: [""] }, {}, () => provider1337);
+    const chains = {
+      "1337": {
+        providers: [{ url: "https://-------------.com" }],
+        confirmations: 1,
+      },
+      "1338": {
+        providers: [{ url: "https://-------------.com" }],
+        confirmations: 1,
+      },
+    };
 
-    signer.sendTransaction.resolves(txResponse);
-    stub(txService, "getGasPrice").resolves(parseUnits("1", "gwei"));
-    stub(txService, "confirmTx").resolves(txReceipt);
+    txService = new TransactionService(logger, signer, { chains });
+    (txService as any).getProvider = () => chainProvider;
+
+    Sinon.stub(Transaction, "create").callsFake(async (): Promise<Transaction> => {
+      return transaction as unknown as Transaction;
+    });
+    transaction.submit.resolves(txResponse);
+    // This will be updated once the transaction resolver is called.
+    // transaction.confirm.restore();
+    transaction.confirm.callsFake(async (): Promise<providers.TransactionReceipt> => {
+      if (confirmCount === confirmAttemptShouldSucceed) {
+        didFinish = true;
+        transaction.receipt = txReceipt;
+        return txReceipt;
+      } else {
+        confirmCount++;
+        throw new TimeoutError();
+      }
+    });
+    // transaction.didFinish.restore();
+    transaction.didFinish.callsFake((): boolean => {
+      return didFinish;
+    });
+    Sinon.stub(transaction, "data").get(() => tx);
+
+    context.id = getRandomBytes32();
+    context.origin = "TransactionServiceTest";
   });
 
   afterEach(() => {
@@ -83,39 +84,35 @@ describe("TransactionService unit test", () => {
     reset();
   });
 
-  describe("sendAndConfirmTx", () => {
-    // beforeEach(() => {
+  // TODO: Test read and events/listeners.
 
+  describe("sendTx", () => {
+    // TODO: Error cases to handle:
+    // nonce is expired
+    // invalid data ?
+
+    // TODO: Fix issue with this unit test.
+    // it.skip("errors if cannot get provider", async () => {
+    //   // Replacing this method with the original fn not working.
+    //   (txService as any).getProvider.restore();
+    //   await expect(txService.sendTx({ ...tx, chainId: 9999 }, context)).to.be.rejectedWith(TransactionServiceFailure);
     // });
 
-    // it("errors if cannot get a signer", async () => {
+    it("retries transaction with higher gas price", async () => {
+      // We would expect transaction to reject with confirmation timeout in this edge case.
+      confirmAttemptShouldSucceed = 1;
+      // This should send the tx, then attempt to confirm, fail, bump gas, and receive confirmation the second time.
+      await txService.sendTx(tx, context);
 
-    // });
+      expect(transaction.confirm.callCount).to.equal(2);
+      expect(transaction.bumpGasPrice.callCount).to.equal(1);
+    });
 
-    // it("errors if cannot get provider", async () => {
-
-    // });
-
-    // it("if receipt status == 0, errors out", async () => {
-
-    // });
-
-    // it("retries transaction with higher gas price", async () => {
-
-    // });
-
-    // it("stops trying to send if at max gas price", async () => {
-
-    // });
-
-    it.skip("happy: confirmation on first loop", async () => {
-      const result = await txService.sendAndConfirmTx(1337, tx);
-
-      expect(signer.sendTransaction.callCount).eq(1);
-      const sendTransactionCall = signer.sendTransaction.getCall(0);
-      expect(sendTransactionCall.args[0]).eq(tx);
-
-      expect(result).to.deep.eq(txReceipt);
+    it("happy: tx sent and confirmed", async () => {
+      const receipt = await txService.sendTx(tx, context);
+      expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(txReceipt));
     });
   });
+
+  describe("readTx", () => {});
 });

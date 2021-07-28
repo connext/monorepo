@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-txservice",
-  "version": "0.0.8",
+  "version": "0.0.13",
   "description": "> TODO: description",
   "author": "Connext",
   "license": "MIT",
@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.17.7",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "axios": "^0.21.1",
     "eslint": "^7.30.0",
