@@ -58,4 +58,9 @@ export async function setupListeners(
     const requestContext = createRequestContext("ReceiverTransactionFulfilled");
     await handler.handleReceiverFulfill(senderEvent, receiverEvent, requestContext);
   });
+
+  subgraph.attach(SubgraphEvents.ReceiverTransactionPrepared, async ({ senderEvent, receiverEvent }) => {
+    const requestContext = createRequestContext("ReceiverTransactionPrepared");
+    await handler.handleReceiverPrepare(senderEvent, receiverEvent, requestContext);
+  });
 }

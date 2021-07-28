@@ -688,6 +688,7 @@ export class Handler {
       );
       // If success, update metrics
     } else {
+      // TODO: this will not be the case
       if (res.error.message.includes("#P:015")) {
         this.logger.warn(
           {
@@ -731,9 +732,35 @@ export class Handler {
         // } else {
         //   this.logger.error({ method, methodId }, "Could not cancel transaction after error!");
         // }
+
+        // On error, reset flag to retry. If successful, flag will be reset
+        // when the recever prepare event is handled
+        this.receiverPreparing.delete(txData.transactionId);
       }
     }
-    this.receiverPreparing.delete(txData.transactionId);
+  }
+
+  /**
+   * Executes tasks around receiver prepartion events, including:
+   * - unsets the flag blocking multiple prepares
+   *
+   * @param senderEvent - THe TransactinoPrepared event on the sending side
+   * @param _receiverEvent - The TransactionPrepared event on the receiving side
+   * @param requestContext - Context for logging
+   */
+  public async handleReceiverPrepare(
+    senderEvent: TransactionPreparedEvent,
+    _receiverEvent: TransactionPreparedEvent,
+    requestContext: RequestContext,
+  ) {
+    const method = this.handleReceiverPrepare.name;
+    const methodId = getUuid();
+    this.logger.debug(
+      { method, methodId, requestContext, transactionId: senderEvent.txData.transactionId },
+      "Method start",
+    );
+    // Delete here, so you know the subgraph is up to date
+    this.receiverPreparing.delete(senderEvent.txData.transactionId);
   }
 
   // HandleReceiverFulfill
@@ -769,7 +796,8 @@ export class Handler {
 
     const { txData, signature, callData, relayerFee } = receiverEvent;
 
-    if (this.senderFulfilling.get(txData.transactionId)) {
+    const originalBlocker = this.senderFulfilling.get(txData.transactionId);
+    if (originalBlocker) {
       this.logger.info({ methodId, method, requestContext, transactionId: txData.transactionId }, "Already fulfilling");
       return;
     }
@@ -801,7 +829,14 @@ export class Handler {
       // If success, update metrics
     } else {
       this.logger.error(
-        { method, methodId, requestContext, err: jsonifyError(res.error) },
+        {
+          method,
+          methodId,
+          originalBlocker,
+          blocker: this.senderFulfilling.get(txData.transactionId),
+          requestContext,
+          err: jsonifyError(res.error),
+        },
         "Error fulfilling transaction",
       );
     }

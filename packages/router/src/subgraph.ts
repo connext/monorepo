@@ -65,6 +65,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
 
 export const SubgraphEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
+  ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
   ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
   ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
 } as const;
@@ -72,6 +73,11 @@ export type SubgraphEvent = typeof SubgraphEvents[keyof typeof SubgraphEvents];
 
 export type SenderTransactionPreparedPayload = {
   senderEvent: TransactionPreparedEvent;
+};
+
+export type ReceiverTransactionPreparedPayload = {
+  senderEvent: TransactionPreparedEvent;
+  receiverEvent: TransactionPreparedEvent;
 };
 
 export type ReceiverTransactionFulfilledPayload = {
@@ -86,6 +92,7 @@ export type ReceiverTransactionCancelledPayload = {
 
 export interface SubgraphEventPayloads {
   [SubgraphEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
+  [SubgraphEvents.ReceiverTransactionPrepared]: ReceiverTransactionPreparedPayload;
   [SubgraphEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
   [SubgraphEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
 }
@@ -100,6 +107,9 @@ export const createEvts = (): {
   return {
     [SubgraphEvents.SenderTransactionPrepared]: {
       evt: Evt.create<SenderTransactionPreparedPayload>(),
+    },
+    [SubgraphEvents.ReceiverTransactionPrepared]: {
+      evt: Evt.create<ReceiverTransactionPreparedPayload>(),
     },
     [SubgraphEvents.ReceiverTransactionFulfilled]: {
       evt: Evt.create<ReceiverTransactionFulfilledPayload>(),
@@ -215,6 +225,23 @@ export class Subgraph {
                 encodedBid: senderTx.encodedBid,
                 encryptedCallData: senderTx.encryptedCallData,
                 txData: convertTransactionToTxData(senderTx),
+              },
+            });
+          } else if (corresponding.status === TransactionStatus.Prepared) {
+            this.evts.ReceiverTransactionPrepared.evt.post({
+              senderEvent: {
+                bidSignature: senderTx.bidSignature,
+                caller: senderTx.prepareCaller,
+                encodedBid: senderTx.encodedBid,
+                encryptedCallData: senderTx.encryptedCallData,
+                txData: convertTransactionToTxData(senderTx),
+              },
+              receiverEvent: {
+                bidSignature: corresponding.bidSignature,
+                caller: corresponding.prepareCaller,
+                encodedBid: corresponding.encodedBid,
+                encryptedCallData: corresponding.encryptedCallData,
+                txData: convertTransactionToTxData(corresponding),
               },
             });
           } else if (corresponding.status === TransactionStatus.Fulfilled) {
