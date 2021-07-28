@@ -116,6 +116,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // Meta
   transaction.status = "Prepared";
   transaction.chainId = chainId;
+  transaction.transactionHash = event.transaction.hash;
 
   transaction.save();
 
@@ -143,6 +144,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.signature = event.params.signature;
   transaction!.callData = event.params.callData.toHexString();
   transaction!.fulfillCaller = event.params.caller;
+  transaction!.transactionHash = event.transaction.hash;
 
   transaction!.save();
 
@@ -173,6 +175,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.status = "Cancelled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
+  transaction!.transactionHash = event.transaction.hash;
 
   transaction!.save();
 
