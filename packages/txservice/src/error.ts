@@ -1,4 +1,4 @@
-import { Values, NxtpError, jsonifyError } from "@connext/nxtp-utils";
+import { Values, NxtpError } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
