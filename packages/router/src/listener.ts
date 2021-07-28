@@ -41,7 +41,7 @@ export async function setupListeners(
     }
     // On every metatx request (i.e. user wants router to fulfill for them)
     // route to metatx handler
-    const requestContext = createRequestContext("SubgraphEvents.SenderTransactionPrepared");
+    const requestContext = createRequestContext("subscribeToMetaTxRequest");
     logger.info({ data, requestContext }, "Got metatx");
     await handler.handleMetaTxRequest(data, inbox, requestContext);
   });
@@ -55,7 +55,7 @@ export async function setupListeners(
 
   subgraph.attach(SubgraphEvents.ReceiverTransactionFulfilled, async ({ senderEvent, receiverEvent }) => {
     // On receiver fulfill, route to receiver fulfill handler
-    const requestContext = createRequestContext("SubgraphEvents.ReceiverTransactionFulfilled");
+    const requestContext = createRequestContext("ReceiverTransactionFulfilled");
     await handler.handleReceiverFulfill(senderEvent, receiverEvent, requestContext);
   });
 }

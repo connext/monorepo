@@ -2,6 +2,9 @@
 
 ## Next Release
 
+## 0.0.13
+
+- [sdk] Add subgraph to the frontend for transaction status tracking.
 - [sdk] Add `transactionReceipt` to all applicable events.
 
 ## 0.0.12
