@@ -290,6 +290,7 @@ export type Subscription_MetaArgs = {
 export type Transaction = {
   __typename?: 'Transaction';
   id: Scalars['ID'];
+  transactionHash: Scalars['Bytes'];
   status: TransactionStatus;
   chainId: Scalars['BigInt'];
   user: User;
@@ -332,6 +333,12 @@ export type Transaction_Filter = {
   id_lte?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Scalars['ID']>>;
   id_not_in?: Maybe<Array<Scalars['ID']>>;
+  transactionHash?: Maybe<Scalars['Bytes']>;
+  transactionHash_not?: Maybe<Scalars['Bytes']>;
+  transactionHash_in?: Maybe<Array<Scalars['Bytes']>>;
+  transactionHash_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  transactionHash_contains?: Maybe<Scalars['Bytes']>;
+  transactionHash_not_contains?: Maybe<Scalars['Bytes']>;
   status?: Maybe<TransactionStatus>;
   status_not?: Maybe<TransactionStatus>;
   chainId?: Maybe<Scalars['BigInt']>;
@@ -528,6 +535,7 @@ export type Transaction_Filter = {
 
 export enum Transaction_OrderBy {
   Id = 'id',
+  TransactionHash = 'transactionHash',
   Status = 'status',
   ChainId = 'chainId',
   User = 'user',
