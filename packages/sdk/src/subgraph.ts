@@ -1,12 +1,6 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import {
-  getUuid,
-  TransactionCancelledEvent,
-  TransactionData,
-  TransactionFulfilledEvent,
-  TransactionPreparedEvent,
-} from "@connext/nxtp-utils";
+import { getUuid, TransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
