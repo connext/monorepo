@@ -44,8 +44,16 @@ const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 const sugarDaddy = new Wallet(fundedPk);
 const MIN_ETH = utils.parseEther("0.5");
 const ETH_GIFT = utils.parseEther("1");
-const tokenSending = new Contract(tokenAddressSending, TestTokenABI, sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider));
-const tokenReceiving = new Contract(tokenAddressReceiving, TestTokenABI, sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider));
+const tokenSending = new Contract(
+  tokenAddressSending,
+  TestTokenABI,
+  sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
+);
+const tokenReceiving = new Contract(
+  tokenAddressReceiving,
+  TestTokenABI,
+  sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
+);
 const MIN_TOKEN = utils.parseEther("5");
 const TOKEN_GIFT = utils.parseEther("10");
 const txManagerSending = new Contract(
@@ -75,7 +83,7 @@ describe("Integration", () => {
       const tx = await sugarDaddy
         .connect(chainProviders[SENDING_CHAIN].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined");
     }
 
@@ -84,7 +92,7 @@ describe("Integration", () => {
       const tx = await sugarDaddy
         .connect(chainProviders[RECEIVING_CHAIN].provider)
         .sendTransaction({ to: router, value: ETH_GIFT });
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "ETH_GIFT to router mined: ");
     }
 
@@ -94,14 +102,14 @@ describe("Integration", () => {
     if (!isRouterSending) {
       logger.info({ chainId: SENDING_CHAIN }, "Adding router");
       const tx = await txManagerSending.addRouter(router);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "Router added");
     }
 
     if (!isRouterReceiving) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Adding router");
       const tx = await txManagerReceiving.addRouter(router);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "Router added");
     }
 
@@ -111,14 +119,14 @@ describe("Integration", () => {
     if (!isAssetSending) {
       logger.info({ chainId: SENDING_CHAIN }, "Adding Asset");
       const tx = await txManagerSending.addAssetId(tokenAddressSending);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "Asset added");
     }
 
     if (!isAssetReceiving) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Adding Asset");
       const tx = await txManagerReceiving.addAssetId(tokenAddressReceiving);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "Asset added");
     }
 
@@ -139,10 +147,10 @@ describe("Integration", () => {
     if (liquiditySending.lt(MIN_TOKEN)) {
       logger.info({ chainId: SENDING_CHAIN }, "Adding liquidity");
       const approvetx = await tokenSending.approve(txManagerSending.address, constants.MaxUint256);
-      const approveReceipt = await approvetx.wait();
+      const approveReceipt = await approvetx.wait(2);
       logger.info({ transactionHash: approveReceipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity approved");
       const tx = await txManagerSending.addLiquidity(TOKEN_GIFT, tokenAddressSending, router);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity mined");
     }
 
@@ -159,10 +167,13 @@ describe("Integration", () => {
     if (liquidityReceiving.lt(MIN_TOKEN)) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Adding liquidity");
       const approvetx = await tokenReceiving.approve(txManagerReceiving.address, constants.MaxUint256);
-      const approveReceipt = await approvetx.wait();
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity approved");
+      const approveReceipt = await approvetx.wait(2);
+      logger.info(
+        { transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN },
+        "addLiquidity approved",
+      );
       const tx = await txManagerReceiving.addLiquidity(TOKEN_GIFT, tokenAddressReceiving, router);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity mined");
     }
   });
@@ -177,7 +188,7 @@ describe("Integration", () => {
       const tx = await sugarDaddy
         .connect(chainProviders[SENDING_CHAIN].provider)
         .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to user mined: ");
     }
 
@@ -185,7 +196,7 @@ describe("Integration", () => {
     if (balanceTokenSending.lt(MIN_TOKEN)) {
       logger.info({ chainId: SENDING_CHAIN }, "Sending TOKEN_GIFT to user");
       const tx = await tokenSending.mint(userWallet.address, TOKEN_GIFT);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "TOKEN_GIFT to user mined: ");
     }
 
