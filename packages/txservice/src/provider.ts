@@ -349,23 +349,7 @@ export class ChainRpcProvider {
    * Get the current nonce value for our signer.
    *
    * @remarks
-   * This method will poll all providers to get the current nonce for this address,
-   * then return the highest value among them and the nonce we have set in local memory.
-   *
-   * We do not use FallbackProvider directly here. We will throw an error if we are unable
-   * to retrieve the nonce value from any of our providers - even if we have a valid nonce
-   * in local memory. Because if all providers are failing (out of sync, network failure,
-   * API failure), then we won't be able to do anything with this nonce anyway.
-   *
-   * The reasoning behind this is simple: FallbackProvider, depending on how its been
-   * configured, will usually send a transaction to 1 provider (although sometimes more).
-   * As a result, the actual number of pending transactions for this signer (which
-   * determines our nonce) will only be accurate for that provider.
-   *
-   * If we query all providers, we guarantee we'll get the most up to date pending tx
-   * count. It's a bit of sledgehammer fix to the issue, but it'll do for now.
-   *
-   * NOTE: Caller should still be prepared to get the incorrect nonce back. For instance,
+   * Caller should still be prepared to get the incorrect nonce back. For instance,
    * if the provider that just handled our sent tx has suddenly gone offline, this
    * method may give the wrong nonce. This can be solved by making additional calls to
    * submit the tx.
@@ -375,27 +359,9 @@ export class ChainRpcProvider {
    * @throws RpcError if we fail to get transaction count from all providers.
    */
   private async getNonce(): Promise<number> {
-    const address = this.signer.getAddress();
-    const errors: any[] = [];
-    const pending = await Promise.all(
-      this._providers.map(async (provider) => {
-        try {
-          return await provider.getTransactionCount(address, "pending");
-        } catch (e) {
-          errors.push(e);
-          return -1;
-        }
-      }),
-    );
-    if (errors.length === this._providers.length) {
-      // All of our attempts to get transaction count failed.
-      throw new RpcError(RpcError.reasons.NetworkError, {
-        rpcError: "Could not get transaction count from any providers.",
-        errors,
-      });
-    }
+    const pending = await this.signer.getTransactionCount("pending");
     // Update nonce value to greatest of all nonce values retrieved.
-    this._nonce = Math.max(...pending, this._nonce);
+    this._nonce = Math.max(pending, this._nonce);
     return this._nonce;
   }
 
