@@ -23,6 +23,7 @@ Object.entries(chainConfig).forEach(([chainId, { provider, subgraph, transaction
 });
 
 function App(): React.ReactElement | null {
+  const [chainData, setChainData] = useState<any[]>([]);
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [signer, setSigner] = useState<Signer>();
@@ -81,6 +82,8 @@ function App(): React.ReactElement | null {
 
   useEffect(() => {
     const init = async () => {
+      const json = await utils.fetchJson("https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json");
+      setChainData(json);
       if (!signer || !web3Provider) {
         return;
       }
@@ -127,7 +130,7 @@ function App(): React.ReactElement | null {
           const table = activeTransferTableColumns;
           table.push({
             txData,
-            status: NxtpSdkEvents.SenderTransactionPrepared,
+            status: NxtpSdkEvents.ReceiverTransactionPrepared,
           });
           setActiveTransferTableColumns(table);
         } else {
@@ -388,6 +391,11 @@ function App(): React.ReactElement | null {
     console.log("resp: ", resp);
   };
 
+  const getChainName = (chainId: number): string => {
+    const chain = chainData.find((chain) => chain?.chainId === chainId);
+    return chain?.name ?? chainId.toString();
+  };
+
   return (
     <div style={{ marginTop: 36, marginLeft: 12, marginRight: 12 }}>
       <Row gutter={16}>
@@ -461,8 +469,8 @@ function App(): React.ReactElement | null {
               console.log("changed: ", changed);
             }}
             initialValues={{
-              sendingChain: Object.keys(selectedPool.assets)[0],
-              receivingChain: Object.keys(selectedPool.assets)[1],
+              sendingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[0])),
+              receivingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[1])),
               asset: selectedPool.name,
               amount: "1",
             }}
@@ -474,7 +482,7 @@ function App(): React.ReactElement | null {
                     <Select>
                       {Object.keys(selectedPool.assets).map((chainId) => (
                         <Select.Option key={chainId} value={chainId}>
-                          {chainId}
+                          {getChainName(parseInt(chainId))}
                         </Select.Option>
                       ))}
                     </Select>
@@ -489,7 +497,7 @@ function App(): React.ReactElement | null {
                           !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
                         }
                       >
-                        Switch To Chain {form.getFieldValue("sendingChain")}
+                        Switch To Chain {getChainName(parseInt(form.getFieldValue("sendingChain")))}
                       </Button>
                     )}
                   </Form.Item>
@@ -504,7 +512,7 @@ function App(): React.ReactElement | null {
                     <Select>
                       {Object.keys(selectedPool.assets).map((chainId) => (
                         <Select.Option key={chainId} value={chainId}>
-                          {chainId}
+                          {getChainName(parseInt(chainId))}
                         </Select.Option>
                       ))}
                     </Select>

@@ -159,7 +159,7 @@ export class Subgraph {
           });
         } catch (err) {
           this.logger.error(
-            { method, methodId, error: jsonifyError(err) },
+            { method, methodId, chainId, error: jsonifyError(err) },
             "Error in sdk.GetSenderTransactions, aborting loop interval",
           );
           return;
