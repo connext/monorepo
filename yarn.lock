@@ -1965,7 +1965,6 @@ __metadata:
   resolution: "@connext/nxtp-txservice@workspace:packages/txservice"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@ethersproject/experimental": ^5.4.0
     "@sinclair/typebox": ^0.17.7
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
@@ -2430,17 +2429,6 @@ __metadata:
     "@ethersproject/properties": ^5.4.0
     "@ethersproject/transactions": ^5.4.0
   checksum: 3d33b562c49d117642b83e71a898aeac01c6a27cd7b9065f0f5568fd2875f3a31c52fcc90eb59495dd8d2573ca252025c7d7b0aefd60cdbb7e7c9530c2e8f2cc
-  languageName: node
-  linkType: hard
-
-"@ethersproject/experimental@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "@ethersproject/experimental@npm:5.4.0"
-  dependencies:
-    "@ethersproject/web": ^5.4.0
-    ethers: ^5.4.0
-    scrypt-js: 3.0.1
-  checksum: b294d43e1a2e5b70b97291c8ba920c4175a39ed2401a615fc687ffd65688fc07f96f6ac6de807ac797dfd9cc2ff9b9adb42e4c7e24400c3cc11e47d4fc52ab3f
   languageName: node
   linkType: hard
 
@@ -11624,7 +11612,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.0, ethers@npm:^5.4.1":
+"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.1":
   version: 5.4.2
   resolution: "ethers@npm:5.4.2"
   dependencies:

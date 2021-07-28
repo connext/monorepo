@@ -1,32 +1,30 @@
-import { providers, BigNumber } from "ethers";
-import { restore, reset, createStubInstance, SinonStubbedInstance, stub } from "sinon";
+import { BigNumber } from "ethers";
+import { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
 
 import { ChainRpcProvider } from "../src/provider";
-import { ChainError } from "../src/error";
 import { Transaction } from "../src/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
 import { tx, txReceipt, txResponse } from "./constants";
-import { parseUnits } from "ethers/lib/utils";
+import { ok } from "neverthrow";
+import { TransactionServiceFailure } from "../src/error";
 
-type TransactionReceipt = providers.TransactionReceipt;
-type TransactionResponse = providers.TransactionResponse;
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let transaction: Transaction;
 let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
 
-const log = pino({ level: "debug", name: "TransactionServiceTest" });
-describe.skip("TransactionService unit test", () => {
-  beforeEach(() => {
+describe("Transaction", () => {
+  beforeEach(async () => {
     chainProvider = createStubInstance(ChainRpcProvider);
     chainProvider.confirmationTimeout = 60_000;
     chainProvider.confirmationsRequired = txReceipt.confirmations;
-    chainProvider.getGasPrice.resolves(txResponse.gasPrice);
-    chainProvider.sendTransaction.resolves({ response: txResponse, success: true });
+    chainProvider.getGasPrice.resolves(ok(txResponse.gasPrice));
+    chainProvider.sendTransaction.resolves(ok(txResponse));
     (chainProvider as any).config = DEFAULT_CONFIG;
 
-    transaction = new Transaction(log, chainProvider as unknown as ChainRpcProvider, tx, DEFAULT_CONFIG);
+    transaction = await Transaction.create(logger, chainProvider as unknown as ChainRpcProvider, tx, DEFAULT_CONFIG);
   });
 
   afterEach(() => {
@@ -34,43 +32,22 @@ describe.skip("TransactionService unit test", () => {
     reset();
   });
 
-  describe("send", () => {
+  describe("submit", () => {
     // Error cases to handle:
     // nonce is expired
     // invalid data ?
 
     it("won't replace transaction without a higher gas price", async () => {
       // First call should go through fine.
-      const response = await transaction.send();
+      const response = await transaction.submit();
       expect(response).to.deep.eq(txResponse);
 
       // Now we send off another tx to replace the last one. It should reject before sending.
-      await expect(transaction.send()).to.be.rejectedWith(ChainError.reasons.ReplacementGasInvalid);
+      await expect(transaction.submit()).to.be.rejectedWith(TransactionServiceFailure);
     });
 
-    it("throws if the provider returns a gas price above the limit", async () => {
-      // Make it so the chain provider's get gas price call will return above the limit.
-      chainProvider.getGasPrice.resolves(
-        BigNumber.from(DEFAULT_CONFIG.gasLimit).add(parseUnits("1500", "gwei").toString()),
-      );
-      // This should fail, as the gas price starts well above the limit.
-      await expect(transaction.send()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
-    });
-
-    it("throws if you try to bump above max gas price", async () => {
-      // Make it so the chain provider's get gas price call will return exactly == the limit (which is acceptable).
-      chainProvider.getGasPrice.resolves(BigNumber.from(DEFAULT_CONFIG.gasLimit));
-
-      // First call should go through fine.
-      const response = await transaction.send();
-      expect(response).to.deep.eq(txResponse);
-
-      // This should throw, as we are attempting to bump above the limit.
-      await expect(transaction.bumpGasPrice()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
-    });
-
-    it("happy: send returns correct response", async () => {
-      const response = await transaction.send();
+    it("happy: submit returns correct response", async () => {
+      const response = await transaction.submit();
       // Expect response to be correct.
 
       expect(response).to.deep.eq(txResponse);
@@ -92,7 +69,7 @@ describe.skip("TransactionService unit test", () => {
 
   describe("confirm", async () => {
     it("throws if you have not submitted yet", async () => {
-      await expect(transaction.confirm()).to.be.rejectedWith(ChainError.reasons.TxNotFound);
+      await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
     });
 
     // it("won't return until it gets enough confirmations", async () => {
@@ -131,7 +108,7 @@ describe.skip("TransactionService unit test", () => {
     it("will attempt to confirm all previously attempted transactions", async () => {});
 
     it.skip("happy: confirmation on first loop", async () => {
-      const response = await transaction.send();
+      const response = await transaction.submit();
       const receipt = await transaction.confirm();
       // Expect receipt to be correct.
       expect(receipt).to.deep.eq(txReceipt);
@@ -143,11 +120,17 @@ describe.skip("TransactionService unit test", () => {
     });
   });
 
-  describe("bumpGas", async () => {
-    it("throws if gas has not been defined yet", async () => {});
+  describe("bumpGasPrice", async () => {
+    it("throws if it would bump above max gas price", async () => {
+      // Make it so the gas price will return exactly == the limit (which is acceptable).
+      (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasLimit)
 
-    it.skip("throws if it would bump gas above maximum", async () => {
-      await expect(transaction.bumpGasPrice()).to.be.rejectedWith(ChainError.reasons.MaxGasPriceReached);
+      // First call should go through fine.
+      const response = await transaction.submit();
+      expect(response).to.deep.eq(txResponse);
+
+      // This should throw, as we are attempting to bump above the limit.
+      expect(() => transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxGasPriceReached);
     });
   });
 });
