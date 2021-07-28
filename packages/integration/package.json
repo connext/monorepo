@@ -1,14 +1,14 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
     "dev": "exit 0",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "itest": "yarn tsc && node",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
