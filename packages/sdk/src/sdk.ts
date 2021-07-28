@@ -543,7 +543,7 @@ export class NxtpSdk {
       inbox,
     );
 
-    this.logger.info({ method, methodId }, "Waiting up to 6 seconds for responses");
+    this.logger.info({ method, methodId }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
     try {
       const auctionResponse = await receivedResponsePromise;
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
