@@ -8,7 +8,7 @@ import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CON
 import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
-import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
+import { AlreadyMined, RpcError, TimeoutError, TransactionError, TransactionReverted, TransactionServiceFailure } from "./error";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -129,16 +129,23 @@ export class TransactionService {
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
-          // TODO: Check to see if the error is an AlreadyMined error, as we probably don't need to
-          // log this here if it is.
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `Submit failed.`,
-          );
           // IFF this is the first attempt, throw.
           // Otherwise, we should go ahead and get the receipt.
           if (transaction.attempt <= 1) {
             throw error;
+          } else if (error instanceof AlreadyMined) {
+            // If the error is an AlreadyMined error, we probably don't need to log a warning here.
+            this.logger.debug(
+              { method, methodId, requestContext, context: error.context },
+              "Tx was already mined, procceeding to confirmation step.",
+            );
+          } else {
+            // TODO: Check to see if the error is an AlreadyMined error, as we probably don't need to
+            // log this here if it is.
+            this.logger.warn(
+              { method, methodId, requestContext, error },
+              "Tx submit failed due to reason other than AlreadyMined.",
+            );
           }
           // Save the submit error to indicate we've failed here; this should be the last execution
           // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
@@ -150,10 +157,6 @@ export class TransactionService {
         try {
           await this.confirmTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
-          );
           if (!submitFailed && error instanceof TimeoutError) {
             // This will bump gas price and loop back around starting at the
             // submit step.
@@ -165,7 +168,18 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
-      throw error;
+      // Check to see if we have a normal error here.
+      const acceptableErrors = [
+        TransactionReverted,
+        RpcError,
+        TransactionServiceFailure,
+      ];
+      if (acceptableErrors.some(e => error instanceof e)) {
+        // If it is a normal error, we throw as is.
+        throw error;
+      }
+      // If we didn't get back a normal error, wrap it in a TransactionServiceFailure.
+      throw new TransactionServiceFailure(error.message, error);
     }
 
     return transaction.receipt!;

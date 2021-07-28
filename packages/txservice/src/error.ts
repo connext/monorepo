@@ -56,7 +56,6 @@ export class TransactionReverted extends TransactionError {
 
   static readonly reasons = {
     InsufficientFunds: "Not enough funds in wallet.",
-    AlreadyMined: "Transaction already mined.",
     /**
      * From ethers docs:
      * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
@@ -110,18 +109,21 @@ export class TimeoutError extends TransactionError {
   }
 }
 
-export class NonceExpired extends TransactionReverted {
+export class AlreadyMined extends TransactionError {
   /**
-   * An error indicating that we got a "nonce expired" message back from
+   * An error indicating that we got a "nonce expired"-like message back from
    * ethers while conducting sendTransaction.
-   * 
-   * This is a TransactionReverted extension, as it indicates the transaction
-   * was in fact reverted.
    */
-  static readonly type = NonceExpired.name;
+  static readonly type = AlreadyMined.name;
 
-  constructor(public readonly context: any = {}) {
-    super("Nonce for this transaction is already expired.");
+  static readonly reasons = {
+    NonceExpired: "Nonce for this transaction is already expired.",
+    ReplacementUnderpriced:
+      "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
+  };
+
+  constructor(public readonly reason: Values<typeof AlreadyMined.reasons>, public readonly context: any = {}) {
+    super(reason, context);
   }
 }
 
@@ -151,8 +153,6 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly reasons = {
     UnpredictableGasLimit: "The gas estimate could not be determined.",
     Timeout: "Timeout occurred during an RPC operation.",
-    ReplacementUnderpriced:
-      "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
     /**
      * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
      * never reached the required amount. This error should ultimately never occur - but if it does,
@@ -191,9 +191,9 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.CALL_EXCEPTION:
       return new TransactionReverted(TransactionReverted.reasons.CallException, error.receipt, context);
     case Logger.errors.NONCE_EXPIRED:
-      return new NonceExpired(context);
+      return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
     case Logger.errors.REPLACEMENT_UNDERPRICED:
-      return new TransactionServiceFailure(TransactionServiceFailure.reasons.ReplacementUnderpriced, context);
+      return new AlreadyMined(AlreadyMined.reasons.ReplacementUnderpriced, context);
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
       return new TransactionServiceFailure(TransactionServiceFailure.reasons.UnpredictableGasLimit, context);
     case Logger.errors.TIMEOUT:
