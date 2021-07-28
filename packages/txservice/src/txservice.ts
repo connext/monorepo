@@ -5,7 +5,7 @@ import { Evt } from "evt";
 import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { MinimalTransaction } from "./types";
+import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
@@ -115,7 +115,7 @@ export class TransactionService {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(tx: MinimalTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: WriteTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = getUuid();
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
@@ -174,16 +174,14 @@ export class TransactionService {
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
-   * @param tx - Data to read
+   * @param tx - ReadTransaction to create contract call
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
-   * @param tx.value - Value to execute read tx with
    * @param tx.data - Calldata to send
-   * @param tx.from - (optional) Account to send tx from
+   * 
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  // TODO: read will never have a value/from, why include it in the type
-  public async readTx(tx: MinimalTransaction): Promise<string> {
+  public async readTx(tx: ReadTransaction): Promise<string> {
     const result = await this.getProvider(tx.chainId).readTransaction(tx);
     if (result.isErr()) {
       throw result.error;

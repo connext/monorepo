@@ -401,7 +401,6 @@ export class TransactionManager {
         chainId,
         data: routerBalancesData,
         to: nxtpContractAddress,
-        value: 0,
       }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {

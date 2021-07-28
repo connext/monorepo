@@ -8,7 +8,7 @@ import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
-import { FullTransaction, MinimalTransaction, CachedGas } from "./types";
+import { FullTransaction, WriteTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -158,7 +158,7 @@ export class ChainRpcProvider {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public readTransaction(tx: MinimalTransaction): ResultAsync<string, TransactionError> {
+  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(this.readTransaction.name, async () => {
       try {
         const readResult = await this.signer.call(tx);

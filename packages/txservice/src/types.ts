@@ -2,7 +2,13 @@ import { BigNumber, BigNumberish } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
-export type MinimalTransaction = {
+export type ReadTransaction = {
+  chainId: number;
+  to: string;
+  data: string;
+};
+
+export type WriteTransaction = {
   chainId: number;
   to: string;
   value: BigNumberish;
@@ -13,7 +19,7 @@ export type MinimalTransaction = {
 export type FullTransaction = {
   nonce?: number;
   gasPrice: BigNumber;
-} & MinimalTransaction;
+} & WriteTransaction;
 
 export type CachedGas = {
   price: BigNumber;

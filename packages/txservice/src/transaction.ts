@@ -5,7 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 // import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
-import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
+import { FullTransaction, GasPrice, WriteTransaction } from "./types";
 import { NonceExpired, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
@@ -83,7 +83,7 @@ export class Transaction {
   private constructor(
     private readonly logger: BaseLogger,
     private readonly provider: ChainRpcProvider,
-    private readonly minTx: MinimalTransaction,
+    private readonly minTx: WriteTransaction,
     private readonly config: TransactionServiceConfig,
     private readonly gasPrice: GasPrice,
   ) {}
@@ -100,7 +100,7 @@ export class Transaction {
   static async create(
     logger: BaseLogger,
     provider: ChainRpcProvider,
-    minTx: MinimalTransaction,
+    minTx: WriteTransaction,
     config: TransactionServiceConfig,
   ): Promise<Transaction> {
     const result = await provider.getGasPrice();
