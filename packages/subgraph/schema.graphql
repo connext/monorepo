@@ -21,6 +21,7 @@ enum TransactionStatus {
 type Transaction @entity {
   id: ID!
   # Subgraph Meta
+  transactionHash: Bytes!
   status: TransactionStatus!
   chainId: BigInt!
 

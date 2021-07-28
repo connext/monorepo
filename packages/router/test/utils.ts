@@ -14,7 +14,7 @@ import { providers, constants } from "ethers";
 
 import { NxtpRouterConfig } from "../src/config";
 
-export const fakeTxReceipt = {
+export const fakeTxReceipt = ({
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -28,7 +28,7 @@ export const fakeTxReceipt = {
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown as providers.TransactionReceipt;
+} as unknown) as providers.TransactionReceipt;
 
 export const fakeConfig: NxtpRouterConfig = {
   adminToken: "foo",
@@ -114,6 +114,7 @@ export const senderPrepareData: TransactionPreparedEvent = {
   encryptedCallData: "0xabc",
   encodedBid: encodeAuctionBid(auctionBidMock),
   bidSignature: mkSig("0xeee"),
+  transactionHash: mkAddress("0xf"),
 };
 
 export const receiverFulfillDataMock: TransactionFulfilledEvent = {
@@ -122,4 +123,5 @@ export const receiverFulfillDataMock: TransactionFulfilledEvent = {
   relayerFee: "5678",
   callData: "0x",
   signature: "0xdeadbeef",
+  transactionHash: mkAddress("0xf"),
 };
