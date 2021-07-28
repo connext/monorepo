@@ -264,8 +264,8 @@ The above commands run local chains and messaging and take care of local deploym
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
-        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
+        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
+        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
       ]
     }
   ]
