@@ -9,12 +9,9 @@ export type ReadTransaction = {
 };
 
 export type WriteTransaction = {
-  chainId: number;
-  to: string;
-  value: BigNumberish;
-  data: string;
   from?: string;
-};
+  value: BigNumberish;
+} & ReadTransaction;
 
 export type FullTransaction = {
   nonce?: number;

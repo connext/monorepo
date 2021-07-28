@@ -8,7 +8,7 @@ import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
-import { FullTransaction, WriteTransaction, CachedGas, ReadTransaction } from "./types";
+import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 

@@ -3,7 +3,6 @@ import { BaseLogger } from "pino";
 import { getUuid } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig } from "./config";
-// import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
 import { NonceExpired, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
