@@ -21,7 +21,6 @@ enum TransactionStatus {
 type Transaction @entity {
   id: ID!
   # Subgraph Meta
-  transactionHash: Bytes!
   status: TransactionStatus!
   chainId: BigInt!
 
@@ -46,15 +45,18 @@ type Transaction @entity {
   prepareCaller: Bytes
   bidSignature: Bytes!
   encodedBid: Bytes!
+  prepareTransactionHash: Bytes!
 
   # TransactionFulfilled
   relayerFee: BigInt
   signature: Bytes
   callData: String
   fulfillCaller: Bytes
+  fulfillTransactionHash: Bytes
 
   # TransactionCancelled
   cancelCaller: Bytes
+  cancelTransactionHash: Bytes
 }
 
 # User entity keeps track of active user transactions
