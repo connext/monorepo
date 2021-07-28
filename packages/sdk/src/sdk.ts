@@ -27,10 +27,12 @@ import {
   NxtpErrorJson,
   Values,
   calculateExchangeAmount,
+  isNode,
   NATS_AUTH_URL,
+  NATS_CLUSTER_URL,
   NATS_WS_URL,
   NATS_AUTH_TESTNET_URL,
-  NATS_WS_TESTNET_URL,
+  NATS_TESTNET_URL,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -226,7 +228,8 @@ export class NxtpSdk {
     if (messaging) {
       this.messaging = messaging;
     } else {
-      const _natsUrl = natsUrl ?? network === "mainnet" ? NATS_WS_URL : NATS_WS_TESTNET_URL;
+      const _natsUrl =
+        natsUrl ?? network === "mainnet" ? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL) : NATS_TESTNET_URL;
       const _authUrl = authUrl ?? network === "mainnet" ? NATS_AUTH_URL : NATS_AUTH_TESTNET_URL;
 
       this.messaging = new UserNxtpNatsMessagingService({
