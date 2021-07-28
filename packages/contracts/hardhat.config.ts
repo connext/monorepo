@@ -4,6 +4,7 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
+import "@eth-optimism/hardhat-ovm";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
@@ -26,7 +27,7 @@ const mnemonic =
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.4",
+    version: "0.7.6",
     settings: {
       optimizer: {
         enabled: true,
@@ -100,6 +101,13 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 421611,
       url: "https://rinkeby.arbitrum.io/rpc",
+    },
+    "optimism-kovan": {
+      chainId: 69,
+      url: "https://kovan.optimism.io",
+      accounts: { mnemonic },
+      gasPrice: 15000000,
+      ovm: true,
     },
   },
 };

@@ -29,3 +29,5 @@ ops/data
 packages/router/config.json
 packages/router/dev.config.json
 packages/router/prod.config.json
+packages/contracts/artifacts-ovm/
+packages/contracts/cache-ovm/

@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.4;
+pragma solidity >=0.7.6;
+pragma abicoder v2;
 
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./interpreters/FulfillInterpreter.sol";
 import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./lib/OVM_Address.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 
 
 /// @title TransactionManager
@@ -204,9 +205,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(routerBalance >= amount, "#RL:008");
 
     // Update router balances
-    unchecked {
-      routerBalances[msg.sender][assetId] = routerBalance - amount;
-    }
+    routerBalances[msg.sender][assetId] = routerBalance - amount;
 
     // Transfer from contract to specified recipient
     LibAsset.transferAsset(assetId, recipient, amount);
@@ -337,7 +336,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // NOTE: This cannot happen on the sending chain (different chain 
       // contexts), so a user could mistakenly create a transfer that must be
       // cancelled if this is incorrect
-      require(invariantData.callTo == address(0) || Address.isContract(invariantData.callTo), "#P:031");
+      require(invariantData.callTo == address(0) || OVM_Address.isContract(invariantData.callTo), "#P:031");
 
       // Check that the asset is approved
       // NOTE: This cannot happen on both chains because of differing chain 
@@ -360,9 +359,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Decrement the router liquidity
       // using unchecked because underflow protected against with require
-      unchecked {
-        routerBalances[invariantData.router][invariantData.receivingAssetId] = balance - amount;
-      }
+      routerBalances[invariantData.router][invariantData.receivingAssetId] = balance - amount;
     }
 
     // Emit event
@@ -463,9 +460,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Get the amount to send
       uint256 toSend;
-      unchecked {
-        toSend = txData.amount - relayerFee;
-      }
+      toSend = txData.amount - relayerFee;
 
       // Send the relayer the fee
       if (relayerFee > 0) {
@@ -580,9 +575,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
         // Get the amount to refund the user
         uint256 toRefund;
-        unchecked {
-          toRefund = txData.amount - relayerFee; 
-        }
+        toRefund = txData.amount - relayerFee;
 
         // Return locked funds to sending chain fallback
         if (toRefund > 0) {

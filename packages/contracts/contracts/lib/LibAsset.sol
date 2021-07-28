@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.4;
+pragma solidity >=0.7.6;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./OVM_SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
@@ -25,10 +25,7 @@ library LibAsset {
     /// @notice Gets the balance of the inheriting contract for the given asset
     /// @param assetId The asset identifier to get the balance of
     function getOwnBalance(address assetId) internal view returns (uint256) {
-      return
-        isEther(assetId)
-          ? address(this).balance
-          : IERC20(assetId).balanceOf(address(this));
+      return IERC20(assetId).balanceOf(address(this));
     }
 
     /// @notice Transfers ether from the inheriting contract to a given
@@ -52,7 +49,7 @@ library LibAsset {
         address recipient,
         uint256 amount
     ) internal {
-      SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
+      OVM_SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
     }
 
     /// @notice Transfers tokens from a sender to a given recipient
@@ -66,7 +63,7 @@ library LibAsset {
       address to,
       uint256 amount
     ) internal {
-      SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
+      OVM_SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
     }
 
     /// @notice Increases the allowance of a token to a spender
@@ -79,7 +76,7 @@ library LibAsset {
       uint256 amount
     ) internal {
       require(!isEther(assetId), "#IA:034");
-      SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
+      OVM_SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
     }
 
     /// @notice Decreases the allowance of a token to a spender
@@ -92,12 +89,12 @@ library LibAsset {
       uint256 amount
     ) internal {
       require(!isEther(assetId), "#DA:034");
-      SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
+      OVM_SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
     }
 
     /// @notice Wrapper function to transfer a given asset (native or erc20) to
     ///         some recipient. Should handle all non-compliant return value
-    ///         tokens as well by using the SafeERC20 contract by open zeppelin.
+    ///         tokens as well by using the OVM_SafeERC20 contract by open zeppelin.
     /// @param assetId Asset id for transfer (address(0) for native asset, 
     ///                token address for erc20s)
     /// @param recipient Address to send asset to
