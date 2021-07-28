@@ -140,11 +140,9 @@ export class TransactionService {
               "Tx was already mined, procceeding to confirmation step.",
             );
           } else {
-            // TODO: Check to see if the error is an AlreadyMined error, as we probably don't need to
-            // log this here if it is.
             this.logger.warn(
               { method, methodId, requestContext, error },
-              "Tx submit failed due to reason other than AlreadyMined.",
+              "Tx submit failed for unexpected reason.",
             );
           }
           // Save the submit error to indicate we've failed here; this should be the last execution
