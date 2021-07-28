@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const TEST_ROUTERS = [
-  "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // rahul test router
-  "0x0EC26F03e3dBA9bb5162D28fD5a3378A25f168d1", // live testnet router
+  "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // live testnet router
+  "0x0EC26F03e3dBA9bb5162D28fD5a3378A25f168d1", // rahul test router
   "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6", // ci/shared router
 ];
 
