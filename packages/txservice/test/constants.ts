@@ -51,7 +51,6 @@ export const makeChaiReadable = (obj: any) => {
   const result = {};
   Object.keys(obj).forEach(key => {
     if (BigNumber.isBigNumber(obj[key])) {
-      console.log("converting", key, "to", obj[key].toString());
       result[key] = BigNumber.from(obj[key]).toString();
     } else {
       result[key] = obj[key];

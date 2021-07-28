@@ -100,11 +100,9 @@ describe("TransactionService", () => {
     // });
 
     it("retries transaction with higher gas price", async () => {
-      console.log("onCall setting");
       // We would expect transaction to reject with confirmation timeout in this edge case.
       confirmAttemptShouldSucceed = 1;
       // This should send the tx, then attempt to confirm, fail, bump gas, and receive confirmation the second time.
-      console.log("sending")
       await txService.sendTx(tx, context);
 
       expect(transaction.confirm.callCount).to.equal(2);
@@ -113,7 +111,6 @@ describe("TransactionService", () => {
 
     it("happy: tx sent and confirmed", async () => {
       const receipt = await txService.sendTx(tx, context);
-      console.log(receipt);
       expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(txReceipt));
     });
   });
