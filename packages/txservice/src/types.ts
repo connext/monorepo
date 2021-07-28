@@ -50,7 +50,10 @@ export class GasPrice {
 
   /**
    * Check to see if the gas price provided is past the max. If so, throw.
-   * @param value Gas price to validate
+   * 
+   * @param value Gas price to validate.
+   * 
+   * @throws TransactionServiceFailure with reason MaxGasPriceReached if we exceed the limit.
    */
   private validate(value: BigNumber) {
     if (value.gt(this.limit)) {

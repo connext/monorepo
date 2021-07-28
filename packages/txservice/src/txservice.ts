@@ -121,7 +121,6 @@ export class TransactionService {
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
-    this.logger.debug("Sending transaction.", { ...transaction.data });
 
     try {
       while (!transaction.didFinish()) {
