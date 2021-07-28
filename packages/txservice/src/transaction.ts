@@ -260,6 +260,7 @@ export class Transaction {
       this.receipt = result.value;
     }
 
+    // Sanity checks.
     if (this.receipt == null) {
       // Receipt is undefined or null. This normally should never occur.
       throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
@@ -267,7 +268,11 @@ export class Transaction {
         receipt: this.receipt,
       });
     } else if (this.receipt.status === 0) {
+      // This should never occur. We should always get a TransactionReverted error in this event.
       throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.");
+    } else if (this.receipt.confirmations < 1) {
+      // Again, should never occur.
+      throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!");
     }
 
     if (this.receipt.confirmations < this.provider.confirmationsRequired) {
@@ -276,7 +281,9 @@ export class Transaction {
       const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
       if (result.isErr()) {
         // No errors should occur during this confirmation attempt.
-        throw result.error;
+        throw new TransactionServiceFailure("Unable to confirm transaction even after receiving 1 confirmation.", {
+          error: result.error,
+        });
       }
       this.receipt = result.value;
     }

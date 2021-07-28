@@ -105,37 +105,36 @@ export class ChainRpcProvider {
    * and a success boolean indicating whether the process did result in an error.
    */
   public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
+    // Do any parsing and value handling work here if necessary.
+    const transaction = {
+      to: tx.to,
+      data: tx.data,
+      chainId: tx.chainId,
+      gasPrice: tx.gasPrice,
+      nonce: tx.nonce,
+      value: BigNumber.from(tx.value || 0),
+    };
+
     return this.resultWrapper<providers.TransactionResponse>(this.sendTransaction.name, async () => {
       // Define task to send tx with proper nonce.
       const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
         try {
-          // Do any parsing and value handling work here if necessary.
-          const transaction = {
-            to: tx.to,
-            data: tx.data,
-            chainId: tx.chainId,
-            gasPrice: tx.gasPrice,
-            nonce: tx.nonce,
-            value: BigNumber.from(tx.value || 0),
-          };
-          let response: providers.TransactionResponse | undefined;
-          if (transaction.nonce) {
-            response = await this.signer.sendTransaction(transaction);
-          } else {
-            const nonce = await this.getNonce();
-            // NOTE: This can fail. If we throw an error here, increment nonce will never be called.
-            response = await this.signer.sendTransaction({ ...transaction, nonce });
-            this.incrementNonce();
-          }
+          // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
+          transaction.nonce = transaction.nonce ?? await this.getNonce();
 
-          // const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction();
+          // Send the transaction.
+          const response = await this.signer.sendTransaction(transaction);
+
+          // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
           if (response == null) {
-            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
             throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-              transaction: tx,
+              transaction,
               response,
             });
           }
+
+          // We increment the nonce here, as we know the transaction was sent (response is defined).
+          this.incrementNonce();
           return { response, success: true };
         } catch (e) {
           return { response: e, success: false };

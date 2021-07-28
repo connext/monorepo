@@ -121,6 +121,7 @@ export class TransactionService {
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
+    let submitFailed = false;
 
     try {
       while (!transaction.didFinish()) {
@@ -128,20 +129,21 @@ export class TransactionService {
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
+          // TODO: Check to see if the error is an AlreadyMined error, as we probably don't need to
+          // log this here if it is.
           this.logger.warn(
             { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
+            `Submit failed.`,
           );
-          if (error instanceof TransactionServiceFailure) {
-            // TODO: Might be worth attempting to confirm first?
-            // TransactionService infrastructure failed - error must be escalated for visiblity.
-            throw error;
-          }
-          // IF this is the first attempt, throw.
+          // IFF this is the first attempt, throw.
           // Otherwise, we should go ahead and get the receipt.
           if (transaction.attempt <= 1) {
             throw error;
           }
+          // Save the submit error to indicate we've failed here; this should be the last execution
+          // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
+          // mined, but we have logged it above.
+          submitFailed = true;
         }
 
         // Confirm step.
@@ -152,7 +154,7 @@ export class TransactionService {
             { method, methodId, requestContext },
             `(${transaction.id}, ${transaction.attempt}) ${error}`,
           );
-          if (error instanceof TimeoutError) {
+          if (!submitFailed && error instanceof TimeoutError) {
             // This will bump gas price and loop back around starting at the
             // submit step.
             transaction.bumpGasPrice();
