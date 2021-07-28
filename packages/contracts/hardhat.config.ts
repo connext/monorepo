@@ -5,11 +5,19 @@ import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
 
+import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 
+import "./src/tasks/addRouter";
+import "./src/tasks/addAsset";
+import "./src/tasks/addLiquidity";
+import "./src/tasks/mintTestToken";
+import "./src/tasks/setupTestRouter";
+
+dotEnvConfig();
+
 const urlOverride = process.env.ETH_PROVIDER_URL;
-// const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
-const chainId = 5;
+const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
 
 const mnemonic =
   process.env.SUGAR_DADDY ||
@@ -66,14 +74,12 @@ const config: HardhatUserConfig = {
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
-      saveDeployments: true,
-      url: urlOverride || "https://rinkeby.infura.io/v3/dda319320b664474bf11c4d9f542e8a0",
+      url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     goerli: {
       accounts: { mnemonic },
       chainId: 5,
-      saveDeployments:true,
-      url: urlOverride || "https://goerli.infura.io/v3/dda319320b664474bf11c4d9f542e8a0",
+      url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     kovan: {
       accounts: { mnemonic },

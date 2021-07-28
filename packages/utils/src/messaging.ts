@@ -2,21 +2,22 @@ import axios, { AxiosResponse } from "axios";
 import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
-import hyperid from "hyperid";
 
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
-import { NxtpError, Values } from "./error";
+import { NxtpError, NxtpErrorJson, Values } from "./error";
 import { FulfillParams } from "./transactionManager";
+import { getUuid } from "./request";
 
 export { AuthService } from "ts-natsutil";
-
-const hId = hyperid();
 
 const MESSAGE_PREFIX = `Hi there from Connext! Sign this message to make sure that no one can communicate on the Connext Network on your behalf. This will not cost you any Ether!
   
 To stop hackers from using your wallet, here's a unique message ID that they can't guess: `;
 
+/**
+ * @classdesc Errors thrown by all messaging classes defined in this file.
+ */
 export class MessagingError extends NxtpError {
   static readonly type = "MessagingError";
   static readonly reasons = {
@@ -46,6 +47,15 @@ export type MessagingConfig = {
   logger?: BaseLogger;
 };
 
+/**
+ * Gets a bearer token by signing the prefix + nonce and sending it to the auth server
+ *
+ * @param authUrl - URL of NATS auth server
+ * @param signer - The signer who is being authed
+ * @returns A bearer token
+ *
+ * TODO: fix typing
+ */
 export const getBearerToken = (authUrl: string, signer: Signer) => async (): Promise<string> => {
   const address = await signer.getAddress();
   const nonceResponse = await axios.get(`${authUrl}/auth/${address}`);
@@ -58,6 +68,9 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
   return verifyResponse.data;
 };
 
+/**
+ * @classdesc Handles all low-level messaging logic (subscribe, publish, request, reply, etc.)
+ */
 export class NatsBasicMessagingService {
   private connection: INatsService | undefined;
   private log: BaseLogger;
@@ -92,16 +105,31 @@ export class NatsBasicMessagingService {
     this.signer = config.signer;
   }
 
+  /**
+   * Returns boolean indicator representing messaging service connection status
+   *
+   * @returns Boolean indiciating if the messaging service is properly connected
+   */
   public isConnected(): boolean {
     return !!this.connection?.isConnected();
   }
 
+  /**
+   * Will throw an error if the messaging service is not connected
+   */
   public assertConnected(): void {
     if (!this.isConnected()) {
       throw new MessagingError(MessagingError.reasons.ConnectionError, { message: `Use connect() method` });
     }
   }
 
+  /**
+   * Will establish a connection to the messaging service.
+   *
+   * @param bearerToken - (optional) The token to use with the auth server. If not provided, will fetch one
+   *
+   * @returns The bearer token used for auth
+   */
   async connect(bearerToken?: string): Promise<string> {
     if (bearerToken) {
       this.bearerToken = bearerToken;
@@ -141,11 +169,20 @@ export class NatsBasicMessagingService {
     return this.bearerToken;
   }
 
+  /**
+   * Will disconnect the messaging service
+   */
   async disconnect(): Promise<void> {
     this.connection?.disconnect();
   }
 
   // Generic methods
+  /**
+   * Publishes a message
+   *
+   * @param subject - Subject to publish message to
+   * @param data - Data to be published
+   */
   public async publish(subject: string, data: any): Promise<void> {
     this.assertConnected();
     const toPublish = safeJsonStringify(data);
@@ -153,7 +190,15 @@ export class NatsBasicMessagingService {
     await this.connection!.publish(subject, toPublish);
   }
 
-  public async request(subject: string, timeout: number, data: any): Promise<any> {
+  /**
+   * Requests a response from a given subject
+   *
+   * @param subject - Subject you are requesting a response from
+   * @param timeout - Time you are willing to wait for a response in ms. If met, will reject.
+   * @param data - Data you include along with your request
+   * @returns A response (if received before timeout)
+   */
+  public async request<T = any, V = any>(subject: string, timeout: number, data: T): Promise<V> {
     this.assertConnected();
     this.log.debug(`Requesting ${subject} with data: ${JSON.stringify(data)}`);
     const response = await this.connection!.request(subject, timeout, JSON.stringify(data));
@@ -161,6 +206,12 @@ export class NatsBasicMessagingService {
     return response;
   }
 
+  /**
+   * Registers a handler to be invoked anytime a subject receives a published message
+   *
+   * @param subject - Unique subject to subscribe to
+   * @param callback - Logic to invoke
+   */
   public async subscribe(subject: string, callback: (msg: any, err?: any) => void): Promise<void> {
     this.assertConnected();
     await this.connection!.subscribe(subject, (msg: any, err?: any): void => {
@@ -172,6 +223,11 @@ export class NatsBasicMessagingService {
     this.log.debug({ subject }, `Subscription created`);
   }
 
+  /**
+   * Removes any registered handlers from the specified subject
+   *
+   * @param subject - Subject to remove handlers from
+   */
   public async unsubscribe(subject: string): Promise<void> {
     this.assertConnected();
     const unsubscribeFrom = this.getSubjectsToUnsubscribeFrom(subject);
@@ -180,11 +236,20 @@ export class NatsBasicMessagingService {
     });
   }
 
+  /**
+   * Flushes the messaging connection
+   */
   public async flush(): Promise<void> {
     await this.connection!.flush();
   }
 
   // Helper methods
+  /**
+   * Gets all full matching subjects that must be unsubscribed from. I.e. if given "*.auction" will unsubscribe from any subjects ending with "-auction"
+   *
+   * @param subject - Subject to match other subjects against when unsubscribing
+   * @returns All full matching subjects to unsubscribe from
+   */
   protected getSubjectsToUnsubscribeFrom(subject: string): string[] {
     // must account for wildcards
     const subscribedTo = this.connection!.getSubscribedSubjects();
@@ -212,6 +277,12 @@ export class NatsBasicMessagingService {
 }
 
 const MESSAGING_VERSION = "0.0.1";
+/**
+ * Returns trye if the major messaging version matches the current messaging version
+ *
+ * @param version Received version
+ * @returns True if major versions match, false otherwise
+ */
 const checkMessagingVersionValid = (version: string) => {
   if (version.split(".")[0] === MESSAGING_VERSION.split(".")[0]) {
     return true;
@@ -222,8 +293,9 @@ const checkMessagingVersionValid = (version: string) => {
 
 export type NxtpMessageEnvelope<T> = {
   version: string;
-  data: T;
-  inbox?: string;
+  data?: T;
+  responseInbox?: string;
+  error?: NxtpErrorJson;
 };
 
 export type AuctionPayload = {
@@ -239,6 +311,7 @@ export type AuctionPayload = {
   encryptedCallData: string;
   callDataHash: string;
   callTo: string;
+  dryRun: boolean;
 };
 
 export type AuctionBid = {
@@ -258,19 +331,22 @@ export type AuctionBid = {
   encryptedCallData: string;
   sendingChainTxManagerAddress: string;
   receivingChainTxManagerAddress: string;
+  bidExpiry: number;
 };
 
 export type AuctionResponse = {
   bid: AuctionBid;
-  bidSignature: string;
+  bidSignature?: string; // not included in dry run
 };
 
+// TODO: fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
 
+// TODO: include `cancel`
 export type MetaTxTypes = "Fulfill";
 
 export type MetaTxPayload<T extends MetaTxTypes> = {
@@ -285,24 +361,52 @@ export type MetaTxResponse = {
   chainId: number;
 };
 
+/**
+ * Creates a unique inbox to use for messaging responses
+ * @returns A unique inbox string to receive replies to
+ */
 export const generateMessagingInbox = (): string => {
-  return `_INBOX.${hId()}`;
+  return `_INBOX.${getUuid()}`;
 };
 
 export const AUCTION_SUBJECT = "auction";
 export const METATX_SUBJECT = "metatx";
 
+/**
+ * @classdesc Contains the logic for handling all the NATS messaging specific to the nxtp protocol (asserts messaging versions and structure)
+ */
+// TODO: add AJV structure assertions for the messaging envelopes
 export class NatsNxtpMessagingService extends NatsBasicMessagingService {
-  protected async publishNxtpMessage<T>(subject: string, data: T, inbox?: string): Promise<void> {
+  /**
+   * Publishes data to a subject that conforms to the NXTP message structure
+   *
+   * @param subject - Where to publish data
+   * @param data - (optional) Data to publish
+   * @param responseInbox - (optional) Where responses should be published
+   * @param error - (optional) Error json to be published
+   */
+  protected async publishNxtpMessage<T>(
+    subject: string,
+    data?: T,
+    responseInbox?: string,
+    error?: NxtpErrorJson,
+  ): Promise<void> {
     const payload: NxtpMessageEnvelope<T> = {
-      inbox,
+      responseInbox,
       data,
       version: MESSAGING_VERSION,
+      error,
     };
     await this.publish(subject, payload);
   }
 
-  protected async subscribeToNxtpMessage<T>(subject: string, handler: (data: T, err?: any) => void): Promise<void> {
+  /**
+   * Registers some callback to be invoked when a message is received to the provided subject. Will error if the messaging version is not compatible.
+   *
+   * @param subject - Subject to register callback on
+   * @param handler - Callback to be invoked
+   */
+  protected async subscribeToNxtpMessage<T>(subject: string, handler: (data?: T, err?: any) => void): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
@@ -320,67 +424,105 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
     });
   }
 
+  /**
+   * Subscribes to a subject and executes the handler with a provided inbox. Should be used when subscribing to subjects where responses are required
+   *
+   * @param subject - Subject to register callback on
+   * @param handler - Callback to be invoked
+   */
   protected async subscribeToNxtpMessageWithInbox<T>(
     subject: string,
-    handler: (data: T, inbox: string, err?: any) => void,
+    handler: (inbox: string, data?: T, err?: NxtpErrorJson) => void,
   ): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
       // TODO: validate data structure
       // there was an error, run callback with error
       if (err) {
-        return handler(msg?.data?.data, err);
+        return handler("ERROR", msg?.data?.data, err);
       }
       if (!checkMessagingVersionValid(msg.data.version)) {
         err = new MessagingError(MessagingError.reasons.VersionError, {
           receivedVersion: msg.data.version,
           ourVersion: MESSAGING_VERSION,
         });
-        return handler(msg?.data?.data, err);
+        return handler("ERROR", msg?.data?.data, err);
       }
-      return handler(msg?.data?.data, msg.data.inbox!, err);
+      return handler(msg.data.responseInbox!, msg?.data?.data, err);
     });
   }
 }
 
+/**
+ * @classdesc Handles NXTP messaging logic that is specific to the messages a router will need to handle.
+ *
+ */
 export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
   /**
-   * subscribeToAuctionRequest
-   * @param handler
+   * Subscribes auction response/bidding logic for the routers
+   *
+   * @param handler - Callback that defines the bid-submission logic when an auction is broadcast
    *
    */
-  async subscribeToAuctionRequest(handler: (data: AuctionPayload, inbox: string, err?: any) => void): Promise<void> {
+  async subscribeToAuctionRequest(
+    handler: (inbox: string, data?: AuctionPayload, err?: NxtpErrorJson) => void,
+  ): Promise<void> {
     await this.subscribeToNxtpMessageWithInbox<AuctionPayload>(
       `*.*.${AUCTION_SUBJECT}`,
-      (data: AuctionPayload, inbox: string, err?: any) => {
-        return handler(data, inbox, err);
+      (inbox: string, data?: AuctionPayload, err?: NxtpErrorJson) => {
+        return handler(inbox, data, err);
       },
     );
   }
 
-  async publishAuctionResponse(data: AuctionResponse, publishInbox: string): Promise<void> {
+  /**
+   * Publishes a bid for an auction
+   *
+   * @param publishInbox - Unique inbox for the auction
+   * @param data - Bid information
+   */
+  async publishAuctionResponse(publishInbox: string, data: AuctionResponse): Promise<void> {
     await this.publishNxtpMessage(publishInbox, data);
   }
 
-  async subscribeToMetaTxRequest(handler: (data: MetaTxPayload<any>, inbox: string, err?: any) => void): Promise<void> {
+  /**
+   * Subscribes to the meta transaction requests for relayer
+   *
+   * @param handler - Callback that attempts to submit the transaction on behalf of the requester
+   */
+  async subscribeToMetaTxRequest(
+    handler: (inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => void,
+  ): Promise<void> {
     await this.subscribeToNxtpMessageWithInbox(
       `*.*.${METATX_SUBJECT}`,
-      (data: MetaTxPayload<any>, inbox: string, err?: any) => {
-        return handler(data, inbox, err);
+      (inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => {
+        return handler(inbox, data, err);
       },
     );
   }
 
-  async publishMetaTxResponse(data: MetaTxResponse, publishInbox: string): Promise<void> {
-    await this.publishNxtpMessage(publishInbox, data);
+  /**
+   * Publishes a response to a meta transaction submission request
+   *
+   * @param publishInbox - Unique inbox for the meta tx request
+   * @param data - (optional) Meta transaction response information to return to requester. Not needed if submission failed
+   * @param err - (optional) Error when submitting meta transaction. Not needed if submission was successful
+   */
+  async publishMetaTxResponse(publishInbox: string, data?: MetaTxResponse, err?: NxtpErrorJson): Promise<void> {
+    await this.publishNxtpMessage(publishInbox, data, undefined, err);
   }
 }
 
+/**
+ * @classdesc Handles NXTP messaging logic that is specific to the messages a user will need to handle.
+ *
+ */
 export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
   /**
-   * publishAuctionRequest
-   * @param data
-   * @param inbox
-   * @returns
+   * Publishes an auction request to initiate the crosschain transfer process
+   *
+   * @param data - Auction information needed by routers to submit bid
+   * @param inbox - (optional) Where routers should respond to. If not provided, will be generated
+   * @returns The inbox string to expect responses at
    *
    */
   async publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }> {
@@ -392,12 +534,25 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
     return { inbox };
   }
 
-  async subscribeToAuctionResponse(inbox: string, handler: (data: AuctionResponse, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessage(inbox, (data: AuctionResponse, err?: any) => {
+  /**
+   * Handles any responses by routers to a user-initiated auction
+   *
+   * @param inbox - Inbox where auction responses are sent
+   * @param handler - Callback to be executed when an auction response is receivied
+   */
+  async subscribeToAuctionResponse(inbox: string, handler: (data?: AuctionResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessage(inbox, (data?: AuctionResponse, err?: any) => {
       return handler(data, err);
     });
   }
 
+  /**
+   * Publishes a request for a relayer to submit a transaction on behalf of the user
+   *
+   * @param data - The meta transaction information
+   * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
+   * @returns The inbox that will receive responses
+   */
   async publishMetaTxRequest<T extends MetaTxTypes>(
     data: MetaTxPayload<T>,
     inbox?: string,
@@ -410,8 +565,14 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
     return { inbox };
   }
 
-  async subscribeToMetaTxResponse(inbox: string, handler: (data: MetaTxResponse, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessage(inbox, (data: MetaTxResponse, err?: any) => {
+  /**
+   * Handles any responses by relayers to a meta transaction submission
+   *
+   * @param inbox - Where relayers will be sending responses
+   * @param handler - Callback to handle relayer responses
+   */
+  async subscribeToMetaTxResponse(inbox: string, handler: (data?: MetaTxResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessage(inbox, (data?: MetaTxResponse, err?: any) => {
       return handler(data, err);
     });
   }

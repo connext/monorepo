@@ -16,6 +16,44 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "addedAssetId",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AssetAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "removedAssetId",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "AssetRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "router",
         type: "address",
       },
@@ -70,6 +108,44 @@ const _abi = [
       },
     ],
     name: "LiquidityRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "addedRouter",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "RouterAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "removedRouter",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "RouterRemoved",
     type: "event",
   },
   {
@@ -1065,8 +1141,14 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "renounce",
-    outputs: [],
+    name: "renounced",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

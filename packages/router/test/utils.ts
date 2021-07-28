@@ -14,7 +14,7 @@ import { providers, constants } from "ethers";
 
 import { NxtpRouterConfig } from "../src/config";
 
-export const fakeTxReceipt = {
+export const fakeTxReceipt = ({
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -28,7 +28,7 @@ export const fakeTxReceipt = {
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown as providers.TransactionReceipt;
+} as unknown) as providers.TransactionReceipt;
 
 export const fakeConfig: NxtpRouterConfig = {
   adminToken: "foo",

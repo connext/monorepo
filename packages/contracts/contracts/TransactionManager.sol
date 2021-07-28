@@ -4,20 +4,11 @@ pragma solidity 0.8.4;
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
 import "./interpreters/FulfillInterpreter.sol";
+import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
-// Outstanding qs:
-// - what happens if you have unique user data, but duplicate tx ids?
-//   no requires here would catch this, the tx would be properly prepared
-//
-// - we validate all the inputs but the amount, bidSignature, and encodedBid.
-//   bidSignature and encodedBid could be used as slashing later, and their
-//   validation is out of scope of this function. But, do we want to be able
-//   to use this to send 0-value amounts? basically as some incentivized
-//   relayer? would that break bidding?
 
 
 /// @title TransactionManager
@@ -58,7 +49,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 ///         unilaterally by the person owed funds on that chain (router for 
 ///         sending chain, user for receiving chain) prior to expiry.
 
-contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
+contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionManager {
   /// @dev Mapping of router to balance specific to asset
   mapping(address => mapping(address => uint256)) public routerBalances;
 
@@ -67,9 +58,6 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
   /// @dev Mapping of allowed assetIds on same chain of contract
   mapping(address => bool) public approvedAssets;
-
-  /// @dev Indicates if the ownership has been renounced
-  bool public renounced = false;
 
   /// @dev Mapping of hash of `InvariantTransactionData` to the hash
   //       of the `VariantTransactionData`
@@ -84,44 +72,77 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @dev Maximum timeout
   uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
 
-  IFulfillInterpreter private interpreter;
+  IFulfillInterpreter public immutable interpreter;
 
-  constructor(uint256 _chainId, address _interpreter) {
+  constructor(uint256 _chainId) {
     chainId = _chainId;
-    interpreter = FulfillInterpreter(_interpreter);
+    interpreter = new FulfillInterpreter(address(this));
   }
 
-  /// @notice Removes any ownership privelenges. Used to allow 
-  ///         arbitrary assets and routers
-  function renounce() external override onlyOwner {
-    renounced = true;
-    renounceOwnership();
+  /// @notice Indicates if the ownership has been renounced() by
+  ///         checking if current owner is address(0)
+  function renounced() public view override returns (bool) {
+    return owner() == address(0);
   }
 
   /// @notice Used to add routers that can transact crosschain
   /// @param router Router address to add
   function addRouter(address router) external override onlyOwner {
+    // Sanity check: not empty
+    require(router != address(0), "#AR:001");
+
+    // Sanity check: needs approval
+    require(approvedRouters[router] == false, "#AR:032");
+
+    // Update mapping
     approvedRouters[router] = true;
+
+    // Emit event
+    emit RouterAdded(router, msg.sender);
   }
 
   /// @notice Used to remove routers that can transact crosschain
   /// @param router Router address to remove
   function removeRouter(address router) external override onlyOwner {
+    // Sanity check: not empty
+    require(router != address(0), "#RR:001");
+
+    // Sanity check: needs removal
+    require(approvedRouters[router] == true, "#RR:033");
+
+    // Update mapping
     approvedRouters[router] = false;
+
+    // Emit event
+    emit RouterRemoved(router, msg.sender);
   }
 
   /// @notice Used to add assets on same chain as contract that can
   ///         be transferred.
   /// @param assetId AssetId to add
   function addAssetId(address assetId) external override onlyOwner {
+    // Sanity check: needs approval
+    require(approvedAssets[assetId] == false, "#AA:032");
+
+    // Update mapping
     approvedAssets[assetId] = true;
+
+    // Emit event
+    emit AssetAdded(assetId, msg.sender);
   }
 
   /// @notice Used to remove assets on same chain as contract that can
   ///         be transferred.
   /// @param assetId AssetId to remove
   function removeAssetId(address assetId) external override onlyOwner {
+    // Sanity check: already approval
+    require(approvedAssets[assetId] == true, "#RA:033");
+
+    // Update mapping
     approvedAssets[assetId] = false;
+
+    // Emit event
+    emit AssetRemoved(assetId, msg.sender);
   }
 
   /// @notice This is used by any router to increase their available
@@ -132,25 +153,28 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// @param router The router you are adding liquidity on behalf of
   function addLiquidity(uint256 amount, address assetId, address router) external payable override {
     // Sanity check: router is sensible
-    require(router != address(0), "addLiquidity: ROUTER_EMPTY");
+    require(router != address(0), "#AL:001");
 
     // Sanity check: nonzero amounts
-    require(amount > 0, "addLiquidity: AMOUNT_IS_ZERO");
+    require(amount > 0, "#AL:002");
+
+    // Store renounced() result in memory for gas
+    bool isRenounced = renounced();
 
     // Router is approved
-    require(renounced || approvedRouters[router], "addLiquidity: BAD_ROUTER");
+    require(isRenounced || approvedRouters[router], "#AL:003");
 
     // Asset is approved
-    require(renounced || approvedAssets[assetId], "addLiquidity: BAD_ASSET");
+    require(isRenounced || approvedAssets[assetId], "#AL:004");
 
     // Update the router balances
     routerBalances[router][assetId] += amount;
 
     // Validate correct amounts are transferred
     if (LibAsset.isEther(assetId)) {
-      require(msg.value == amount, "addLiquidity: VALUE_MISMATCH");
+      require(msg.value == amount, "#AL:005");
     } else {
-      require(msg.value == 0, "addLiquidity: ETH_WITH_ERC_TRANSFER");
+      require(msg.value == 0, "#AL:006");
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
 
@@ -170,14 +194,14 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     address payable recipient
   ) external override {
     // Sanity check: recipient is sensible
-    require(recipient != address(0), "removeLiquidity: RECIPIENT_EMPTY");
+    require(recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero amounts
-    require(amount > 0, "removeLiquidity: AMOUNT_IS_ZERO");
+    require(amount > 0, "#RL:002");
 
     uint256 routerBalance = routerBalances[msg.sender][assetId];
     // Sanity check: amount can be deducted for the router
-    require(routerBalance >= amount, "removeLiquidity: INSUFFICIENT_FUNDS");
+    require(routerBalance >= amount, "#RL:008");
 
     // Update router balances
     unchecked {
@@ -230,36 +254,36 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes calldata bidSignature
   ) external payable override returns (TransactionData memory) {
     // Sanity check: user is sensible
-    require(invariantData.user != address(0), "prepare: USER_EMPTY");
+    require(invariantData.user != address(0), "#P:009");
 
     // Sanity check: router is sensible
-    require(invariantData.router != address(0), "prepare: ROUTER_EMPTY");
+    require(invariantData.router != address(0), "#P:001");
 
-    // Router is approved
-    require(renounced || approvedRouters[invariantData.router], "prepare: BAD_ROUTER");
+    // Router is approved *on both chains*
+    bool isRenounced = renounced(); // cache for gas
+    require(isRenounced || approvedRouters[invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
-    require(invariantData.sendingChainFallback != address(0), "prepare: SENDING_CHAIN_FALLBACK_EMPTY");
+    require(invariantData.sendingChainFallback != address(0), "#P:010");
 
     // Sanity check: valid fallback
-    require(invariantData.receivingAddress != address(0), "prepare: RECEIVING_ADDRESS_EMPTY");
+    require(invariantData.receivingAddress != address(0), "#P:026");
 
     // Make sure the chains are different
-    require(invariantData.sendingChainId != invariantData.receivingChainId, "prepare: SAME_CHAINIDS");
+    require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
 
     // Make sure the chains are relevant
-    require(invariantData.sendingChainId == chainId || invariantData.receivingChainId == chainId, "prepare: INVALID_CHAINIDS");
+    require(invariantData.sendingChainId == chainId || invariantData.receivingChainId == chainId, "#P:012");
 
     // Make sure the expiry is greater than min
-    require((expiry - block.timestamp) >= MIN_TIMEOUT, "prepare: TIMEOUT_TOO_LOW");
+    require((expiry - block.timestamp) >= MIN_TIMEOUT, "#P:013");
 
     // Make sure the expiry is lower than max
-    require((expiry - block.timestamp) <= MAX_TIMEOUT, "prepare: TIMEOUT_TOO_HIGH");
+    require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
 
     // Make sure the hash is not a duplicate
-    // NOTE: keccak256(abi.encode(invariantData)) is repeated due to stack
-    // too deep errors
-    require(variantTransactionData[keccak256(abi.encode(invariantData))] == bytes32(0), "prepare: DIGEST_EXISTS");
+    bytes32 digest = keccak256(abi.encode(invariantData));
+    require(variantTransactionData[digest] == bytes32(0), "#P:015");
 
     // NOTE: the `encodedBid` and `bidSignature` are simply passed through
     //       to the contract emitted event to ensure the availability of
@@ -274,13 +298,15 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
-      require(amount > 0, "prepare: AMOUNT_IS_ZERO");
+      require(amount > 0, "#P:002");
 
-      // Asset is approved
-      require(renounced || approvedAssets[invariantData.sendingAssetId], "prepare: BAD_ASSET");
+      // Assets are approved
+      // NOTE: Cannot check this on receiving chain because of differing
+      // chain contexts
+      require(isRenounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -291,9 +317,9 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // Validate correct amounts on msg and transfer from user to
       // contract
       if (LibAsset.isEther(invariantData.sendingAssetId)) {
-        require(msg.value == amount, "prepare: VALUE_MISMATCH");
+        require(msg.value == amount, "#P:005");
       } else {
-        require(msg.value == 0, "prepare: ETH_WITH_ERC_TRANSFER");
+        require(msg.value == 0, "#P:006");
         LibAsset.transferFromERC20(invariantData.sendingAssetId, msg.sender, address(this), amount);
       }
     } else {
@@ -307,22 +333,35 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       // receiver-side transactoin. The amount should be decremented to act as
       // a fee to incentivize the router to complete the transaction properly.
 
+      // Check that the callTo is a contract
+      // NOTE: This cannot happen on the sending chain (different chain 
+      // contexts), so a user could mistakenly create a transfer that must be
+      // cancelled if this is incorrect
+      require(invariantData.callTo == address(0) || Address.isContract(invariantData.callTo), "#P:031");
+
+      // Check that the asset is approved
+      // NOTE: This cannot happen on both chains because of differing chain 
+      // contexts. May be possible for user to create transaction that is not
+      // prepare-able on the receiver chain.
+      require(isRenounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
+
       // Check that the caller is the router
-      require(msg.sender == invariantData.router, "prepare: ROUTER_MISMATCH");
+      require(msg.sender == invariantData.router, "#P:016");
 
       // Check that the router isnt accidentally locking funds in the contract
-      require(msg.value == 0, "prepare: ETH_WITH_ROUTER_PREPARE");
+      require(msg.value == 0, "#P:017");
 
       // Check that router has liquidity
-      require(routerBalances[invariantData.router][invariantData.receivingAssetId] >= amount, "prepare: INSUFFICIENT_LIQUIDITY");
+      uint256 balance = routerBalances[invariantData.router][invariantData.receivingAssetId];
+      require(balance >= amount, "#P:018");
 
       // Store the transaction variants
-      variantTransactionData[keccak256(abi.encode(invariantData))] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
 
       // Decrement the router liquidity
       // using unchecked because underflow protected against with require
       unchecked {
-        routerBalances[invariantData.router][invariantData.receivingAssetId] -= amount;
+        routerBalances[invariantData.router][invariantData.receivingAssetId] = balance - amount;
       }
     }
 
@@ -380,23 +419,23 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Make sure that the variant data matches what was stored
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "fulfill: INVALID_VARIANT_DATA");
+    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#F:019");
 
     // Make sure the expiry has not elapsed
-    require(txData.expiry >= block.timestamp, "fulfill: EXPIRED");
+    require(txData.expiry >= block.timestamp, "#F:020");
 
     // Make sure the transaction wasn't already completed
-    require(txData.preparedBlockNumber > 0, "fulfill: ALREADY_COMPLETED");
+    require(txData.preparedBlockNumber > 0, "#F:021");
 
     // Validate the user has signed
-    require(recoverFulfillSignature(txData.transactionId, relayerFee, signature) == txData.user, "fulfill: INVALID_SIGNATURE");
+    require(recoverSignature(txData.transactionId, relayerFee, "fulfill", signature) == txData.user, "#F:022");
 
     // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
     // 0-value crosschain tx, so only providing the fee amount
-    require(relayerFee <= txData.amount, "fulfill: INVALID_RELAYER_FEE");
+    require(relayerFee <= txData.amount, "#F:023");
 
     // Check provided callData matches stored hash
-    require(keccak256(callData) == txData.callDataHash, "fulfill: INVALID_CALL_DATA");
+    require(keccak256(callData) == txData.callDataHash, "#F:024");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -413,7 +452,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
 
       // Make sure that the user is not accidentally fulfilling the transaction
       // on the sending chain
-      require(msg.sender == txData.router, "fulfill: ROUTER_MISMATCH");
+      require(msg.sender == txData.router, "#F:016");
 
       // Complete tx to router for original sending amount
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
@@ -445,14 +484,17 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // locked.
 
         // First, transfer the funds to the helper if needed
-        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+        // Cache in mem for gas
+        bool isEther = LibAsset.isEther(txData.receivingAssetId);
+        if (!isEther && toSend > 0) {
           LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+        interpreter.execute{ value: isEther ? toSend : 0}(
+          txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
           payable(txData.receivingAddress),
@@ -498,14 +540,14 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
     bytes32 digest = hashInvariantTransactionData(txData);
 
     // Verify the variant data is correct
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "cancel: INVALID_VARIANT_DATA");
+    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#C:019");
 
     // Make sure the transaction wasn't already completed
-    require(txData.preparedBlockNumber > 0, "cancel: ALREADY_COMPLETED");
+    require(txData.preparedBlockNumber > 0, "#C:021");
 
     // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
     // 0-value crosschain tx, so only providing the fee amount
-    require(relayerFee <= txData.amount, "cancel: INVALID_RELAYER_FEE");
+    require(relayerFee <= txData.amount, "#C:023");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -523,7 +565,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // NOTE: no need to validate the signature here, since you are requiring
         // the router must be the sender when the cancellation is during the
         // fulfill-able window
-        require(msg.sender == txData.router, "cancel: ROUTER_MUST_CANCEL");
+        require(msg.sender == txData.router, "#C:025");
 
         // Return totality of locked funds to provided fallbacl
         LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount);
@@ -531,7 +573,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
         // When the user could be unlocking funds through a relayer, validate
         // their signature and payout the relayer.
         if (relayerFee > 0) {
-          require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+          require(msg.sender == txData.user || recoverSignature(txData.transactionId, relayerFee, "cancel", signature) == txData.user, "#C:022");
 
           LibAsset.transferAsset(txData.sendingAssetId, payable(msg.sender), relayerFee);
         }
@@ -553,7 +595,7 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, relayerFee, signature) == txData.user, "cancel: INVALID_SIGNATURE");
+        require(msg.sender == txData.user || recoverSignature(txData.transactionId, relayerFee, "cancel", signature) == txData.user, "#C:022");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not
@@ -575,37 +617,25 @@ contract TransactionManager is ReentrancyGuard, Ownable, ITransactionManager {
   /// Private functions ///
   //////////////////////////
 
-  /// @notice Recovers the signer from the signature provided to the `fulfill`
-  ///         function. Returns the address recovered
-  /// @param transactionId Transaction identifier of tx being fulfilled
-  /// @param relayerFee The fee paid to the relayer for submitting the fulfill
+  /// @notice Recovers the signer from the signature provided by the user
+  /// @param transactionId Transaction identifier of tx being recovered
+  /// @param relayerFee The fee paid to the relayer for submitting the
   ///                   tx on behalf of the user.
+  /// @param functionIdentifier The function the signature is being used for.
+  ///                           Either `fulfill` or `cancel`
   /// @param signature The signature you are recovering the signer from
-  function recoverFulfillSignature(
+  function recoverSignature(
     bytes32 transactionId,
     uint256 relayerFee,
+    string memory functionIdentifier,
     bytes calldata signature
   ) internal pure returns (address) {
     // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({transactionId: transactionId, relayerFee: relayerFee});
-
-    // Recover
-    return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);
-  }
-
-  /// @notice Recovers the signer from the signature provided to the `cancel`
-  ///         function. Returns the address recovered
-  /// @param transactionId Transaction identifier of tx being cancelled
-  /// @param relayerFee The fee paid to the relayer for submitting the cancel
-  ///                   tx on behalf of the user.
-  /// @param signature The signature you are recovering the signer from
-  function recoverCancelSignature(bytes32 transactionId, uint256 relayerFee, bytes calldata signature)
-    internal
-    pure
-    returns (address)
-  {
-    // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({transactionId: transactionId, cancel: "cancel", relayerFee: relayerFee});
+    SignedData memory payload = SignedData({
+      transactionId: transactionId,
+      relayerFee: relayerFee,
+      functionIdentifier: functionIdentifier
+    });
 
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(abi.encode(payload))), signature);

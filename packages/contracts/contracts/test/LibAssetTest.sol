@@ -13,6 +13,8 @@ contract LibAssetTest {
   
   constructor() {}
 
+  receive() external payable {}
+
   function isEther(address assetId) public pure returns (bool) {
     return LibAsset.isEther(assetId);
   }
@@ -23,6 +25,14 @@ contract LibAssetTest {
 
   function transferEther(address payable recipient, uint256 amount) public {
     LibAsset.transferEther(recipient, amount);
+  }
+
+  function increaseERC20Allowance(address assetId, address spender, uint256 amount) public {
+    LibAsset.increaseERC20Allowance(assetId, spender, amount);
+  }
+
+  function decreaseERC20Allowance(address assetId, address spender, uint256 amount) public {
+    LibAsset.decreaseERC20Allowance(assetId, spender, amount);
   }
 
   function transferERC20(

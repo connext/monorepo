@@ -4,7 +4,7 @@
 
 ### Video Walkthrough
 
-[![Security walkthrough video](https://img.youtube.com/vi/ABEOIKzEshA/0.jpg)](https://www.youtube.com/watch?v=ABEOIKzEshA)
+[Security walkthrough video](https://youtu.be/dQ64SOu5B2s)
 
 ### TLDR
 
@@ -66,6 +66,18 @@ Lets assume that by this point the user has already run the auction.
 
 The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the transactions all store the `preparedBlockNumber` on them, and the contract tracks the `activeTransactionBlocks` for each user in a `mapping(address => uint256[]`). This mapping adds the `block.number` each time a transaction is prepared, and removes the `preparedBlockNumber` on completion (both `fulfill` and `cancel`). By looking at these blocks, users and routers should be able to easily find the relevant events and determine the necessary actions without needing a store of their own.
 
+## Error Codes
+
+Error codes thrown by the contracts have the following structure:
+
+```js
+"#${prefix}:${code}";
+```
+
+where the `prefix` denotes which function or portion of the code the error is coming from and `code` corresponds to a given error message.
+
+The error definitions can be found [here](https://github.com/connext/nxtp/blob/c4-59/packages/contracts/src/errors.ts).
+
 ## Development
 
 ### Running the tests
@@ -93,24 +105,34 @@ export CHAIN_ID="<CHAIN_ID_HERE>"
 export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional to run verification task, but highly recommended
 ```
 
-Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
+You can also add a `.env` to the `packages/contracts` dir with the above env vars.
+
+2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli
+yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli
 ```
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
 
-To optionally verify the contracts (works with Etherscan-based networks):
+3. (optional) To verify the contracts (works with Etherscan-based networks):
 
-````sh
-yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli \<NETWORK_NAME\>
+```sh
+yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --network goerli \<NETWORK_NAME\>
 ```
 
-Once the contracts have been deployed, export them using:
+4. Once the contracts have been deployed, export them using:
 
 ```sh
 yarn workspace @connext/nxtp-contracts export
-````
+```
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
+
+## Helper Tasks
+
+There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. These can be run using the following example command structure:
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
+```

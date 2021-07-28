@@ -6,6 +6,10 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
+import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId } from "@connext/nxtp-utils";
+import { config as dotenvConfig } from "dotenv";
+
+dotenvConfig();
 
 const ajv = addFormats(new Ajv(), [
   "date-time",
@@ -27,11 +31,21 @@ const ajv = addFormats(new Ajv(), [
   .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
-  provider: Type.Array(Type.String()),
+  providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
+});
+
+export const TSwapPool = Type.Object({
+  name: Type.Optional(Type.String()),
+  assets: Type.Array(
+    Type.Object({
+      chainId: TChainId,
+      assetId: TAddress,
+    }),
+  ),
 });
 
 const NxtpRouterConfigSchema = Type.Object({
@@ -49,12 +63,18 @@ const NxtpRouterConfigSchema = Type.Object({
   natsUrl: Type.String(),
   authUrl: Type.String(),
   mnemonic: Type.String(),
+  swapPools: Type.Array(TSwapPool),
 });
 
 const MIN_GAS = utils.parseEther("0.1");
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
 
+/**
+ * Gets and validates the router config from the environment.
+ *
+ * @returns The router config with sensible defaults
+ */
 export const getEnvConfig = (): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
@@ -88,14 +108,15 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
-    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl,
-    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl,
+    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL,
+    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
     chainConfig: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
+    swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
   };
 
@@ -105,9 +126,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {}
     }
     if (!chainConfig.minGas) {
@@ -130,6 +151,11 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
 let nxtpConfig: NxtpRouterConfig | undefined;
 
+/**
+ * Caches and returns the environment config
+ *
+ * @returns The config
+ */
 export const getConfig = (): NxtpRouterConfig => {
   if (!nxtpConfig) {
     nxtpConfig = getEnvConfig();

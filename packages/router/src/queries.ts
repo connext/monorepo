@@ -1,86 +1,12 @@
 import { gql } from "graphql-request";
 
-export const getSenderPrepareQuery = gql`
-  query GetSenderPrepareTransactions($routerId: ID!, $sendingChainId: BigInt!) {
-    router(id: $routerId) {
-      transactions(
-        where: { status: Prepared, sendingChainId: $sendingChainId, chainId: $sendingChainId }
-        orderBy: preparedBlockNumber
-        orderDirection: desc
-      ) {
-        id
-        status
-        user {
-          id
-        }
-        router {
-          id
-        }
-        sendingAssetId
-        receivingAssetId
-        sendingChainFallback
-        receivingAddress
-        callTo
-        sendingChainId
-        receivingChainId
-        callDataHash
-        transactionId
-        transactionHash
-        amount
-        expiry
-        preparedBlockNumber
-        encryptedCallData
-        encodedBid
-        bidSignature
-        prepareCaller
-      }
-    }
-  }
-`;
+// Contains all subgraph queries used by router
 
-export const getReceiverPrepareQuery = gql`
-  query GetReceiverPrepareTransactions($routerId: ID!, $receivingChainId: BigInt!) {
+export const getSenderTransactionsQuery = gql`
+  query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
       transactions(
-        where: { status: Prepared, receivingChainId: $receivingChainId, chainId: $receivingChainId }
-        orderBy: preparedBlockNumber
-        orderDirection: desc
-      ) {
-        id
-        status
-        user {
-          id
-        }
-        router {
-          id
-        }
-        sendingAssetId
-        receivingAssetId
-        sendingChainFallback
-        receivingAddress
-        callTo
-        sendingChainId
-        receivingChainId
-        callDataHash
-        transactionId
-        transactionHash
-        amount
-        expiry
-        preparedBlockNumber
-        encryptedCallData
-        encodedBid
-        bidSignature
-        prepareCaller
-      }
-    }
-  }
-`;
-
-export const getReceiverFulfillQuery = gql`
-  query GetReceiverFulfillTransactions($routerId: ID!, $receivingChainId: BigInt!) {
-    router(id: $routerId) {
-      transactions(
-        where: { status: Fulfilled, receivingChainId: $receivingChainId, chainId: $receivingChainId }
+        where: { status: $status, sendingChainId: $sendingChainId }
         orderBy: preparedBlockNumber
         orderDirection: desc
       ) {
@@ -105,20 +31,25 @@ export const getReceiverFulfillQuery = gql`
         amount
         expiry
         preparedBlockNumber
-        relayerFee
-        signature
-        callData
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
         fulfillCaller
+        cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
       }
     }
   }
 `;
 
-export const getSenderFulfillQuery = gql`
-  query GetSenderFulfillTransactions($routerId: ID!, $sendingChainId: BigInt!) {
+export const getReceiverTransactionsQuery = gql`
+  query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
     router(id: $routerId) {
       transactions(
-        where: { status: Fulfilled, sendingChainId: $sendingChainId, chainId: $sendingChainId }
+        where: { status: $status, receivingChainId: $receivingChainId }
         orderBy: preparedBlockNumber
         orderDirection: desc
       ) {
@@ -143,10 +74,15 @@ export const getSenderFulfillQuery = gql`
         amount
         expiry
         preparedBlockNumber
-        relayerFee
-        signature
-        callData
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
         fulfillCaller
+        cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
       }
     }
   }
@@ -173,7 +109,6 @@ export const getTransactionByIdQuery = gql`
       receivingChainId
       callDataHash
       transactionId
-      transactionHash
       amount
       expiry
       preparedBlockNumber
@@ -186,13 +121,16 @@ export const getTransactionByIdQuery = gql`
       prepareCaller
       fulfillCaller
       cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
     }
   }
 `;
 
-export const getFulfilledTransactionsByIdsQuery = gql`
-  query GetFulfilledTransactions($transactionIds: [Bytes!]) {
-    transactions(where: { transactionId_in: $transactionIds, status: Fulfilled }) {
+export const getTransactionsByIdsQuery = gql`
+  query GetTransactions($transactionIds: [Bytes!]) {
+    transactions(where: { transactionId_in: $transactionIds }) {
       id
       status
       chainId
@@ -211,14 +149,18 @@ export const getFulfilledTransactionsByIdsQuery = gql`
       receivingChainId
       callDataHash
       transactionId
-      transactionHash
       amount
       expiry
       preparedBlockNumber
       relayerFee
       signature
       callData
+      prepareCaller
       fulfillCaller
+      cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
     }
   }
 `;

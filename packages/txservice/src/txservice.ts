@@ -369,7 +369,10 @@ export class TransactionService {
   private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.error({ method, id: transaction.id, receipt, context, error: jsonifyError(error) }, "Tx failed.");
+    this.logger.error(
+      { method, id: transaction.id, receipt, context, error: jsonifyError(error) },
+      "Tx failed.",
+    );
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

@@ -18,8 +18,9 @@ let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
 let transaction: SinonStubbedInstance<Transaction>;
 let context: RequestContext = {
   id: "",
-  origin: "",
-};
+  origin: ""
+}
+
 
 /// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
 /// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
@@ -76,7 +77,7 @@ describe("TransactionService", () => {
     Sinon.stub(transaction, "data").get(() => tx);
 
     context.id = getRandomBytes32();
-    context.origin = "TransactionServiceTest";
+    context.origin = "TransactionServiceTest"
   });
 
   afterEach(() => {

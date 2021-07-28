@@ -11,6 +11,11 @@ import {
 } from "../generated/TransactionManager/TransactionManager";
 import { Transaction, AssetBalance, Router, User } from "../generated/schema";
 
+/**
+ * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
+ *
+ * @param event - The contract event to update the subgraph record with
+ */
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   let router = Router.load(event.params.router.toHex());
   if (router == null) {
@@ -31,6 +36,11 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   assetBalance.save();
 }
 
+/**
+ * Updates the subgraph records when LiquidityRemoved events are emitted. Will create a Router record if it does not exist
+ *
+ * @param event - The contract event to update the subgraph record with
+ */
 export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   let router = Router.load(event.params.router.toHex());
   if (router == null) {
@@ -46,6 +56,11 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   assetBalance!.save();
 }
 
+/**
+ * Creates subgraph records when TransactionPrepared events are emitted.
+ *
+ * @param event - The contract event used to create the subgraph record
+ */
 export function handleTransactionPrepared(event: TransactionPrepared): void {
   // load user and router
   // router should have liquidity but it may not
@@ -94,6 +109,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
   // TransactionPrepared specific
   transaction.prepareCaller = event.params.caller;
+  transaction.prepareTransactionHash = event.transaction.hash;
   transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
   transaction.encodedBid = event.params.encodedBid;
   transaction.bidSignature = event.params.bidSignature;
@@ -101,7 +117,6 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // Meta
   transaction.status = "Prepared";
   transaction.chainId = chainId;
-  transaction.transactionHash = event.transaction.hash;
 
   transaction.save();
 
@@ -114,6 +129,11 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   }
 }
 
+/**
+ * Updates subgraph records when TransactionFulfilled events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
 export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transactionId =
@@ -124,7 +144,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.signature = event.params.signature;
   transaction!.callData = event.params.callData.toHexString();
   transaction!.fulfillCaller = event.params.caller;
-  transaction!.transactionHash = event.transaction.hash;
+  transaction!.fulfillTransactionHash = event.transaction.hash;
 
   transaction!.save();
 
@@ -142,6 +162,11 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   }
 }
 
+/**
+ * Updates subgraph records when TransactionCancelled events are emitted
+ *
+ * @param event - The contract event used to update the subgraph
+ */
 export function handleTransactionCancelled(event: TransactionCancelled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   let transactionId =
@@ -150,7 +175,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.status = "Cancelled";
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
-  transaction!.transactionHash = event.transaction.hash;
+  transaction!.cancelTransactionHash = event.transaction.hash;
 
   transaction!.save();
 

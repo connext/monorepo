@@ -1,0 +1,28 @@
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "4": {
+      "providers": ["https://rinkeby.infura.io/v3/ab7cc068423e453982eafb381ea63c75"],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+    },
+    "5": {
+      "providers": ["https://goerli.infura.io/v3/ab7cc068423e453982eafb381ea63c75"],
+      "confirmations": 1,
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://localhost:4222",
+  "authUrl": "http://localhost:5040",
+  "mnemonic": "husband mass mutual enemy vessel test pride cage allow paper confirm rookie",
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
+        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -21,17 +22,30 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IFulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "execute(address,address,address,uint256,bytes)": FunctionFragment;
+    "execute(bytes32,address,address,address,uint256,bytes)": FunctionFragment;
+    "getTransactionManager()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "execute",
-    values: [string, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, string, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTransactionManager",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getTransactionManager",
+    data: BytesLike
+  ): Result;
 
-  events: {};
+  events: {
+    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
 }
 
 export class IFulfillInterpreter extends BaseContract {
@@ -79,6 +93,7 @@ export class IFulfillInterpreter extends BaseContract {
 
   functions: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -86,9 +101,14 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   execute(
+    transactionId: BytesLike,
     callTo: string,
     assetId: string,
     fallbackAddress: string,
@@ -97,8 +117,13 @@ export class IFulfillInterpreter extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getTransactionManager(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -106,12 +131,38 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    Executed(
+      transactionId?: BytesLike | null,
+      callTo?: null,
+      assetId?: null,
+      fallbackAddress?: null,
+      amount?: null,
+      callData?: null,
+      returnData?: null,
+      success?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string, string, boolean],
+      {
+        transactionId: string;
+        callTo: string;
+        assetId: string;
+        fallbackAddress: string;
+        amount: BigNumber;
+        callData: string;
+        returnData: string;
+        success: boolean;
+      }
+    >;
+  };
 
   estimateGas: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
@@ -119,16 +170,25 @@ export class IFulfillInterpreter extends BaseContract {
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     execute(
+      transactionId: BytesLike,
       callTo: string,
       assetId: string,
       fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getTransactionManager(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

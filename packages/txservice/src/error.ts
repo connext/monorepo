@@ -114,7 +114,7 @@ export class NonceExpired extends TransactionReverted {
   /**
    * An error indicating that we got a "nonce expired" message back from
    * ethers while conducting sendTransaction.
-   *
+   * 
    * This is a TransactionReverted extension, as it indicates the transaction
    * was in fact reverted.
    */

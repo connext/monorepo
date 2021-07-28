@@ -11,7 +11,6 @@
     "itest": "yarn tsc && node",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
-
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",

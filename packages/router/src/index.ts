@@ -1,13 +1,20 @@
 import { Wallet } from "ethers";
 import fastify from "fastify";
-import { RouterNxtpNatsMessagingService, TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
-import { TransactionService } from "@connext/nxtp-txservice";
+import {
+  createRequestContext,
+  jsonifyError,
+  RouterNxtpNatsMessagingService,
+  TAddress,
+  TChainId,
+  TDecimalString,
+} from "@connext/nxtp-utils";
+import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig } from "./config";
 import { Handler } from "./handler";
-import { SubgraphTransactionManagerListener } from "./transactionManagerListener";
+import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
 import { TransactionManager } from "./contract";
 
@@ -16,24 +23,28 @@ const server = fastify();
 const config = getConfig();
 const wallet = Wallet.fromMnemonic(config.mnemonic);
 const logger = pino({ name: wallet.address, level: config.logLevel });
+logger.info({ signer: wallet.address }, "Created signer from mnemonic");
 const messaging = new RouterNxtpNatsMessagingService({
   signer: wallet,
   authUrl: config.authUrl,
   natsUrl: config.natsUrl,
   logger,
 });
-const subgraphs: { [chainId: number]: string } = {};
-const providers: { [chainId: number]: string[] } = {};
+const subgraphs: Record<number, { subgraph: string }> = {};
+const chains: { [chainId: string]: ChainConfig } = {};
 Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  subgraphs[parseInt(chainId)] = config.subgraph;
-  providers[parseInt(chainId)] = config.provider;
+  subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
+  chains[chainId] = {
+    confirmations: config.confirmations,
+    providers: config.providers.map((url) => ({ url })),
+  } as ChainConfig;
 });
-const subgraph = new SubgraphTransactionManagerListener(
+const subgraph = new Subgraph(
   subgraphs,
   wallet.address,
   logger.child({ module: "SubgraphTransactionManagerListener" }),
 );
-const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, providers);
+const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, { chains });
 const transactionManager = new TransactionManager(
   txService,
   wallet.address,
@@ -90,31 +101,23 @@ server.get("/config", async () => {
   };
 });
 
-server.post<{ Body: AddLiquidityRequest }>(
-  "/add-liquidity",
-  { schema: { body: AddLiquidityRequestSchema, response: { "2xx": AddLiquidityResponseSchema } } },
-  async (req) => {
-    const result = await transactionManager.addLiquidity(
-      req.body.chainId,
-      wallet.address,
-      req.body.amount,
-      req.body.assetId,
-    );
-    return { transactionHash: result.transactionHash };
-  },
-);
-
 server.get<{ Body: RemoveLiquidityRequest }>(
   "/remove-liquidity",
   { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
   async (req) => {
+    const requestContext = createRequestContext("/remove-liquidity");
     const result = await transactionManager.removeLiquidity(
       req.body.chainId,
       req.body.amount,
       req.body.assetId,
       req.body.recipientAddress,
+      requestContext,
     );
-    return { transactionHash: result.transactionHash };
+    if (result.isOk()) {
+      return { transactionHash: result.value.transactionHash };
+    } else {
+      return { err: jsonifyError(result.error) };
+    }
   },
 );
 
