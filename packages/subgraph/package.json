@@ -16,7 +16,7 @@
     "prepare:local": "mustache config/local.json subgraph.template.yaml > subgraph.yaml",
     "deploy:goerli:prod": "yarn prepare:goerli:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli",
     "deploy:rinkeby:prod": "yarn prepare:rinkeby:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby",
-    "deploy:mumbai:prod": "yarn prepare:rinkeby:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-mumbai",
+    "deploy:mumbai:prod": "yarn prepare:mumbai:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-mumbai",
     "deploy:goerli:staging": "yarn prepare:goerli:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli-staging",
     "deploy:rinkeby:staging": "yarn prepare:rinkeby:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby-staging",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
