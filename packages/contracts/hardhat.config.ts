@@ -96,6 +96,11 @@ const config: HardhatUserConfig = {
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
     },
+    "arbitrum-rinkeby": {
+      accounts: { mnemonic },
+      chainId: 421611,
+      url: "https://rinkeby.arbitrum.io/rpc",
+    },
   },
 };
 
