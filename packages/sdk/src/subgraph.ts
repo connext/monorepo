@@ -28,6 +28,10 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
     case 5:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli";
+    case 80001:
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
+    case 421611:
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby";
     default:
       return undefined;
   }
