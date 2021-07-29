@@ -2,9 +2,12 @@ import pino from "pino";
 import PriorityQueue from "p-queue";
 
 import { SdkAgent } from "../utils/sdkAgent";
-import { SdkManager, TransactionInfo } from "../utils/sdkManager";
+import { SdkManager } from "../utils/sdkManager";
 
 const TIMEOUT = 15 * 60 * 100; // 15m in ms
+
+// TODO: move to config
+const sugardaddy_mnemonic = "";
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -15,7 +18,7 @@ const TIMEOUT = 15 * 60 * 100; // 15m in ms
 const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions: number): Promise<void> => {
   const log = pino({ level: "info" });
   // Create manager
-  const manager = await SdkManager.connect(process.env.MNEMONIC!, numberTransactions + 1);
+  const manager = await SdkManager.connect(sugardaddy_mnemonic, numberTransactions + 1);
   log.info({ agents: maxConcurrency }, "Created manager");
 
   let concurrency = 0;
@@ -44,13 +47,9 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
         //@ts-ignore
         return manager.transfer({}, TIMEOUT, agent);
       });
-    //@ts-ignore
-
-    const results = await Promise.all(tasks.map((task) => queue.add(task)));
+    const results = await Promise.all(tasks.map((task) => queue.add(task as any)));
     // TODO: process loop stats
-    //@ts-ignore
-
-    const errored = results.filter((x: TransactionInfo) => !!x.error) ;
+    const errored = results.filter((x) => !!(x as any).error);
     loopStats = {
       errored: errored.length,
       successful: results.length - errored.length,

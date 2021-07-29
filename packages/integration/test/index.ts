@@ -2,13 +2,13 @@ import { mkHash } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
 // import {routerConcurrencyTest} from "./load/routerConcurrency";
-import {SdkManager} from "./utils/sdkManager";
+import { SdkManager } from "./utils/sdkManager";
 import { OnchainAccountManager } from "./utils/accountManager";
 import { SdkAgent, SdkAgentEvents } from "./utils/sdkAgent";
 
+const sugardaddy_mnemonic = "hard crumble culture volcano attract reveal husband identify spell unfair right double";
 
-async function main(){
-
+async function main() {
   // const accountManager = new OnchainAccountManager(sugardaddy_mnemonic, 10);
   // const wallets = accountManager.getCanonicalWallets(10);
 
@@ -24,7 +24,7 @@ async function main(){
   await onchain.init(10);
   const agents = [];
 
-  const agent = await SdkAgent.connect(onchain.chainProviders, onchain.wallets[1], config.natsUrl,config.authUrl);
+  const agent = await SdkAgent.connect(onchain.chainProviders, onchain.wallets[1], config.natsUrl, config.authUrl);
   agents.push(agent);
 
   agent.attach(SdkAgentEvents.TransactionCompleted, (data) => {
@@ -37,25 +37,25 @@ async function main(){
   // });
   // const randoAgent = sdkManager.getRandomAgent();
 
-const goerliTokenAddress = "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682";
-const rinkebyTokenAddress = "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198";
-// const transfer = await sdkManager.transfer(
-//     {
-//
-//       callData: "0x",
-//       sendingChainId: 4,
-//       receivingChainId: 5,
-//       sendingAssetId: rinkebyTokenAddress,
-//       receivingAssetId: goerliTokenAddress,
-//       callTo: "0x",
-//       amount: utils.parseEther("1").toString(),
-//       transactionId: mkHash(),
-//     },
-//     20,
-//     randoAgent
-//   );
-// const concurrency = await routerConcurrencyTest(1,1, config.mnemonic);
-// console.log(`Concurrent ${concurrency}`);
+  // const goerliTokenAddress = "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682";
+  // const rinkebyTokenAddress = "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198";
+  // const transfer = await sdkManager.transfer(
+  //     {
+  //
+  //       callData: "0x",
+  //       sendingChainId: 4,
+  //       receivingChainId: 5,
+  //       sendingAssetId: rinkebyTokenAddress,
+  //       receivingAssetId: goerliTokenAddress,
+  //       callTo: "0x",
+  //       amount: utils.parseEther("1").toString(),
+  //       transactionId: mkHash(),
+  //     },
+  //     20,
+  //     randoAgent
+  //   );
+  // const concurrency = await routerConcurrencyTest(1,1, config.mnemonic);
+  // console.log(`Concurrent ${concurrency}`);
 }
 
 main();

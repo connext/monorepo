@@ -4,15 +4,20 @@ import {
   NxtpSdkEvent,
   NxtpSdkEventPayloads,
   NxtpSdkEvents,
+  ReceiverPrepareSignedPayload,
+  ReceiverTransactionCancelledPayload,
+  ReceiverTransactionFulfilledPayload,
+  ReceiverTransactionPreparedPayload,
   SenderTokenApprovalMinedPayload,
+  SenderTransactionCancelledPayload,
+  SenderTransactionFulfilledPayload,
+  SenderTransactionPreparedPayload,
   SenderTransactionPrepareSubmittedPayload,
   SenderTransactionPrepareTokenApprovalPayload,
 } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
   getRandomBytes32,
-  TransactionCancelledEvent,
-  TransactionFulfilledEvent,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
@@ -52,12 +57,13 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
     [SdkAgentEvents.SenderTransactionPrepareSubmitted]: Evt.create<
       SenderTransactionPrepareSubmittedPayload & AddressField
     >(),
-    [SdkAgentEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent & AddressField>(),
-    [SdkAgentEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent & AddressField>(),
-    [SdkAgentEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent & AddressField>(),
-    [SdkAgentEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent & AddressField>(),
-    [SdkAgentEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent & AddressField>(),
-    [SdkAgentEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent & AddressField>(),
+    [SdkAgentEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload & AddressField>(),
+    [SdkAgentEvents.SenderTransactionFulfilled]: Evt.create<SenderTransactionFulfilledPayload & AddressField>(),
+    [SdkAgentEvents.SenderTransactionCancelled]: Evt.create<SenderTransactionCancelledPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload & AddressField>(),
     [SdkAgentEvents.InitiateFailed]: Evt.create<InitiateFailedPayload & AddressField>(),
     [SdkAgentEvents.UserCompletionFailed]: Evt.create<UserCompletionFailedPayload & AddressField>(),
     [SdkAgentEvents.RouterCompletionFailed]: Evt.create<RouterCompletionFailedPayload & AddressField>(),
@@ -78,7 +84,7 @@ export class SdkAgent {
   private constructor(
     public readonly address: string,
     private readonly chainProviders: {
-      [chainId: number]: providers.FallbackProvider;
+      [chainId: number]: { provider: providers.FallbackProvider };
     },
     private readonly signer: Signer,
     natsUrl?: string,
@@ -107,7 +113,7 @@ export class SdkAgent {
    */
   static async connect(
     chainProviders: {
-      [chainId: number]: providers.FallbackProvider;
+      [chainId: number]: { provider: providers.FallbackProvider };
     },
     signer: Signer,
     natsUrl?: string,
@@ -131,8 +137,10 @@ export class SdkAgent {
     // Parrot all sdk events
     Object.keys(NxtpSdkEvents).map((_event) => {
       const event = _event as NxtpSdkEvent;
-      this.sdk.attach(event, (data) => {
-        this.evts[event].post({ ...data, address: this.address } as any);
+      this.sdk.attach(event, (_data) => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const data = _data as any;
+        this.evts[event].post({ ...data, address: this.address });
       });
     });
 
