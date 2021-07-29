@@ -1,6 +1,11 @@
-import { BigNumber, utils, Wallet } from "ethers";
+import { BigNumber, constants, utils, Wallet } from "ethers";
+import PriorityQueue from "p-queue";
 
+import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
+
+// TODO: make per-chain
+const funderQueue = new PriorityQueue({ concurrency: 1 });
 
 export class OnchainAccountManager {
   USER_MIN_ETH = utils.parseEther("0.2");
@@ -8,55 +13,60 @@ export class OnchainAccountManager {
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
 
-  constructor(public readonly chainProviders: ChainConfig, mnemonic: string, num_users: number) {
+  public readonly funder: Wallet;
+
+  constructor(public readonly chainProviders: ChainConfig, mnemonic: string, public readonly num_users: number) {
+    this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
-      const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i}`);
+      const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
       if (newWallet) {
         this.wallets.push(newWallet);
       }
     }
   }
 
-  async init(num_wallets: number, chainId: number): Promise<BigNumber[]> {
-    const wallets = this.getCanonicalWallets(num_wallets);
+  async updateBalances(chainId: number, assetId: string = constants.AddressZero): Promise<BigNumber[]> {
+    const wallets = this.getCanonicalWallets(this.num_users);
     const resultBalances: BigNumber[] = [];
 
     await Promise.all(
       wallets.map(async (wallet) => {
-        const res = await this.verifyAndReupAccountBalance(wallet.address, chainId);
+        const res = await this.verifyAndReupAccountBalance(wallet.address, chainId, assetId);
         return resultBalances.push(res);
       }),
     );
     return resultBalances;
   }
 
-  async verifyAndReupAccountBalance(account: string, chainId: number): Promise<BigNumber> {
-    const initial = await this.chainProviders[chainId].provider.getBalance(account);
-    if (initial.lte(this.USER_MIN_ETH)) {
-      return initial;
-    }
-
+  async verifyAndReupAccountBalance(account: string, chainId: number, assetId: string): Promise<BigNumber> {
     const { provider } = this.chainProviders[chainId];
     if (!provider) {
       throw new Error(`Provider not configured for ${chainId}`);
     }
 
+    const initial = await getOnchainBalance(assetId, account, provider);
+    if (initial.gte(this.USER_MIN_ETH)) {
+      console.log(`No need to top up balance of ${assetId}`);
+      return initial;
+    }
+
     const remainder = this.USER_MIN_ETH.sub(initial);
-    const funderBalance = await provider.getBalance(this.wallets[0].address);
+    const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
     if (funderBalance.lt(remainder)) {
       throw new Error(
         `${
-          this.wallets[0].address
+          this.funder.address
         } has insufficient funds to top up. Has ${funderBalance.toString()}, needs ${remainder.toString()}`,
       );
     }
 
     // fund with sugardaddy
-    const tx = await this.wallets[0].connect(provider).sendTransaction({ to: account, value: remainder });
+    const receipt = await funderQueue.add(() =>
+      sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
+    );
 
-    const receipt = await tx.wait();
-    console.log(`Sent ETH to topup: ${account},  txHash: ${receipt.transactionHash}`);
-    //confirm balance
+    console.log(`Sent ${assetId} to topup: ${account},  txHash: ${receipt.transactionHash}`);
+    // confirm balance
     const final = await provider.getBalance(account);
 
     return final;

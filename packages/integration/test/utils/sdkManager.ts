@@ -35,7 +35,8 @@ export class SdkManager {
     const onchain = new OnchainAccountManager(chainConfig, mnemonic, numberUsers);
     // TODO: this will be slow af
     for (const chain of Object.keys(chainConfig)) {
-      await onchain.init(numberUsers, parseInt(chain));
+      // Gift eth
+      await onchain.updateBalances(parseInt(chain));
     }
     // await Promise.all(
     //   Object.keys(chainConfig)
@@ -60,6 +61,10 @@ export class SdkManager {
     manager.setupTransferListeners();
 
     return manager;
+  }
+
+  async giftAgentsOnchain(assetId: string, chainId: number) {
+    await this.onchainMgmt.updateBalances(chainId, assetId);
   }
 
   /**
