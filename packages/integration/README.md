@@ -49,6 +49,10 @@ Deploy the contracts:
 
 `bash setup-integration-test.sh`
 
+The start the router:
+
+`yarn workspace @connext/nxtp-router dev`
+
 Then run the tests using the appropriate script. For example, to run the router concurrency tests, use:
 
 `yarn workspace @connext/nxtp-integration concurrency:router`
