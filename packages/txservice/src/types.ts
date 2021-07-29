@@ -34,7 +34,7 @@ export class GasPrice {
   constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
     this._gasPrice = baseValue;
     // Enforce a max gas price 20% higher than the base value as a buffer.
-    this._maxGasPrice = limit.mul(1.2);
+    this._maxGasPrice = limit.mul(12).div(100);
   }
 
   /**

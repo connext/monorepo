@@ -109,6 +109,12 @@ export class Transaction {
       if (result.error instanceof UnpredictableGasLimit) {
         throw new TransactionReverted(TransactionReverted.reasons.GasEstimateFailed);
       }
+      logger.warn(
+        {
+          method: Transaction.create.name,
+          transaction: tx,
+          error: result.error,
+        },"Estimate gas failed due to an unexpected error. Defaulting to config limit.");
       gasLimit = BigNumber.from(config.gasLimit);
     } else {
       gasLimit = result.value;
@@ -168,7 +174,6 @@ export class Transaction {
     // Send the tx.
     let result = await this.provider.sendTransaction(this.data);
 
-    // If we experienced an error, throw.
     if (result.isErr()) {
       // TODO: This is the sledgehammer fix to the nonce expired problem. Would be nice
       // to see a more elegant solution.
@@ -178,7 +183,7 @@ export class Transaction {
       if (error instanceof AlreadyMined && error.reason === AlreadyMined.reasons.NonceExpired) {
         let nonceErrorCount = 1;
         this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
-        while (!this.didSubmit) {
+        while (!this.didSubmit()) {
           result = await this.provider.sendTransaction(this.data);
           if (result.isErr()) {
             error = result.error;
@@ -216,15 +221,15 @@ export class Transaction {
 
   /**
    * Makes an attempt to confirm this transaction, waiting up to a designated period to achieve
-   * a desired number of confirmation blocks. If confirmation times out, throws ChainError.ConfirmationTimeout.
-   * If all txs, including replacements, are reverted, throws ChainError.TxReverted.
+   * a desired number of confirmation blocks. If confirmation times out, throws TimeoutError.
+   * If all txs, including replacements, are reverted, throws TransactionReverted.
    *
    * @privateRemarks
    *
    * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
    * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
    * wait an extended period for the desired number of confirmations. If no further confirmations appear
-   * (which is extremely unlikely), we throw a ChainError.NotEnoughConfirmations.
+   * (which is extremely unlikely), we throw a TransactionServiceFailure.NotEnoughConfirmations.
    *
    * @returns A TransactionReceipt (or undefined if it did not confirm).
    */
@@ -308,7 +313,7 @@ export class Transaction {
       const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
       if (result.isErr()) {
         // No errors should occur during this confirmation attempt.
-        throw new TransactionServiceFailure("Unable to confirm transaction even after receiving 1 confirmation.", {
+        throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
           method,
           receipt: this.receipt,
           error: result.error,
