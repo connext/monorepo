@@ -555,10 +555,10 @@ export class Handler {
 
     const { txData, bidSignature, encodedBid, encryptedCallData } = inboundData;
 
-    if (this.receiverPreparing.get(txData.transactionId)) {
-      this.logger.info({ methodId, method, requestContext, transactionId: txData.transactionId }, "Already fulfilling");
-      return;
-    }
+    // if (this.receiverPreparing.get(txData.transactionId)) {
+    //   this.logger.info({ methodId, method, requestContext, transactionId: txData.transactionId }, "Already fulfilling");
+    //   return;
+    // }
 
     // TODO: what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
@@ -680,6 +680,20 @@ export class Handler {
       requestContext,
     );
     this.logger.info({ method, methodId, transactionId: txData.transactionId }, "Sending receiver prepare tx");
+    this.logger.info({ method, methodId, transactionId: txData.transactionId }, "performing BAD prepare call, mwahaha!");
+    const badRes = await this.txManager.prepare(
+      txData.receivingChainId,
+      {
+        txData,
+        amount: mutateAmount(txData.amount),
+        expiry: mutateExpiry(txData.expiry),
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      requestContext,
+    );
+    this.logger.info({ method, methodId, transactionId: txData.transactionId, badRes, result: badRes.isErr() ? badRes.error : badRes.value }, "BAD call result");
 
     if (res.isOk()) {
       this.logger.info(

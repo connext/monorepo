@@ -65,6 +65,13 @@ export class TransactionReverted extends TransactionError {
      * error.receipt - the actual receipt, with the status of 0
      */
     CallException: "An exception occurred during this contract call.",
+    /**
+     * No difference between the following two errors, except to distinguish a message we
+     * get back from providers on execution failure.
+     */
+    ExecutionFailed: "Transaction would fail on chain.",
+    AlwaysFailingTransaction: "Transaction would always fail on chain.",
+    GasExceedsAllowance: "Transaction gas exceeds allowance.",
   };
 
   constructor(
@@ -164,7 +171,6 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly type = TransactionServiceFailure.name;
 
   static readonly reasons = {
-    Timeout: "Timeout occurred during an RPC operation.",
     /**
      * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
      * never reached the required amount. This error should ultimately never occur - but if it does,
@@ -178,6 +184,7 @@ export class TransactionServiceFailure extends NxtpError {
      * failure but could imply a failure in TransactionService to submit correctly to chain.
      */
     MaxGasPriceReached: "Gas price went over configured limit.",
+    GasEstimateInvalid: "The gas estimate returned was an invalid value.",
   };
 
   constructor(
@@ -194,7 +201,30 @@ export class TransactionServiceFailure extends NxtpError {
  * @returns NxtpError
  */
 export const parseError = (error: any): NxtpError => {
-  const context = { error };
+  if (error instanceof NxtpError) {
+    // If the error has already been parsed into a native error, just return it.
+    return error;
+  }
+
+  let message = error.message;
+  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof(error.error.message) === "string") {
+      message = error.error.message;
+  } else if (typeof(error.body) === "string") {
+      message = error.body;
+  } else if (typeof(error.responseText) === "string") {
+      message = error.responseText;
+  }
+  message = (message || "").toLowerCase();
+  const context = { message: message, ethersError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" } };
+
+  if (message.match(/execution reverted/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
+  } else if (message.match(/always failing transaction/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
+  } else if (message.match(/gas required exceeds allowance/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+  }
+  
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
       return new TransactionReplaced(error.receipt, error.replacment, context);

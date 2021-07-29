@@ -5,7 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure, UnpredictableGasLimit } from "./error";
+import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -106,16 +106,16 @@ export class Transaction {
     let gasLimit: BigNumber;
     let result = await provider.estimateGas(tx);
     if (result.isErr()) {
-      if (result.error instanceof UnpredictableGasLimit) {
-        throw new TransactionReverted(TransactionReverted.reasons.GasEstimateFailed);
+      if (result.error instanceof TransactionReverted) {
+        throw result.error;
       }
       logger.warn(
         {
           method: Transaction.create.name,
           transaction: tx,
           error: result.error,
-        },"Estimate gas failed due to an unexpected error. Defaulting to config limit.");
-      gasLimit = BigNumber.from(config.gasLimit);
+        }, "Estimate gas failed due to an unexpected error.");
+      throw result.error;
     } else {
       gasLimit = result.value;
     }

@@ -1,8 +1,7 @@
-/* eslint-disable require-jsdoc */
-import { Signer, providers, BigNumber } from "ethers";
+import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
@@ -331,6 +330,7 @@ export class TransactionService {
     const method = this.sendTx.name;
     this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
     const response = await transaction.submit();
+    const gas = response.gasPrice ?? transaction.data.gasPrice;
     this.logger.info(
       {
         method,
@@ -338,7 +338,7 @@ export class TransactionService {
         id: transaction.id,
         attempt: transaction.attempt,
         hash: response.hash,
-        gas: (response.gasPrice ?? transaction.data.gasPrice ?? "unknown").toString(),
+        gas: `${utils.formatUnits(gas, "gwei")} gwei`,
         nonce: response.nonce,
       },
       "Tx submitted.",
@@ -352,6 +352,7 @@ export class TransactionService {
    */
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
+    
     this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
     const receipt = await transaction.confirm();
     this.logger.info(
@@ -361,8 +362,7 @@ export class TransactionService {
         id: transaction.id,
         attempt: transaction.attempt,
         receipt: {
-          gasUsed: receipt.gasUsed.toString(),
-          contractAddress: receipt.contractAddress,
+          gasUsed: `${utils.formatUnits(receipt.gasUsed, "gwei")} gwei`,
           transactionHash: receipt.transactionHash,
           blockHash: receipt.blockHash,
         },
@@ -381,7 +381,7 @@ export class TransactionService {
   private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.error({ method, id: transaction.id, receipt, context, error: jsonifyError(error) }, "Tx failed.");
+    this.logger.error({ method, id: transaction.id, receipt, context, error }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }
