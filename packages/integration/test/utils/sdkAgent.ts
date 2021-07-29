@@ -13,7 +13,7 @@ import {
   SenderTransactionFulfilledPayload,
   SenderTransactionPreparedPayload,
   SenderTransactionPrepareSubmittedPayload,
-  SenderTransactionPrepareTokenApprovalPayload,
+  SenderTokenApprovalSubmittedPayload,
 } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
@@ -50,9 +50,7 @@ export interface SdkAgentEventPayloads extends NxtpSdkEventPayloads {
 
 const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } => {
   return {
-    [SdkAgentEvents.SenderTransactionPrepareTokenApproval]: Evt.create<
-      SenderTransactionPrepareTokenApprovalPayload & AddressField
-    >(),
+    [SdkAgentEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload & AddressField>(),
     [SdkAgentEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload & AddressField>(),
     [SdkAgentEvents.SenderTransactionPrepareSubmitted]: Evt.create<
       SenderTransactionPrepareSubmittedPayload & AddressField
