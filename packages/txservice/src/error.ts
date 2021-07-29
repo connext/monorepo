@@ -55,6 +55,7 @@ export class TransactionReverted extends TransactionError {
   static readonly type = TransactionReverted.name;
 
   static readonly reasons = {
+    GasEstimateFailed: "Operation for gas estimate failed; transaction was reverted on-chain.",
     InsufficientFunds: "Not enough funds in wallet.",
     /**
      * From ethers docs:
@@ -109,6 +110,18 @@ export class TimeoutError extends TransactionError {
   }
 }
 
+export class UnpredictableGasLimit extends TransactionError {
+  /**
+   * An error that we get back from ethers when we try to do a gas estimate, but this
+   * may need to be handled differently.
+   */
+  static readonly type = UnpredictableGasLimit.name;
+
+  constructor(public readonly context: any = {}) {
+    super("The gas estimate could not be determined.");
+  }
+}
+
 export class AlreadyMined extends TransactionError {
   /**
    * An error indicating that we got a "nonce expired"-like message back from
@@ -151,7 +164,6 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly type = TransactionServiceFailure.name;
 
   static readonly reasons = {
-    UnpredictableGasLimit: "The gas estimate could not be determined.",
     Timeout: "Timeout occurred during an RPC operation.",
     /**
      * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
@@ -195,12 +207,13 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.REPLACEMENT_UNDERPRICED:
       return new AlreadyMined(AlreadyMined.reasons.ReplacementUnderpriced, context);
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
-      return new TransactionServiceFailure(TransactionServiceFailure.reasons.UnpredictableGasLimit, context);
+      return new UnpredictableGasLimit(context);
     case Logger.errors.TIMEOUT:
       return new TimeoutError(context);
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
+      // TODO: Should this be a TransactionReverted error?
       return new ServerError(context);
     default:
       return error;

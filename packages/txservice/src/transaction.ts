@@ -5,7 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure, UnpredictableGasLimit } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -27,6 +27,7 @@ export class Transaction {
       ...this.minTx,
       gasPrice: this.gasPrice.get(),
       nonce: this.nonce,
+      gasLimit: this.gasPrice.limit,
     };
   }
 
@@ -93,21 +94,32 @@ export class Transaction {
    *
    * @param logger The pino.BaseLogger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
-   * @param minTx The minimum transaction data required to send a transaction.
+   * @param tx The minimum transaction data required to send a transaction.
    * @param config The overall shared config of TransactionService.
    */
   static async create(
     logger: BaseLogger,
     provider: ChainRpcProvider,
-    minTx: WriteTransaction,
+    tx: WriteTransaction,
     config: TransactionServiceConfig,
   ): Promise<Transaction> {
-    const result = await provider.getGasPrice();
+    let gasLimit: BigNumber;
+    let result = await provider.estimateGas(tx);
+    if (result.isErr()) {
+      if (result.error instanceof UnpredictableGasLimit) {
+        throw new TransactionReverted(TransactionReverted.reasons.GasEstimateFailed);
+      }
+      gasLimit = BigNumber.from(config.gasLimit);
+    } else {
+      gasLimit = result.value;
+    }
+
+    result = await provider.getGasPrice();
     if (result.isErr()) {
       throw result.error;
     }
-    const gasPrice = new GasPrice(result.value, BigNumber.from(config.gasLimit));
-    return new Transaction(logger, provider, minTx, config, gasPrice);
+    const gasPrice = new GasPrice(result.value, gasLimit);
+    return new Transaction(logger, provider, tx, config, gasPrice);
   }
 
   /**
