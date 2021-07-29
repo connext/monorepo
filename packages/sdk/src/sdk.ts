@@ -43,7 +43,10 @@ import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from 
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
 
 /** Gets the min expiry buffer to validate */
-export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
+export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
+
+/** Gets the max expiry buffer to validate */
+export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
 
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
@@ -181,6 +184,7 @@ export class NxtpSdkError extends NxtpError {
     ParamsError: "Invalid Parameters",
     ConfigError: "Invalid Config",
     AuctionError: "Auction Error",
+    EncryptionError: "Encryption Error",
   };
 
   constructor(
@@ -195,6 +199,7 @@ export class NxtpSdkError extends NxtpError {
       signerError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
       auctionError?: string;
+      encryptionError?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
@@ -391,6 +396,15 @@ export class NxtpSdk {
       });
     }
 
+    if (expiry - Date.now() / 1000 > getMaxExpiryBuffer()) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Expiry too high, must be at below ${Date.now() / 1000 + getMaxExpiryBuffer()}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
     const transactionId = params.transactionId ?? getRandomBytes32();
     const callTo = params.callTo ?? constants.AddressZero;
     const callData = params.callData ?? "0x";
@@ -406,20 +420,29 @@ export class NxtpSdk {
           params: [user], // you must have access to the specified account
         });
       } catch (error) {
-        let paramsError = "Error getting encryption key";
+        let encryptionError = "Error getting public key";
         if (error.code === 4001) {
           // EIP-1193 userRejectedRequest error
-          paramsError = "User rejected encryption key request";
+          encryptionError = "User rejected public key request";
         }
-        throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        throw new NxtpSdkError(NxtpSdkError.reasons.EncryptionError, {
           method,
           methodId,
-          paramsError,
+          encryptionError,
           transactionId: params.transactionId ?? "",
         });
       }
 
-      encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      try {
+        encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      } catch (e) {
+        throw new NxtpSdkError(NxtpSdkError.reasons.EncryptionError, {
+          method,
+          methodId,
+          encryptionError: e.message,
+          transactionId: params.transactionId ?? "",
+        });
+      }
     }
 
     if (!this.messaging.isConnected()) {
