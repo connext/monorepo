@@ -5,10 +5,10 @@ import { Evt } from "evt";
 import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { MinimalTransaction } from "./types";
+import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
-import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
+import { AlreadyMined, RpcError, TimeoutError, TransactionError, TransactionReverted, TransactionServiceFailure } from "./error";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -115,12 +115,13 @@ export class TransactionService {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(tx: MinimalTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: WriteTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = getUuid();
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
+    let submitFailed = false;
 
     try {
       while (!transaction.didFinish()) {
@@ -128,31 +129,33 @@ export class TransactionService {
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
-          );
-          if (error instanceof TransactionServiceFailure) {
-            // TODO: Might be worth attempting to confirm first?
-            // TransactionService infrastructure failed - error must be escalated for visiblity.
-            throw error;
-          }
-          // IF this is the first attempt, throw.
+          // IFF this is the first attempt, throw.
           // Otherwise, we should go ahead and get the receipt.
           if (transaction.attempt <= 1) {
             throw error;
+          } else if (error instanceof AlreadyMined) {
+            // If the error is an AlreadyMined error, we probably don't need to log a warning here.
+            this.logger.debug(
+              { method, methodId, requestContext, context: error.context },
+              "Tx was already mined, procceeding to confirmation step.",
+            );
+          } else {
+            this.logger.warn(
+              { method, methodId, requestContext, error },
+              "Tx submit failed for unexpected reason.",
+            );
           }
+          // Save the submit error to indicate we've failed here; this should be the last execution
+          // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
+          // mined, but we have logged it above.
+          submitFailed = true;
         }
 
         // Confirm step.
         try {
           await this.confirmTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
-          );
-          if (error instanceof TimeoutError) {
+          if (!submitFailed && error instanceof TimeoutError) {
             // This will bump gas price and loop back around starting at the
             // submit step.
             transaction.bumpGasPrice();
@@ -163,7 +166,18 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
-      throw error;
+      // Check to see if we have a normal error here.
+      const acceptableErrors = [
+        TransactionReverted,
+        RpcError,
+        TransactionServiceFailure,
+      ];
+      if (acceptableErrors.some(e => error instanceof e)) {
+        // If it is a normal error, we throw as is.
+        throw error;
+      }
+      // If we didn't get back a normal error, wrap it in a TransactionServiceFailure.
+      throw new TransactionServiceFailure(error.message, error);
     }
 
     return transaction.receipt!;
@@ -172,16 +186,14 @@ export class TransactionService {
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
-   * @param tx - Data to read
+   * @param tx - ReadTransaction to create contract call
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
-   * @param tx.value - Value to execute read tx with
    * @param tx.data - Calldata to send
-   * @param tx.from - (optional) Account to send tx from
+   * 
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  // TODO: read will never have a value/from, why include it in the type
-  public async readTx(tx: MinimalTransaction): Promise<string> {
+  public async readTx(tx: ReadTransaction): Promise<string> {
     const result = await this.getProvider(tx.chainId).readTransaction(tx);
     if (result.isErr()) {
       throw result.error;

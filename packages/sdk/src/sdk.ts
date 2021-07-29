@@ -69,7 +69,7 @@ export const CrossChainParamsSchema = Type.Object({
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
 export const NxtpSdkEvents = {
-  SenderTransactionPrepareTokenApproval: "SenderTransactionPrepareTokenApproval",
+  SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
   SenderTokenApprovalMined: "SenderTokenApprovalMined",
   SenderTransactionPrepareSubmitted: "SenderTransactionPrepareSubmitted",
   SenderTransactionPrepared: "SenderTransactionPrepared",
@@ -82,7 +82,7 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-export type SenderTransactionPrepareTokenApprovalPayload = {
+export type SenderTokenApprovalSubmitted = {
   assetId: string;
   chainId: number;
   transactionResponse: providers.TransactionResponse;
@@ -117,7 +117,7 @@ export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledE
 export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
 
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: SenderTransactionPrepareTokenApprovalPayload;
+  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmitted;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
   [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
   [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
@@ -155,7 +155,7 @@ const ajv = addFormats(new Ajv(), [
  */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
-    [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: Evt.create<SenderTransactionPrepareTokenApprovalPayload>(),
+    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmitted>(),
     [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
