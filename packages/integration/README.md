@@ -45,7 +45,7 @@ Start the chains and messaging with:
 
 `yarn workspace @connext/nxtp-integration docker:services:up`
 
-Deploy the contracts:
+Make sure you have added your router address to the `TEST_ROUTERS` array in `packages/contracts/deploy.ts` (this will ensure the router has liquidity and both the router and the asset are whitelisted), then deploy + setup the contracts:
 
 `bash setup-integration-test.sh`
 
@@ -53,7 +53,7 @@ The start the router:
 
 `yarn workspace @connext/nxtp-router dev`.
 
-Make sure you put a similarly structured config in your `ops/config/load/config.json` (but use a different mnemonic!):
+Make sure you put a similarly structured config in your `ops/config/load/config.json` (can use the same mnemonic as router, make sure accounts[0] is funded):
 
 ```json
 {
@@ -75,7 +75,7 @@ Make sure you put a similarly structured config in your `ops/config/load/config.
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "******",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
   "swapPools": [
     {
       "name": "TEST",
