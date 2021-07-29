@@ -1,13 +1,10 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 
-import { SdkAgent } from "../utils/sdkAgent";
 import { SdkManager } from "../utils/sdkManager";
+import { getConfig } from "../utils/config";
 
 const TIMEOUT = 15 * 60 * 100; // 15m in ms
-
-// TODO: move to config
-const sugardaddy_mnemonic = "";
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -16,9 +13,16 @@ const sugardaddy_mnemonic = "";
  * @param numberTransactions - Number of transactions each agent will send simultaneously through the router
  */
 const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions: number): Promise<void> => {
-  const log = pino({ level: "info" });
+  const config = getConfig();
+  const log = pino({ level: config.logLevel ?? "info" });
   // Create manager
-  const manager = await SdkManager.connect(sugardaddy_mnemonic, numberTransactions + 1);
+  const manager = await SdkManager.connect(
+    config.chainConfig,
+    config.mnemonic,
+    numberTransactions,
+    config.natsUrl,
+    config.authUrl,
+  );
   log.info({ agents: maxConcurrency }, "Created manager");
 
   let concurrency = 0;
@@ -32,22 +36,49 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     // concurrency
     const queue = new PriorityQueue({ concurrency });
 
+    // Get transfer info from config
+    // TODO: randomize?
+    const sendingChainId = parseInt(Object.keys(config.chainConfig)[0]);
+    const receivingChainId = parseInt(Object.keys(config.chainConfig)[1]);
+    const swap = config.swapPools.find((swap) => {
+      // Must have sending and receiving chain
+      const chains = swap.assets.map((a) => a.chainId);
+      return chains.includes(sendingChainId) && chains.includes(receivingChainId);
+    });
+    if (!swap) {
+      throw new Error(`Could not find matching swap in config: ${config.swapPools}`);
+    }
+    const { assetId: sendingAssetId } = swap.assets.find((a) => a.chainId === sendingChainId)!;
+    const { assetId: receivingAssetId } = swap.assets.find((a) => a.chainId === receivingChainId)!;
+
     // Add payment tasks to the queue
     // Each payment should be made via some random agent
     // TODO: no single agent should be sending multiple txs
     // because this is a concurrent queue and the nonce of the
     // wallet will be all fucked up. Should get a unique array of agents
     // who each send a transaction, all concurrently
-    const agents: SdkAgent[] = [];
     const tasks = Array(numberTransactions)
       .fill(0)
       .map((_) => {
-        const agent = manager.getRandomAgent(agents);
-        agents.push(agent);
-        //@ts-ignore
-        return manager.transfer({}, TIMEOUT, agent);
+        const task = async () => {
+          const agent = manager.getRandomAgent();
+          const result = await manager.transfer(
+            {
+              sendingAssetId,
+              sendingChainId,
+              receivingAssetId,
+              receivingChainId,
+              amount: "100000",
+            },
+            TIMEOUT,
+            agent,
+          );
+          return result;
+        };
+        return task;
       });
-    const results = await Promise.all(tasks.map((task) => queue.add(task as any)));
+    const results = await Promise.all(tasks.map((task) => queue.add(task)));
+
     // TODO: process loop stats
     const errored = results.filter((x) => !!(x as any).error);
     loopStats = {
@@ -55,10 +86,15 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       successful: results.length - errored.length,
       concurrency,
     };
+    if (errored.length === results.length) {
+      log.warn(loopStats, "All failed, exiting increases");
+      break;
+    }
     log.info(loopStats, "Increasing concurrency");
   }
 
-  log.info({ maxConcurrency }, "Test complete");
+  log.info({ maxConcurrency, concurrency }, "Test complete");
+  process.exit(0);
 };
 
-routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));
+routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "15"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));

@@ -2,6 +2,7 @@ import { CrossChainParams } from "@connext/nxtp-sdk";
 import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
 
 import { OnchainAccountManager } from "./accountManager";
+import { ChainConfig } from "./config";
 import { SdkAgent, SdkAgentEvents } from "./sdkAgent";
 
 export type TransactionInfo = {
@@ -21,13 +22,26 @@ export type TransactionInfo = {
 export class SdkManager {
   public readonly transactionInfo: { [transactionId: string]: TransactionInfo } = {};
 
-
   private constructor(private readonly onchainMgmt: OnchainAccountManager, private readonly agents: SdkAgent[]) {}
 
-  static async connect(mnemonic: string, numberUsers: number, natsUrl?: string, authUrl?: string): Promise<SdkManager> {
+  static async connect(
+    chainConfig: ChainConfig,
+    mnemonic: string,
+    numberUsers: number,
+    natsUrl?: string,
+    authUrl?: string,
+  ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
-    const onchain = new OnchainAccountManager(mnemonic, numberUsers);
-    await onchain.init(numberUsers);
+    const onchain = new OnchainAccountManager(chainConfig, mnemonic, numberUsers);
+    // TODO: this will be slow af
+    for (const chain of Object.keys(chainConfig)) {
+      await onchain.init(numberUsers, parseInt(chain));
+    }
+    // await Promise.all(
+    //   Object.keys(chainConfig)
+    //     .map((c) => parseInt(c))
+    //     .map((chain) => onchain.init(numberUsers, chain)),
+    // );
 
     // Create sdk agents
     const agents = await Promise.all(

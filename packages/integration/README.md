@@ -51,7 +51,42 @@ Deploy the contracts:
 
 The start the router:
 
-`yarn workspace @connext/nxtp-router dev`
+`yarn workspace @connext/nxtp-router dev`.
+
+Make sure you put a similarly structured config in your `ops/config/load/config.json` (but use a different mnemonic!):
+
+```json
+{
+  "adminToken": "blahblah",
+  "chainConfig": {
+    "1337": {
+      "providers": ["http://localhost:8545"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+    },
+    "1338": {
+      "providers": ["http://localhost:8546"],
+      "confirmations": 1,
+      "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+    }
+  },
+  "logLevel": "info",
+  "natsUrl": "nats://localhost:4222",
+  "authUrl": "http://localhost:5040",
+  "mnemonic": "******",
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
+        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+      ]
+    }
+  ]
+}
+```
 
 Then run the tests using the appropriate script. For example, to run the router concurrency tests, use:
 

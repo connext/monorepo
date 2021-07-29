@@ -14,6 +14,7 @@ import {
   SenderTransactionPreparedPayload,
   SenderTransactionPrepareSubmittedPayload,
   SenderTokenApprovalSubmittedPayload,
+  getMinExpiryBuffer,
 } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
@@ -24,6 +25,8 @@ import {
 import { providers, Signer } from "ethers";
 import pino from "pino";
 import { Evt } from "evt";
+
+import { ChainConfig } from "./config";
 
 type AddressField = { address: string };
 
@@ -110,9 +113,7 @@ export class SdkAgent {
    * @returns
    */
   static async connect(
-    chainProviders: {
-      [chainId: number]: { provider: providers.FallbackProvider };
-    },
+    chainProviders: ChainConfig,
     signer: Signer,
     natsUrl?: string,
     authUrl?: string,
@@ -123,7 +124,6 @@ export class SdkAgent {
 
     // Create sdk
     const agent = new SdkAgent(address, chainProviders, signer, natsUrl, authUrl, messaging);
-    await agent.sdk.connectMessaging();
 
     // Parrot all events
     agent.setupListeners();
@@ -201,7 +201,7 @@ export class SdkAgent {
   public async initiateCrosschainTransfer(
     params: Omit<CrossChainParams, "receivingAddress" | "expiry"> & { receivingAddress?: string },
   ): Promise<void> {
-    const minExpiry = 36 * 60 * 60; // 36h in seconds
+    const minExpiry = getMinExpiryBuffer(); // 36h in seconds
     const buffer = 5 * 60; // 5 min buffer
     // 0. Create bid
     const bid = {
