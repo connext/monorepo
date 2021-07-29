@@ -69,7 +69,7 @@ export const CrossChainParamsSchema = Type.Object({
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
 export const NxtpSdkEvents = {
-  SenderTransactionPrepareTokenApproval: "SenderTokenApprovalSubmitted",
+  SenderTransactionPrepareTokenApproval: "SenderTransactionPrepareTokenApproval",
   SenderTokenApprovalMined: "SenderTokenApprovalMined",
   SenderTransactionPrepareSubmitted: "SenderTransactionPrepareSubmitted",
   SenderTransactionPrepared: "SenderTransactionPrepared",
