@@ -21,7 +21,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@sinclair/typebox": "^0.20.2",
+    "@sinclair/typebox": "^0.20.4",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "axios": "^0.21.1",
     "chai": "4.3.4",

@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "^0.20.2",
+    "@sinclair/typebox": "^0.20.4",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.0",

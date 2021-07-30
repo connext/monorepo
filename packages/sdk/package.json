@@ -28,7 +28,7 @@
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "^0.20.2",
+    "@sinclair/typebox": "^0.20.4",
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.0",
     "ethers": "^5.4.2",
