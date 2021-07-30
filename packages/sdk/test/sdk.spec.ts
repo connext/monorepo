@@ -28,7 +28,6 @@ describe("NxtpSdk", () => {
       logger,
       undefined,
       undefined,
-      undefined,
       messaging as unknown as UserNxtpNatsMessagingService,
     );
   });
