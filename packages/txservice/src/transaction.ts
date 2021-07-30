@@ -3,10 +3,9 @@ import { BaseLogger } from "pino";
 import { getUuid } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig } from "./config";
-// import { ChainError } from "./error";
 import { ChainRpcProvider } from "./provider";
-import { FullTransaction, GasPrice, MinimalTransaction } from "./types";
-import { NonceExpired, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { FullTransaction, GasPrice, WriteTransaction } from "./types";
+import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -83,7 +82,7 @@ export class Transaction {
   private constructor(
     private readonly logger: BaseLogger,
     private readonly provider: ChainRpcProvider,
-    private readonly minTx: MinimalTransaction,
+    private readonly minTx: WriteTransaction,
     private readonly config: TransactionServiceConfig,
     private readonly gasPrice: GasPrice,
   ) {}
@@ -100,7 +99,7 @@ export class Transaction {
   static async create(
     logger: BaseLogger,
     provider: ChainRpcProvider,
-    minTx: MinimalTransaction,
+    minTx: WriteTransaction,
     config: TransactionServiceConfig,
   ): Promise<Transaction> {
     const result = await provider.getGasPrice();
@@ -164,7 +163,7 @@ export class Transaction {
       // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
       // trying to send here.
       let { error } = result;
-      if (error instanceof NonceExpired) {
+      if (error instanceof AlreadyMined && error.reason === AlreadyMined.reasons.NonceExpired) {
         let nonceErrorCount = 1;
         this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
         while (!this.didSubmit) {
@@ -172,7 +171,7 @@ export class Transaction {
           if (result.isErr()) {
             error = result.error;
 
-            if (error instanceof NonceExpired) {
+            if (error instanceof AlreadyMined && error.reason === AlreadyMined.reasons.NonceExpired) {
               nonceErrorCount++;
               this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
             } else {
@@ -221,15 +220,19 @@ export class Transaction {
     const method = this.confirm.name;
 
     // Ensure we've submitted at least 1 tx.
-    if (this.responses.length === 0) {
+    if (!this.didSubmit()) {
       throw new TransactionServiceFailure("Transaction confirm was called, but no transaction has been sent.", {
         method,
+        id: this.id,
       });
     }
 
     // Ensure we don't already have a receipt.
     if (this.receipt != null) {
-      throw new TransactionServiceFailure("Transaction confirm was called, but we already have receipt.", { method });
+      throw new TransactionServiceFailure("Transaction confirm was called, but we already have receipt.", {
+        method,
+        id: this.id,
+      });
     }
 
     // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
@@ -260,14 +263,31 @@ export class Transaction {
       this.receipt = result.value;
     }
 
+    // Sanity checks.
     if (this.receipt == null) {
       // Receipt is undefined or null. This normally should never occur.
       throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
         method,
         receipt: this.receipt,
+        hash: response.hash,
+        id: this.id,
       });
     } else if (this.receipt.status === 0) {
-      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.");
+      // This should never occur. We should always get a TransactionReverted error in this event.
+      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
+        method,
+        receipt: this.receipt,
+        hash: response.hash,
+        id: this.id,
+      });
+    } else if (this.receipt.confirmations < 1) {
+      // Again, should never occur.
+      throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!", {
+        method,
+        receipt: this.receipt,
+        hash: response.hash,
+        id: this.id,
+      });
     }
 
     if (this.receipt.confirmations < this.provider.confirmationsRequired) {
@@ -276,7 +296,13 @@ export class Transaction {
       const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
       if (result.isErr()) {
         // No errors should occur during this confirmation attempt.
-        throw result.error;
+        throw new TransactionServiceFailure("Unable to confirm transaction even after receiving 1 confirmation.", {
+          method,
+          receipt: this.receipt,
+          error: result.error,
+          hash: response.hash,
+          id: this.id,
+        });
       }
       this.receipt = result.value;
     }

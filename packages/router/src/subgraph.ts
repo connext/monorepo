@@ -215,7 +215,6 @@ export class Subgraph {
                 encodedBid: senderTx.encodedBid,
                 encryptedCallData: senderTx.encryptedCallData,
                 txData: convertTransactionToTxData(senderTx),
-                transactionHash: senderTx.transactionHash,
               },
             });
           } else if (corresponding.status === TransactionStatus.Fulfilled) {
@@ -227,7 +226,6 @@ export class Subgraph {
                 encodedBid: senderTx.encodedBid,
                 encryptedCallData: senderTx.encryptedCallData,
                 txData: convertTransactionToTxData(senderTx),
-                transactionHash: senderTx.transactionHash,
               },
               receiverEvent: {
                 signature: corresponding.signature,
@@ -235,7 +233,6 @@ export class Subgraph {
                 callData: corresponding.callData ?? "0x",
                 caller: corresponding.fulfillCaller,
                 txData: convertTransactionToTxData(corresponding),
-                transactionHash: senderTx.transactionHash,
               },
             });
           } else if (corresponding.status === TransactionStatus.Cancelled) {
@@ -246,13 +243,11 @@ export class Subgraph {
                 encodedBid: senderTx.encodedBid,
                 encryptedCallData: senderTx.encryptedCallData,
                 txData: convertTransactionToTxData(senderTx),
-                transactionHash: senderTx.transactionHash,
               },
               receiverEvent: {
                 relayerFee: corresponding.relayerFee,
                 caller: corresponding.cancelCaller,
                 txData: convertTransactionToTxData(corresponding),
-                transactionHash: senderTx.transactionHash,
               },
             });
           }

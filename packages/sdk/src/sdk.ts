@@ -69,7 +69,7 @@ export const CrossChainParamsSchema = Type.Object({
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
 export const NxtpSdkEvents = {
-  SenderTransactionPrepareTokenApproval: "SenderTokenApprovalSubmitted",
+  SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
   SenderTokenApprovalMined: "SenderTokenApprovalMined",
   SenderTransactionPrepareSubmitted: "SenderTransactionPrepareSubmitted",
   SenderTransactionPrepared: "SenderTransactionPrepared",
@@ -82,7 +82,7 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-export type SenderTransactionPrepareTokenApprovalPayload = {
+export type SenderTokenApprovalSubmitted = {
   assetId: string;
   chainId: number;
   transactionResponse: providers.TransactionResponse;
@@ -105,17 +105,28 @@ export type ReceiverPrepareSignedPayload = {
   transactionId: string;
 };
 
+export type SdkEvent<T> = T & {
+  transactionHash: string;
+};
+
+export type SenderTransactionPreparedPayload = SdkEvent<TransactionPreparedEvent>;
+export type SenderTransactionFulfilledPayload = SdkEvent<TransactionFulfilledEvent>;
+export type SenderTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
+export type ReceiverTransactionPreparedPayload = SdkEvent<TransactionPreparedEvent>;
+export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledEvent>;
+export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
+
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: SenderTransactionPrepareTokenApprovalPayload;
+  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmitted;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
   [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
-  [NxtpSdkEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
-  [NxtpSdkEvents.SenderTransactionFulfilled]: TransactionFulfilledEvent;
-  [NxtpSdkEvents.SenderTransactionCancelled]: TransactionCancelledEvent;
+  [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
+  [NxtpSdkEvents.SenderTransactionFulfilled]: SenderTransactionFulfilledPayload;
+  [NxtpSdkEvents.SenderTransactionCancelled]: SenderTransactionCancelledPayload;
   [NxtpSdkEvents.ReceiverPrepareSigned]: ReceiverPrepareSignedPayload;
-  [NxtpSdkEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
-  [NxtpSdkEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
-  [NxtpSdkEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
+  [NxtpSdkEvents.ReceiverTransactionPrepared]: ReceiverTransactionPreparedPayload;
+  [NxtpSdkEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
+  [NxtpSdkEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
 }
 
 const ajv = addFormats(new Ajv(), [
@@ -144,16 +155,16 @@ const ajv = addFormats(new Ajv(), [
  */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
-    [NxtpSdkEvents.SenderTransactionPrepareTokenApproval]: Evt.create<SenderTransactionPrepareTokenApprovalPayload>(),
+    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmitted>(),
     [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
-    [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
+    [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<SenderTransactionFulfilledPayload>(),
+    [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<SenderTransactionCancelledPayload>(),
     [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload>(),
-    [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload>(),
+    [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload>(),
+    [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload>(),
   };
 };
 

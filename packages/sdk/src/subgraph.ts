@@ -1,16 +1,16 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import {
-  getUuid,
-  TransactionCancelledEvent,
-  TransactionData,
-  TransactionFulfilledEvent,
-  TransactionPreparedEvent,
-} from "@connext/nxtp-utils";
+import { getUuid, TransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
-import { NxtpSdkEvent } from "./sdk";
+import {
+  NxtpSdkEvent,
+  ReceiverTransactionCancelledPayload,
+  ReceiverTransactionFulfilledPayload,
+  ReceiverTransactionPreparedPayload,
+  SenderTransactionPreparedPayload,
+} from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
 /**
@@ -28,6 +28,8 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
     case 5:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli";
+    case 69:
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan";
     case 80001:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
     case 421611:
@@ -71,10 +73,10 @@ export const SubgraphEvents = {
 export type SubgraphEvent = typeof SubgraphEvents[keyof typeof SubgraphEvents];
 
 export interface SubgraphEventPayloads {
-  [SubgraphEvents.SenderTransactionPrepared]: TransactionPreparedEvent;
-  [SubgraphEvents.ReceiverTransactionPrepared]: TransactionPreparedEvent;
-  [SubgraphEvents.ReceiverTransactionFulfilled]: TransactionFulfilledEvent;
-  [SubgraphEvents.ReceiverTransactionCancelled]: TransactionCancelledEvent;
+  [SubgraphEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
+  [SubgraphEvents.ReceiverTransactionPrepared]: ReceiverTransactionPreparedPayload;
+  [SubgraphEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
+  [SubgraphEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
 }
 
 /**
@@ -85,10 +87,10 @@ export const createSubgraphEvts = (): {
   [K in SubgraphEvent]: Evt<SubgraphEventPayloads[K]>;
 } => {
   return {
-    [SubgraphEvents.SenderTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [SubgraphEvents.ReceiverTransactionPrepared]: Evt.create<TransactionPreparedEvent>(),
-    [SubgraphEvents.ReceiverTransactionFulfilled]: Evt.create<TransactionFulfilledEvent>(),
-    [SubgraphEvents.ReceiverTransactionCancelled]: Evt.create<TransactionCancelledEvent>(),
+    [SubgraphEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
+    [SubgraphEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload>(),
+    [SubgraphEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload>(),
+    [SubgraphEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload>(),
   };
 };
 
@@ -189,7 +191,7 @@ export class Subgraph {
                   caller: senderTx.prepareCaller,
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
-                  transactionHash: senderTx.transactionHash,
+                  transactionHash: senderTx.prepareTransactionHash,
                 };
                 if (!active) {
                   this.evts.SenderTransactionPrepared.post(tx);
@@ -208,7 +210,7 @@ export class Subgraph {
                   caller: correspondingReceiverTx.prepareCaller,
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
-                  transactionHash: correspondingReceiverTx.transactionHash,
+                  transactionHash: correspondingReceiverTx.prepareTransactionHash,
                 };
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -229,7 +231,7 @@ export class Subgraph {
                   relayerFee: correspondingReceiverTx.relayerFee,
                   callData: correspondingReceiverTx.callData!,
                   caller: correspondingReceiverTx.fulfillCaller,
-                  transactionHash: correspondingReceiverTx.transactionHash,
+                  transactionHash: correspondingReceiverTx.fulfillTransactionHash,
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
@@ -244,7 +246,7 @@ export class Subgraph {
                   txData: convertTransactionToTxData(correspondingReceiverTx),
                   relayerFee: correspondingReceiverTx.relayerFee,
                   caller: correspondingReceiverTx.fulfillCaller,
-                  transactionHash: correspondingReceiverTx.transactionHash,
+                  transactionHash: correspondingReceiverTx.cancelTransactionHash,
                 };
                 // if receiver is cancelled, its a receiver cancelled
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
