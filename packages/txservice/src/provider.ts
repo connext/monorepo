@@ -11,6 +11,10 @@ import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
+const HARDCODED_GAS_PRICE: Record<number, string> = {
+  69: "15000000", // optimism
+};
+
 // TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
 
@@ -123,7 +127,7 @@ export class ChainRpcProvider {
       const result = await this.queue.add(async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
         try {
           // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
-          transaction.nonce = transaction.nonce ?? await this.getNonce();
+          transaction.nonce = transaction.nonce ?? (await this.getNonce());
 
           // Send the transaction.
           const response = await this.signer.sendTransaction(transaction);
@@ -199,6 +203,12 @@ export class ChainRpcProvider {
    * @returns The BigNumber value for the current gas price.
    */
   public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
+    const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
+    if (hardcoded) {
+      this.logger.info({ chainId: this.chainId, hardcoded }, "Using hardcoded gas price for chain");
+      return okAsync(BigNumber.from(hardcoded));
+    }
+
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
     if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
       return okAsync(this.cachedGas.price);
@@ -358,7 +368,7 @@ export class ChainRpcProvider {
    * submit the tx.
    *
    * @returns A number value for the current nonce.
-   * 
+   *
    * @throws RpcError if we fail to get transaction count from all providers.
    */
   private async getNonce(): Promise<number> {
