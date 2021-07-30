@@ -38,20 +38,20 @@ export const ProviderConfigSchema = Type.Object({
   /* From ethers:
    * The priority used for the provider. Lower-value priorities are favoured over higher-value priorities. If
    * multiple providers share the same priority, they are chosen at random.
-   * 
+   *
    * Defaults to 1.
    */
   priority: Type.Optional(Type.Number()),
 
   /* From ethers:
    * The weight a response from this provider provides. This can be used if a given Provider is more trusted, for example.
-   * 
+   *
    * Defaults to 1.
    */
   weight: Type.Optional(Type.Number()),
 
   /* From ethers:
-   * The timeout (in ms) after which another Provider will be attempted. This does not affect the current Provider; 
+   * The timeout (in ms) after which another Provider will be attempted. This does not affect the current Provider;
    * if it returns a result it is counted as part of the quorum.
    * Lower values will result in more network traffic, but may reduce the response time of requests.
    */
@@ -109,7 +109,7 @@ const TransactionServiceConfigSchema = Type.Object({
 
   /// CHAINS
   // Configuration for each chain that this txservice will be supporting.
-  chains: Type.Dict(ChainConfigSchema),
+  chains: Type.Record(TIntegerString, ChainConfigSchema),
 });
 
 export type TransactionServiceConfig = Static<typeof TransactionServiceConfigSchema>;

@@ -36,12 +36,12 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "^5.4.1",
+    "ethers": "^5.4.2",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.21.0",
+    "@graphprotocol/graph-cli": "0.21.1",
     "@graphprotocol/graph-ts": "0.20.1",
-    "sinon": "^11.1.1"
+    "sinon": "^11.1.2"
   }
 }

@@ -6,7 +6,7 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
-import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId } from "@connext/nxtp-utils";
+import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId, TIntegerString } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
@@ -50,7 +50,7 @@ export const TSwapPool = Type.Object({
 
 const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
-  chainConfig: Type.Dict(TChainConfig),
+  chainConfig: Type.Record(TIntegerString, TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),
@@ -126,9 +126,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
-          (contractDeployments as any)[chainId],
-        )[0] as any).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
+          Object.values((contractDeployments as any)[chainId])[0] as any
+        ).contracts.TransactionManager.address;
       } catch (e) {}
     }
     if (!chainConfig.minGas) {
