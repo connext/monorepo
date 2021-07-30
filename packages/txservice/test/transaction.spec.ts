@@ -20,6 +20,7 @@ describe("Transaction", () => {
     chainProvider = createStubInstance(ChainRpcProvider);
     chainProvider.confirmationTimeout = 60_000;
     chainProvider.confirmationsRequired = txReceipt.confirmations;
+    chainProvider.estimateGas.resolves(ok(BigNumber.from(DEFAULT_CONFIG.gasLimit)));
     chainProvider.getGasPrice.resolves(ok(txResponse.gasPrice));
     chainProvider.sendTransaction.resolves(ok(txResponse));
     (chainProvider as any).config = DEFAULT_CONFIG;
@@ -59,10 +60,12 @@ describe("Transaction", () => {
       expect({
         ...targetTx,
         gasPrice: targetTx.gasPrice.toString(),
+        gasLimit: targetTx.gasLimit.toString(),
       }).to.deep.eq({
         ...tx,
         gasPrice: txResponse.gasPrice.toString(),
         nonce: undefined,
+        gasLimit: DEFAULT_CONFIG.gasLimit,
       });
     });
   });
