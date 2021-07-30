@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "",
   "scripts": {
     "test": "hardhat test",
@@ -31,19 +31,19 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "3.4.1-solc-0.7",
-    "@sinclair/typebox": "^0.17.8",
+    "@sinclair/typebox": "^0.20.2",
     "@typechain/ethers-v5": "^7.0.1",
-    "@typechain/hardhat": "^2.1.2",
+    "@typechain/hardhat": "^2.2.0",
     "@types/chai": "^4.2.21",
-    "@types/mocha": "^8.2.3",
-    "@types/node": "^15.14.1",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.4.5",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.4.1",
-    "hardhat": "^2.4.3",
+    "ethers": "^5.4.2",
+    "hardhat": "^2.5.0",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
-    "sinon": "^11.1.1",
+    "sinon": "^11.1.2",
     "solidity-coverage": "^0.7.16",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
@@ -51,14 +51,14 @@
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
     "@eth-optimism/hardhat-ovm": "^0.2.2",
-    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
     "adv": "^0.1.5",
     "ajv": "^8.6.2",
     "dotenv": "^10.0.0",
-    "eslint": "^7.30.0",
+    "eslint": "^7.31.0",
     "hardhat-deploy": "^0.8.11",
     "hardhat-gas-reporter": "^1.0.4",
-    "typechain": "^5.1.1"
+    "typechain": "^5.1.2"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
 }

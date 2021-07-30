@@ -1,5 +1,5 @@
 {
-  "version": "0.0.13",
+  "version": "0.0.14",
   "name": "@connext/nxtp-subgraph",
   "license": "UNLICENSED",
   "scripts": {
@@ -12,6 +12,7 @@
     "prepare:rinkeby:prod": "mustache config/rinkeby.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:mumbai:prod": "mustache config/mumbai.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:arbitrum-rinkeby:prod": "mustache config/arbitrum-rinkeby.prod.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:optimism-kovan:prod": "mustache config/optimism-kovan.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:goerli:staging": "mustache config/goerli.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:rinkeby:staging": "mustache config/rinkeby.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:local": "mustache config/local.json subgraph.template.yaml > subgraph.yaml",
@@ -19,6 +20,7 @@
     "deploy:rinkeby:prod": "yarn prepare:rinkeby:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby",
     "deploy:mumbai:prod": "yarn prepare:mumbai:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-mumbai",
     "deploy:arbitrum-rinkeby:prod": "yarn prepare:arbitrum-rinkeby:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-arbitrum-rinkeby",
+    "deploy:optimism-kovan:prod": "yarn prepare:optimism-kovan:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-optimism-kovan",
     "deploy:goerli:staging": "yarn prepare:goerli:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli-staging",
     "deploy:rinkeby:staging": "yarn prepare:rinkeby:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby-staging",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
@@ -34,12 +36,12 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "^5.4.1",
+    "ethers": "^5.4.2",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.21.0",
+    "@graphprotocol/graph-cli": "0.21.1",
     "@graphprotocol/graph-ts": "0.20.1",
-    "sinon": "^11.1.1"
+    "sinon": "^11.1.2"
   }
 }

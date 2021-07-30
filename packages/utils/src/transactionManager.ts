@@ -63,7 +63,6 @@ export type TransactionPreparedEvent = {
   encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
-  transactionHash: string;
 };
 
 export type TransactionFulfilledEvent = {
@@ -72,12 +71,10 @@ export type TransactionFulfilledEvent = {
   relayerFee: string;
   callData: string;
   caller: string;
-  transactionHash: string;
 };
 
 export type TransactionCancelledEvent = {
   txData: TransactionData;
   relayerFee: string;
   caller: string;
-  transactionHash: string;
 };

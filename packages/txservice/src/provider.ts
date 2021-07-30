@@ -8,9 +8,13 @@ import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
 import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
-import { FullTransaction, MinimalTransaction, CachedGas } from "./types";
+import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
+
+const HARDCODED_GAS_PRICE: Record<number, string> = {
+  69: "15000000", // optimism
+};
 
 // TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
@@ -105,37 +109,36 @@ export class ChainRpcProvider {
    * and a success boolean indicating whether the process did result in an error.
    */
   public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
+    // Do any parsing and value handling work here if necessary.
+    const transaction = {
+      to: tx.to,
+      data: tx.data,
+      chainId: tx.chainId,
+      gasPrice: tx.gasPrice,
+      nonce: tx.nonce,
+      value: BigNumber.from(tx.value || 0),
+    };
+
     return this.resultWrapper<providers.TransactionResponse>(this.sendTransaction.name, async () => {
       // Define task to send tx with proper nonce.
       const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
         try {
-          // Do any parsing and value handling work here if necessary.
-          const transaction = {
-            to: tx.to,
-            data: tx.data,
-            chainId: tx.chainId,
-            gasPrice: tx.gasPrice,
-            nonce: tx.nonce,
-            value: BigNumber.from(tx.value || 0),
-          };
-          let response: providers.TransactionResponse | undefined;
-          if (transaction.nonce) {
-            response = await this.signer.sendTransaction(transaction);
-          } else {
-            const nonce = await this.getNonce();
-            // NOTE: This can fail. If we throw an error here, increment nonce will never be called.
-            response = await this.signer.sendTransaction({ ...transaction, nonce });
-            this.incrementNonce();
-          }
+          // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
+          transaction.nonce = transaction.nonce ?? (await this.getNonce());
 
-          // const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction();
+          // Send the transaction.
+          const response = await this.signer.sendTransaction(transaction);
+
+          // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
           if (response == null) {
-            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
             throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-              transaction: tx,
+              transaction,
               response,
             });
           }
+
+          // We increment the nonce here, as we know the transaction was sent (response is defined).
+          this.incrementNonce();
           return { response, success: true };
         } catch (e) {
           return { response: e, success: false };
@@ -159,7 +162,7 @@ export class ChainRpcProvider {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public readTransaction(tx: MinimalTransaction): ResultAsync<string, TransactionError> {
+  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(this.readTransaction.name, async () => {
       try {
         const readResult = await this.signer.call(tx);
@@ -199,6 +202,12 @@ export class ChainRpcProvider {
    * @returns The BigNumber value for the current gas price.
    */
   public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
+    const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
+    if (hardcoded) {
+      this.logger.info({ chainId: this.chainId, hardcoded }, "Using hardcoded gas price for chain");
+      return okAsync(BigNumber.from(hardcoded));
+    }
+
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
     if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
       return okAsync(this.cachedGas.price);
@@ -355,7 +364,7 @@ export class ChainRpcProvider {
    * submit the tx.
    *
    * @returns A number value for the current nonce.
-   * 
+   *
    * @throws RpcError if we fail to get transaction count from all providers.
    */
   private async getNonce(): Promise<number> {

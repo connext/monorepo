@@ -28,7 +28,6 @@ export const getSenderTransactionsQuery = gql`
         receivingChainId
         callDataHash
         transactionId
-        transactionHash
         amount
         expiry
         preparedBlockNumber
@@ -38,6 +37,9 @@ export const getSenderTransactionsQuery = gql`
         prepareCaller
         fulfillCaller
         cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
       }
     }
   }
@@ -69,7 +71,6 @@ export const getReceiverTransactionsQuery = gql`
         receivingChainId
         callDataHash
         transactionId
-        transactionHash
         amount
         expiry
         preparedBlockNumber
@@ -79,6 +80,9 @@ export const getReceiverTransactionsQuery = gql`
         prepareCaller
         fulfillCaller
         cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
       }
     }
   }
@@ -105,7 +109,6 @@ export const getTransactionByIdQuery = gql`
       receivingChainId
       callDataHash
       transactionId
-      transactionHash
       amount
       expiry
       preparedBlockNumber
@@ -118,6 +121,9 @@ export const getTransactionByIdQuery = gql`
       prepareCaller
       fulfillCaller
       cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
     }
   }
 `;
@@ -143,7 +149,6 @@ export const getTransactionsByIdsQuery = gql`
       receivingChainId
       callDataHash
       transactionId
-      transactionHash
       amount
       expiry
       preparedBlockNumber
@@ -153,6 +158,9 @@ export const getTransactionsByIdsQuery = gql`
       prepareCaller
       fulfillCaller
       cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
     }
   }
 `;

@@ -2,12 +2,12 @@ import { providers, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
 
-import { MinimalTransaction } from "../src/types";
+import { WriteTransaction } from "../src/types";
 
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
 
-export const tx: MinimalTransaction = {
+export const tx: WriteTransaction = {
   chainId: 1337,
   to: AddressZero,
   from: AddressZero,
