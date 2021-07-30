@@ -153,8 +153,8 @@ function App(): React.ReactElement | null {
         );
       });
 
-      _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareTokenApproval, (data) => {
-        console.log("SenderTransactionPrepareTokenApproval:", data);
+      _sdk.attach(NxtpSdkEvents.SenderTokenApprovalMined, (data) => {
+        console.log("SenderTokenApprovalMined:", data);
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, (data) => {
