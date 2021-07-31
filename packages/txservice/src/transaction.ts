@@ -5,12 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import {
-  AlreadyMined,
-  TransactionReplaced,
-  TransactionReverted,
-  TransactionServiceFailure,
-} from "./error";
+import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast

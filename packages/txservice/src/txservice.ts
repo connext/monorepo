@@ -213,23 +213,6 @@ export class TransactionService {
     }
   }
 
-  /**
-   * Returns an estimate of how much gas a given transaction would consume once sent.
-   *
-   * @param chainId - Chain to execute tx on
-   * @param transaction Transaction to estimate gas of
-   *
-   * @returns BigNumber representation of the approximate gas a given tx would consume
-   */
-  public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).estimateGas(transaction);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
   /// LISTENER METHODS
   /**
    * Attaches a callback to the emitted event

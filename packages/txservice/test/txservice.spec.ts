@@ -1,5 +1,5 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
 
@@ -14,7 +14,7 @@ import {
   TEST_TX_RECEIPT,
   TEST_READ_TX,
 } from "./constants";
-import { TimeoutError, TransactionServiceFailure } from "../src/error";
+import { AlreadyMined, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
 import { getRandomAddress, getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
 import { DEFAULT_CONFIG } from "../src/config";
 import { ok } from "neverthrow";
@@ -30,6 +30,7 @@ let context: RequestContext = {
   id: "",
   origin: "",
 };
+let txCreateStub: SinonStub;
 
 /// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
 /// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
@@ -37,10 +38,13 @@ describe("TransactionService", () => {
   let didFinish = false;
   let confirmCount = 0;
   let confirmAttemptShouldSucceed = 0;
-  let gasPrice = beforeEach(() => {
+  let attemptNumber = 0;
+
+  beforeEach(() => {
     didFinish = false;
     confirmCount = 0;
     confirmAttemptShouldSucceed = 0;
+    attemptNumber = 0;
 
     chainProvider = createStubInstance(ChainRpcProvider);
     transaction = createStubInstance(Transaction);
@@ -70,11 +74,15 @@ describe("TransactionService", () => {
     //   return chainProvider;
     // };
 
-    Sinon.stub(Transaction, "create").callsFake(async (): Promise<Transaction> => {
+    txCreateStub = Sinon.stub(Transaction, "create").callsFake(async (): Promise<Transaction> => {
       return transaction as unknown as Transaction;
     });
-    transaction.submit.resolves(TEST_TX_RESPONSE);
-    // This will be updated once the transaction resolver is called.
+    transaction.submit.callsFake(async (): Promise<providers.TransactionResponse> => {
+      attemptNumber++;
+      return TEST_TX_RESPONSE;
+    });
+    // NOTE: Do NOT override this sinon stub. We are using this fake call to update the transaction
+    // stub's internal state.
     transaction.confirm.callsFake(async (): Promise<providers.TransactionReceipt> => {
       if (confirmCount === confirmAttemptShouldSucceed) {
         didFinish = true;
@@ -95,6 +103,8 @@ describe("TransactionService", () => {
       nonce: undefined,
       gasLimit: DEFAULT_CONFIG.gasLimit,
     }));
+    // Stub the getter for attempt.
+    Sinon.stub(transaction, "attempt").get(() => attemptNumber);
 
     context.id = getRandomBytes32();
     context.origin = "TransactionServiceTest";
@@ -109,7 +119,19 @@ describe("TransactionService", () => {
     it("happy: tx sent and confirmed", async () => {
       const receipt = await txService.sendTx(TEST_TX, context);
 
+      expect(txCreateStub.callCount).to.be.eq(1);
+      expect(txCreateStub.getCall(0).args[2]).to.be.deep.eq(TEST_TX);
+      expect(transaction.submit.callCount).to.be.eq(1);
+      expect(transaction.confirm.callCount).to.be.eq(1);
       expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
+    });
+
+    it("throws if submit fails on first attempt", async () => {
+      const callException = new TransactionReverted(TransactionReverted.reasons.ExecutionFailed);
+      transaction.submit.rejects(callException);
+
+      // We should get the exact error back.
+      await expect(txService.sendTx(TEST_TX, context)).to.be.rejectedWith(callException);
     });
 
     it("retries transaction with higher gas price", async () => {
@@ -121,6 +143,16 @@ describe("TransactionService", () => {
 
       expect(transaction.confirm.callCount).to.equal(2);
       expect(transaction.bumpGasPrice.callCount).to.equal(1);
+    });
+
+    it("handles failure on retry due to tx already mined", async () => {
+      confirmAttemptShouldSucceed = 1;
+      transaction.submit.onCall(1).callsFake(async (): Promise<providers.TransactionResponse> => {
+        attemptNumber++;
+        throw new AlreadyMined(AlreadyMined.reasons.ReplacementUnderpriced);
+      });
+
+      await txService.sendTx(TEST_TX, context);
     });
   });
 
