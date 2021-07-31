@@ -41,7 +41,7 @@ import { Subgraph } from "./subgraph";
 
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
-
+export const ONE_DAY_IN_SECONDS = 3600 * 24;
 export interface TransactionDataParams {
   user: string;
   router: string;
@@ -82,6 +82,7 @@ export class HandlerError extends NxtpError {
       methodId: string;
       method: string;
       calling: string;
+      cancellable?: boolean;
     },
   ) {
     super(message, context, HandlerError.type);
@@ -568,6 +569,8 @@ export class Handler {
     // that user is only sending stuff that makes sense is possibly ok since otherwise
     // they're losing gas costs
 
+    const receiverExpiry = mutateExpiry(txData.expiry);
+
     let bid: AuctionBid;
     const validationRes = Result.fromThrowable(
       decodeAuctionBid,
@@ -595,7 +598,7 @@ export class Handler {
             }),
         )(bid, bidSignature);
       })
-      .andThen((recovered) => {
+      .andThen<undefined, HandlerError>((recovered) => {
         if (recovered !== this.signer.address) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
@@ -609,7 +612,7 @@ export class Handler {
         }
         return ok(undefined);
       })
-      .andThen(() => {
+      .andThen<undefined, HandlerError>(() => {
         // TODO: anything else? seems unnecessary to validate everything
         if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
           return err(
@@ -619,6 +622,21 @@ export class Handler {
               calling: "",
               requestContext,
               prepareError: "Bid params not equal to tx data",
+            }),
+          );
+        }
+        return ok(undefined);
+      })
+      .andThen<undefined, HandlerError>(() => {
+        if (receiverExpiry - Date.now() / 1000 < ONE_DAY_IN_SECONDS) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              requestContext,
+              prepareError: "receiverExpiry < txData.expiry",
+              cancellable: true,
             }),
           );
         }
@@ -638,6 +656,28 @@ export class Handler {
         },
         "Error during validation",
       );
+
+      if (validationRes.error.context.cancellable) {
+        this.logger.info({ method, methodId, requestContext }, "Cancelling transaction");
+        const cancelRes = await this.txManager.cancel(
+          txData.sendingChainId,
+          {
+            relayerFee: "0",
+            txData,
+            signature: "0x",
+          },
+          requestContext,
+        );
+        if (cancelRes.isOk()) {
+          this.logger.info({ method, methodId, requestContext }, "Cancelled transaction");
+        } else {
+          this.logger.error(
+            { method, methodId, requestContext, err: jsonifyError(cancelRes.error) },
+            "Error cancelling transaction",
+          );
+        }
+      }
+      this.receiverPreparing.delete(txData.transactionId);
       return;
     }
 
@@ -672,7 +712,7 @@ export class Handler {
       {
         txData,
         amount: mutateAmount(txData.amount),
-        expiry: mutateExpiry(txData.expiry),
+        expiry: receiverExpiry,
         bidSignature,
         encodedBid,
         encryptedCallData,
