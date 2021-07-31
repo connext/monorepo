@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": true,
   "devDependencies": {
     "@jtbennett/ts-project-scripts": "^1.0.0-rc.4",
