@@ -68,14 +68,14 @@ describe.only("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
 
     signer.getAddress.resolves(user);
-    // sdk = new NxtpSdk(
-    //   chainConfig,
-    //   signer,
-    //   logger,
-    //   undefined,
-    //   undefined,
-    //   (messaging as unknown) as UserNxtpNatsMessagingService,
-    // );
+    sdk = new NxtpSdk(
+      chainConfig,
+      signer,
+      logger,
+      undefined,
+      undefined,
+      (messaging as unknown) as UserNxtpNatsMessagingService,
+    );
 
     messaging.connect.resolves(response);
   });
@@ -168,7 +168,7 @@ describe.only("NxtpSdk", () => {
       },
     };
 
-    it.only("should error if transaction manager doesn't exist for chainId", () => {
+    it("should error if transaction manager doesn't exist for chainId", () => {
       const _chainConfig = {
         [sendingChainId]: {
           provider: provider1337,
@@ -184,13 +184,12 @@ describe.only("NxtpSdk", () => {
         const instance = new NxtpSdk(_chainConfig, signer, logger, "http://example.com", "http://example.com");
       } catch (e) {
         err = e;
-        console.log(e);
       }
       expect(err).to.be.an("error");
       expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
     });
 
-    it.only("should error if subgraph doesn't exist for chainId", () => {
+    it("should error if subgraph doesn't exist for chainId", () => {
       const _chainConfig = {
         [sendingChainId]: {
           provider: provider1337,
@@ -207,7 +206,6 @@ describe.only("NxtpSdk", () => {
         const instance = new NxtpSdk(_chainConfig, signer, logger, "http://example.com", "http://example.com");
       } catch (e) {
         err = e;
-        console.log(e);
       }
       expect(err).to.be.an("error");
       expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
