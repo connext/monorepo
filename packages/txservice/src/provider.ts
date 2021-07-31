@@ -47,8 +47,8 @@ export class ChainRpcProvider {
    * @param logger pino.BaseLogger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
-   * @param chainConfig Configuration for this specified chain.
-   * @param providerConfigs Configuration for each provider that will be used with this chain.
+   * @param chainConfig Configuration for this specified chain, including the providers we'll
+   * be using for it.
    * @param config The shared TransactionServiceConfig with general configuration.
    *
    * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
@@ -59,7 +59,6 @@ export class ChainRpcProvider {
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
-    providerConfigs: ProviderConfig[],
     private readonly config: TransactionServiceConfig,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
@@ -71,6 +70,7 @@ export class ChainRpcProvider {
 
     // Register a provider for each url.
     // Make sure all providers are ready()
+    const providerConfigs = chainConfig.providers;
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {

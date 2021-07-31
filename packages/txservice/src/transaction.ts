@@ -5,7 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { AlreadyMined, TransactionError, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -114,7 +114,9 @@ export class Transaction {
           method: Transaction.create.name,
           transaction: tx,
           error: result.error,
-        }, "Estimate gas failed due to an unexpected error.");
+        },
+        "Estimate gas failed due to an unexpected error.",
+      );
       throw result.error;
     } else {
       gasLimit = result.value;
@@ -174,36 +176,21 @@ export class Transaction {
     // Send the tx.
     let result = await this.provider.sendTransaction(this.data);
 
-    if (result.isErr()) {
-      // TODO: This is the sledgehammer fix to the nonce expired problem. Would be nice
-      // to see a more elegant solution.
-      // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
-      // trying to send here.
-      let { error } = result;
-      if (error instanceof AlreadyMined && error.reason === AlreadyMined.reasons.NonceExpired) {
-        let nonceErrorCount = 1;
-        this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
-        while (!this.didSubmit()) {
-          result = await this.provider.sendTransaction(this.data);
-          if (result.isErr()) {
-            error = result.error;
-
-            if (error instanceof AlreadyMined && error.reason === AlreadyMined.reasons.NonceExpired) {
-              nonceErrorCount++;
-              this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
-            } else {
-              // If for some reason, we get an error here other than nonce expired, we want
-              // to throw.
-              throw error;
-            }
-          }
-        }
-      } else {
-        throw error;
-      }
+    // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
+    // trying to send here.
+    let nonceErrorCount = 0;
+    while (
+      result.isErr() &&
+      result.error instanceof AlreadyMined &&
+      result.error.reason === AlreadyMined.reasons.NonceExpired &&
+      nonceErrorCount < this.config.maxNonceErrorCount
+    ) {
+      nonceErrorCount++;
+      this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
+      result = await this.provider.sendTransaction(this.data);
     }
 
-    // TODO: Bad code
+    // If we end up with a different error, it should be thrown here.
     if (result.isErr()) {
       throw result.error;
     }

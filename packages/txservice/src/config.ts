@@ -106,6 +106,8 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultStallTimeout: Type.Optional(Type.Number()),
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
   rpcProviderMaxRetries: Type.Number(),
+  // Maximum number of times we will attempt to send a tx despite nonce expired errors.
+  maxNonceErrorCount: Type.Number(),
 
   /// CHAINS
   // Configuration for each chain that this txservice will be supporting.
@@ -132,4 +134,5 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   defaultConfirmationsRequired: 10,
 
   rpcProviderMaxRetries: 5,
+  maxNonceErrorCount: 10,
 } as TransactionServiceConfig;

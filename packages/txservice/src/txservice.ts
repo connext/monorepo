@@ -88,10 +88,8 @@ export class TransactionService {
     Object.keys(chains).forEach((chainId) => {
       // Get this chain's config.
       const chain: ChainConfig = chains[chainId];
-      // Retrieve provider configs and ensure at least one provider is configured.
-      const providers = chain.providers;
-      if (providers.length === 0) {
-        // TODO: This should be a config parser error (i.e. thrown in config parse).
+      // Ensure at least one provider is configured.
+      if (chain.providers.length === 0) {
         const error = `Provider configurations not found for chainID: ${chainId}`;
         this.logger.error({ chainId, providers }, error);
         throw new TransactionServiceFailure(error);
@@ -99,7 +97,7 @@ export class TransactionService {
       const chainIdNumber = parseInt(chainId);
       this.providers.set(
         chainIdNumber,
-        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, providers, this.config),
+        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config),
       );
     });
   }
