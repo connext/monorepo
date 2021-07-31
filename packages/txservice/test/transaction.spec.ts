@@ -8,9 +8,6 @@ import { ChainRpcProvider } from "../src/provider";
 import { Transaction } from "../src/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
 import {
-  makeChaiReadable,
-  TEST_RECEIVER_CHAIN_ID,
-  TEST_SENDER_CHAIN_ID,
   TEST_TX,
   TEST_TX_RESPONSE,
   TEST_TX_RECEIPT,
@@ -24,7 +21,7 @@ import {
 } from "../src/error";
 import { mkHash } from "@connext/nxtp-utils";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "debug", name: "TransactionServiceTest" });
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let transaction: Transaction;
 let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
@@ -131,10 +128,6 @@ describe("Transaction", () => {
     it("happy: confirmation on first loop", async () => {
       await transaction.submit();
       const receipt = await transaction.confirm();
-      console.log({
-        receipt,
-        confirmCall: chainProvider.confirmTransaction.getCall(0).args[0],
-      });
       // Expect receipt to be correct.
       expect(receipt).to.deep.eq(TEST_TX_RECEIPT);
       // Ensure confirmTransaction was called.
@@ -158,7 +151,7 @@ describe("Transaction", () => {
     it("won't return until it has the required number of confirmations", async () => {
       // Raise confirmations required count for this test to 10.
       const testConfirmationsRequired = 10;
-      chainProvider.confirmationsRequired = testConfirmationsRequired;
+      (chainProvider as any).confirmationsRequired = testConfirmationsRequired;
 
       // We should call confirm transaction twice, once for the first confirmation, and
       // again to get the required number of confirmations.
@@ -184,7 +177,7 @@ describe("Transaction", () => {
     it("handles case where transaction is replaced", async () => {
       // This test functioning is dependent on the confirmations required being set to 1!
       // Just to be sure this test stays working, we set it to 1 again here.
-      chainProvider.confirmationsRequired = 1;
+      (chainProvider as any).confirmationsRequired = 1;
       TEST_TX_RECEIPT.confirmations = 1;
 
       const sendCount = 10;

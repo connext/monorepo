@@ -2,7 +2,7 @@ import { providers, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
 
-import { WriteTransaction } from "../src/types";
+import { FullTransaction, ReadTransaction, WriteTransaction } from "../src/types";
 import { DEFAULT_CONFIG } from "../src/config";
 
 type TransactionReceipt = providers.TransactionReceipt;
@@ -10,6 +10,12 @@ type TransactionResponse = providers.TransactionResponse;
 
 export const TEST_SENDER_CHAIN_ID = 1337;
 export const TEST_RECEIVER_CHAIN_ID = 1338;
+
+export const TEST_READ_TX: ReadTransaction = {
+  chainId: TEST_SENDER_CHAIN_ID,
+  to: AddressZero,
+  data: "0x",
+};
 
 export const TEST_TX: WriteTransaction = {
   chainId: TEST_SENDER_CHAIN_ID,
@@ -30,6 +36,13 @@ export const TEST_TX_RESPONSE: TransactionResponse = {
   nonce: 1,
   value: Zero,
   wait: () => Promise.resolve({} as TransactionReceipt),
+};
+
+export const TEST_FULL_TX: FullTransaction = {
+  ...TEST_TX,
+  nonce: undefined,
+  gasPrice: TEST_TX_RESPONSE.gasPrice,
+  gasLimit: TEST_TX_RESPONSE.gasLimit,
 };
 
 export const TEST_TX_RECEIPT: TransactionReceipt = {

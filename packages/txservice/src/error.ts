@@ -215,7 +215,7 @@ export const parseError = (error: any): NxtpError => {
       message = error.responseText;
   }
   message = (message || "").toLowerCase();
-  const context = { message: message, ethersError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" } };
+  const context = { message: message, chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" } };
 
   if (message.match(/execution reverted/)) {
     throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);

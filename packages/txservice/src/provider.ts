@@ -5,7 +5,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import { parseError, RpcError, TransactionError, TransactionReadError, TransactionReverted, TransactionServiceFailure, UnpredictableGasLimit } from "./error";
 import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
@@ -25,15 +25,15 @@ const HARDCODED_GAS_PRICE: Record<number, string> = {
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
-  private _providers: providers.JsonRpcProvider[];
-  private provider: providers.FallbackProvider;
-  private signer: Signer;
-  private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+  private readonly _providers: providers.JsonRpcProvider[];
+  private readonly provider: providers.FallbackProvider;
+  private readonly signer: Signer;
+  private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
 
-  public confirmationsRequired: number;
-  public confirmationTimeout: number;
+  public readonly confirmationsRequired: number;
+  public readonly confirmationTimeout: number;
 
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
@@ -114,11 +114,7 @@ export class ChainRpcProvider {
   public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
     const transaction = {
-      to: tx.to,
-      data: tx.data,
-      chainId: tx.chainId,
-      gasPrice: tx.gasPrice,
-      nonce: tx.nonce,
+      ...tx,
       value: BigNumber.from(tx.value || 0),
     };
 
@@ -166,8 +162,7 @@ export class ChainRpcProvider {
   public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(async () => {
       try {
-        const readResult = await this.signer.call(tx);
-        return readResult;
+        return await this.signer.call(tx);
       } catch (error) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }

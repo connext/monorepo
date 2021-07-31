@@ -6,10 +6,9 @@ import pino from "pino";
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";
 import { Transaction } from "../src/transaction";
 import { ChainRpcProvider } from "../src/provider";
-import { makeChaiReadable, TEST_RECEIVER_CHAIN_ID, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
-import { TimeoutError } from "../src/error";
-import { getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
-import { ReadTransaction } from "../src/types";
+import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, TEST_READ_TX } from "./constants";
+import { TimeoutError, TransactionServiceFailure } from "../src/error";
+import { getRandomAddress, getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
 import { DEFAULT_CONFIG } from "../src/config";
 import { ok } from "neverthrow";
 import { EvtError } from "evt";
@@ -50,14 +49,21 @@ describe("TransactionService", () => {
         providers: [{ url: "https://-------------" }],
         confirmations: 1,
       },
-      [TEST_RECEIVER_CHAIN_ID.toString()]: {
-        providers: [{ url: "https://-------------" }],
-        confirmations: 1,
-      },
     };
 
     txService = new TransactionService(logger, signer, { chains });
-    (txService as any).getProvider = () => chainProvider;
+    Sinon.stub(txService as any, "getProvider").callsFake((chainId: number) => {
+      // NOTE: We check to make sure we are only getting the one chainId we expect
+      // to get in these unit tests.
+      expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
+      return chainProvider;
+    });
+    // (txService as any).getProvider = (chainId: number) => {
+    //   // NOTE: We check to make sure we are only getting the one chainId we expect
+    //   // to get in these unit tests.
+    //   expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
+    //   return chainProvider;
+    // };
 
     Sinon.stub(Transaction, "create").callsFake(async (): Promise<Transaction> => {
       return transaction as unknown as Transaction;
@@ -92,20 +98,7 @@ describe("TransactionService", () => {
     reset();
   });
 
-  // TODO: Test read and events/listeners.
-
   describe("sendTx", () => {
-    // TODO: Error cases to handle:
-    // nonce is expired
-    // invalid data ?
-
-    // TODO: Fix issue with this unit test.
-    // it.skip("errors if cannot get provider", async () => {
-    //   // Replacing this method with the original fn not working.
-    //   (txService as any).getProvider.restore();
-    //   await expect(txService.sendTx({ ...tx, chainId: 9999 }, context)).to.be.rejectedWith(TransactionServiceFailure);
-    // });
-
     it("happy: tx sent and confirmed", async () => {
       const receipt = await txService.sendTx(TEST_TX, context);
       expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
@@ -127,35 +120,31 @@ describe("TransactionService", () => {
       const fakeData = getRandomBytes32();
       chainProvider.readTransaction.resolves(ok(fakeData));
 
-      const readTx: ReadTransaction = {
-        chainId: TEST_SENDER_CHAIN_ID,
-        to: TEST_TX.to,
-        data: "0x",
-      };
-      const data = await txService.readTx(readTx);
+      const data = await txService.readTx(TEST_READ_TX);
       expect(data).to.deep.eq(fakeData);
       expect(chainProvider.readTransaction.callCount).to.equal(1);
-      expect(chainProvider.readTransaction.args[0][0]).to.deep.eq(readTx);
+      expect(chainProvider.readTransaction.args[0][0]).to.deep.eq(TEST_READ_TX);
     });
   });
 
-  // describe("getProvider", () => {
-  //   it("happy", async () => {
-  //     await txService.getProvider(tx.chainId);
-  //     expect(chainProvider.getProvider.callCount).to.equal(1);
-  //   });
-  // });
+  describe("getProvider", () => {
+    it("errors if cannot get provider", async () => {
+      // Replacing this method with the original fn not working.
+      (txService as any).getProvider.restore();
+      await expect(txService.sendTx({ ...TEST_TX, chainId: 9999 }, context)).to.be.rejectedWith(TransactionServiceFailure);
+    });
+  });
 
   describe("getBalance", () => {
     it("happy", async () => {
       const testBalance = utils.parseUnits("42", "ether");
-      const testAddress = TEST_TX.from;
+      const testAddress = getRandomAddress();
 
       chainProvider.getBalance.resolves(ok(testBalance));
       const balance = await txService.getBalance(TEST_SENDER_CHAIN_ID, testAddress);
-      expect(balance.eq(testBalance));
+      expect(balance.eq(testBalance)).to.be.true;
       expect(chainProvider.getBalance.callCount).to.equal(1);
-      expect(chainProvider.getBalance.args[0][0]).to.deep.eq(testAddress);
+      expect(chainProvider.getBalance.getCall(0).args[0]).to.deep.eq(testAddress);
     });
   });
 
@@ -172,6 +161,7 @@ describe("TransactionService", () => {
   //   });
   // });
 
+  // TODO: Maybe we should test whether the events are firing for each event type?
   describe("attach", () => {
     it("should attach callback to event", async () => {
       const spy = Sinon.spy();
@@ -271,7 +261,7 @@ describe("TransactionService", () => {
         resolve(spy.callCount === 1);
       });
 
-      expect(promise).to.eventually.equal(true);
+      expect(promise).to.eventually.be.true;
       await txService.sendTx(TEST_TX, context);
     });
 
