@@ -37,7 +37,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -231,6 +231,8 @@ export class NxtpSdk {
     messaging?: UserNxtpNatsMessagingService,
     _network?: "testnet" | "mainnet", // TODO
   ) {
+    const method = "constructor";
+    const methodId = getRandomBytes32();
     if (messaging) {
       this.messaging = messaging;
     } else {
@@ -267,7 +269,12 @@ export class NxtpSdk {
           transactionManagerAddress = getDeployedTransactionManagerContractAddress(chainId);
         }
         if (!transactionManagerAddress) {
-          throw new Error(`Unable to get transactionManagerAddress for ${chainId}, please provide override`);
+          throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+            method,
+            methodId,
+            paramsError: `Unable to get transactionManagerAddress for ${chainId}, please provide override`,
+            transactionId: "",
+          });
         }
         txManagerConfig[chainId] = {
           provider,
@@ -279,7 +286,12 @@ export class NxtpSdk {
           subgraph = getDeployedSubgraphUri(chainId);
         }
         if (!subgraph) {
-          throw new Error(`Unable to get subgraph for ${chainId}, please provide override`);
+          throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+            method,
+            methodId,
+            paramsError: `Unable to get subgraph for ${chainId}, please provide override`,
+            transactionId: "",
+          });
         }
         subgraphConfig[chainId] = {
           subgraph,
@@ -311,7 +323,7 @@ export class NxtpSdk {
    *
    * @returns An array of the active transactions and their status
    */
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+  public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
     return txs;
   }
