@@ -7,6 +7,7 @@ import {
   generateMessagingInbox,
   InvariantTransactionData,
   VariantTransactionData,
+  AuctionBid,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, utils } from "ethers";
@@ -112,8 +113,9 @@ describe.only("NxtpSdk", () => {
 
   const getMock = (
     crossChainParamsOverrides: Partial<CrossChainParams> = {},
-    AuctionResponseOverrides: Partial<AuctionResponse> = {},
-  ): { crossChainParams: CrossChainParams; auctionResponse: AuctionResponse } => {
+    auctionBidOverrides: Partial<AuctionBid> = {},
+    _bidSignature: string = EmptyCallDataHash,
+  ): { crossChainParams: CrossChainParams; auctionBid: AuctionBid; bidSignature: string } => {
     const crossChainParams = {
       callData: EmptyBytes,
       sendingChainId: sendingChainId,
@@ -128,33 +130,33 @@ describe.only("NxtpSdk", () => {
       ...crossChainParamsOverrides,
     };
 
-    const auctionResponse = {
-      bid: {
-        user: user,
-        router: router,
-        sendingChainId: sendingChainId,
-        sendingAssetId: mkAddress("0xa"),
-        amount: "100",
-        receivingChainId: receivingChainId,
-        receivingAssetId: mkAddress("0xb"),
-        amountReceived: "100",
-        receivingAddress: mkAddress("0xc"),
-        transactionId: getRandomBytes32(),
-        expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
-        callDataHash: EmptyCallDataHash,
-        callTo: AddressZero,
-        encryptedCallData: EmptyBytes,
-        sendingChainTxManagerAddress: sendingChainTxManagerAddress,
-        receivingChainTxManagerAddress: receivingChainTxManagerAddress,
-        bidExpiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
-      },
-      bidSignature: undefined,
-      ...AuctionResponseOverrides,
+    const auctionBid = {
+      user: user,
+      router: router,
+      sendingChainId: sendingChainId,
+      sendingAssetId: mkAddress("0xa"),
+      amount: "100",
+      receivingChainId: receivingChainId,
+      receivingAssetId: mkAddress("0xb"),
+      amountReceived: "100",
+      receivingAddress: mkAddress("0xc"),
+      transactionId: getRandomBytes32(),
+      expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
+      callDataHash: EmptyCallDataHash,
+      callTo: AddressZero,
+      encryptedCallData: EmptyBytes,
+      sendingChainTxManagerAddress: sendingChainTxManagerAddress,
+      receivingChainTxManagerAddress: receivingChainTxManagerAddress,
+      bidExpiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
+      ...auctionBidOverrides,
     };
-    return { crossChainParams, auctionResponse };
+
+    const bidSignature = _bidSignature;
+
+    return { crossChainParams, auctionBid, bidSignature };
   };
 
-  describe("constructor", async () => {
+  describe("#constructor", () => {
     const chainConfig = {
       [sendingChainId]: {
         provider: provider1337,
@@ -253,15 +255,21 @@ describe.only("NxtpSdk", () => {
     });
   });
 
-  describe("#getActiveTransactions", async () => {
-    const { transaction, record } = await getTransactionData();
-    const activeTransaction = {
-      txData: { ...transaction, ...record },
-      status: NxtpSdkEvents.SenderTransactionPrepared,
-    };
-
-    subgraph.getActiveTransactions.resolves([]);
-    it("happy getActiveTransactions", async () => {});
+  describe.skip("#getActiveTransactions", () => {
+    it("happy getActiveTransactions", async () => {
+      // const { transaction, record } = await getTransactionData();
+      // const activeTransaction = {
+      //   txData: { ...transaction, ...record },
+      //   status: NxtpSdkEvents.SenderTransactionPrepared,
+      //   bidSignature: EmptyBytes,
+      //   caller: transaction.user,
+      //   encodedBid: EmptyBytes,
+      //   encryptedCallData: EmptyBytes,
+      // };
+      // subgraph.getActiveTransactions.resolves([activeTransaction]);
+      // const res = await sdk.getActiveTransactions();
+      // expect(res).to.be.eq(activeTransaction);
+    });
   });
 
   describe("#getTransferQuote", () => {
@@ -294,10 +302,11 @@ describe.only("NxtpSdk", () => {
         expect(err).to.be.an("error");
         expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
         expect(err.context.transactionId).to.be.eq(crossChainParams.transactionId);
+        expect(err.context.configError).to.include("Not configured for chains");
       });
 
       it("unkown receivingChainId", async () => {
-        const { crossChainParams } = getMock({ sendingChainId: 1400 });
+        const { crossChainParams } = getMock({ receivingChainId: 1400 });
         let err;
         try {
           await sdk.getTransferQuote(crossChainParams);
@@ -307,6 +316,7 @@ describe.only("NxtpSdk", () => {
         expect(err).to.be.an("error");
         expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
         expect(err.context.transactionId).to.be.eq(crossChainParams.transactionId);
+        expect(err.context.configError).to.include("Not configured for chains");
       });
     });
 
@@ -324,7 +334,7 @@ describe.only("NxtpSdk", () => {
     });
 
     it("happy: should error if expiry is too short", async () => {
-      const { crossChainParams } = getMock({ expiry: getMinExpiryBuffer() - 1000 });
+      const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMinExpiryBuffer() - 1000 });
       let err;
       try {
         await sdk.getTransferQuote(crossChainParams);
@@ -334,10 +344,11 @@ describe.only("NxtpSdk", () => {
       expect(err).to.be.an("error");
       expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
       expect(err.context.transactionId).to.be.eq(crossChainParams.transactionId);
+      expect(err.context.paramsError).to.include("Expiry too short");
     });
 
     it("happy: should error if expiry is too high", async () => {
-      const { crossChainParams } = getMock({ expiry: getMaxExpiryBuffer() + 1000 });
+      const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMaxExpiryBuffer() + 1000 });
       let err;
       try {
         await sdk.getTransferQuote(crossChainParams);
@@ -347,26 +358,83 @@ describe.only("NxtpSdk", () => {
       expect(err).to.be.an("error");
       expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
       expect(err.context.transactionId).to.be.eq(crossChainParams.transactionId);
+      expect(err.context.paramsError).to.include("Expiry too high");
     });
 
-    it("happy: should get a transfer quote", async () => {
-      const { crossChainParams, auctionResponse } = getMock();
+    it.skip("happy: should get a transfer quote", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
 
       const prom = await sdk.getTransferQuote(crossChainParams);
       // await delay(1000);
-      messaging.subscribeToAuctionResponse.yield(auctionResponse);
-      console.log(prom);
+      messaging.subscribeToAuctionResponse.yield({ auctionBid, bidSignature });
     });
   });
 
   describe("#startTransfer", () => {
-    describe.skip("should error if invalid config", () => {});
-    it("should error if bidSignature undefined", async () => {});
+    describe("should error if invalid param", () => {
+      it("invalid user", async () => {
+        const { auctionBid, bidSignature } = getMock({}, { user: "abc" });
+        let err;
+        try {
+          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        } catch (e) {
+          err = e;
+        }
+        expect(err).to.be.an("error");
+        expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
+      });
+    });
 
-    it("should error if approve transaction fails", async () => {});
-    it("should error if approve transaction reverts", async () => {});
+    describe("should error if invalid config", () => {
+      it("unkown sendingChainId", async () => {
+        const { auctionBid, bidSignature } = getMock({}, { sendingChainId: 1400 });
+        let err;
+        try {
+          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        } catch (e) {
+          err = e;
+        }
+        expect(err).to.be.an("error");
+        expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
+        expect(err.context.configError).to.include("Not configured for chains");
+      });
 
-    it("happy: start transfer ERC20 Asset", async () => {});
-    it("happy: start transfer Native Asset", async () => {});
+      it("unkown receivingChainId", async () => {
+        const { auctionBid, bidSignature } = getMock({}, { receivingChainId: 1400 });
+        let err;
+        try {
+          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        } catch (e) {
+          err = e;
+        }
+        expect(err).to.be.an("error");
+        expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
+        expect(err.context.configError).to.include("Not configured for chains");
+      });
+    });
+
+    it("should error if bidSignature undefined", async () => {
+      const { auctionBid, bidSignature } = getMock({}, {}, "");
+
+      let err;
+      try {
+        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        err = e;
+      }
+      expect(err).to.be.an("error");
+      expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+      expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
+      expect(err.context.paramsError).to.include("bidSignature undefined");
+    });
+
+    it.skip("should error if approve transaction fails", async () => {});
+    it.skip("should error if approve transaction reverts", async () => {});
+
+    it.skip("happy: start transfer ERC20 Asset", async () => {});
+    it.skip("happy: start transfer Native Asset", async () => {});
   });
 });
