@@ -1,14 +1,20 @@
-/* eslint-disable require-jsdoc */
-import { Signer, providers, BigNumber } from "ethers";
+import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { MinimalTransaction } from "./types";
+import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
-import { TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
+import {
+  AlreadyMined,
+  RpcError,
+  TimeoutError,
+  TransactionError,
+  TransactionReverted,
+  TransactionServiceFailure,
+} from "./error";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -82,19 +88,14 @@ export class TransactionService {
     Object.keys(chains).forEach((chainId) => {
       // Get this chain's config.
       const chain: ChainConfig = chains[chainId];
-      // Retrieve provider configs and ensure at least one provider is configured.
-      const providers = chain.providers;
-      if (providers.length === 0) {
-        // TODO: This should be a config parser error (i.e. thrown in config parse).
+      // Ensure at least one provider is configured.
+      if (chain.providers.length === 0) {
         const error = `Provider configurations not found for chainID: ${chainId}`;
         this.logger.error({ chainId, providers }, error);
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      this.providers.set(
-        chainIdNumber,
-        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, providers, this.config),
-      );
+      this.providers.set(chainIdNumber, new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config));
     });
   }
 
@@ -115,12 +116,13 @@ export class TransactionService {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(tx: MinimalTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: WriteTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = getUuid();
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
+    let submitFailed = false;
 
     try {
       while (!transaction.didFinish()) {
@@ -128,31 +130,30 @@ export class TransactionService {
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
-          );
-          if (error instanceof TransactionServiceFailure) {
-            // TODO: Might be worth attempting to confirm first?
-            // TransactionService infrastructure failed - error must be escalated for visiblity.
-            throw error;
-          }
-          // IF this is the first attempt, throw.
+          // IFF this is the first attempt, throw.
           // Otherwise, we should go ahead and get the receipt.
           if (transaction.attempt <= 1) {
             throw error;
+          } else if (error instanceof AlreadyMined) {
+            // If the error is an AlreadyMined error, we probably don't need to log a warning here.
+            this.logger.debug(
+              { method, methodId, requestContext, context: error.context },
+              "Tx was already mined, procceeding to confirmation step.",
+            );
+          } else {
+            this.logger.warn({ method, methodId, requestContext, error }, "Tx submit failed for unexpected reason.");
           }
+          // Save the submit error to indicate we've failed here; this should be the last execution
+          // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
+          // mined, but we have logged it above.
+          submitFailed = true;
         }
 
         // Confirm step.
         try {
           await this.confirmTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.warn(
-            { method, methodId, requestContext },
-            `(${transaction.id}, ${transaction.attempt}) ${error}`,
-          );
-          if (error instanceof TimeoutError) {
+          if (!submitFailed && error instanceof TimeoutError) {
             // This will bump gas price and loop back around starting at the
             // submit step.
             transaction.bumpGasPrice();
@@ -163,7 +164,14 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
-      throw error;
+      // Check to see if we have a normal error here.
+      const acceptableErrors = [TransactionReverted, RpcError, TransactionServiceFailure];
+      if (acceptableErrors.some((e) => error instanceof e)) {
+        // If it is a normal error, we throw as is.
+        throw error;
+      }
+      // If we didn't get back a normal error, wrap it in a TransactionServiceFailure.
+      throw new TransactionServiceFailure(error.message, error);
     }
 
     return transaction.receipt!;
@@ -172,16 +180,14 @@ export class TransactionService {
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
-   * @param tx - Data to read
+   * @param tx - ReadTransaction to create contract call
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
-   * @param tx.value - Value to execute read tx with
    * @param tx.data - Calldata to send
-   * @param tx.from - (optional) Account to send tx from
+   *
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  // TODO: read will never have a value/from, why include it in the type
-  public async readTx(tx: MinimalTransaction): Promise<string> {
+  public async readTx(tx: ReadTransaction): Promise<string> {
     const result = await this.getProvider(tx.chainId).readTransaction(tx);
     if (result.isErr()) {
       throw result.error;
@@ -200,23 +206,6 @@ export class TransactionService {
    */
   public async getBalance(chainId: number, address: string): Promise<BigNumber> {
     const result = await this.getProvider(chainId).getBalance(address);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Returns an estimate of how much gas a given transaction would consume once sent.
-   *
-   * @param chainId - Chain to execute tx on
-   * @param transaction Transaction to estimate gas of
-   *
-   * @returns BigNumber representation of the approximate gas a given tx would consume
-   */
-  public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).estimateGas(transaction);
     if (result.isErr()) {
       throw result.error;
     } else {
@@ -317,16 +306,18 @@ export class TransactionService {
    */
   private async submitTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+    this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
     const response = await transaction.submit();
+    const gas = response.gasPrice ?? transaction.data.gasPrice;
     this.logger.info(
       {
         method,
-        id: transaction.id,
-        hash: response.hash,
-        gas: (response.gasPrice ?? "unknown").toString(),
-        nonce: response.nonce,
         context,
+        id: transaction.id,
+        attempt: transaction.attempt,
+        hash: response.hash,
+        gas: `${utils.formatUnits(gas, "gwei")} gwei`,
+        nonce: response.nonce,
       },
       "Tx submitted.",
     );
@@ -339,18 +330,17 @@ export class TransactionService {
    */
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+
+    this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
     const receipt = await transaction.confirm();
     this.logger.info(
       {
         method,
-        id: transaction.id,
         context,
+        id: transaction.id,
+        attempt: transaction.attempt,
         receipt: {
-          to: receipt.to,
-          from: receipt.from,
-          gasUsed: receipt.gasUsed.toString(),
-          contractAddress: receipt.contractAddress,
+          gasUsed: `${utils.formatUnits(receipt.gasUsed, "gwei")} gwei`,
           transactionHash: receipt.transactionHash,
           blockHash: receipt.blockHash,
         },
@@ -369,10 +359,7 @@ export class TransactionService {
   private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.error(
-      { method, id: transaction.id, receipt, context, error: jsonifyError(error) },
-      "Tx failed.",
-    );
+    this.logger.error({ method, id: transaction.id, receipt, context, error }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

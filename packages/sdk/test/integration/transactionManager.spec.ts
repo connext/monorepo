@@ -23,7 +23,7 @@ import { getDeployedTransactionManagerContractAddress, TransactionManager, Trans
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino();
+const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 
@@ -230,7 +230,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("should error if transaction fails", async () => {
@@ -250,7 +250,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       });
 
       it("happy case", async () => {
@@ -291,7 +291,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("should error if transaction fails", async () => {
@@ -319,7 +319,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       });
 
       it("happy case", async () => {
@@ -347,7 +347,7 @@ describe("Transaction Manager", function () {
         const res = await userTransactionManager.cancel(transaction.sendingChainId, cancelParams);
         expect(res.isOk()).to.be.true;
 
-        const receipt = await res.value.wait();
+        const receipt = await (res as any).value.wait();
 
         expect(receipt.status).to.be.eq(1);
       });
@@ -383,7 +383,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("should error if transaction fails", async () => {
@@ -412,7 +412,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       });
 
       it("happy case", async () => {
@@ -440,7 +440,7 @@ describe("Transaction Manager", function () {
 
         expect(res.isOk()).to.be.true;
 
-        const receipt = await res.value.wait();
+        const receipt = await (res as any).value.wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -453,14 +453,14 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("happy case", async () => {
         const res = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
         expect(res.isOk()).to.be.true;
 
-        const receipt = await res.value.wait();
+        const receipt = await (res as any).value.wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -481,7 +481,7 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("should error if txService error", async () => {
@@ -490,14 +490,14 @@ describe("Transaction Manager", function () {
         expect(res.isOk()).to.be.false;
         expect(res.isErr()).to.be.true;
 
-        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       });
 
       it("happy case", async () => {
         const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
 
         expect(res.isOk()).to.be.true;
-        expect(res.value.toString()).to.be.eq(routerFunds);
+        expect((res as any).value.toString()).to.be.eq(routerFunds);
       });
     });
   });

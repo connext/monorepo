@@ -55,8 +55,8 @@ export class TransactionReverted extends TransactionError {
   static readonly type = TransactionReverted.name;
 
   static readonly reasons = {
+    GasEstimateFailed: "Operation for gas estimate failed; transaction was reverted on-chain.",
     InsufficientFunds: "Not enough funds in wallet.",
-    AlreadyMined: "Transaction already mined.",
     /**
      * From ethers docs:
      * If the transaction execution failed (i.e. the receipt status is 0), a CALL_EXCEPTION error will be rejected with the following properties:
@@ -65,6 +65,13 @@ export class TransactionReverted extends TransactionError {
      * error.receipt - the actual receipt, with the status of 0
      */
     CallException: "An exception occurred during this contract call.",
+    /**
+     * No difference between the following two errors, except to distinguish a message we
+     * get back from providers on execution failure.
+     */
+    ExecutionFailed: "Transaction would fail on chain.",
+    AlwaysFailingTransaction: "Transaction would always fail on chain.",
+    GasExceedsAllowance: "Transaction gas exceeds allowance.",
   };
 
   constructor(
@@ -110,18 +117,33 @@ export class TimeoutError extends TransactionError {
   }
 }
 
-export class NonceExpired extends TransactionReverted {
+export class UnpredictableGasLimit extends TransactionError {
   /**
-   * An error indicating that we got a "nonce expired" message back from
-   * ethers while conducting sendTransaction.
-   * 
-   * This is a TransactionReverted extension, as it indicates the transaction
-   * was in fact reverted.
+   * An error that we get back from ethers when we try to do a gas estimate, but this
+   * may need to be handled differently.
    */
-  static readonly type = NonceExpired.name;
+  static readonly type = UnpredictableGasLimit.name;
 
   constructor(public readonly context: any = {}) {
-    super("Nonce for this transaction is already expired.");
+    super("The gas estimate could not be determined.");
+  }
+}
+
+export class AlreadyMined extends TransactionError {
+  /**
+   * An error indicating that we got a "nonce expired"-like message back from
+   * ethers while conducting sendTransaction.
+   */
+  static readonly type = AlreadyMined.name;
+
+  static readonly reasons = {
+    NonceExpired: "Nonce for this transaction is already expired.",
+    ReplacementUnderpriced:
+      "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
+  };
+
+  constructor(public readonly reason: Values<typeof AlreadyMined.reasons>, public readonly context: any = {}) {
+    super(reason, context);
   }
 }
 
@@ -149,10 +171,6 @@ export class TransactionServiceFailure extends NxtpError {
   static readonly type = TransactionServiceFailure.name;
 
   static readonly reasons = {
-    UnpredictableGasLimit: "The gas estimate could not be determined.",
-    Timeout: "Timeout occurred during an RPC operation.",
-    ReplacementUnderpriced:
-      "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
     /**
      * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
      * never reached the required amount. This error should ultimately never occur - but if it does,
@@ -166,6 +184,7 @@ export class TransactionServiceFailure extends NxtpError {
      * failure but could imply a failure in TransactionService to submit correctly to chain.
      */
     MaxGasPriceReached: "Gas price went over configured limit.",
+    GasEstimateInvalid: "The gas estimate returned was an invalid value.",
   };
 
   constructor(
@@ -182,7 +201,33 @@ export class TransactionServiceFailure extends NxtpError {
  * @returns NxtpError
  */
 export const parseError = (error: any): NxtpError => {
-  const context = { error };
+  if (error instanceof NxtpError) {
+    // If the error has already been parsed into a native error, just return it.
+    return error;
+  }
+
+  let message = error.message;
+  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof error.error.message === "string") {
+    message = error.error.message;
+  } else if (typeof error.body === "string") {
+    message = error.body;
+  } else if (typeof error.responseText === "string") {
+    message = error.responseText;
+  }
+  message = (message || "").toLowerCase();
+  const context = {
+    message: message,
+    chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" },
+  };
+
+  if (message.match(/execution reverted/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
+  } else if (message.match(/always failing transaction/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
+  } else if (message.match(/gas required exceeds allowance/)) {
+    throw new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+  }
+
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
       return new TransactionReplaced(error.receipt, error.replacment, context);
@@ -191,16 +236,17 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.CALL_EXCEPTION:
       return new TransactionReverted(TransactionReverted.reasons.CallException, error.receipt, context);
     case Logger.errors.NONCE_EXPIRED:
-      return new NonceExpired(context);
+      return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
     case Logger.errors.REPLACEMENT_UNDERPRICED:
-      return new TransactionServiceFailure(TransactionServiceFailure.reasons.ReplacementUnderpriced, context);
+      return new AlreadyMined(AlreadyMined.reasons.ReplacementUnderpriced, context);
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
-      return new TransactionServiceFailure(TransactionServiceFailure.reasons.UnpredictableGasLimit, context);
+      return new UnpredictableGasLimit(context);
     case Logger.errors.TIMEOUT:
       return new TimeoutError(context);
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
+      // TODO: Should this be a TransactionReverted error?
       return new ServerError(context);
     default:
       return error;

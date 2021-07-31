@@ -1,32 +1,47 @@
-/* eslint-disable require-jsdoc */
-import { jsonifyError } from "@connext/nxtp-utils";
+import { NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig, ProviderConfig, validateProviderConfig, ChainConfig } from "./config";
-import { parseError, RpcError, TransactionError, TransactionReadError, TransactionServiceFailure } from "./error";
-import { FullTransaction, MinimalTransaction, CachedGas } from "./types";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
+import {
+  parseError,
+  RpcError,
+  TransactionError,
+  TransactionReadError,
+  TransactionReverted,
+  TransactionServiceFailure,
+  UnpredictableGasLimit,
+} from "./error";
+import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
+
+const HARDCODED_GAS_PRICE: Record<number, string> = {
+  69: "15000000", // optimism
+};
 
 // TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
 
+/**
+ * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
+ * the responses.
+ */
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
-  private _providers: providers.JsonRpcProvider[];
-  private provider: providers.FallbackProvider;
-  private signer: Signer;
-  private queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+  private readonly _providers: providers.JsonRpcProvider[];
+  private readonly provider: providers.FallbackProvider;
+  private readonly signer: Signer;
+  private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
 
-  public confirmationsRequired: number;
-  public confirmationTimeout: number;
+  public readonly confirmationsRequired: number;
+  public readonly confirmationTimeout: number;
 
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
@@ -40,8 +55,8 @@ export class ChainRpcProvider {
    * @param logger pino.BaseLogger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
-   * @param chainConfig Configuration for this specified chain.
-   * @param providerConfigs Configuration for each provider that will be used with this chain.
+   * @param chainConfig Configuration for this specified chain, including the providers we'll
+   * be using for it.
    * @param config The shared TransactionServiceConfig with general configuration.
    *
    * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
@@ -52,7 +67,6 @@ export class ChainRpcProvider {
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
-    providerConfigs: ProviderConfig[],
     private readonly config: TransactionServiceConfig,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
@@ -64,6 +78,7 @@ export class ChainRpcProvider {
 
     // Register a provider for each url.
     // Make sure all providers are ready()
+    const providerConfigs = chainConfig.providers;
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
@@ -105,44 +120,39 @@ export class ChainRpcProvider {
    * and a success boolean indicating whether the process did result in an error.
    */
   public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
-    return this.resultWrapper<providers.TransactionResponse>(this.sendTransaction.name, async () => {
-      // Define task to send tx with proper nonce.
-      const task = async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
-        try {
-          // Do any parsing and value handling work here if necessary.
-          const transaction = {
-            to: tx.to,
-            data: tx.data,
-            chainId: tx.chainId,
-            gasPrice: tx.gasPrice,
-            nonce: tx.nonce,
-            value: BigNumber.from(tx.value || 0),
-          };
-          let response: providers.TransactionResponse | undefined;
-          if (transaction.nonce) {
-            response = await this.signer.sendTransaction(transaction);
-          } else {
-            const nonce = await this.getNonce();
-            // NOTE: This can fail. If we throw an error here, increment nonce will never be called.
-            response = await this.signer.sendTransaction({ ...transaction, nonce });
-            this.incrementNonce();
-          }
+    // Do any parsing and value handling work here if necessary.
+    const transaction = {
+      ...tx,
+      value: BigNumber.from(tx.value || 0),
+    };
 
-          // const response: providers.TransactionResponse | undefined = await this.signer.sendTransaction();
-          if (response == null) {
-            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
-            throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-              transaction: tx,
-              response,
-            });
-          }
-          return { response, success: true };
-        } catch (e) {
-          return { response: e, success: false };
-        }
-      };
+    return this.resultWrapper<providers.TransactionResponse>(async () => {
       // Queue up the execution of the transaction.
-      const result = await this.queue.add(task);
+      const result = await this.queue.add(
+        async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
+          try {
+            // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
+            transaction.nonce = transaction.nonce ?? (await this.getNonce());
+
+            // Send the transaction.
+            const response = await this.signer.sendTransaction(transaction);
+
+            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
+            if (response == null) {
+              throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
+                transaction,
+                response,
+              });
+            }
+
+            // We increment the nonce here, as we know the transaction was sent (response is defined).
+            this.incrementNonce();
+            return { response, success: true };
+          } catch (e) {
+            return { response: e, success: false };
+          }
+        },
+      );
       if (result.success) {
         return result.response as providers.TransactionResponse;
       } else {
@@ -159,13 +169,12 @@ export class ChainRpcProvider {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public readTransaction(tx: MinimalTransaction): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(this.readTransaction.name, async () => {
+  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
+    return this.resultWrapper<string>(async () => {
       try {
-        const readResult = await this.signer.call(tx);
-        return readResult;
-      } catch (e) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error: jsonifyError(e) });
+        return await this.signer.call(tx);
+      } catch (error) {
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
     });
   }
@@ -187,7 +196,7 @@ export class ChainRpcProvider {
     confirmations?: number,
     timeout?: number,
   ): ResultAsync<providers.TransactionReceipt, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(this.confirmTransaction.name, () => {
+    return this.resultWrapper<providers.TransactionReceipt>(() => {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
       return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
@@ -199,12 +208,18 @@ export class ChainRpcProvider {
    * @returns The BigNumber value for the current gas price.
    */
   public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
+    const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
+    if (hardcoded) {
+      this.logger.info({ chainId: this.chainId, hardcoded }, "Using hardcoded gas price for chain");
+      return okAsync(BigNumber.from(hardcoded));
+    }
+
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
     if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
       return okAsync(this.cachedGas.price);
     }
 
-    return this.resultWrapper<BigNumber>(this.getGasPrice.name, async () => {
+    return this.resultWrapper<BigNumber>(async () => {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
@@ -221,23 +236,24 @@ export class ChainRpcProvider {
       if (!gasPrice) {
         try {
           gasPrice = await this.provider.getGasPrice();
-        } catch (e) {
+        } catch (error) {
           this.logger.error(
-            { chainId: this.chainId, error: jsonifyError(e) },
+            { chainId: this.chainId, error },
             "getGasPrice failure, attempting to default to backup gas value.",
           );
           // Default to initial gas price, if available. Otherwise, throw.
           gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
           if (!gasPrice) {
-            throw e;
+            throw error;
           }
         }
         gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
       }
 
       // If the gas price is less than the gas minimum, bump it up to minimum.
-      if (gasPrice.lt(gasMinimum)) {
-        gasPrice = BigNumber.from(gasMinimum);
+      const min = BigNumber.from(gasMinimum);
+      if (gasPrice.lt(min)) {
+        gasPrice = min;
       }
 
       // Cache the latest gas price.
@@ -255,7 +271,7 @@ export class ChainRpcProvider {
    * specified address.
    */
   public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(this.getBalance.name, async () => {
+    return this.resultWrapper<BigNumber>(async () => {
       return await this.provider.getBalance(address);
     });
   }
@@ -263,13 +279,50 @@ export class ChainRpcProvider {
   /**
    * Estimate gas cost for the specified transaction.
    *
+   * @remarks
+   *
+   * Because estimateGas is almost always our "point of failure" - the point where its
+   * indicated by the provider that our tx would fail on chain - and ethers obscures the
+   * revert error code when it fails through its typical API, we had to implement our own
+   * estimateGas call through RPC directly.
+   *
    * @param transaction The ethers TransactionRequest data in question.
    *
    * @returns A BigNumber representing the estimated gas value.
    */
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(this.estimateGas.name, async () => {
-      return await this.provider.estimateGas(transaction);
+    return this.resultWrapper<BigNumber>(async () => {
+      const errors: any[] = [];
+      // TODO: If quorum > 1, we should make this call to multiple providers.
+      for (const provider of this._providers) {
+        // This call will prepare the transaction params for us (hexlify tx, etc).
+        let result: string;
+        try {
+          // TODO: Is there any reason prepare should be called for each iteration?
+          const args = provider.prepareRequest("estimateGas", { transaction });
+          result = await provider.send(args[0], args[1]);
+        } catch (error) {
+          const sanitizedError = parseError(error);
+          // If we get a TransactionReverted error, we can assume that the transaction will fail,
+          // and we ought to just throw here.
+          if (sanitizedError instanceof TransactionReverted) {
+            throw sanitizedError;
+          } else {
+            errors.push(error);
+            continue;
+          }
+        }
+
+        try {
+          return BigNumber.from(result);
+        } catch (error) {
+          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
+            invalidEstimate: result,
+            error: error.message,
+          });
+        }
+      }
+      throw new UnpredictableGasLimit({ errors });
     });
   }
 
@@ -279,18 +332,17 @@ export class ChainRpcProvider {
    * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
    * or externally (for the provider's network).
    *
-   * @param method The string method name, used for logging.
-   * @param targetMethod The actual method callback to execute and wrap in retries.
+   * @param method The method callback to execute and wrap in retries.
    */
-  private resultWrapper<T>(method: string, targetMethod: () => Promise<T>): ResultAsync<T, TransactionError> {
+  private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
         // TODO: Reimplement retry ability.
-        return targetMethod();
+        return method();
       }),
       (error) => {
         // Parse error into TransactionError, etc.
-        throw parseError(error);
+        return parseError(error);
       },
     );
   }
@@ -313,35 +365,6 @@ export class ChainRpcProvider {
         chainId: this.chainId,
       });
     }
-    // TODO: Evaluate whether this.provider.ready covers all cases well enough, and whether we need
-    // the additional checks below:
-    // Ensure that provider(s) are synced.
-    // let outOfSync = 0;
-    // await Promise.all(
-    //   this._providers.map(async (provider) => {
-    //     try {
-    //       /* If not syncing, will return something like:
-    //        * {
-    //        *   "id": 1,
-    //        *   "jsonrpc": "2.0",
-    //        *   "result": false
-    //        * }
-    //        */
-    //       const result = await provider.send("eth_syncing", []);
-    //       if (result.result) {
-    //         outOfSync++;
-    //       }
-    //     } catch (e) {
-    //       outOfSync++;
-    //     }
-    //   }),
-    // );
-    // We base our evaluation on the quorum (by default, 1). If the quorum isn't 1,
-    // we may necessarily need >1 provider to be in sync.
-    // if (this._providers.length - outOfSync < this.quorum) {
-    //   // Error out, not enough providers are ready.
-    //   throw new ChainError(ChainError.reasons.ProviderNotSynced);
-    // }
     return true;
   }
 
@@ -355,7 +378,7 @@ export class ChainRpcProvider {
    * submit the tx.
    *
    * @returns A number value for the current nonce.
-   * 
+   *
    * @throws RpcError if we fail to get transaction count from all providers.
    */
   private async getNonce(): Promise<number> {
