@@ -24,7 +24,7 @@ import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, 
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
-const logger = pino({ level: "info" /** process.env.LOG_LEVEL ?? "silent" */ });
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
