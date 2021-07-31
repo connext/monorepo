@@ -261,7 +261,7 @@ export class NxtpSdk {
 
     // create configs for subclasses based on passed-in config
     Object.entries(this.chainConfig).forEach(
-      async ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
+      ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
         const chainId = parseInt(_chainId);
 
         let transactionManagerAddress = _transactionManagerAddress;
