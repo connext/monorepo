@@ -42,6 +42,10 @@ import { Subgraph } from "./subgraph";
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
 export const ONE_DAY_IN_SECONDS = 3600 * 24;
+
+/** Determine if expiry is valid */
+export const validExpiry = (expiry: number) => expiry - Math.floor(Date.now() / 1000) > ONE_DAY_IN_SECONDS;
+
 export interface TransactionDataParams {
   user: string;
   router: string;
@@ -124,9 +128,6 @@ export const mutateAmount = (amount: string) => {
  */
 export const mutateExpiry = (expiry: number): number => {
   const rxExpiry = expiry - EXPIRY_DECREMENT;
-  if (rxExpiry < Date.now() / 1000) {
-    throw new Error("Expiration already happened, cant prepare");
-  }
   return rxExpiry;
 };
 
@@ -570,7 +571,6 @@ export class Handler {
     // they're losing gas costs
 
     const receiverExpiry = mutateExpiry(txData.expiry);
-
     let bid: AuctionBid;
     const validationRes = Result.fromThrowable(
       decodeAuctionBid,
@@ -628,7 +628,7 @@ export class Handler {
         return ok(undefined);
       })
       .andThen<undefined, HandlerError>(() => {
-        if (receiverExpiry - Date.now() / 1000 < ONE_DAY_IN_SECONDS) {
+        if (!validExpiry(receiverExpiry)) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
               method,
