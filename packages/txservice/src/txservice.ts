@@ -95,10 +95,7 @@ export class TransactionService {
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      this.providers.set(
-        chainIdNumber,
-        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config),
-      );
+      this.providers.set(chainIdNumber, new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config));
     });
   }
 
@@ -350,7 +347,7 @@ export class TransactionService {
    */
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    
+
     this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
     const receipt = await transaction.confirm();
     this.logger.info(

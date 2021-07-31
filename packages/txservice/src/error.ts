@@ -207,15 +207,18 @@ export const parseError = (error: any): NxtpError => {
   }
 
   let message = error.message;
-  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof(error.error.message) === "string") {
-      message = error.error.message;
-  } else if (typeof(error.body) === "string") {
-      message = error.body;
-  } else if (typeof(error.responseText) === "string") {
-      message = error.responseText;
+  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof error.error.message === "string") {
+    message = error.error.message;
+  } else if (typeof error.body === "string") {
+    message = error.body;
+  } else if (typeof error.responseText === "string") {
+    message = error.responseText;
   }
   message = (message || "").toLowerCase();
-  const context = { message: message, chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" } };
+  const context = {
+    message: message,
+    chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" },
+  };
 
   if (message.match(/execution reverted/)) {
     throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
@@ -224,7 +227,7 @@ export const parseError = (error: any): NxtpError => {
   } else if (message.match(/gas required exceeds allowance/)) {
     throw new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   }
-  
+
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
       return new TransactionReplaced(error.receipt, error.replacment, context);

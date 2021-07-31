@@ -6,7 +6,15 @@ import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
-import { parseError, RpcError, TransactionError, TransactionReadError, TransactionReverted, TransactionServiceFailure, UnpredictableGasLimit } from "./error";
+import {
+  parseError,
+  RpcError,
+  TransactionError,
+  TransactionReadError,
+  TransactionReverted,
+  TransactionServiceFailure,
+  UnpredictableGasLimit,
+} from "./error";
 import { FullTransaction, CachedGas, ReadTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
@@ -120,29 +128,31 @@ export class ChainRpcProvider {
 
     return this.resultWrapper<providers.TransactionResponse>(async () => {
       // Queue up the execution of the transaction.
-      const result = await this.queue.add(async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
-        try {
-          // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
-          transaction.nonce = transaction.nonce ?? (await this.getNonce());
+      const result = await this.queue.add(
+        async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
+          try {
+            // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
+            transaction.nonce = transaction.nonce ?? (await this.getNonce());
 
-          // Send the transaction.
-          const response = await this.signer.sendTransaction(transaction);
+            // Send the transaction.
+            const response = await this.signer.sendTransaction(transaction);
 
-          // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
-          if (response == null) {
-            throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-              transaction,
-              response,
-            });
+            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
+            if (response == null) {
+              throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
+                transaction,
+                response,
+              });
+            }
+
+            // We increment the nonce here, as we know the transaction was sent (response is defined).
+            this.incrementNonce();
+            return { response, success: true };
+          } catch (e) {
+            return { response: e, success: false };
           }
-
-          // We increment the nonce here, as we know the transaction was sent (response is defined).
-          this.incrementNonce();
-          return { response, success: true };
-        } catch (e) {
-          return { response: e, success: false };
-        }
-      });
+        },
+      );
       if (result.success) {
         return result.response as providers.TransactionResponse;
       } else {
@@ -241,8 +251,9 @@ export class ChainRpcProvider {
       }
 
       // If the gas price is less than the gas minimum, bump it up to minimum.
-      if (gasPrice.lt(gasMinimum)) {
-        gasPrice = BigNumber.from(gasMinimum);
+      const min = BigNumber.from(gasMinimum);
+      if (gasPrice.lt(min)) {
+        gasPrice = min;
       }
 
       // Cache the latest gas price.
@@ -267,9 +278,9 @@ export class ChainRpcProvider {
 
   /**
    * Estimate gas cost for the specified transaction.
-   * 
+   *
    * @remarks
-   * 
+   *
    * Because estimateGas is almost always our "point of failure" - the point where its
    * indicated by the provider that our tx would fail on chain - and ethers obscures the
    * revert error code when it fails through its typical API, we had to implement our own
@@ -287,7 +298,7 @@ export class ChainRpcProvider {
         // This call will prepare the transaction params for us (hexlify tx, etc).
         let result: string;
         try {
-          const args = provider.prepareRequest("estimateGas",  { transaction });
+          const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);
         } catch (error) {
           const sanitizedError = parseError(error);
@@ -304,7 +315,10 @@ export class ChainRpcProvider {
         try {
           return BigNumber.from(result);
         } catch (error) {
-          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, { invalidEstimate: result, error: error.message });
+          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
+            invalidEstimate: result,
+            error: error.message,
+          });
         }
       }
       throw new UnpredictableGasLimit({ errors });

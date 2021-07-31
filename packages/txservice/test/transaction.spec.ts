@@ -7,11 +7,7 @@ import { err, ok } from "neverthrow";
 import { ChainRpcProvider } from "../src/provider";
 import { Transaction } from "../src/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
-import {
-  TEST_TX,
-  TEST_TX_RESPONSE,
-  TEST_TX_RECEIPT,
-} from "./constants";
+import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
 import {
   AlreadyMined,
   TimeoutError,
@@ -29,8 +25,8 @@ let chainProvider: SinonStubbedInstance<ChainRpcProvider>;
 describe("Transaction", () => {
   beforeEach(async () => {
     chainProvider = createStubInstance(ChainRpcProvider);
-    chainProvider.confirmationTimeout = 60_000;
-    chainProvider.confirmationsRequired = 1;
+    (chainProvider as any).confirmationTimeout = 60_000;
+    (chainProvider as any).confirmationsRequired = 1;
     TEST_TX_RECEIPT.confirmations = 1;
     chainProvider.estimateGas.resolves(ok(BigNumber.from(DEFAULT_CONFIG.gasLimit)));
     chainProvider.getGasPrice.resolves(ok(TEST_TX_RESPONSE.gasPrice));
@@ -121,6 +117,20 @@ describe("Transaction", () => {
       chainProvider.sendTransaction.onCall(testAttempts - 1).resolves(ok(TEST_TX_RESPONSE));
       await transaction.submit();
       expect(chainProvider.sendTransaction.callCount).eq(testAttempts);
+    });
+
+    it("won't handle nonce expired case if we've already submitted once before", async () => {
+      const nonceExpiredError = new AlreadyMined(AlreadyMined.reasons.NonceExpired);
+      await transaction.submit();
+      chainProvider.sendTransaction.resolves(err(nonceExpiredError));
+
+      // Simulate confirmation, for test reliability.
+      chainProvider.confirmTransaction.resolves(err(new TimeoutError()));
+      await expect(transaction.confirm()).to.be.rejectedWith(TimeoutError);
+      transaction.bumpGasPrice();
+
+      // Now we should get the nonce expired error.
+      await expect(transaction.submit()).to.be.rejectedWith(nonceExpiredError);
     });
   });
 
@@ -238,6 +248,12 @@ describe("Transaction", () => {
   });
 
   describe("bumpGasPrice", async () => {
+    it("happy: bumps by configured percentage", async () => {
+      const originalGasPrice = (transaction as any).gasPrice.get();
+      transaction.bumpGasPrice();
+      expect((transaction as any).gasPrice.get().gt(originalGasPrice)).to.be.true;
+    });
+
     it("throws if it would bump above max gas price", async () => {
       // Make it so the gas price will return exactly == the limit (which is acceptable).
       (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasLimit);

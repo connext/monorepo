@@ -5,7 +5,12 @@ import { getUuid } from "@connext/nxtp-utils";
 import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionError, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import {
+  AlreadyMined,
+  TransactionReplaced,
+  TransactionReverted,
+  TransactionServiceFailure,
+} from "./error";
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
@@ -177,17 +182,20 @@ export class Transaction {
     let result = await this.provider.sendTransaction(this.data);
 
     // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
-    // trying to send here.
-    let nonceErrorCount = 0;
-    while (
-      result.isErr() &&
-      result.error instanceof AlreadyMined &&
-      result.error.reason === AlreadyMined.reasons.NonceExpired &&
-      nonceErrorCount < this.config.maxNonceErrorCount
-    ) {
-      nonceErrorCount++;
-      this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
-      result = await this.provider.sendTransaction(this.data);
+    // trying to send here. Reason being that it may take a few tries to get the correct
+    // transaction count back from the provider.
+    if (!this.didSubmit()) {
+      let nonceErrorCount = 0;
+      while (
+        result.isErr() &&
+        result.error instanceof AlreadyMined &&
+        result.error.reason === AlreadyMined.reasons.NonceExpired &&
+        nonceErrorCount < this.config.maxNonceErrorCount
+      ) {
+        nonceErrorCount++;
+        this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
+        result = await this.provider.sendTransaction(this.data);
+      }
     }
 
     // If we end up with a different error, it should be thrown here.
