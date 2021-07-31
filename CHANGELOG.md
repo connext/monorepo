@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.15
+
 - [txservice] Fix in gas price for Optimism.
 - [contracts] Deployments for Mumbai, Optimism Kovan, Arbitrum Rinkeby.
 
