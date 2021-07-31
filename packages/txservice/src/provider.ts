@@ -298,6 +298,7 @@ export class ChainRpcProvider {
         // This call will prepare the transaction params for us (hexlify tx, etc).
         let result: string;
         try {
+          // TODO: Is there any reason prepare should be called for each iteration?
           const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);
         } catch (error) {

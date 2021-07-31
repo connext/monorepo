@@ -19,6 +19,7 @@ import {
 import { FullTransaction } from "../src/types";
 import { getRandomAddress, getRandomBytes32 } from "@connext/nxtp-utils";
 import { TransactionReadError } from "../src/error";
+import { hexlify } from "ethers/lib/utils";
 
 // TODO: main tests:
 // - isReady
@@ -234,16 +235,67 @@ describe("ChainRpcProvider", () => {
   });
 
   describe("estimateGas", () => {
-    it.skip("should return the gas estimate", async () => {
-      const testAddress = getRandomAddress();
-      signer.estimateGas.resolves(testGas);
+    it("should return the gas estimate", async () => {
+      const rawCommand = "estimateGas";
+      const rpcCommand = `eth_${rawCommand}`;
+      const testGasLimit = DEFAULT_CONFIG.gasLimit;
+      const testTx = {
+        chainId: TEST_SENDER_CHAIN_ID,
+        to: getRandomAddress(),
+        from: getRandomAddress(),
+        data: getRandomBytes32(),
+        value: utils.parseUnits("1", "ether"),
+      };
+      const hexlifiedTx = {
+        chainId: utils.hexlify(TEST_SENDER_CHAIN_ID),
+        to: utils.hexlify(testTx.to),
+        from: utils.hexlify(testTx.from),
+        data: utils.hexlify(testTx.data),
+        value: utils.hexlify(testTx.value),
+      };
+      const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
+      // Overwrite the _providers core providers. We're going to have one "bad" provider
+      // that rejects/fails, and one good one that will resolve.
+      const badRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
+      const goodRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
+      (chainProvider as any)._providers = [badRpcProvider, goodRpcProvider];
+      badRpcProvider.prepareRequest.returns(prepareResult);
+      goodRpcProvider.prepareRequest.returns(prepareResult);
+      badRpcProvider.send.rejects(new Error("test error"));
+      goodRpcProvider.send.resolves(testGasLimit);
 
-      const result = await chainProvider.estimateGas(TEST_TX);
+      const result = await chainProvider.estimateGas(testTx);
 
-      expect(result.isOk()).to.be.true;
-      expect(result.isOk() && result.value.eq(testGas)).to.be.true;
-      expect(signer.estimateGas.callCount).to.equal(1);
-      expect(signer.estimateGas.getCall(0).args[0]).to.deep.eq(testAddress);
+      // First, make sure we get the correct value back.
+      expect(result.isOk(), result.isErr() ? result.error.toString() : "unknown").to.be.true;
+      expect(result.isOk() && result.value.eq(BigNumber.from(testGasLimit))).to.be.true;
+
+      // Now we make sure that all of the calls were made as expected.
+      // prepareRequest:
+      const prepareTransactionArg = {
+        transaction: makeChaiReadable(testTx),
+      };
+
+      expect(badRpcProvider.prepareRequest.callCount).to.equal(1);
+      let arg = {
+        transaction: makeChaiReadable(badRpcProvider.prepareRequest.getCall(0).args[1].transaction),
+      };
+      expect(arg).to.deep.eq(prepareTransactionArg);
+
+      expect(goodRpcProvider.prepareRequest.callCount).to.equal(1);
+      arg = {
+        transaction: makeChaiReadable(goodRpcProvider.prepareRequest.getCall(0).args[1].transaction),
+      };
+      expect(arg).to.deep.eq(prepareTransactionArg);
+
+      // send:
+      const prepareResultReadable = [prepareResult[0], makeChaiReadable(prepareResult[1])];
+      expect(badRpcProvider.send.callCount).to.equal(1);
+      let args = badRpcProvider.send.getCall(0).args;
+      expect([args[0], makeChaiReadable(args[1])]).to.deep.eq(prepareResultReadable);
+      expect(goodRpcProvider.send.callCount).to.equal(1);
+      args = goodRpcProvider.send.getCall(0).args;
+      expect([args[0], makeChaiReadable(args[1])]).to.deep.eq(prepareResultReadable);
     });
   });
 
