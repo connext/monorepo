@@ -12,7 +12,6 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  TransactionData,
   CancelParams,
   encrypt,
   generateMessagingInbox,
@@ -70,6 +69,28 @@ export const CrossChainParamsSchema = Type.Object({
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
+
+export const AuctionBidParamsSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  amountReceived: TIntegerString,
+  receivingAddress: TAddress,
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  callTo: TAddress,
+  encryptedCallData: Type.String(),
+  sendingChainTxManagerAddress: TAddress,
+  receivingChainTxManagerAddress: TAddress,
+  bidExpiry: Type.Number(),
+});
+
+export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
 
 export const NxtpSdkEvents = {
   SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
@@ -384,7 +405,7 @@ export class NxtpSdk {
       throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
         method,
         methodId,
-        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        configError: `Not configured for chains ${sendingChainId} & ${receivingChainId}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -612,6 +633,21 @@ export class NxtpSdk {
     this.logger.info({ method, methodId, transferParams }, "Method started");
 
     const { bid, bidSignature } = transferParams;
+
+    // Validate params schema
+    const validate = ajv.compile(AuctionBidParamsSchema);
+    const valid = validate(bid);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, transferParams }, "Invalid transfer params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: bid.transactionId ?? "",
+      });
+    }
+
     const {
       user,
       router,
@@ -633,7 +669,7 @@ export class NxtpSdk {
       throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
         method,
         methodId,
-        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        configError: `Not configured for chains ${sendingChainId} & ${receivingChainId}`,
         transactionId,
       });
     }
@@ -643,7 +679,7 @@ export class NxtpSdk {
         method,
         methodId,
         transactionId,
-        paramsError: "bidSignature not available",
+        paramsError: "bidSignature undefined",
       });
     }
 
