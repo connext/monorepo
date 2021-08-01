@@ -41,8 +41,8 @@ describe.only("NxtpSdk", () => {
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
 
-  let user: string = mkAddress("0xuser");
-  let router: string = mkAddress("0xrouter");
+  let user: string = mkAddress("0xa");
+  let router: string = mkAddress("0xb");
   let sendingChainId: number = 1337;
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
@@ -370,7 +370,7 @@ describe.only("NxtpSdk", () => {
     });
   });
 
-  describe("#startTransfer", () => {
+  describe.only("#startTransfer", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
         const { auctionBid, bidSignature } = getMock({}, { user: "abc" });
@@ -396,7 +396,7 @@ describe.only("NxtpSdk", () => {
           err = e;
         }
         expect(err).to.be.an("error");
-        expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
         expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
         expect(err.context.configError).to.include("Not configured for chains");
       });
@@ -410,7 +410,7 @@ describe.only("NxtpSdk", () => {
           err = e;
         }
         expect(err).to.be.an("error");
-        expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(err.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
         expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
         expect(err.context.configError).to.include("Not configured for chains");
       });
@@ -425,6 +425,7 @@ describe.only("NxtpSdk", () => {
       } catch (e) {
         err = e;
       }
+      console.log(err);
       expect(err).to.be.an("error");
       expect(err.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
       expect(err.context.transactionId).to.be.eq(auctionBid.transactionId);
