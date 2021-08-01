@@ -2,18 +2,22 @@ import { BigNumber, BigNumberish } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
-export type MinimalTransaction = {
+export type ReadTransaction = {
   chainId: number;
   to: string;
-  value: BigNumberish;
   data: string;
-  from?: string;
 };
+
+export type WriteTransaction = {
+  from?: string;
+  value: BigNumberish;
+} & ReadTransaction;
 
 export type FullTransaction = {
   nonce?: number;
   gasPrice: BigNumber;
-} & MinimalTransaction;
+  gasLimit: BigNumber;
+} & WriteTransaction;
 
 export type CachedGas = {
   price: BigNumber;
@@ -25,9 +29,12 @@ export type CachedGas = {
  */
 export class GasPrice {
   private _gasPrice: BigNumber;
+  private readonly _maxGasPrice: BigNumber;
 
   constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
     this._gasPrice = baseValue;
+    // Enforce a max gas price 20% higher than the base value as a buffer.
+    this._maxGasPrice = limit.mul(12).div(100);
   }
 
   /**
@@ -56,7 +63,7 @@ export class GasPrice {
    * @throws TransactionServiceFailure with reason MaxGasPriceReached if we exceed the limit.
    */
   private validate(value: BigNumber) {
-    if (value.gt(this.limit)) {
+    if (value.gt(this._maxGasPrice)) {
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
         gasPrice: value.toString(),
         max: this.limit.toString(),
