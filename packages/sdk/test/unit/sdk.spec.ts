@@ -1,10 +1,7 @@
 import {
-  AuctionResponse,
-  delay,
   mkAddress,
   UserNxtpNatsMessagingService,
   getRandomBytes32,
-  generateMessagingInbox,
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
@@ -27,6 +24,7 @@ import {
 
 import { Subgraph, ActiveTransaction } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
+import { TxResponse } from "../helper";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -35,7 +33,7 @@ const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 const response = "connected";
 
-describe.only("NxtpSdk", () => {
+describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
@@ -275,7 +273,6 @@ describe.only("NxtpSdk", () => {
       };
       subgraph.getActiveTransactions.resolves([activeTransaction]);
       const res = await sdk.getActiveTransactions();
-      console.log(res);
       expect(res[0]).to.be.eq(activeTransaction);
     });
   });
@@ -439,7 +436,7 @@ describe.only("NxtpSdk", () => {
       expect(error.context.paramsError).to.include("bidSignature undefined");
     });
 
-    it("should error if approve transaction fails", async () => {
+    it("should error if approveTokensIfNeeded transaction fails", async () => {
       const { auctionBid, bidSignature } = getMock();
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
@@ -463,7 +460,24 @@ describe.only("NxtpSdk", () => {
       expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       expect(error.context.transactionId).to.be.eq(auctionBid.transactionId);
     });
-    it.skip("should error if approve transaction reverts", async () => {});
+
+    it.skip("should error if approve transaction reverts", async () => {
+      const { auctionBid, bidSignature } = getMock();
+      const mockMethod = "transfer";
+      const mockMethodId = getRandomBytes32();
+      // transactionManager.approveTokensIfNeeded.resolves(ok(undefined));
+      transactionManager.approveTokensIfNeeded.resolves(ok(TxResponse));
+      let error;
+      try {
+        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        error = e;
+      }
+      console.log(error);
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.transactionId).to.be.eq(auctionBid.transactionId);
+    });
 
     it.skip("happy: start transfer ERC20 Asset", async () => {});
     it.skip("happy: start transfer Native Asset", async () => {});
