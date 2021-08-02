@@ -24,18 +24,16 @@ import {
 
 import { Subgraph, ActiveTransaction } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
-import { TxResponse } from "../helper";
+import { TxResponse, EmptyBytes, EmptyCallDataHash } from "../helper";
 
 import * as nxtpUtils from "@connext/nxtp-utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
-const EmptyBytes = "0x";
-const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 const response = "connected";
 
-describe.only("NxtpSdk", () => {
+describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;

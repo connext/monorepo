@@ -8,6 +8,9 @@ type TransactionResponse = providers.TransactionResponse;
 export const TEST_SENDER_CHAIN_ID = 1337;
 export const TEST_RECEIVER_CHAIN_ID = 1338;
 
+export const EmptyBytes = "0x";
+export const EmptyCallDataHash = utils.keccak256(EmptyBytes);
+
 export const TxResponse: TransactionResponse = {
   chainId: TEST_SENDER_CHAIN_ID,
   confirmations: 0,
