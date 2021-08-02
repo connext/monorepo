@@ -10,7 +10,7 @@ import { err, ok } from "neverthrow";
 import { expect } from "chai";
 import { providers, Wallet, constants, utils } from "ethers";
 import pino from "pino";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
 
 import {
   CrossChainParams,
@@ -26,6 +26,8 @@ import { Subgraph, ActiveTransaction } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
 import { TxResponse } from "../helper";
 
+import * as nxtpUtils from "@connext/nxtp-utils";
+
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
@@ -33,7 +35,7 @@ const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 const response = "connected";
 
-describe("NxtpSdk", () => {
+describe.only("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
@@ -41,6 +43,7 @@ describe("NxtpSdk", () => {
   let transactionManager: SinonStubbedInstance<TransactionManager>;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
+  let signFulfillTransactionPayloadMock: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -70,18 +73,15 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
+    signFulfillTransactionPayloadMock = stub(nxtpUtils, "signFulfillTransactionPayload");
+
     signer.getAddress.resolves(user);
-    sdk = new NxtpSdk(
-      chainConfig,
-      signer,
-      logger,
-      undefined,
-      undefined,
-      (messaging as unknown) as UserNxtpNatsMessagingService,
-    );
+
+    sdk = new NxtpSdk(chainConfig, signer, logger, "http://example.com", "http://example.com");
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
+    (sdk as any).messaging = messaging;
 
     messaging.connect.resolves(response);
   });
@@ -162,19 +162,6 @@ describe("NxtpSdk", () => {
   };
 
   describe("#constructor", () => {
-    const chainConfig = {
-      [sendingChainId]: {
-        provider: provider1337,
-        subgraph: "http://example.com",
-        transactionManagerAddress: sendingChainTxManagerAddress,
-      },
-      [receivingChainId]: {
-        provider: provider1338,
-        subgraph: "http://example.com",
-        transactionManagerAddress: receivingChainTxManagerAddress,
-      },
-    };
-
     it("should error if transaction manager doesn't exist for chainId", () => {
       const _chainConfig = {
         [sendingChainId]: {
@@ -229,17 +216,6 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(
-        chainConfig,
-        signer,
-        logger,
-        undefined,
-        undefined,
-        (messaging as unknown) as UserNxtpNatsMessagingService,
-      );
-    });
-
-    it("happy: constructor, new messaging", () => {
       const instance = new NxtpSdk(chainConfig, signer, logger, "http://example.com", "http://example.com");
     });
   });
@@ -436,7 +412,7 @@ describe("NxtpSdk", () => {
       expect(error.context.paramsError).to.include("bidSignature undefined");
     });
 
-    it("should error if approveTokensIfNeeded transaction fails", async () => {
+    it.skip("should error if approveTokensIfNeeded transaction fails", async () => {
       const { auctionBid, bidSignature } = getMock();
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
@@ -481,5 +457,262 @@ describe("NxtpSdk", () => {
 
     it.skip("happy: start transfer ERC20 Asset", async () => {});
     it.skip("happy: start transfer Native Asset", async () => {});
+  });
+
+  describe("#finishTransfer", () => {
+    describe("should error if invalid param", () => {
+      it("invalid user", async () => {
+        const { transaction, record } = await getTransactionData({ user: "abc" });
+        let error;
+        try {
+          await sdk.finishTransfer({
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+
+      it("invalid caller", async () => {
+        const { transaction, record } = await getTransactionData();
+        let error;
+        try {
+          await sdk.finishTransfer({
+            txData: { ...transaction, ...record },
+            caller: "abc",
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+
+      it("invalid encryptedCallData", async () => {
+        const { transaction, record } = await getTransactionData();
+        let error;
+        try {
+          await sdk.finishTransfer({
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: 1 as any,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+    });
+
+    describe("should error if invalid config", () => {
+      it("unkown sendingChainId", async () => {
+        const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
+        let error;
+        try {
+          await sdk.finishTransfer({
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+        expect(error.context.configError).to.include("Not configured for chains");
+      });
+
+      it("unkown receivingChainId", async () => {
+        const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
+        let error;
+        try {
+          await sdk.finishTransfer({
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+        expect(error.context.configError).to.include("Not configured for chains");
+      });
+    });
+
+    it.skip("should error if signFulfillTransactionPayload errors", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      signFulfillTransactionPayloadMock.returns(new Error("fail"));
+      let error;
+      try {
+        await sdk.finishTransfer({
+          txData: { ...transaction, ...record },
+          caller: transaction.user,
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.SigningError);
+      expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+    });
+
+    it.skip("happy: finish transfer ERC20 Asset", async () => {});
+    it.skip("happy: finish transfer Native Asset", async () => {});
+  });
+
+  describe("#cancelExpired", () => {
+    describe("should error if invalid param", () => {
+      it("invalid user", async () => {
+        const { transaction, record } = await getTransactionData({ user: "abc" });
+        let error;
+        try {
+          await sdk.cancelExpired(
+            {
+              txData: { ...transaction, ...record },
+              relayerFee: "",
+              signature: "",
+            },
+            sendingChainId,
+          );
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+
+      it("invalid relayerFee", async () => {
+        const { transaction, record } = await getTransactionData({ user: "abc" });
+        let error;
+        try {
+          await sdk.cancelExpired(
+            {
+              txData: { ...transaction, ...record },
+              relayerFee: "",
+              signature: EmptyCallDataHash,
+            },
+            sendingChainId,
+          );
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+
+      it("invalid signature", async () => {
+        const { transaction, record } = await getTransactionData({ user: "abc" });
+        let error;
+        try {
+          await sdk.cancelExpired(
+            {
+              txData: { ...transaction, ...record },
+              relayerFee: "1",
+              signature: "",
+            },
+            sendingChainId,
+          );
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.an("error");
+        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+      });
+    });
+
+    it("should error if transactionManager cancel fails", async () => {
+      const mockMethod = "cancel";
+      const mockMethodId = getRandomBytes32();
+      const { transaction, record } = await getTransactionData();
+
+      transactionManager.cancel.resolves(
+        err(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            transactionId: transaction.transactionId,
+          }),
+        ),
+      );
+      let error;
+      try {
+        await sdk.cancelExpired(
+          {
+            txData: { ...transaction, ...record },
+            relayerFee: "1",
+            signature: EmptyCallDataHash,
+          },
+          sendingChainId,
+        );
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.transactionId).to.be.eq(transaction.transactionId);
+    });
+
+    it("happy: cancel", async () => {
+      const mockMethod = "cancel";
+      const mockMethodId = getRandomBytes32();
+      const { transaction, record } = await getTransactionData();
+
+      transactionManager.cancel.resolves(ok(TxResponse));
+      let error;
+      let res;
+      try {
+        res = await sdk.cancelExpired(
+          {
+            txData: { ...transaction, ...record },
+            relayerFee: "1",
+            signature: EmptyCallDataHash,
+          },
+          sendingChainId,
+        );
+      } catch (e) {
+        error = e;
+      }
+      console.log(error);
+      expect(error).to.be.undefined;
+      expect(res).to.be.eq(TxResponse);
+    });
+  });
+
+  it("happy changeInjectedSigner", () => {
+    const signer = createStubInstance(Wallet);
+    const res = sdk.changeInjectedSigner(signer);
+  });
+
+  it("happy removeAllListeners", () => {
+    const res = sdk.removeAllListeners();
   });
 });
