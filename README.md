@@ -1,4 +1,4 @@
-[![Verify](https://github.com/connext/nxtp/actions/workflows/build-docker-image-and-verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+[![Verify](https://github.com/connext/nxtp/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/connext/nxtp/actions/workflows/verify.yml) [![](https://img.shields.io/discord/454734546869551114?&logo=discord)](https://discord.gg/m93Sqf4) [![](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
 
 # NXTP
 
@@ -10,7 +10,7 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 
 ## Transaction Lifecycle
 
-![HighLevelFlow](./packages/documentation/assets/HighLevelFlow.png)
+![HighLevelFlow](https://github.com/connext/nxtp/blob/main/packages/documentation/assets/HighLevelFlow.png)
 
 Transactions go through three phases:
 
@@ -69,8 +69,6 @@ These are **important** and everyone must adhere to them:
 
 # Local Dev
 
-## Yarn Setup
-
 We are using a Yarn 2 Workspace-based monorepo structure. The individual workspaces are within the `packages/` directory. This repo structure was heavily inspired by [create-ts-project](https://github.com/jtbennett/create-ts-project). The goal is to minimize 3rd party dependencies, and expose the configurations so that they can be transparently managed.
 
 There are a few top-level scripts that can be used:
@@ -91,7 +89,7 @@ You should be able to do everything from the root and not need to go into the in
 
 `yarn workspace @connext/nxtp-txservice add ethers`
 
-### First time setup
+## First time setup
 
 Make sure you are on the latest yarn version:
 
@@ -99,7 +97,7 @@ Make sure you are on the latest yarn version:
 
 Try running `yarn` to update everything. If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
 
-### Common Tasks
+## Common Tasks
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
@@ -112,7 +110,7 @@ Run test-ui:
 
 - `yarn workspace @connext/nxtp-test-ui dev` - Runs test-ui in hot-reload mode.
 
-### Running Tests
+## Running Test
 
 - `yarn`: Install deps, create symlinks, hoist packages.
 - `yarn build:all`: Build all packages.
@@ -123,7 +121,7 @@ Run test:
 
 - `yarn workspace @connext/nxtp-contracts test` - Runs test.
 
-### Adding Packages
+## Adding Packages
 
 To add a new package that can be shared by the rest of the repo, you can use some convenience scripts that we have installed:
 

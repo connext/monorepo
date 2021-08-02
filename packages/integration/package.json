@@ -7,9 +7,10 @@
   "scripts": {
     "dev": "exit 0",
     "lint": "eslint ./src --ext .ts --env node",
+    "itest": "yarn tsc && node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "exit 0",
+    "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
@@ -22,7 +23,8 @@
     "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml up -d",
     "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml down",
     "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
-    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
+    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down",
+    "concurrency:router": "ts-node ./test/load/routerConcurrency.ts"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +37,8 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.4.1",
-    "pino": "^6.12.0"
+    "pino": "^6.12.0",
+    "ts-node": "^10.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
@@ -50,6 +53,7 @@
     "eslint": "^7.30.0",
     "mocha": "^9.0.2",
     "nyc": "^15.1.0",
+    "p-queue": "6.6.2",
     "rimraf": "^3.0.2",
     "sinon": "^11.1.1",
     "ts-mocha": "^8.0.0",

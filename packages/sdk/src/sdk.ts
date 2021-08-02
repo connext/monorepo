@@ -82,7 +82,7 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-export type SenderTokenApprovalSubmitted = {
+export type SenderTokenApprovalSubmittedPayload = {
   assetId: string;
   chainId: number;
   transactionResponse: providers.TransactionResponse;
@@ -117,7 +117,7 @@ export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledE
 export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
 
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmitted;
+  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmittedPayload;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
   [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
   [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
@@ -155,7 +155,7 @@ const ajv = addFormats(new Ajv(), [
  */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
-    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmitted>(),
+    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload>(),
     [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
