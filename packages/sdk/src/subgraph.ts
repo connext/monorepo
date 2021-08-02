@@ -13,6 +13,13 @@ import {
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
+export const SubgraphUri: { [chainId: number]: string } = {
+  4: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
+  5: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
+  69: "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan",
+  80001: "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai",
+  421611: "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby",
+};
 /**
  * Gets hosted subgraph for applicable chains
  *
@@ -23,20 +30,8 @@ import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
  * Currently only returns URIs for hosted subgraphs
  */
 export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
-  switch (chainId) {
-    case 4:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
-    case 5:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli";
-    case 69:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan";
-    case 80001:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
-    case 421611:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby";
-    default:
-      return undefined;
-  }
+  const uri = SubgraphUri[chainId];
+  return uri;
 };
 
 /**
