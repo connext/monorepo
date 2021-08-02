@@ -34,6 +34,7 @@ export class TransactionManagerError extends NxtpError {
       approveReceipt?: providers.TransactionReceipt;
       methodId: string;
       method: string;
+      transactionId?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
@@ -201,6 +202,7 @@ export class TransactionManager {
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
           methodId,
           method,
+          transactionId: cancelParams?.txData?.transactionId ?? "",
         }),
       );
     }
@@ -215,6 +217,7 @@ export class TransactionManager {
           method,
           methodId,
           txError: jsonifyError(err as NxtpError),
+          transactionId: cancelParams?.txData?.transactionId ?? "",
         }),
     ).andThen((tx) => {
       this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
