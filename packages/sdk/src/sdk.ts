@@ -12,7 +12,6 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  CancelParams,
   encrypt,
   generateMessagingInbox,
   AuctionResponse,
@@ -91,6 +90,41 @@ export const AuctionBidParamsSchema = Type.Object({
 });
 
 export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
+
+export const TransactionDataSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  sendingChainFallback: TAddress,
+  receivingAddress: TAddress,
+  callTo: TAddress,
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  preparedBlockNumber: Type.Number(),
+});
+
+export const TransactionPrepareEventSchema = Type.Object({
+  txData: TransactionDataSchema,
+  caller: TAddress,
+  encryptedCallData: Type.String(),
+  encodedBid: Type.String(),
+  bidSignature: Type.String(),
+});
+
+export type TransactionPrepareEventParams = Static<typeof TransactionPrepareEventSchema>;
+
+export const CancelSchema = Type.Object({
+  txData: TransactionDataSchema,
+  relayerFee: Type.String(),
+  signature: Type.String(),
+});
+
+export type CancelParams = Static<typeof CancelSchema>;
 
 export const NxtpSdkEvents = {
   SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
@@ -249,21 +283,17 @@ export class NxtpSdk {
     private readonly logger: BaseLogger = pino(),
     natsUrl?: string,
     authUrl?: string,
-    messaging?: UserNxtpNatsMessagingService,
     _network?: "testnet" | "mainnet", // TODO
   ) {
     const method = "constructor";
     const methodId = getRandomBytes32();
-    if (messaging) {
-      this.messaging = messaging;
-    } else {
-      this.messaging = new UserNxtpNatsMessagingService({
-        signer,
-        logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl,
-        authUrl,
-      });
-    }
+
+    this.messaging = new UserNxtpNatsMessagingService({
+      signer,
+      logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
+      natsUrl,
+      authUrl,
+    });
 
     const txManagerConfig: Record<
       number,
@@ -795,7 +825,7 @@ export class NxtpSdk {
    * // TODO: fix this typing, if its either or the types should reflect that
    */
   public async finishTransfer(
-    params: TransactionPreparedEvent,
+    params: TransactionPrepareEventParams,
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
@@ -803,22 +833,47 @@ export class NxtpSdk {
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, params, useRelayers }, "Method started");
 
+    // Validate params schema
+    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const valid = validate(params);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid Params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: params?.txData?.transactionId ?? "",
+      });
+    }
+
     const { txData, encryptedCallData } = params;
 
     const signerAddress = await this.signer.getAddress();
+
+    if (!this.chainConfig[txData.sendingChainId] || !this.chainConfig[txData.receivingChainId]) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+        method,
+        methodId,
+        configError: `Not configured for chains ${txData.sendingChainId} & ${txData.receivingChainId}`,
+        transactionId: txData.transactionId,
+      });
+    }
 
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
       signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
-      (err) =>
+      (err) => {
+        console.log("errors");
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,
           methodId,
           transactionId: txData.transactionId,
           signerError: jsonifyError(err as Error),
-        }),
+        });
+      },
     )
       .andThen((_signature) => {
         this.logger.info({ method, methodId, signature }, "Generated signature");
@@ -948,6 +1003,21 @@ export class NxtpSdk {
     const method = this.cancelExpired.name;
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, cancelParams, chainId }, "Method started");
+
+    // Validate params schema
+    const validate = ajv.compile(CancelSchema);
+    const valid = validate(cancelParams);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, cancelParams }, "Invalid Params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: cancelParams?.txData?.transactionId ?? "",
+      });
+    }
+
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
     if (cancelRes.isOk()) {
       this.logger.info({ method, methodId }, "Method complete");
