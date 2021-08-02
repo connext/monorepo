@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.0.15
+
+- [txservice] Fix in gas price for Optimism.
+- [contracts] Deployments for Mumbai, Optimism Kovan, Arbitrum Rinkeby.
+
 ## 0.0.14
 
 - [sdk] Add `transactionHash` to all applicable events.
