@@ -83,7 +83,7 @@ export const invariantDataMock: InvariantTransactionData = {
 
 export const variantDataMock: VariantTransactionData = {
   amount: "123",
-  expiry: 123456,
+  expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
   preparedBlockNumber: 1234,
 };
 
