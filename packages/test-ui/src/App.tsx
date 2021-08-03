@@ -54,16 +54,7 @@ function App(): React.ReactElement | null {
       const sendingChain = form.getFieldValue("sendingChain");
       console.log("sendingChain: ", sendingChain);
 
-      const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[sendingChain];
-      console.log("sendingAssetId: ", sendingAssetId);
-      if (!sendingAssetId) {
-        throw new Error("Bad configuration for swap");
-      }
-      if (!chainProviders || !chainProviders[sendingChain]) {
-        throw new Error("No config for sendingChain");
-      }
-      const _balance = await getBalance(address, sendingAssetId, chainProviders[sendingChain].provider);
-
+      const _balance = await getUserBalance(sendingChain, _signer);
       setUserBalance(_balance);
       setSigner(_signer);
       setProvider(provider);
@@ -80,6 +71,20 @@ function App(): React.ReactElement | null {
     }
   };
 
+  const getUserBalance = async (chainId: number, _signer: Signer) => {
+    const address = await _signer.getAddress();
+    const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[chainId];
+    console.log("sendingAssetId: ", sendingAssetId);
+    if (!sendingAssetId) {
+      throw new Error("Bad configuration for swap");
+    }
+    if (!chainProviders || !chainProviders[chainId]) {
+      throw new Error("No config for chainId");
+    }
+    const _balance = await getBalance(address, sendingAssetId, chainProviders[chainId].provider);
+    return _balance;
+  };
+
   useEffect(() => {
     const init = async () => {
       const json = await utils.fetchJson("https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json");
@@ -88,6 +93,7 @@ function App(): React.ReactElement | null {
         return;
       }
       const { chainId } = await signer.provider!.getNetwork();
+      console.log("chainId: ", chainId);
       setInjectedProviderChainId(chainId);
       const _sdk = new NxtpSdk(
         chainProviders,
@@ -479,7 +485,17 @@ function App(): React.ReactElement | null {
               <Row gutter={16}>
                 <Col span={16}>
                   <Form.Item name="sendingChain">
-                    <Select>
+                    <Select
+                      onChange={async (val) => {
+                        console.log("val: ", val);
+                        if (!signer) {
+                          console.error("No signer available");
+                          return;
+                        }
+                        const _balance = await getUserBalance(val as number, signer);
+                        setUserBalance(_balance);
+                      }}
+                    >
                       {Object.keys(selectedPool.assets).map((chainId) => (
                         <Select.Option key={chainId} value={chainId}>
                           {getChainName(parseInt(chainId))}
