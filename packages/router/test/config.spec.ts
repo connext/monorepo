@@ -1,13 +1,33 @@
+import { expect } from "../../utils/dist";
+import { getEnvConfig, NxtpRouterConfig, getConfig } from "../src/config";
+
 describe("Config", () => {
-  describe.skip("getEnvConfig", () => {
-    it("should read config from default filepath", () => {});
-    it("should read config from specified filepath", () => {});
-    it("should read config config env var", () => {});
-    it("should read individual env vars", () => {});
-    it("should preserve the order of specificity (individual env vars > env var config > specified config path > default config path", () => {});
+  describe("getEnvConfig", () => {
+    it("should read config from default filepath", () => {
+      let res;
+      let error;
+
+      try {
+        res = getEnvConfig();
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+    });
   });
-  describe.skip("getConfig", () => {
-    it("should getEnvConfig", () => {});
-    it("should return from cache", () => {});
+  describe("getConfig", () => {
+    it("should getEnvConfig", () => {
+      let res;
+      let error;
+
+      try {
+        res = getConfig();
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+    });
   });
 });
