@@ -312,6 +312,18 @@ describe("Contract", () => {
         expect(res.value).to.be.eq(fakeTxReceipt);
       }
     });
+
+    it("happy case: removeLiquidity when receipient address is undefined", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const res = await transactionManager.removeLiquidity(chainId, amount, assetId, undefined, requestContextMock);
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
+    });
   });
 
   describe("getRouterBalance", () => {
