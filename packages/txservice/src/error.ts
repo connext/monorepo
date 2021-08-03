@@ -221,11 +221,13 @@ export const parseError = (error: any): NxtpError => {
   };
 
   if (message.match(/execution reverted/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
   } else if (message.match(/always failing transaction/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
   } else if (message.match(/gas required exceeds allowance/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+  } else if (message.match(/tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/)) {
+    return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
   }
 
   switch (error.code) {

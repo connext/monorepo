@@ -110,6 +110,7 @@ export class ChainRpcProvider {
       );
     }
 
+    // TODO: We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
   }
 
@@ -295,9 +296,9 @@ export class ChainRpcProvider {
       const errors: any[] = [];
       // TODO: If quorum > 1, we should make this call to multiple providers.
       for (const provider of this._providers) {
-        // This call will prepare the transaction params for us (hexlify tx, etc).
         let result: string;
         try {
+          // This call will prepare the transaction params for us (hexlify tx, etc).
           // TODO: Is there any reason prepare should be called for each iteration?
           const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);

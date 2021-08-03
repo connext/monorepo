@@ -4,6 +4,8 @@ import { providers } from "ethers";
 
 export type ChainConfig = {
   [chainId: number]: {
+    confirmations: number;
+    providerUrls: string[];
     provider: providers.FallbackProvider;
     transactionManagerAddress?: string;
     subgraph?: string;
@@ -40,13 +42,15 @@ export const getConfig = (): Config => {
   const parsed = JSON.parse(json);
   const chainConfig: ChainConfig = {};
   Object.entries(parsed.chainConfig).map(([chainId, config]) => {
-    const { providers: providerUrls, ...rest } = config as any;
+    const { providers: providerUrls, confirmations, ...rest } = config as any;
     chainConfig[parseInt(chainId)] = {
-      ...rest,
+      confirmations,
+      providerUrls: providerUrls,
       provider: new providers.FallbackProvider(
         providerUrls.map((url: string) => new providers.JsonRpcProvider(url)),
         1,
       ),
+      ...rest,
     };
   });
   return {
