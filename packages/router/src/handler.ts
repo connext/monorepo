@@ -623,7 +623,20 @@ export class Handler {
           );
         }
         return ok(undefined);
-      });
+      })
+      .andThen(() =>
+        Result.fromThrowable(
+          mutateExpiry,
+          (err) =>
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "mutateExpiry",
+              requestContext,
+              prepareError: (err as Error).message,
+            }),
+        )(txData.expiry),
+      );
 
     if (validationRes.isOk()) {
       this.logger.info({ method, methodId, requestContext }, "Validated input");
