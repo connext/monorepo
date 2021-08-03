@@ -16,12 +16,12 @@ import pino from "pino";
 import { BigNumber, constants, Wallet } from "ethers";
 
 import { Subgraph } from "../src/subgraph";
-import { Handler, HandlerError } from "../src/handler";
+import { getBidExpiry, Handler, HandlerError, mutateExpiry } from "../src/handler";
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareDataMock, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
+import { fakeConfig, senderPrepareDataMock, receiverFulfillDataMock, fakeTxReceipt } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -32,7 +32,6 @@ const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 
 const MUTATED_AMOUNT = "100";
 const MUTATED_EXPIRY = 123400;
-const BID_EXPIRY = 123401;
 
 const requestContext = (createRequestContext("TEST") as unknown) as RequestContext;
 
@@ -43,6 +42,7 @@ describe.only("Handler", () => {
   let subgraph: SinonStubbedInstance<Subgraph>;
   let wallet: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
+  let bidExpiry: number;
 
   const addr = mkAddress("0xb");
 
@@ -60,11 +60,10 @@ describe.only("Handler", () => {
     txService = createStubInstance(TransactionService);
     stub(config, "getConfig").returns(fakeConfig);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
-    stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
-    stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
     stub(handlerUtils, "recoverAuctionSigner").returns(addr);
 
     wallet = createStubInstance(Wallet);
+    bidExpiry = getBidExpiry();
     (wallet as any).address = addr; // need to do this differently bc the function doesnt exist on the interface
     wallet.signMessage.resolves("0xabcdef");
 
@@ -91,6 +90,14 @@ describe.only("Handler", () => {
       expect(error.context.method).to.be.eq(method);
       expect(error.context.methodId).to.be.eq(methodId);
     });
+  });
+
+  it("happy: mutateExpiry, should error if expiry happened", () => {
+    const day = 3600 * 24;
+    const expiry = Date.now() / 1000 + day * 2;
+    const res = mutateExpiry(expiry);
+
+    expect(Math.floor(res)).to.be.eq(Math.floor(Date.now() / 1000) + day);
   });
 
   describe("handleNewAuction", () => {
@@ -121,7 +128,7 @@ describe.only("Handler", () => {
       const publishCall = messaging.publishAuctionResponse.getCall(0);
       expect(publishCall.args[0]).to.eq("_INBOX.abc");
       expect(publishCall.args[1].bid).to.deep.eq({
-        bidExpiry: BID_EXPIRY,
+        bidExpiry: bidExpiry,
         user: auctionPayload.user,
         router: mkAddress("0xb"),
         sendingChainId: auctionPayload.sendingChainId,
@@ -146,7 +153,7 @@ describe.only("Handler", () => {
 
   describe("handleSenderPrepare", () => {
     it("should send prepare for receiving chain with ETH asset", async () => {
-      const ethPrepareDataMock = senderPrepareDataMock;
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
@@ -172,7 +179,7 @@ describe.only("Handler", () => {
           preparedBlockNumber: ethPrepareDataMock.txData.preparedBlockNumber,
         },
         amount: MUTATED_AMOUNT,
-        expiry: MUTATED_EXPIRY,
+        expiry: mutateExpiry(ethPrepareDataMock.txData.expiry),
         bidSignature: ethPrepareDataMock.bidSignature,
         encodedBid: ethPrepareDataMock.encodedBid,
         encryptedCallData: ethPrepareDataMock.encryptedCallData,
@@ -180,7 +187,7 @@ describe.only("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      const tokenPrepareData = senderPrepareDataMock;
+      const tokenPrepareData = JSON.parse(JSON.stringify(senderPrepareDataMock));
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
@@ -208,7 +215,7 @@ describe.only("Handler", () => {
           preparedBlockNumber: tokenPrepareData.txData.preparedBlockNumber,
         },
         amount: MUTATED_AMOUNT,
-        expiry: MUTATED_EXPIRY,
+        expiry: mutateExpiry(tokenPrepareData.txData.expiry),
         bidSignature: tokenPrepareData.bidSignature,
         encodedBid: tokenPrepareData.encodedBid,
         encryptedCallData: tokenPrepareData.encryptedCallData,
