@@ -1,27 +1,29 @@
 {
   "adminToken": "blahblah",
   "chainConfig": {
-    "4": {
-      "providers": ["https://rinkeby.infura.io/v3/ab7cc068423e453982eafb381ea63c75"],
+    "1337": {
+      "providers": ["http://localhost:8545"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+      "subgraph": "http://localhost:8010/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
-    "5": {
-      "providers": ["https://goerli.infura.io/v3/ab7cc068423e453982eafb381ea63c75"],
+    "1338": {
+      "providers": ["http://localhost:8546"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+      "subgraph": "http://localhost:9010/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "husband mass mutual enemy vessel test pride cage allow paper confirm rookie",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
   "swapPools": [
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
-        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
+        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
       ]
     }
   ]
