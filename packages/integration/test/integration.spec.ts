@@ -236,9 +236,7 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    // TODO: txservice doesnt seem to be returning properly, need to revisit this
     const finishRes = await userSdk.finishTransfer(event);
-    console.log("finishRes: ", finishRes);
     expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
