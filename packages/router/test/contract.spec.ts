@@ -1,62 +1,375 @@
+import { mkAddress } from "@connext/nxtp-utils";
+import { TransactionService } from "@connext/nxtp-txservice";
+import pino from "pino";
+import { expect } from "chai";
+import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
+import { TransactionManager, TransactionManagerError } from "../src/contract";
+
+import {
+  txDataMock,
+  fakeConfig,
+  prepareParamsMock,
+  fulfillParamsMock,
+  cancelParamsMock,
+  fakeTxReceipt,
+  requestContextMock,
+} from "./utils";
+
+const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+
 describe("Contract", () => {
-  describe.skip("class TransactionManager", () => {
-    it("happy: constructor", () => {});
-    it("happy: constructor with optional config param", () => {});
+  let transactionManager: TransactionManager;
+  let transactionService: SinonStubbedInstance<TransactionService>;
 
-    describe.skip("prepare", () => {
-      it("should error if chainId is not supported in config", () => {});
+  let user: string = mkAddress("0xa");
 
-      describe("should error if function encoding fails", () => {
-        it("invalid user", () => {});
-        it("invalid router", () => {});
-        it("invalid sendingChainId", () => {});
-        it("invalid sendingAssetId", () => {});
-        it("invalid receivingChainId", () => {});
-        it("invalid receivingAssetId", () => {});
-        it("invalid sendingChainFallback", () => {});
-        it("invalid callTo", () => {});
-        // receivingAddress
-        // callDataHash
-        // transactionId
-        // amount
-        // expiry
-        // encryptedCallData
-        // encodedBid
-        // bidSignature
+  beforeEach(() => {
+    transactionService = createStubInstance(TransactionService);
+
+    transactionManager = new TransactionManager(
+      (transactionService as any) as TransactionService,
+      user,
+      logger,
+      fakeConfig,
+    );
+  });
+
+  it("happy: constructor with optional config param", () => {
+    let res;
+    let error;
+
+    try {
+      res = new TransactionManager((transactionService as any) as TransactionService, user, logger, fakeConfig);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).to.be.undefined;
+  });
+
+  describe("prepare", () => {
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+      const res = await transactionManager.prepare(chainId, prepareParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.configError).to.include("No contract exists for chain");
+      }
+    });
+
+    describe("should error if function encoding fails", () => {
+      it("invalid user", async () => {
+        const chainId = txDataMock.sendingChainId;
+        const paramsMock = JSON.parse(JSON.stringify(prepareParamsMock));
+        paramsMock.txData.user = "abc";
+        const res = await transactionManager.prepare(chainId, paramsMock, requestContextMock);
+
+        expect(res.isOk()).to.be.false;
+        expect(res.isErr()).to.be.true;
+        if (res.isErr()) {
+          expect(res.error.message).to.be.eq(TransactionManagerError.reasons.EncodingError);
+          expect(res.error.context.chainId).to.be.eq(chainId);
+          expect(res.error.context.encodingError.message).to.include("invalid address");
+        }
       });
-
-      it("should error if transaction fails", () => {});
-      it("happy case: prepare erc20", () => {});
-      it("happy case: prepare native", () => {});
     });
 
-    describe.skip("fulfill", () => {
-      it("should error if chainId is not supported in config", () => {});
-      describe("should error if function encoding fails", () => {});
-      it("should error if transaction fails", () => {});
-      it("happy case: fulfill erc20", () => {});
-      it("happy case: fulfill native", () => {});
+    it("should error if transaction fails", async () => {
+      const errorMessage = "fails";
+      transactionService.sendTx.rejects(new Error(errorMessage));
+
+      const chainId = txDataMock.sendingChainId;
+
+      const res = await transactionManager.prepare(chainId, prepareParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.txServiceError.message).to.be.eq(errorMessage);
+      }
     });
-    describe.skip("cancel", () => {
-      it("should error if chainId is not supported in config", () => {});
-      describe("should error if function encoding fails", () => {});
-      it("should error if transaction fails", () => {});
-      it("happy case: cancel erc20", () => {});
-      it("happy case: cancel native", () => {});
+
+    it("happy case: prepare", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const chainId = txDataMock.sendingChainId;
+
+      const res = await transactionManager.prepare(chainId, prepareParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
     });
-    describe.skip("removeLiquidity", () => {
-      it("should error if chainId is not supported in config", () => {});
-      describe("should error if function encoding fails", () => {});
-      it("should error if transaction fails", () => {});
-      it("happy case: removeLiquidity erc20", () => {});
-      it("happy case: removeLiquidity native", () => {});
+  });
+
+  describe("fulfill", () => {
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+      const res = await transactionManager.fulfill(chainId, fulfillParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.configError).to.include("No contract exists for chain");
+      }
     });
-    describe.skip("getRouterBalance", () => {
-      it("should error if chainId is not supported in config", () => {});
-      describe("should error if function encoding fails", () => {});
-      it("should error if read transaction fails", () => {});
-      it("happy case: getRouterBalance erc20", () => {});
-      it("happy case: getRouterBalance native", () => {});
+    describe("should error if function encoding fails", () => {
+      it("invalid user", async () => {
+        const chainId = txDataMock.sendingChainId;
+        const paramsMock = JSON.parse(JSON.stringify(fulfillParamsMock));
+        paramsMock.txData.user = "abc";
+        const res = await transactionManager.fulfill(chainId, paramsMock, requestContextMock);
+
+        expect(res.isOk()).to.be.false;
+        expect(res.isErr()).to.be.true;
+        if (res.isErr()) {
+          expect(res.error.message).to.be.eq(TransactionManagerError.reasons.EncodingError);
+          expect(res.error.context.chainId).to.be.eq(chainId);
+          expect(res.error.context.encodingError.message).to.include("invalid address");
+        }
+      });
+    });
+
+    it("should error if transaction fails", async () => {
+      const errorMessage = "fails";
+      transactionService.sendTx.rejects(new Error(errorMessage));
+
+      const chainId = txDataMock.sendingChainId;
+
+      const res = await transactionManager.fulfill(chainId, fulfillParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.txServiceError.message).to.be.eq(errorMessage);
+      }
+    });
+
+    it("happy case: fulfill", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const chainId = txDataMock.sendingChainId;
+
+      const res = await transactionManager.fulfill(chainId, fulfillParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
+    });
+  });
+
+  describe("cancel", () => {
+    const chainId = txDataMock.sendingChainId;
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+      const res = await transactionManager.cancel(chainId, cancelParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.configError).to.include("No contract exists for chain");
+      }
+    });
+    describe("should error if function encoding fails", () => {
+      it("invalid user", async () => {
+        const paramsMock = JSON.parse(JSON.stringify(cancelParamsMock));
+        paramsMock.txData.user = "abc";
+        const res = await transactionManager.cancel(chainId, paramsMock, requestContextMock);
+
+        expect(res.isOk()).to.be.false;
+        expect(res.isErr()).to.be.true;
+        if (res.isErr()) {
+          expect(res.error.message).to.be.eq(TransactionManagerError.reasons.EncodingError);
+          expect(res.error.context.chainId).to.be.eq(chainId);
+          expect(res.error.context.encodingError.message).to.include("invalid address");
+        }
+      });
+    });
+
+    it("should error if transaction fails", async () => {
+      const errorMessage = "fails";
+      transactionService.sendTx.rejects(new Error(errorMessage));
+
+      const res = await transactionManager.cancel(chainId, cancelParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.txServiceError.message).to.be.eq(errorMessage);
+      }
+    });
+
+    it("happy case: cancel", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const res = await transactionManager.cancel(chainId, cancelParamsMock, requestContextMock);
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
+    });
+  });
+
+  describe("removeLiquidity", () => {
+    const chainId = txDataMock.sendingChainId;
+    const amount = txDataMock.amount;
+    const assetId = txDataMock.sendingAssetId;
+    const recipientAddress = txDataMock.receivingAddress;
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+
+      const res = await transactionManager.removeLiquidity(
+        chainId,
+        amount,
+        assetId,
+        recipientAddress,
+        requestContextMock,
+      );
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.configError).to.include("No contract exists for chain");
+      }
+    });
+    describe("should error if function encoding fails", () => {
+      it("invalid assetId", async () => {
+        const res = await transactionManager.removeLiquidity(
+          chainId,
+          amount,
+          "abc" as any,
+          recipientAddress,
+          requestContextMock,
+        );
+
+        expect(res.isOk()).to.be.false;
+        expect(res.isErr()).to.be.true;
+        if (res.isErr()) {
+          expect(res.error.message).to.be.eq(TransactionManagerError.reasons.EncodingError);
+          expect(res.error.context.chainId).to.be.eq(chainId);
+          expect(res.error.context.encodingError.message).to.include("invalid address");
+        }
+      });
+    });
+
+    it("should error if transaction fails", async () => {
+      const errorMessage = "fails";
+      transactionService.sendTx.rejects(new Error(errorMessage));
+
+      const res = await transactionManager.removeLiquidity(
+        chainId,
+        amount,
+        assetId,
+        recipientAddress,
+        requestContextMock,
+      );
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.txServiceError.message).to.be.eq(errorMessage);
+      }
+    });
+
+    it("happy case: removeLiquidity", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const res = await transactionManager.removeLiquidity(
+        chainId,
+        amount,
+        assetId,
+        recipientAddress,
+        requestContextMock,
+      );
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
+    });
+  });
+
+  describe("getRouterBalance", () => {
+    const chainId = txDataMock.sendingChainId;
+    const assetId = txDataMock.sendingAssetId;
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+
+      const res = await transactionManager.getRouterBalance(chainId, assetId);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.configError).to.include("No contract exists for chain");
+      }
+    });
+
+    describe("should error if function encoding fails", () => {
+      it("invalid assetId", async () => {
+        const res = await transactionManager.getRouterBalance(chainId, "abc" as any);
+
+        expect(res.isOk()).to.be.false;
+        expect(res.isErr()).to.be.true;
+        if (res.isErr()) {
+          expect(res.error.message).to.be.eq(TransactionManagerError.reasons.EncodingError);
+          expect(res.error.context.chainId).to.be.eq(chainId);
+          expect(res.error.context.encodingError.message).to.include("invalid address");
+        }
+      });
+    });
+
+    it.skip("should error if read transaction fails", async () => {
+      const errorMessage = "fails";
+      transactionService.sendTx.rejects(new Error(errorMessage));
+
+      const res = await transactionManager.getRouterBalance(chainId, assetId);
+
+      expect(res.isOk()).to.be.false;
+      expect(res.isErr()).to.be.true;
+      if (res.isErr()) {
+        expect(res.error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        expect(res.error.context.chainId).to.be.eq(chainId);
+        expect(res.error.context.txServiceError.message).to.be.eq(errorMessage);
+      }
+    });
+
+    it.skip("happy case: getRouterBalance", async () => {
+      transactionService.sendTx.resolves(fakeTxReceipt);
+
+      const res = await transactionManager.getRouterBalance(chainId, assetId);
+
+      expect(res.isOk()).to.be.true;
+      expect(res.isErr()).to.be.false;
+      if (res.isOk()) {
+        expect(res.value).to.be.eq(fakeTxReceipt);
+      }
     });
   });
 });
