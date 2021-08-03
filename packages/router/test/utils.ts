@@ -9,6 +9,10 @@ import {
   AuctionBid,
   encodeAuctionBid,
   mkSig,
+  RequestContext,
+  PrepareParams,
+  FulfillParams,
+  CancelParams,
 } from "@connext/nxtp-utils";
 import { providers, constants } from "ethers";
 
@@ -108,13 +112,12 @@ export const txDataMock: TransactionData = {
   ...variantDataMock,
 };
 
-export const senderPrepareData: TransactionPreparedEvent = {
+export const senderPrepareDataMock: TransactionPreparedEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
-  encryptedCallData: "0xabc",
+  encryptedCallData: mkSig("0xabc"),
   encodedBid: encodeAuctionBid(auctionBidMock),
   bidSignature: mkSig("0xeee"),
-  transactionHash: mkAddress("0xf"),
 };
 
 export const receiverFulfillDataMock: TransactionFulfilledEvent = {
@@ -122,6 +125,32 @@ export const receiverFulfillDataMock: TransactionFulfilledEvent = {
   caller: mkAddress("0xf"),
   relayerFee: "5678",
   callData: "0x",
-  signature: "0xdeadbeef",
-  transactionHash: mkAddress("0xf"),
+  signature: mkSig("0xeee"),
+};
+
+export const requestContextMock: RequestContext = {
+  id: "0xf",
+  origin: "0xe",
+};
+
+export const prepareParamsMock: PrepareParams = {
+  txData: txDataMock,
+  amount: "123",
+  expiry: 123456,
+  encryptedCallData: mkSig("0xabc"),
+  encodedBid: encodeAuctionBid(auctionBidMock),
+  bidSignature: mkSig("0xeee"),
+};
+
+export const fulfillParamsMock: FulfillParams = {
+  txData: txDataMock,
+  relayerFee: "5678",
+  signature: mkSig("0xeee"),
+  callData: "0x",
+};
+
+export const cancelParamsMock: CancelParams = {
+  txData: txDataMock,
+  relayerFee: "5678",
+  signature: mkSig("0xeee"),
 };
