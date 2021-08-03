@@ -2,7 +2,8 @@ import { mkAddress } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { expect } from "chai";
-import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
+
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManager, TransactionManagerError } from "../src/contract";
 
 import {
@@ -32,6 +33,11 @@ describe("Contract", () => {
       logger,
       fakeConfig,
     );
+  });
+
+  afterEach(() => {
+    restore();
+    reset();
   });
 
   it("happy: constructor with optional config param", () => {

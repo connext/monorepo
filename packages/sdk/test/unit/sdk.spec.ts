@@ -10,7 +10,7 @@ import { err, ok } from "neverthrow";
 import { expect } from "chai";
 import { providers, Wallet, constants, utils } from "ethers";
 import pino from "pino";
-import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 
 import {
   CrossChainParams,
@@ -82,6 +82,11 @@ describe("NxtpSdk", () => {
     (sdk as any).messaging = messaging;
 
     messaging.connect.resolves(response);
+  });
+
+  afterEach(() => {
+    restore();
+    reset();
   });
 
   const getTransactionData = async (

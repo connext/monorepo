@@ -11,7 +11,7 @@ import { expect } from "chai";
 import { providers, Wallet, constants, utils, BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import pino from "pino";
-import { createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 
 import { Subgraph, getDeployedSubgraphUri, SubgraphUri } from "../../src/subgraph";
 import { Transaction, TransactionStatus, User, Router, Sdk, getSdk } from "../../src/graphqlsdk";
@@ -96,6 +96,11 @@ describe("NxtpSdk", () => {
       const client = createStubInstance(GraphQLClient);
       // (subgraph as any).sdks[sendingChainId] = getSdk(client);
       // (subgraph as any).sdks[receivingChainId] = createStubInstance(Sdk);
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
     });
 
     it("happy: constructor", () => {
