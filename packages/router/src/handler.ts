@@ -146,7 +146,7 @@ export class Handler {
   private senderFulfilling: Map<string, boolean> = new Map();
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly _subgraph: Subgraph,
+    private readonly subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,
@@ -205,7 +205,7 @@ export class Handler {
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
-    const result = await this._subgraph
+    const result = await this.subgraph
       .getAssetBalance(receivingAssetId, receivingChainId)
       .andThen((balance) => {
         // validate liquidity
