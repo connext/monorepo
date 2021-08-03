@@ -2,6 +2,7 @@ import {
   AuctionPayload,
   createRequestContext,
   FulfillParams,
+  getRandomBytes32,
   mkAddress,
   mkBytes32,
   PrepareParams,
@@ -15,7 +16,7 @@ import pino from "pino";
 import { BigNumber, constants, Wallet } from "ethers";
 
 import { Subgraph } from "../src/subgraph";
-import { Handler } from "../src/handler";
+import { Handler, HandlerError } from "../src/handler";
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
@@ -35,7 +36,7 @@ const BID_EXPIRY = 123401;
 
 const requestContext = (createRequestContext("TEST") as unknown) as RequestContext;
 
-describe("Handler", () => {
+describe.only("Handler", () => {
   let handler: Handler;
   let txService: SinonStubbedInstance<TransactionService>;
   let txManager: SinonStubbedInstance<TxManager>;
@@ -73,6 +74,23 @@ describe("Handler", () => {
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("class HandlerError", () => {
+    it("happy constructor", () => {
+      const method = "test";
+      const methodId = getRandomBytes32();
+      const error = new HandlerError(HandlerError.reasons.MessagingError, {
+        calling: "messagingService.publishAuctionResponse",
+        methodId,
+        requestContext,
+        method,
+      });
+
+      expect(error.message).to.be.eq(HandlerError.reasons.MessagingError);
+      expect(error.context.method).to.be.eq(method);
+      expect(error.context.methodId).to.be.eq(methodId);
+    });
   });
 
   describe("handleNewAuction", () => {
