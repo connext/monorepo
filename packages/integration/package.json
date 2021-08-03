@@ -39,7 +39,6 @@
     "ethers": "^5.4.2",
     "pino": "^6.13.0",
     "ts-node": "^10.1.0"
-
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
