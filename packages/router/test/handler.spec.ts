@@ -20,7 +20,7 @@ import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
+import { fakeConfig, senderPrepareDataMock, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -33,7 +33,7 @@ const MUTATED_AMOUNT = "100";
 const MUTATED_EXPIRY = 123400;
 const BID_EXPIRY = 123401;
 
-const requestContext = createRequestContext("TEST") as unknown as RequestContext;
+const requestContext = (createRequestContext("TEST") as unknown) as RequestContext;
 
 describe("Handler", () => {
   let handler: Handler;
@@ -128,7 +128,7 @@ describe("Handler", () => {
 
   describe("handleSenderPrepare", () => {
     it("should send prepare for receiving chain with ETH asset", async () => {
-      const ethPrepareDataMock = senderPrepareData;
+      const ethPrepareDataMock = senderPrepareDataMock;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
@@ -162,7 +162,7 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = senderPrepareDataMock;
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
@@ -206,14 +206,14 @@ describe("Handler", () => {
         receivingAssetId: constants.AddressZero,
       };
 
-      const ethPrepareDataMock = senderPrepareData;
+      const ethPrepareDataMock = senderPrepareDataMock;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
 
       subgraph.getTransactionForChain.returns(
         okAsync({
           status: TransactionStatus.Prepared,
-          ...senderPrepareData,
+          ...senderPrepareDataMock,
         }),
       );
       await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
@@ -250,7 +250,7 @@ describe("Handler", () => {
         receivingAssetId: goerliTestTokenAddress,
       };
 
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = senderPrepareDataMock;
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
