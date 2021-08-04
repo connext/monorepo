@@ -10,9 +10,15 @@ import { OnchainAccountManager } from "../utils/accountManager";
 
 /**
  * Sets up a basic concurrency test through the core TransactionService only. Will slowly add more agents up to `maxConcurrency` sending transactions.
- *
  * @param maxConcurrency - Concurrency to build up to. We start at 1, and work up to this number. On each iteration, the concurrency value will be the number of agents who will do transactions simultaneously.
  * @param step - Step by which we increase the concurrency.
+ * 
+ * @remarks
+ * Quick start:
+ * 1. First run
+ *        yarn workspace @connext/nxtp-integration docker:all:down && yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh
+ * 2. In another terminal run
+ *        yarn workspace @connext/nxtp-integration concurrency:txservice
  */
 const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promise<void> => {
   const config = getConfig();
@@ -35,7 +41,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
 
   // Create manager
   logger.info({ agents: maxConcurrency }, "Created manager. This may take a bit...");
-  const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 1000));
+  const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 100));
   logger.info({ agents: maxConcurrency }, "Created manager");
 
 
@@ -113,13 +119,13 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
       concurrency,
     };
     if (errored.length === results.length) {
-      logger.warn(loopStats, "All failed, exiting increases");
+      logger.warn(loopStats, "All failed, exiting.");
       break;
     }
-    logger.info(loopStats, "Increasing concurrency");
+    logger.info(loopStats, "Increasing concurrency.");
   }
 
-  logger.info({ maxConcurrency, concurrency: concurrency - 1 }, "Test complete");
+  logger.info({ maxConcurrency, concurrency: concurrency - 1 }, "Test complete.");
   process.exit(0);
 };
 

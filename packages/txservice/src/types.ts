@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber, BigNumberish, utils } from "ethers";
 
 import { TransactionServiceFailure } from "./error";
 
@@ -65,8 +65,8 @@ export class GasPrice {
   private validate(value: BigNumber) {
     if (value.gt(this._maxGasPrice)) {
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
-        gasPrice: value.toString(),
-        max: this.limit.toString(),
+        gasPrice: `${utils.formatUnits(value, "gwei")} gwei`,
+        max: `${utils.formatUnits(this.limit, "gwei")} gwei`,
       });
     }
   }
