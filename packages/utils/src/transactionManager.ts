@@ -22,6 +22,12 @@ export type VariantTransactionData = {
 };
 export type TransactionData = InvariantTransactionData & VariantTransactionData;
 
+// Used to include *all* info for both sending and receiving crosschain data
+export type CrosschainTransactionData = InvariantTransactionData & {
+  sending: VariantTransactionData;
+  receiving?: VariantTransactionData;
+};
+
 export type SignedCancelData = {
   invariantDigest: string;
   relayerFee: string;
