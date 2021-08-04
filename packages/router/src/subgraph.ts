@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 import { Evt } from "evt";
-import { ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 
 import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";
 
@@ -24,12 +24,14 @@ export class SubgraphError extends NxtpError {
   static readonly type = "SubgraphError";
   static readonly reasons = {
     SDKError: "Subgraph SDK error",
+    NoSDK: "No SDK",
   };
 
   constructor(
     public readonly message: Values<typeof SubgraphError.reasons> | string,
     public readonly context: {
       sdkError?: NxtpErrorJson;
+      chainId: number;
       methodId: string;
       method: string;
     },
@@ -293,7 +295,12 @@ export class Subgraph {
         transactionId: transactionId.toLowerCase() + "-" + user.toLowerCase() + "-" + this.routerAddress.toLowerCase(),
       }),
       (err) =>
-        new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, sdkError: jsonifyError(err as Error) }),
+        new SubgraphError(SubgraphError.reasons.SDKError, {
+          method,
+          methodId,
+          sdkError: jsonifyError(err as Error),
+          chainId,
+        }),
     ).map(({ transaction }) => {
       return transaction
         ? {
@@ -336,11 +343,19 @@ export class Subgraph {
     const method = this.getAssetBalance.name;
     const methodId = getUuid();
     const sdk: Sdk = this.sdks[chainId];
+    if (!sdk) {
+      return errAsync(new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, chainId }));
+    }
     const assetBalanceId = `${assetId.toLowerCase()}-${this.routerAddress.toLowerCase()}`;
     return ResultAsync.fromPromise(
       sdk.GetAssetBalance({ assetBalanceId }),
       (err) =>
-        new SubgraphError(SubgraphError.reasons.SDKError, { method, methodId, sdkError: jsonifyError(err as Error) }),
+        new SubgraphError(SubgraphError.reasons.SDKError, {
+          method,
+          methodId,
+          sdkError: jsonifyError(err as Error),
+          chainId,
+        }),
     ).map((res) => (res.assetBalance?.amount ? BigNumber.from(res.assetBalance?.amount) : constants.Zero));
   }
 

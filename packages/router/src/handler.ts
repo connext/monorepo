@@ -41,6 +41,10 @@ import { Subgraph } from "./subgraph";
 
 export const EXPIRY_DECREMENT = 3600 * 24;
 export const SWAP_RATE = "0.9995"; // 0.05% fee
+export const ONE_DAY_IN_SECONDS = 3600 * 24;
+
+/** Determine if expiry is valid */
+export const validExpiry = (expiry: number) => expiry - Math.floor(Date.now() / 1000) > ONE_DAY_IN_SECONDS;
 
 export interface TransactionDataParams {
   user: string;
@@ -82,6 +86,7 @@ export class HandlerError extends NxtpError {
       methodId: string;
       method: string;
       calling: string;
+      cancellable?: boolean;
     },
   ) {
     super(message, context, HandlerError.type);
@@ -123,9 +128,6 @@ export const mutateAmount = (amount: string) => {
  */
 export const mutateExpiry = (expiry: number): number => {
   const rxExpiry = expiry - EXPIRY_DECREMENT;
-  if (rxExpiry < Date.now() / 1000) {
-    throw new Error("Expiration already happened, cant prepare");
-  }
   return rxExpiry;
 };
 
@@ -144,7 +146,7 @@ export class Handler {
   private senderFulfilling: Map<string, boolean> = new Map();
   constructor(
     private readonly messagingService: RouterNxtpNatsMessagingService,
-    private readonly _subgraph: Subgraph,
+    private readonly subgraph: Subgraph,
     private readonly txManager: TransactionManager,
     private readonly txService: TransactionService,
     private readonly signer: Wallet,
@@ -203,7 +205,7 @@ export class Handler {
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
     let bid: AuctionBid;
-    const result = await this._subgraph
+    const result = await this.subgraph
       .getAssetBalance(receivingAssetId, receivingChainId)
       .andThen((balance) => {
         // validate liquidity
@@ -568,6 +570,7 @@ export class Handler {
     // that user is only sending stuff that makes sense is possibly ok since otherwise
     // they're losing gas costs
 
+    const receiverExpiry = mutateExpiry(txData.expiry);
     let bid: AuctionBid;
     const validationRes = Result.fromThrowable(
       decodeAuctionBid,
@@ -595,7 +598,7 @@ export class Handler {
             }),
         )(bid, bidSignature);
       })
-      .andThen((recovered) => {
+      .andThen<undefined, HandlerError>((recovered) => {
         if (recovered !== this.signer.address) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
@@ -609,7 +612,7 @@ export class Handler {
         }
         return ok(undefined);
       })
-      .andThen(() => {
+      .andThen<undefined, HandlerError>(() => {
         // TODO: anything else? seems unnecessary to validate everything
         if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
           return err(
@@ -619,6 +622,21 @@ export class Handler {
               calling: "",
               requestContext,
               prepareError: "Bid params not equal to tx data",
+            }),
+          );
+        }
+        return ok(undefined);
+      })
+      .andThen<undefined, HandlerError>(() => {
+        if (!validExpiry(receiverExpiry)) {
+          return err(
+            new HandlerError(HandlerError.reasons.PrepareValidationError, {
+              method,
+              methodId,
+              calling: "",
+              requestContext,
+              prepareError: "receiverExpiry < txData.expiry",
+              cancellable: true,
             }),
           );
         }
@@ -638,6 +656,28 @@ export class Handler {
         },
         "Error during validation",
       );
+
+      if (validationRes.error.context.cancellable) {
+        this.logger.info({ method, methodId, requestContext }, "Cancelling transaction");
+        const cancelRes = await this.txManager.cancel(
+          txData.sendingChainId,
+          {
+            relayerFee: "0",
+            txData,
+            signature: "0x",
+          },
+          requestContext,
+        );
+        if (cancelRes.isOk()) {
+          this.logger.info({ method, methodId, requestContext }, "Cancelled transaction");
+        } else {
+          this.logger.error(
+            { method, methodId, requestContext, err: jsonifyError(cancelRes.error) },
+            "Error cancelling transaction",
+          );
+        }
+      }
+      this.receiverPreparing.delete(txData.transactionId);
       return;
     }
 
@@ -672,7 +712,7 @@ export class Handler {
       {
         txData,
         amount: mutateAmount(txData.amount),
-        expiry: mutateExpiry(txData.expiry),
+        expiry: receiverExpiry,
         bidSignature,
         encodedBid,
         encryptedCallData,

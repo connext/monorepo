@@ -62,6 +62,7 @@ describe("Handler", () => {
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
     stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
     stub(handlerUtils, "recoverAuctionSigner").returns(addr);
+    stub(handlerUtils, "validExpiry").returns(true);
 
     wallet = createStubInstance(Wallet);
     (wallet as any).address = addr; // need to do this differently bc the function doesnt exist on the interface
