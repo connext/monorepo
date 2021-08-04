@@ -34,7 +34,7 @@ export class GasPrice {
   constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
     this._gasPrice = baseValue;
     // Enforce a max gas price 20% higher than the base value as a buffer.
-    this._maxGasPrice = limit.mul(12).div(100);
+    this._maxGasPrice = limit.mul(12).div(10);
   }
 
   /**
@@ -66,7 +66,8 @@ export class GasPrice {
     if (value.gt(this._maxGasPrice)) {
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
         gasPrice: `${utils.formatUnits(value, "gwei")} gwei`,
-        max: `${utils.formatUnits(this.limit, "gwei")} gwei`,
+        gasLimit: `${utils.formatUnits(this.limit, "gwei")} gwei`,
+        max: `${utils.formatUnits(this._maxGasPrice, "gwei")} gwei`,
       });
     }
   }

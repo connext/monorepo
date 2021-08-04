@@ -39,8 +39,8 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
   //   throw new Error(`Could not find assetId for chainId: ${chainId}`);
   // })();
 
-  // Create manager
-  logger.info({ agents: maxConcurrency }, "Created manager. This may take a bit...");
+  // Create manager.
+  logger.info({ agents: maxConcurrency }, "Creating manager. This may take a bit...");
   const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 100));
   logger.info({ agents: maxConcurrency }, "Created manager");
 

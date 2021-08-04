@@ -317,6 +317,7 @@ export class TransactionService {
         attempt: transaction.attempt,
         hash: response.hash,
         gas: `${utils.formatUnits(gas, "gwei")} gwei`,
+        gasLimit: `${utils.formatUnits(transaction.data.gasLimit, "gwei")}`,
         nonce: response.nonce,
       },
       "Tx submitted.",
