@@ -6,7 +6,22 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
-import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId, TIntegerString } from "@connext/nxtp-utils";
+import {
+  getDeployedSubgraphUri,
+  isNode,
+  NATS_AUTH_URL,
+  NATS_AUTH_URL_LOCAL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_CLUSTER_URL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL,
+  NATS_WS_URL_LOCAL,
+  NATS_WS_URL_TESTNET,
+  TAddress,
+  TChainId,
+  TIntegerString,
+} from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
@@ -106,10 +121,32 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
   }
 
+  const network: "testnet" | "mainnet" | "local" =
+    process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet";
+  let authUrl = process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL;
+  let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL;
+  switch (network) {
+    case "mainnet": {
+      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+      authUrl = authUrl ?? NATS_AUTH_URL;
+      break;
+    }
+    case "testnet": {
+      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+      authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
+      break;
+    }
+    case "local": {
+      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+      authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
+      break;
+    }
+  }
+
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
-    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL,
-    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL,
+    authUrl,
+    natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
     chainConfig: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
@@ -129,10 +166,19 @@ export const getEnvConfig = (): NxtpRouterConfig => {
         nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
           Object.values((contractDeployments as any)[chainId])[0] as any
         ).contracts.TransactionManager.address;
-      } catch (e) {}
+      } catch (e) {
+        throw new Error(`No transactionManager address for chain ${chainId}`);
+      }
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
+    if (!chainConfig.subgraph) {
+      const subgraph = getDeployedSubgraphUri(Number(chainId));
+      if (!subgraph) {
+        throw new Error(`No transactionManager address for chain ${chainId}`);
+      }
+      nxtpConfig.chainConfig[chainId].subgraph = subgraph;
     }
   });
 

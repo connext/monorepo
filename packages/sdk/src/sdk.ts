@@ -37,6 +37,7 @@ import {
   NATS_WS_URL_LOCAL,
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
+  getDeployedSubgraphUri,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -47,7 +48,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
