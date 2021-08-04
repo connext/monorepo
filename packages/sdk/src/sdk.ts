@@ -31,8 +31,12 @@ import {
   NATS_AUTH_URL,
   NATS_CLUSTER_URL,
   NATS_WS_URL,
-  NATS_AUTH_TESTNET_URL,
-  NATS_TESTNET_URL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_AUTH_URL_LOCAL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_WS_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL_TESTNET,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -227,17 +231,33 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
+    network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
-    network: "testnet" | "mainnet" = "mainnet",
   ) {
     if (messaging) {
       this.messaging = messaging;
     } else {
-      const _natsUrl =
-        natsUrl ?? network === "mainnet" ? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL) : NATS_TESTNET_URL;
-      const _authUrl = authUrl ?? network === "mainnet" ? NATS_AUTH_URL : NATS_AUTH_TESTNET_URL;
+      let _natsUrl = natsUrl;
+      let _authUrl = authUrl;
+      switch (network) {
+        case "mainnet": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _authUrl = _authUrl ?? NATS_AUTH_URL;
+          break;
+        }
+        case "testnet": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _authUrl = _authUrl ?? NATS_AUTH_URL_TESTNET;
+          break;
+        }
+        case "local": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _authUrl = _authUrl ?? NATS_AUTH_URL_LOCAL;
+          break;
+        }
+      }
 
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
