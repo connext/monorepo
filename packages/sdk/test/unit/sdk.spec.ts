@@ -10,7 +10,7 @@ import { err, ok } from "neverthrow";
 import { expect } from "chai";
 import { providers, Wallet, constants, utils } from "ethers";
 import pino from "pino";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import {
   CrossChainParams,
