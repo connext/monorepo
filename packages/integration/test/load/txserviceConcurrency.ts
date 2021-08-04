@@ -34,7 +34,8 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
   // })();
 
   // Create manager
-  const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, maxConcurrency);
+  logger.info({ agents: maxConcurrency }, "Created manager. This may take a bit...");
+  const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 1000));
   logger.info({ agents: maxConcurrency }, "Created manager");
 
 
