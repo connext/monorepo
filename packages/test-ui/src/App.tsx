@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, providers, Signer, utils } from "ethers";
 import pino from "pino";
-import { NxtpSdk, NxtpSdkEvent, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { AuctionResponse, getRandomBytes32, TransactionData, TransactionPreparedEvent } from "@connext/nxtp-utils";
+import { ActiveTransaction, NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
+import { AuctionResponse, getRandomBytes32, TransactionPreparedEvent } from "@connext/nxtp-utils";
 
 import "./App.css";
 import { chainConfig, swapConfig } from "./constants";
@@ -29,9 +29,7 @@ function App(): React.ReactElement | null {
   const [signer, setSigner] = useState<Signer>();
   const [sdk, setSdk] = useState<NxtpSdk>();
   const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
-  const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<
-    { txData: TransactionData; status: NxtpSdkEvent }[]
-  >([]);
+  const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<ActiveTransaction[]>([]);
   const [selectedPool, setSelectedPool] = useState(swapConfig[0]);
 
   const [userBalance, setUserBalance] = useState<BigNumber>();
@@ -105,10 +103,17 @@ function App(): React.ReactElement | null {
       setSdk(_sdk);
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
-        const { txData } = data;
+        const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
         const table = activeTransferTableColumns;
         table.push({
-          txData,
+          crosschainTx: {
+            ...invariant,
+            sending: { amount, expiry, preparedBlockNumber },
+          },
+          bidSignature: data.bidSignature,
+          encodedBid: data.encodedBid,
+          caller: data.caller,
+          encryptedCallData: data.encryptedCallData,
           status: NxtpSdkEvents.SenderTransactionPrepared,
         });
         setActiveTransferTableColumns(table);
@@ -117,30 +122,44 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, (data) => {
         console.log("SenderTransactionFulfilled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
         );
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, (data) => {
         console.log("SenderTransactionCancelled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
         );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, (data) => {
         console.log("ReceiverTransactionPrepared:", data);
-        const { txData } = data;
-        const index = activeTransferTableColumns.findIndex((col) => col.txData.transactionId === txData.transactionId);
+        const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
+        const index = activeTransferTableColumns.findIndex(
+          (col) => col.crosschainTx.transactionId === invariant.transactionId,
+        );
+
         if (index === -1) {
           const table = activeTransferTableColumns;
+          // TODO: is there a better way to
+          // get the info here?
           table.push({
-            txData,
+            crosschainTx: {
+              ...invariant,
+              sending: {} as any, // Find to do this, since it defaults to receiver side info
+              receiving: { amount, expiry, preparedBlockNumber },
+            },
+            bidSignature: data.bidSignature,
+            encodedBid: data.encodedBid,
+            caller: data.caller,
+            encryptedCallData: data.encryptedCallData,
             status: NxtpSdkEvents.ReceiverTransactionPrepared,
           });
           setActiveTransferTableColumns(table);
         } else {
           activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
+          activeTransferTableColumns[index].crosschainTx.receiving = { amount, expiry, preparedBlockNumber };
           setActiveTransferTableColumns(activeTransferTableColumns);
         }
       });
@@ -148,14 +167,14 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
         );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
         console.log("ReceiverTransactionCancelled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.txData.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
         );
       });
 
@@ -280,7 +299,7 @@ function App(): React.ReactElement | null {
     console.log("finish: ", finish);
     if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
       setActiveTransferTableColumns(
-        activeTransferTableColumns.filter((t) => t.txData.transactionId !== txData.transactionId),
+        activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== txData.transactionId),
       );
     }
   };
@@ -325,26 +344,31 @@ function App(): React.ReactElement | null {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: ({
-        txData,
-        status,
-        bidSignature,
-        caller,
-        encodedBid,
-        encryptedCallData,
-      }: {
-        txData: TransactionData;
-        status: NxtpSdkEvent;
-        bidSignature: string;
-        caller: string;
-        encodedBid: string;
-        encryptedCallData: string;
-      }) => {
-        if (Date.now() / 1000 > txData.expiry) {
+      render: ({ crosschainTx, status, bidSignature, caller, encodedBid, encryptedCallData }: ActiveTransaction) => {
+        const { receiving, sending, ...invariant } = crosschainTx;
+        const variant = receiving ?? sending;
+        const sendingTxData = {
+          ...invariant,
+          ...sending,
+        };
+
+        const receivingTxData =
+          typeof receiving === "object"
+            ? {
+                ...invariant,
+                ...receiving,
+              }
+            : undefined;
+        if (Date.now() / 1000 > variant.expiry) {
           return (
             <Button
               type="link"
-              onClick={() => sdk?.cancelExpired({ relayerFee: "0", signature: "0x", txData }, txData.sendingChainId)}
+              onClick={() =>
+                sdk?.cancelExpired(
+                  { relayerFee: "0", signature: "0x", txData: sendingTxData },
+                  crosschainTx.sendingChainId,
+                )
+              }
             >
               Cancel
             </Button>
@@ -353,7 +377,13 @@ function App(): React.ReactElement | null {
           return (
             <Button
               type="link"
-              onClick={() => finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData })}
+              onClick={() => {
+                if (!receivingTxData) {
+                  console.error("Incorrect data to fulfill");
+                  return;
+                }
+                finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData: receivingTxData });
+              }}
             >
               Finish
             </Button>
@@ -430,20 +460,22 @@ function App(): React.ReactElement | null {
               <Table
                 columns={columns}
                 dataSource={activeTransferTableColumns.map((tx) => {
+                  // Use receiver side info by default
+                  const variant = tx.crosschainTx.receiving ?? tx.crosschainTx.sending;
                   return {
-                    amount: tx.txData.amount,
+                    amount: variant.amount,
                     status: tx.status,
-                    sendingChain: tx.txData.sendingChainId.toString(),
-                    receivingChain: tx.txData.receivingChainId.toString(),
+                    sendingChain: tx.crosschainTx.sendingChainId.toString(),
+                    receivingChain: tx.crosschainTx.receivingChainId.toString(),
                     asset: "TEST",
-                    key: tx.txData.transactionId,
-                    txId: `${tx.txData.transactionId.substr(0, 6)}...${tx.txData.transactionId.substr(
-                      tx.txData.transactionId.length - 5,
-                      tx.txData.transactionId.length - 1,
+                    key: tx.crosschainTx.transactionId,
+                    txId: `${tx.crosschainTx.transactionId.substr(0, 6)}...${tx.crosschainTx.transactionId.substr(
+                      tx.crosschainTx.transactionId.length - 5,
+                      tx.crosschainTx.transactionId.length - 1,
                     )}`,
                     expires:
-                      tx.txData.expiry > Date.now() / 1000
-                        ? `${((tx.txData.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
+                      variant.expiry > Date.now() / 1000
+                        ? `${((variant.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
                         : "Expired",
                     action: tx,
                   };
