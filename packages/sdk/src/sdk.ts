@@ -581,12 +581,14 @@ export class NxtpSdk {
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
       return auctionResponse;
     } catch (e) {
-      throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+      const err = new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
         method,
         methodId,
         transactionId,
         auctionError: "No response received",
       });
+      this.logger.error({ method, methodId, err: jsonifyError(err) }, "Received response");
+      throw err;
     }
   }
 
