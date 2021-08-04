@@ -56,7 +56,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
   logger.info("Beginning concurrency test.");
   let concurrency: number;
   let loopStats;
-  for (concurrency = 1; concurrency <= maxConcurrency; concurrency += step) {
+  for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
     // Create a queue to hold all payments with the given
     // concurrency
     const queue = new PriorityQueue ({ concurrency });
@@ -122,4 +122,4 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
   process.exit(0);
 };
 
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "10"));
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10000"), parseInt(process.env.CONCURRENCY_STEP ?? "100"));
