@@ -33,8 +33,10 @@ export class GasPrice {
 
   constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
     this._gasPrice = baseValue;
+    // Convert the gas limit into wei units using the base value.
+    const limitInWei = limit.mul(baseValue);
     // Enforce a max gas price 20% higher than the base value as a buffer.
-    this._maxGasPrice = limit.add(limit.mul(6).div(5));
+    this._maxGasPrice = limitInWei.add(limitInWei.mul(6).div(5));
   }
 
   /**

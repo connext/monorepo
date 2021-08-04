@@ -129,4 +129,4 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
   process.exit(0);
 };
 
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10000"), parseInt(process.env.CONCURRENCY_STEP ?? "100"));
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10000"), parseInt(process.env.CONCURRENCY_STEP ?? "1000"));
