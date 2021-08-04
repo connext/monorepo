@@ -99,6 +99,7 @@ function App(): React.ReactElement | null {
         chainProviders,
         signer,
         pino({ level: "info" }),
+        (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
         process.env.REACT_APP_NATS_URL_OVERRIDE,
         process.env.REACT_APP_AUTH_URL_OVERRIDE,
       );
