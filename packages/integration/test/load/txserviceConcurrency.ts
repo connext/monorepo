@@ -2,35 +2,36 @@ import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
 import { RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber } from "ethers";
 
-import { SdkManager, TransactionInfo } from "../utils/sdkManager";
+import { TransactionInfo } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
-import { getOnchainBalance } from "../utils/chain";
 import { OnchainAccountManager } from "../utils/accountManager";
 
 /**
  * Sets up a basic concurrency test through the core TransactionService only. Will slowly add more agents up to `maxConcurrency` sending transactions.
  *
- * @param maxConcurrency - Concurrency to build up to. We start at 1, and work up to this number. On each iteration, the concurrency value will be the number of agents who will do transactions simultaneously
+ * @param maxConcurrency - Concurrency to build up to. We start at 1, and work up to this number. On each iteration, the concurrency value will be the number of agents who will do transactions simultaneously.
+ * @param step - Step by which we increase the concurrency.
  */
-const txserviceConcurrencyTest = async (maxConcurrency: number): Promise<void> => {
+const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promise<void> => {
   const config = getConfig();
   const logger = pino({ level: config.logLevel ?? "info" });
 
   // Just pick the first chain in the config.
   const chainId = parseInt(Object.keys(config.chainConfig)[0]);
   // Grab the first asset ID for this chain we can find.
-  const assetId: string = ((): string => {
-    for (const swap of config.swapPools) {
-      for (const asset of swap.assets) {
-        if (asset.chainId === chainId) {
-          return asset.assetId;
-        }
-      }
-    }
-    throw new Error(`Could not find assetId for chainId: ${chainId}`);
-  })();
+  // TODO: Will be used to get on chain balance after transfer.
+  // const assetId: string = ((): string => {
+  //   for (const swap of config.swapPools) {
+  //     for (const asset of swap.assets) {
+  //       if (asset.chainId === chainId) {
+  //         return asset.assetId;
+  //       }
+  //     }
+  //   }
+  //   throw new Error(`Could not find assetId for chainId: ${chainId}`);
+  // })();
 
   // Create manager
   const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, maxConcurrency);
@@ -52,10 +53,10 @@ const txserviceConcurrencyTest = async (maxConcurrency: number): Promise<void> =
     { chains },
   );
 
-  logger.info({}, "Beginning concurrency test");
+  logger.info("Beginning concurrency test.");
   let concurrency: number;
   let loopStats;
-  for (concurrency = 1; concurrency <= maxConcurrency; concurrency++) {
+  for (concurrency = 1; concurrency <= maxConcurrency; concurrency += step) {
     // Create a queue to hold all payments with the given
     // concurrency
     const queue = new PriorityQueue ({ concurrency });
@@ -121,4 +122,4 @@ const txserviceConcurrencyTest = async (maxConcurrency: number): Promise<void> =
   process.exit(0);
 };
 
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"));
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "10"));
