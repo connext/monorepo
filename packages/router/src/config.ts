@@ -123,21 +123,21 @@ export const getEnvConfig = (): NxtpRouterConfig => {
 
   const network: "testnet" | "mainnet" | "local" =
     process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet";
-  let authUrl = process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL;
-  let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL;
+  let authUrl = process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl;
+  let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl;
   switch (network) {
     case "mainnet": {
-      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
       authUrl = authUrl ?? NATS_AUTH_URL;
       break;
     }
     case "testnet": {
-      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
       authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
       break;
     }
     case "local": {
-      natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
       authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
       break;
     }
