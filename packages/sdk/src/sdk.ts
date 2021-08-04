@@ -12,7 +12,6 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  TransactionData,
   CancelParams,
   encrypt,
   generateMessagingInbox,
@@ -37,7 +36,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { ActiveTransaction, getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -306,7 +305,7 @@ export class NxtpSdk {
    *
    * @returns An array of the active transactions and their status
    */
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+  public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
     return txs;
   }
@@ -876,11 +875,45 @@ export class NxtpSdk {
   public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
     const method = this.cancelExpired.name;
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, cancelParams, chainId }, "Method started");
+    this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
     if (cancelRes.isOk()) {
+      const response = cancelRes.value;
+      response.wait(1).then((cancelReceipt) => {
+        if (cancelReceipt.status === 0) {
+          this.logger.warn(
+            {
+              method,
+              methodId,
+              transactionId: cancelParams.txData.transactionId,
+              chainId,
+              transactionHash: cancelReceipt.transactionHash,
+            },
+            "Cancel transaction failed",
+          );
+          return;
+        }
+        this.logger.info(
+          {
+            method,
+            methodId,
+            chainId,
+            transactionId: cancelParams.txData.transactionId,
+            transactionHash: cancelReceipt.transactionHash,
+          },
+          "Mined cancel tx",
+        );
+        if (cancelParams.txData.sendingChainId === chainId) {
+          this.evts.SenderTransactionCancelled.post({
+            txData: cancelParams.txData,
+            relayerFee: cancelParams.relayerFee,
+            caller: cancelReceipt.from,
+            transactionHash: cancelReceipt.transactionHash,
+          });
+        }
+      });
       this.logger.info({ method, methodId }, "Method complete");
-      return cancelRes.value;
+      return response;
     } else {
       throw cancelRes.error;
     }
