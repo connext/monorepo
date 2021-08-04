@@ -341,8 +341,7 @@ export class TransactionService {
         id: transaction.id,
         attempt: transaction.attempt,
         receipt: {
-          cumulativeGasUsed: receipt.cumulativeGasUsed.toString(),
-          effectiveGasPrice: `${utils.formatUnits(receipt.effectiveGasPrice, "gwei")} gwei`,
+          gasUsed: receipt.gasUsed.toString(),
           transactionHash: receipt.transactionHash,
           blockHash: receipt.blockHash,
         },
