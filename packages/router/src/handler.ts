@@ -124,7 +124,7 @@ export const mutateAmount = (amount: string) => {
 export const mutateExpiry = (expiry: number): number => {
   const rxExpiry = expiry - EXPIRY_DECREMENT;
   if (rxExpiry < Date.now() / 1000) {
-    throw new Error("Expiration already happened, cant prepare");
+    throw new Error("Expiration already happened");
   }
   return rxExpiry;
 };
@@ -199,6 +199,33 @@ export class Handler {
     // TODO: will need to track this offchain
     const amountReceived = mutateAmount(amount);
 
+    const validationRes = Result.fromThrowable(
+      getConfig,
+      (err) =>
+        new HandlerError(HandlerError.reasons.ConfigError, {
+          method,
+          methodId,
+          calling: "getConfig",
+          requestContext,
+          configError: (err as Error).message,
+        }),
+    )();
+
+    if (validationRes.isOk()) {
+      this.logger.info({ method, methodId, requestContext }, "Validated input");
+    } else {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          requestContext,
+          err: jsonifyError(validationRes.error as Error),
+        },
+        "Error during validation",
+      );
+      return;
+    }
+
     const config = getConfig();
     const sendingConfig = config.chainConfig[sendingChainId];
     const receivingConfig = config.chainConfig[receivingChainId];
@@ -222,65 +249,6 @@ export class Handler {
                   amount,
                   receivingAssetId,
                   receivingChainId,
-                },
-              },
-            }),
-          );
-        }
-
-        // validate config
-        const config = getConfig();
-        const sendingConfig = config.chainConfig[sendingChainId];
-        const receivingConfig = config.chainConfig[receivingChainId];
-        if (
-          !sendingConfig.providers ||
-          sendingConfig.providers.length === 0 ||
-          !receivingConfig.providers ||
-          receivingConfig.providers.length === 0
-        ) {
-          return errAsync(
-            new HandlerError(HandlerError.reasons.AuctionValidationError, {
-              calling: "",
-              methodId,
-              method,
-              requestContext,
-              auctionError: {
-                message: "Providers not available for both chains",
-                type: "Validation",
-                context: {
-                  sendingChainId,
-                  receivingChainId,
-                },
-              },
-            }),
-          );
-        }
-
-        const allowedSwap = config.swapPools.find(
-          (pool) =>
-            pool.assets.find(
-              (a) => utils.getAddress(a.assetId) === utils.getAddress(sendingAssetId) && a.chainId === sendingChainId,
-            ) &&
-            pool.assets.find(
-              (a) =>
-                utils.getAddress(a.assetId) === utils.getAddress(receivingAssetId) && a.chainId === receivingChainId,
-            ),
-        );
-        if (!allowedSwap) {
-          return errAsync(
-            new HandlerError(HandlerError.reasons.AuctionValidationError, {
-              calling: "",
-              methodId,
-              method,
-              requestContext,
-              auctionError: {
-                message: "Allowed swap not part of config",
-                type: "Validation",
-                context: {
-                  sendingAssetId,
-                  sendingChainId,
-                  receivingChainId,
-                  receivingAssetId,
                 },
               },
             }),
@@ -430,6 +398,33 @@ export class Handler {
     const methodId = getUuid();
     this.logger.info({ method, methodId, requestContext, data }, "Method start");
 
+    const validationRes = Result.fromThrowable(
+      getConfig,
+      (err) =>
+        new HandlerError(HandlerError.reasons.ConfigError, {
+          method,
+          methodId,
+          calling: "getConfig",
+          requestContext,
+          configError: (err as Error).message,
+        }),
+    )();
+
+    if (validationRes.isOk()) {
+      this.logger.info({ method, methodId, requestContext }, "Validated input");
+    } else {
+      this.logger.error(
+        {
+          method,
+          methodId,
+          requestContext,
+          err: jsonifyError(validationRes.error as Error),
+        },
+        "Error during validation",
+      );
+      return;
+    }
+
     const { chainId } = data;
     const config = getConfig();
     const chainConfig = config.chainConfig[chainId];
@@ -442,8 +437,8 @@ export class Handler {
         configError: `No chainConfig for ${chainId}`,
       });
       this.logger.error({ method, methodId, requestContext, err: err.toJson() }, "Error in config");
+      return;
     }
-
     if (data.type === "Fulfill") {
       if (utils.getAddress(data.to) !== utils.getAddress(chainConfig.transactionManagerAddress)) {
         const err = new HandlerError(HandlerError.reasons.ConfigError, {
@@ -454,6 +449,7 @@ export class Handler {
           configError: `Provided transactionManagerAddress does not map to our configured transactionManagerAddress`,
         });
         this.logger.error({ method, methodId, requestContext, err: err.toJson() }, "Error in config");
+        return;
       }
 
       const fulfillData: MetaTxFulfillPayload = data.data;
@@ -701,8 +697,9 @@ export class Handler {
       );
       // If success, update metrics
     } else {
-      if (res.error.message.includes("#P:015")) {
-        this.logger.warn(
+      if (res.error.context?.txServiceError?.message.includes("#P:015")) {
+        console.log("enters");
+        this.logger.error(
           {
             method,
             methodId,
