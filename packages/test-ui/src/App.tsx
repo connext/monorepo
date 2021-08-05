@@ -104,6 +104,7 @@ function App(): React.ReactElement | null {
       const activeTxs = await _sdk.getActiveTransactions();
 
       // TODO: race condition with the event listeners
+      // Will not update the transactions appropriately if sender tx prepared and no txs set
       setActiveTransferTableColumns(activeTxs);
       console.log("activeTxs: ", activeTxs);
 
