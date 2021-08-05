@@ -85,7 +85,7 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk(chainConfig, signer, logger, "http://example.com", "http://example.com");
+    sdk = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
@@ -188,7 +188,14 @@ describe("NxtpSdk", () => {
       };
       let error;
       try {
-        const instance = new NxtpSdk(_chainConfig, signer, logger, "http://example.com", "http://example.com");
+        const instance = new NxtpSdk(
+          _chainConfig,
+          signer,
+          logger,
+          undefined,
+          "http://example.com",
+          "http://example.com",
+        );
       } catch (e) {
         error = e;
       }
@@ -210,7 +217,14 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        const instance = new NxtpSdk(_chainConfig, signer, logger, "http://example.com", "http://example.com");
+        const instance = new NxtpSdk(
+          _chainConfig,
+          signer,
+          logger,
+          undefined,
+          "http://example.com",
+          "http://example.com",
+        );
       } catch (e) {
         error = e;
       }
@@ -229,7 +243,7 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(chainConfig, signer, logger, "http://example.com", "http://example.com");
+      const instance = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
     });
   });
 
@@ -253,10 +267,9 @@ describe("NxtpSdk", () => {
     it("happy getActiveTransactions", async () => {
       const { transaction, record } = await getTransactionData();
       const activeTransaction = {
-        txData: { ...transaction, ...record },
+        crosschainTx: { invariant: transaction, sending: record, receiving: record },
         status: NxtpSdkEvents.SenderTransactionPrepared,
         bidSignature: EmptyBytes,
-        caller: transaction.user,
         encodedBid: EmptyBytes,
         encryptedCallData: EmptyBytes,
       };
@@ -494,13 +507,13 @@ describe("NxtpSdk", () => {
     });
   });
 
-  describe("#startTransfer", () => {
+  describe("#prepareTransfer", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
         const { auctionBid, bidSignature } = getMock({}, { user: "abc" });
         let error;
         try {
-          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+          await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
         } catch (e) {
           error = e;
         }
@@ -515,7 +528,7 @@ describe("NxtpSdk", () => {
         const { auctionBid, bidSignature } = getMock({}, { sendingChainId: 1400 });
         let error;
         try {
-          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+          await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
         } catch (e) {
           error = e;
         }
@@ -529,7 +542,7 @@ describe("NxtpSdk", () => {
         const { auctionBid, bidSignature } = getMock({}, { receivingChainId: 1400 });
         let error;
         try {
-          await sdk.startTransfer({ bid: auctionBid, bidSignature });
+          await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
         } catch (e) {
           error = e;
         }
@@ -545,7 +558,7 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -571,7 +584,7 @@ describe("NxtpSdk", () => {
       );
       let error;
       try {
-        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -589,7 +602,7 @@ describe("NxtpSdk", () => {
       transactionManager.approveTokensIfNeeded.returns(okAsync(TxResponseMock));
       let error;
       try {
-        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -611,7 +624,7 @@ describe("NxtpSdk", () => {
       transactionManager.approveTokensIfNeeded.returns(okAsync(TxResponseMock));
       let error;
       try {
-        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -638,7 +651,7 @@ describe("NxtpSdk", () => {
       );
       let error;
       try {
-        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -656,7 +669,7 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -674,7 +687,7 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.startTransfer({ bid: auctionBid, bidSignature });
+        res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
@@ -685,15 +698,15 @@ describe("NxtpSdk", () => {
     });
   });
 
-  describe("#finishTransfer", () => {
+  describe("#fulfillTransfer", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
         const { transaction, record } = await getTransactionData({ user: "abc" });
         let error;
         try {
-          await sdk.finishTransfer({
+          await sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -710,9 +723,9 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData();
         let error;
         try {
-          await sdk.finishTransfer({
+          await sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-            caller: "abc",
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -729,9 +742,9 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData();
         let error;
         try {
-          await sdk.finishTransfer({
+          await sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: 1 as any,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -750,9 +763,9 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
         let error;
         try {
-          await sdk.finishTransfer({
+          await sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -770,9 +783,9 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
         let error;
         try {
-          await sdk.finishTransfer({
+          await sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -793,9 +806,9 @@ describe("NxtpSdk", () => {
       sdkSignFulfillTransactionPayloadMock.rejects(new Error("fails"));
       let error;
       try {
-        await sdk.finishTransfer({
+        await sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
-          caller: transaction.user,
+
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
@@ -815,9 +828,9 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.finishTransfer({
+        res = await sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
-          caller: transaction.user,
+
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
@@ -843,9 +856,9 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.finishTransfer({
+        res = await sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
-          caller: transaction.user,
+
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
@@ -878,10 +891,10 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.finishTransfer(
+        res = await sdk.fulfillTransfer(
           {
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -906,10 +919,10 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.finishTransfer(
+        res = await sdk.fulfillTransfer(
           {
             txData: { ...transaction, ...record },
-            caller: transaction.user,
+
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -926,13 +939,13 @@ describe("NxtpSdk", () => {
     });
   });
 
-  describe("#cancelExpired", () => {
+  describe("#cancel", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
         const { transaction, record } = await getTransactionData({ user: "abc" });
         let error;
         try {
-          await sdk.cancelExpired(
+          await sdk.cancel(
             {
               txData: { ...transaction, ...record },
               relayerFee: "",
@@ -952,7 +965,7 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData({ user: "abc" });
         let error;
         try {
-          await sdk.cancelExpired(
+          await sdk.cancel(
             {
               txData: { ...transaction, ...record },
               relayerFee: "",
@@ -972,7 +985,7 @@ describe("NxtpSdk", () => {
         const { transaction, record } = await getTransactionData({ user: "abc" });
         let error;
         try {
-          await sdk.cancelExpired(
+          await sdk.cancel(
             {
               txData: { ...transaction, ...record },
               relayerFee: "1",
@@ -1005,7 +1018,7 @@ describe("NxtpSdk", () => {
       );
       let error;
       try {
-        await sdk.cancelExpired(
+        await sdk.cancel(
           {
             txData: { ...transaction, ...record },
             relayerFee: "1",
@@ -1030,7 +1043,7 @@ describe("NxtpSdk", () => {
       let error;
       let res;
       try {
-        res = await sdk.cancelExpired(
+        res = await sdk.cancel(
           {
             txData: { ...transaction, ...record },
             relayerFee: "1",
