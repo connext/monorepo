@@ -148,7 +148,7 @@ export class SdkAgent {
       // TODO: determine if sdk will complete or cancel transfer
       let error: string | undefined;
       try {
-        await this.sdk.finishTransfer(data);
+        await this.sdk.fulfillTransfer(data);
       } catch (e) {
         error = e.message;
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
@@ -251,7 +251,7 @@ export class SdkAgent {
       // 1. Run the auction
       auction = await this.sdk.getTransferQuote(bid);
       // 2. Start the transfer
-      await this.sdk.startTransfer(auction, true);
+      await this.sdk.prepareTransfer(auction, true);
 
       // Transfer will auto-fulfill based on established listeners
     } catch (e) {
