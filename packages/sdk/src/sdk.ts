@@ -12,7 +12,6 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  CancelParams,
   encrypt,
   generateMessagingInbox,
   AuctionResponse,
@@ -321,6 +320,7 @@ export class NxtpSdk {
     network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
+    messaging?: UserNxtpNatsMessagingService,
   ) {
     const method = "constructor";
     const methodId = getRandomBytes32();
