@@ -204,8 +204,7 @@ describe("Integration", () => {
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
-      "nats://localhost:4222",
-      "http://localhost:5040",
+      "local",
     );
   });
 
