@@ -24,48 +24,61 @@ type Context = {
   config: NxtpRouterConfig;
   wallet: Wallet;
   logger: BaseLogger;
+  messaging: RouterNxtpNatsMessagingService;
+  txService: TransactionService;
 };
 
-const createContext = async () => {
+let context: Context | undefined;
+
+const createContext = async (): Promise<Context> => {
   const config = getConfig();
   const wallet = Wallet.fromMnemonic(config.mnemonic);
   const logger = pino({
     level: config.logLevel,
     name: wallet.address,
-    prettyPrint: true,
   });
-  return { config, wallet, logger };
+  logger.info({ signer: wallet.address }, "Created signer from mnemonic");
+  const messaging = new RouterNxtpNatsMessagingService({
+    signer: wallet,
+    authUrl: config.authUrl,
+    natsUrl: config.natsUrl,
+    logger,
+  });
+
+  const subgraphs: Record<number, { subgraph: string }> = {};
+  const chains: { [chainId: string]: ChainConfig } = {};
+  Object.entries(config.chainConfig).forEach(([chainId, config]) => {
+    subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
+    chains[chainId] = {
+      confirmations: config.confirmations,
+      providers: config.providers.map((url) => ({ url })),
+    } as ChainConfig;
+  });
+  const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, { chains });
+  const subgraph = new Subgraph(
+    subgraphs,
+    wallet.address,
+    logger.child({ module: "SubgraphTransactionManagerListener" }),
+  );
+  const transactionManager = new TransactionManager(
+    txService,
+    wallet.address,
+    logger.child({ module: "TransactionManager" }),
+  );
+
+  return { config, wallet, logger, messaging, txService };
 };
 
-const config = getConfig();
-const logger = pino({ name: wallet.address, level: config.logLevel });
-logger.info({ signer: wallet.address }, "Created signer from mnemonic");
-const messaging = new RouterNxtpNatsMessagingService({
-  signer: wallet,
-  authUrl: config.authUrl,
-  natsUrl: config.natsUrl,
-  logger,
-});
-const subgraphs: Record<number, { subgraph: string }> = {};
-const chains: { [chainId: string]: ChainConfig } = {};
-Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-  subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
-  chains[chainId] = {
-    confirmations: config.confirmations,
-    providers: config.providers.map((url) => ({ url })),
-  } as ChainConfig;
-});
-const subgraph = new Subgraph(
-  subgraphs,
-  wallet.address,
-  logger.child({ module: "SubgraphTransactionManagerListener" }),
-);
-const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, { chains });
-const transactionManager = new TransactionManager(
-  txService,
-  wallet.address,
-  logger.child({ module: "TransactionManager" }),
-);
+export const getContext = (): Context => {
+  if (!context) {
+    throw new Error("Context not created");
+  }
+  return context;
+};
+
+export const makeRouter = async () => {
+  context = await createContext();
+};
 
 const handler = new Handler(
   messaging,
