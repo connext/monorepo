@@ -4,6 +4,7 @@
 
 - [sdk] Fix cancellation.
 - [sdk] Change method name from `cancelExpired` to `cancel`.
+- [sdk, router] Add `network` param for abstracting messaging configuration.
 
 ## 0.0.15
 
