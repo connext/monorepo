@@ -21,7 +21,7 @@ export const TxResponse: TransactionResponse = {
   hash: mkHash(),
   nonce: 1,
   value: Zero,
-  wait: () => Promise.resolve({} as TransactionReceipt),
+  wait: () => Promise.resolve(TxReceipt),
 };
 
 export const TxReceipt: TransactionReceipt = {
