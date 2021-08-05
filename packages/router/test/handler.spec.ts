@@ -760,9 +760,10 @@ describe("Handler", () => {
       });
       logger.level = "error"; // trigger event
 
-      const ethPrepareDataMock = senderPrepareDataMock;
+      const ethReceiverFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       const ethRxFulfillDataMock = {
-        ...receiverFulfillDataMock,
+        ...ethReceiverFulfillDataMock,
         sendingAssetId: constants.AddressZero,
         receivingAssetId: constants.AddressZero,
       };
@@ -784,13 +785,11 @@ describe("Handler", () => {
     });
 
     it("should fulfill eth asset", async () => {
-      const ethRxFulfillDataMock = {
-        ...receiverFulfillDataMock,
-        sendingAssetId: constants.AddressZero,
-        receivingAssetId: constants.AddressZero,
-      };
+      const ethRxFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      ethRxFulfillDataMock.txData.sendingAssetId = constants.AddressZero;
+      ethRxFulfillDataMock.txData.receivingAssetId = constants.AddressZero;
 
-      const ethPrepareDataMock = senderPrepareDataMock;
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
 
@@ -828,13 +827,11 @@ describe("Handler", () => {
 
     it("should fulfill token asset", async () => {
       // change assetIds
-      const tokenRxFulfillDataMock = {
-        ...receiverFulfillDataMock,
-        sendingAssetId: rinkebyTestTokenAddress,
-        receivingAssetId: goerliTestTokenAddress,
-      };
+      const tokenRxFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      tokenRxFulfillDataMock.txData.sendingAssetId = rinkebyTestTokenAddress;
+      tokenRxFulfillDataMock.txData.receivingAssetId = goerliTestTokenAddress;
 
-      const tokenPrepareData = senderPrepareDataMock;
+      const tokenPrepareData = JSON.parse(JSON.stringify(senderPrepareDataMock));
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
@@ -852,6 +849,7 @@ describe("Handler", () => {
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
 
+      console.log(data, tokenRxFulfillDataMock);
       expect(data).to.deep.eq({
         relayerFee: tokenRxFulfillDataMock.relayerFee,
         signature: tokenRxFulfillDataMock.signature,
