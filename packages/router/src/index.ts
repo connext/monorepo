@@ -9,10 +9,10 @@ import {
   TDecimalString,
 } from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
-import pino from "pino";
+import pino, { BaseLogger } from "pino";
 import { Static, Type } from "@sinclair/typebox";
 
-import { getConfig } from "./config";
+import { getConfig, NxtpRouterConfig } from "./config";
 import { Handler } from "./handler";
 import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
@@ -20,8 +20,24 @@ import { TransactionManager } from "./contract";
 
 const server = fastify();
 
+type Context = {
+  config: NxtpRouterConfig;
+  wallet: Wallet;
+  logger: BaseLogger;
+};
+
+const createContext = async () => {
+  const config = getConfig();
+  const wallet = Wallet.fromMnemonic(config.mnemonic);
+  const logger = pino({
+    level: config.logLevel,
+    name: wallet.address,
+    prettyPrint: true,
+  });
+  return { config, wallet, logger };
+};
+
 const config = getConfig();
-const wallet = Wallet.fromMnemonic(config.mnemonic);
 const logger = pino({ name: wallet.address, level: config.logLevel });
 logger.info({ signer: wallet.address }, "Created signer from mnemonic");
 const messaging = new RouterNxtpNatsMessagingService({
