@@ -214,18 +214,22 @@ export const parseError = (error: any): NxtpError => {
   } else if (typeof error.responseText === "string") {
     message = error.responseText;
   }
+  // Preserve the original message before making it lower case.
+  const originalMessage = message;
   message = (message || "").toLowerCase();
   const context = {
-    message: message,
+    message: originalMessage,
     chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" },
   };
 
   if (message.match(/execution reverted/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.ExecutionFailed, undefined, context);
   } else if (message.match(/always failing transaction/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
   } else if (message.match(/gas required exceeds allowance/)) {
-    throw new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+    return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
+  } else if (message.match(/tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/)) {
+    return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
   }
 
   switch (error.code) {

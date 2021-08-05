@@ -2,24 +2,20 @@ import { BigNumber, providers, Signer, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import { expect } from "chai";
 import pino from "pino";
-import { ok } from "neverthrow";
 
 import { ChainRpcProvider } from "../src/provider";
-import { Transaction } from "../src/transaction";
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import {
   makeChaiReadable,
   TEST_FULL_TX,
   TEST_READ_TX,
   TEST_SENDER_CHAIN_ID,
-  TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
+  DEFAULT_GAS_LIMIT,
 } from "./constants";
-import { FullTransaction } from "../src/types";
 import { getRandomAddress, getRandomBytes32 } from "@connext/nxtp-utils";
 import { TransactionReadError } from "../src/error";
-import { hexlify } from "ethers/lib/utils";
 
 // TODO: main tests:
 // - isReady
@@ -238,7 +234,7 @@ describe("ChainRpcProvider", () => {
     it("should return the gas estimate", async () => {
       const rawCommand = "estimateGas";
       const rpcCommand = `eth_${rawCommand}`;
-      const testGasLimit = DEFAULT_CONFIG.gasLimit;
+      const testGasLimit = DEFAULT_GAS_LIMIT;
       const testTx = {
         chainId: TEST_SENDER_CHAIN_ID,
         to: getRandomAddress(),

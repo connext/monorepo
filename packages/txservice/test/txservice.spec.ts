@@ -13,6 +13,7 @@ import {
   TEST_TX_RESPONSE,
   TEST_TX_RECEIPT,
   TEST_READ_TX,
+  DEFAULT_GAS_LIMIT,
 } from "./constants";
 import { AlreadyMined, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
 import { getRandomAddress, getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
@@ -50,8 +51,6 @@ describe("TransactionService", () => {
     transaction = createStubInstance(Transaction);
     signer = createStubInstance(Wallet);
     signer.connect.resolves(true);
-    // chainProvider.confirmationTimeout = 60_000;
-    // chainProvider.confirmationsRequired = txReceipt.confirmations;
 
     const chains = {
       [TEST_SENDER_CHAIN_ID.toString()]: {
@@ -67,12 +66,6 @@ describe("TransactionService", () => {
       expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
       return chainProvider;
     });
-    // (txService as any).getProvider = (chainId: number) => {
-    //   // NOTE: We check to make sure we are only getting the one chainId we expect
-    //   // to get in these unit tests.
-    //   expect(chainId).to.be.eq(TEST_SENDER_CHAIN_ID);
-    //   return chainProvider;
-    // };
 
     txCreateStub = Sinon.stub(Transaction, "create").callsFake(async (): Promise<Transaction> => {
       return transaction as unknown as Transaction;
@@ -98,11 +91,12 @@ describe("TransactionService", () => {
     });
 
     // Stub the getter for data.
-    Sinon.stub(transaction, "data").get(() => ({
+    const data = {
       ...TEST_TX,
       nonce: undefined,
-      gasLimit: DEFAULT_CONFIG.gasLimit,
-    }));
+      gasLimit: DEFAULT_GAS_LIMIT,
+    };
+    Sinon.stub(transaction, "data").get(() => data);
     // Stub the getter for attempt.
     Sinon.stub(transaction, "attempt").get(() => attemptNumber);
 
