@@ -31,7 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
-  if (SKIP_SETUP.includes(parseInt(chainId))) {
+  if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
     await hre.deployments.deploy("TestERC20", {
       from: deployer,
