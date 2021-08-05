@@ -1,11 +1,11 @@
-import { expect, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import { expect, getRandomBytes32, mkAddress, transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils";
 import pino from "pino";
 import { GraphQLClient } from "graphql-request";
 import { providers, Wallet, constants, utils, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { convertTransactionToTxData, Subgraph, createEvts } from "../src/subgraph";
 import { getSdk } from "../src/graphqlsdk";
-import { transactionSubgraphMock, txDataMock } from "./utils";
+
 import { okAsync } from "neverthrow";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });

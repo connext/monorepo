@@ -10,6 +10,10 @@ import {
   RouterNxtpNatsMessagingService,
   jsonifyError,
   mkSig,
+  senderPrepareDataMock,
+  receiverFulfillDataMock,
+  fakeTxReceipt,
+  fulfillParamsMock,
 } from "@connext/nxtp-utils";
 import { err, ok, errAsync } from "neverthrow";
 import { TransactionService } from "@connext/nxtp-txservice";
@@ -24,7 +28,7 @@ import { getBidExpiry, Handler, HandlerError, mutateExpiry } from "../src/handle
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareDataMock, receiverFulfillDataMock, fakeTxReceipt, fulfillParamsMock } from "./utils";
+import { fakeConfig } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -118,7 +122,6 @@ describe("Handler", () => {
     } catch (e) {
       error = e;
     }
-    console.log(res);
     expect(error).to.be.an("error");
     expect(error.message).to.be.eq("Expiration already happened");
   });
@@ -849,7 +852,6 @@ describe("Handler", () => {
       const call = txManager.fulfill.getCall(0);
       const [, data] = call.args;
 
-      console.log(data, tokenRxFulfillDataMock);
       expect(data).to.deep.eq({
         relayerFee: tokenRxFulfillDataMock.relayerFee,
         signature: tokenRxFulfillDataMock.signature,

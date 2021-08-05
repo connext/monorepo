@@ -1,4 +1,12 @@
-import { mkAddress } from "@connext/nxtp-utils";
+import {
+  mkAddress,
+  txDataMock,
+  prepareParamsMock,
+  fulfillParamsMock,
+  cancelParamsMock,
+  fakeTxReceipt,
+  requestContextMock,
+} from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { expect } from "chai";
@@ -6,15 +14,7 @@ import { expect } from "chai";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManager, TransactionManagerError } from "../src/contract";
 
-import {
-  txDataMock,
-  fakeConfig,
-  prepareParamsMock,
-  fulfillParamsMock,
-  cancelParamsMock,
-  fakeTxReceipt,
-  requestContextMock,
-} from "./utils";
+import { fakeConfig } from "./utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 

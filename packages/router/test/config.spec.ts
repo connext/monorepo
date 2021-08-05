@@ -1,5 +1,5 @@
 import { expect } from "../../utils/dist";
-import { getEnvConfig, NxtpRouterConfig, getConfig } from "../src/config";
+import { getEnvConfig, getConfig } from "../src/config";
 
 describe("Config", () => {
   describe("getEnvConfig", () => {
