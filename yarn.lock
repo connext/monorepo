@@ -1833,6 +1833,7 @@ __metadata:
     nyc: ^15.1.0
     p-queue: 6.6.2
     pino: ^6.13.0
+    pino-pretty: ^5.1.2
     rimraf: ^3.0.2
     sinon: ^11.1.2
     ts-mocha: ^8.0.0
