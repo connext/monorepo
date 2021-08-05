@@ -878,42 +878,8 @@ export class NxtpSdk {
     this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
     if (cancelRes.isOk()) {
-      const response = cancelRes.value;
-      response.wait(1).then((cancelReceipt) => {
-        if (cancelReceipt.status === 0) {
-          this.logger.warn(
-            {
-              method,
-              methodId,
-              transactionId: cancelParams.txData.transactionId,
-              chainId,
-              transactionHash: cancelReceipt.transactionHash,
-            },
-            "Cancel transaction failed",
-          );
-          return;
-        }
-        this.logger.info(
-          {
-            method,
-            methodId,
-            chainId,
-            transactionId: cancelParams.txData.transactionId,
-            transactionHash: cancelReceipt.transactionHash,
-          },
-          "Mined cancel tx",
-        );
-        if (cancelParams.txData.sendingChainId === chainId) {
-          this.evts.SenderTransactionCancelled.post({
-            txData: cancelParams.txData,
-            relayerFee: cancelParams.relayerFee,
-            caller: cancelReceipt.from,
-            transactionHash: cancelReceipt.transactionHash,
-          });
-        }
-      });
       this.logger.info({ method, methodId }, "Method complete");
-      return response;
+      return cancelRes.value;
     } else {
       throw cancelRes.error;
     }
