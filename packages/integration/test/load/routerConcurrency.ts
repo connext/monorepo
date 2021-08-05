@@ -37,6 +37,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     config.chainConfig,
     config.mnemonic,
     numberTransactions + 1,
+    log,
     config.natsUrl,
     config.authUrl,
   );
