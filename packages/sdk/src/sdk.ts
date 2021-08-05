@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils, BigNumber } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -25,6 +25,7 @@ import {
   NxtpErrorJson,
   Values,
   calculateExchangeAmount,
+  AuctionBid,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -46,6 +47,7 @@ export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
 /** Gets the max expiry buffer to validate */
 export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
 
+export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
@@ -253,13 +255,36 @@ export class NxtpSdkError extends NxtpError {
       txError?: NxtpErrorJson;
       signerError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
-      auctionError?: string;
+      auctionError?: NxtpErrorJson;
       encryptionError?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
   }
 }
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
+ */
+export const sdkSignFulfillTransactionPayload = async (
+  transactionId: string,
+  relayerFee: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  return await signFulfillTransactionPayload(transactionId, relayerFee, signer);
+};
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
+ * @param bid - Bid information that should've been signed
+ * @param signature - Signature to recover signer of
+ * @returns Recovered signer
+ */
+export const recoverAuctionSigner = (bid: AuctionBid, signature: string): string => {
+  return recoverAuctionBid(bid, signature);
+};
 
 /**
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
@@ -440,6 +465,15 @@ export class NxtpSdk {
       });
     }
 
+    if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Slippage Tolerance ${slippageTolerance}, must be greater than ${MIN_SLIPPAGE_TOLERANCE}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
     if (parseFloat(slippageTolerance) > parseFloat(MAX_SLIPPAGE_TOLERANCE)) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
@@ -532,7 +566,7 @@ export class NxtpSdk {
           } else {
             // validate bid
             // check router sig on bid
-            const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
+            const signer = recoverAuctionSigner(data.bid, data.bidSignature ?? "");
             if (signer !== data.bid.router) {
               this.logger.error(
                 { method, methodId, signer, router: data.bid.router },
@@ -567,6 +601,7 @@ export class NxtpSdk {
             const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
             const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
 
+            // safe calculation if the amountReceived is greater than 4 decimals
             if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
               this.logger.error(
                 {
@@ -593,14 +628,7 @@ export class NxtpSdk {
       });
 
       if (auctionBids.length === 0) {
-        rej(
-          new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
-            method,
-            methodId,
-            transactionId,
-            auctionError: "No bids",
-          }),
-        );
+        rej(new Error("No bids received"));
       }
 
       this.logger.info({ method, methodId, auctionBids }, "Auction bids received");
@@ -640,7 +668,7 @@ export class NxtpSdk {
         method,
         methodId,
         transactionId,
-        auctionError: "No response received",
+        auctionError: jsonifyError(e as NxtpError),
       });
     }
   }
@@ -864,16 +892,14 @@ export class NxtpSdk {
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
-      (err) => {
-        console.log("errors");
+      sdkSignFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,
           methodId,
           transactionId: txData.transactionId,
           signerError: jsonifyError(err as Error),
-        });
-      },
+        }),
     )
       .andThen((_signature) => {
         this.logger.info({ method, methodId, signature }, "Generated signature");
