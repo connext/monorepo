@@ -40,7 +40,7 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
  * @param transaction Subgraph data
  * @returns Properly formatted TransactionData
  */
-const convertTransactionToTxData = (transaction: any): TransactionData => {
+export const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
     user: transaction.user.id,
     router: transaction.router.id,
