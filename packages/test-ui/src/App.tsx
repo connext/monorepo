@@ -381,7 +381,7 @@ function App(): React.ReactElement | null {
             <Button
               type="link"
               onClick={() =>
-                sdk?.cancelExpired(
+                sdk?.cancel(
                   { relayerFee: "0", signature: "0x", txData: sendingTxData },
                   crosschainTx.invariant.sendingChainId,
                 )

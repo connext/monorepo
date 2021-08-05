@@ -871,9 +871,8 @@ export class NxtpSdk {
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
 
-  // TODO: this just cancels a transaction, it is misnamed, has nothing to do with expiries
-  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const method = this.cancelExpired.name;
+  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    const method = this.cancel.name;
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
