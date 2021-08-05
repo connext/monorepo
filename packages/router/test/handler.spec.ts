@@ -80,6 +80,7 @@ describe("Handler", () => {
     getConfigMock.returns(fakeConfig);
     mutateAmountMock.returns(MUTATED_AMOUNT);
     recoverAuctionSignerMock.returns(addr);
+    stub(handlerUtils, "validExpiry").returns(true);
 
     wallet = createStubInstance(Wallet);
     bidExpiry = getBidExpiry();

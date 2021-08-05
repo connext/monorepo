@@ -12,6 +12,7 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
+  CancelParams,
   encrypt,
   generateMessagingInbox,
   AuctionResponse,
@@ -26,6 +27,17 @@ import {
   Values,
   calculateExchangeAmount,
   AuctionBid,
+  isNode,
+  NATS_AUTH_URL,
+  NATS_CLUSTER_URL,
+  NATS_WS_URL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_AUTH_URL_LOCAL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_WS_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL_TESTNET,
+  getDeployedSubgraphUri,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -36,7 +48,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
+import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -142,7 +154,7 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-export type SenderTokenApprovalSubmitted = {
+export type SenderTokenApprovalSubmittedPayload = {
   assetId: string;
   chainId: number;
   transactionResponse: providers.TransactionResponse;
@@ -177,7 +189,7 @@ export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledE
 export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
 
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmitted;
+  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmittedPayload;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
   [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
   [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
@@ -215,7 +227,7 @@ const ajv = addFormats(new Ajv(), [
  */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
-    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmitted>(),
+    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload>(),
     [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
@@ -306,12 +318,32 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
+    network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
-    _network?: "testnet" | "mainnet", // TODO
   ) {
     const method = "constructor";
     const methodId = getRandomBytes32();
+
+    let _natsUrl = natsUrl;
+    let _authUrl = authUrl;
+    switch (network) {
+      case "mainnet": {
+        _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+        _authUrl = _authUrl ?? NATS_AUTH_URL;
+        break;
+      }
+      case "testnet": {
+        _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+        _authUrl = _authUrl ?? NATS_AUTH_URL_TESTNET;
+        break;
+      }
+      case "local": {
+        _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+        _authUrl = _authUrl ?? NATS_AUTH_URL_LOCAL;
+        break;
+      }
+    }
 
     this.messaging = new UserNxtpNatsMessagingService({
       signer,
@@ -664,12 +696,14 @@ export class NxtpSdk {
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
       return auctionResponse;
     } catch (e) {
-      throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+      const err = new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
         method,
         methodId,
         transactionId,
         auctionError: jsonifyError(e as NxtpError),
       });
+      this.logger.error({ method, methodId, err: jsonifyError(err) }, "Received response");
+      throw err;
     }
   }
 
@@ -682,7 +716,7 @@ export class NxtpSdk {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async startTransfer(
+  public async prepareTransfer(
     transferParams: AuctionResponse,
     infiniteApprove = false,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
@@ -852,8 +886,8 @@ export class NxtpSdk {
    * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
    * // TODO: fix this typing, if its either or the types should reflect that
    */
-  public async finishTransfer(
-    params: TransactionPrepareEventParams,
+  public async fulfillTransfer(
+    params: Omit<TransactionPreparedEvent, "caller">,
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
@@ -1024,11 +1058,10 @@ export class NxtpSdk {
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
 
-  // TODO: this just cancels a transaction, it is misnamed, has nothing to do with expiries
-  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const method = this.cancelExpired.name;
+  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    const method = this.cancel.name;
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, cancelParams, chainId }, "Method started");
+    this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
 
     // Validate params schema
     const validate = ajv.compile(CancelSchema);

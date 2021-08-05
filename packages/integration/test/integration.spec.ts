@@ -30,12 +30,12 @@ const chainProviders = {
   [SENDING_CHAIN]: {
     provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
     transactionManagerAddress: txManagerAddressSending,
-    subgraph: "http://localhost:8000/subgraphs/name/connext/nxtp",
+    subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
   },
   [RECEIVING_CHAIN]: {
     provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
     transactionManagerAddress: txManagerAddressReceiving,
-    subgraph: "http://localhost:9000/subgraphs/name/connext/nxtp",
+    subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
   },
 };
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
@@ -204,8 +204,7 @@ describe("Integration", () => {
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
-      "nats://localhost:4222",
-      "http://localhost:5040",
+      "local",
     );
   });
 
@@ -221,7 +220,7 @@ describe("Integration", () => {
       receivingChainId: RECEIVING_CHAIN,
     });
 
-    const res = await userSdk.startTransfer(quote);
+    const res = await userSdk.prepareTransfer(quote);
     expect(res.prepareResponse.hash).to.be.ok;
 
     const event = await userSdk.waitFor(
@@ -236,9 +235,7 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    // TODO: txservice doesnt seem to be returning properly, need to revisit this
-    const finishRes = await userSdk.finishTransfer(event);
-    console.log("finishRes: ", finishRes);
+    const finishRes = await userSdk.fulfillTransfer(event);
     expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;

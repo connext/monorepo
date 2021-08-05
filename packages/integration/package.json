@@ -1,15 +1,16 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
     "dev": "exit 0",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
+    "itest": "yarn tsc && node",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 160000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "exit 0",
+    "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
@@ -22,7 +23,9 @@
     "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml up -d",
     "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml down",
     "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
-    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down"
+    "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down",
+    "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
+    "cyclical:router": "ts-node ./test/load/routerCyclical.ts"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +38,8 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.4.2",
-    "pino": "^6.13.0"
+    "pino": "^6.13.0",
+    "ts-node": "^10.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
@@ -50,6 +54,8 @@
     "eslint": "^7.31.0",
     "mocha": "^9.0.3",
     "nyc": "^15.1.0",
+    "p-queue": "6.6.2",
+    "pino-pretty": "^5.1.2",
     "rimraf": "^3.0.2",
     "sinon": "^11.1.2",
     "ts-mocha": "^8.0.0",

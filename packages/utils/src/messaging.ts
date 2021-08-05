@@ -34,10 +34,18 @@ export class MessagingError extends NxtpError {
   }
 }
 
-export const NATS_AUTH_URL = "https://auth.connext.network"; // TODO add this
+export const NATS_AUTH_URL = "https://auth.connext.network";
 export const NATS_WS_URL = "wss://websocket.connext.provide.network";
 export const NATS_CLUSTER_URL =
   "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222";
+
+export const NATS_AUTH_URL_TESTNET = NATS_AUTH_URL;
+export const NATS_WS_URL_TESTNET = NATS_WS_URL;
+export const NATS_CLUSTER_URL_TESTNET = NATS_CLUSTER_URL;
+
+export const NATS_AUTH_URL_LOCAL = "http://localhost:5040";
+export const NATS_WS_URL_LOCAL = "ws://localhost:4221";
+export const NATS_CLUSTER_URL_LOCAL = "nats://localhost:4222";
 
 export type MessagingConfig = {
   signer: Signer;
