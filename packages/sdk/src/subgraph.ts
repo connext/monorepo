@@ -98,7 +98,6 @@ export type ActiveTransaction = {
   crosschainTx: CrosschainTransaction;
   status: NxtpSdkEvent;
   bidSignature: string;
-  caller: string; // TODO: which caller tho?
   encodedBid: string;
   encryptedCallData: string;
 };
