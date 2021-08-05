@@ -1,12 +1,19 @@
-import { CrosschainTransaction } from "@connext/nxtp-utils";
+import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 
 import { getContext } from "../..";
 import { ContractReaderNotAvailableForChain } from "../../errors/contractReader";
-import { getSdk, Sdk } from "../../graphqlsdk";
+import { getSdk, Sdk, TransactionStatus as SdkTransactionStatus } from "../../graphqlsdk";
+
+import { getActiveTransactions, getTransactionForChain } from "./subgraph";
 
 export type ContractReader = {
-  getActiveTransactions: () => Promise<CrosschainTransaction[]>;
+  getActiveTransactions: () => Promise<ActiveTransaction[]>;
+  getTransactionForChain: (
+    transactionId: string,
+    user: string,
+    chainId: number,
+  ) => Promise<SingleChainTransaction | undefined>;
 };
 
 export enum TransactionStatus {
@@ -28,6 +35,16 @@ export type ActiveTransaction = {
   relayerFee?: string; // only there when fulfilled or cancelled
 };
 
+export type SingleChainTransaction = {
+  status: SdkTransactionStatus;
+  txData: TransactionData;
+  encryptedCallData: string;
+  encodedBid: string;
+  bidSignature: string;
+  signature?: string; // only there when fulfilled or cancelled
+  relayerFee?: string; // only there when fulfilled or cancelled
+};
+
 const sdks: Record<number, Sdk> = {};
 
 export const getSdks = (): Record<number, Sdk> => {
@@ -37,12 +54,15 @@ export const getSdks = (): Record<number, Sdk> => {
   return sdks;
 };
 
-export const ContractReader = () => {
+export const subgraphContractReader = (): ContractReader => {
   const { config } = getContext();
   Object.entries(config.chainConfig).forEach(([chainId, { subgraph }]) => {
     const client = new GraphQLClient(subgraph);
     sdks[parseInt(chainId)] = getSdk(client);
   });
 
-  return {};
+  return {
+    getActiveTransactions,
+    getTransactionForChain,
+  };
 };

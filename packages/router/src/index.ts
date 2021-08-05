@@ -17,6 +17,7 @@ import { Handler } from "./handler";
 import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
 import { TransactionManager } from "./contract";
+import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 
 const server = fastify();
 
@@ -26,11 +27,12 @@ type Context = {
   logger: BaseLogger;
   messaging: RouterNxtpNatsMessagingService;
   txService: TransactionService;
+  contractReader: ContractReader;
 };
 
 let context: Context | undefined;
 
-const createContext = async (): Promise<Context> => {
+const createExternalContext = (): Partial<Context> => {
   const config = getConfig();
   const wallet = Wallet.fromMnemonic(config.mnemonic);
   const logger = pino({
@@ -45,21 +47,14 @@ const createContext = async (): Promise<Context> => {
     logger,
   });
 
-  const subgraphs: Record<number, { subgraph: string }> = {};
   const chains: { [chainId: string]: ChainConfig } = {};
   Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-    subgraphs[parseInt(chainId)] = { subgraph: config.subgraph };
     chains[chainId] = {
       confirmations: config.confirmations,
       providers: config.providers.map((url) => ({ url })),
     } as ChainConfig;
   });
   const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, { chains });
-  const subgraph = new Subgraph(
-    subgraphs,
-    wallet.address,
-    logger.child({ module: "SubgraphTransactionManagerListener" }),
-  );
   const transactionManager = new TransactionManager(
     txService,
     wallet.address,
@@ -77,7 +72,8 @@ export const getContext = (): Context => {
 };
 
 export const makeRouter = async () => {
-  context = await createContext();
+  const externalContext = createExternalContext();
+  const subgraph = subgraphContractReader();
 };
 
 const handler = new Handler(
