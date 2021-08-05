@@ -12,7 +12,6 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  TransactionData,
   CancelParams,
   encrypt,
   generateMessagingInbox,
@@ -37,7 +36,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { ActiveTransaction, getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -306,7 +305,7 @@ export class NxtpSdk {
    *
    * @returns An array of the active transactions and their status
    */
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+  public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
     return txs;
   }
@@ -724,7 +723,7 @@ export class NxtpSdk {
    * // TODO: fix this typing, if its either or the types should reflect that
    */
   public async finishTransfer(
-    params: TransactionPreparedEvent,
+    params: Omit<TransactionPreparedEvent, "caller">,
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
@@ -872,11 +871,10 @@ export class NxtpSdk {
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
 
-  // TODO: this just cancels a transaction, it is misnamed, has nothing to do with expiries
-  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const method = this.cancelExpired.name;
+  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    const method = this.cancel.name;
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, cancelParams, chainId }, "Method started");
+    this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
     if (cancelRes.isOk()) {
       this.logger.info({ method, methodId }, "Method complete");

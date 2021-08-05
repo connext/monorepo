@@ -1,6 +1,6 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { getUuid, TransactionData } from "@connext/nxtp-utils";
+import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
@@ -95,10 +95,9 @@ export const createSubgraphEvts = (): {
 };
 
 export type ActiveTransaction = {
-  txData: TransactionData;
+  crosschainTx: CrosschainTransaction;
   status: NxtpSdkEvent;
   bidSignature: string;
-  caller: string;
   encodedBid: string;
   encryptedCallData: string;
 };
@@ -180,48 +179,83 @@ export class Subgraph {
               const correspondingReceiverTx = correspondingReceiverTxs.find(
                 (tx) => tx.transactionId === senderTx.transactionId,
               );
+              const sendingTxData = convertTransactionToTxData(senderTx);
+              const {
+                amount: sendingAmount,
+                preparedBlockNumber: sendingPreparedBlockNumber,
+                expiry: sendingExpiry,
+                ...invariant
+              } = sendingTxData;
+              const sendingVariant: VariantTransactionData = {
+                amount: sendingAmount,
+                preparedBlockNumber: sendingPreparedBlockNumber,
+                expiry: sendingExpiry,
+              };
 
               const active = this.activeTxs.get(senderTx.transactionId);
               if (!correspondingReceiverTx) {
                 // if receiver doesnt exist, its a sender prepared
                 // if we are not tracking it
-                const tx = {
-                  txData: convertTransactionToTxData(senderTx),
+
+                const common = {
                   bidSignature: senderTx.bidSignature,
                   caller: senderTx.prepareCaller,
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
                   transactionHash: senderTx.prepareTransactionHash,
                 };
+                const tx: ActiveTransaction = {
+                  ...common,
+                  crosschainTx: {
+                    invariant,
+                    sending: sendingVariant,
+                  },
+                  status: SubgraphEvents.SenderTransactionPrepared,
+                };
                 if (!active) {
-                  this.evts.SenderTransactionPrepared.post(tx);
-                  this.activeTxs.set(senderTx.transactionId, {
-                    ...tx,
-                    status: SubgraphEvents.SenderTransactionPrepared,
+                  this.activeTxs.set(senderTx.transactionId, tx);
+                  this.evts.SenderTransactionPrepared.post({
+                    ...common,
+                    txData: sendingTxData,
                   });
                 }
-                return { ...tx, status: SubgraphEvents.SenderTransactionPrepared };
+                return tx;
                 // otherwise we are already tracking, no change
               }
               if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
-                const tx = {
-                  txData: convertTransactionToTxData(correspondingReceiverTx),
+                const receiverData = convertTransactionToTxData(correspondingReceiverTx);
+                const common = {
                   bidSignature: correspondingReceiverTx.bidSignature,
                   caller: correspondingReceiverTx.prepareCaller,
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
                   transactionHash: correspondingReceiverTx.prepareTransactionHash,
                 };
+                const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
+
+                const tx: ActiveTransaction = {
+                  ...common,
+                  crosschainTx: {
+                    invariant,
+                    receiving: { amount, expiry, preparedBlockNumber },
+                    sending: sendingVariant,
+                  },
+                  status: SubgraphEvents.ReceiverTransactionPrepared,
+                };
+                if (!active) {
+                  this.logger.warn({ transactionId: invariant.transactionId }, "Missing active sender tx");
+                }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {
-                  this.evts.ReceiverTransactionPrepared.post(tx);
-                  this.activeTxs.set(senderTx.transactionId, {
-                    ...tx,
-                    status: SubgraphEvents.ReceiverTransactionPrepared,
+                  this.activeTxs.set(senderTx.transactionId, tx);
+                  this.evts.ReceiverTransactionPrepared.post({
+                    ...common,
+                    txData: receiverData,
+                    transactionHash: correspondingReceiverTx.prepareTransactionHash,
                   });
                 }
-                return { ...tx, status: SubgraphEvents.ReceiverTransactionPrepared };
+                return tx;
                 // otherwise we are already tracking, no change
               }
               if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
@@ -236,8 +270,8 @@ export class Subgraph {
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
                 if (active) {
-                  this.evts.ReceiverTransactionFulfilled.post(tx);
                   this.activeTxs.delete(senderTx.transactionId);
+                  this.evts.ReceiverTransactionFulfilled.post(tx);
                 }
                 return undefined; // no longer active
               }
@@ -250,8 +284,8 @@ export class Subgraph {
                 };
                 // if receiver is cancelled, its a receiver cancelled
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
-                  this.evts.ReceiverTransactionCancelled.post(tx);
                   this.activeTxs.delete(senderTx.transactionId);
+                  this.evts.ReceiverTransactionCancelled.post(tx);
                 }
                 return undefined; // no longer active
               }
