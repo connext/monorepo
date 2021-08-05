@@ -26,18 +26,6 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
 
   // Just pick the first chain in the config.
   const chainId = parseInt(Object.keys(config.chainConfig)[0]);
-  // Grab the first asset ID for this chain we can find.
-  // TODO: Will be used to get on chain balance after transfer.
-  // const assetId: string = ((): string => {
-  //   for (const swap of config.swapPools) {
-  //     for (const asset of swap.assets) {
-  //       if (asset.chainId === chainId) {
-  //         return asset.assetId;
-  //       }
-  //     }
-  //   }
-  //   throw new Error(`Could not find assetId for chainId: ${chainId}`);
-  // })();
 
   // Create manager.
   logger.info({ agents: maxConcurrency }, "Creating manager. This may take a bit...");
@@ -111,22 +99,27 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
       });
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
 
-    // TODO: process loop stats
     const errored = results.filter((x) => !!(x as any).error);
     loopStats = {
       errored: errored.length,
       successful: results.length - errored.length,
       concurrency,
     };
-    if (errored.length === results.length) {
-      logger.warn(loopStats, "All failed, exiting.");
+    // NOTE: We are currently exiting once we receive at least one error.
+    if (errored.length > 0) {
+      for (const error of errored) {
+        logger.error(error);
+      }
+      logger.warn(loopStats, "Received errors, exiting.");
       break;
     }
     logger.info(loopStats, "Increasing concurrency.");
   }
 
-  logger.info({ maxConcurrency, concurrency: concurrency - 1 }, "Test complete.");
+  // TODO: Save to file stats, errors, etc.
+  logger.info({ maxConcurrency, concurrency }, "Test complete.");
   process.exit(0);
 };
 
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10000"), parseInt(process.env.CONCURRENCY_STEP ?? "1000"));
+// NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "500"));

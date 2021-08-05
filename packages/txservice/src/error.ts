@@ -214,9 +214,11 @@ export const parseError = (error: any): NxtpError => {
   } else if (typeof error.responseText === "string") {
     message = error.responseText;
   }
+  // Preserve the original message before making it lower case.
+  const originalMessage = message;
   message = (message || "").toLowerCase();
   const context = {
-    message: message,
+    message: originalMessage,
     chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" },
   };
 
