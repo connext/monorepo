@@ -112,6 +112,23 @@ export const txDataMock: TransactionData = {
   ...variantDataMock,
 };
 
+export const transactionSubgraphMock: any = {
+  user: { id: txDataMock.user },
+  router: { id: txDataMock.router },
+  sendingChainId: txDataMock.sendingChainId,
+  sendingAssetId: txDataMock.sendingAssetId,
+  sendingChainFallback: txDataMock.sendingChainFallback,
+  amount: txDataMock.amount,
+  receivingChainId: txDataMock.receivingChainId,
+  receivingAssetId: txDataMock.receivingAssetId,
+  receivingAddress: txDataMock.receivingAddress,
+  expiry: txDataMock.expiry,
+  callDataHash: txDataMock.callDataHash,
+  callTo: txDataMock.callTo,
+  transactionId: txDataMock.transactionId,
+  preparedBlockNumber: txDataMock.preparedBlockNumber,
+};
+
 export const senderPrepareDataMock: TransactionPreparedEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
