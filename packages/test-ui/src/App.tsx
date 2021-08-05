@@ -296,7 +296,7 @@ function App(): React.ReactElement | null {
       alert("Please switch chains to the sending chain!");
       throw new Error("Wrong chain");
     }
-    const transfer = await sdk.startTransfer(auctionResponse, true);
+    const transfer = await sdk.prepareTransfer(auctionResponse, true);
     console.log("transfer: ", transfer);
   };
 
@@ -310,7 +310,7 @@ function App(): React.ReactElement | null {
       return;
     }
 
-    const finish = await sdk.finishTransfer({ bidSignature, encodedBid, encryptedCallData, txData });
+    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData });
     console.log("finish: ", finish);
     if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
       setActiveTransferTableColumns(

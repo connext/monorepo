@@ -600,7 +600,7 @@ export class NxtpSdk {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async startTransfer(
+  public async prepareTransfer(
     transferParams: AuctionResponse,
     infiniteApprove = false,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
@@ -755,7 +755,7 @@ export class NxtpSdk {
    * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
    * // TODO: fix this typing, if its either or the types should reflect that
    */
-  public async finishTransfer(
+  public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
     relayerFee = "0",
     useRelayers = true,

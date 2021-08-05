@@ -220,7 +220,7 @@ describe("Integration", () => {
       receivingChainId: RECEIVING_CHAIN,
     });
 
-    const res = await userSdk.startTransfer(quote);
+    const res = await userSdk.prepareTransfer(quote);
     expect(res.prepareResponse.hash).to.be.ok;
 
     const event = await userSdk.waitFor(
@@ -235,7 +235,7 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    const finishRes = await userSdk.finishTransfer(event);
+    const finishRes = await userSdk.fulfillTransfer(event);
     expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
