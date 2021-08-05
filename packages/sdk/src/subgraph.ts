@@ -1,6 +1,6 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { CrosschainTransactionData, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
@@ -95,7 +95,7 @@ export const createSubgraphEvts = (): {
 };
 
 export type ActiveTransaction = {
-  crosschainTx: CrosschainTransactionData;
+  crosschainTx: CrosschainTransaction;
   status: NxtpSdkEvent;
   bidSignature: string;
   caller: string; // TODO: which caller tho?
@@ -208,7 +208,7 @@ export class Subgraph {
                 const tx: ActiveTransaction = {
                   ...common,
                   crosschainTx: {
-                    ...invariant,
+                    invariant,
                     sending: sendingVariant,
                   },
                   status: SubgraphEvents.SenderTransactionPrepared,
@@ -237,7 +237,7 @@ export class Subgraph {
                 const tx: ActiveTransaction = {
                   ...common,
                   crosschainTx: {
-                    ...invariant,
+                    invariant,
                     receiving: { amount, expiry, preparedBlockNumber },
                     sending: sendingVariant,
                   },

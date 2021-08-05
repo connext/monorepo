@@ -1,6 +1,11 @@
-// Direct matching of Contract types.
-// TODO: why doesnt Typechain have these as their exported types??
+// Used to include *all* info for both sending and receiving crosschain data
+export type CrosschainTransaction = {
+  invariant: InvariantTransactionData;
+  sending: VariantTransactionData;
+  receiving?: VariantTransactionData;
+};
 
+// Direct matching of Contract types.
 export type InvariantTransactionData = {
   user: string;
   router: string;
@@ -21,12 +26,6 @@ export type VariantTransactionData = {
   preparedBlockNumber: number;
 };
 export type TransactionData = InvariantTransactionData & VariantTransactionData;
-
-// Used to include *all* info for both sending and receiving crosschain data
-export type CrosschainTransactionData = InvariantTransactionData & {
-  sending: VariantTransactionData;
-  receiving?: VariantTransactionData;
-};
 
 export type SignedCancelData = {
   invariantDigest: string;

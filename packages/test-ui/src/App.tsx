@@ -114,7 +114,7 @@ function App(): React.ReactElement | null {
         const table = [...activeTransferTableColumns];
         table.push({
           crosschainTx: {
-            ...invariant,
+            invariant,
             sending: { amount, expiry, preparedBlockNumber },
           },
           bidSignature: data.bidSignature,
@@ -129,14 +129,18 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, (data) => {
         console.log("SenderTransactionFulfilled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter(
+            (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
+          ),
         );
       });
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, (data) => {
         console.log("SenderTransactionCancelled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter(
+            (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
+          ),
         );
       });
 
@@ -144,7 +148,7 @@ function App(): React.ReactElement | null {
         console.log("ReceiverTransactionPrepared:", data);
         const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
         const index = activeTransferTableColumns.findIndex(
-          (col) => col.crosschainTx.transactionId === invariant.transactionId,
+          (col) => col.crosschainTx.invariant.transactionId === invariant.transactionId,
         );
 
         const table = [...activeTransferTableColumns];
@@ -153,7 +157,7 @@ function App(): React.ReactElement | null {
           // get the info here?
           table.push({
             crosschainTx: {
-              ...invariant,
+              invariant,
               sending: {} as any, // Find to do this, since it defaults to receiver side info
               receiving: { amount, expiry, preparedBlockNumber },
             },
@@ -181,14 +185,18 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter(
+            (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
+          ),
         );
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
         console.log("ReceiverTransactionCancelled:", data);
         setActiveTransferTableColumns(
-          activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== data.txData.transactionId),
+          activeTransferTableColumns.filter(
+            (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
+          ),
         );
       });
 
@@ -308,7 +316,7 @@ function App(): React.ReactElement | null {
     console.log("finish: ", finish);
     if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
       setActiveTransferTableColumns(
-        activeTransferTableColumns.filter((t) => t.crosschainTx.transactionId !== txData.transactionId),
+        activeTransferTableColumns.filter((t) => t.crosschainTx.invariant.transactionId !== txData.transactionId),
       );
     }
   };
@@ -354,7 +362,7 @@ function App(): React.ReactElement | null {
       dataIndex: "action",
       key: "action",
       render: ({ crosschainTx, status, bidSignature, caller, encodedBid, encryptedCallData }: ActiveTransaction) => {
-        const { receiving, sending, ...invariant } = crosschainTx;
+        const { receiving, sending, invariant } = crosschainTx;
         const variant = receiving ?? sending;
         const sendingTxData = {
           ...invariant,
@@ -375,7 +383,7 @@ function App(): React.ReactElement | null {
               onClick={() =>
                 sdk?.cancelExpired(
                   { relayerFee: "0", signature: "0x", txData: sendingTxData },
-                  crosschainTx.sendingChainId,
+                  crosschainTx.invariant.sendingChainId,
                 )
               }
             >
@@ -474,13 +482,16 @@ function App(): React.ReactElement | null {
                   return {
                     amount: variant.amount,
                     status: tx.status,
-                    sendingChain: tx.crosschainTx.sendingChainId.toString(),
-                    receivingChain: tx.crosschainTx.receivingChainId.toString(),
+                    sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
+                    receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
                     asset: "TEST",
-                    key: tx.crosschainTx.transactionId,
-                    txId: `${tx.crosschainTx.transactionId.substr(0, 6)}...${tx.crosschainTx.transactionId.substr(
-                      tx.crosschainTx.transactionId.length - 5,
-                      tx.crosschainTx.transactionId.length - 1,
+                    key: tx.crosschainTx.invariant.transactionId,
+                    txId: `${tx.crosschainTx.invariant.transactionId.substr(
+                      0,
+                      6,
+                    )}...${tx.crosschainTx.invariant.transactionId.substr(
+                      tx.crosschainTx.invariant.transactionId.length - 5,
+                      tx.crosschainTx.invariant.transactionId.length - 1,
                     )}`,
                     expires:
                       variant.expiry > Date.now() / 1000
