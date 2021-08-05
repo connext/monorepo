@@ -56,6 +56,7 @@ describe("Handler", () => {
   let getConfigMock: SinonStub;
   let recoverAuctionSignerMock: SinonStub;
   let mutateAmountMock: SinonStub;
+  let validExpiryMock: SinonStub;
 
   const addr = mkAddress("0xb");
 
@@ -76,11 +77,12 @@ describe("Handler", () => {
 
     getConfigMock = stub(config, "getConfig");
     mutateAmountMock = stub(handlerUtils, "mutateAmount");
+    validExpiryMock = stub(handlerUtils, "validExpiry");
 
     getConfigMock.returns(fakeConfig);
     mutateAmountMock.returns(MUTATED_AMOUNT);
     recoverAuctionSignerMock.returns(addr);
-    stub(handlerUtils, "validExpiry").returns(true);
+    validExpiryMock.returns(true);
 
     wallet = createStubInstance(Wallet);
     bidExpiry = getBidExpiry();
@@ -110,21 +112,6 @@ describe("Handler", () => {
       expect(error.context.method).to.be.eq(method);
       expect(error.context.methodId).to.be.eq(methodId);
     });
-  });
-
-  it("happy: mutateExpiry, should error if expiry happened", () => {
-    const day = 3600 * 24;
-    const expiry = day;
-
-    let res;
-    let error;
-    try {
-      res = mutateExpiry(expiry);
-    } catch (e) {
-      error = e;
-    }
-    expect(error).to.be.an("error");
-    expect(error.message).to.be.eq("Expiration already happened");
   });
 
   it("happy: mutateExpiry", () => {
@@ -614,13 +601,13 @@ describe("Handler", () => {
       expect(update).to.be.eq("error");
     });
 
-    it("should log error if mutateExpiry errors", async () => {
+    it("should log error if validExpiry errors", async () => {
       let update;
       logger.on("level-change", (lvl) => {
         update = lvl;
       });
       logger.level = "error"; // trigger event
-
+      validExpiryMock.returns(false);
       const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       ethPrepareDataMock.txData.expiry = 3600 * 24;
 
