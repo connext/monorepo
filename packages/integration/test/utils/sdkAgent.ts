@@ -96,6 +96,7 @@ export class SdkAgent {
       this.chainProviders,
       this.signer,
       pino({ level: "info" }).child({ name: "SdkAgent" }),
+      "local",
       natsUrl,
       authUrl,
       messaging,

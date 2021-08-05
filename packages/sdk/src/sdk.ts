@@ -26,6 +26,17 @@ import {
   NxtpErrorJson,
   Values,
   calculateExchangeAmount,
+  isNode,
+  NATS_AUTH_URL,
+  NATS_CLUSTER_URL,
+  NATS_WS_URL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_AUTH_URL_LOCAL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_WS_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL_TESTNET,
+  getDeployedSubgraphUri,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -36,7 +47,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { ActiveTransaction, getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { ActiveTransaction, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
 export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
@@ -220,19 +231,39 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
+    network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
-    _network?: "testnet" | "mainnet", // TODO
   ) {
     if (messaging) {
       this.messaging = messaging;
     } else {
+      let _natsUrl = natsUrl;
+      let _authUrl = authUrl;
+      switch (network) {
+        case "mainnet": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _authUrl = _authUrl ?? NATS_AUTH_URL;
+          break;
+        }
+        case "testnet": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _authUrl = _authUrl ?? NATS_AUTH_URL_TESTNET;
+          break;
+        }
+        case "local": {
+          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _authUrl = _authUrl ?? NATS_AUTH_URL_LOCAL;
+          break;
+        }
+      }
+
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
         logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl,
-        authUrl,
+        natsUrl: _natsUrl,
+        authUrl: _authUrl,
       });
     }
 
@@ -549,12 +580,14 @@ export class NxtpSdk {
       this.logger.info({ method, methodId, auctionResponse }, "Received response");
       return auctionResponse;
     } catch (e) {
-      throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+      const err = new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
         method,
         methodId,
         transactionId,
         auctionError: "No response received",
       });
+      this.logger.error({ method, methodId, err: jsonifyError(err) }, "Received response");
+      throw err;
     }
   }
 
