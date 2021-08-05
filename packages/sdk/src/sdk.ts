@@ -723,7 +723,7 @@ export class NxtpSdk {
    * // TODO: fix this typing, if its either or the types should reflect that
    */
   public async finishTransfer(
-    params: TransactionPreparedEvent,
+    params: Omit<TransactionPreparedEvent, "caller">,
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {

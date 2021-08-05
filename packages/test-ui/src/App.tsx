@@ -119,7 +119,6 @@ function App(): React.ReactElement | null {
           },
           bidSignature: data.bidSignature,
           encodedBid: data.encodedBid,
-          caller: data.caller,
           encryptedCallData: data.encryptedCallData,
           status: NxtpSdkEvents.SenderTransactionPrepared,
         });
@@ -163,7 +162,6 @@ function App(): React.ReactElement | null {
             },
             bidSignature: data.bidSignature,
             encodedBid: data.encodedBid,
-            caller: data.caller,
             encryptedCallData: data.encryptedCallData,
             status: NxtpSdkEvents.ReceiverTransactionPrepared,
           });
@@ -303,16 +301,15 @@ function App(): React.ReactElement | null {
 
   const finishTransfer = async ({
     bidSignature,
-    caller,
     encodedBid,
     encryptedCallData,
     txData,
-  }: TransactionPreparedEvent) => {
+  }: Omit<TransactionPreparedEvent, "caller">) => {
     if (!sdk) {
       return;
     }
 
-    const finish = await sdk.finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData });
+    const finish = await sdk.finishTransfer({ bidSignature, encodedBid, encryptedCallData, txData });
     console.log("finish: ", finish);
     if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
       setActiveTransferTableColumns(
@@ -361,7 +358,7 @@ function App(): React.ReactElement | null {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: ({ crosschainTx, status, bidSignature, caller, encodedBid, encryptedCallData }: ActiveTransaction) => {
+      render: ({ crosschainTx, status, bidSignature, encodedBid, encryptedCallData }: ActiveTransaction) => {
         const { receiving, sending, invariant } = crosschainTx;
         const variant = receiving ?? sending;
         const sendingTxData = {
@@ -399,7 +396,7 @@ function App(): React.ReactElement | null {
                   console.error("Incorrect data to fulfill");
                   return;
                 }
-                finishTransfer({ bidSignature, caller, encodedBid, encryptedCallData, txData: receivingTxData });
+                finishTransfer({ bidSignature, encodedBid, encryptedCallData, txData: receivingTxData });
               }}
             >
               Finish
