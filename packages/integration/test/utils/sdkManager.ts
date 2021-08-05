@@ -1,5 +1,6 @@
 import { CrossChainParams } from "@connext/nxtp-sdk";
 import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
+import { BaseLogger } from "pino";
 
 import { OnchainAccountManager } from "./accountManager";
 import { ChainConfig } from "./config";
@@ -22,12 +23,17 @@ export type TransactionInfo = {
 export class SdkManager {
   public readonly transactionInfo: { [transactionId: string]: TransactionInfo } = {};
 
-  private constructor(private readonly onchainMgmt: OnchainAccountManager, private readonly agents: SdkAgent[]) {}
+  private constructor(
+    private readonly onchainMgmt: OnchainAccountManager,
+    private readonly agents: SdkAgent[],
+    private readonly log: BaseLogger,
+  ) {}
 
   static async connect(
     chainConfig: ChainConfig,
     mnemonic: string,
     numberUsers: number,
+    log: BaseLogger,
     natsUrl?: string,
     authUrl?: string,
   ): Promise<SdkManager> {
@@ -55,7 +61,7 @@ export class SdkManager {
     );
 
     // Create manager
-    const manager = new SdkManager(onchain, agents);
+    const manager = new SdkManager(onchain, agents, log.child({ name: "SdkManager" }));
 
     // Setup manager listeners
     manager.setupTransferListeners();
@@ -95,7 +101,7 @@ export class SdkManager {
   ): Promise<TransactionInfo> {
     const agent = _agent ?? this.getRandomAgent();
 
-    const transactionId = getRandomBytes32();
+    const transactionId = params.transactionId ?? getRandomBytes32();
     const promise = agent.waitFor(SdkAgentEvents.TransactionCompleted, timeout);
     // TODO: better param handling
     this.transactionInfo[transactionId] = { start: Date.now() };
@@ -131,6 +137,44 @@ export class SdkManager {
   }
 
   /**
+   * Starts a cyclical transfer test:
+   * - sets each agent into "cyclical transfer" mode, meaning they
+   *   will send a transfer *back* to the origin chain once they have
+   *   fulfilled a transfer on the destination chain
+   * - makes sure each agent is ping-pong-ing transfers back and
+   *   forth between each other
+   *
+   * @param initialParams - The params to start ping-ponging transfers with.
+   *
+   * Returns a function that will kill the cyclical transfers and stop any new
+   * ones from being created
+   */
+  public async startCyclicalTransfers(
+    initialParams: Omit<CrossChainParams, "receivingAddress" | "expiry" | "transactionId">,
+  ): Promise<() => void> {
+    // NOTE; we initiate all transactions serially because this isnt
+    // a concurrency test. But we don't wait for them to complete
+    for (const agent of this.agents) {
+      agent.establishCyclicalTransfers();
+
+      const transactionId = getRandomBytes32();
+      this.transactionInfo[transactionId] = { start: Date.now() };
+
+      await agent.initiateCrosschainTransfer({
+        transactionId,
+        receivingAddress: agent.address,
+        ...initialParams,
+      });
+    }
+
+    return () => {
+      this.agents.map((agent) => {
+        agent.cancelCyclicalTransfers();
+      });
+    };
+  }
+
+  /**
    * Prints summary information about transactions
    */
   public printTransferSummary(): void {
@@ -154,7 +198,8 @@ export class SdkManager {
         return undefined;
       })
       .filter((x) => !!x);
-    console.log(
+    // Log at error to ensure it is always logged
+    this.log.error(
       {
         errors: errored,
         agents: this.agents.length,

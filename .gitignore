@@ -26,7 +26,6 @@ report.*.json
 
 ops/data
 **/*/.nyc_output/*
-packages/router/config.json
 packages/router/*config.json
 
-packages/integration/ops/config/load/config.json
+packages/integration/ops/config/load/*config.json
