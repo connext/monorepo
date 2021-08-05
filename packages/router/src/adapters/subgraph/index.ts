@@ -2,13 +2,40 @@ import { CrosschainTransaction } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 
 import { getContext } from "../..";
+import { ContractReaderNotAvailableForChain } from "../../errors/contractReader";
 import { getSdk, Sdk } from "../../graphqlsdk";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<CrosschainTransaction[]>;
 };
 
+export enum TransactionStatus {
+  SenderPrepared,
+  SenderFulfilled,
+  SenderCancelled,
+  ReceiverPrepared,
+  ReceiverFulfilled,
+  ReceiverCancelled,
+}
+
+export type ActiveTransaction = {
+  status: TransactionStatus;
+  crosschainTx: CrosschainTransaction;
+  encryptedCallData: string;
+  encodedBid: string;
+  bidSignature: string;
+  signature?: string; // only there when fulfilled or cancelled
+  relayerFee?: string; // only there when fulfilled or cancelled
+};
+
 const sdks: Record<number, Sdk> = {};
+
+export const getSdks = (): Record<number, Sdk> => {
+  if (Object.keys(sdks).length === 0) {
+    throw new ContractReaderNotAvailableForChain(0);
+  }
+  return sdks;
+};
 
 export const ContractReader = () => {
   const { config } = getContext();
@@ -16,4 +43,6 @@ export const ContractReader = () => {
     const client = new GraphQLClient(subgraph);
     sdks[parseInt(chainId)] = getSdk(client);
   });
+
+  return {};
 };
