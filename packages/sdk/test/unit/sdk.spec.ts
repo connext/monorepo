@@ -1,14 +1,15 @@
 import {
   mkAddress,
+  mkHash,
   UserNxtpNatsMessagingService,
   getRandomBytes32,
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
 } from "@connext/nxtp-utils";
-import { err, ok } from "neverthrow";
+import { err, ok, errAsync, okAsync } from "neverthrow";
 import { expect } from "chai";
-import { providers, Wallet, constants, utils } from "ethers";
+import { providers, Wallet, constants, utils, BigNumber } from "ethers";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -18,15 +19,15 @@ import {
   NxtpSdkError,
   NxtpSdkEvents,
   MAX_SLIPPAGE_TOLERANCE,
+  MIN_SLIPPAGE_TOLERANCE,
   getMinExpiryBuffer,
   getMaxExpiryBuffer,
 } from "../../src/sdk";
 
+import * as sdkUtils from "../../src/sdk";
 import { Subgraph, ActiveTransaction } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
-import { TxResponse, EmptyBytes, EmptyCallDataHash } from "../helper";
-
-import * as nxtpUtils from "@connext/nxtp-utils";
+import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -41,7 +42,8 @@ describe("NxtpSdk", () => {
   let transactionManager: SinonStubbedInstance<TransactionManager>;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
-  let signFulfillTransactionPayloadMock: SinonStub;
+  let sdkSignFulfillTransactionPayloadMock: SinonStub;
+  let recoverAuctionSignerMock: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -71,7 +73,15 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
-    signFulfillTransactionPayloadMock = stub(nxtpUtils, "signFulfillTransactionPayload");
+    sdkSignFulfillTransactionPayloadMock = stub(sdkUtils, "sdkSignFulfillTransactionPayload");
+    recoverAuctionSignerMock = stub(sdkUtils, "recoverAuctionSigner");
+
+    stub(sdkUtils, "AUCTION_TIMEOUT").resolves("1_000");
+
+    sdkSignFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
+
+    messaging.isConnected.resolves(true);
+    messaging.publishMetaTxRequest.resolves({ inbox: "inbox" });
 
     signer.getAddress.resolves(user);
 
@@ -132,7 +142,7 @@ describe("NxtpSdk", () => {
       receivingAssetId: mkAddress("0xb"),
       callTo: AddressZero,
       receivingAddress: mkAddress("0xa"),
-      amount: "100",
+      amount: "1000000",
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId: getRandomBytes32(),
       ...crossChainParamsOverrides,
@@ -143,10 +153,10 @@ describe("NxtpSdk", () => {
       router: router,
       sendingChainId: sendingChainId,
       sendingAssetId: mkAddress("0xa"),
-      amount: "100",
+      amount: "1000000",
       receivingChainId: receivingChainId,
       receivingAssetId: mkAddress("0xb"),
-      amountReceived: "100",
+      amountReceived: "1000000",
       receivingAddress: mkAddress("0xc"),
       transactionId: getRandomBytes32(),
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
@@ -304,7 +314,20 @@ describe("NxtpSdk", () => {
       });
     });
 
-    it("happy: should error if slippageTolerance is higher than Max allowed", async () => {
+    it("should error if slippageTolerance is lower than Min allowed", async () => {
+      const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MIN_SLIPPAGE_TOLERANCE) - 1).toString() });
+      let error;
+      try {
+        await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+      expect(error.context.transactionId).to.be.eq(crossChainParams.transactionId);
+    });
+
+    it("should error if slippageTolerance is higher than Max allowed", async () => {
       const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MAX_SLIPPAGE_TOLERANCE) + 1).toString() });
       let error;
       try {
@@ -317,7 +340,7 @@ describe("NxtpSdk", () => {
       expect(error.context.transactionId).to.be.eq(crossChainParams.transactionId);
     });
 
-    it("happy: should error if expiry is too short", async () => {
+    it("should error if expiry is too short", async () => {
       const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMinExpiryBuffer() - 1000 });
       let error;
       try {
@@ -331,7 +354,7 @@ describe("NxtpSdk", () => {
       expect(error.context.paramsError).to.include("Expiry too short");
     });
 
-    it("happy: should error if expiry is too high", async () => {
+    it("should error if expiry is too high", async () => {
       const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMaxExpiryBuffer() + 1000 });
       let error;
       try {
@@ -345,12 +368,129 @@ describe("NxtpSdk", () => {
       expect(error.context.paramsError).to.include("Expiry too high");
     });
 
-    it.skip("happy: should get a transfer quote", async () => {
+    it.skip("should error if eth_getEncryptionPublicKey errors", async () => {});
+
+    it("should log error if recoverAuctionSigner errors", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
-      const prom = await sdk.getTransferQuote(crossChainParams);
-      // await delay(1000);
-      messaging.subscribeToAuctionResponse.yield({ auctionBid, bidSignature });
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
+      recoverAuctionSignerMock.returns(auctionBid.user);
+      transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
+
+      let error;
+      try {
+        await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
+      expect(error.context.transactionId).to.be.eq(crossChainParams.transactionId);
+      expect(error.context.auctionError.message).to.include("No bids received");
+    });
+
+    it("should log error if getRouterLiquidity errors", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+      const mockMethod = "transfer";
+      const mockMethodId = getRandomBytes32();
+
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
+      recoverAuctionSignerMock.returns(auctionBid.router);
+
+      transactionManager.getRouterLiquidity.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            transactionId: auctionBid.transactionId,
+          }),
+        ),
+      );
+
+      let error;
+      try {
+        await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
+      expect(error.context.auctionError.message).to.include("No bids received");
+    });
+
+    it("should log error if router liquidity is lower than amountReceived", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
+      recoverAuctionSignerMock.returns(auctionBid.router);
+
+      transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived).sub("1")));
+
+      let error;
+      try {
+        await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
+      expect(error.context.auctionError.message).to.include("No bids received");
+    });
+
+    it("should log error if amountReceived is lower than lower bound", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      const crossChainParamsMock = JSON.parse(JSON.stringify(crossChainParams));
+      crossChainParamsMock.amount = "100000000";
+
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
+      recoverAuctionSignerMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
+
+      let error;
+      try {
+        await sdk.getTransferQuote(crossChainParamsMock);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
+      expect(error.context.auctionError.message).to.include("No bids received");
+    });
+
+    it("happy: should get a transfer quote => dryRun ", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature: undefined });
+      let error;
+      let res;
+      try {
+        res = await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.undefined;
+    });
+
+    it("happy: should get a transfer quote", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
+      recoverAuctionSignerMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
+
+      let error;
+      let res;
+      try {
+        res = await sdk.getTransferQuote(crossChainParams);
+      } catch (e) {
+        error = e;
+      }
+
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.eq(bidSignature);
     });
   });
 
@@ -415,16 +555,17 @@ describe("NxtpSdk", () => {
       expect(error.context.paramsError).to.include("bidSignature undefined");
     });
 
-    it.skip("should error if approveTokensIfNeeded transaction fails", async () => {
+    it("should error if approveTokensIfNeeded transaction fails", async () => {
       const { auctionBid, bidSignature } = getMock();
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
 
-      transactionManager.approveTokensIfNeeded.resolves(
-        err(
+      transactionManager.approveTokensIfNeeded.returns(
+        errAsync(
           new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
             method: mockMethod,
             methodId: mockMethodId,
+            transactionId: auctionBid.transactionId,
           }),
         ),
       );
@@ -434,32 +575,114 @@ describe("NxtpSdk", () => {
       } catch (e) {
         error = e;
       }
-      console.log(error);
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       expect(error.context.transactionId).to.be.eq(auctionBid.transactionId);
     });
 
-    it.skip("should error if approve transaction reverts", async () => {
+    it("should error if approve transaction.wait errors", async () => {
       const { auctionBid, bidSignature } = getMock();
-      const mockMethod = "transfer";
-      const mockMethodId = getRandomBytes32();
-      // transactionManager.approveTokensIfNeeded.resolves(ok(undefined));
-      transactionManager.approveTokensIfNeeded.resolves(ok(TxResponse));
+
+      const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
+      TxResponseMock.wait = () => Promise.reject(new Error("fails"));
+
+      transactionManager.approveTokensIfNeeded.returns(okAsync(TxResponseMock));
       let error;
       try {
         await sdk.startTransfer({ bid: auctionBid, bidSignature });
       } catch (e) {
         error = e;
       }
-      console.log(error);
+
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.txError.message).to.be.eq("fails");
+    });
+
+    it("should error if approve transaction reverts", async () => {
+      const { auctionBid, bidSignature } = getMock();
+
+      const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
+      const TxReceiptMock = JSON.parse(JSON.stringify(TxReceipt));
+      TxReceiptMock.status = 0;
+
+      TxResponseMock.wait = () => Promise.resolve(TxReceiptMock);
+
+      transactionManager.approveTokensIfNeeded.returns(okAsync(TxResponseMock));
+      let error;
+      try {
+        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.approveReceipt).to.be.eq(TxReceiptMock);
+    });
+
+    it("should error if prepare errors", async () => {
+      const { auctionBid, bidSignature } = getMock();
+      const mockMethod = "transfer";
+      const mockMethodId = getRandomBytes32();
+
+      transactionManager.approveTokensIfNeeded.returns(okAsync(undefined));
+      transactionManager.prepare.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            transactionId: auctionBid.transactionId,
+          }),
+        ),
+      );
+      let error;
+      try {
+        await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        error = e;
+      }
+
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
       expect(error.context.transactionId).to.be.eq(auctionBid.transactionId);
     });
 
-    it.skip("happy: start transfer ERC20 Asset", async () => {});
-    it.skip("happy: start transfer Native Asset", async () => {});
+    it("happy: start transfer with suffice approval", async () => {
+      const { auctionBid, bidSignature } = getMock();
+
+      transactionManager.approveTokensIfNeeded.returns(okAsync(undefined));
+      transactionManager.prepare.returns(okAsync(TxResponse));
+      let error;
+      let res;
+      try {
+        res = await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+      expect(res.prepareResponse).to.be.eq(TxResponse);
+      expect(res.transactionId).to.be.eq(auctionBid.transactionId);
+    });
+
+    it("happy: start transfer ", async () => {
+      const { auctionBid, bidSignature } = getMock();
+
+      transactionManager.approveTokensIfNeeded.returns(okAsync(TxResponse));
+      transactionManager.prepare.returns(okAsync(TxResponse));
+      let error;
+      let res;
+      try {
+        res = await sdk.startTransfer({ bid: auctionBid, bidSignature });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+      expect(res.prepareResponse).to.be.eq(TxResponse);
+      expect(res.transactionId).to.be.eq(auctionBid.transactionId);
+    });
   });
 
   describe("#finishTransfer", () => {
@@ -564,10 +787,10 @@ describe("NxtpSdk", () => {
       });
     });
 
-    it.skip("should error if signFulfillTransactionPayload errors", async () => {
+    it("should error if signFulfillTransactionPayload errors", async () => {
       const { transaction, record } = await getTransactionData();
 
-      signFulfillTransactionPayloadMock.returns(new Error("fail"));
+      sdkSignFulfillTransactionPayloadMock.rejects(new Error("fails"));
       let error;
       try {
         await sdk.finishTransfer({
@@ -585,8 +808,122 @@ describe("NxtpSdk", () => {
       expect(error.context.transactionId).to.be.eq(transaction.transactionId);
     });
 
-    it.skip("happy: finish transfer ERC20 Asset", async () => {});
-    it.skip("happy: finish transfer Native Asset", async () => {});
+    it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      messaging.subscribeToMetaTxResponse.yields("inbox", new Error("fails"));
+      let error;
+      let res;
+      try {
+        res = await sdk.finishTransfer({
+          txData: { ...transaction, ...record },
+          caller: transaction.user,
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NxtpSdkError.reasons.MessagingError);
+      expect(error.context.messagingError.message).to.be.eq("fails");
+    });
+
+    it("happy: finish transfer => useRelayers:true", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      const transactionHash = mkHash("0xc");
+      messaging.subscribeToMetaTxResponse.yields({
+        transactionHash: transactionHash,
+        chainId: sendingChainId,
+      });
+
+      let error;
+      let res;
+      try {
+        res = await sdk.finishTransfer({
+          txData: { ...transaction, ...record },
+          caller: transaction.user,
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+      expect(res.metaTxResponse.transactionHash).to.be.eq(transactionHash);
+      expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
+    });
+
+    it("should error if finish transfer => useRelayers:false, fulfill errors", async () => {
+      const { transaction, record } = await getTransactionData();
+      const mockMethod = "transfer";
+      const mockMethodId = getRandomBytes32();
+
+      sdkSignFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
+
+      transactionManager.fulfill.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
+            method: mockMethod,
+            methodId: mockMethodId,
+          }),
+        ),
+      );
+
+      let error;
+      let res;
+      try {
+        res = await sdk.finishTransfer(
+          {
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          },
+          "0",
+          false,
+        );
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.method).to.be.eq(mockMethod);
+      expect(error.context.methodId).to.be.eq(mockMethodId);
+    });
+
+    it("happy: finish transfer => useRelayers:false", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      transactionManager.fulfill.returns(okAsync(TxResponse));
+      let error;
+      let res;
+      try {
+        res = await sdk.finishTransfer(
+          {
+            txData: { ...transaction, ...record },
+            caller: transaction.user,
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          },
+          "0",
+          false,
+        );
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+      expect(res.fulfillResponse).to.be.eq(TxResponse);
+    });
   });
 
   describe("#cancelExpired", () => {
@@ -704,7 +1041,7 @@ describe("NxtpSdk", () => {
       } catch (e) {
         error = e;
       }
-      console.log(error);
+
       expect(error).to.be.undefined;
       expect(res).to.be.eq(TxResponse);
     });
