@@ -14,10 +14,9 @@ import { Static, Type } from "@sinclair/typebox";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { Handler } from "./handler";
-import { Subgraph } from "./subgraph";
 import { setupListeners } from "./listener";
-import { TransactionManager } from "./contract";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
+import { contractWriter, ContractWriter } from "./adapters/contract";
 
 const server = fastify();
 
@@ -28,42 +27,10 @@ type Context = {
   messaging: RouterNxtpNatsMessagingService;
   txService: TransactionService;
   contractReader: ContractReader;
+  contractWriter: ContractWriter;
 };
 
-let context: Context | undefined;
-
-const createExternalContext = (): Partial<Context> => {
-  const config = getConfig();
-  const wallet = Wallet.fromMnemonic(config.mnemonic);
-  const logger = pino({
-    level: config.logLevel,
-    name: wallet.address,
-  });
-  logger.info({ signer: wallet.address }, "Created signer from mnemonic");
-  const messaging = new RouterNxtpNatsMessagingService({
-    signer: wallet,
-    authUrl: config.authUrl,
-    natsUrl: config.natsUrl,
-    logger,
-  });
-
-  const chains: { [chainId: string]: ChainConfig } = {};
-  Object.entries(config.chainConfig).forEach(([chainId, config]) => {
-    chains[chainId] = {
-      confirmations: config.confirmations,
-      providers: config.providers.map((url) => ({ url })),
-    } as ChainConfig;
-  });
-  const txService = new TransactionService(logger.child({ module: "TransactionService" }), wallet, { chains });
-  const transactionManager = new TransactionManager(
-    txService,
-    wallet.address,
-    logger.child({ module: "TransactionManager" }),
-  );
-
-  return { config, wallet, logger, messaging, txService };
-};
-
+const context: Context = {} as any;
 export const getContext = (): Context => {
   if (!context) {
     throw new Error("Context not created");
@@ -72,8 +39,34 @@ export const getContext = (): Context => {
 };
 
 export const makeRouter = async () => {
-  const externalContext = createExternalContext();
-  const subgraph = subgraphContractReader();
+  // set up external, config based services
+  context.config = getConfig();
+  context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
+  context.logger = pino({
+    level: context.config.logLevel,
+    name: context.wallet.address,
+  });
+  context.messaging = new RouterNxtpNatsMessagingService({
+    signer: context.wallet,
+    authUrl: context.config.authUrl,
+    natsUrl: context.config.natsUrl,
+    logger: context.logger,
+  });
+  await context.messaging.connect();
+  const chains: { [chainId: string]: ChainConfig } = {};
+  Object.entries(context.config.chainConfig).forEach(([chainId, config]) => {
+    chains[chainId] = {
+      confirmations: config.confirmations,
+      providers: config.providers.map((url) => ({ url })),
+    } as ChainConfig;
+  });
+  context.txService = new TransactionService(context.logger.child({ module: "TransactionService" }), context.wallet, {
+    chains,
+  });
+
+  // adapters
+  context.contractReader = subgraphContractReader();
+  context.contractWriter = contractWriter();
 };
 
 const handler = new Handler(
