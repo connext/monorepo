@@ -1,30 +1,16 @@
-import {
-  mkAddress,
-  UserNxtpNatsMessagingService,
-  getRandomBytes32,
-  InvariantTransactionData,
-  VariantTransactionData,
-  AuctionBid,
-} from "@connext/nxtp-utils";
-import { err, ok } from "neverthrow";
+import { mkAddress, getRandomBytes32, transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils";
 import { expect } from "chai";
-import { providers, Wallet, constants, utils, BigNumber } from "ethers";
+import { Wallet, BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 
-import { Subgraph, getDeployedSubgraphUri, SubgraphUri } from "../../src/subgraph";
+import { Subgraph, getDeployedSubgraphUri, SubgraphUri, convertTransactionToTxData } from "../../src/subgraph";
 import { Transaction, TransactionStatus, User, Router, Sdk, getSdk } from "../../src/graphqlsdk";
 
-import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
-import { TxResponse, EmptyBytes, EmptyCallDataHash } from "../helper";
-
-import * as nxtpUtils from "@connext/nxtp-utils";
+import { EmptyCallDataHash } from "../helper";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
-
-const { AddressZero } = constants;
-const response = "connected";
 
 describe("NxtpSdk", () => {
   let subgraph: Subgraph;
@@ -94,8 +80,7 @@ describe("NxtpSdk", () => {
       subgraph = new Subgraph(signer, chainConfig, logger);
 
       const client = createStubInstance(GraphQLClient);
-      // (subgraph as any).sdks[sendingChainId] = getSdk(client);
-      // (subgraph as any).sdks[receivingChainId] = createStubInstance(Sdk);
+      (subgraph as any).sdks[sendingChainId] = (subgraph as any).sdks[receivingChainId] = getSdk(client as any);
     });
 
     afterEach(() => {
@@ -105,6 +90,12 @@ describe("NxtpSdk", () => {
 
     it("happy: constructor", () => {
       const subgraph = new Subgraph(signer, chainConfig, logger);
+    });
+
+    it("happy convertTransactionToTxData", () => {
+      console.log(transactionSubgraphMock);
+      const res = convertTransactionToTxData(transactionSubgraphMock);
+      expect(res).to.include(txDataMock);
     });
 
     it.skip("happy: getActiveTransactions", async () => {
