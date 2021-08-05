@@ -80,6 +80,8 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
               } as RequestContext,
             );
             // TODO: Confirm after sending tx that balance reflects new amount?
+            // If we want to do this, we need to use the txservice readTx method.
+            // Also note that this will tack on extra time to the test, if we do so.
             // const balance = await getOnchainBalance(
             //   assetId,
             //   agent.address,
