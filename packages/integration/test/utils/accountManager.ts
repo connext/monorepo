@@ -17,7 +17,7 @@ export class OnchainAccountManager {
 
   constructor(public readonly chainProviders: ChainConfig, mnemonic: string, public readonly num_users: number) {
     this.funder = Wallet.fromMnemonic(mnemonic);
-    for (let i = 0; i < num_users; i++) {
+    for (let i = 1; i < num_users + 1; i++) {
       const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
       if (newWallet) {
         this.wallets.push(newWallet);

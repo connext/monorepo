@@ -24,7 +24,7 @@ import {
 } from "@connext/nxtp-utils";
 import { providers, Signer } from "ethers";
 import pino from "pino";
-import { Evt } from "evt";
+import { Evt, VoidCtx } from "evt";
 
 import { ChainConfig } from "./config";
 
@@ -78,7 +78,7 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
 export class SdkAgent {
   private readonly sdk: NxtpSdk;
 
-  private isCyclical = false;
+  private cyclicalContext: VoidCtx | undefined;
 
   private readonly evts: { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } = createEvts();
 
@@ -164,6 +164,29 @@ export class SdkAgent {
         error,
       });
     });
+
+    // On sender cancellation, post that it was completed
+    this.sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, async (data) => {
+      this.evts.RouterCompletionFailed.post({
+        ...data,
+        address: this.address,
+      });
+      this.evts.TransactionCompleted.post({
+        transactionId: data.txData.transactionId,
+        address: this.address,
+        timestamp: Date.now(),
+        error: `${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`,
+      });
+    });
+  }
+
+  public cancelCyclicalTransfers() {
+    if (!this.cyclicalContext) {
+      return;
+    }
+
+    this.cyclicalContext.done();
+    this.cyclicalContext = undefined;
   }
 
   /**
@@ -173,13 +196,14 @@ export class SdkAgent {
    *
    */
   public establishCyclicalTransfers() {
-    if (this.isCyclical) {
+    if (this.cyclicalContext) {
       return;
     }
     // On each ReceiverTransactionFulfilled (i.e. router complete), create a new transfer
     // Will go in the opposite direction of the received transaction to keep
     // balance roughly equal
-    this.sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, async (data) => {
+    this.cyclicalContext = Evt.newCtx();
+    this.evts.ReceiverTransactionFulfilled.attach(this.cyclicalContext, (data) => {
       const { amount, sendingAssetId, sendingChainId, receivingChainId, receivingAssetId } = data.txData;
       this.initiateCrosschainTransfer({
         amount,
@@ -190,7 +214,18 @@ export class SdkAgent {
       });
     });
 
-    this.isCyclical = true;
+    // On each SenderTransactionCancelled (i.e. router cancels), create a
+    // new transfer that reattempts the cancelled transaction
+    this.evts.SenderTransactionCancelled.attach(this.cyclicalContext, (data) => {
+      const { amount, sendingAssetId, sendingChainId, receivingChainId, receivingAssetId } = data.txData;
+      this.initiateCrosschainTransfer({
+        amount,
+        sendingChainId,
+        sendingAssetId,
+        receivingChainId,
+        receivingAssetId,
+      });
+    });
   }
 
   /**

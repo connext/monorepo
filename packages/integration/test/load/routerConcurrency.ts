@@ -37,10 +37,11 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     config.chainConfig,
     config.mnemonic,
     numberTransactions + 1,
+    log,
     config.natsUrl,
     config.authUrl,
   );
-  log.info({ agents: maxConcurrency }, "Created manager");
+  log.info({ agents: numberTransactions + 1 }, "Created manager");
 
   // Update with token
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
