@@ -101,10 +101,16 @@ function App(): React.ReactElement | null {
         process.env.REACT_APP_AUTH_URL_OVERRIDE,
       );
       setSdk(_sdk);
+      const activeTxs = await _sdk.getActiveTransactions();
+
+      // TODO: race condition with the event listeners
+      setActiveTransferTableColumns(activeTxs);
+      console.log("activeTxs: ", activeTxs);
+
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
         const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
-        const table = activeTransferTableColumns;
+        const table = [...activeTransferTableColumns];
         table.push({
           crosschainTx: {
             ...invariant,
@@ -140,8 +146,8 @@ function App(): React.ReactElement | null {
           (col) => col.crosschainTx.transactionId === invariant.transactionId,
         );
 
+        const table = [...activeTransferTableColumns];
         if (index === -1) {
-          const table = activeTransferTableColumns;
           // TODO: is there a better way to
           // get the info here?
           table.push({
@@ -158,9 +164,16 @@ function App(): React.ReactElement | null {
           });
           setActiveTransferTableColumns(table);
         } else {
-          activeTransferTableColumns[index].status = NxtpSdkEvents.ReceiverTransactionPrepared;
-          activeTransferTableColumns[index].crosschainTx.receiving = { amount, expiry, preparedBlockNumber };
-          setActiveTransferTableColumns(activeTransferTableColumns);
+          const item = { ...table[index] };
+          table[index] = {
+            ...item,
+            status: NxtpSdkEvents.ReceiverTransactionPrepared,
+            crosschainTx: {
+              ...item.crosschainTx,
+              receiving: { amount, expiry, preparedBlockNumber },
+            },
+          };
+          setActiveTransferTableColumns(table);
         }
       });
 
@@ -185,11 +198,6 @@ function App(): React.ReactElement | null {
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, (data) => {
         console.log("SenderTransactionPrepareSubmitted:", data);
       });
-      const activeTxs = await _sdk.getActiveTransactions();
-
-      // TODO: race condition with the event listeners
-      setActiveTransferTableColumns(activeTxs);
-      console.log("activeTxs: ", activeTxs);
     };
     init();
   }, [web3Provider, signer]);
