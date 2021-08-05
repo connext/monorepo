@@ -645,7 +645,7 @@ describe("Handler", () => {
             method: mockMethod,
             methodId: mockMethodId,
             chainId: ethPrepareDataMock.txData.chainId,
-            txServiceError: jsonifyError(new Error("#P:015")),
+            txServiceError: jsonifyError(new Error("#p:015")),
           }),
         ),
       );

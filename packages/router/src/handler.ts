@@ -697,7 +697,7 @@ export class Handler {
       );
       // If success, update metrics
     } else {
-      if (res.error.context?.txServiceError?.message.includes("#P:015")) {
+      if (res.error.context?.txServiceError?.message.toLowerCase().includes("#p:015")) {
         console.log("enters");
         this.logger.error(
           {
