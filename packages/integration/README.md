@@ -62,13 +62,13 @@ Make sure you put a similarly structured config in your `packages/integration/op
     "1337": {
       "providers": ["http://localhost:8545"],
       "confirmations": 1,
-      "subgraph": "http://localhost:8000/subgraphs/name/connext/nxtp",
+      "subgraph": "http://localhost:8010/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
       "providers": ["http://localhost:8546"],
       "confirmations": 1,
-      "subgraph": "http://localhost:9000/subgraphs/name/connext/nxtp",
+      "subgraph": "http://localhost:9010/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },

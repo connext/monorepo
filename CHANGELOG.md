@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] Fix cancellation.
+- [sdk] Change method name from `cancelExpired` to `cancel`.
+
 ## 0.0.15
 
 - [txservice] Fix in gas price for Optimism.
