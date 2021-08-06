@@ -123,7 +123,6 @@ export const TransactionDataSchema = Type.Object({
 
 export const TransactionPrepareEventSchema = Type.Object({
   txData: TransactionDataSchema,
-  caller: TAddress,
   encryptedCallData: Type.String(),
   encodedBid: Type.String(),
   bidSignature: Type.String(),
