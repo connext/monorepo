@@ -136,8 +136,8 @@ export class SdkManager {
    * @returns SdkAgent
    */
   public getRandomAgent(excluding: SdkAgent[] = []): SdkAgent {
+    const addrs = excluding.map((e) => e.address);
     const filtered = this.agents.filter((n) => {
-      const addrs = excluding.map((e) => e.address);
       return !addrs.includes(n.address);
     });
     if (filtered.length === 0) {
