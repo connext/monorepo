@@ -11,7 +11,6 @@ export class OnchainAccountManager {
   USER_MIN_ETH = utils.parseEther("0.2");
   USER_MIN_TOKEN = utils.parseEther("1000000");
 
-
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
 
@@ -46,7 +45,7 @@ export class OnchainAccountManager {
       throw new Error(`Provider not configured for ${chainId}`);
     }
     //not sending native token
-    if(assetId !== constants.AddressZero){
+    if (assetId !== constants.AddressZero) {
       const initial = await getOnchainBalance(assetId, account, provider);
       if (initial.gte(this.USER_MIN_TOKEN)) {
         console.log(`No need to top up token balance of ${account}`);
@@ -54,12 +53,12 @@ export class OnchainAccountManager {
       }
       //no need to check if sugar daddy has balance we just mint directly to them
       const receipt = await funderQueue.add(() =>
-          sendGift(assetId, this.USER_MIN_TOKEN.mul("2").toString(), account, this.funder.connect(provider)),
+        sendGift(assetId, this.USER_MIN_TOKEN.mul("2").toString(), account, this.funder.connect(provider)),
       );
       console.log(`Sent token ${assetId} to topup: ${account},  txHash: ${receipt.transactionHash}`);
       const final = await getOnchainBalance(assetId, account, provider);
       return final;
-    }else{
+    } else {
       const initial = await getOnchainBalance(assetId, account, provider);
       if (initial.gte(this.USER_MIN_ETH)) {
         console.log(`No need to top up eth balance of ${account}`);
@@ -70,15 +69,15 @@ export class OnchainAccountManager {
       const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
       if (funderBalance.lt(remainder)) {
         throw new Error(
-            `${
-                this.funder.address
-            } has insufficient funds to top up. Has ${funderBalance.toString()}, needs ${remainder.toString()}`,
+          `${
+            this.funder.address
+          } has insufficient funds to top up. Has ${funderBalance.toString()}, needs ${remainder.toString()}`,
         );
       }
 
       // fund with sugardaddy
       const receipt = await funderQueue.add(() =>
-          sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
+        sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
       );
 
       console.log(`Sent ${assetId} to topup: ${account},  txHash: ${receipt.transactionHash}`);
@@ -96,5 +95,16 @@ export class OnchainAccountManager {
       }
     }
     return wallets;
+  }
+
+  getRandomWallet(excluding: Wallet[] = []) {
+    const addrs = excluding.map((e) => e.address);
+    const filtered = this.wallets.filter((n) => {
+      return !addrs.includes(n.address);
+    });
+    if (filtered.length === 0) {
+      throw new Error("Failed to get random wallet");
+    }
+    return filtered[Math.floor(Math.random() * filtered.length)];
   }
 }
