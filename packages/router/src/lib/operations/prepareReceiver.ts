@@ -82,21 +82,24 @@ export const prepareReceiver = async (
   // encode the data for contract call
   // Send to txService
   logger.info({ method, methodId, requestContext, transactionId: txData.transactionId }, "Sending receiver prepare tx");
-  const receipt = await contractWriter.prepare(
-    txData.receivingChainId,
-    {
-      txData,
-      amount: receiverAmount,
-      expiry: receiverExpiry,
-      bidSignature,
-      encodedBid,
-      encryptedCallData,
-    },
-    requestContext,
-  );
-  logger.info({ method, methodId, transactionId: txData.transactionId }, "Sent receiver prepare tx");
-
-  receiverPreparing.delete(txData.transactionId);
-
-  return receipt;
+  try {
+    const receipt = await contractWriter.prepare(
+      txData.receivingChainId,
+      {
+        txData,
+        amount: receiverAmount,
+        expiry: receiverExpiry,
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      requestContext,
+    );
+    logger.info({ method, methodId, transactionId: txData.transactionId }, "Sent receiver prepare tx");
+    return receipt;
+  } catch (err) {
+    throw err;
+  } finally {
+    receiverPreparing.delete(txData.transactionId);
+  }
 };

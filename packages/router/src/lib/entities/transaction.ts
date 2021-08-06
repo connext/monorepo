@@ -18,6 +18,7 @@ export type ActiveTransaction = {
   bidSignature: string;
   signature?: string; // only there when fulfilled or cancelled
   relayerFee?: string; // only there when fulfilled or cancelled
+  callData?: string; // only there when fulfilled
 };
 
 export type SingleChainTransaction = {
