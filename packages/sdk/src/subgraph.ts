@@ -217,7 +217,10 @@ export class Subgraph {
                   status: SubgraphEvents.ReceiverTransactionPrepared,
                 };
                 if (!active) {
-                  this.logger.warn({ transactionId: invariant.transactionId }, "Missing active sender tx");
+                  this.logger.warn(
+                    { transactionId: invariant.transactionId, active: this.activeTxs.keys() },
+                    "Missing active sender tx",
+                  );
                 }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -275,7 +278,12 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info({ methodId, methodName, all }, "Queried active txs");
+      this.logger.info({
+        methodName,
+        methodId,
+        active: all.map((a) => a.crosschainTx.invariant.transactionId).join(","),
+      });
+      this.logger.debug({ methodId, methodName, all }, "Queried active txs");
     }
     return all;
   }

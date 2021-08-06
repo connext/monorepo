@@ -973,7 +973,7 @@ export class NxtpSdk {
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
     if (Object.keys(SubgraphEvents).includes(event)) {
-      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any);
+      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any, timeout);
     } else {
       this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
     }
