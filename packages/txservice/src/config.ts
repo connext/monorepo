@@ -88,7 +88,7 @@ const TransactionServiceConfigSchema = Type.Object({
   // % to bump gas by when tx confirmation times out.
   gasReplacementBumpPercent: Type.Number(),
   // Gas shouldn't ever exceed this amount.
-  gasLimit: TIntegerString,
+  gasMaximum: TIntegerString,
   // Minimum gas price.
   gasMinimum: TIntegerString,
 
@@ -124,7 +124,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   // Generally, the new gas price should be about 50% + 1 wei more, so if a gas price
   // of 10 gwei was used, the replacement should be 15.000000001 gwei.
   gasReplacementBumpPercent: 20,
-  gasLimit: parseUnits("1500", "gwei").toString(),
+  gasMaximum: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction

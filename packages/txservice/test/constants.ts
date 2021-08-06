@@ -3,13 +3,13 @@ import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
 
 import { FullTransaction, ReadTransaction, WriteTransaction } from "../src/types";
-import { DEFAULT_CONFIG } from "../src/config";
 
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
 
 export const TEST_SENDER_CHAIN_ID = 1337;
 export const TEST_RECEIVER_CHAIN_ID = 1338;
+export const DEFAULT_GAS_LIMIT = BigNumber.from("21004");
 
 export const TEST_READ_TX: ReadTransaction = {
   chainId: TEST_SENDER_CHAIN_ID,
@@ -30,7 +30,7 @@ export const TEST_TX_RESPONSE: TransactionResponse = {
   confirmations: 0,
   data: "0x",
   from: AddressZero,
-  gasLimit: BigNumber.from(DEFAULT_CONFIG.gasLimit),
+  gasLimit: DEFAULT_GAS_LIMIT,
   gasPrice: One,
   hash: mkHash(),
   nonce: 1,

@@ -81,4 +81,22 @@ export class OnchainAccountManager {
     }
     return wallets;
   }
+
+  /**
+   * Chooses a wallet at random (excluding the funder!).
+   *
+   * @param excluding - (optional) Agent to exclude from selection
+   * @returns Wallet
+   */
+  public getRandomWallet(excluding: Wallet[] = []): Wallet {
+    excluding.push(this.funder);
+    const filtered = this.wallets.filter((n) => {
+      const addrs = excluding.map((e) => e.address);
+      return !addrs.includes(n.address);
+    });
+    if (filtered.length === 0) {
+      throw new Error("Failed to get random wallet: none left after filtering.");
+    }
+    return filtered[Math.floor(Math.random() * filtered.length)];
+  }
 }
