@@ -61,7 +61,7 @@ export class SdkManager {
         .fill(0)
         .map((_, idx) => {
           log.debug({ idx, address: onchain.wallets[idx].address }, "Wallet info");
-          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], natsUrl, authUrl);
+          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
         }),
     );
 

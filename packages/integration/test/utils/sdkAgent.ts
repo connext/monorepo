@@ -23,7 +23,7 @@ import {
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { providers, Signer } from "ethers";
-import pino from "pino";
+import { BaseLogger } from "pino";
 import { Evt, VoidCtx } from "evt";
 
 import { ChainConfig } from "./config";
@@ -88,6 +88,7 @@ export class SdkAgent {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
     private readonly signer: Signer,
+    private readonly logger: BaseLogger,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -95,7 +96,7 @@ export class SdkAgent {
     this.sdk = new NxtpSdk(
       this.chainProviders,
       this.signer,
-      pino({ level: "info" }).child({ name: "SdkAgent" }),
+      this.logger.child({ name: "SdkAgent" }),
       "local",
       natsUrl,
       authUrl,
@@ -116,6 +117,7 @@ export class SdkAgent {
   static async connect(
     chainProviders: ChainConfig,
     signer: Signer,
+    logger: BaseLogger,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -124,7 +126,7 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const agent = new SdkAgent(address, chainProviders, signer, natsUrl, authUrl, messaging);
+    const agent = new SdkAgent(address, chainProviders, signer, logger, natsUrl, authUrl, messaging);
 
     // Parrot all events
     agent.setupListeners();
