@@ -8,7 +8,7 @@ const TEST_ROUTERS = [
   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", // local router
 ];
 
-const SKIP_SETUP = [1, 56, 250, 137, 1337, 1338];
+const SKIP_SETUP = [1, 56, 250, 137];
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -31,7 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
-  if (SKIP_SETUP.includes(parseInt(chainId))) {
+  if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
     await hre.deployments.deploy("TestERC20", {
       from: deployer,
