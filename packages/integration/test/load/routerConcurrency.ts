@@ -1,5 +1,5 @@
 import * as path from "path";
-// import * as fs from "fs";
+import * as fs from "fs";
 
 import pino from "pino";
 import PriorityQueue from "p-queue";
@@ -15,7 +15,7 @@ const AMOUNT_PER_TRANSFER = "100000";
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 // Directory where we store statistics data. Should be ignored by .gitignore.
-// const STATS_DIR = path.join(__dirname, "stats");
+const STATS_DIR = path.join(__dirname, "stats");
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -51,17 +51,17 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     config.natsUrl,
     config.authUrl,
   );
-  log.info({ agents: numberTransactions + 1 }, "Created manager");
+  log.warn({ agents: numberTransactions + 1 }, "Created manager");
 
   // Update with token
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
 
   let concurrency = 0;
-  let loopStats;
+  const stats = [];
 
   for (const _ of Array(maxConcurrency).fill(0)) {
     concurrency += 1;
-    log.info({ concurrency }, "Beginning concurrency test");
+    log.warn({ concurrency }, "Beginning concurrency test");
 
     // Create a queue to hold all payments with the given
     // concurrency
@@ -105,20 +105,45 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
 
     // TODO: process loop stats
-    const errored = results.filter((x) => !!(x as any).error);
-    loopStats = {
-      errored: errored.length,
-      successful: results.length - errored.length,
+    log.warn({}, "Processing loop stats");
+    const errors = results.map((t) => t.error).filter((e) => !!e);
+    const executionTimes = results.map((t) => t.end! - t.start).sort((a, b) => a - b);
+    const executionTimesMinutes = executionTimes.map((t) => t / 60_000);
+    const avgExecutionTime = executionTimesMinutes.reduce((a, b) => a + b, 0) / executionTimesMinutes.length;
+    const loopStats = {
+      errored: errors.length,
+      successful: results.length - errors.length,
       concurrency,
+      errors,
+      avgExecutionTime: `${avgExecutionTime} min`,
+      medianExecutionTime: `${executionTimesMinutes[Math.floor(executionTimesMinutes.length / 2)]} min`,
+      fastest: `${executionTimesMinutes[0]} min`,
+      slowest: `${executionTimesMinutes[executionTimesMinutes.length - 1]} min`,
     };
-    if (errored.length / results.length >= ERROR_PERCENTAGE) {
-      log.error(loopStats, "All failed, exiting increases");
+    stats.push(loopStats);
+    if (errors.length / results.length >= ERROR_PERCENTAGE) {
+      log.error({ ...loopStats, errorThreshold: ERROR_PERCENTAGE }, "Passed failing threshold, exiting increases");
       break;
     }
-    log.info(loopStats, "Increasing concurrency");
+    const msg = concurrency === maxConcurrency ? "Completed tests" : "Increasing concurrency";
+    log.warn(loopStats, msg);
   }
 
-  log.info({ maxConcurrency, concurrency }, "Test complete");
+  /// MARK - SAVE RESULTS.
+  const statsFile = path.join(STATS_DIR, `report.router.concurrency.${new Date().toISOString()}.json`);
+  fs.mkdir(STATS_DIR, (error) => {
+    if (error && error.code !== "EEXIST") {
+      log.warn({ error }, "Make stats dir failed.");
+    }
+  });
+  log.warn("Saving stats report...");
+  fs.writeFile(statsFile, JSON.stringify(stats), (error) => {
+    if (error) {
+      log.error({ error }, "Failed to save stats report!");
+    }
+  });
+
+  log.error({ maxConcurrency, concurrency }, "Test complete");
   process.exit(0);
 };
 
