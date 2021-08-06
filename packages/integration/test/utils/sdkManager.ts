@@ -38,7 +38,12 @@ export class SdkManager {
     authUrl?: string,
   ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
-    const onchain = new OnchainAccountManager(chainConfig, mnemonic, numberUsers);
+    const onchain = new OnchainAccountManager(
+      chainConfig,
+      mnemonic,
+      numberUsers,
+      log.child({ name: "OnchainAccountManager" }),
+    );
     // TODO: this will be slow af
     for (const chain of Object.keys(chainConfig)) {
       // Gift eth
@@ -55,7 +60,7 @@ export class SdkManager {
       Array(numberUsers)
         .fill(0)
         .map((_, idx) => {
-          console.log(`Wallet idx${idx}, wallet addy: ${onchain.wallets[idx].address}`);
+          log.debug({ idx, address: onchain.wallets[idx].address }, "Wallet info");
           return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], natsUrl, authUrl);
         }),
     );

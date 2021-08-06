@@ -1,5 +1,6 @@
 import { BigNumber, constants, utils, Wallet } from "ethers";
 import PriorityQueue from "p-queue";
+import { BaseLogger } from "pino";
 
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
@@ -15,7 +16,12 @@ export class OnchainAccountManager {
 
   public readonly funder: Wallet;
 
-  constructor(public readonly chainProviders: ChainConfig, mnemonic: string, public readonly num_users: number) {
+  constructor(
+    public readonly chainProviders: ChainConfig,
+    mnemonic: string,
+    public readonly num_users: number,
+    private readonly log: BaseLogger,
+  ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 1; i < num_users + 1; i++) {
       const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
@@ -46,7 +52,7 @@ export class OnchainAccountManager {
 
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(this.USER_MIN_ETH)) {
-      console.log(`No need to top up balance of ${assetId}`);
+      this.log.info({ assetId, account, chainId }, "No need for top up");
       return initial;
     }
 
@@ -65,7 +71,7 @@ export class OnchainAccountManager {
       sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
     );
 
-    console.log(`Sent ${assetId} to topup: ${account},  txHash: ${receipt.transactionHash}`);
+    this.log.info({ assetId, account, txHash: receipt.transactionHash }, "Topped up account");
     // confirm balance
     const final = await provider.getBalance(account);
 
