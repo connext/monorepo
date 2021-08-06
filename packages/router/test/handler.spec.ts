@@ -54,7 +54,7 @@ describe("Handler", () => {
   let bidExpiry: number;
 
   let getConfigMock: SinonStub;
-  let recoverAuctionSignerMock: SinonStub;
+  let recoverAuctionBidMock: SinonStub;
   let mutateAmountMock: SinonStub;
   let validExpiryMock: SinonStub;
 
@@ -73,7 +73,7 @@ describe("Handler", () => {
     txManager.cancel.returns(okAsync(fakeTxReceipt));
 
     txService = createStubInstance(TransactionService);
-    recoverAuctionSignerMock = stub(handlerUtils, "recoverAuctionSigner");
+    recoverAuctionBidMock = stub(handlerUtils, "recoverAuctionBid");
 
     getConfigMock = stub(config, "getConfig");
     mutateAmountMock = stub(handlerUtils, "mutateAmount");
@@ -81,7 +81,7 @@ describe("Handler", () => {
 
     getConfigMock.returns(fakeConfig);
     mutateAmountMock.returns(MUTATED_AMOUNT);
-    recoverAuctionSignerMock.returns(addr);
+    recoverAuctionBidMock.returns(addr);
     validExpiryMock.returns(true);
 
     wallet = createStubInstance(Wallet);
@@ -509,12 +509,12 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(0);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(0);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
 
-    it("should log error if recoverAuctionSigner errors", async () => {
+    it("should log error if recoverAuctionBid errors", async () => {
       let update;
       logger.on("level-change", (lvl) => {
         update = lvl;
@@ -523,11 +523,11 @@ describe("Handler", () => {
 
       const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
 
-      recoverAuctionSignerMock.throws(new Error("fails"));
+      recoverAuctionBidMock.throws(new Error("fails"));
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -541,11 +541,11 @@ describe("Handler", () => {
 
       const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
 
-      recoverAuctionSignerMock.returns(mkAddress("0xe"));
+      recoverAuctionBidMock.returns(mkAddress("0xe"));
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -562,7 +562,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -579,7 +579,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -596,7 +596,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -613,7 +613,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(0);
       expect(update).to.be.eq("error");
     });
@@ -640,7 +640,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(1);
       expect(update).to.be.eq("error");
     });
@@ -667,7 +667,7 @@ describe("Handler", () => {
 
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
 
-      expect(recoverAuctionSignerMock.callCount).to.be.eq(1);
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
       expect(txManager.prepare.callCount).to.be.eq(1);
       expect(update).to.be.eq("error");
     });

@@ -16,7 +16,7 @@ import {
   getUuid,
   RequestContext,
   decodeAuctionBid,
-  recoverAuctionBid,
+  recoverAuctionBid as _recoverAuctionBid,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils, Wallet } from "ethers";
 import { combine, err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -100,8 +100,8 @@ export class HandlerError extends NxtpError {
  * @param signature - Signature to recover signer of
  * @returns Recovered signer
  */
-export const recoverAuctionSigner = (bid: AuctionBid, signature: string): string => {
-  return recoverAuctionBid(bid, signature);
+export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
+  return _recoverAuctionBid(bid, signature);
 };
 
 /**
@@ -583,12 +583,12 @@ export class Handler {
         bid = _bid;
         this.logger.info({ method, methodId, requestContext, bid }, "Decoded bid from event");
         return Result.fromThrowable(
-          recoverAuctionSigner,
+          recoverAuctionBid,
           (err) =>
             new HandlerError(HandlerError.reasons.EncodeError, {
               method,
               methodId,
-              calling: "recoverAuctionSigner",
+              calling: "recoverAuctionBid",
               requestContext,
               encodingError: jsonifyError(err as Error),
             }),
