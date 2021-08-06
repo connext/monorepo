@@ -5,8 +5,8 @@ import { GraphQLClient } from "graphql-request";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 
-import { Subgraph, getDeployedSubgraphUri, SubgraphUri, convertTransactionToTxData } from "../../src/subgraph";
-import { Transaction, TransactionStatus, User, Router, Sdk, getSdk } from "../../src/graphqlsdk";
+import { Subgraph, convertTransactionToTxData } from "../../src/subgraph";
+import { Transaction, TransactionStatus, User, Router, getSdk } from "../../src/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 
@@ -27,20 +27,6 @@ describe("NxtpSdk", () => {
       subgraph: "http://example.com",
     },
   };
-
-  it("happy: getDeployedSubgraphUri", () => {
-    const chainId = 4;
-    const res = getDeployedSubgraphUri(chainId);
-
-    expect(res).to.be.eq(SubgraphUri[chainId]);
-  });
-
-  it("happy: getDeployedSubgraphUri undefined for unknown chainId", () => {
-    const chainId = 1300;
-    const res = getDeployedSubgraphUri(chainId);
-
-    expect(res).to.be.undefined;
-  });
 
   const getMockTransaction = async (overrides: Partial<Transaction> = {}): Promise<Transaction> => {
     const day = 24 * 60 * 60;
