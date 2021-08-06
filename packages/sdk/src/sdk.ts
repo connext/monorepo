@@ -266,6 +266,7 @@ export class NxtpSdkError extends NxtpError {
       signerError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
       auctionError?: NxtpErrorJson;
+      invalidBids?: { error: Error; data: AuctionResponse | undefined }[];
       encryptionError?: string;
     },
   ) {
@@ -580,6 +581,7 @@ export class NxtpSdk {
     const inbox = generateMessagingInbox();
 
     const auctionBids: AuctionResponse[] = [];
+    const invalidBids: { error: Error; data: AuctionResponse | undefined }[] = [];
 
     const receivedResponsePromise = new Promise<AuctionResponse>(async (res, rej) => {
       await new Promise<void>((ext) => {
@@ -589,6 +591,8 @@ export class NxtpSdk {
         this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
           if (err || !data) {
             this.logger.error({ method, methodId, err, data }, "Error in auction response");
+            invalidBids.push({ error: err, data });
+            return;
           }
           // dry run, return first response
           else if (!data.bidSignature) {
@@ -599,10 +603,9 @@ export class NxtpSdk {
             // check router sig on bid
             const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
             if (signer !== data.bid.router) {
-              this.logger.error(
-                { method, methodId, signer, router: data.bid.router },
-                "Invalid router signature on bid",
-              );
+              const errorMessage = "Invalid router signature on bid";
+              this.logger.error({ method, methodId, signer, router: data.bid.router }, errorMessage);
+              invalidBids.push({ error: new Error(errorMessage), data });
               return;
             }
 
@@ -614,10 +617,12 @@ export class NxtpSdk {
             );
             if (routerLiq.isOk()) {
               if (routerLiq.value.lt(data.bid.amountReceived)) {
+                const errorMessage = "Router's liquidity low";
                 this.logger.error(
                   { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                  `Router's liquidity low`,
+                  errorMessage,
                 );
+                invalidBids.push({ error: new Error(errorMessage), data });
                 return;
               }
             } else {
@@ -625,6 +630,7 @@ export class NxtpSdk {
                 { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
                 routerLiq.error.message,
               );
+              invalidBids.push({ error: routerLiq.error, data });
               return;
             }
 
@@ -634,6 +640,7 @@ export class NxtpSdk {
 
             // safe calculation if the amountReceived is greater than 4 decimals
             if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
+              const errorMessage = "Invalid bid price: price impact is more than the slippage tolerance";
               this.logger.error(
                 {
                   method,
@@ -645,8 +652,9 @@ export class NxtpSdk {
                   slippageTolerance: slippageTolerance,
                   router: data.bid.router,
                 },
-                "Invalid bid price: price impact is more than the slippage tolerance",
+                errorMessage,
               );
+              invalidBids.push({ error: new Error(errorMessage), data });
               return;
             }
 
@@ -700,6 +708,7 @@ export class NxtpSdk {
         methodId,
         transactionId,
         auctionError: jsonifyError(e as NxtpError),
+        invalidBids: invalidBids,
       });
       this.logger.error({ method, methodId, err: jsonifyError(err) }, "Received response");
       throw err;
