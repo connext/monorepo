@@ -20,6 +20,7 @@ import {
   AuctionResponse,
   getRandomBytes32,
   jsonifyError,
+  NxtpErrorJson,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
@@ -42,9 +43,9 @@ export type SdkAgentEvent = typeof SdkAgentEvents[keyof typeof SdkAgentEvents];
 
 // Undefined if failed on bid
 type InitiateFailedPayload = { params?: AuctionResponse; error: string };
-type UserCompletionFailedPayload = { params: TransactionPreparedEvent; error: string; fulfilling: boolean };
+type UserCompletionFailedPayload = { params: TransactionPreparedEvent; error: NxtpErrorJson; fulfilling: boolean };
 type RouterCompletionFailedPayload = NxtpSdkEventPayloads[typeof SdkAgentEvents.SenderTransactionCancelled];
-type TransactionCompletedPayload = { transactionId: string; timestamp: number; error?: string };
+type TransactionCompletedPayload = { transactionId: string; timestamp: number; error?: NxtpErrorJson };
 export interface SdkAgentEventPayloads extends NxtpSdkEventPayloads {
   [SdkAgentEvents.InitiateFailed]: InitiateFailedPayload;
   [SdkAgentEvents.UserCompletionFailed]: UserCompletionFailedPayload;
@@ -149,14 +150,14 @@ export class SdkAgent {
     // Setup autofulfill of transfers + post to evt if it failed
     this.sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
       // TODO: determine if sdk will complete or cancel transfer
-      let error: string | undefined;
+      let error: NxtpErrorJson | undefined;
       try {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
         this.logger.error({ transactionId: data.txData.transactionId, error: jsonifyError(e) }, "Fulfilling failed");
-        error = e.message;
+        error = jsonifyError(e);
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
-          error: error!,
+          error,
           params: data,
           fulfilling: true,
           address: this.address,
@@ -180,7 +181,9 @@ export class SdkAgent {
         transactionId: data.txData.transactionId,
         address: this.address,
         timestamp: Date.now(),
-        error: `${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`,
+        error: jsonifyError(
+          new Error(`${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`),
+        ),
       });
     });
   }

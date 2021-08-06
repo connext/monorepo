@@ -1,5 +1,5 @@
 import { CrossChainParams } from "@connext/nxtp-sdk";
-import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
+import { delay, getRandomBytes32, NxtpErrorJson } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { OnchainAccountManager } from "./accountManager";
@@ -9,7 +9,18 @@ import { SdkAgent, SdkAgentEvents } from "./sdkAgent";
 export type TransactionInfo = {
   start: number;
   end?: number;
-  error?: string;
+  error?: NxtpErrorJson;
+};
+
+export type TransferSummary = {
+  errors: NxtpErrorJson[];
+  agents: number;
+  average: number;
+  longest: number;
+  shortest: number;
+  created: number;
+  completed: number;
+  failed: number;
 };
 
 /**
@@ -187,7 +198,7 @@ export class SdkManager {
   /**
    * Prints summary information about transactions
    */
-  public printTransferSummary(): void {
+  public printTransferSummary(): TransferSummary {
     const times = Object.entries(this.transactionInfo)
       .map(([_transactionId, transfer]) => {
         if (!transfer.end) {
@@ -209,18 +220,17 @@ export class SdkManager {
       })
       .filter((x) => !!x);
     // Log at error to ensure it is always logged
-    this.log.error(
-      {
-        errors: errored,
-        agents: this.agents.length,
-        average,
-        longest,
-        shortest,
-        created: Object.entries(this.transactionInfo).length,
-        completed: times.length,
-        failed: errored.length,
-      },
-      "Transfer summary",
-    );
+    const summary = {
+      errors: errored as NxtpErrorJson[],
+      agents: this.agents.length,
+      average,
+      longest,
+      shortest,
+      created: Object.entries(this.transactionInfo).length,
+      completed: times.length,
+      failed: errored.length,
+    };
+    this.log.error(summary, "Transfer summary");
+    return summary;
   }
 }
