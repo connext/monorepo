@@ -243,18 +243,18 @@ export class NxtpSdk {
       let _authUrl = authUrl;
       switch (network) {
         case "mainnet": {
-          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
-          _authUrl = _authUrl ?? NATS_AUTH_URL;
+          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL;
           break;
         }
         case "testnet": {
-          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
-          _authUrl = _authUrl ?? NATS_AUTH_URL_TESTNET;
+          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL_TESTNET;
           break;
         }
         case "local": {
-          _natsUrl = _natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
-          _authUrl = _authUrl ?? NATS_AUTH_URL_LOCAL;
+          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL_LOCAL;
           break;
         }
       }
