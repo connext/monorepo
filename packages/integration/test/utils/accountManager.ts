@@ -5,9 +5,6 @@ import { BaseLogger } from "pino";
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
-// TODO: make per-chain
-const funderQueue = new PriorityQueue({ concurrency: 1 });
-
 const MINIMUM_FUNDING_MULTIPLE = 2;
 const USER_MIN_ETH = utils.parseEther("0.2");
 const USER_MIN_TOKEN = utils.parseEther("1000000");
@@ -17,6 +14,8 @@ export class OnchainAccountManager {
   walletsWSufficientBalance: number[] = [];
 
   public readonly funder: Wallet;
+
+  private readonly funderQueues: Map<number, PriorityQueue> = new Map();
 
   constructor(
     public readonly chainProviders: ChainConfig,
@@ -31,6 +30,11 @@ export class OnchainAccountManager {
         this.wallets.push(newWallet);
       }
     }
+
+    // Create chain-by-chain funder queues
+    Object.keys(chainProviders).map((chain) => {
+      this.funderQueues.set(parseInt(chain), new PriorityQueue({ concurrency: 1 }));
+    });
   }
 
   async updateBalances(chainId: number, assetId: string = constants.AddressZero): Promise<BigNumber[]> {
@@ -50,6 +54,11 @@ export class OnchainAccountManager {
     const { provider } = this.chainProviders[chainId];
     if (!provider) {
       throw new Error(`Provider not configured for ${chainId}`);
+    }
+
+    const funderQueue = this.funderQueues.get(chainId);
+    if (!funderQueue) {
+      throw new Error(`No queue found for ${chainId}`);
     }
 
     const isToken = assetId === constants.AddressZero;
