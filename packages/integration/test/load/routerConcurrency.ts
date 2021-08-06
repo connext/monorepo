@@ -5,7 +5,7 @@ import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { getOnchainBalance } from "../utils/chain";
 
-const TIMEOUT = 15 * 60 * 100; // 15m in ms
+const TIMEOUT = 15 * 60 * 1000; // 15m in ms
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
