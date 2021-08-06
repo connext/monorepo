@@ -66,7 +66,7 @@ const DEFAULT_LOCAL_CONFIG = {
 
 /**
  * Gets and validates the router config from the environment.
- * @param useDefaultLocal - If true, use the default local config.
+ * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
 export const getConfig = (useDefaultLocal = false): Config => {

@@ -164,10 +164,13 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
       };
     });
 
+    const executionTimes = results.map((x) => x.end! - x.start);
+    const avgExecutionTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
     const iterationData = {
       loopNumber,
       concurrency,
-      averageTimeTaken: results.reduce((acc, x) => acc + x.end! - x.start, 0) / results.length,
+      averageExecutionTime: `${avgExecutionTime / 60} min`,
+      medianExecutionTime: `${executionTimes[Math.floor(executionTimes.length / 2)]} min`,
       errored: errored.length,
       successful: results.length - errored.length,
       errors,
@@ -188,14 +191,18 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
   /// MARK - SAVE RESULTS.
   const statsFile = path.join(STATS_DIR, `report.txservice.concurrency.${new Date().toISOString()}.json`);
   fs.mkdir(STATS_DIR, (error) => {
-    logger.warn({ error }, "Make stats dir failed.");
+    if (error && error.code !== "EEXIST") {
+      logger.warn({ error }, "Make stats dir failed.");
+    }
   });
   logger.info("Saving stats report...");
   fs.writeFile(statsFile, JSON.stringify(stats), (error) => {
-    logger.error({ error }, "Failed to save stats report!");
+    if (error) {
+      logger.error({ error }, "Failed to save stats report!");
+    }
   });
   logger.info({ maxConcurrency, concurrency: concurrency - step }, "Test complete.");
 };
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "1000"));
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY_MAX ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "100"));
