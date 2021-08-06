@@ -17,6 +17,8 @@ export class OnchainAccountManager {
 
   private readonly funderQueues: Map<number, PriorityQueue> = new Map();
 
+  private readonly funderNonces: Map<number, number> = new Map();
+
   constructor(
     public readonly chainProviders: ChainConfig,
     mnemonic: string,
@@ -61,7 +63,7 @@ export class OnchainAccountManager {
       throw new Error(`No queue found for ${chainId}`);
     }
 
-    const isToken = assetId === constants.AddressZero;
+    const isToken = assetId !== constants.AddressZero;
     const floor = isToken ? USER_MIN_TOKEN : USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
@@ -71,25 +73,34 @@ export class OnchainAccountManager {
 
     const toSend = floor.sub(initial).mul(MINIMUM_FUNDING_MULTIPLE);
 
-    if (assetId === constants.AddressZero) {
+    if (!isToken) {
       // Check balance before sending
       const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
       if (funderBalance.lt(toSend)) {
         throw new Error(
-          `${
-            this.funder.address
-          } has insufficient funds to top up. Has ${funderBalance.toString()}, needs ${toSend.toString()}`,
+          `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
+            funderBalance,
+          )}, needs ${utils.formatEther(toSend)}`,
         );
       }
     }
 
     // send gift
-    const response = await funderQueue.add(() => {
+    const response = await funderQueue.add(async () => {
       this.log.debug({ assetId, to: account, from: this.funder.address, value: toSend.toString() }, "Sending gift");
-      return sendGift(assetId, toSend.toString(), account, this.funder.connect(provider));
+      const response = await sendGift(
+        assetId,
+        toSend.toString(),
+        account,
+        this.funder.connect(provider),
+        this.funderNonces.get(chainId),
+      );
+      this.funderNonces.set(chainId, response.nonce + 1);
+      return response;
     });
 
-    const receipt = await response.wait(1);
+    this.log.info({ assetId, account, txHash: response.hash }, "Submitted top up");
+    const receipt = await response.wait();
     this.log.info({ assetId, account, txHash: receipt.transactionHash }, "Topped up account");
     // confirm balance
     const final = await provider.getBalance(account);
