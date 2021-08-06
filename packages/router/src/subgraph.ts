@@ -15,7 +15,7 @@ import { BigNumber, constants } from "ethers";
 import { Evt } from "evt";
 import { errAsync, ResultAsync } from "neverthrow";
 
-import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./graphqlsdk";
+import { getSdk, GetSenderTransactionsQuery, Sdk, TransactionStatus } from "./adapters/subgraph/graphqlsdk";
 
 /**
  * @classdesc Error thrown by the subgraph class

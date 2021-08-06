@@ -1,12 +1,12 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 
-import { getContext } from "..";
-import { TransactionStatus } from "../adapters/subgraph";
-import { prepareReceiver } from "../operations/prepareReceiver";
+import { getContext } from "../..";
+import { TransactionStatus } from "../../lib/entities";
+import { prepareReceiver } from "../../lib/operations";
 
 const LOOP_INTERVAL = 15_000;
 
-export const bindContractReader = () => {
+export const bindContractReader = async () => {
   const { contractReader, logger } = getContext();
   setInterval(async () => {
     const requestContext = createRequestContext("ContractReader");

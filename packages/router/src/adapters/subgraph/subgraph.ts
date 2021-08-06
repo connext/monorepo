@@ -1,10 +1,13 @@
 import { getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { BigNumber, constants } from "ethers/lib/ethers";
 
-import { TransactionStatus } from "../../graphqlsdk";
 import { getContext } from "../..";
-import { ContractReaderNotAvailableForChain } from "../../errors/contractReader";
+import { ContractReaderNotAvailableForChain } from "../../lib/errors";
+import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../../lib/entities";
 
-import { ActiveTransaction, getSdks, SingleChainTransaction, TransactionStatus as CrosschainTxStatus } from ".";
+import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
+
+import { getSdks } from ".";
 
 export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
   const method = "getActiveTransactions";
@@ -23,7 +26,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
       const allSenderPrepared = await sdk.GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),
         sendingChainId: chainId,
-        status: TransactionStatus.Prepared,
+        status: SdkTransactionStatus.Prepared,
       });
 
       // create list of txIds for each receiving chain
@@ -89,7 +92,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
               bidSignature: senderTx.bidSignature,
               encodedBid: senderTx.encodedBid,
               encryptedCallData: senderTx.encryptedCallData,
-              status: CrosschainTxStatus.SenderPrepared,
+              status: TransactionStatus.SenderPrepared,
             };
           }
 
@@ -99,7 +102,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
             expiry: Number(corresponding.expiry),
             preparedBlockNumber: Number(corresponding.preparedBlockNumber),
           };
-          if (corresponding.status === TransactionStatus.Fulfilled) {
+          if (corresponding.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -110,10 +113,10 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
               bidSignature: senderTx.bidSignature,
               encodedBid: senderTx.encodedBid,
               encryptedCallData: senderTx.encryptedCallData,
-              status: CrosschainTxStatus.ReceiverFulfilled,
+              status: TransactionStatus.ReceiverFulfilled,
             };
           }
-          if (corresponding.status === TransactionStatus.Cancelled) {
+          if (corresponding.status === SdkTransactionStatus.Cancelled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -124,7 +127,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
               bidSignature: senderTx.bidSignature,
               encodedBid: senderTx.encodedBid,
               encryptedCallData: senderTx.encryptedCallData,
-              status: CrosschainTxStatus.ReceiverCancelled,
+              status: TransactionStatus.ReceiverCancelled,
             };
           }
           return undefined;
@@ -201,4 +204,20 @@ export const getTransactionForChain = async (
         relayerFee: transaction.relayerFee,
       }
     : undefined;
+};
+
+export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
+  const method = "getAssetBalance";
+  const methodId = getUuid();
+  const { wallet } = getContext();
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
+  }
+
+  const assetBalanceId = `${assetId.toLowerCase()}-${wallet.address.toLowerCase()}`;
+  const bal = await sdk.GetAssetBalance({ assetBalanceId });
+  return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };

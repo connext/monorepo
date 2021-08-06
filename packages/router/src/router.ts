@@ -6,6 +6,8 @@ import pino, { BaseLogger } from "pino";
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 import { contractWriter, ContractWriter } from "./adapters/contract";
+import { bindContractReader } from "./bindings/contractReader";
+import { bindMessaging } from "./bindings/messaging";
 
 type Context = {
   config: NxtpRouterConfig;
@@ -54,4 +56,8 @@ export const makeRouter = async () => {
   // adapters
   context.contractReader = subgraphContractReader();
   context.contractWriter = contractWriter();
+
+  // bindings
+  await bindContractReader();
+  await bindMessaging();
 };
