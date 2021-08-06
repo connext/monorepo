@@ -114,10 +114,13 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
               encodedBid: senderTx.encodedBid,
               encryptedCallData: senderTx.encryptedCallData,
               status: TransactionStatus.ReceiverFulfilled,
+              signature: corresponding.signature,
+              callData: corresponding.callData!,
+              relayerFee: corresponding.relayerFee,
             };
           }
           if (corresponding.status === SdkTransactionStatus.Cancelled) {
-            // receiver fulfilled
+            // receiver cancelled
             return {
               crosschainTx: {
                 invariant,

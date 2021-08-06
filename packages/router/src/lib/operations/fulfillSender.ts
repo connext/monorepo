@@ -17,7 +17,7 @@ export const fulfillSender = async (
   logger.info({ method, methodId, requestContext, tx }, "Method start");
 
   const {
-    crosschainTx: { invariant, sending, receiving },
+    crosschainTx: { invariant, sending },
     signature,
     callData,
     relayerFee,
