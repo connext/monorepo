@@ -110,7 +110,12 @@ export class SdkManager {
       receivingAddress: agent.address,
       ...params,
     });
-    await promise;
+    try {
+      await promise;
+    } catch (e) {
+      this.log.error({ error: e.message, timeout }, "Did not get promise");
+      throw new Error(`Transfer not completed within ${timeout / 1000}s`);
+    }
 
     // Wait for small offset for events from agent to propagate to internal
     // class storage
