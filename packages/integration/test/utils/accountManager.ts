@@ -97,4 +97,15 @@ export class OnchainAccountManager {
     }
     return wallets;
   }
+
+  getRandomWallet(excluding: Wallet[] = []) {
+    const addrs = excluding.map((e) => e.address);
+    const filtered = this.wallets.filter((n) => {
+      return !addrs.includes(n.address);
+    });
+    if (filtered.length === 0) {
+      throw new Error("Failed to get random wallet");
+    }
+    return filtered[Math.floor(Math.random() * filtered.length)];
+  }
 }
