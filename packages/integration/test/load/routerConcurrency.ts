@@ -1,3 +1,6 @@
+import * as path from "path";
+// import * as fs from "fs";
+
 import pino from "pino";
 import PriorityQueue from "p-queue";
 
@@ -5,7 +8,14 @@ import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { getOnchainBalance } from "../utils/chain";
 
+// Time to wait before giving up on tx completion
 const TIMEOUT = 15 * 60 * 1000; // 15m in ms
+// Amount to send in each tx (in wei)
+const AMOUNT_PER_TRANSFER = "100000";
+// The max percentage of errors we will accept before exiting the test.
+const ERROR_PERCENTAGE = 0.5;
+// Directory where we store statistics data. Should be ignored by .gitignore.
+// const STATS_DIR = path.join(__dirname, "stats");
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -73,8 +83,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
             agent.address,
             config.chainConfig[sendingChainId].provider,
           );
-          const amount = "100000";
-          if (balance.lt(amount)) {
+          if (balance.lt(AMOUNT_PER_TRANSFER)) {
             throw new Error(`Agent has insufficient funds of ${sendingAssetId}`);
           }
           // TODO: has to work with tokens!
@@ -84,7 +93,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
               sendingChainId,
               receivingAssetId,
               receivingChainId,
-              amount,
+              amount: AMOUNT_PER_TRANSFER,
             },
             TIMEOUT,
             agent,
@@ -102,8 +111,8 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       successful: results.length - errored.length,
       concurrency,
     };
-    if (errored.length === results.length) {
-      log.warn(loopStats, "All failed, exiting increases");
+    if (errored.length / results.length >= ERROR_PERCENTAGE) {
+      log.error(loopStats, "All failed, exiting increases");
       break;
     }
     log.info(loopStats, "Increasing concurrency");
@@ -113,4 +122,4 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
   process.exit(0);
 };
 
-routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));
+routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "3"), parseInt(process.env.NUM_TRANSACTIONS ?? "5"));
