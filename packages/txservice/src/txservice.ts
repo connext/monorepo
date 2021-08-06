@@ -306,7 +306,7 @@ export class TransactionService {
    */
   private async submitTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
+    this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
     const response = await transaction.submit();
     const gas = response.gasPrice ?? transaction.data.gasPrice;
     this.logger.info(
@@ -317,6 +317,7 @@ export class TransactionService {
         attempt: transaction.attempt,
         hash: response.hash,
         gas: `${utils.formatUnits(gas, "gwei")} gwei`,
+        gasLimit: transaction.data.gasLimit.toString(),
         nonce: response.nonce,
       },
       "Tx submitted.",
@@ -331,7 +332,7 @@ export class TransactionService {
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
 
-    this.logger.info({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
+    this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
     const receipt = await transaction.confirm();
     this.logger.info(
       {
@@ -340,7 +341,7 @@ export class TransactionService {
         id: transaction.id,
         attempt: transaction.attempt,
         receipt: {
-          gasUsed: `${utils.formatUnits(receipt.gasUsed, "gwei")} gwei`,
+          gasUsed: receipt.gasUsed.toString(),
           transactionHash: receipt.transactionHash,
           blockHash: receipt.blockHash,
         },

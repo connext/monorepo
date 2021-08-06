@@ -7,7 +7,7 @@ import { err, ok } from "neverthrow";
 import { ChainRpcProvider } from "../src/provider";
 import { Transaction } from "../src/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
-import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
+import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, DEFAULT_GAS_LIMIT } from "./constants";
 import {
   AlreadyMined,
   TimeoutError,
@@ -28,7 +28,7 @@ describe("Transaction", () => {
     (chainProvider as any).confirmationTimeout = 60_000;
     (chainProvider as any).confirmationsRequired = 1;
     TEST_TX_RECEIPT.confirmations = 1;
-    chainProvider.estimateGas.resolves(ok(BigNumber.from(DEFAULT_CONFIG.gasLimit)));
+    chainProvider.estimateGas.resolves(ok(DEFAULT_GAS_LIMIT));
     chainProvider.getGasPrice.resolves(ok(TEST_TX_RESPONSE.gasPrice));
     chainProvider.sendTransaction.resolves(ok(TEST_TX_RESPONSE));
     chainProvider.confirmTransaction.resolves(ok(TEST_TX_RECEIPT));
@@ -96,7 +96,7 @@ describe("Transaction", () => {
         ...TEST_TX,
         gasPrice: TEST_TX_RESPONSE.gasPrice.toString(),
         nonce: undefined,
-        gasLimit: DEFAULT_CONFIG.gasLimit,
+        gasLimit: DEFAULT_GAS_LIMIT.toString(),
       });
     });
 
@@ -255,14 +255,14 @@ describe("Transaction", () => {
     });
 
     it("throws if it would bump above max gas price", async () => {
-      // Make it so the gas price will return exactly == the limit (which is acceptable).
-      (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasLimit);
+      // Make it so the gas price will return exactly == the maximum (which is acceptable).
+      (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasMaximum);
 
       // First call should go through fine.
       const response = await transaction.submit();
       expect(response).to.deep.eq(TEST_TX_RESPONSE);
 
-      // This should throw, as we are attempting to bump above the limit.
+      // This should throw, as we are attempting to bump above the maximum.
       expect(() => transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxGasPriceReached);
     });
   });
