@@ -4,8 +4,14 @@ import PriorityQueue from "p-queue";
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { getOnchainBalance } from "../utils/chain";
+import { writeStatsToFile } from "../utils/reporting";
 
-const TIMEOUT = 15 * 60 * 100; // 15m in ms
+// Time to wait before giving up on tx completion
+const TIMEOUT = 15 * 60 * 1000; // 15m in ms
+// Amount to send in each tx (in wei)
+const AMOUNT_PER_TRANSFER = "100000";
+// The max percentage of errors we will accept before exiting the test.
+const ERROR_PERCENTAGE = 0.5;
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -41,17 +47,17 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     config.natsUrl,
     config.authUrl,
   );
-  log.info({ agents: numberTransactions + 1 }, "Created manager");
+  log.warn({ agents: numberTransactions + 1 }, "Created manager");
 
   // Update with token
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
 
   let concurrency = 0;
-  let loopStats;
+  const stats = [];
 
   for (const _ of Array(maxConcurrency).fill(0)) {
     concurrency += 1;
-    log.info({ concurrency }, "Beginning concurrency test");
+    log.warn({ concurrency }, "Beginning concurrency test");
 
     // Create a queue to hold all payments with the given
     // concurrency
@@ -73,8 +79,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
             agent.address,
             config.chainConfig[sendingChainId].provider,
           );
-          const amount = "100000";
-          if (balance.lt(amount)) {
+          if (balance.lt(AMOUNT_PER_TRANSFER)) {
             throw new Error(`Agent has insufficient funds of ${sendingAssetId}`);
           }
           // TODO: has to work with tokens!
@@ -84,7 +89,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
               sendingChainId,
               receivingAssetId,
               receivingChainId,
-              amount,
+              amount: AMOUNT_PER_TRANSFER,
             },
             TIMEOUT,
             agent,
@@ -96,21 +101,35 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
 
     // TODO: process loop stats
-    const errored = results.filter((x) => !!(x as any).error);
-    loopStats = {
-      errored: errored.length,
-      successful: results.length - errored.length,
+    log.warn({}, "Processing loop stats");
+    const errors = results.map((t) => t.error).filter((e) => !!e);
+    const executionTimes = results.map((t) => t.end! - t.start).sort((a, b) => a - b);
+    const executionTimesMinutes = executionTimes.map((t) => t / 60_000);
+    const avgExecutionTime = executionTimesMinutes.reduce((a, b) => a + b, 0) / executionTimesMinutes.length;
+    const loopStats = {
+      errored: errors.length,
+      successful: results.length - errors.length,
       concurrency,
+      errors,
+      avgExecutionTime: `${avgExecutionTime} min`,
+      medianExecutionTime: `${executionTimesMinutes[Math.floor(executionTimesMinutes.length / 2)]} min`,
+      fastest: `${executionTimesMinutes[0]} min`,
+      slowest: `${executionTimesMinutes[executionTimesMinutes.length - 1]} min`,
     };
-    if (errored.length === results.length) {
-      log.warn(loopStats, "All failed, exiting increases");
+    stats.push(loopStats);
+    if (errors.length / results.length >= ERROR_PERCENTAGE) {
+      log.error({ ...loopStats, errorThreshold: ERROR_PERCENTAGE }, "Passed failing threshold, exiting increases");
       break;
     }
-    log.info(loopStats, "Increasing concurrency");
+    const msg = concurrency === maxConcurrency ? "Completed tests" : "Increasing concurrency";
+    log.warn(loopStats, msg);
   }
 
-  log.info({ maxConcurrency, concurrency }, "Test complete");
+  /// MARK - SAVE RESULTS.
+  writeStatsToFile(`router.concurrency`, stats);
+
+  log.error({ maxConcurrency, concurrency }, "Test complete");
   process.exit(0);
 };
 
-routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "10"), parseInt(process.env.NUM_TRANSACTIONS ?? "15"));
+routerConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "3"), parseInt(process.env.NUM_TRANSACTIONS ?? "5"));

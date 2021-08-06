@@ -4,7 +4,7 @@ services:
   chain-1337:
     container_name: chain-1337-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 14 --verbose"
+    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - 8545:8545
     networks:
@@ -12,7 +12,7 @@ services:
   chain-1338:
     container_name: chain-1338-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 2 --verbose"
+    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - 8546:8545
     networks:
