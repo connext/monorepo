@@ -196,9 +196,9 @@ export class SdkManager {
   }
 
   /**
-   * Prints summary information about transactions
+   * Returns summary information about transactions
    */
-  public printTransferSummary(): TransferSummary {
+  public getTransferSummary(): TransferSummary {
     const times = Object.entries(this.transactionInfo)
       .map(([_transactionId, transfer]) => {
         if (!transfer.end) {
@@ -230,7 +230,6 @@ export class SdkManager {
       completed: times.length,
       failed: errored.length,
     };
-    this.log.error(summary, "Transfer summary");
     return summary;
   }
 }
