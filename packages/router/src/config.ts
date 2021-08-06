@@ -79,6 +79,8 @@ const NxtpRouterConfigSchema = Type.Object({
   authUrl: Type.String(),
   mnemonic: Type.String(),
   swapPools: Type.Array(TSwapPool),
+  port: Type.Number({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
 });
 
 const MIN_GAS = utils.parseEther("0.1");
@@ -155,6 +157,8 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       : configFile.chainConfig,
     swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
+    port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
+    host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
   };
 
   // add contract deployments if they exist

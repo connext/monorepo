@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { getContext } from "../..";
 import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
+import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
 import { getActiveTransactions, getAssetBalance, getTransactionForChain } from "./subgraph";

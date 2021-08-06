@@ -1,6 +1,7 @@
-import { getUuid, RequestContext, TransactionFulfilledEvent, TransactionPreparedEvent } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 import { providers } from "ethers";
-import { getContext } from "../..";
+
+import { getContext } from "../../router";
 import { ActiveTransaction } from "../entities";
 
 const senderFulfilling: Map<string, boolean> = new Map();

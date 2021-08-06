@@ -1,7 +1,7 @@
 import { decodeAuctionBid, getUuid, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
-import { getContext } from "../..";
+import { getContext } from "../../router";
 import { ActiveTransaction } from "../entities";
 import { AuctionSignerInvalid, SenderChainDataInvalid } from "../errors";
 import { getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry } from "../helpers";

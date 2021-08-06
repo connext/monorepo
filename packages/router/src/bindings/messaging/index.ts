@@ -1,8 +1,8 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 
-import { getContext } from "../..";
 import { fulfillReceiver, newAuction } from "../../lib/operations";
+import { getContext } from "../../router";
 
 export const bindMessaging = async () => {
   const { messaging, logger, config } = getContext();

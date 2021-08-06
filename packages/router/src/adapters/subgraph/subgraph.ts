@@ -1,7 +1,7 @@
 import { getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
-import { getContext } from "../..";
+import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../../lib/entities";
 

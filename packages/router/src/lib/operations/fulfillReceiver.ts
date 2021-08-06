@@ -1,7 +1,7 @@
 import { getUuid, MetaTxFulfillPayload, RequestContext } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 
-import { getContext } from "../..";
+import { getContext } from "../../router";
 import { NoChainConfig } from "../errors";
 
 export const fulfillReceiver = async (

@@ -1,6 +1,6 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 
-import { getContext } from "../..";
+import { getContext } from "../../router";
 import { TransactionStatus } from "../../lib/entities";
 import { fulfillSender, prepareReceiver } from "../../lib/operations";
 

@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { logger, Wallet } from "ethers";
 import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino, { BaseLogger } from "pino";
@@ -8,6 +8,7 @@ import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 import { contractWriter, ContractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
+import { bindFastify } from "./bindings/fastify";
 
 type Context = {
   config: NxtpRouterConfig;
@@ -60,4 +61,9 @@ export const makeRouter = async () => {
   // bindings
   await bindContractReader();
   await bindMessaging();
+  await bindFastify();
+
+  logger.info("Router ready 🚀");
 };
+
+makeRouter();

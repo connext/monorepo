@@ -1,7 +1,7 @@
 import { AuctionBid, AuctionPayload, getUuid, RequestContext, signAuctionBid } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 
-import { getContext } from "../..";
+import { getContext } from "../../router";
 import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid } from "../errors";
 import { getBidExpiry, getReceiverAmount } from "../helpers";
 

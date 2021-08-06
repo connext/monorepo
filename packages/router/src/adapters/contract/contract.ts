@@ -4,21 +4,13 @@ import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
-import { getContext } from "../..";
-import { TransactionManagerError } from "../../contract";
+import { getContext } from "../../router";
 
 const getContractAddress = (chainId: number): string => {
-  const method = "getContractAddress ";
-  const methodId = getUuid();
   const { config } = getContext();
   const nxtpContractAddress = config.chainConfig[chainId].transactionManagerAddress;
   if (!nxtpContractAddress) {
-    throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
-      chainId,
-      configError: "No contract exists for chain",
-      methodId,
-      method,
-    });
+    throw new Error(`No contract exists for chain ${chainId}`);
   }
   return nxtpContractAddress;
 };
@@ -93,7 +85,7 @@ export const fulfill = async (
   fulfillParams: FulfillParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "prepare ";
+  const method = "fulfill ";
   const methodId = getUuid();
 
   const { logger, txService, wallet } = getContext();
@@ -122,7 +114,7 @@ export const cancel = async (
   cancelParams: CancelParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "prepare ";
+  const method = "cancel";
   const methodId = getUuid();
 
   const { logger, txService, wallet } = getContext();
@@ -134,6 +126,47 @@ export const cancel = async (
 
   const encodedData = txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
 
+  return await txService.sendTx(
+    {
+      to: nxtpContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
+};
+
+/**
+ * Removes liquidity from the `TransactionManager` on the provided chain.
+ *
+ * @param chainId - The chain to interact with
+ * @param amount - The amount of liquidity you want to remove
+ * @param assetId - The assetId (token address or address(0) for native asset) of the asset you'd like to remove liquidity from onchain.
+ * @param recipientAddress - The address you'd like the funds to be sent to
+ * @returns If successful, returns `TransactionReceipt` for the removeLiquidity transaction. If it fails, returns a `TransactionManagerError`
+ */
+export const removeLiquidity = async (
+  chainId: number,
+  amount: string,
+  assetId: string,
+  recipientAddress: string | undefined,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const method = "removeLiquidity";
+  const methodId = getUuid();
+
+  const { logger, txService, wallet } = getContext();
+  logger.info({ method, methodId, amount, assetId, recipientAddress }, "Method start");
+
+  if (!recipientAddress) {
+    recipientAddress = wallet.address;
+  }
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const encodedData = txManagerInterface.encodeFunctionData("removeLiquidity", [amount, assetId, recipientAddress]);
   return await txService.sendTx(
     {
       to: nxtpContractAddress,
