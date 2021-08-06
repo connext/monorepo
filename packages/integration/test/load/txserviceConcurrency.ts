@@ -48,7 +48,12 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
 
   /// MARK - SETUP MANAGER.
   logger.info({ agents: maxConcurrency }, "Creating manager. This may take a bit...");
-  const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 100));
+  const manager = new OnchainAccountManager(
+    config.chainConfig,
+    config.mnemonic,
+    Math.min(maxConcurrency, 100),
+    logger.child({ name: "OnchainAccountManager" }),
+  );
   logger.info({ agents: maxConcurrency }, "Created manager");
 
   const chains: { [chainId: string]: ChainConfig } = {};
@@ -113,10 +118,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
             start: Date.now(),
           };
           try {
-            const data = testToken.interface.encodeFunctionData("transfer", [
-              agent.address,
-              AMOUNT_PER_TX,
-            ]);
+            const data = testToken.interface.encodeFunctionData("transfer", [agent.address, AMOUNT_PER_TX]);
             await txservice.sendTx(
               {
                 chainId,
@@ -154,7 +156,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
 
     const errored = results.filter((x) => !!x.error);
     // A dictionary-like head count of all the different types of errors we got.
-    const errors: { [message: string]: { count: number; tracebacks: any[] }; } = {};
+    const errors: { [message: string]: { count: number; tracebacks: any[] } } = {};
     errored.forEach((info) => {
       const message = info.error.message || info.error.toString();
       const e = errors[message];
@@ -205,4 +207,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
 };
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY_MAX ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "100"));
+txserviceConcurrencyTest(
+  parseInt(process.env.CONCURRENCY_MAX ?? "1000"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "100"),
+);
