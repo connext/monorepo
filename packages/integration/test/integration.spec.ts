@@ -3,7 +3,7 @@ import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { expect } from "@connext/nxtp-utils";
+import { expect, AuctionResponse } from "@connext/nxtp-utils";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -210,17 +210,23 @@ describe("Integration", () => {
 
   it("should send tokens", async function () {
     this.timeout(120_000);
-    const quote = await userSdk.getTransferQuote({
-      amount: utils.parseEther("1").toString(),
-      receivingAssetId: tokenAddressReceiving,
-      sendingAssetId: tokenAddressSending,
-      receivingAddress: userWallet.address,
-      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-      sendingChainId: SENDING_CHAIN,
-      receivingChainId: RECEIVING_CHAIN,
-    });
 
-    const res = await userSdk.prepareTransfer(quote);
+    let quote: AuctionResponse;
+    try {
+      quote = await userSdk.getTransferQuote({
+        amount: utils.parseEther("1").toString(),
+        receivingAssetId: tokenAddressReceiving,
+        sendingAssetId: tokenAddressSending,
+        receivingAddress: userWallet.address,
+        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+        sendingChainId: SENDING_CHAIN,
+        receivingChainId: RECEIVING_CHAIN,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    const res = await userSdk.prepareTransfer(quote!);
     expect(res.prepareResponse.hash).to.be.ok;
 
     const event = await userSdk.waitFor(
