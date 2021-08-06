@@ -1,6 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
-
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
@@ -11,13 +8,12 @@ import { Zero } from "@ethersproject/constants";
 import { getConfig } from "../utils/config";
 import { OnchainAccountManager } from "../utils/accountManager";
 import { TestTokenABI } from "../utils/chain";
+import { writeStatsToFile } from "../utils/reporting";
 
 // The amount for each transaction in wei.
 const AMOUNT_PER_TX = BigNumber.from("100000");
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
-// Directory where we store statistics data. Should be ignored by .gitignore.
-const STATS_DIR = path.join(__dirname, "stats");
 
 type TransactionInfo = {
   start: number;
@@ -191,18 +187,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
   }
 
   /// MARK - SAVE RESULTS.
-  const statsFile = path.join(STATS_DIR, `report.txservice.concurrency.${new Date().toISOString()}.json`);
-  fs.mkdir(STATS_DIR, (error) => {
-    if (error && error.code !== "EEXIST") {
-      logger.warn({ error }, "Make stats dir failed.");
-    }
-  });
-  logger.info("Saving stats report...");
-  fs.writeFile(statsFile, JSON.stringify(stats), (error) => {
-    if (error) {
-      logger.error({ error }, "Failed to save stats report!");
-    }
-  });
+  writeStatsToFile(`txservice.concurrency`, stats);
   logger.info({ maxConcurrency, concurrency: concurrency - step }, "Test complete.");
 };
 

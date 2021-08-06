@@ -1,12 +1,10 @@
-import * as path from "path";
-import * as fs from "fs";
-
 import pino from "pino";
 import PriorityQueue from "p-queue";
 
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { getOnchainBalance } from "../utils/chain";
+import { writeStatsToFile } from "../utils/reporting";
 
 // Time to wait before giving up on tx completion
 const TIMEOUT = 15 * 60 * 1000; // 15m in ms
@@ -14,8 +12,6 @@ const TIMEOUT = 15 * 60 * 1000; // 15m in ms
 const AMOUNT_PER_TRANSFER = "100000";
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
-// Directory where we store statistics data. Should be ignored by .gitignore.
-const STATS_DIR = path.join(__dirname, "stats");
 
 /**
  * Sets up a basic concurrency test through the router. Will slowly add more agents up to `maxConcurrency` sending the given `numberTransactions` through the router simultaneously
@@ -130,18 +126,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
   }
 
   /// MARK - SAVE RESULTS.
-  const statsFile = path.join(STATS_DIR, `report.router.concurrency.${new Date().toISOString()}.json`);
-  fs.mkdir(STATS_DIR, (error) => {
-    if (error && error.code !== "EEXIST") {
-      log.warn({ error }, "Make stats dir failed.");
-    }
-  });
-  log.warn("Saving stats report...");
-  fs.writeFile(statsFile, JSON.stringify(stats), (error) => {
-    if (error) {
-      log.error({ error }, "Failed to save stats report!");
-    }
-  });
+  writeStatsToFile(`router.concurrency`, stats);
 
   log.error({ maxConcurrency, concurrency }, "Test complete");
   process.exit(0);
