@@ -6,11 +6,12 @@ import {
   cancelParamsMock,
   fakeTxReceipt,
   requestContextMock,
+  getRandomBytes32,
 } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import pino from "pino";
 import { expect } from "chai";
-
+import { BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManager, TransactionManagerError } from "../src/contract";
 
@@ -363,9 +364,9 @@ describe("Contract", () => {
       });
     });
 
-    it.skip("should error if read transaction fails", async () => {
+    it("should error if read transaction fails", async () => {
       const errorMessage = "fails";
-      transactionService.sendTx.rejects(new Error(errorMessage));
+      transactionService.readTx.rejects(new Error(errorMessage));
 
       const res = await transactionManager.getRouterBalance(chainId, assetId);
 
@@ -378,15 +379,17 @@ describe("Contract", () => {
       }
     });
 
-    it.skip("happy case: getRouterBalance", async () => {
-      transactionService.sendTx.resolves(fakeTxReceipt);
+    it("happy case: getRouterBalance", async () => {
+      const fakeData = getRandomBytes32();
+      transactionService.readTx.resolves(fakeData);
 
       const res = await transactionManager.getRouterBalance(chainId, assetId);
 
       expect(res.isOk()).to.be.true;
       expect(res.isErr()).to.be.false;
+
       if (res.isOk()) {
-        expect(res.value).to.be.eq(fakeTxReceipt);
+        expect(res.value.toString()).to.be.eq(BigNumber.from(fakeData).toString());
       }
     });
   });
