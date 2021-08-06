@@ -322,40 +322,38 @@ export class NxtpSdk {
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
   ) {
-
     const method = "constructor";
     const methodId = getRandomBytes32();
 
     if (messaging) {
       this.messaging = messaging;
     } else {
-      let _natsUrl = natsUrl;
-      let _authUrl = authUrl;
+      let _natsUrl;
+      let _authUrl;
       switch (network) {
         case "mainnet": {
-          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
-          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL;
+          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _authUrl = authUrl ?? NATS_AUTH_URL;
           break;
         }
         case "testnet": {
-          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
-          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL_TESTNET;
+          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
           break;
         }
         case "local": {
-          _natsUrl = _natsUrl ? _natsUrl : isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
-          _authUrl = _authUrl ? _authUrl : NATS_AUTH_URL_LOCAL;
+          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
           break;
         }
       }
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
         logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl,
-        authUrl,
+        natsUrl: _natsUrl,
+        authUrl: _authUrl,
       });
     }
-
 
     const txManagerConfig: Record<
       number,
