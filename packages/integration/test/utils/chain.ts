@@ -28,6 +28,7 @@ export const sendGift = async (
   value: string,
   recipient: string,
   funder: Wallet,
+  nonce?: number,
 ): Promise<providers.TransactionResponse> => {
   const toSend = BigNumber.from(value);
   if (toSend.eq(0)) {
@@ -35,7 +36,7 @@ export const sendGift = async (
   }
   const tx =
     assetId === constants.AddressZero
-      ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value) })
-      : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value));
+      ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value), nonce })
+      : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value), { nonce });
   return tx;
 };
