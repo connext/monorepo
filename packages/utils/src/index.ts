@@ -13,4 +13,5 @@ export * from "./basic";
 export * from "./hexStrings";
 export * from "./transactionManager";
 export * from "./request";
+export * from "./mock";
 export * from "./subgraph";

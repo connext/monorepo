@@ -2,25 +2,33 @@ import {
   AuctionPayload,
   createRequestContext,
   FulfillParams,
+  getRandomBytes32,
   mkAddress,
   mkBytes32,
   PrepareParams,
   RequestContext,
   RouterNxtpNatsMessagingService,
+  jsonifyError,
+  mkSig,
+  senderPrepareDataMock,
+  receiverFulfillDataMock,
+  fakeTxReceipt,
+  fulfillParamsMock,
 } from "@connext/nxtp-utils";
+import { err, ok, errAsync } from "neverthrow";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { expect } from "chai";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, SinonStub, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import pino from "pino";
-import { BigNumber, constants, Wallet } from "ethers";
+import { BigNumber, constants, Wallet, utils } from "ethers";
 
-import { Subgraph } from "../src/subgraph";
-import { Handler } from "../src/handler";
+import { Subgraph, SubgraphError } from "../src/subgraph";
+import { TransactionManager as TxManager, TransactionManagerError } from "../src/contract";
+import { getBidExpiry, Handler, HandlerError, mutateExpiry } from "../src/handler";
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
-import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
+import { fakeConfig } from "./utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -30,10 +38,11 @@ const rinkebyTestTokenAddress = "0x8bad6f387643Ae621714Cd739d26071cFBE3d0C9";
 const goerliTestTokenAddress = "0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa";
 
 const MUTATED_AMOUNT = "100";
-const MUTATED_EXPIRY = 123400;
-const BID_EXPIRY = 123401;
 
-const requestContext = createRequestContext("TEST") as unknown as RequestContext;
+const SignatureMock = mkSig("0xeee");
+const mockMethod = "test";
+const mockMethodId = getRandomBytes32();
+const requestContext = (createRequestContext("TEST") as unknown) as RequestContext;
 
 describe("Handler", () => {
   let handler: Handler;
@@ -42,12 +51,19 @@ describe("Handler", () => {
   let subgraph: SinonStubbedInstance<Subgraph>;
   let wallet: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
+  let bidExpiry: number;
+
+  let getConfigMock: SinonStub;
+  let recoverAuctionBidMock: SinonStub;
+  let mutateAmountMock: SinonStub;
+  let validExpiryMock: SinonStub;
 
   const addr = mkAddress("0xb");
 
   beforeEach(() => {
     messaging = createStubInstance(RouterNxtpNatsMessagingService);
     messaging.publishAuctionResponse.resolves(undefined);
+    messaging.publishMetaTxResponse.resolves(undefined);
 
     subgraph = createStubInstance(Subgraph);
 
@@ -57,16 +73,21 @@ describe("Handler", () => {
     txManager.cancel.returns(okAsync(fakeTxReceipt));
 
     txService = createStubInstance(TransactionService);
-    stub(config, "getConfig").returns(fakeConfig);
-    stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
-    stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
-    stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
-    stub(handlerUtils, "recoverAuctionSigner").returns(addr);
-    stub(handlerUtils, "validExpiry").returns(true);
+    recoverAuctionBidMock = stub(handlerUtils, "recoverAuctionBid");
+
+    getConfigMock = stub(config, "getConfig");
+    mutateAmountMock = stub(handlerUtils, "mutateAmount");
+    validExpiryMock = stub(handlerUtils, "validExpiry");
+
+    getConfigMock.returns(fakeConfig);
+    mutateAmountMock.returns(MUTATED_AMOUNT);
+    recoverAuctionBidMock.returns(addr);
+    validExpiryMock.returns(true);
 
     wallet = createStubInstance(Wallet);
+    bidExpiry = getBidExpiry();
     (wallet as any).address = addr; // need to do this differently bc the function doesnt exist on the interface
-    wallet.signMessage.resolves("0xabcdef");
+    wallet.signMessage.resolves(SignatureMock);
 
     handler = new Handler(messaging as any, subgraph as any, txManager as any, txService as any, wallet, logger);
   });
@@ -74,6 +95,31 @@ describe("Handler", () => {
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("class HandlerError", () => {
+    it("happy constructor", () => {
+      const method = "test";
+      const methodId = getRandomBytes32();
+      const error = new HandlerError(HandlerError.reasons.MessagingError, {
+        calling: "messagingService.publishAuctionResponse",
+        methodId,
+        requestContext,
+        method,
+      });
+
+      expect(error.message).to.be.eq(HandlerError.reasons.MessagingError);
+      expect(error.context.method).to.be.eq(method);
+      expect(error.context.methodId).to.be.eq(methodId);
+    });
+  });
+
+  it("happy: mutateExpiry", () => {
+    const day = 3600 * 24;
+    const expiry = Date.now() / 1000 + day * 2;
+    const res = mutateExpiry(expiry);
+
+    expect(Math.floor(res)).to.be.eq(Math.floor(Date.now() / 1000) + day);
   });
 
   describe("handleNewAuction", () => {
@@ -98,13 +144,169 @@ describe("Handler", () => {
       txService.getBalance.resolves(parseEther("1"));
     });
 
+    it("should log error if config errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      getConfigMock.throws(new Error("fails"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(1);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if subgraph.getAssetBalance errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+      subgraph.getAssetBalance.returns(
+        errAsync(
+          new SubgraphError(SubgraphError.reasons.SDKError, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            sdkError: jsonifyError(new Error("fails")),
+          }),
+        ),
+      );
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if not enough available liquidity for auction", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+      mutateAmountMock.returns("1000");
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txService.getBalance errors for sendingChainId", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txService.getBalance.onCall(0).rejects(new Error("fails"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txService.getBalance errors for receivingChainId", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txService.getBalance.onCall(1).rejects(new Error("fails"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txService.getBalance for sendingChainId is lower than minGasFee", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txService.getBalance.onCall(0).resolves(parseEther("0"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txService.getBalance for receivingChainId is lower than minGasFee", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txService.getBalance.onCall(1).resolves(parseEther("0"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if routerSignAuctionBid errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      wallet.signMessage.rejects(new Error("fails"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(wallet.signMessage.callCount).to.eq(1);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if messaging.publishAuctionResponse errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      messaging.publishAuctionResponse.rejects(new Error("fails"));
+
+      await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(subgraph.getAssetBalance.callCount).to.eq(1);
+      expect(txService.getBalance.callCount).to.eq(2);
+      expect(wallet.signMessage.callCount).to.eq(1);
+      expect(messaging.publishAuctionResponse.callCount).to.eq(1);
+      expect(update).to.be.eq("error");
+    });
+
     it("happy: should publish auction response for a valid swap", async () => {
       await handler.handleNewAuction(auctionPayload, "_INBOX.abc", requestContext);
       expect(messaging.publishAuctionResponse.callCount).to.eq(1);
       const publishCall = messaging.publishAuctionResponse.getCall(0);
       expect(publishCall.args[0]).to.eq("_INBOX.abc");
       expect(publishCall.args[1].bid).to.deep.eq({
-        bidExpiry: BID_EXPIRY,
+        bidExpiry: bidExpiry,
         user: auctionPayload.user,
         router: mkAddress("0xb"),
         sendingChainId: auctionPayload.sendingChainId,
@@ -123,13 +325,355 @@ describe("Handler", () => {
         receivingChainTxManagerAddress:
           fakeConfig.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
       });
-      expect(publishCall.args[1].bidSignature).to.eq("0xabcdef");
+      expect(publishCall.args[1].bidSignature).to.eq(SignatureMock);
+    });
+  });
+
+  describe("handleMetaTxRequest", () => {
+    const dataMock = {
+      type: "Fulfill",
+      relayerFee: "1",
+      to: fakeConfig.chainConfig[1337].transactionManagerAddress,
+      data: {
+        Fulfill: fulfillParamsMock,
+      },
+      chainId: 1337,
+    };
+
+    it("should log error if config errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      getConfigMock.throws(new Error("fails"));
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(1);
+      expect(txManager.fulfill.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if config doesn't exist for chainId", async () => {
+      const mock = JSON.parse(JSON.stringify(dataMock));
+      mock.chainId = 1400;
+
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      await handler.handleMetaTxRequest(mock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error iff to !== transactionManagerAddress for chainId", async () => {
+      const mock = JSON.parse(JSON.stringify(dataMock));
+      mock.to = mkAddress("0xa");
+
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      await handler.handleMetaTxRequest(mock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("happy publish: should log error if txManager.fulfill errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txManager.fulfill.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
+            chainId: dataMock.chainId,
+            configError: "No contract exists for chain",
+            method: mockMethod,
+            methodId: mockMethodId,
+          }),
+        ),
+      );
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(1);
+      expect(messaging.publishMetaTxResponse.callCount).to.eq(1);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txManager.fulfill errors as well as messaging publish errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      txManager.fulfill.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, {
+            chainId: dataMock.chainId,
+            configError: "No contract exists for chain",
+            method: mockMethod,
+            methodId: mockMethodId,
+          }),
+        ),
+      );
+
+      messaging.publishMetaTxResponse.rejects(new Error("fails"));
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(1);
+      expect(messaging.publishMetaTxResponse.callCount).to.eq(1);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txManager.fulfill success but messaging publish errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      messaging.publishMetaTxResponse.rejects(new Error("fails"));
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(1);
+      expect(messaging.publishMetaTxResponse.callCount).to.eq(2);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if txManager.fulfill success but messaging publish errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      messaging.publishMetaTxResponse.rejects(new Error("fails"));
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(1);
+      expect(messaging.publishMetaTxResponse.callCount).to.eq(2);
+      expect(update).to.be.eq("error");
+    });
+
+    it("happy handleMetaTxRequest", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      await handler.handleMetaTxRequest(dataMock, "_INBOX.abc", requestContext);
+
+      expect(getConfigMock.callCount).to.eq(2);
+      expect(txManager.fulfill.callCount).to.eq(1);
+      expect(messaging.publishMetaTxResponse.callCount).to.eq(1);
+      expect(update).to.be.eq("error");
     });
   });
 
   describe("handleSenderPrepare", () => {
+    it.skip("should log info if receiverPreparing already", async () => {});
+
+    it("should log error if decodeAuctionBid errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+      ethPrepareDataMock.encodedBid = constants.AddressZero;
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(0);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if recoverAuctionBid errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+
+      recoverAuctionBidMock.throws(new Error("fails"));
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if caller isn't signer", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+
+      recoverAuctionBidMock.returns(mkAddress("0xe"));
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if bid amount is different from txData amount", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+      ethPrepareDataMock.txData.amount = BigNumber.from(senderPrepareDataMock.txData.amount).sub(1).toString();
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if bid transactionId is different from txData transactionId", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+      ethPrepareDataMock.txData.transactionId = getRandomBytes32();
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if bid transactionId is different from txData transactionId", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+      ethPrepareDataMock.txData.transactionId = getRandomBytes32();
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if validExpiry errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+      validExpiryMock.returns(false);
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+      ethPrepareDataMock.txData.expiry = 3600 * 24;
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(0);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if transaction already prepared ", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+
+      txManager.prepare.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            chainId: ethPrepareDataMock.txData.chainId,
+            txServiceError: jsonifyError(new Error("#p:015")),
+          }),
+        ),
+      );
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(1);
+      expect(update).to.be.eq("error");
+    });
+
+    it("should log error if prepare fails ", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
+
+      txManager.prepare.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            chainId: ethPrepareDataMock.txData.chainId,
+            txServiceError: jsonifyError(new Error("fails")),
+          }),
+        ),
+      );
+
+      await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
+
+      expect(recoverAuctionBidMock.callCount).to.be.eq(1);
+      expect(txManager.prepare.callCount).to.be.eq(1);
+      expect(update).to.be.eq("error");
+    });
+
     it("should send prepare for receiving chain with ETH asset", async () => {
-      const ethPrepareDataMock = senderPrepareData;
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
@@ -155,7 +699,7 @@ describe("Handler", () => {
           preparedBlockNumber: ethPrepareDataMock.txData.preparedBlockNumber,
         },
         amount: MUTATED_AMOUNT,
-        expiry: MUTATED_EXPIRY,
+        expiry: mutateExpiry(ethPrepareDataMock.txData.expiry),
         bidSignature: ethPrepareDataMock.bidSignature,
         encodedBid: ethPrepareDataMock.encodedBid,
         encryptedCallData: ethPrepareDataMock.encryptedCallData,
@@ -163,7 +707,7 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = JSON.parse(JSON.stringify(senderPrepareDataMock));
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
@@ -191,7 +735,7 @@ describe("Handler", () => {
           preparedBlockNumber: tokenPrepareData.txData.preparedBlockNumber,
         },
         amount: MUTATED_AMOUNT,
-        expiry: MUTATED_EXPIRY,
+        expiry: mutateExpiry(tokenPrepareData.txData.expiry),
         bidSignature: tokenPrepareData.bidSignature,
         encodedBid: tokenPrepareData.encodedBid,
         encryptedCallData: tokenPrepareData.encryptedCallData,
@@ -200,21 +744,50 @@ describe("Handler", () => {
   });
 
   describe("handleReceiverFulfill", () => {
-    it("should fulfill eth asset", async () => {
+    it("should error if fulfill errors", async () => {
+      let update;
+      logger.on("level-change", (lvl) => {
+        update = lvl;
+      });
+      logger.level = "error"; // trigger event
+
+      const ethReceiverFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       const ethRxFulfillDataMock = {
-        ...receiverFulfillDataMock,
+        ...ethReceiverFulfillDataMock,
         sendingAssetId: constants.AddressZero,
         receivingAssetId: constants.AddressZero,
       };
 
-      const ethPrepareDataMock = senderPrepareData;
+      txManager.fulfill.returns(
+        errAsync(
+          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, {
+            method: mockMethod,
+            methodId: mockMethodId,
+            chainId: ethPrepareDataMock.txData.sendingChainId,
+            txServiceError: jsonifyError(new Error("fails")),
+          }),
+        ),
+      );
+
+      await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
+
+      expect(update).to.be.eq("error");
+    });
+
+    it("should fulfill eth asset", async () => {
+      const ethRxFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      ethRxFulfillDataMock.txData.sendingAssetId = constants.AddressZero;
+      ethRxFulfillDataMock.txData.receivingAssetId = constants.AddressZero;
+
+      const ethPrepareDataMock = JSON.parse(JSON.stringify(senderPrepareDataMock));
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
 
       subgraph.getTransactionForChain.returns(
         okAsync({
           status: TransactionStatus.Prepared,
-          ...senderPrepareData,
+          ...senderPrepareDataMock,
         }),
       );
       await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
@@ -245,13 +818,11 @@ describe("Handler", () => {
 
     it("should fulfill token asset", async () => {
       // change assetIds
-      const tokenRxFulfillDataMock = {
-        ...receiverFulfillDataMock,
-        sendingAssetId: rinkebyTestTokenAddress,
-        receivingAssetId: goerliTestTokenAddress,
-      };
+      const tokenRxFulfillDataMock = JSON.parse(JSON.stringify(receiverFulfillDataMock));
+      tokenRxFulfillDataMock.txData.sendingAssetId = rinkebyTestTokenAddress;
+      tokenRxFulfillDataMock.txData.receivingAssetId = goerliTestTokenAddress;
 
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = JSON.parse(JSON.stringify(senderPrepareDataMock));
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 

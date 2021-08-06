@@ -13,13 +13,20 @@ import {
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
+export const SubgraphUri: { [chainId: number]: string } = {
+  4: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
+  5: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
+  69: "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan",
+  80001: "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai",
+  421611: "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby",
+};
 /**
  * Converts subgraph transactions to properly typed TransactionData
  *
  * @param transaction Subgraph data
  * @returns Properly formatted TransactionData
  */
-const convertTransactionToTxData = (transaction: any): TransactionData => {
+export const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
     user: transaction.user.id,
     router: transaction.router.id,
@@ -30,7 +37,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
-    expiry: transaction.expiry,
+    expiry: parseInt(transaction.expiry),
     callDataHash: transaction.callDataHash,
     callTo: transaction.callTo,
     transactionId: transaction.transactionId,
