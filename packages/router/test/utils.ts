@@ -9,12 +9,21 @@ import {
   AuctionBid,
   encodeAuctionBid,
   mkSig,
+  FulfillParams,
 } from "@connext/nxtp-utils";
 import { providers, constants } from "ethers";
 
+import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
+import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../src/lib/entities";
 
-export const fakeTxReceipt = ({
+export const routerAddrMock = mkAddress("0xb");
+
+export const MUTATED_AMOUNT = "100";
+export const MUTATED_EXPIRY = 123400;
+export const BID_EXPIRY = 123401;
+
+export const txReceiptMock = {
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -28,9 +37,9 @@ export const fakeTxReceipt = ({
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown) as providers.TransactionReceipt;
+} as unknown as providers.TransactionReceipt;
 
-export const fakeConfig: NxtpRouterConfig = {
+export const configMock: NxtpRouterConfig = {
   adminToken: "foo",
   authUrl: "http://example.com",
   chainConfig: {
@@ -61,6 +70,8 @@ export const fakeConfig: NxtpRouterConfig = {
       ],
     },
   ],
+  host: "0.0.0.0",
+  port: 8080,
 };
 
 export const invariantDataMock: InvariantTransactionData = {
@@ -108,20 +119,42 @@ export const txDataMock: TransactionData = {
   ...variantDataMock,
 };
 
-export const senderPrepareData: TransactionPreparedEvent = {
+export const activeTransactionMock: ActiveTransaction = {
+  bidSignature: "0xdbc",
+  encodedBid: "0xdef",
+  encryptedCallData: "0xabc",
+  status: TransactionStatus.SenderPrepared,
+  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+};
+
+export const senderPrepareDataMock: TransactionPreparedEvent = {
   txData: txDataMock,
   caller: mkAddress("0xf"),
   encryptedCallData: "0xabc",
   encodedBid: encodeAuctionBid(auctionBidMock),
   bidSignature: mkSig("0xeee"),
-  transactionHash: mkAddress("0xf"),
 };
 
-export const receiverFulfillDataMock: TransactionFulfilledEvent = {
+export const fulfillParamsMock: FulfillParams = {
   txData: txDataMock,
-  caller: mkAddress("0xf"),
   relayerFee: "5678",
   callData: "0x",
   signature: "0xdeadbeef",
-  transactionHash: mkAddress("0xf"),
 };
+
+export const receiverFulfillDataMock: TransactionFulfilledEvent = {
+  ...fulfillParamsMock,
+  caller: mkAddress("0xf"),
+};
+
+export const singleChainTransactionMock: SingleChainTransaction = {
+  bidSignature: "0xdbc",
+  signature: "0xfee",
+  relayerFee: "12",
+  encodedBid: "0xdef",
+  encryptedCallData: "0xabc",
+  status: SdkTransactionStatus.Fulfilled,
+  txData: { ...invariantDataMock, ...variantDataMock },
+};
+
+export const sigMock = "0xabcdef";

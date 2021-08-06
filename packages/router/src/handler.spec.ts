@@ -16,11 +16,17 @@ import { BigNumber, constants, Wallet } from "ethers";
 
 import { Subgraph } from "../src/subgraph";
 import { Handler } from "../src/handler";
-import * as config from "../src/config";
+import * as config from "./config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import { TransactionManager as TxManager } from "../src/contract";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig, senderPrepareData, receiverFulfillDataMock, fakeTxReceipt, auctionBidMock } from "./utils";
+import {
+  configMock,
+  senderPrepareDataMock,
+  receiverFulfillDataMock,
+  txReceiptMock,
+  auctionBidMock,
+} from "../test/utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -52,12 +58,12 @@ describe("Handler", () => {
     subgraph = createStubInstance(Subgraph);
 
     txManager = createStubInstance(TxManager);
-    txManager.prepare.returns(okAsync(fakeTxReceipt));
-    txManager.fulfill.returns(okAsync(fakeTxReceipt));
-    txManager.cancel.returns(okAsync(fakeTxReceipt));
+    txManager.prepare.returns(okAsync(txReceiptMock));
+    txManager.fulfill.returns(okAsync(txReceiptMock));
+    txManager.cancel.returns(okAsync(txReceiptMock));
 
     txService = createStubInstance(TransactionService);
-    stub(config, "getConfig").returns(fakeConfig);
+    stub(config, "getConfig").returns(configMock);
     stub(handlerUtils, "mutateAmount").returns(MUTATED_AMOUNT);
     stub(handlerUtils, "mutateExpiry").returns(MUTATED_EXPIRY);
     stub(handlerUtils, "getBidExpiry").returns(BID_EXPIRY);
@@ -119,9 +125,9 @@ describe("Handler", () => {
         callDataHash: auctionPayload.callDataHash,
         callTo: auctionPayload.callTo,
         encryptedCallData: auctionPayload.encryptedCallData,
-        sendingChainTxManagerAddress: fakeConfig.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
+        sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
-          fakeConfig.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+          configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
       });
       expect(publishCall.args[1].bidSignature).to.eq("0xabcdef");
     });
@@ -129,7 +135,7 @@ describe("Handler", () => {
 
   describe("handleSenderPrepare", () => {
     it("should send prepare for receiving chain with ETH asset", async () => {
-      const ethPrepareDataMock = senderPrepareData;
+      const ethPrepareDataMock = senderPrepareDataMock;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
       await handler.handleSenderPrepare(ethPrepareDataMock, requestContext);
@@ -163,7 +169,7 @@ describe("Handler", () => {
     });
 
     it("should send prepare for receiving chain with token asset", async () => {
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = senderPrepareDataMock;
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 
@@ -207,14 +213,14 @@ describe("Handler", () => {
         receivingAssetId: constants.AddressZero,
       };
 
-      const ethPrepareDataMock = senderPrepareData;
+      const ethPrepareDataMock = senderPrepareDataMock;
       ethPrepareDataMock.txData.sendingAssetId = constants.AddressZero;
       ethPrepareDataMock.txData.receivingAssetId = constants.AddressZero;
 
       subgraph.getTransactionForChain.returns(
         okAsync({
           status: TransactionStatus.Prepared,
-          ...senderPrepareData,
+          ...senderPrepareDataMock,
         }),
       );
       await handler.handleReceiverFulfill(ethPrepareDataMock, ethRxFulfillDataMock, requestContext);
@@ -251,7 +257,7 @@ describe("Handler", () => {
         receivingAssetId: goerliTestTokenAddress,
       };
 
-      const tokenPrepareData = senderPrepareData;
+      const tokenPrepareData = senderPrepareDataMock;
       tokenPrepareData.txData.sendingAssetId = rinkebyTestTokenAddress;
       tokenPrepareData.txData.receivingAssetId = goerliTestTokenAddress;
 

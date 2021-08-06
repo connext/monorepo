@@ -35,6 +35,7 @@ export const newAuction = async (
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
   const amountReceived = getReceiverAmount(amount);
+  console.log("amountReceived: ", amountReceived);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   if (balance.lt(amountReceived)) {

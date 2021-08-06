@@ -107,17 +107,13 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
     if (json) {
       configFile = JSON.parse(json);
-      console.log("Found configFile");
     }
-  } catch (e) {
-    console.warn("No config file available, trying env vars...", e);
-  }
+  } catch (e) {}
   // return configFile;
 
   if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-      if (configJson) console.log("Found process.env.NXTP_CONFIG_FILE");
     } catch (e) {
       console.warn("No NXTP_CONFIG_FILE exists...");
     }
@@ -191,11 +187,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
     throw new Error(validate.errors?.map((err) => err.message).join(","));
   }
 
-  console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
   return nxtpConfig;
 };
 

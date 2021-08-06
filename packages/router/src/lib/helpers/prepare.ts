@@ -1,4 +1,9 @@
-import { AuctionBid, calculateExchangeAmount, recoverAuctionBid as _recoverAuctionBid } from "@connext/nxtp-utils";
+import {
+  AuctionBid,
+  calculateExchangeAmount,
+  recoverAuctionBid as _recoverAuctionBid,
+  decodeAuctionBid as _decodeAuctionBid,
+} from "@connext/nxtp-utils";
 
 const EXPIRY_DECREMENT = 3600 * 24;
 const SWAP_RATE = "0.9995"; // 0.05% fee
@@ -44,3 +49,5 @@ export const getReceiverExpiry = (expiry: number): number => {
 export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
   return _recoverAuctionBid(bid, signature);
 };
+
+export const decodeAuctionBid = _decodeAuctionBid;

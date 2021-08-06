@@ -10,7 +10,7 @@ import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
 
-type Context = {
+export type Context = {
   config: NxtpRouterConfig;
   wallet: Wallet;
   logger: BaseLogger;
@@ -22,7 +22,7 @@ type Context = {
 
 const context: Context = {} as any;
 export const getContext = (): Context => {
-  if (!context) {
+  if (!context || Object.keys(context).length === 0) {
     throw new Error("Context not created");
   }
   return context;
@@ -36,6 +36,7 @@ export const makeRouter = async () => {
     level: context.config.logLevel,
     name: context.wallet.address,
   });
+  context.logger.info({ config: { ...context.config, mnemonic: "......." } }, "Config generated");
   context.messaging = new RouterNxtpNatsMessagingService({
     signer: context.wallet,
     authUrl: context.config.authUrl,
@@ -65,5 +66,3 @@ export const makeRouter = async () => {
 
   logger.info("Router ready 🚀");
 };
-
-makeRouter();
