@@ -79,7 +79,6 @@ describe("NxtpSdk", () => {
     });
 
     it("happy convertTransactionToTxData", () => {
-      console.log(transactionSubgraphMock);
       const res = convertTransactionToTxData(transactionSubgraphMock);
       expect(res).to.include(txDataMock);
     });
