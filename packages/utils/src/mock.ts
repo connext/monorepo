@@ -1,3 +1,5 @@
+import { providers, constants } from "ethers";
+
 import {
   mkAddress,
   mkBytes32,
@@ -14,9 +16,8 @@ import {
   FulfillParams,
   CancelParams,
 } from "./index";
-import { providers, constants } from "ethers";
 
-export const fakeTxReceipt = ({
+export const fakeTxReceipt = {
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -30,7 +31,7 @@ export const fakeTxReceipt = ({
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown) as providers.TransactionReceipt;
+} as unknown as providers.TransactionReceipt;
 
 export const invariantDataMock: InvariantTransactionData = {
   user: mkAddress("0xa"),
