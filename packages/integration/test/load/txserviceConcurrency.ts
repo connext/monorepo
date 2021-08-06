@@ -1,37 +1,55 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
 import { RequestContext } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
+import { Zero } from "@ethersproject/constants";
 
-import { TransactionInfo } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { OnchainAccountManager } from "../utils/accountManager";
+import { TestTokenABI } from "../utils/chain";
+
+// The amount for each transaction in wei.
+const AMOUNT_PER_TX = BigNumber.from("100000");
+// The max percentage of errors we will accept before exiting the test.
+const ERROR_PERCENTAGE = 0.5;
+// Directory where we store statistics data. Should be ignored by .gitignore.
+const STATS_DIR = path.join(__dirname, "stats");
+
+type TransactionInfo = {
+  start: number;
+  end?: number;
+  error?: any;
+};
 
 /**
  * Sets up a basic concurrency test through the core TransactionService only. Will slowly add more agents up to `maxConcurrency` sending transactions.
  * @param maxConcurrency - Concurrency to build up to. We start at 1, and work up to this number. On each iteration, the concurrency value will be the number of agents who will do transactions simultaneously.
  * @param step - Step by which we increase the concurrency.
- * 
+ *
  * @remarks
  * Quick start:
- * 1. First run
+ * 1. If running locally:
  *        yarn workspace @connext/nxtp-integration docker:all:down && yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh
- * 2. In another terminal run
+ *    Otherwise:
+ *        yarn workspace @connext/nxtp-integration docker:all:down && yarn workspace @connext/nxtp-integration docker:messaging:up && bash setup-integration-test.sh
+ * 2. Then run:
  *        yarn workspace @connext/nxtp-integration concurrency:txservice
  */
-const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promise<void> => {
-  const config = getConfig();
-  const logger = pino({ level: config.logLevel ?? "info" });
+const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localChain = false): Promise<void> => {
+  let concurrency: number;
+  const config = getConfig(localChain);
+  const logger: pino.Logger = pino({ level: config.logLevel ?? "info" });
+  // For these tests, unless we are running on local, we should default to rinkeby.
+  const chainId = localChain ? parseInt(Object.keys(config.chainConfig)[0]) : 4;
 
-  // Just pick the first chain in the config.
-  const chainId = parseInt(Object.keys(config.chainConfig)[0]);
-
-  // Create manager.
+  /// MARK - SETUP MANAGER.
   logger.info({ agents: maxConcurrency }, "Creating manager. This may take a bit...");
   const manager = new OnchainAccountManager(config.chainConfig, config.mnemonic, Math.min(maxConcurrency, 100));
   logger.info({ agents: maxConcurrency }, "Created manager");
-
 
   const chains: { [chainId: string]: ChainConfig } = {};
   Object.entries(config.chainConfig).forEach(([chainId, config]) => {
@@ -41,41 +59,74 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
     } as ChainConfig;
   });
 
-  // Set up a transaction service instance.
-  const txservice = new TransactionService(
-    logger,
-    manager.funder,
-    { chains },
+  /// MARK - SETUP TX SERVICE.
+  logger.info("Creating TransactionService...");
+  const txservice = new TransactionService(logger, manager.funder, { chains });
+  logger.info("Creating Contract...");
+  const testToken = new Contract(
+    "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
+    TestTokenABI,
+    config.chainConfig[chainId].provider,
   );
 
+  /// MARK - VALIDATE FUNDS.
+  // Make sure the funder has enough funding for this test.
+  let totalNumberOfTransactions = 0;
+  for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
+    totalNumberOfTransactions += concurrency;
+  }
+  const totalCost = BigNumber.from(totalNumberOfTransactions).mul(AMOUNT_PER_TX);
+  logger.info(
+    { totalNumberOfTransactions, totalCost: utils.formatUnits(totalCost, "ether") },
+    "Total number of transactions to send.",
+  );
+  const funderBalance = await testToken.balanceOf(manager.funder.address);
+  if (funderBalance.lt(totalCost)) {
+    throw new Error(
+      `Funder does not have enough funds. Needs ${utils.formatUnits(
+        totalCost,
+        "ether",
+      )} eth but only has ${utils.formatUnits(funderBalance, "ether")}`,
+    );
+  } else {
+    logger.info(
+      { balance: utils.formatUnits(funderBalance, "ether"), needed: utils.formatUnits(totalCost, "ether") },
+      "Funder has enough funds",
+    );
+  }
+
+  /// MARK - TEST LOOP.
   logger.info("Beginning concurrency test.");
-  let concurrency: number;
-  let loopStats;
+  const stats: any[] = [];
+  let loopNumber = 1;
   for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
     // Create a queue to hold all payments with the given
     // concurrency
-    const queue = new PriorityQueue ({ concurrency });
+    const queue = new PriorityQueue({ concurrency });
 
     const tasks = Array(concurrency)
       .fill(0)
-      .map((_, i) => {
+      .map((_: any, i: number) => {
         const task = async () => {
           const agent = manager.getRandomWallet();
-          const amount = "100000";
           const txInfo: TransactionInfo = {
             start: Date.now(),
           };
           try {
+            const data = testToken.interface.encodeFunctionData("transfer", [
+              agent.address,
+              AMOUNT_PER_TX,
+            ]);
             await txservice.sendTx(
               {
                 chainId,
-                to: agent.address,
+                to: testToken.address,
                 from: manager.funder.address,
-                data: "0x00",
-                value: BigNumber.from(amount),
+                data: data,
+                value: Zero,
               } as WriteTransaction,
               {
-                id: `C${concurrency}:U${i+1}`,
+                id: `C${concurrency}:U${i + 1}`,
                 origin: "concurrencyTest",
               } as RequestContext,
             );
@@ -101,27 +152,57 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1): Promi
       });
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
 
-    const errored = results.filter((x) => !!(x as any).error);
-    loopStats = {
+    const errored = results.filter((x) => !!x.error);
+    // A dictionary-like head count of all the different types of errors we got.
+    const errors: { [message: string]: { count: number; tracebacks: any[] }; } = {};
+    errored.forEach((info) => {
+      const message = info.error.message || info.error.toString();
+      const e = errors[message];
+      errors[message] = {
+        count: e ? e.count + 1 : 1,
+        tracebacks: e ? e.tracebacks.concat(e) : [e],
+      };
+    });
+
+    const executionTimes = results.map((x) => x.end! - x.start);
+    const avgExecutionTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+    const iterationData = {
+      loopNumber,
+      concurrency,
+      averageExecutionTime: `${avgExecutionTime / 60} min`,
+      medianExecutionTime: `${executionTimes[Math.floor(executionTimes.length / 2)]} min`,
       errored: errored.length,
       successful: results.length - errored.length,
-      concurrency,
+      errors,
     };
-    // NOTE: We are currently exiting once we receive at least one error.
-    if (errored.length > 0) {
+    stats.push(iterationData);
+    // NOTE: We are currently exiting once we receive ERROR_PERCENTAGE errors out of the total.
+    if (errored.length > concurrency * ERROR_PERCENTAGE) {
       for (const error of errored) {
         logger.error(error);
       }
-      logger.warn(loopStats, "Received errors, exiting.");
+      logger.warn(iterationData, "Received errors, exiting.");
       break;
     }
-    logger.info(loopStats, "Increasing concurrency.");
+    logger.info(iterationData, `Loop ${loopNumber}`);
+    loopNumber++;
   }
 
-  // TODO: Save to file stats, errors, etc.
-  logger.info({ maxConcurrency, concurrency }, "Test complete.");
-  process.exit(0);
+  /// MARK - SAVE RESULTS.
+  const statsFile = path.join(STATS_DIR, `report.txservice.concurrency.${new Date().toISOString()}.json`);
+  fs.mkdir(STATS_DIR, (error) => {
+    if (error && error.code !== "EEXIST") {
+      logger.warn({ error }, "Make stats dir failed.");
+    }
+  });
+  logger.info("Saving stats report...");
+  fs.writeFile(statsFile, JSON.stringify(stats), (error) => {
+    if (error) {
+      logger.error({ error }, "Failed to save stats report!");
+    }
+  });
+  logger.info({ maxConcurrency, concurrency: concurrency - step }, "Test complete.");
 };
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
-txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "500"));
+txserviceConcurrencyTest(parseInt(process.env.CONCURRENCY_MAX ?? "1000"), parseInt(process.env.CONCURRENCY_STEP ?? "100"));
