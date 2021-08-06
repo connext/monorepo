@@ -67,10 +67,12 @@ export class OnchainAccountManager {
     }
 
     // fund with sugardaddy
-    const receipt = await funderQueue.add(() =>
-      sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
-    );
+    const response = await funderQueue.add(() => {
+      this.log.debug({ assetId, to: account, from: this.funder.address, value: remainder.toString() }, "Sending gift");
+      return sendGift(assetId, remainder.toString(), account, this.funder.connect(provider));
+    });
 
+    const receipt = await response.wait(1);
     this.log.info({ assetId, account, txHash: receipt.transactionHash }, "Topped up account");
     // confirm balance
     const final = await provider.getBalance(account);

@@ -23,11 +23,19 @@ export const getOnchainBalance = async (
     : new Contract(assetId, TestTokenABI, provider).balanceOf(address);
 };
 
-export const sendGift = async (assetId: string, value: string, recipient: string, funder: Wallet) => {
+export const sendGift = async (
+  assetId: string,
+  value: string,
+  recipient: string,
+  funder: Wallet,
+): Promise<providers.TransactionResponse> => {
+  const toSend = BigNumber.from(value);
+  if (toSend.eq(0)) {
+    throw new Error(`Cannot send gift of 0`);
+  }
   const tx =
     assetId === constants.AddressZero
       ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value) })
       : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value));
-  const receipt = await tx.wait();
-  return receipt;
+  return tx;
 };
