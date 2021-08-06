@@ -34,7 +34,7 @@ const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const { AddressZero } = constants;
 const response = "connected";
 
-describe("NxtpSdk", () => {
+describe.only("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
@@ -76,7 +76,7 @@ describe("NxtpSdk", () => {
     sdkSignFulfillTransactionPayloadMock = stub(sdkUtils, "sdkSignFulfillTransactionPayload");
     recoverAuctionSignerMock = stub(sdkUtils, "recoverAuctionSigner");
 
-    stub(sdkUtils, "AUCTION_TIMEOUT").resolves("1_000");
+    stub(sdkUtils, "AUCTION_TIMEOUT").value("1_000");
 
     sdkSignFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -719,25 +719,6 @@ describe("NxtpSdk", () => {
         expect(error.context.transactionId).to.be.eq(transaction.transactionId);
       });
 
-      it("invalid caller", async () => {
-        const { transaction, record } = await getTransactionData();
-        let error;
-        try {
-          await sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          });
-        } catch (e) {
-          error = e;
-        }
-        expect(error).to.be.an("error");
-        expect(error.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
-        expect(error.context.transactionId).to.be.eq(transaction.transactionId);
-      });
-
       it("invalid encryptedCallData", async () => {
         const { transaction, record } = await getTransactionData();
         let error;
@@ -808,7 +789,6 @@ describe("NxtpSdk", () => {
       try {
         await sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
-
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
