@@ -37,7 +37,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
-    expiry: transaction.expiry,
+    expiry: parseInt(transaction.expiry),
     callDataHash: transaction.callDataHash,
     callTo: transaction.callTo,
     transactionId: transaction.transactionId,
