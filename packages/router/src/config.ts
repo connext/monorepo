@@ -110,14 +110,13 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   } catch (e) {
     console.warn("No config file available, trying env vars...", e);
   }
-  // return configFile;
 
   if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
       if (configJson) console.log("Found process.env.NXTP_CONFIG_FILE");
     } catch (e) {
-      console.warn("No NXTP_CONFIG_FILE exists...");
+      console.warn("No NXTP_CONFIG exists...");
     }
   }
 
@@ -153,7 +152,11 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
-    swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
+    swapPools: process.env.NXTP_SWAP_POOLS
+      ? JSON.parse(process.env.NXTP_SWAP_POOLS)
+      : configJson.swapPools
+      ? configJson.swapPools
+      : configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
   };
 
@@ -163,9 +166,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
@@ -187,7 +190,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
+    console.error(`Invalid config: ${JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2)}`);
     throw new Error(validate.errors?.map((err) => err.message).join(","));
   }
 
