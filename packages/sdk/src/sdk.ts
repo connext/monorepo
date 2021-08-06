@@ -16,9 +16,9 @@ import {
   generateMessagingInbox,
   AuctionResponse,
   encodeAuctionBid,
-  recoverAuctionBid,
   InvariantTransactionData,
-  signFulfillTransactionPayload,
+  recoverAuctionBid as _recoverAuctionBid,
+  signFulfillTransactionPayload as _signFulfillTransactionPayload,
   MetaTxResponse,
   jsonifyError,
   NxtpError,
@@ -277,12 +277,12 @@ export class NxtpSdkError extends NxtpError {
  * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
  *
  */
-export const sdkSignFulfillTransactionPayload = async (
+export const signFulfillTransactionPayload = async (
   transactionId: string,
   relayerFee: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  return await signFulfillTransactionPayload(transactionId, relayerFee, signer);
+  return await _signFulfillTransactionPayload(transactionId, relayerFee, signer);
 };
 
 /**
@@ -292,8 +292,8 @@ export const sdkSignFulfillTransactionPayload = async (
  * @param signature - Signature to recover signer of
  * @returns Recovered signer
  */
-export const recoverAuctionSigner = (bid: AuctionBid, signature: string): string => {
-  return recoverAuctionBid(bid, signature);
+export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
+  return _recoverAuctionBid(bid, signature);
 };
 
 /**
@@ -597,7 +597,7 @@ export class NxtpSdk {
           } else {
             // validate bid
             // check router sig on bid
-            const signer = recoverAuctionSigner(data.bid, data.bidSignature ?? "");
+            const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
             if (signer !== data.bid.router) {
               this.logger.error(
                 { method, methodId, signer, router: data.bid.router },
@@ -925,7 +925,7 @@ export class NxtpSdk {
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      sdkSignFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,

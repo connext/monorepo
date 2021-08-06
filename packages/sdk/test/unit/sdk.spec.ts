@@ -42,8 +42,8 @@ describe("NxtpSdk", () => {
   let transactionManager: SinonStubbedInstance<TransactionManager>;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
-  let sdkSignFulfillTransactionPayloadMock: SinonStub;
-  let recoverAuctionSignerMock: SinonStub;
+  let signFulfillTransactionPayloadMock: SinonStub;
+  let recoverAuctionBidMock: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -73,12 +73,12 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
-    sdkSignFulfillTransactionPayloadMock = stub(sdkUtils, "sdkSignFulfillTransactionPayload");
-    recoverAuctionSignerMock = stub(sdkUtils, "recoverAuctionSigner");
+    signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
+    recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
 
     stub(sdkUtils, "AUCTION_TIMEOUT").value("1_000");
 
-    sdkSignFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
+    signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
     messaging.isConnected.resolves(true);
     messaging.publishMetaTxRequest.resolves({ inbox: "inbox" });
@@ -387,7 +387,7 @@ describe("NxtpSdk", () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
-      recoverAuctionSignerMock.returns(auctionBid.user);
+      recoverAuctionBidMock.returns(auctionBid.user);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
       let error;
@@ -408,7 +408,7 @@ describe("NxtpSdk", () => {
       const mockMethodId = getRandomBytes32();
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
-      recoverAuctionSignerMock.returns(auctionBid.router);
+      recoverAuctionBidMock.returns(auctionBid.router);
 
       transactionManager.getRouterLiquidity.returns(
         errAsync(
@@ -435,7 +435,7 @@ describe("NxtpSdk", () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
-      recoverAuctionSignerMock.returns(auctionBid.router);
+      recoverAuctionBidMock.returns(auctionBid.router);
 
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived).sub("1")));
 
@@ -457,7 +457,7 @@ describe("NxtpSdk", () => {
       crossChainParamsMock.amount = "100000000";
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
-      recoverAuctionSignerMock.returns(auctionBid.router);
+      recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
       let error;
@@ -491,7 +491,7 @@ describe("NxtpSdk", () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
-      recoverAuctionSignerMock.returns(auctionBid.router);
+      recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
       let error;
@@ -784,7 +784,7 @@ describe("NxtpSdk", () => {
     it("should error if signFulfillTransactionPayload errors", async () => {
       const { transaction, record } = await getTransactionData();
 
-      sdkSignFulfillTransactionPayloadMock.rejects(new Error("fails"));
+      signFulfillTransactionPayloadMock.rejects(new Error("fails"));
       let error;
       try {
         await sdk.fulfillTransfer({
@@ -857,7 +857,7 @@ describe("NxtpSdk", () => {
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
 
-      sdkSignFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
+      signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
       transactionManager.fulfill.returns(
         errAsync(
