@@ -19,6 +19,7 @@ import {
 import {
   AuctionResponse,
   getRandomBytes32,
+  jsonifyError,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
@@ -152,6 +153,7 @@ export class SdkAgent {
       try {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
+        this.logger.error({ transactionId: data.txData.transactionId, error: jsonifyError(e) }, "Fulfilling failed");
         error = e.message;
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
           error: error!,
@@ -257,6 +259,7 @@ export class SdkAgent {
 
       // Transfer will auto-fulfill based on established listeners
     } catch (e) {
+      this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e) }, "Preparing failed");
       this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
       this.evts.TransactionCompleted.post({
         transactionId: bid.transactionId,

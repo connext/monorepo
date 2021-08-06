@@ -217,7 +217,10 @@ export class Subgraph {
                   status: SubgraphEvents.ReceiverTransactionPrepared,
                 };
                 if (!active) {
-                  this.logger.warn({ transactionId: invariant.transactionId }, "Missing active sender tx");
+                  this.logger.warn(
+                    { transactionId: invariant.transactionId, active: this.activeTxs.keys() },
+                    "Missing active sender tx",
+                  );
                 }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
