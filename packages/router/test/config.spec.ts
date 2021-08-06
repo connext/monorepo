@@ -10,6 +10,45 @@ describe("Config", () => {
   });
 
   describe("getEnvConfig", () => {
+    it("should read config from NXTP Config with testnet network values ovveridden", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify(fakeConfig),
+      });
+
+      let res;
+      let error;
+
+      try {
+        res = getEnvConfig();
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+    });
+
+    it("should read config from NXTP Config with local network values ovveridden", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify(fakeConfig),
+      });
+
+      let res;
+      let error;
+
+      try {
+        res = getEnvConfig();
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).to.be.undefined;
+    });
+
     it("should read config from default filepath", () => {
       stub(process, "env").value({
         ...process.env,
@@ -25,11 +64,9 @@ describe("Config", () => {
         error = e;
       }
 
-      console.log(error);
       expect(error).to.be.undefined;
     });
-  });
-  describe("getConfig", () => {
+
     it("should getEnvConfig", () => {
       stub(process, "env").value({
         ...process.env,
@@ -50,8 +87,6 @@ describe("Config", () => {
       } catch (e) {
         error = e;
       }
-
-      console.log(error);
 
       expect(error).to.be.undefined;
     });
