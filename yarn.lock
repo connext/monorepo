@@ -1817,6 +1817,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
