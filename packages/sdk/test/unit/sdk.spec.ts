@@ -400,6 +400,8 @@ describe("NxtpSdk", () => {
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
       expect(error.context.transactionId).to.be.eq(crossChainParams.transactionId);
       expect(error.context.auctionError.message).to.include("No bids received");
+      expect(error.context.invalidBids[0].error.message).to.include("Invalid router signature on bid");
+      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
     });
 
     it("should log error if getRouterLiquidity errors", async () => {
@@ -429,6 +431,8 @@ describe("NxtpSdk", () => {
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
       expect(error.context.auctionError.message).to.include("No bids received");
+      expect(error.context.invalidBids[0].error.message).to.include(TransactionManagerError.reasons.TxServiceError);
+      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
     });
 
     it("should log error if router liquidity is lower than amountReceived", async () => {
@@ -448,6 +452,8 @@ describe("NxtpSdk", () => {
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
       expect(error.context.auctionError.message).to.include("No bids received");
+      expect(error.context.invalidBids[0].error.message).to.include("Router's liquidity low");
+      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
     });
 
     it("should log error if amountReceived is lower than lower bound", async () => {
@@ -469,6 +475,10 @@ describe("NxtpSdk", () => {
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
       expect(error.context.auctionError.message).to.include("No bids received");
+      expect(error.context.invalidBids[0].error.message).to.include(
+        "Invalid bid price: price impact is more than the slippage tolerance",
+      );
+      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
     });
 
     it("happy: should get a transfer quote => dryRun ", async () => {
