@@ -275,7 +275,12 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info({ methodId, methodName, all }, "Queried active txs");
+      this.logger.info({
+        methodName,
+        methodId,
+        active: all.map((a) => a.crosschainTx.invariant.transactionId).join(","),
+      });
+      this.logger.debug({ methodId, methodName, all }, "Queried active txs");
     }
     return all;
   }
