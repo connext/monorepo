@@ -33,7 +33,7 @@
     ]
   },
   "eslintIgnore": [
-    "./src/adapters/subgraph/graphqlsdk.ts"
+    "graphqlsdk.ts"
   ],
   "author": "Connext",
   "license": "ISC",
