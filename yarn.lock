@@ -1855,7 +1855,6 @@ __metadata:
     "@types/mocha": ^9.0.0
     "@types/pino": ^6.3.11
     "@types/sinon": ^10.0.2
-    "@types/sinon-chai": ^3
     "@typescript-eslint/eslint-plugin": ^4.28.5
     adv: ^0.1.5
     ajv: ^8.6.2
@@ -1881,7 +1880,6 @@ __metadata:
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^11.1.2
-    sinon-chai: ^3.7.0
     ts-mocha: ^8.0.0
     ts-node: ^10.1.0
     tslib: ^2.3.0
