@@ -3,6 +3,7 @@ import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import { getContext } from "../../router";
 import { TransactionStatus } from "../../lib/entities";
 import { fulfillSender, prepareReceiver } from "../../lib/operations";
+import { cancelSender } from "../../lib/operations/cancelSender";
 
 const LOOP_INTERVAL = 15_000;
 
@@ -10,7 +11,7 @@ export const bindContractReader = async () => {
   const { contractReader, logger } = getContext();
   setInterval(async () => {
     const transactions = await contractReader.getActiveTransactions();
-    transactions.forEach(async (transaction) => {
+    transactions.forEach(async (transaction): Promise<void> => {
       if (transaction.status === TransactionStatus.SenderPrepared) {
         const requestContext = createRequestContext("ContractReader => SenderPrepared");
         try {
@@ -19,6 +20,11 @@ export const bindContractReader = async () => {
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Prepared receiver");
         } catch (err) {
           logger.error({ err: jsonifyError(err), requestContext }, "Error preparing receiver");
+          if (err.cancellable === true) {
+            logger.error({ requestContext }, "Cancellable validation error, cancelling");
+            const cancelRes = await cancelSender(transaction, requestContext);
+            logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
+          }
         }
       } else if ((transaction.status = TransactionStatus.ReceiverFulfilled)) {
         const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");

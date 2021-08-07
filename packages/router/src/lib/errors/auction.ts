@@ -2,6 +2,7 @@ import { NxtpError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 export class NotEnoughLiquidity extends NxtpError {
+  cancellable = true;
   constructor(chainId: number, context: any = {}) {
     super(`Not enough liquidity for chainId ${chainId}`, context, "NotEnoughLiquidity");
   }

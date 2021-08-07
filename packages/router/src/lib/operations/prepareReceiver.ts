@@ -3,7 +3,7 @@ import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { ActiveTransaction } from "../entities";
-import { AuctionSignerInvalid, SenderChainDataInvalid } from "../errors";
+import { AuctionSignerInvalid, ExpiryInvalid, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
 import { decodeAuctionBid, getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry } from "../helpers";
 
 export const receiverPreparing: Map<string, boolean> = new Map();
@@ -15,7 +15,7 @@ export const prepareReceiver = async (
   const method = "prepareReceiver";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter } = getContext();
+  const { logger, wallet, contractWriter, contractReader } = getContext();
   logger.info({ method, methodId, tx, requestContext }, "Method start");
 
   const { crosschainTx, bidSignature, encodedBid, encryptedCallData } = tx;
@@ -32,31 +32,28 @@ export const prepareReceiver = async (
 
   const recovered = recoverAuctionBid(bid, bidSignature);
   if (recovered !== wallet.address) {
+    // cancellable error
     throw new AuctionSignerInvalid(wallet.address, recovered, { method, methodId, requestContext });
   }
 
   if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
+    // cancellable error
     throw new SenderChainDataInvalid({ method, methodId, requestContext });
   }
 
   const receiverAmount = getReceiverAmount(txData.amount);
-  // TODO: validate
+  const routerBalance = await contractReader.getAssetBalance(
+    crosschainTx.invariant.receivingAssetId,
+    crosschainTx.invariant.receivingChainId,
+  );
+  if (routerBalance.lt(receiverAmount)) {
+    throw new NotEnoughLiquidity(crosschainTx.invariant.receivingChainId, { method, methodId, requestContext });
+  }
 
-  // cancellable
   const receiverExpiry = getReceiverExpiry(txData.expiry);
   if (!validExpiry(receiverExpiry)) {
-    logger.error({ method, methodId, requestContext }, "Invalid expiry, cancelling");
-    const cancelRes = await contractWriter.cancel(
-      txData.sendingChainId,
-      {
-        relayerFee: "0",
-        txData,
-        signature: "0x",
-      },
-      requestContext,
-    );
-    logger.info({ method, methodId, requestContext, txHash: cancelRes.transactionHash }, "Cancelled transaction");
-    return cancelRes;
+    // cancellable error
+    throw new ExpiryInvalid(receiverExpiry, { method, methodId, requestContext });
   }
 
   logger.info({ method, methodId, requestContext }, "Validated input");
@@ -99,8 +96,6 @@ export const prepareReceiver = async (
     );
     logger.info({ method, methodId, transactionId: txData.transactionId }, "Sent receiver prepare tx");
     return receipt;
-  } catch (err) {
-    throw err;
   } finally {
     receiverPreparing.delete(txData.transactionId);
   }

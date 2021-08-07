@@ -13,12 +13,14 @@ import {
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import { activeTransactionMock, MUTATED_AMOUNT, MUTATED_EXPIRY, routerAddrMock } from "../../utils";
 import { prepareReceiver } from "../../../src/lib/operations";
-import { contractWriterMock } from "../../globalTestHook";
+import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
 import { receiverPreparing } from "../../../src/lib/operations/prepareReceiver";
 
 const requestContext = createRequestContext("TEST");
 
-let recoverAuctionBidStub: SinonStub;
+let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], string>;
+let validExpiryStub: SinonStub<[expiry: number], boolean>;
+let decodeAuctionBidStub: SinonStub<[data: string], AuctionBid>;
 
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
@@ -26,8 +28,8 @@ describe("Prepare Receiver Operation", () => {
       stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);
       stub(PrepareHelperFns, "getReceiverExpiry").returns(MUTATED_EXPIRY);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
-      stub(PrepareHelperFns, "validExpiry").returns(true);
-      stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
+      validExpiryStub = stub(PrepareHelperFns, "validExpiry").returns(true);
+      decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
     });
 
     it("should not prepare if already preparing", async () => {
@@ -42,6 +44,33 @@ describe("Prepare Receiver Operation", () => {
       await expect(prepareReceiver(activeTransactionMock, requestContext)).to.eventually.be.rejectedWith(
         "Auction signer invalid",
       );
+    });
+
+    it("should error if router liquidity is too low", async () => {
+      (contractReaderMock.getAssetBalance as SinonStub).resolves(constants.One);
+      await expect(prepareReceiver(activeTransactionMock, requestContext)).to.eventually.be.rejectedWith(
+        "Not enough liquidity",
+      );
+    });
+
+    it("should error if router liquidity is too low", async () => {
+      validExpiryStub.returns(false);
+      await expect(prepareReceiver(activeTransactionMock, requestContext)).to.eventually.be.rejectedWith("Expiry");
+    });
+
+    it("should error if transactionId doesnt match bid", async () => {
+      decodeAuctionBidStub.returns({ ...auctionBidMock, transactionId: "foo" });
+      await expect(prepareReceiver(activeTransactionMock, requestContext)).to.eventually.be.rejectedWith(
+        "Invalid data on sender chain",
+      );
+    });
+
+    it("should release lock if contract fn errors", async () => {
+      (contractWriterMock.fulfill as SinonStub).rejects("foo");
+      try {
+        await prepareReceiver(activeTransactionMock, requestContext);
+      } catch (e) {}
+      expect(receiverPreparing.get(activeTransactionMock.crosschainTx.invariant.transactionId)).to.be.undefined;
     });
 
     it("happy: should send prepare for receiving chain with ETH asset", async () => {
