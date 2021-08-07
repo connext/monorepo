@@ -1,4 +1,5 @@
 import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
+
 import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
 export enum TransactionStatus {
