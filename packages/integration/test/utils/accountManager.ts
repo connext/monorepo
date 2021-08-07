@@ -1,28 +1,42 @@
 import { BigNumber, constants, utils, Wallet } from "ethers";
 import PriorityQueue from "p-queue";
+import { BaseLogger } from "pino";
 
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
-// TODO: make per-chain
-const funderQueue = new PriorityQueue({ concurrency: 1 });
+const MINIMUM_FUNDING_MULTIPLE = 2;
+const USER_MIN_ETH = utils.parseEther("0.2");
+const USER_MIN_TOKEN = utils.parseEther("1000000");
 
 export class OnchainAccountManager {
-  USER_MIN_ETH = utils.parseEther("0.2");
-
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
 
   public readonly funder: Wallet;
 
-  constructor(public readonly chainProviders: ChainConfig, mnemonic: string, public readonly num_users: number) {
+  private readonly funderQueues: Map<number, PriorityQueue> = new Map();
+
+  private readonly funderNonces: Map<number, number> = new Map();
+
+  constructor(
+    public readonly chainProviders: ChainConfig,
+    mnemonic: string,
+    public readonly num_users: number,
+    private readonly log: BaseLogger,
+  ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
-    for (let i = 1; i < num_users + 1; i++) {
+    for (let i = 0; i < num_users; i++) {
       const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
       if (newWallet) {
         this.wallets.push(newWallet);
       }
     }
+
+    // Create chain-by-chain funder queues
+    Object.keys(chainProviders).map((chain) => {
+      this.funderQueues.set(parseInt(chain), new PriorityQueue({ concurrency: 1 }));
+    });
   }
 
   async updateBalances(chainId: number, assetId: string = constants.AddressZero): Promise<BigNumber[]> {
@@ -44,28 +58,50 @@ export class OnchainAccountManager {
       throw new Error(`Provider not configured for ${chainId}`);
     }
 
+    const funderQueue = this.funderQueues.get(chainId);
+    if (!funderQueue) {
+      throw new Error(`No queue found for ${chainId}`);
+    }
+
+    const isToken = assetId !== constants.AddressZero;
+    const floor = isToken ? USER_MIN_TOKEN : USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
-    if (initial.gte(this.USER_MIN_ETH)) {
-      console.log(`No need to top up balance of ${assetId}`);
+    if (initial.gte(floor)) {
+      this.log.info({ assetId, account, chainId }, "No need for top up");
       return initial;
     }
 
-    const remainder = this.USER_MIN_ETH.sub(initial);
-    const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
-    if (funderBalance.lt(remainder)) {
-      throw new Error(
-        `${
-          this.funder.address
-        } has insufficient funds to top up. Has ${funderBalance.toString()}, needs ${remainder.toString()}`,
-      );
+    const toSend = floor.sub(initial).mul(MINIMUM_FUNDING_MULTIPLE);
+
+    if (!isToken) {
+      // Check balance before sending
+      const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
+      if (funderBalance.lt(toSend)) {
+        throw new Error(
+          `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
+            funderBalance,
+          )}, needs ${utils.formatEther(toSend)}`,
+        );
+      }
     }
 
-    // fund with sugardaddy
-    const receipt = await funderQueue.add(() =>
-      sendGift(assetId, remainder.toString(), account, this.funder.connect(provider)),
-    );
+    // send gift
+    const response = await funderQueue.add(async () => {
+      this.log.debug({ assetId, to: account, from: this.funder.address, value: toSend.toString() }, "Sending gift");
+      const response = await sendGift(
+        assetId,
+        toSend.toString(),
+        account,
+        this.funder.connect(provider),
+        this.funderNonces.get(chainId),
+      );
+      this.funderNonces.set(chainId, response.nonce + 1);
+      return response;
+    });
 
-    console.log(`Sent ${assetId} to topup: ${account},  txHash: ${receipt.transactionHash}`);
+    this.log.info({ assetId, account, txHash: response.hash }, "Submitted top up");
+    const receipt = await response.wait();
+    this.log.info({ assetId, account, txHash: receipt.transactionHash }, "Topped up account");
     // confirm balance
     const final = await provider.getBalance(account);
 
@@ -82,20 +118,13 @@ export class OnchainAccountManager {
     return wallets;
   }
 
-  /**
-   * Chooses a wallet at random (excluding the funder!).
-   *
-   * @param excluding - (optional) Agent to exclude from selection
-   * @returns Wallet
-   */
-  public getRandomWallet(excluding: Wallet[] = []): Wallet {
-    excluding.push(this.funder);
+  getRandomWallet(excluding: Wallet[] = []) {
+    const addrs = excluding.map((e) => e.address);
     const filtered = this.wallets.filter((n) => {
-      const addrs = excluding.map((e) => e.address);
       return !addrs.includes(n.address);
     });
     if (filtered.length === 0) {
-      throw new Error("Failed to get random wallet: none left after filtering.");
+      throw new Error("Failed to get random wallet");
     }
     return filtered[Math.floor(Math.random() * filtered.length)];
   }

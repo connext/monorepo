@@ -4,6 +4,7 @@ import pino from "pino";
 
 import { getConfig } from "../utils/config";
 import { SdkManager } from "../utils/sdkManager";
+import { writeStatsToFile } from "../utils/reporting";
 
 /**
  * This test will establish a given number of agents, and have them all transfer funds between each other for a set duration (in minutes). The test should log the number of successful transactions and some status around the time the transactions take.
@@ -63,7 +64,13 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
 
   log.warn({ duration, numberOfAgents }, "Test complete, printing summary");
 
-  manager.printTransferSummary();
+  const summary = manager.getTransferSummary();
+  log.error(summary, "Transfer summary");
+
+  // Write transfer summary to file
+  writeStatsToFile(`router.cyclical`, summary);
+
+  log.error("Test complete");
   process.exit(0);
 };
 

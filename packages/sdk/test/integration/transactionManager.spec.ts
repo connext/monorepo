@@ -19,8 +19,8 @@ import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Co
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
 import pino, { BaseLogger } from "pino";
-import { getDeployedTransactionManagerContractAddress, TransactionManager, TransactionManagerError } from "../src";
-import { approveTokens, addPrivileges, prepareAndAssert } from "./helper";
+import { getDeployedTransactionManagerContractAddress, TransactionManager, TransactionManagerError } from "../../src";
+import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });

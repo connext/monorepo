@@ -86,6 +86,11 @@ const config: HardhatUserConfig = {
       chainId: 42,
       url: urlOverride || "http://localhost:8545",
     },
+    chapel: {
+      accounts: { mnemonic },
+      chainId: 97,
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    },
     matic: {
       accounts: { mnemonic },
       chainId: 137,

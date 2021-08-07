@@ -115,7 +115,7 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
     } catch (e) {
-      console.warn("No NXTP_CONFIG_FILE exists...");
+      console.warn("No NXTP_CONFIG exists...");
     }
   }
 
@@ -151,7 +151,11 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
-    swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
+    swapPools: process.env.NXTP_SWAP_POOLS
+      ? JSON.parse(process.env.NXTP_SWAP_POOLS)
+      : configJson.swapPools
+      ? configJson.swapPools
+      : configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",

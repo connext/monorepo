@@ -19,11 +19,13 @@ import {
 import {
   AuctionResponse,
   getRandomBytes32,
+  jsonifyError,
+  NxtpErrorJson,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { providers, Signer } from "ethers";
-import pino from "pino";
+import { BaseLogger } from "pino";
 import { Evt, VoidCtx } from "evt";
 
 import { ChainConfig } from "./config";
@@ -41,9 +43,9 @@ export type SdkAgentEvent = typeof SdkAgentEvents[keyof typeof SdkAgentEvents];
 
 // Undefined if failed on bid
 type InitiateFailedPayload = { params?: AuctionResponse; error: string };
-type UserCompletionFailedPayload = { params: TransactionPreparedEvent; error: string; fulfilling: boolean };
+type UserCompletionFailedPayload = { params: TransactionPreparedEvent; error: NxtpErrorJson; fulfilling: boolean };
 type RouterCompletionFailedPayload = NxtpSdkEventPayloads[typeof SdkAgentEvents.SenderTransactionCancelled];
-type TransactionCompletedPayload = { transactionId: string; timestamp: number; error?: string };
+type TransactionCompletedPayload = { transactionId: string; timestamp: number; error?: NxtpErrorJson };
 export interface SdkAgentEventPayloads extends NxtpSdkEventPayloads {
   [SdkAgentEvents.InitiateFailed]: InitiateFailedPayload;
   [SdkAgentEvents.UserCompletionFailed]: UserCompletionFailedPayload;
@@ -88,6 +90,7 @@ export class SdkAgent {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
     private readonly signer: Signer,
+    private readonly logger: BaseLogger,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -95,7 +98,7 @@ export class SdkAgent {
     this.sdk = new NxtpSdk(
       this.chainProviders,
       this.signer,
-      pino({ level: "info" }).child({ name: "SdkAgent" }),
+      this.logger.child({ name: "SdkAgent" }),
       "local",
       natsUrl,
       authUrl,
@@ -116,6 +119,7 @@ export class SdkAgent {
   static async connect(
     chainProviders: ChainConfig,
     signer: Signer,
+    logger: BaseLogger,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -124,7 +128,7 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const agent = new SdkAgent(address, chainProviders, signer, natsUrl, authUrl, messaging);
+    const agent = new SdkAgent(address, chainProviders, signer, logger, natsUrl, authUrl, messaging);
 
     // Parrot all events
     agent.setupListeners();
@@ -146,13 +150,14 @@ export class SdkAgent {
     // Setup autofulfill of transfers + post to evt if it failed
     this.sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
       // TODO: determine if sdk will complete or cancel transfer
-      let error: string | undefined;
+      let error: NxtpErrorJson | undefined;
       try {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
-        error = e.message;
+        this.logger.error({ transactionId: data.txData.transactionId, error: jsonifyError(e) }, "Fulfilling failed");
+        error = jsonifyError(e);
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
-          error: error!,
+          error,
           params: data,
           fulfilling: true,
           address: this.address,
@@ -176,7 +181,9 @@ export class SdkAgent {
         transactionId: data.txData.transactionId,
         address: this.address,
         timestamp: Date.now(),
-        error: `${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`,
+        error: jsonifyError(
+          new Error(`${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`),
+        ),
       });
     });
   }
@@ -255,6 +262,7 @@ export class SdkAgent {
 
       // Transfer will auto-fulfill based on established listeners
     } catch (e) {
+      this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e) }, "Preparing failed");
       this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
       this.evts.TransactionCompleted.post({
         transactionId: bid.transactionId,

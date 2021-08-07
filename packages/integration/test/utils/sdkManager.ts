@@ -1,5 +1,5 @@
 import { CrossChainParams } from "@connext/nxtp-sdk";
-import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
+import { delay, getRandomBytes32, NxtpErrorJson } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 
 import { OnchainAccountManager } from "./accountManager";
@@ -9,7 +9,18 @@ import { SdkAgent, SdkAgentEvents } from "./sdkAgent";
 export type TransactionInfo = {
   start: number;
   end?: number;
-  error?: string;
+  error?: NxtpErrorJson;
+};
+
+export type TransferSummary = {
+  errors: NxtpErrorJson[];
+  agents: number;
+  average: number;
+  longest: number;
+  shortest: number;
+  created: number;
+  completed: number;
+  failed: number;
 };
 
 /**
@@ -38,7 +49,12 @@ export class SdkManager {
     authUrl?: string,
   ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
-    const onchain = new OnchainAccountManager(chainConfig, mnemonic, numberUsers);
+    const onchain = new OnchainAccountManager(
+      chainConfig,
+      mnemonic,
+      numberUsers,
+      log.child({ name: "OnchainAccountManager" }),
+    );
     // TODO: this will be slow af
     for (const chain of Object.keys(chainConfig)) {
       // Gift eth
@@ -55,8 +71,8 @@ export class SdkManager {
       Array(numberUsers)
         .fill(0)
         .map((_, idx) => {
-          console.log(`Wallet idx${idx}, wallet addy: ${onchain.wallets[idx].address}`);
-          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], natsUrl, authUrl);
+          log.debug({ idx, address: onchain.wallets[idx].address }, "Wallet info");
+          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
         }),
     );
 
@@ -110,7 +126,12 @@ export class SdkManager {
       receivingAddress: agent.address,
       ...params,
     });
-    await promise;
+    try {
+      await promise;
+    } catch (e) {
+      this.log.error({ error: e.message, timeout }, "Did not get promise");
+      throw new Error(`Transfer not completed within ${timeout / 1000}s`);
+    }
 
     // Wait for small offset for events from agent to propagate to internal
     // class storage
@@ -126,8 +147,8 @@ export class SdkManager {
    * @returns SdkAgent
    */
   public getRandomAgent(excluding: SdkAgent[] = []): SdkAgent {
+    const addrs = excluding.map((e) => e.address);
     const filtered = this.agents.filter((n) => {
-      const addrs = excluding.map((e) => e.address);
       return !addrs.includes(n.address);
     });
     if (filtered.length === 0) {
@@ -175,9 +196,9 @@ export class SdkManager {
   }
 
   /**
-   * Prints summary information about transactions
+   * Returns summary information about transactions
    */
-  public printTransferSummary(): void {
+  public getTransferSummary(): TransferSummary {
     const times = Object.entries(this.transactionInfo)
       .map(([_transactionId, transfer]) => {
         if (!transfer.end) {
@@ -199,18 +220,16 @@ export class SdkManager {
       })
       .filter((x) => !!x);
     // Log at error to ensure it is always logged
-    this.log.error(
-      {
-        errors: errored,
-        agents: this.agents.length,
-        average,
-        longest,
-        shortest,
-        created: Object.entries(this.transactionInfo).length,
-        completed: times.length,
-        failed: errored.length,
-      },
-      "Transfer summary",
-    );
+    const summary = {
+      errors: errored as NxtpErrorJson[],
+      agents: this.agents.length,
+      average,
+      longest,
+      shortest,
+      created: Object.entries(this.transactionInfo).length,
+      completed: times.length,
+      failed: errored.length,
+    };
+    return summary;
   }
 }
