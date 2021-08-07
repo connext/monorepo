@@ -6,7 +6,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 
 import { getContext } from "../../router";
 
-const getContractAddress = (chainId: number): string => {
+export const getContractAddress = (chainId: number): string => {
   const { config } = getContext();
   const nxtpContractAddress = config.chainConfig[chainId]?.transactionManagerAddress;
   if (!nxtpContractAddress) {
@@ -15,7 +15,8 @@ const getContractAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
-const txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+export const getTxManagerInterface = () =>
+  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
@@ -47,20 +48,8 @@ export const prepare = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  const encodedData = txManagerInterface.encodeFunctionData("prepare", [
-    {
-      user: txData.user,
-      router: txData.router,
-      sendingAssetId: txData.sendingAssetId,
-      receivingAssetId: txData.receivingAssetId,
-      sendingChainFallback: txData.sendingChainFallback,
-      callTo: txData.callTo,
-      receivingAddress: txData.receivingAddress,
-      sendingChainId: txData.sendingChainId,
-      receivingChainId: txData.receivingChainId,
-      callDataHash: txData.callDataHash,
-      transactionId: txData.transactionId,
-    },
+  const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
+    txData,
     amount,
     expiry,
     encryptedCallData,
@@ -95,7 +84,7 @@ export const fulfill = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  const encodedData = txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
 
   return await txService.sendTx(
     {
@@ -124,7 +113,7 @@ export const cancel = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  const encodedData = txManagerInterface.encodeFunctionData("cancel", [txData, relayerFee, signature]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, relayerFee, signature]);
 
   return await txService.sendTx(
     {
@@ -166,7 +155,11 @@ export const removeLiquidity = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  const encodedData = txManagerInterface.encodeFunctionData("removeLiquidity", [amount, assetId, recipientAddress]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("removeLiquidity", [
+    amount,
+    assetId,
+    recipientAddress,
+  ]);
   return await txService.sendTx(
     {
       to: nxtpContractAddress,

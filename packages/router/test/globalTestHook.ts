@@ -1,17 +1,10 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, sigMock, txReceiptMock } from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import {
-  routerAddrMock,
-  sigMock,
-  activeTransactionMock,
-  singleChainTransactionMock,
-  txReceiptMock,
-  configMock,
-} from "./utils";
+import { routerAddrMock, activeTransactionMock, singleChainTransactionMock, configMock } from "./utils";
 import { Context } from "../src/router";
 import { ContractReader } from "../src/adapters/subgraph";
 import { ContractWriter } from "../src/adapters/contract";
@@ -31,6 +24,7 @@ export const mochaHooks = {
 
     txServiceMock = createStubInstance(TransactionService);
     txServiceMock.getBalance.resolves(parseEther("1"));
+    txServiceMock.sendTx.resolves(txReceiptMock);
 
     messagingMock = createStubInstance(RouterNxtpNatsMessagingService);
 
