@@ -28,7 +28,7 @@ import { getBidExpiry, Handler, HandlerError, mutateExpiry } from "../src/handle
 import * as config from "../src/config";
 import { TransactionStatus } from "../src/graphqlsdk";
 import * as handlerUtils from "../src/handler";
-import { fakeConfig } from "./utils";
+import { fakeConfig } from "../test/utils";
 import { parseEther } from "@ethersproject/units";
 import { okAsync } from "neverthrow";
 
@@ -42,7 +42,7 @@ const MUTATED_AMOUNT = "100";
 const SignatureMock = mkSig("0xeee");
 const mockMethod = "test";
 const mockMethodId = getRandomBytes32();
-const requestContext = (createRequestContext("TEST") as unknown) as RequestContext;
+const requestContext = createRequestContext("TEST") as unknown as RequestContext;
 
 describe("Handler", () => {
   let handler: Handler;

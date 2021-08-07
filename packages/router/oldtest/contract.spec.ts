@@ -15,7 +15,7 @@ import { BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManager, TransactionManagerError } from "../src/contract";
 
-import { fakeConfig } from "./utils";
+import { fakeConfig } from "../test/utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -29,7 +29,7 @@ describe("Contract", () => {
     transactionService = createStubInstance(TransactionService);
 
     transactionManager = new TransactionManager(
-      (transactionService as any) as TransactionService,
+      transactionService as any as TransactionService,
       user,
       logger,
       fakeConfig,
@@ -46,7 +46,7 @@ describe("Contract", () => {
     let error;
 
     try {
-      res = new TransactionManager((transactionService as any) as TransactionService, user, logger, fakeConfig);
+      res = new TransactionManager(transactionService as any as TransactionService, user, logger, fakeConfig);
     } catch (e) {
       error = e;
     }
