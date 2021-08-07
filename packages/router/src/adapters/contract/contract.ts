@@ -8,7 +8,7 @@ import { getContext } from "../../router";
 
 const getContractAddress = (chainId: number): string => {
   const { config } = getContext();
-  const nxtpContractAddress = config.chainConfig[chainId].transactionManagerAddress;
+  const nxtpContractAddress = config.chainConfig[chainId]?.transactionManagerAddress;
   if (!nxtpContractAddress) {
     throw new Error(`No contract exists for chain ${chainId}`);
   }
