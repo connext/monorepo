@@ -10,11 +10,8 @@ import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 import { getSdks } from ".";
 
 export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
-  const method = "getActiveTransactions";
-  const methodId = getUuid();
-
   // get global context
-  const { wallet, logger } = getContext();
+  const { wallet } = getContext();
   const routerAddress = wallet.address;
 
   // get local context
@@ -44,8 +41,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
         Object.entries(receivingChains).map(async ([cId, txIds]) => {
           const _sdk = sdks[Number(cId)];
           if (!_sdk) {
-            logger.error({ chainId: cId, method, methodId }, "No config for chain, this should not happen");
-            return [];
+            throw new ContractReaderNotAvailableForChain(Number(cId));
           }
           const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;

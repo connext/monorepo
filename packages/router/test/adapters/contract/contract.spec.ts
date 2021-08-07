@@ -6,8 +6,8 @@ import {
   fulfillParamsMock,
   cancelParamsMock,
   mkAddress,
+  expect,
 } from "@connext/nxtp-utils";
-import { expect } from "chai";
 
 import { fulfill, getContractAddress, prepare, cancel, removeLiquidity } from "../../../src/adapters/contract/contract";
 import * as ContractFns from "../../../src/adapters/contract/contract";
