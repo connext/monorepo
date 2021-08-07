@@ -53,9 +53,9 @@ export const newAuction = async (
   const sendingConfig = config.chainConfig[sendingChainId];
   const receivingConfig = config.chainConfig[receivingChainId];
   if (
-    !sendingConfig.providers ||
+    !sendingConfig?.providers ||
     sendingConfig.providers.length === 0 ||
-    !receivingConfig.providers ||
+    !receivingConfig?.providers ||
     receivingConfig.providers.length === 0
   ) {
     throw new ProvidersNotAvailable([sendingChainId, receivingChainId], {

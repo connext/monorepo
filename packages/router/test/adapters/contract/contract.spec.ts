@@ -20,7 +20,7 @@ const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
 
 let interfaceMock: SinonStubbedInstance<Interface>;
-describe.only("Contract Adapter", () => {
+describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
