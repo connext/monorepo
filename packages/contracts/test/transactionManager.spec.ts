@@ -12,7 +12,7 @@ import {
 use(solidity);
 
 import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
-import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils } from "ethers";
+import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils, providers } from "ethers";
 
 // import types
 import { Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
@@ -151,7 +151,7 @@ describe("TransactionManager", function () {
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
-    const tx = await instance
+    const tx: providers.TransactionResponse = await instance
       .connect(_router)
       .addLiquidity(amount, assetId, router.address, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
 
@@ -174,7 +174,9 @@ describe("TransactionManager", function () {
 
     // Check balances
     const balance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
-    expect(balance).to.be.eq(expectedBalance.sub(assetId === AddressZero ? tx.gasPrice.mul(receipt.gasUsed) : 0));
+    expect(balance).to.be.eq(
+      expectedBalance.sub(assetId === AddressZero ? (tx.gasPrice ?? constants.Zero).mul(receipt.gasUsed) : 0),
+    );
   };
 
   const removeAndAssertLiquidity = async (
