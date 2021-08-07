@@ -7,7 +7,7 @@ import { contractWriterMock } from "../../globalTestHook";
 
 const requestContext = createRequestContext("TEST");
 
-describe.only("Fulfill Receiver Operation", () => {
+describe("Fulfill Receiver Operation", () => {
   describe("#fulfillReceiver", () => {
     it("should error if no config available for receiving chain", async () => {
       await expect(

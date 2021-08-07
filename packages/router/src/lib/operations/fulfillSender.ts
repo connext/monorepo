@@ -4,7 +4,7 @@ import { providers } from "ethers";
 import { getContext } from "../../router";
 import { ActiveTransaction } from "../entities";
 
-const senderFulfilling: Map<string, boolean> = new Map();
+export const senderFulfilling: Map<string, boolean> = new Map();
 
 export const fulfillSender = async (
   tx: ActiveTransaction,
@@ -49,8 +49,6 @@ export const fulfillSender = async (
     );
     logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
     return receipt;
-  } catch (err) {
-    throw err;
   } finally {
     senderFulfilling.delete(invariant.transactionId);
   }
