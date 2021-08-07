@@ -1,56 +1,62 @@
-import { SinonStub } from "sinon";
 import { expect } from "chai";
 import { constants } from "ethers/lib/ethers";
-import { createRequestContext, FulfillParams, mkAddress, PrepareParams } from "@connext/nxtp-utils";
+import { createRequestContext, fulfillParamsMock, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
 
-import { fulfillParamsMock, txReceiptMock } from "../../utils";
 import { fulfillReceiver } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
 
 const requestContext = createRequestContext("TEST");
 
-describe("#fulfillReceiver", () => {
-  it("happy: should fulfill eth asset for receiver chain", async () => {
-    const fulfillParams = fulfillParamsMock;
-    fulfillParams.txData.sendingAssetId = constants.AddressZero;
-    fulfillParams.txData.receivingAssetId = constants.AddressZero;
+describe.only("Fulfill Receiver Operation", () => {
+  describe("#fulfillReceiver", () => {
+    it("should error if no config available for receiving chain", async () => {
+      await expect(
+        fulfillReceiver(
+          { ...fulfillParamsMock, txData: { ...fulfillParamsMock.txData, receivingChainId: 1234 } },
+          requestContext,
+        ),
+      ).to.eventually.be.rejectedWith("No chain config for chainId");
+    });
 
-    const receipt = await fulfillReceiver(fulfillParams, requestContext);
+    it("happy: should fulfill eth asset for receiver chain", async () => {
+      const fulfillParams = fulfillParamsMock;
+      fulfillParams.txData.sendingAssetId = constants.AddressZero;
+      fulfillParams.txData.receivingAssetId = constants.AddressZero;
 
-    expect(receipt).to.deep.eq(txReceiptMock);
+      const receipt = await fulfillReceiver(fulfillParams, requestContext);
 
-    const fulfillStub = contractWriterMock.fulfill as SinonStub;
-    expect(fulfillStub.callCount).to.eq(1);
-    const call = fulfillStub.getCall(0);
-    const [chainId, data] = call.args;
-    expect(chainId).to.eq(fulfillParams.txData.receivingChainId);
-    expect(data).to.deep.eq({
-      relayerFee: fulfillParams.relayerFee,
-      signature: fulfillParams.signature,
-      callData: fulfillParams.callData,
-      txData: fulfillParams.txData,
-    } as FulfillParams);
-  });
+      expect(receipt).to.deep.eq(txReceiptMock);
 
-  it("happy: should fulfill token asset for receiver chain", async () => {
-    const fulfillParams = fulfillParamsMock;
-    fulfillParams.txData.sendingAssetId = mkAddress("0x1");
-    fulfillParams.txData.receivingAssetId = mkAddress("0x2");
+      expect(contractWriterMock.fulfill).to.be.calledOnceWithExactly(
+        fulfillParams.txData.receivingChainId,
+        {
+          relayerFee: fulfillParams.relayerFee,
+          signature: fulfillParams.signature,
+          callData: fulfillParams.callData,
+          txData: fulfillParams.txData,
+        },
+        requestContext,
+      );
+    });
 
-    const receipt = await fulfillReceiver(fulfillParams, requestContext);
+    it("happy: should fulfill token asset for receiver chain", async () => {
+      const fulfillParams = fulfillParamsMock;
+      fulfillParams.txData.sendingAssetId = mkAddress("0x1");
+      fulfillParams.txData.receivingAssetId = mkAddress("0x2");
 
-    expect(receipt).to.deep.eq(txReceiptMock);
+      const receipt = await fulfillReceiver(fulfillParams, requestContext);
 
-    const fulfillStub = contractWriterMock.fulfill as SinonStub;
-    expect(fulfillStub.callCount).to.eq(1);
-    const call = fulfillStub.getCall(0);
-    const [chainId, data] = call.args;
-    expect(chainId).to.eq(fulfillParams.txData.receivingChainId);
-    expect(data).to.deep.eq({
-      relayerFee: fulfillParams.relayerFee,
-      signature: fulfillParams.signature,
-      callData: fulfillParams.callData,
-      txData: fulfillParams.txData,
-    } as FulfillParams);
+      expect(receipt).to.deep.eq(txReceiptMock);
+      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
+        fulfillParams.txData.receivingChainId,
+        {
+          relayerFee: fulfillParams.relayerFee,
+          signature: fulfillParams.signature,
+          callData: fulfillParams.callData,
+          txData: fulfillParams.txData,
+        },
+        requestContext,
+      );
+    });
   });
 });
