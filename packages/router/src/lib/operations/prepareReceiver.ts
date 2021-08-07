@@ -6,7 +6,7 @@ import { ActiveTransaction } from "../entities";
 import { AuctionSignerInvalid, SenderChainDataInvalid } from "../errors";
 import { decodeAuctionBid, getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry } from "../helpers";
 
-const receiverPreparing: Map<string, boolean> = new Map();
+export const receiverPreparing: Map<string, boolean> = new Map();
 
 export const prepareReceiver = async (
   tx: ActiveTransaction,
@@ -40,6 +40,7 @@ export const prepareReceiver = async (
   }
 
   const receiverAmount = getReceiverAmount(txData.amount);
+  // TODO: validate
 
   // cancellable
   const receiverExpiry = getReceiverExpiry(txData.expiry);
@@ -55,6 +56,7 @@ export const prepareReceiver = async (
       requestContext,
     );
     logger.info({ method, methodId, requestContext, txHash: cancelRes.transactionHash }, "Cancelled transaction");
+    return cancelRes;
   }
 
   logger.info({ method, methodId, requestContext }, "Validated input");
