@@ -1,7 +1,7 @@
 import { expect } from "../../utils/dist";
 import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig } from "../src/config";
-import { fakeConfig } from "./utils";
+import { configMock } from "./utils";
 
 describe("Config", () => {
   afterEach(() => {
@@ -15,7 +15,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(fakeConfig),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       let res;
@@ -34,7 +34,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify(fakeConfig),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       let res;
@@ -52,7 +52,7 @@ describe("Config", () => {
     it("should read config from default filepath", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG: JSON.stringify(fakeConfig),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       let res;
@@ -70,13 +70,13 @@ describe("Config", () => {
     it("should getEnvConfig", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_AUTH_URL: fakeConfig.authUrl,
-        NXTP_NATS_URL: fakeConfig.natsUrl,
-        NXTP_MNEMONIC: fakeConfig.mnemonic,
-        NXTP_ADMIN_TOKEN: fakeConfig.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(fakeConfig.chainConfig),
-        NXTP_SWAP_POOLS: JSON.stringify(fakeConfig.swapPools),
-        NXTP_LOG_LEVEL: fakeConfig.logLevel,
+        NXTP_AUTH_URL: configMock.authUrl,
+        NXTP_NATS_URL: configMock.natsUrl,
+        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
+        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
+        NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
       let res;
