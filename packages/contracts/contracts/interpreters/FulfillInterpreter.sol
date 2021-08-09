@@ -4,9 +4,8 @@ pragma solidity 0.8.4;
 import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+contract FulfillInterpreter is IFulfillInterpreter {
   address private _transactionManager;
 
   constructor(address transactionManager) {
@@ -43,7 +42,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable nonReentrant onlyTransactionManager {
+  ) override external payable onlyTransactionManager {
     // If it is not ether, approve the callTo
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
