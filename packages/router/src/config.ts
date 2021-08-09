@@ -79,6 +79,8 @@ const NxtpRouterConfigSchema = Type.Object({
   authUrl: Type.String(),
   mnemonic: Type.String(),
   swapPools: Type.Array(TSwapPool),
+  port: Type.Number({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
 });
 
 const MIN_GAS = utils.parseEther("0.1");
@@ -105,16 +107,13 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
     if (json) {
       configFile = JSON.parse(json);
-      console.log("Found configFile");
     }
-  } catch (e) {
-    console.warn("No config file available, trying env vars...", e);
-  }
+  } catch (e) {}
+  // return configFile;
 
   if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-      if (configJson) console.log("Found process.env.NXTP_CONFIG_FILE");
     } catch (e) {
       console.warn("No NXTP_CONFIG exists...");
     }
@@ -158,6 +157,8 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       ? configJson.swapPools
       : configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
+    port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
+    host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
   };
 
   // add contract deployments if they exist
@@ -166,9 +167,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
-          (contractDeployments as any)[chainId],
-        )[0] as any).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
+          Object.values((contractDeployments as any)[chainId])[0] as any
+        ).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
@@ -190,11 +191,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    console.error(`Invalid config: ${JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2)}`);
     throw new Error(validate.errors?.map((err) => err.message).join(","));
   }
 
-  console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
   return nxtpConfig;
 };
 

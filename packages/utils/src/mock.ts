@@ -17,7 +17,7 @@ import {
   CancelParams,
 } from "./index";
 
-export const fakeTxReceipt = {
+export const txReceiptMock = {
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -137,3 +137,5 @@ export const cancelParamsMock: CancelParams = {
   relayerFee: "5678",
   signature: mkSig("0xeee"),
 };
+
+export const sigMock = "0xabcdef";

@@ -1,6 +1,6 @@
 import { BigNumber, providers, Signer, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 
 import { ChainRpcProvider } from "../src/provider";

@@ -1,8 +1,17 @@
 import { mkAddress } from "@connext/nxtp-utils";
+import { variantDataMock, invariantDataMock } from "@connext/nxtp-utils/src/mock";
 
+import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
+import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../src/lib/entities";
 
-export const fakeConfig: NxtpRouterConfig = {
+export const routerAddrMock = mkAddress("0xb");
+
+export const MUTATED_AMOUNT = "100";
+export const MUTATED_EXPIRY = 123400;
+export const BID_EXPIRY = 123401;
+
+export const configMock: NxtpRouterConfig = {
   adminToken: "foo",
   authUrl: "http://example.com",
   chainConfig: {
@@ -33,4 +42,24 @@ export const fakeConfig: NxtpRouterConfig = {
       ],
     },
   ],
+  host: "0.0.0.0",
+  port: 8080,
+};
+
+export const activeTransactionMock: ActiveTransaction = {
+  bidSignature: "0xdbc",
+  encodedBid: "0xdef",
+  encryptedCallData: "0xabc",
+  status: TransactionStatus.SenderPrepared,
+  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+};
+
+export const singleChainTransactionMock: SingleChainTransaction = {
+  bidSignature: "0xdbc",
+  signature: "0xfee",
+  relayerFee: "12",
+  encodedBid: "0xdef",
+  encryptedCallData: "0xabc",
+  status: SdkTransactionStatus.Fulfilled,
+  txData: { ...invariantDataMock, ...variantDataMock },
 };

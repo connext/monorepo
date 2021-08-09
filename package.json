@@ -37,7 +37,7 @@
     "tsp:root": "tsp",
     "tsp": "tsp",
     "docker:router": "yarn workspace @connext/nxtp-router build && bash docker/build-router.sh",
-    "test:integration": "yarn workspace @connext/nxtp-integration docker:all:up && sleep 10s && docker ps -a && bash setup-integration-test.sh && yarn workspace @connext/nxtp-integration test && yarn docker:stop:all",
+    "test:integration": "yarn workspace @connext/nxtp-integration docker:all:up && sleep 10s && docker ps -a && bash setup-integration-test.sh && sleep 10s && yarn workspace @connext/nxtp-integration test && yarn docker:stop:all",
     "docker:stop:all": "yarn workspace @connext/nxtp-integration docker:all:down",
     "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
   },
