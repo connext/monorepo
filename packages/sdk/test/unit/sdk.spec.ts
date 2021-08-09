@@ -280,7 +280,7 @@ describe("NxtpSdk", () => {
   });
 
   describe("#getTransferQuote", () => {
-    // TODO: callData encryption
+    // TODO: #143 callData encryption
 
     describe("should error if invalid params", () => {
       const { crossChainParams } = getMock({ callData: "abc" });

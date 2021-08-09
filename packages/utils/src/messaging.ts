@@ -62,7 +62,7 @@ export type MessagingConfig = {
  * @param signer - The signer who is being authed
  * @returns A bearer token
  *
- * TODO: fix typing
+ * TODO: #155 fix typing
  */
 export const getBearerToken = (authUrl: string, signer: Signer) => async (): Promise<string> => {
   const address = await signer.getAddress();
@@ -145,7 +145,7 @@ export class NatsBasicMessagingService {
       const token = await getBearerToken(this.authUrl!, this.signer)();
       this.bearerToken = token;
     }
-    // TODO: fail fast w sensible error message if bearer token is invalid #446
+    // TODO: #155 fail fast w sensible error message if bearer token is invalid #446
     const service = natsServiceFactory(
       {
         bearerToken: this.bearerToken,
@@ -347,14 +347,14 @@ export type AuctionResponse = {
   bidSignature?: string; // not included in dry run
 };
 
-// TODO: fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
+// TODO: #155 fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
 export type MetaTxPayloads = {
   Fulfill: MetaTxFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
 
-// TODO: include `cancel`
+// TODO: #155 include `cancel`
 export type MetaTxTypes = "Fulfill";
 
 export type MetaTxPayload<T extends MetaTxTypes> = {
@@ -383,7 +383,7 @@ export const METATX_SUBJECT = "metatx";
 /**
  * @classdesc Contains the logic for handling all the NATS messaging specific to the nxtp protocol (asserts messaging versions and structure)
  */
-// TODO: add AJV structure assertions for the messaging envelopes
+// TODO: #155 add AJV structure assertions for the messaging envelopes
 export class NatsNxtpMessagingService extends NatsBasicMessagingService {
   /**
    * Publishes data to a subject that conforms to the NXTP message structure
@@ -416,7 +416,7 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
    */
   protected async subscribeToNxtpMessage<T>(subject: string, handler: (data?: T, err?: any) => void): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
-      // TODO: validate data structure
+      // TODO: #155 validate data structure
       // there was an error, run callback with error
       if (err) {
         return handler(msg?.data?.data, err);
@@ -443,7 +443,7 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
     handler: (inbox: string, data?: T, err?: NxtpErrorJson) => void,
   ): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
-      // TODO: validate data structure
+      // TODO: #155 validate data structure
       // there was an error, run callback with error
       if (err) {
         return handler("ERROR", msg?.data?.data, err);

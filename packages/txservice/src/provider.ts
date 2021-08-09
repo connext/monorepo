@@ -23,7 +23,7 @@ const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
 };
 
-// TODO: Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
+// TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
 
 /**
@@ -71,7 +71,7 @@ export class ChainRpcProvider {
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
-    // TODO: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
+    // NOTE: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
     this.quorum = 1;
@@ -110,7 +110,7 @@ export class ChainRpcProvider {
       );
     }
 
-    // TODO: We may ought to do this instantiation in the txservice constructor.
+    // TODO: #146 We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
   }
 
@@ -294,12 +294,12 @@ export class ChainRpcProvider {
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
     return this.resultWrapper<BigNumber>(async () => {
       const errors: any[] = [];
-      // TODO: If quorum > 1, we should make this call to multiple providers.
+      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
       for (const provider of this._providers) {
         let result: string;
         try {
           // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: Is there any reason prepare should be called for each iteration?
+          // TODO: #147 Is there any reason prepare should be called for each iteration?
           const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);
         } catch (error) {
@@ -338,7 +338,7 @@ export class ChainRpcProvider {
   private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
-        // TODO: Reimplement retry ability.
+        // TODO: #148 Reimplement retry ability.
         return method();
       }),
       (error) => {
@@ -354,7 +354,7 @@ export class ChainRpcProvider {
    */
   private async isReady(): Promise<boolean> {
     const method = this.isReady.name;
-    // TODO: Do we need both ready and the check below, or is this redundant?
+    // TODO: #149 Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.

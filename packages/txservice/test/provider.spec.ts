@@ -17,7 +17,7 @@ import {
 import { getRandomAddress, getRandomBytes32 } from "@connext/nxtp-utils";
 import { TransactionReadError } from "../src/error";
 
-// TODO: main tests:
+// : main tests:
 // - isReady
 // - sendTransaction
 // - readTransaction
@@ -25,7 +25,7 @@ import { TransactionReadError } from "../src/error";
 // - getBalance
 // - estimateGas
 
-// TODO: Error cases to handle here (i.e. make sure ChainRpcProvider handles correctly):
+// TODO: #153 Error cases to handle here (i.e. make sure ChainRpcProvider handles correctly):
 // - rpc failure
 // - provider stops responding
 // - no providers are in sync

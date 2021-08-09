@@ -198,7 +198,7 @@ export class Handler {
 
     // validate that assets/chains are supported and there is enough liquidity
     // and gas on both sender and receiver side.
-    // TODO: will need to track this offchain
+    // TODO: #136 will need to track this offchain
     const amountReceived = mutateAmount(amount);
 
     const validationRes = Result.fromThrowable(
@@ -306,12 +306,12 @@ export class Handler {
       })
       .andThen(() => {
         this.logger.info({ method, methodId, requestContext }, "Auction validation complete, generating bid");
-        // (TODO in what other scenarios would auction fail here? We should make sure
+        // (TODO #137 in what other scenarios would auction fail here? We should make sure
         // that router does not bid unless it is *sure* it's doing ok)
         // If you can support the transfer:
         // Next, prepare bid
-        // - TODO: Get price from AMM
-        // - TODO: Get fee rate
+        // - TODO: #137 Get price from AMM
+        // - TODO: #137 Get fee rate
         // estimate gas for contract
         // amountReceived = amountReceived.sub(gasFee)
 
@@ -380,7 +380,6 @@ export class Handler {
    * @param data.type - The type of transaction they are submitting
    * @param data.relayerFee - The fee for submission
    * @param data.to - The `TransactionManager` address
-   * // TODO: is ^^ even correct
    * @param data.data - The payload for the given `type` of transaction
    * @param data.chainId - The chain to send the transaction on
    * @param inbox - The inbox to publish the metatx response to
@@ -467,7 +466,7 @@ export class Handler {
       // Send to txService
       // Update metrics
 
-      // TODO: make sure fee is something we want to accept
+      // TODO: #138 make sure fee is something we want to accept
 
       this.logger.info({ method, methodId, requestContext, chainId, data }, "Submitting tx");
       const res = await this.txManager
@@ -558,13 +557,13 @@ export class Handler {
       return;
     }
 
-    // TODO: what if theres never a fulfill, where does receiver cancellation
+    // TODO: #140 what if theres never a fulfill, where does receiver cancellation
     // get handled? sender + receiver cancellation?
 
     // Validate the prepare data
-    // TODO what needs to be validated here? Is this necessary? Assumption
-    // that user is only sending stuff that makes sense is possibly ok since otherwise
-    // they're losing gas costs
+    // TODO: #139 what needs to be validated here? Is this necessary? Assumption
+    // that user is only sending stuff that makes sense is possibly ok since
+    // otherwise they're losing gas costs
 
     const receiverExpiry = mutateExpiry(txData.expiry);
     let bid: AuctionBid;
@@ -609,7 +608,7 @@ export class Handler {
         return ok(undefined);
       })
       .andThen<undefined, HandlerError>(() => {
-        // TODO: anything else? seems unnecessary to validate everything
+        // TODO: #139 anything else? seems unnecessary to validate everything
         if (!BigNumber.from(bid.amount).eq(txData.amount) || bid.transactionId !== txData.transactionId) {
           return err(
             new HandlerError(HandlerError.reasons.PrepareValidationError, {
@@ -683,8 +682,8 @@ export class Handler {
     // - Sending and receiving assetId
     // - Sender address
     // - Router address
-    // - Unique transferId (TODO: do we need this? How should we create this?)
-    // - Price and fee quote (TODO: either we can agree upon this upfront)
+    // - Unique transferId
+    // - Price and fee quote
     // - Amount sent by user
     // - Recipient (callTo) and callData
 
