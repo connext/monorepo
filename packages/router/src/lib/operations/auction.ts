@@ -2,7 +2,7 @@ import { AuctionBid, AuctionPayload, getUuid, RequestContext, signAuctionBid } f
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
-import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid } from "../errors";
+import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ZeroAmountRequest } from "../errors";
 import { getBidExpiry, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
@@ -30,6 +30,19 @@ export const newAuction = async (
     receivingAddress,
     dryRun,
   } = data;
+
+  // Validate that amount > 0. This would fail when later calling the contract,
+  // thus exposing a potential gas griefing attack vector w/o this step.
+  if (parseInt(amount) <= 0) {
+    throw new ZeroAmountRequest({
+      methodId,
+      method,
+      requestContext,
+      amount,
+      receivingAssetId,
+      receivingChainId,
+    });
+  }
 
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.

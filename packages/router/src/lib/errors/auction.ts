@@ -8,6 +8,12 @@ export class NotEnoughLiquidity extends NxtpError {
   }
 }
 
+export class ZeroAmountRequest extends NxtpError {
+  constructor(context: any = {}) {
+    super("Amount for request was invalid: it must be greater than 0", context, "ZeroAmountRequest");
+  }
+}
+
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
     super(`Providers not available for chainIds ${chainIds.join(",")}`, context, "ProvidersNotAvailable");
