@@ -3,7 +3,7 @@ import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { expect, AuctionResponse } from "@connext/nxtp-utils";
+import { expect, AuctionResponse, jsonifyError } from "@connext/nxtp-utils";
 
 const TestTokenABI = [
   // Read-Only Functions
@@ -67,7 +67,7 @@ const txManagerReceiving = new Contract(
   sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
 ) as TransactionManager;
 
-const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" });
+const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "error" });
 
 describe("Integration", () => {
   let userSdk: NxtpSdk;
@@ -222,9 +222,13 @@ describe("Integration", () => {
         sendingChainId: SENDING_CHAIN,
         receivingChainId: RECEIVING_CHAIN,
       });
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
+      throw err;
     }
+
+    expect(quote.bid).to.be.ok;
+    expect(quote.bidSignature).to.be.ok;
 
     const res = await userSdk.prepareTransfer(quote!);
     expect(res.prepareResponse.hash).to.be.ok;
