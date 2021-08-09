@@ -43,7 +43,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable nonReentrant onlyTransactionManager {
+  ) override external payable nonReentrant onlyTransactionManager returns (bool, bytes memory) {
     // If it is not ether, approve the callTo
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
@@ -77,5 +77,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
       returnData,
       success
     );
+
+    return (success, returnData);
   }
 }

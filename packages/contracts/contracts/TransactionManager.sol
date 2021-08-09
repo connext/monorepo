@@ -416,34 +416,42 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Get the hash of the invariant tx data. This hash is the same
     // between sending and receiving chains. The variant data is stored
     // in the contract when `prepare` is called within the mapping.
-    bytes32 digest = hashInvariantTransactionData(txData);
 
-    // Make sure that the variant data matches what was stored
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#F:019");
+    { // scope: validation and effects
+      bytes32 digest = hashInvariantTransactionData(txData);
 
-    // Make sure the expiry has not elapsed
-    require(txData.expiry >= block.timestamp, "#F:020");
+      // Make sure that the variant data matches what was stored
+      require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#F:019");
 
-    // Make sure the transaction wasn't already completed
-    require(txData.preparedBlockNumber > 0, "#F:021");
+      // Make sure the expiry has not elapsed
+      require(txData.expiry >= block.timestamp, "#F:020");
 
-    // Validate the user has signed
-    require(recoverSignature(txData.transactionId, relayerFee, "fulfill", signature) == txData.user, "#F:022");
+      // Make sure the transaction wasn't already completed
+      require(txData.preparedBlockNumber > 0, "#F:021");
 
-    // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
-    // 0-value crosschain tx, so only providing the fee amount
-    require(relayerFee <= txData.amount, "#F:023");
+      // Validate the user has signed
+      require(recoverSignature(txData.transactionId, relayerFee, "fulfill", signature) == txData.user, "#F:022");
 
-    // Check provided callData matches stored hash
-    require(keccak256(callData) == txData.callDataHash, "#F:024");
+      // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
+      // 0-value crosschain tx, so only providing the fee amount
+      require(relayerFee <= txData.amount, "#F:023");
 
-    // To prevent `fulfill` / `cancel` from being called multiple times, the
-    // preparedBlockNumber is set to 0 before being hashed. The value of the
-    // mapping is explicitly *not* zeroed out so users who come online without
-    // a store can tell the difference between a transaction that has not been
-    // prepared, and a transaction that was already completed on the receiver
-    // chain.
-    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+      // Check provided callData matches stored hash
+      require(keccak256(callData) == txData.callDataHash, "#F:024");
+
+      // To prevent `fulfill` / `cancel` from being called multiple times, the
+      // preparedBlockNumber is set to 0 before being hashed. The value of the
+      // mapping is explicitly *not* zeroed out so users who come online without
+      // a store can tell the difference between a transaction that has not been
+      // prepared, and a transaction that was already completed on the receiver
+      // chain.
+      variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+    }
+
+    // Declare these variables for the event emission. Are only assgined
+    // IFF there is an external call on the receiving chain
+    bool success;
+    bytes memory returnData;
 
     if (txData.sendingChainId == chainId) {
       // The router is completing the transaction, they should get the
@@ -456,7 +464,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Complete tx to router for original sending amount
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
-      
+
     } else {
       // The user is completing the transaction, they should get the
       // amount that the router deposited less fees for relayer.
@@ -484,16 +492,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // locked.
 
         // First, transfer the funds to the helper if needed
-        // Cache in mem for gas
-        bool isEther = LibAsset.isEther(txData.receivingAssetId);
-        if (!isEther && toSend > 0) {
+        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
           LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        interpreter.execute{ value: isEther ? toSend : 0}(
+        (success, returnData) = interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
           txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
@@ -505,7 +511,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     }
 
     // Emit event
-    emit TransactionFulfilled(txData.user, txData.router, txData.transactionId, txData, relayerFee, signature, callData, msg.sender);
+    emit TransactionFulfilled(
+      txData.user,
+      txData.router,
+      txData.transactionId,
+      txData,
+      relayerFee,
+      signature,
+      callData,
+      success,
+      returnData,
+      msg.sender
+    );
 
     return txData;
   }

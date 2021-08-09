@@ -90,6 +90,8 @@ interface ITransactionManager {
     uint256 relayerFee,
     bytes signature,
     bytes callData,
+    bool success,
+    bytes returnData,
     address caller
   );
 
