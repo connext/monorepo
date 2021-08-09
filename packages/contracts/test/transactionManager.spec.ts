@@ -219,7 +219,7 @@ describe("TransactionManager", function () {
     expect(finalBalance).to.be.eq(
       assetId !== AddressZero
         ? expectedBalance
-        : expectedBalance.sub(receipt.cumulativeGasUsed!.mul(receipt.effectiveGasPrice!)),
+        : expectedBalance.sub(receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice)),
     );
   };
 
