@@ -1,6 +1,6 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";
