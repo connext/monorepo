@@ -174,7 +174,9 @@ describe("TransactionManager", function () {
 
     // Check balances
     const balance = await getOnchainBalance(assetId, routerAddr, ethers.provider);
-    expect(balance).to.be.eq(expectedBalance.sub(assetId === AddressZero ? tx.gasPrice.mul(receipt.gasUsed) : 0));
+    expect(balance).to.be.eq(
+      expectedBalance.sub(assetId === AddressZero ? receipt.effectiveGasPrice.mul(receipt.gasUsed) : 0),
+    );
   };
 
   const removeAndAssertLiquidity = async (
@@ -213,7 +215,9 @@ describe("TransactionManager", function () {
     // Check balance
     const finalBalance = await getOnchainBalance(assetId, await router.getAddress(), ethers.provider);
     expect(finalBalance).to.be.eq(
-      assetId !== AddressZero ? expectedBalance : expectedBalance.sub(receipt.cumulativeGasUsed!.mul(tx.gasPrice!)),
+      assetId !== AddressZero
+        ? expectedBalance
+        : expectedBalance.sub(receipt.cumulativeGasUsed!.mul(receipt.effectiveGasPrice)),
     );
   };
 
@@ -287,7 +291,7 @@ describe("TransactionManager", function () {
     const expected = initialPreparerAmount.sub(record.amount);
     expect(finalPreparerAmount).to.be.eq(
       transaction.sendingAssetId === AddressZero && userSending
-        ? expected.sub(prepareTx.gasPrice!.mul(receipt.cumulativeGasUsed!))
+        ? expected.sub(receipt.effectiveGasPrice!.mul(receipt.cumulativeGasUsed!))
         : expected,
     );
 
@@ -385,12 +389,12 @@ describe("TransactionManager", function () {
       const finalRelayer = await getOnchainBalance(transaction.receivingAssetId, submitter.address, ethers.provider);
       expect(finalRelayer).to.be.eq(
         transaction.receivingAssetId === AddressZero
-          ? expectedRelayer.sub(tx.gasPrice!.mul(receipt.gasUsed!))
+          ? expectedRelayer.sub(receipt.effectiveGasPrice.mul(receipt.gasUsed!))
           : expectedRelayer,
       );
     }
 
-    const gas = tx.gasPrice!.mul(receipt.gasUsed!).toString();
+    const gas = receipt.effectiveGasPrice.mul(receipt.gasUsed!).toString();
 
     if (callData == EmptyBytes) {
       expect(finalIncreased).to.be.eq(
