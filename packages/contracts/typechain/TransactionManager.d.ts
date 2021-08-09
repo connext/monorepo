@@ -34,6 +34,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "chainId()": FunctionFragment;
     "delay()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getChainId()": FunctionFragment;
+    "getStoredChainId()": FunctionFragment;
     "interpreter()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
@@ -124,6 +126,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStoredChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "interpreter",
     values?: undefined
   ): string;
@@ -212,6 +222,11 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getChainId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getStoredChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "interpreter",
     data: BytesLike
@@ -401,6 +416,12 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getChainId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _chainId: BigNumber }>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     interpreter(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -544,6 +565,10 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
   interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -744,6 +769,10 @@ export class TransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -1255,6 +1284,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     interpreter(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1405,6 +1438,10 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    getChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     interpreter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
