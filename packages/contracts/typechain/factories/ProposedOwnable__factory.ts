@@ -50,6 +50,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "c__0x3826e04d",
+        type: "bytes32",
+      },
+    ],
+    name: "c_0x3826e04d",
+    outputs: [],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "delay",
     outputs: [
