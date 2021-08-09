@@ -134,7 +134,6 @@ export const fulfillParamsMock: FulfillParams = {
 
 export const cancelParamsMock: CancelParams = {
   txData: txDataMock,
-  relayerFee: "5678",
   signature: mkSig("0xeee"),
 };
 

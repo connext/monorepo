@@ -109,11 +109,11 @@ export const cancel = async (
   const { logger, txService, wallet } = getContext();
   logger.info({ method, methodId, cancelParams }, "Method start");
 
-  const { txData, relayerFee, signature } = cancelParams;
+  const { txData, signature } = cancelParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, relayerFee, signature]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, signature]);
 
   return await txService.sendTx(
     {
