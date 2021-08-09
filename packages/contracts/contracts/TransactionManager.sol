@@ -79,6 +79,26 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     interpreter = new FulfillInterpreter(address(this));
   }
 
+  /// @notice Allows us to get the chainId that this factory will use in the create2 salt
+  function getChainId() public view override returns (uint256 _chainId) {
+    // Hold in memory to reduce sload calls
+    uint256 chain = chainId;
+    if (chain == 0) {
+      // If not provided, pull from block
+      assembly {
+        _chainId := chainid()
+      }
+    } else {
+      // Use provided override
+      _chainId = chain;
+    }
+  }
+
+  /// @notice Allows us to get the chainId that this factory has stored
+  function getStoredChainId() external view override returns (uint256) {
+    return chainId;
+  }
+
   /// @notice Indicates if the ownership has been renounced() by
   ///         checking if current owner is address(0)
   function renounced() public view override returns (bool) {
@@ -273,7 +293,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
 
     // Make sure the chains are relevant
-    require(invariantData.sendingChainId == chainId || invariantData.receivingChainId == chainId, "#P:012");
+    require(invariantData.sendingChainId == getChainId() || invariantData.receivingChainId == getChainId(), "#P:012");
 
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "#P:013");
@@ -293,7 +313,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     //       correct bid information without requiring an offchain store.
 
     // First determine if this is sender side or receiver side
-    if (invariantData.sendingChainId == chainId) {
+    if (invariantData.sendingChainId == getChainId()) {
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
@@ -445,7 +465,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    if (txData.sendingChainId == chainId) {
+    if (txData.sendingChainId == getChainId()) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
@@ -558,7 +578,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
     // Return the appropriate locked funds
-    if (txData.sendingChainId == chainId) {
+    if (txData.sendingChainId == getChainId()) {
       // Sender side, funds must be returned to the user
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by router
