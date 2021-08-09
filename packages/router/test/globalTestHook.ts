@@ -1,5 +1,6 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService, sigMock, txReceiptMock } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { txReceiptMock, sigMock } from "@connext/nxtp-utils/src/mock";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";

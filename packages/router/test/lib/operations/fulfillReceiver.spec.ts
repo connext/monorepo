@@ -1,6 +1,7 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { constants } from "ethers/lib/ethers";
-import { createRequestContext, fulfillParamsMock, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
+import { createRequestContext, mkAddress } from "@connext/nxtp-utils";
+import { fulfillParamsMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
 
 import { fulfillReceiver } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";

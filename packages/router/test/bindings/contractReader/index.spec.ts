@@ -1,6 +1,7 @@
-import { mkBytes32, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
+import { mkBytes32, RequestContext } from "@connext/nxtp-utils";
+import { txReceiptMock } from "@connext/nxtp-utils/src/mock";
 import { SinonStub, stub } from "sinon";
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { providers } from "ethers/lib/ethers";
 
 import { activeTransactionMock } from "../../utils";

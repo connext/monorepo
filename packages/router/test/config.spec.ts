@@ -1,4 +1,4 @@
-import { expect } from "../../utils/dist";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig } from "../src/config";
 import { configMock } from "./utils";

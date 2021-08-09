@@ -1,7 +1,8 @@
-import { reset, restore, SinonStub, stub } from "sinon";
-import { expect } from "chai";
+import { SinonStub } from "sinon";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { constants } from "ethers/lib/ethers";
-import { createRequestContext, FulfillParams, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
+import { createRequestContext, mkAddress } from "@connext/nxtp-utils";
+import { txReceiptMock } from "@connext/nxtp-utils/src/mock";
 
 import { activeTransactionMock } from "../../utils";
 import { fulfillSender } from "../../../src/lib/operations";

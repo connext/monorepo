@@ -1,14 +1,8 @@
 import { SinonStub, stub } from "sinon";
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { constants } from "ethers/lib/ethers";
-import {
-  AuctionBid,
-  auctionBidMock,
-  createRequestContext,
-  mkAddress,
-  PrepareParams,
-  txReceiptMock,
-} from "@connext/nxtp-utils";
+import { AuctionBid, createRequestContext, mkAddress } from "@connext/nxtp-utils";
+import { auctionBidMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import { activeTransactionMock, MUTATED_AMOUNT, MUTATED_EXPIRY, routerAddrMock } from "../../utils";
