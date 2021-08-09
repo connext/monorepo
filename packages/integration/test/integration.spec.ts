@@ -3,7 +3,8 @@ import { constants, Contract, providers, utils, Wallet } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { expect, AuctionResponse, jsonifyError } from "@connext/nxtp-utils";
+import { AuctionResponse, jsonifyError } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils/src/expect";
 
 const TestTokenABI = [
   // Read-Only Functions
