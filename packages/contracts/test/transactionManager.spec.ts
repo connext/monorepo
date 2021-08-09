@@ -418,7 +418,6 @@ describe("TransactionManager", function () {
     record: VariantTransactionData,
     canceller: Wallet,
     instance: Contract,
-    relayerFee: BigNumber = constants.Zero,
     _signature?: string,
   ): Promise<void> => {
     const sendingSideCancel = (await instance.chainId()).toNumber() === transaction.sendingChainId;
@@ -426,14 +425,10 @@ describe("TransactionManager", function () {
     const startingBalance = !sendingSideCancel
       ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
       : await getOnchainBalance(transaction.sendingAssetId, transaction.user, ethers.provider);
-    const expectedBalance =
-      canceller == user || (await instance.chainId()).toNumber() == transaction.receivingChainId
-        ? startingBalance.add(record.amount)
-        : startingBalance.add(record.amount).sub(relayerFee);
+    const expectedBalance = startingBalance.add(record.amount);
 
-    const signature =
-      _signature ?? (await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user));
-    const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, relayerFee, signature);
+    const signature = _signature ?? (await signCancelTransactionPayload(transaction.transactionId, user));
+    const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
       user: transaction.user,
@@ -1879,15 +1874,11 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+      const signature = await signCancelTransactionPayload(transaction.transactionId, user);
       await expect(
         transactionManagerReceiverSide
           .connect(user)
-          .cancel(
-            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 },
-            relayerFee,
-            signature,
-          ),
+          .cancel({ ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 }, signature),
       ).to.be.revertedWith(getContractError("cancel: INVALID_VARIANT_DATA"));
     });
 
@@ -1912,15 +1903,11 @@ describe("TransactionManager", function () {
         transactionManagerReceiverSide,
       );
 
-      const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+      const signature = await signCancelTransactionPayload(transaction.transactionId, user);
       await expect(
         transactionManagerReceiverSide
           .connect(user)
-          .cancel(
-            { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 },
-            relayerFee,
-            signature,
-          ),
+          .cancel({ ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: 0 }, signature),
       ).to.be.revertedWith(getContractError("cancel: ALREADY_COMPLETED"));
     });
 
@@ -1936,13 +1923,12 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
       // User cancels
-      const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+      const signature = await signCancelTransactionPayload(transaction.transactionId, user);
       await expect(
         transactionManagerReceiverSide
           .connect(user)
           .cancel(
             { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
-            relayerFee,
             signature,
           ),
       ).to.be.revertedWith(getContractError("cancel: INVALID_RELAYER_FEE"));
@@ -1965,13 +1951,12 @@ describe("TransactionManager", function () {
 
         const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
-        const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
         await expect(
           transactionManager
             .connect(receiver)
             .cancel(
               { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
-              relayerFee,
               signature,
             ),
         ).to.be.revertedWith(getContractError("cancel: ROUTER_MUST_CANCEL"));
@@ -1999,11 +1984,11 @@ describe("TransactionManager", function () {
         await (await tokenA.setShouldRevert(true)).wait();
         expect(await tokenA.shouldRevert()).to.be.true;
 
-        const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
         await expect(
           transactionManager
             .connect(router)
-            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, relayerFee, signature),
+            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, signature),
         ).to.be.revertedWith("transfer: SHOULD_REVERT");
       });
 
@@ -2024,17 +2009,12 @@ describe("TransactionManager", function () {
         const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
 
         await setBlockTime(+record.expiry + 1_000);
-        const signature = await signCancelTransactionPayload(
-          transaction.transactionId,
-          relayerFee.toString(),
-          receiver,
-        );
+        const signature = await signCancelTransactionPayload(transaction.transactionId, receiver);
         await expect(
           transactionManager
             .connect(receiver)
             .cancel(
               { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
-              relayerFee,
               signature,
             ),
         ).to.be.revertedWith(getContractError("cancel: INVALID_SIGNATURE"));
@@ -2062,11 +2042,11 @@ describe("TransactionManager", function () {
         expect(await tokenA.shouldRevert()).to.be.true;
 
         await setBlockTime(+record.expiry + 1_000);
-        const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
         await expect(
           transactionManager
             .connect(user)
-            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, relayerFee, signature),
+            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, signature),
         ).to.be.revertedWith("transfer: SHOULD_REVERT");
       });
 
@@ -2092,11 +2072,11 @@ describe("TransactionManager", function () {
         expect(await tokenA.shouldRevert()).to.be.true;
 
         await setBlockTime(+record.expiry + 1_000);
-        const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
         await expect(
           transactionManager
             .connect(user)
-            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, relayerFee, signature),
+            .cancel({ ...transaction, ...record, preparedBlockNumber: blockNumber }, signature),
         ).to.be.revertedWith("transfer: SHOULD_REVERT");
       });
     });
@@ -2114,17 +2094,12 @@ describe("TransactionManager", function () {
 
         const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-        const signature = await signCancelTransactionPayload(
-          transaction.transactionId,
-          relayerFee.toString(),
-          receiver,
-        );
+        const signature = await signCancelTransactionPayload(transaction.transactionId, receiver);
         await expect(
           transactionManagerReceiverSide
             .connect(receiver)
             .cancel(
               { ...transaction, amount: record.amount, expiry: record.expiry, preparedBlockNumber: blockNumber },
-              relayerFee,
               signature,
             ),
         ).to.be.revertedWith(getContractError("cancel: INVALID_SIGNATURE"));
@@ -2151,7 +2126,7 @@ describe("TransactionManager", function () {
         user,
         transactionManagerReceiverSide,
         relayerFee,
-        await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), receiver),
+        await signCancelTransactionPayload(transaction.transactionId, receiver),
       );
     });
 
@@ -2167,14 +2142,13 @@ describe("TransactionManager", function () {
 
       const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
 
-      const signature = await signCancelTransactionPayload(transaction.transactionId, relayerFee.toString(), receiver);
+      const signature = await signCancelTransactionPayload(transaction.transactionId, receiver);
 
       await cancelAndAssert(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
         user, // To avoid balance checks for eth
         transactionManagerReceiverSide,
-        undefined,
         signature,
       );
     });

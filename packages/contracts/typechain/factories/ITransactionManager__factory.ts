@@ -249,12 +249,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -644,11 +638,6 @@ const _abi = [
         internalType: "struct ITransactionManager.TransactionData",
         name: "txData",
         type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
       },
       {
         internalType: "bytes",
