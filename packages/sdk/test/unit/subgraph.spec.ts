@@ -1,5 +1,6 @@
-import { mkAddress, getRandomBytes32, transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils";
-import { expect } from "chai";
+import { mkAddress, getRandomBytes32 } from "@connext/nxtp-utils";
+import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import pino from "pino";
