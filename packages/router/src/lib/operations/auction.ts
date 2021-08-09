@@ -2,7 +2,7 @@ import { AuctionBid, AuctionPayload, getUuid, RequestContext, signAuctionBid } f
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
-import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ZeroAmountRequest } from "../errors";
+import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ZeroValueBid, AuctionExpired } from "../errors";
 import { getBidExpiry, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
@@ -28,19 +28,37 @@ export const newAuction = async (
     callTo,
     transactionId,
     receivingAddress,
+    // TODO: Remove this debug code from production.
     dryRun,
   } = data;
+
+  // TODO: Implement rate limit per user (approximately 1/5s ?).
 
   // Validate that amount > 0. This would fail when later calling the contract,
   // thus exposing a potential gas griefing attack vector w/o this step.
   if (parseInt(amount) <= 0) {
-    throw new ZeroAmountRequest({
+    throw new ZeroValueBid({
       methodId,
       method,
       requestContext,
       amount,
       receivingAssetId,
       receivingChainId,
+    });
+  }
+
+  // Validate expiry is valid (greater than current time plus a buffer).
+  const currentTime = Math.floor(Date.now() / 1000);
+  // TODO: Should this be configurable? Currently 5 minutes.
+  const auctionExpiryBuffer = 5 * 60;
+  if (expiry <= currentTime + auctionExpiryBuffer) {
+    throw new AuctionExpired(expiry, {
+      methodId,
+      method,
+      requestContext,
+      expiry,
+      currentTime,
+      auctionExpiryBuffer,
     });
   }
 

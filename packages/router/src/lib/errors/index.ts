@@ -1,4 +1,4 @@
-export { NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, NotEnoughGas, ZeroAmountRequest } from "./auction";
+export { NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, NotEnoughGas, ZeroValueBid, AuctionExpired } from "./auction";
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
 

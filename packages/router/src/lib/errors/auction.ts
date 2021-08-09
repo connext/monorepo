@@ -8,9 +8,15 @@ export class NotEnoughLiquidity extends NxtpError {
   }
 }
 
-export class ZeroAmountRequest extends NxtpError {
+export class ZeroValueBid extends NxtpError {
   constructor(context: any = {}) {
     super("Amount for request was invalid: it must be greater than 0", context, "ZeroAmountRequest");
+  }
+}
+
+export class AuctionExpired extends NxtpError {
+  constructor(expiry: number, context: any = {}) {
+    super(`Auction is past (or too close to) expiry: ${expiry}`, context, "AuctionExpired");
   }
 }
 
