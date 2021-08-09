@@ -382,6 +382,18 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "returnData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",

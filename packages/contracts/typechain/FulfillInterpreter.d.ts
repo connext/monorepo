@@ -125,7 +125,7 @@ export class FulfillInterpreter extends BaseContract {
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<[boolean, string]>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
