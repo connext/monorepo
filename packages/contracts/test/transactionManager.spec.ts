@@ -12,7 +12,7 @@ import {
 use(solidity);
 
 import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
-import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils } from "ethers";
+import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils, providers } from "ethers";
 
 // import types
 import { Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
@@ -151,7 +151,7 @@ describe("TransactionManager", function () {
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
-    const tx = await instance
+    const tx: providers.TransactionResponse = await instance
       .connect(_router)
       .addLiquidity(amount, assetId, router.address, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
 
@@ -195,7 +195,9 @@ describe("TransactionManager", function () {
     const startingLiquidity = await instance.routerBalances(routerAddress, assetId);
     const expectedLiquidity = startingLiquidity.sub(amount);
 
-    const tx = await instance.connect(router).removeLiquidity(amount, assetId, routerAddress);
+    const tx: providers.TransactionResponse = await instance
+      .connect(router)
+      .removeLiquidity(amount, assetId, routerAddress);
 
     const receipt = await tx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -217,7 +219,7 @@ describe("TransactionManager", function () {
     expect(finalBalance).to.be.eq(
       assetId !== AddressZero
         ? expectedBalance
-        : expectedBalance.sub(receipt.cumulativeGasUsed!.mul(receipt.effectiveGasPrice)),
+        : expectedBalance.sub(receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice)),
     );
   };
 
@@ -291,7 +293,7 @@ describe("TransactionManager", function () {
     const expected = initialPreparerAmount.sub(record.amount);
     expect(finalPreparerAmount).to.be.eq(
       transaction.sendingAssetId === AddressZero && userSending
-        ? expected.sub(receipt.effectiveGasPrice!.mul(receipt.cumulativeGasUsed!))
+        ? expected.sub(receipt.effectiveGasPrice.mul(receipt.cumulativeGasUsed))
         : expected,
     );
 
@@ -391,12 +393,12 @@ describe("TransactionManager", function () {
       const finalRelayer = await getOnchainBalance(transaction.receivingAssetId, submitter.address, ethers.provider);
       expect(finalRelayer).to.be.eq(
         transaction.receivingAssetId === AddressZero
-          ? expectedRelayer.sub(receipt.effectiveGasPrice.mul(receipt.gasUsed!))
+          ? expectedRelayer.sub(receipt.effectiveGasPrice.mul(receipt.gasUsed))
           : expectedRelayer,
       );
     }
 
-    const gas = receipt.effectiveGasPrice.mul(receipt.gasUsed!).toString();
+    const gas = receipt.effectiveGasPrice.mul(receipt.gasUsed).toString();
 
     if (callData == EmptyBytes) {
       expect(finalIncreased).to.be.eq(

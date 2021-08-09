@@ -2010,6 +2010,7 @@ __metadata:
     "@types/mocha": ^9.0.0
     "@types/pino": ^6.3.11
     "@types/sinon": ^10.0.2
+    "@types/sinon-chai": ^3
     "@typescript-eslint/eslint-plugin": ^4.28.5
     axios: ^0.21.1
     chai: 4.3.4
@@ -2024,6 +2025,7 @@ __metadata:
     pino: ^6.13.0
     rimraf: ^3.0.2
     sinon: ^11.1.2
+    sinon-chai: ^3.7.0
     ts-mocha: ^8.0.0
     ts-natsutil: ^1.1.1
     tslib: ^2.3.0
@@ -4697,7 +4699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon-chai@npm:^3.2.3":
+"@types/sinon-chai@npm:^3, @types/sinon-chai@npm:^3.2.3":
   version: 3.2.5
   resolution: "@types/sinon-chai@npm:3.2.5"
   dependencies:
@@ -24226,6 +24228,16 @@ resolve@^2.0.0-next.3:
   dependencies:
     js-yaml: ^3.10.0
   checksum: 305b8f5d9bd1514739ea4e35f982e7bdb6ecaf0f5d61920124d2fa2e1882409fc2d079c623e5943d4138878f18f7eeaecad2b02bc88d9f29153f33c6d0536d49
+  languageName: node
+  linkType: hard
+
+"sinon-chai@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "sinon-chai@npm:3.7.0"
+  peerDependencies:
+    chai: ^4.0.0
+    sinon: ">=4.0.0"
+  checksum: bea04f685f37c1ee68c280aa2ef6a59929b1b8f6dec97bcfb3d4965eca8cf43a40106303d64fae9d2d456d46c9651e9eabada5644ea5b7bc69c769c08b919814
   languageName: node
   linkType: hard
 
