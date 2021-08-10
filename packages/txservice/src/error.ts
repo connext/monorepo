@@ -104,7 +104,7 @@ export class TransactionReplaced extends TransactionError {
   }
 }
 
-// TODO: Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
+// TODO: #144 Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
 // being missing. They won't function as proper NxtpErrors, essentially.
 export class TimeoutError extends TransactionError {
   /**
@@ -228,7 +228,11 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.AlwaysFailingTransaction, undefined, context);
   } else if (message.match(/gas required exceeds allowance/)) {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
-  } else if (message.match(/tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/)) {
+  } else if (
+    message.match(
+      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/,
+    )
+  ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
   }
 
@@ -250,7 +254,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
-      // TODO: Should this be a TransactionReverted error?
+      // TODO: #144 Should this be a TransactionReverted error?
       return new ServerError(context);
     default:
       return error;

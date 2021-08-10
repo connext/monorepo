@@ -27,8 +27,6 @@ export type TransferSummary = {
  * @classdesc Manages multiple sdk agent instances. Ensures they are all funded onchain
  */
 // TODO:
-// - better logging (use pino)
-// - setup cyclical transfers
 // - better config setup
 // - metrics?
 export class SdkManager {

@@ -63,7 +63,7 @@ export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 
-declare const ethereum: any; // TODO: what to do about node?
+declare const ethereum: any; // TODO: #141 what to do about node?
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
@@ -675,7 +675,7 @@ export class NxtpSdk {
 
       this.logger.info({ method, methodId, auctionBids }, "Auction bids received");
       auctionBids.sort((a, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: check this logic
+        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
       });
 
       res(auctionBids[0]);
@@ -889,13 +889,12 @@ export class NxtpSdk {
   }
 
   /**
-   * Completes the transaction on the receiving chain. This function should either cancel the transaction if it is prepared incorrectly, or fulfill it if it is prepared correctly.
+   * Fulfills the transaction on the receiving chain.
    *
    * @param params - The `TransactionPrepared` event payload from the receiving chain
    * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
    * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
    * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
-   * // TODO: fix this typing, if its either or the types should reflect that
    */
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,

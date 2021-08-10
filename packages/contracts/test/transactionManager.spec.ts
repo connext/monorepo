@@ -297,8 +297,6 @@ describe("TransactionManager", function () {
         : expected,
     );
 
-    // TODO: add `getTransactionsByUser` assertion
-
     // Verify amount has been added to contract
     if (!userSending) {
       // Router does not send funds
@@ -570,7 +568,7 @@ describe("TransactionManager", function () {
   });
 
   describe("addLiquidity", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if router address is empty", async () => {
@@ -705,7 +703,7 @@ describe("TransactionManager", function () {
   });
 
   describe("removeLiquidity", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if param recipient address is empty", async () => {
@@ -757,7 +755,7 @@ describe("TransactionManager", function () {
   });
 
   describe("prepare", () => {
-    // TODO: revert and emit event test cases
+    // TODO: #135
     // - reentrant cases
     // - rebasing test cases
     it("should revert if invariantData.user is AddressZero", async () => {
@@ -1185,7 +1183,7 @@ describe("TransactionManager", function () {
   });
 
   describe("fulfill", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if the variant data is not stored (has not been prepared)", async () => {
