@@ -3,13 +3,20 @@ import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
-import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../../lib/entities";
+import {
+  ActiveTransaction,
+  SingleChainTransaction,
+  CrosschainTransactionStatus,
+  CancelPayload,
+  FulfillPayload,
+  PreparePayload,
+} from "../../lib/entities";
 
 import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 
 import { getSdks } from ".";
 
-export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
+export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
   const { wallet } = getContext();
   const routerAddress = wallet.address;
@@ -54,7 +61,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
       // if it is fulfilled, call the handleReceiverFulfill handler
       // if it is cancelled, call the handlerReceiverCancel handler
       const txs =
-        allSenderPrepared.router?.transactions.map((senderTx): ActiveTransaction | undefined => {
+        allSenderPrepared.router?.transactions.map((senderTx): ActiveTransaction<any> | undefined => {
           const invariant: InvariantTransactionData = {
             user: senderTx.user.id,
             router: senderTx.router.id,
@@ -85,10 +92,12 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
                 invariant,
                 sending,
               },
-              bidSignature: senderTx.bidSignature,
-              encodedBid: senderTx.encodedBid,
-              encryptedCallData: senderTx.encryptedCallData,
-              status: TransactionStatus.SenderPrepared,
+              payload: {
+                bidSignature: senderTx.bidSignature,
+                encodedBid: senderTx.encodedBid,
+                encryptedCallData: senderTx.encryptedCallData,
+              } as PreparePayload,
+              status: CrosschainTransactionStatus.SenderPrepared,
             };
           }
 
@@ -106,13 +115,12 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
                 sending,
                 receiving,
               },
-              bidSignature: senderTx.bidSignature,
-              encodedBid: senderTx.encodedBid,
-              encryptedCallData: senderTx.encryptedCallData,
-              status: TransactionStatus.ReceiverFulfilled,
-              signature: corresponding.signature,
-              callData: corresponding.callData!,
-              relayerFee: corresponding.relayerFee,
+              payload: {
+                signature: corresponding.signature,
+                relayerFee: corresponding.relayerFee,
+                callData: corresponding.callData!,
+              } as FulfillPayload,
+              status: CrosschainTransactionStatus.ReceiverFulfilled,
             };
           }
           if (corresponding.status === SdkTransactionStatus.Cancelled) {
@@ -123,15 +131,13 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction[]> => {
                 sending,
                 receiving,
               },
-              bidSignature: senderTx.bidSignature,
-              encodedBid: senderTx.encodedBid,
-              encryptedCallData: senderTx.encryptedCallData,
-              status: TransactionStatus.ReceiverCancelled,
+              payload: {} as CancelPayload,
+              status: CrosschainTransactionStatus.ReceiverCancelled,
             };
           }
           return undefined;
         }) ?? [];
-      const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction[];
+      const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction<any>[];
       return filterUndefined;
     }),
   );

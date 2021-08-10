@@ -1,7 +1,7 @@
-import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
+import { createRequestContext, jsonifyError, MetaTxFulfillPayload, MetaTxType } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 
-import { fulfillReceiver, newAuction } from "../../lib/operations";
+import { fulfill, newAuction } from "../../lib/operations";
 import { getContext } from "../../router";
 
 export const bindMessaging = async () => {
@@ -46,7 +46,7 @@ export const bindMessaging = async () => {
       return;
     }
 
-    if (data.type === "Fulfill") {
+    if (data.type === MetaTxType.Fulfill) {
       if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
         logger.error(
           { requestContext, to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
@@ -55,10 +55,48 @@ export const bindMessaging = async () => {
         return;
       }
 
+      const { txData, callData, relayerFee, signature }: MetaTxFulfillPayload = data.data;
+      if (chainId !== txData.receivingChainId) {
+        logger.error(
+          { requestContext, chainId, receivingChainId: txData.receivingChainId },
+          "Request not sent for receiving chain",
+        );
+        return;
+      }
+
       logger.info({ requestContext }, "Handling fulfill request");
-      const tx = await fulfillReceiver(data.data, requestContext);
-      await messaging.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash });
-      logger.info({ requestContext }, "Handled fulfill request");
+      try {
+        logger.info({ requestContext }, "Fulfilling tx");
+        const tx = await fulfill(
+          {
+            user: txData.user,
+            router: txData.router,
+            sendingChainId: txData.sendingChainId,
+            sendingAssetId: txData.sendingAssetId,
+            sendingChainFallback: txData.sendingChainFallback,
+            receivingChainId: txData.receivingChainId,
+            receivingAssetId: txData.receivingAssetId,
+            receivingAddress: txData.receivingAddress,
+            callDataHash: txData.callDataHash,
+            callTo: txData.callTo,
+            transactionId: txData.transactionId,
+          },
+          {
+            amount: txData.amount,
+            expiry: txData.expiry,
+            preparedBlockNumber: txData.preparedBlockNumber,
+            signature,
+            relayerFee,
+            callData,
+            side: "receiver",
+          },
+          requestContext,
+        );
+        if (tx) {
+          await messaging.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash });
+        }
+        logger.info({ requestContext }, "Handled fulfill request");
+      } catch (err) {}
     }
   });
 };

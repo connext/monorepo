@@ -1,9 +1,8 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
-import { ActiveTransaction, TransactionStatus } from "../../lib/entities";
-import { fulfillSender, prepareReceiver } from "../../lib/operations";
-import { cancelSender } from "../../lib/operations/cancelSender";
+import { ActiveTransaction, CrosschainTransactionStatus, FulfillPayload, PreparePayload } from "../../lib/entities";
+import { fulfill, prepare, cancel } from "../../lib/operations";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -16,29 +15,62 @@ export const bindContractReader = async () => {
   }, getLoopInterval());
 };
 
-export const handleActiveTransactions = async (transactions: ActiveTransaction[]) => {
+export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
   const { logger } = getContext();
   return await Promise.all(
     transactions.map(async (transaction): Promise<void> => {
-      if (transaction.status === TransactionStatus.SenderPrepared) {
+      if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {
+        const preparePayload: PreparePayload = transaction.payload;
         const requestContext = createRequestContext("ContractReader => SenderPrepared");
         try {
           logger.info({ requestContext }, "Preparing receiver");
-          const receipt = await prepareReceiver(transaction, requestContext);
+          const receipt = await prepare(
+            transaction.crosschainTx.invariant,
+            {
+              senderExpiry: transaction.crosschainTx.sending.expiry,
+              senderAmount: transaction.crosschainTx.sending.amount,
+              bidSignature: preparePayload.bidSignature,
+              encodedBid: preparePayload.encodedBid,
+              encryptedCallData: preparePayload.encryptedCallData,
+            },
+            requestContext,
+          );
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Prepared receiver");
         } catch (err) {
           logger.error({ err: jsonifyError(err), requestContext }, "Error preparing receiver");
           if (err.cancellable === true) {
             logger.error({ requestContext }, "Cancellable validation error, cancelling");
-            const cancelRes = await cancelSender(transaction, requestContext);
+            const cancelRes = await cancel(
+              transaction.crosschainTx.invariant,
+              {
+                amount: transaction.crosschainTx.sending.amount,
+                expiry: transaction.crosschainTx.sending.expiry,
+                preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+                side: "sender",
+              },
+              requestContext,
+            );
             logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
           }
         }
-      } else if ((transaction.status = TransactionStatus.ReceiverFulfilled)) {
+      } else if ((transaction.status = CrosschainTransactionStatus.ReceiverFulfilled)) {
+        const fulfillPayload: FulfillPayload = transaction.payload;
         const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");
         try {
           logger.info({ requestContext }, "Fulfilling sender");
-          const receipt = await fulfillSender(transaction, requestContext);
+          const receipt = await fulfill(
+            transaction.crosschainTx.invariant,
+            {
+              amount: transaction.crosschainTx.sending.amount,
+              expiry: transaction.crosschainTx.sending.expiry,
+              preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+              signature: fulfillPayload.signature,
+              callData: fulfillPayload.callData,
+              relayerFee: fulfillPayload.relayerFee,
+              side: "sender",
+            },
+            requestContext,
+          );
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Fulfilled sender");
         } catch (err) {
           logger.error({ err: jsonifyError(err), requestContext }, "Error fulfilling sender");
