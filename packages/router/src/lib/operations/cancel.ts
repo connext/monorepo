@@ -1,4 +1,4 @@
-import { getUuid, InvariantTransactionData, RequestContext, TransactionData } from "@connext/nxtp-utils";
+import { getUuid, InvariantTransactionData, RequestContext } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 
 import { getContext } from "../../router";

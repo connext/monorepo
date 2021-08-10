@@ -16,7 +16,7 @@ export type PreparePayload = {
   bidSignature: string;
 };
 
-export type CancelPayload = {};
+export type CancelPayload = Record<string, never>;
 
 export type FulfillPayload = CancelPayload & {
   signature: string;
