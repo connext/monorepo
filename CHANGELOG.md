@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Cancel expired transfers.
+
 ## 0.0.17
 
 - [router] Refactor router architecture.
