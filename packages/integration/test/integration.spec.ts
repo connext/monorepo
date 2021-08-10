@@ -150,7 +150,7 @@ describe("Integration", () => {
       const approvetx = await tokenSending.approve(txManagerSending.address, constants.MaxUint256);
       const approveReceipt = await approvetx.wait(2);
       logger.info({ transactionHash: approveReceipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity approved");
-      const tx = await txManagerSending.addLiquidity(TOKEN_GIFT, tokenAddressSending, router);
+      const tx = await txManagerSending.addLiquidityFor(TOKEN_GIFT, tokenAddressSending, router);
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity mined");
     }
@@ -173,7 +173,7 @@ describe("Integration", () => {
         { transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN },
         "addLiquidity approved",
       );
-      const tx = await txManagerReceiving.addLiquidity(TOKEN_GIFT, tokenAddressReceiving, router);
+      const tx = await txManagerReceiving.addLiquidityFor(TOKEN_GIFT, tokenAddressReceiving, router);
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity mined");
     }

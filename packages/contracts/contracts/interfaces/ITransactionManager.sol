@@ -115,7 +115,9 @@ interface ITransactionManager {
   function removeAssetId(address assetId) external;
 
   // Router only methods
-  function addLiquidity(uint256 amount, address assetId, address router) external payable;
+  function addLiquidityFor(uint256 amount, address assetId, address router) external payable;
+
+  function addLiquidity(uint256 amount, address assetId) external payable;
 
   function removeLiquidity(
     uint256 amount,

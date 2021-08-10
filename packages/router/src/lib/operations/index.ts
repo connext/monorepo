@@ -1,7 +1,7 @@
 export { newAuction } from "./auction";
 
-export { fulfillReceiver } from "./fulfillReceiver";
+export { fulfill } from "./fulfill";
 
-export { fulfillSender } from "./fulfillSender";
+export { prepare } from "./prepare";
 
-export { prepareReceiver } from "./prepareReceiver";
+export { cancel } from "./cancel";
