@@ -6,6 +6,7 @@ export const CrosschainTransactionStatus = {
   SenderPrepared: "SenderPrepared",
   ReceiverFulfilled: "ReceiverFulfilled",
   ReceiverCancelled: "ReceiverCancelled",
+  ReceiverExpired: "ReceiverExpired",
 } as const;
 export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[keyof typeof CrosschainTransactionStatus];
 
@@ -27,6 +28,7 @@ export type CrosschainTransactionPayload = {
   [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
   [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
   [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
+  [CrosschainTransactionStatus.ReceiverExpired]: FulfillPayload;
 };
 
 export type ActiveTransaction<T extends TCrosschainTransactionStatus> = {

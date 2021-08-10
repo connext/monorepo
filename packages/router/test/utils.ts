@@ -89,7 +89,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
 };
 
 export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
-  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock, receiving: variantDataMock },
   payload: {
     callData: "0x",
     relayerFee: "123",

@@ -53,7 +53,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
             logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
           }
         }
-      } else if ((transaction.status = CrosschainTransactionStatus.ReceiverFulfilled)) {
+      } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
         const fulfillPayload: FulfillPayload = transaction.payload;
         const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");
         try {
@@ -74,6 +74,24 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Fulfilled sender");
         } catch (err) {
           logger.error({ err: jsonifyError(err), requestContext }, "Error fulfilling sender");
+        }
+      } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
+        const requestContext = createRequestContext("ContractReader => ReceiverExpired");
+        try {
+          logger.info({ requestContext }, "Cancelling expired receiver");
+          const receipt = await cancel(
+            transaction.crosschainTx.invariant,
+            {
+              amount: transaction.crosschainTx.receiving!.amount,
+              expiry: transaction.crosschainTx.receiving!.expiry,
+              preparedBlockNumber: transaction.crosschainTx.receiving!.preparedBlockNumber,
+              side: "receiver",
+            },
+            requestContext,
+          );
+          logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled receiver");
+        } catch (err) {
+          logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
         }
       }
     }),
