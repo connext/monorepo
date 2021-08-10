@@ -4,9 +4,6 @@ import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgra
 
 export const CrosschainTransactionStatus = {
   SenderPrepared: "SenderPrepared",
-  SenderFulfilled: "SenderFulfilled",
-  SenderCancelled: "SenderCancelled",
-  ReceiverPrepared: "ReceiverPrepared",
   ReceiverFulfilled: "ReceiverFulfilled",
   ReceiverCancelled: "ReceiverCancelled",
 } as const;
@@ -28,9 +25,6 @@ export type FulfillPayload = CancelPayload & {
 
 export type CrosschainTransactionPayload = {
   [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
-  [CrosschainTransactionStatus.SenderFulfilled]: FulfillPayload;
-  [CrosschainTransactionStatus.SenderCancelled]: CancelPayload;
-  [CrosschainTransactionStatus.ReceiverPrepared]: PreparePayload;
   [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
   [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
 };

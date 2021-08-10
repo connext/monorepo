@@ -1,4 +1,4 @@
-import { createRequestContext, jsonifyError, MetaTxFulfillPayload, MetaTxType } from "@connext/nxtp-utils";
+import { createRequestContext, jsonifyError, MetaTxFulfillPayload, MetaTxTypes } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 
 import { fulfill, newAuction } from "../../lib/operations";
@@ -46,7 +46,7 @@ export const bindMessaging = async () => {
       return;
     }
 
-    if (data.type === MetaTxType.Fulfill) {
+    if (data.type === MetaTxTypes.Fulfill) {
       if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
         logger.error(
           { requestContext, to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
