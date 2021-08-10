@@ -96,7 +96,9 @@ export const bindMessaging = async () => {
           await messaging.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash });
         }
         logger.info({ requestContext }, "Handled fulfill request");
-      } catch (err) {}
+      } catch (err) {
+        logger.error({ requestContext, err: jsonifyError(err) }, "Error fulfilling request");
+      }
     }
   });
 };
