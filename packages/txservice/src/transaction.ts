@@ -157,7 +157,8 @@ export class Transaction {
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
     if (this.responses.length > 0) {
-      // TODO: Won't there always be a gasPrice in every response? Why is this member optional?
+      // NOTE: There *should* always be a gasPrice in every response, but it is
+      // defined as optional. Handle that case :(
       // If there isn't a lastPrice, we're going to skip this validation step.
       const lastPrice = this.responses[this.responses.length - 1].gasPrice;
       if (lastPrice && this.gasPrice.get().lte(lastPrice)) {
@@ -252,7 +253,7 @@ export class Transaction {
     if (result.isErr()) {
       const { error } = result;
       if (error instanceof TransactionReplaced) {
-        // TODO: Should we handle error.reason?:
+        // TODO: #150 Should we handle error.reason?:
         // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         this.receipt = error.receipt;
@@ -299,7 +300,7 @@ export class Transaction {
 
     if (this.receipt.confirmations < this.provider.confirmationsRequired) {
       // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
-      // TODO: Maybe set timeout to confirmationsRequired * confirmationTimeout...?
+      // TODO: #151 Maybe set timeout to confirmationsRequired * confirmationTimeout...?
       const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
       if (result.isErr()) {
         // No errors should occur during this confirmation attempt.

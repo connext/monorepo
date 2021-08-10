@@ -46,7 +46,7 @@ export interface NxtpTxServiceEventPayloads {
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
 export class TransactionService {
-  // TODO: Add an object/dictionary statically to the class prototype mapping the
+  // TODO: #152 Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
@@ -76,7 +76,7 @@ export class TransactionService {
    * providers, etc.
    */
   constructor(private readonly logger: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
-    // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
+    // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
 

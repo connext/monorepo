@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
-  address private _transactionManager;
+  address private immutable _transactionManager;
 
   constructor(address transactionManager) {
     _transactionManager = transactionManager;

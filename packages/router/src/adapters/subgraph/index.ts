@@ -9,7 +9,7 @@ import { getSdk, Sdk } from "./graphqlsdk";
 import { getActiveTransactions, getAssetBalance, getTransactionForChain } from "./subgraph";
 
 export type ContractReader = {
-  getActiveTransactions: () => Promise<ActiveTransaction[]>;
+  getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
   getTransactionForChain: (
     transactionId: string,
     user: string,
