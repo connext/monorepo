@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
   address private immutable _transactionManager;
