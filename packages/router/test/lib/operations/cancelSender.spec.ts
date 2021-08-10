@@ -35,7 +35,6 @@ describe("Cancel Sender Operation", () => {
       expect(contractWriterMock.cancel).to.be.calledOnceWithExactly(
         txData.sendingChainId,
         {
-          relayerFee: "0",
           txData,
           signature: "0x",
         },
