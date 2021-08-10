@@ -448,7 +448,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
     }
 
-    // Declare these variables for the event emission. Are only assgined
+    // Declare these variables for the event emission. Are only assigned
     // IFF there is an external call on the receiving chain
     bool success;
     bytes memory returnData;

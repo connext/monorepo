@@ -77,7 +77,6 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
       returnData,
       success
     );
-
     return (success, returnData);
   }
 }
