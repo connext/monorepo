@@ -2,19 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {
-  Signer,
-  utils,
-  BigNumberish,
-  Contract,
-  ContractFactory,
-  Overrides,
-} from "ethers";
+import { Signer, utils, BigNumberish, Contract, ContractFactory, Overrides } from "ethers";
 import { Provider, TransactionRequest } from "@ethersproject/providers";
-import type {
-  TransactionManager,
-  TransactionManagerInterface,
-} from "../TransactionManager";
+import type { TransactionManager, TransactionManagerInterface } from "../TransactionManager";
 
 const _abi = [
   {
@@ -625,13 +615,31 @@ const _abi = [
         name: "assetId",
         type: "address",
       },
+    ],
+    name: "addLiquidity",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "router",
         type: "address",
       },
     ],
-    name: "addLiquidity",
+    name: "addLiquidityFor",
     outputs: [],
     stateMutability: "payable",
     type: "function",
@@ -1419,16 +1427,13 @@ export class TransactionManager__factory extends ContractFactory {
 
   deploy(
     _chainId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): Promise<TransactionManager> {
-    return super.deploy(
-      _chainId,
-      overrides || {}
-    ) as Promise<TransactionManager>;
+    return super.deploy(_chainId, overrides || {}) as Promise<TransactionManager>;
   }
   getDeployTransaction(
     _chainId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> },
   ): TransactionRequest {
     return super.getDeployTransaction(_chainId, overrides || {});
   }
@@ -1443,10 +1448,7 @@ export class TransactionManager__factory extends ContractFactory {
   static createInterface(): TransactionManagerInterface {
     return new utils.Interface(_abi) as TransactionManagerInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): TransactionManager {
+  static connect(address: string, signerOrProvider: Signer | Provider): TransactionManager {
     return new Contract(address, _abi, signerOrProvider) as TransactionManager;
   }
 }
