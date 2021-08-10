@@ -3,7 +3,14 @@ import { variantDataMock, invariantDataMock } from "@connext/nxtp-utils/src/mock
 
 import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
-import { ActiveTransaction, SingleChainTransaction, TransactionStatus } from "../src/lib/entities";
+import {
+  ActiveTransaction,
+  CancelInput,
+  SingleChainTransaction,
+  CrosschainTransactionStatus,
+  FulfillInput,
+  PrepareInput,
+} from "../src/lib/entities";
 
 export const routerAddrMock = mkAddress("0xb");
 
@@ -46,12 +53,49 @@ export const configMock: NxtpRouterConfig = {
   port: 8080,
 };
 
-export const activeTransactionMock: ActiveTransaction = {
-  bidSignature: "0xdbc",
-  encodedBid: "0xdef",
+export const prepareInputMock: PrepareInput = {
+  senderAmount: variantDataMock.amount,
+  senderExpiry: variantDataMock.expiry,
   encryptedCallData: "0xabc",
-  status: TransactionStatus.SenderPrepared,
+  encodedBid: "0xdef",
+  bidSignature: "0xcba",
+};
+
+export const fulfillInputMock: FulfillInput = {
+  amount: variantDataMock.amount,
+  expiry: variantDataMock.expiry,
+  preparedBlockNumber: variantDataMock.preparedBlockNumber,
+  signature: "0xabcd",
+  relayerFee: "123",
+  callData: "0xbaa",
+  side: "receiver",
+};
+
+export const cancelInputMock: CancelInput = {
+  amount: variantDataMock.amount,
+  expiry: variantDataMock.expiry,
+  preparedBlockNumber: variantDataMock.preparedBlockNumber,
+  side: "sender",
+};
+
+export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> = {
   crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+  payload: {
+    bidSignature: "0xdbc",
+    encodedBid: "0xdef",
+    encryptedCallData: "0xabc",
+  },
+  status: CrosschainTransactionStatus.SenderPrepared,
+};
+
+export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
+  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+  payload: {
+    callData: "0x",
+    relayerFee: "123",
+    signature: "0xabc",
+  },
+  status: CrosschainTransactionStatus.ReceiverFulfilled,
 };
 
 export const singleChainTransactionMock: SingleChainTransaction = {

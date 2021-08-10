@@ -3,6 +3,7 @@ import { providers } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput } from "../entities";
+import { NoChainConfig } from "../errors";
 
 export const senderFulfilling: Map<string, boolean> = new Map();
 export const receiverFulfilling: Map<string, boolean> = new Map();
@@ -15,7 +16,7 @@ export const fulfill = async (
   const method = "fulfill";
   const methodId = getUuid();
 
-  const { logger, contractWriter } = getContext();
+  const { logger, contractWriter, config } = getContext();
   logger.info({ method, methodId, requestContext, invariantData, input }, "Method start");
 
   const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
@@ -34,6 +35,10 @@ export const fulfill = async (
   } else {
     fulfillChain = invariantData.receivingChainId;
     map = receiverFulfilling;
+  }
+
+  if (!config.chainConfig[fulfillChain]) {
+    throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
   }
 
   if (map.get(invariantData.transactionId)) {
