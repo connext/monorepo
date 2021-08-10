@@ -232,10 +232,9 @@ yarn workspace @connext/nxtp-test-ui dev
 
 In some cases it is desirable to develop against local blockchains and messaging services. To do that, run:
 
-- `yarn workspace @connext/nxtp-integration docker:services:up`
-- `bash setup-integration-test.sh`
+- `yarn docker:local:services`
 
-The above commands run local chains and messaging and take care of local deployment. Modify `packages/router/config.json` to look similar to the following:
+The above command runs local chains and messaging and take care of local deployment. Modify `packages/router/config.json` to look similar to the following:
 
 ```json
 {
