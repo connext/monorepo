@@ -5,8 +5,8 @@ import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FulfillInterpreter is IFulfillInterpreter {
-  address private _transactionManager;
+contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+  address private immutable _transactionManager;
 
   constructor(address transactionManager) {
     _transactionManager = transactionManager;
