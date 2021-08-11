@@ -112,9 +112,6 @@ interface ITransactionManager {
 
   function getStoredChainId() external view returns (uint256);
 
-  // Helper methods
-  function renounced() external returns (bool);
-
   // Owner only methods
   function addRouter(address router) external;
 

@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-import { BigNumber, constants, Contract, ContractReceipt, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, ContractReceipt, providers, Wallet } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 import { ProposedOwnable } from "../typechain";
@@ -49,7 +49,7 @@ export const proposeNewOwnerOnContract = async (newOwner: string, contract: Prop
   return proposeReceipt;
 };
 
-export const transferOwnershipOnContract = async (newOwner: string, contract: ProposedOwnable) => {
+export const transferOwnershipOnContract = async (newOwner: string, caller: Wallet, contract: ProposedOwnable) => {
   // Get current owner
   const current = await contract.owner();
 
@@ -62,7 +62,10 @@ export const transferOwnershipOnContract = async (newOwner: string, contract: Pr
   await setBlockTime(timestamp + eightDays);
 
   // Accept new owner
-  const acceptTx = await contract.acceptProposedOwner();
+  const acceptTx =
+    newOwner === constants.AddressZero
+      ? await contract.connect(caller).renounceOwnership()
+      : await contract.connect(caller).acceptProposedOwner();
   const acceptReceipt = await acceptTx.wait();
   assertReceiptEvent(acceptReceipt, "OwnershipTransferred", {
     previousOwner: current,

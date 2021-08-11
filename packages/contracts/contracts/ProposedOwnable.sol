@@ -74,7 +74,15 @@ abstract contract ProposedOwnable {
     * @notice Throws if called by any account other than the owner.
     */
   modifier onlyOwner() {
-      require(owner() == msg.sender, "#OO:029");
+      require(_owner == msg.sender, "#OO:029");
+      _;
+  }
+
+  /**
+    * @notice Throws if called by any account other than the proposed owner.
+    */
+  modifier onlyProposed() {
+      require(_proposed == msg.sender, "#OP:035");
       _;
   }
 
@@ -86,11 +94,27 @@ abstract contract ProposedOwnable {
     _setProposed(newlyProposed);
   }
 
+  /** @notice Indicates if the ownership has been renounced() by
+    * checking if current owner is address(0)
+    */
+  function renounced() public view returns (bool) {
+    return owner() == address(0);
+  }
+
+  /**
+    * @notice Renounces ownership of the contract after a delay
+    */
+  function renounceOwnership() public virtual onlyOwner {
+    require((block.timestamp - _proposedTimestamp) > _delay, "#APO:030");
+    require(_proposed == address(0), "#APO:036");
+    _setOwner(_proposed);
+  }
+
   /**
     * @notice Transfers ownership of the contract to a new account (`newOwner`).
     * Can only be called by the current owner.
     */
-  function acceptProposedOwner() public virtual onlyOwner {
+  function acceptProposedOwner() public virtual onlyProposed {
     require((block.timestamp - _proposedTimestamp) > _delay, "#APO:030");
     _setOwner(_proposed);
   }

@@ -27,6 +27,8 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "renounced()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -44,6 +46,11 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     functionFragment: "proposedTimestamp",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -60,6 +67,11 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     functionFragment: "proposedTimestamp",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
 
   events: {
     "OwnershipProposed(address)": EventFragment;
@@ -130,6 +142,12 @@ export class ProposedOwnable extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
   acceptProposedOwner(
@@ -149,6 +167,12 @@ export class ProposedOwnable extends BaseContract {
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounced(overrides?: CallOverrides): Promise<boolean>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
@@ -164,6 +188,10 @@ export class ProposedOwnable extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<string>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    renounced(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
@@ -197,6 +225,12 @@ export class ProposedOwnable extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounced(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -216,5 +250,11 @@ export class ProposedOwnable extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
