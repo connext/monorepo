@@ -75,7 +75,6 @@ describe("Integration", () => {
   let userWallet: Wallet;
 
   before(async () => {
-    expect(true).to.be.false;
     const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(router);
     const balanceReceiving = await chainProviders[RECEIVING_CHAIN].provider.getBalance(router);
 
