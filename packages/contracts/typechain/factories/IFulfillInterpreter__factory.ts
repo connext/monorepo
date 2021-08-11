@@ -99,7 +99,18 @@ const _abi = [
       },
     ],
     name: "execute",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+      {
+        internalType: "bytes",
+        name: "returnData",
+        type: "bytes",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },

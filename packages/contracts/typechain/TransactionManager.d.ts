@@ -291,7 +291,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
-    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,bool,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
@@ -1064,6 +1064,8 @@ export class TransactionManager extends BaseContract {
       relayerFee?: null,
       signature?: null,
       callData?: null,
+      success?: null,
+      returnData?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -1103,6 +1105,8 @@ export class TransactionManager extends BaseContract {
         },
         BigNumber,
         string,
+        string,
+        boolean,
         string,
         string
       ],
@@ -1144,6 +1148,8 @@ export class TransactionManager extends BaseContract {
         relayerFee: BigNumber;
         signature: string;
         callData: string;
+        success: boolean;
+        returnData: string;
         caller: string;
       }
     >;
