@@ -102,6 +102,11 @@ interface ITransactionManager {
     address caller
   );
 
+  // Getters
+  function getChainId() external view returns (uint256);
+
+  function getStoredChainId() external view returns (uint256);
+
   // Helper methods
   function renounced() external returns (bool);
 
