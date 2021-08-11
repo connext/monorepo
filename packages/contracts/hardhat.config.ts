@@ -72,6 +72,11 @@ const config: HardhatUserConfig = {
       chainId: 1,
       url: urlOverride || "http://localhost:8545",
     },
+    ropsten: {
+      accounts: { mnemonic },
+      chainId: 3,
+      url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
+    },
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
