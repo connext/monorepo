@@ -249,12 +249,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -664,11 +658,6 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "signature",
         type: "bytes",
@@ -933,6 +922,32 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getStoredChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

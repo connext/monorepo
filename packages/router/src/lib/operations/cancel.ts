@@ -46,7 +46,6 @@ export const cancel = async (
     const receipt = await contractWriter.cancel(
       cancelChain,
       {
-        relayerFee: "0",
         txData: { ...invariantData, amount, preparedBlockNumber, expiry },
         signature: "0x",
       },
