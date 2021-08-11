@@ -26,8 +26,8 @@ describe("ProposedOwnable.sol", () => {
     return await proposeNewOwnerOnContract(newOwner, proposedOwnable);
   };
 
-  const transferOwnership = async (newOwner: string = constants.AddressZero) => {
-    await transferOwnershipOnContract(newOwner, proposedOwnable);
+  const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
+    await transferOwnershipOnContract(newOwner, caller, proposedOwnable);
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -62,6 +62,20 @@ describe("ProposedOwnable.sol", () => {
     });
   });
 
+  describe("renounced", () => {
+    it("should return false if owner is not renounced", async () => {
+      expect(await proposedOwnable.renounced()).to.be.false;
+    });
+
+    it("should return true if owner is renounced", async () => {
+      // Propose new owner of address(0)
+      await transferOwnership(constants.AddressZero, wallet);
+
+      // Check renounced
+      expect(await proposedOwnable.renounced()).to.be.true;
+    });
+  });
+
   describe("delay", () => {
     it("should work", async () => {
       expect(await proposedOwnable.delay()).to.be.eq(7 * 24 * 60 * 60);
@@ -78,18 +92,18 @@ describe("ProposedOwnable.sol", () => {
   });
 
   describe("acceptProposedOwner", () => {
-    it("should fail if not called by owner", async () => {
+    it("should fail if not called by proposed", async () => {
       await proposeNewOwner(other.address);
-      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#OO:029");
+      await expect(proposedOwnable.connect(wallet).acceptProposedOwner()).to.be.revertedWith("#OP:035");
     });
 
     it("should fail if delay has not elapsed", async () => {
       await proposeNewOwner(other.address);
-      await expect(proposedOwnable.acceptProposedOwner()).to.be.revertedWith("#APO:030");
+      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#APO:030");
     });
 
     it("should work", async () => {
-      await transferOwnership(other.address);
+      await transferOwnership(other.address, other);
     });
   });
 });

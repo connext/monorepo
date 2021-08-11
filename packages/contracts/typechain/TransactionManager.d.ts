@@ -46,6 +46,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "variantTransactionData(bytes32)": FunctionFragment;
@@ -186,6 +187,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "routerBalances",
@@ -260,6 +265,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "removeRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
@@ -487,6 +496,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     routerBalances(
@@ -637,6 +650,10 @@ export class TransactionManager extends BaseContract {
 
   removeRouter(
     router: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -874,6 +891,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<void>;
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
@@ -1371,6 +1390,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerBalances(
@@ -1528,6 +1551,10 @@ export class TransactionManager extends BaseContract {
 
     removeRouter(
       router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
