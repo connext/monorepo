@@ -141,7 +141,7 @@ describe("FulfillInterpreter.sol", async () => {
         .connect(wallet)
         .execute(transactionId, counter.address, assetId, wallet.address, amount, data);
       const receipt = await tx.wait();
-      // TODO: whats the calldata returned when a revert happens?
+      // TODO: whats the calldata returned when a revert happens? #135
       assertReceiptEvent(receipt, "Executed", {
         transactionId,
         callTo: counter.address,

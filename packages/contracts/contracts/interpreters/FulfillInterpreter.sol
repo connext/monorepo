@@ -3,11 +3,12 @@ pragma solidity 0.8.4;
 
 import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
-  address private _transactionManager;
+  address private immutable _transactionManager;
 
   constructor(address transactionManager) {
     _transactionManager = transactionManager;
@@ -43,7 +44,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable nonReentrant onlyTransactionManager {
+  ) override external payable onlyTransactionManager {
     // If it is not ether, approve the callTo
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
@@ -53,10 +54,16 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
       LibAsset.increaseERC20Allowance(assetId, callTo, amount);
     }
 
-    // Try to execute the callData
-    // the low level call will return `false` if its execution reverts
-    (bool success, bytes memory returnData) = callTo.call{value: isEther ? amount : 0}(callData);
+    // Check if the callTo is a contract
+    bool success;
+    bytes memory returnData;
+    if (Address.isContract(callTo)) {
+      // Try to execute the callData
+      // the low level call will return `false` if its execution reverts
+      (success, returnData) = callTo.call{value: isEther ? amount : 0}(callData);
+    }
 
+    // Handle failure cases
     if (!success) {
       // If it fails, transfer to fallback
       LibAsset.transferAsset(assetId, fallbackAddress, amount);

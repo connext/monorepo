@@ -54,13 +54,13 @@ export default task("add-liquidity", "Add liquidity for a router")
         throw new Error("Asset not approved");
       }
 
-      const tx = await txManager.addLiquidity(amount, assetId, router, {
+      const tx = await txManager.addLiquidityFor(amount, assetId, router, {
         from: namedAccounts.deployer,
         value: assetId === ethers.constants.AddressZero ? amount : 0,
       });
-      console.log("addLiquidity tx: ", tx);
+      console.log("addLiquidityFor tx: ", tx);
       const receipt = await tx.wait();
-      console.log("addLiquidity tx mined: ", receipt.transactionHash);
+      console.log("addLiquidityFor tx mined: ", receipt.transactionHash);
       const liquidity = await txManager.routerBalances(router, assetId);
       console.log("liquidity: ", liquidity.toString());
     },

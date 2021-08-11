@@ -153,7 +153,12 @@ describe("TransactionManager", function () {
 
     const tx: providers.TransactionResponse = await instance
       .connect(_router)
-      .addLiquidity(amount, assetId, router.address, assetId === AddressZero ? { value: BigNumber.from(amount) } : {});
+      .addLiquidityFor(
+        amount,
+        assetId,
+        router.address,
+        assetId === AddressZero ? { value: BigNumber.from(amount) } : {},
+      );
 
     const receipt = await tx.wait();
     // const [receipt, payload] = await Promise.all([tx.wait(), event]);
@@ -296,8 +301,6 @@ describe("TransactionManager", function () {
         ? expected.sub(receipt.effectiveGasPrice.mul(receipt.cumulativeGasUsed))
         : expected,
     );
-
-    // TODO: add `getTransactionsByUser` assertion
 
     // Verify amount has been added to contract
     if (!userSending) {
@@ -575,14 +578,14 @@ describe("TransactionManager", function () {
   });
 
   describe("addLiquidity", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if router address is empty", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, AddressZero)).to.be.revertedWith(
+      await expect(transactionManager.connect(router).addLiquidityFor(amount, assetId, AddressZero)).to.be.revertedWith(
         getContractError("addLiquidity: ROUTER_EMPTY"),
       );
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
@@ -592,9 +595,9 @@ describe("TransactionManager", function () {
       const amount = "0";
       const assetId = AddressZero;
 
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        getContractError("addLiquidity: AMOUNT_IS_ZERO"),
-      );
+      await expect(
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
+      ).to.be.revertedWith(getContractError("addLiquidity: AMOUNT_IS_ZERO"));
     });
 
     it("should fail if it is an unapproved router && ownership isnt renounced", async () => {
@@ -606,7 +609,7 @@ describe("TransactionManager", function () {
       await remove.wait();
       expect(await transactionManager.approvedRouters(router.address)).to.be.false;
 
-      await expect(transactionManager.addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(transactionManager.addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
         getContractError("addLiquidity: BAD_ROUTER"),
       );
     });
@@ -620,18 +623,18 @@ describe("TransactionManager", function () {
       await remove.wait();
       expect(await transactionManager.approvedAssets(assetId)).to.be.false;
 
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        getContractError("addLiquidity: BAD_ASSET"),
-      );
+      await expect(
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
+      ).to.be.revertedWith(getContractError("addLiquidity: BAD_ASSET"));
     });
 
     it("should fail if if msg.value == 0 for native asset", async () => {
       const amount = "1";
       const assetId = AddressZero;
 
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        getContractError("addLiquidity: VALUE_MISMATCH"),
-      );
+      await expect(
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
+      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -641,7 +644,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       await expect(
-        transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: falseValue }),
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
       ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -651,7 +654,7 @@ describe("TransactionManager", function () {
       const amount = "1";
       const assetId = tokenA.address;
       await expect(
-        transactionManager.connect(router).addLiquidity(amount, assetId, router.address, { value: amount }),
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
       ).to.be.revertedWith(getContractError("addLiquidity: ETH_WITH_ERC_TRANSFER"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -659,9 +662,9 @@ describe("TransactionManager", function () {
     it("should fail if transferFromERC20 fails", async () => {
       const amount = "1";
       const assetId = tokenA.address;
-      await expect(transactionManager.connect(router).addLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "ERC20: transfer amount exceeds allowance",
-      );
+      await expect(
+        transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
+      ).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -710,7 +713,7 @@ describe("TransactionManager", function () {
   });
 
   describe("removeLiquidity", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if param recipient address is empty", async () => {
@@ -762,7 +765,7 @@ describe("TransactionManager", function () {
   });
 
   describe("prepare", () => {
-    // TODO: revert and emit event test cases
+    // TODO: #135
     // - reentrant cases
     // - rebasing test cases
     it("should revert if invariantData.user is AddressZero", async () => {
@@ -1190,7 +1193,7 @@ describe("TransactionManager", function () {
   });
 
   describe("fulfill", () => {
-    // TODO:
+    // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
     it("should revert if the variant data is not stored (has not been prepared)", async () => {
