@@ -31,7 +31,7 @@ export const getContext = (): Context => {
 export const makeRouter = async () => {
   try {
     // set up external, config based services
-    context.config = getConfig();
+    context.config = await getConfig();
     context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
     context.logger = pino({
       level: context.config.logLevel,

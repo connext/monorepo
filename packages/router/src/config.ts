@@ -1,4 +1,5 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
+import http from "http";
 import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
@@ -22,6 +23,39 @@ import {
   TIntegerString,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
+
+const CHAIN_DATA = new Promise<Map<string, any>>((resolve) => {
+  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+  http.get(
+    url,
+    {
+      headers: {
+        accept: "text/html",
+      },
+    },
+    (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk.toString();
+      });
+      res.on("error", (err) => {
+        console.error(err);
+        // Should we throw or simply log error here? It could be dangerous to let the router start without the chain data.
+        throw new Error("Could not fetch chain data from " + url);
+      });
+      res.on("end", () => {
+        const parsed = JSON.parse(data);
+        const chainData: Map<string, any> = new Map();
+        // Reorganize this list into a mapping by chain ID for quicker lookup.
+        parsed.forEach((item: any) => {
+          const chainId = item.chainId as unknown as string;
+          chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
+        });
+        resolve(chainData);
+      });
+    },
+  );
+});
 
 dotenvConfig();
 
@@ -72,7 +106,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (): NxtpRouterConfig => {
+export const getEnvConfig = (chainData: Map<string, any>): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -141,6 +175,8 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
   };
 
+  const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
+  const recommendedDefaultConfirmations = parseInt(chainData.get("1").confirmations) + 3 || 10;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
@@ -164,6 +200,20 @@ export const getEnvConfig = (): NxtpRouterConfig => {
       }
       nxtpConfig.chainConfig[chainId].subgraph = subgraph;
     }
+    // Validate that confirmations is above acceptable/recommended minimum.
+    const confirmations = chainConfig.confirmations;
+    const recommended = chainData.get(chainId).confirmations ?? recommendedDefaultConfirmations;
+    if (confirmations < recommended) {
+      if (overrideRecommendedConfirmations) {
+        console.warn(
+          `Overriding recommended confirmations required (${recommended}) for chain ${chainId} with value ${confirmations}. Please note that this can cause issues with re-orgs and may result in a loss of funds. I hope you know what you're doing!`,
+        );
+      } else {
+        throw new Error(
+          `Value listed for required confirmations for chain ${chainId} is less than the recommended safe minimum. Minimum: ${recommended}; Configured value: ${confirmations}.`,
+        );
+      }
+    }
   });
 
   const validate = ajv.compile(NxtpRouterConfigSchema);
@@ -184,9 +234,10 @@ let nxtpConfig: NxtpRouterConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = (): NxtpRouterConfig => {
+export const getConfig = async (): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig();
+    const chainData = await CHAIN_DATA;
+    nxtpConfig = getEnvConfig(chainData);
   }
   return nxtpConfig;
 };
