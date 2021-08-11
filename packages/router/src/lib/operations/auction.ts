@@ -35,9 +35,16 @@ export const newAuction = async (
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
 
-  // Validate that amount > 0. This would fail when later calling the contract,
-  // thus exposing a potential gas griefing attack vector w/o this step.
-  if (BigNumber.from(amount).isZero()) {
+  try {
+    // Using try/catch in case amount is invalid number (e.g. negative, decimal, etc).
+    const amountBigNumber = BigNumber.from(amount);
+    // Validate that amount > 0. This would fail when later calling the contract,
+    // thus exposing a potential gas griefing attack vector w/o this step.
+    if (amountBigNumber.isZero()) {
+      // Throwing empty error as the ZeroValueBid error below will override it.
+      throw new Error("Amount was zero.");
+    }
+  } catch (e) {
     throw new ZeroValueBid({
       methodId,
       method,
@@ -45,6 +52,7 @@ export const newAuction = async (
       amount,
       receivingAssetId,
       receivingChainId,
+      error: e.message,
     });
   }
 

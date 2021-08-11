@@ -10,7 +10,7 @@ export class NotEnoughLiquidity extends NxtpError {
 
 export class ZeroValueBid extends NxtpError {
   constructor(context: any = {}) {
-    super("Amount for request was invalid: it must be greater than 0", context, "ZeroAmountRequest");
+    super("Amount for request was invalid: must be integer greater than 0", context, "ZeroAmountRequest");
   }
 }
 
