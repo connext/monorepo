@@ -347,17 +347,20 @@ export type AuctionResponse = {
   bidSignature?: string; // not included in dry run
 };
 
-// TODO: #155 fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
+export const MetaTxTypes = {
+  Fulfill: "Fulfill",
+} as const;
+export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
+
 export type MetaTxPayloads = {
-  Fulfill: MetaTxFulfillPayload;
+  [MetaTxTypes.Fulfill]: MetaTxFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
 
 // TODO: #155 include `cancel`
-export type MetaTxTypes = "Fulfill";
 
-export type MetaTxPayload<T extends MetaTxTypes> = {
+export type MetaTxPayload<T extends MetaTxType> = {
   type: T; // can expand to more types
   relayerFee: string;
   to: string;
@@ -561,10 +564,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
    * @returns The inbox that will receive responses
    */
-  async publishMetaTxRequest<T extends MetaTxTypes>(
-    data: MetaTxPayload<T>,
-    inbox?: string,
-  ): Promise<{ inbox: string }> {
+  async publishMetaTxRequest<T extends MetaTxType>(data: MetaTxPayload<T>, inbox?: string): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }

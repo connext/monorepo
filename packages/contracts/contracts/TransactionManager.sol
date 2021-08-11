@@ -79,6 +79,26 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     interpreter = new FulfillInterpreter(address(this));
   }
 
+  /// @notice Allows us to get the chainId that this factory will use in the create2 salt
+  function getChainId() public view override returns (uint256 _chainId) {
+    // Hold in memory to reduce sload calls
+    uint256 chain = chainId;
+    if (chain == 0) {
+      // If not provided, pull from block
+      assembly {
+        _chainId := chainid()
+      }
+    } else {
+      // Use provided override
+      _chainId = chain;
+    }
+  }
+
+  /// @notice Allows us to get the chainId that this factory has stored
+  function getStoredChainId() external view override returns (uint256) {
+    return chainId;
+  }
+
   /// @notice Indicates if the ownership has been renounced() by
   ///         checking if current owner is address(0)
   function renounced() public view override returns (bool) {
@@ -145,41 +165,23 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     emit AssetRemoved(assetId, msg.sender);
   }
 
+  /// @notice This is used by any one to increase the available
+  ///         liquidity for a given asset on behalf of a router
+  /// @param amount The amount of liquidity to add for the router
+  /// @param assetId The address (or `address(0)` if native asset) of the
+  ///                asset you're adding liquidity for
+  /// @param router The router you are adding liquidity on behalf of
+  function addLiquidityFor(uint256 amount, address assetId, address router) external payable override {
+    _addLiquidityForRouter(amount, assetId, router);
+  }
+
   /// @notice This is used by any router to increase their available
   ///         liquidity for a given asset.
   /// @param amount The amount of liquidity to add for the router
   /// @param assetId The address (or `address(0)` if native asset) of the
   ///                asset you're adding liquidity for
-  /// @param router The router you are adding liquidity on behalf of
-  function addLiquidity(uint256 amount, address assetId, address router) external payable override {
-    // Sanity check: router is sensible
-    require(router != address(0), "#AL:001");
-
-    // Sanity check: nonzero amounts
-    require(amount > 0, "#AL:002");
-
-    // Store renounced() result in memory for gas
-    bool isRenounced = renounced();
-
-    // Router is approved
-    require(isRenounced || approvedRouters[router], "#AL:003");
-
-    // Asset is approved
-    require(isRenounced || approvedAssets[assetId], "#AL:004");
-
-    // Update the router balances
-    routerBalances[router][assetId] += amount;
-
-    // Validate correct amounts are transferred
-    if (LibAsset.isEther(assetId)) {
-      require(msg.value == amount, "#AL:005");
-    } else {
-      require(msg.value == 0, "#AL:006");
-      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
-    }
-
-    // Emit event
-    emit LiquidityAdded(router, assetId, amount, msg.sender);
+  function addLiquidity(uint256 amount, address assetId) external payable override {
+    _addLiquidityForRouter(amount, assetId, msg.sender);
   }
 
   /// @notice This is used by any router to decrease their available
@@ -192,7 +194,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 amount,
     address assetId,
     address payable recipient
-  ) external override {
+  ) external override nonReentrant {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "#RL:007");
 
@@ -273,7 +275,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
 
     // Make sure the chains are relevant
-    require(invariantData.sendingChainId == chainId || invariantData.receivingChainId == chainId, "#P:012");
+    require(invariantData.sendingChainId == getChainId() || invariantData.receivingChainId == getChainId(), "#P:012");
 
     // Make sure the expiry is greater than min
     require((expiry - block.timestamp) >= MIN_TIMEOUT, "#P:013");
@@ -293,7 +295,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     //       correct bid information without requiring an offchain store.
 
     // First determine if this is sender side or receiver side
-    if (invariantData.sendingChainId == chainId) {
+    if (invariantData.sendingChainId == getChainId()) {
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
@@ -445,7 +447,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
-    if (txData.sendingChainId == chainId) {
+    if (txData.sendingChainId == getChainId()) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
@@ -552,7 +554,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
     // Return the appropriate locked funds
-    if (txData.sendingChainId == chainId) {
+    if (txData.sendingChainId == getChainId()) {
       // Sender side, funds must be returned to the user
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by router
@@ -595,6 +597,46 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   //////////////////////////
   /// Private functions ///
   //////////////////////////
+
+  /// @notice Contains logic to add liquidity for a given router
+  /// @param amount The amount of liquidity to add for the router
+  /// @param assetId The address (or `address(0)` if native asset) of the
+  ///                asset you're adding liquidity for
+  /// @param router The router you are adding liquidity on behalf of
+  function _addLiquidityForRouter(
+    uint256 amount,
+    address assetId,
+    address router
+  ) internal {
+    // Sanity check: router is sensible
+    require(router != address(0), "#AL:001");
+
+    // Sanity check: nonzero amounts
+    require(amount > 0, "#AL:002");
+
+    // Store renounced() result in memory for gas
+    bool isRenounced = renounced();
+
+    // Router is approved
+    require(isRenounced || approvedRouters[router], "#AL:003");
+
+    // Asset is approved
+    require(isRenounced || approvedAssets[assetId], "#AL:004");
+
+    // Update the router balances
+    routerBalances[router][assetId] += amount;
+
+    // Validate correct amounts are transferred
+    if (LibAsset.isEther(assetId)) {
+      require(msg.value == amount, "#AL:005");
+    } else {
+      require(msg.value == 0, "#AL:006");
+      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
+    }
+
+    // Emit event
+    emit LiquidityAdded(router, assetId, amount, msg.sender);
+  }
 
   /// @notice Recovers the signer from the signature provided by the user
   /// @param transactionId Transaction identifier of tx being recovered

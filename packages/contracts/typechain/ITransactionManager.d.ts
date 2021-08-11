@@ -23,10 +23,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ITransactionManagerInterface extends ethers.utils.Interface {
   functions: {
     "addAssetId(address)": FunctionFragment;
-    "addLiquidity(uint256,address,address)": FunctionFragment;
+    "addLiquidity(uint256,address)": FunctionFragment;
+    "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "cancel(tuple,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getChainId()": FunctionFragment;
+    "getStoredChainId()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -37,6 +40,10 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addLiquidityFor",
     values: [BigNumberish, string, string]
   ): string;
   encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
@@ -87,6 +94,14 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStoredChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "prepare",
     values: [
       {
@@ -128,9 +143,18 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addLiquidityFor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getChainId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getStoredChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
@@ -221,6 +245,12 @@ export class ITransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -274,6 +304,10 @@ export class ITransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     prepare(
       txData: {
         user: string;
@@ -324,6 +358,12 @@ export class ITransactionManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   addLiquidity(
+    amount: BigNumberish,
+    assetId: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addLiquidityFor(
     amount: BigNumberish,
     assetId: string,
     router: string,
@@ -379,6 +419,10 @@ export class ITransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
   prepare(
     txData: {
       user: string;
@@ -426,6 +470,12 @@ export class ITransactionManager extends BaseContract {
     addAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
 
     addLiquidity(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addLiquidityFor(
       amount: BigNumberish,
       assetId: string,
       router: string,
@@ -541,6 +591,10 @@ export class ITransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
       txData: {
@@ -940,6 +994,12 @@ export class ITransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -992,6 +1052,10 @@ export class ITransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
       txData: {
@@ -1046,6 +1110,12 @@ export class ITransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1098,6 +1168,10 @@ export class ITransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    getChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     prepare(
       txData: {

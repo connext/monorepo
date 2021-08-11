@@ -26,7 +26,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "MIN_TIMEOUT()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "addAssetId(address)": FunctionFragment;
-    "addLiquidity(uint256,address,address)": FunctionFragment;
+    "addLiquidity(uint256,address)": FunctionFragment;
+    "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
@@ -34,6 +35,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "chainId()": FunctionFragment;
     "delay()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getChainId()": FunctionFragment;
+    "getStoredChainId()": FunctionFragment;
     "interpreter()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
@@ -63,6 +66,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addLiquidityFor",
     values: [BigNumberish, string, string]
   ): string;
   encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
@@ -121,6 +128,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStoredChainId",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "interpreter",
@@ -198,6 +213,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addLiquidityFor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "approvedAssets",
@@ -211,6 +230,11 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getChainId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getStoredChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "interpreter",
     data: BytesLike
@@ -335,6 +359,12 @@ export class TransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -398,6 +428,12 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getChainId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _chainId: BigNumber }>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     interpreter(overrides?: CallOverrides): Promise<[string]>;
 
@@ -481,6 +517,12 @@ export class TransactionManager extends BaseContract {
   addLiquidity(
     amount: BigNumberish,
     assetId: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addLiquidityFor(
+    amount: BigNumberish,
+    assetId: string,
     router: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -541,6 +583,10 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
   interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -617,6 +663,12 @@ export class TransactionManager extends BaseContract {
     addAssetId(assetId: string, overrides?: CallOverrides): Promise<void>;
 
     addLiquidity(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addLiquidityFor(
       amount: BigNumberish,
       assetId: string,
       router: string,
@@ -740,6 +792,10 @@ export class TransactionManager extends BaseContract {
         preparedBlockNumber: BigNumber;
       }
     >;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -1183,6 +1239,12 @@ export class TransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1246,6 +1308,10 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     interpreter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1330,6 +1396,12 @@ export class TransactionManager extends BaseContract {
     addLiquidity(
       amount: BigNumberish,
       assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addLiquidityFor(
+      amount: BigNumberish,
+      assetId: string,
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1396,6 +1468,10 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    getChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     interpreter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

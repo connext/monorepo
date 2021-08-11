@@ -123,7 +123,7 @@ describe("Transaction Manager", function () {
     await approveTokens(transactionManagerReceiverSide.address, routerFunds, router, tokenB);
     const tx = await transactionManagerReceiverSide
       .connect(router)
-      .addLiquidity(routerFunds, tokenB.address, router.address);
+      .addLiquidityFor(routerFunds, tokenB.address, router.address);
     await tx.wait();
 
     userTransactionManager = new TransactionManager(
