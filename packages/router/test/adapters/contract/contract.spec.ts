@@ -19,6 +19,7 @@ const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
 
 let interfaceMock: SinonStubbedInstance<Interface>;
+
 describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
@@ -72,7 +73,6 @@ describe("Contract Adapter", () => {
       const res = await cancel(chainId, cancelParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("cancel", [
         cancelParamsMock.txData,
-        cancelParamsMock.relayerFee,
         cancelParamsMock.signature,
       ]);
       expect(res).to.deep.eq(txReceiptMock);

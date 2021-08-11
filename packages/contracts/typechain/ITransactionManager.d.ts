@@ -26,7 +26,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "addLiquidity(uint256,address)": FunctionFragment;
     "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
-    "cancel(tuple,uint256,bytes)": FunctionFragment;
+    "cancel(tuple,bytes)": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
     "getChainId()": FunctionFragment;
     "getStoredChainId()": FunctionFragment;
@@ -66,7 +66,6 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -178,7 +177,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
-    "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
@@ -278,7 +277,6 @@ export class ITransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -394,7 +392,6 @@ export class ITransactionManager extends BaseContract {
       expiry: BigNumberish;
       preparedBlockNumber: BigNumberish;
     },
-    relayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -504,7 +501,6 @@ export class ITransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -726,7 +722,6 @@ export class ITransactionManager extends BaseContract {
       router?: string | null,
       transactionId?: BytesLike | null,
       txData?: null,
-      relayerFee?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -764,7 +759,6 @@ export class ITransactionManager extends BaseContract {
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         },
-        BigNumber,
         string
       ],
       {
@@ -802,7 +796,6 @@ export class ITransactionManager extends BaseContract {
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
-        relayerFee: BigNumber;
         caller: string;
       }
     >;
@@ -1033,7 +1026,6 @@ export class ITransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1150,7 +1142,6 @@ export class ITransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
