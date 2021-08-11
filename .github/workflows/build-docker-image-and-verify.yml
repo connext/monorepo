@@ -83,11 +83,9 @@ jobs:
           docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
 
       - name: Test Integration
-        steps:
-          - run: yarn test:integration
-          - name: Print router logs
-            if: ${{ failure() }}
-            run: docker service ls && docker service logs --tail 250 router-test
+        run: yarn test:integration
+        if: failure()
+        run: docker service ls && docker service logs --tail 250 router-test
 
       - name: Lint
         run: yarn lint:all --max-warnings 0
