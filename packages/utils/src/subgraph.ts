@@ -9,6 +9,8 @@
  */
 export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
   switch (chainId) {
+    case 3:
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten";
     case 4:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
     case 5:
