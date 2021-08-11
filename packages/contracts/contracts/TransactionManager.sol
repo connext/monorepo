@@ -79,12 +79,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     interpreter = new FulfillInterpreter(address(this));
   }
 
-  /// @notice Indicates if the ownership has been renounced() by
-  ///         checking if current owner is address(0)
-  function renounced() public view override returns (bool) {
-    return owner() == address(0);
-  }
-
   /// @notice Used to add routers that can transact crosschain
   /// @param router Router address to add
   function addRouter(address router) external override onlyOwner {
