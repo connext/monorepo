@@ -1,5 +1,5 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-import http from "http";
+import https from "https";
 import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
@@ -24,9 +24,13 @@ import {
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 
+// TODO: Should we be caching chain data locally? Like, request at most once per day, or once per week?
+// Maybe there could be a versioning system of this remote config, and we can use that to check whether our
+// local cache is up to date?
 const CHAIN_DATA = new Promise<Map<string, any>>((resolve) => {
+  // TODO: Using raw github api is not a stable solution.
   const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
-  http.get(
+  https.get(
     url,
     {
       headers: {
@@ -48,7 +52,7 @@ const CHAIN_DATA = new Promise<Map<string, any>>((resolve) => {
         const chainData: Map<string, any> = new Map();
         // Reorganize this list into a mapping by chain ID for quicker lookup.
         parsed.forEach((item: any) => {
-          const chainId = item.chainId as unknown as string;
+          const chainId = item.chainId.toString();
           chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
         });
         resolve(chainData);
