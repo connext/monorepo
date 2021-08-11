@@ -32,7 +32,6 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
-    "renounced()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "addAssetId", values: [string]): string;
@@ -127,7 +126,6 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "addAssetId", data: BytesLike): Result;
   decodeFunctionResult(
@@ -154,7 +152,6 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
 
   events: {
     "AssetAdded(address,address)": EventFragment;
@@ -329,10 +326,6 @@ export class ITransactionManager extends BaseContract {
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    renounced(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   addAssetId(
@@ -439,10 +432,6 @@ export class ITransactionManager extends BaseContract {
 
   removeRouter(
     router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  renounced(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -637,8 +626,6 @@ export class ITransactionManager extends BaseContract {
     ): Promise<void>;
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
-
-    renounced(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
@@ -1072,10 +1059,6 @@ export class ITransactionManager extends BaseContract {
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    renounced(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1183,10 +1166,6 @@ export class ITransactionManager extends BaseContract {
 
     removeRouter(
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    renounced(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
