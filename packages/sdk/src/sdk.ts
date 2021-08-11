@@ -37,6 +37,7 @@ import {
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
+  CrosschainTransaction,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -436,6 +437,16 @@ export class NxtpSdk {
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
+    return txs;
+  }
+
+  /**
+   * Gets historical transactions
+   *
+   * @returns An array of historical transactions
+   */
+  public async getHistoricalTransactions(): Promise<CrosschainTransaction[]> {
+    const txs = await this.subgraph.getHistoricalTransactions();
     return txs;
   }
 

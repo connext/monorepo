@@ -295,6 +295,94 @@ export class Subgraph {
     return all;
   }
 
+  async getHistoricalTransactions(): Promise<CrosschainTransaction[]> {
+    const methodName = "getHistoricalTransactions";
+    const methodId = getUuid();
+
+    const txs = await Promise.all(
+      Object.keys(this.sdks).map(async (c) => {
+        const user = (await this.user.getAddress()).toLowerCase();
+        const chainId = parseInt(c);
+        const subgraph = this.sdks[chainId];
+
+        // get all receiver fulfilled
+        const { transactions: receiverFulfilled } = await subgraph.GetReceiverTransactions({
+          receivingChainId: chainId,
+          userId: user,
+          status: TransactionStatus.Fulfilled,
+        });
+
+        // for each, break up receiving txs by chain
+        const receiverPerChain: Record<number, any[]> = {};
+        receiverFulfilled.forEach((tx) => {
+          if (!receiverPerChain[tx.sendingChainId]) {
+            receiverPerChain[tx.sendingChainId] = [tx];
+          } else {
+            receiverPerChain[tx.sendingChainId].push(tx);
+          }
+        });
+
+        const historicalTxs = await Promise.all(
+          Object.entries(receiverPerChain).map(async ([chainId, receiverTxs]) => {
+            const _sdk = this.sdks[parseInt(chainId)];
+            if (!_sdk) {
+              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+              return undefined;
+            }
+
+            const { transactions: correspondingSenderTxs } = await _sdk.GetTransactions({
+              transactionIds: receiverTxs.map((tx) => tx.transactionId),
+            });
+
+            return receiverTxs.map((receiverTx): CrosschainTransaction | undefined => {
+              const correspondingSenderTx = correspondingSenderTxs.find(
+                (tx) => tx.transactionId === receiverTx.transactionId,
+              );
+              if (!correspondingSenderTx) {
+                this.logger.error(
+                  { methodId, methodName, receiverTx },
+                  "No corresponding sender tx, this should never happen",
+                );
+                return undefined;
+              }
+              return {
+                invariant: {
+                  user,
+                  router: receiverTx.router,
+                  sendingChainId: Number(receiverTx.sendingChainId),
+                  sendingAssetId: receiverTx.sendingAssetId,
+                  sendingChainFallback: receiverTx.sendingChainFallback,
+                  receivingChainId: Number(receiverTx.receivingChainId),
+                  receivingAssetId: receiverTx.receivingAssetId,
+                  receivingAddress: receiverTx.receivingAddress,
+                  callTo: receiverTx.callTo,
+                  callDataHash: receiverTx.callDataHash,
+                  transactionId: receiverTx.transactionId,
+                },
+                sending: {
+                  amount: correspondingSenderTx.amount,
+                  expiry: Number(correspondingSenderTx.expiry),
+                  preparedBlockNumber: Number(correspondingSenderTx.preparedBlockNumber),
+                },
+                receiving: {
+                  amount: receiverTx.amount,
+                  expiry: Number(receiverTx.expiry),
+                  preparedBlockNumber: Number(receiverTx.preparedBlockNumber),
+                },
+              };
+            });
+          }),
+        );
+        return historicalTxs
+          .filter((x) => !!x)
+          .flat()
+          .filter((x) => !!x) as CrosschainTransaction[];
+      }),
+    );
+
+    return txs.flat();
+  }
+
   // Listener methods
   /**
    * Attaches a callback to the emitted event

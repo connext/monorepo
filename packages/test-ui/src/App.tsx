@@ -109,6 +109,9 @@ function App(): React.ReactElement | null {
       setActiveTransferTableColumns(activeTxs);
       console.log("activeTxs: ", activeTxs);
 
+      const historicalTxs = await _sdk.getHistoricalTransactions();
+      console.log("historicalTxs: ", historicalTxs);
+
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
         console.log("SenderTransactionPrepared:", data);
         const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
