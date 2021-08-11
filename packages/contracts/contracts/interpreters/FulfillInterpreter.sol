@@ -44,7 +44,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable nonReentrant onlyTransactionManager {
+  ) override external payable onlyTransactionManager {
     // If it is not ether, approve the callTo
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 

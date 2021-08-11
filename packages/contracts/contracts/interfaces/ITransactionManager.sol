@@ -102,6 +102,11 @@ interface ITransactionManager {
     address caller
   );
 
+  // Getters
+  function getChainId() external view returns (uint256);
+
+  function getStoredChainId() external view returns (uint256);
+
   // Helper methods
   function renounced() external returns (bool);
 
@@ -115,7 +120,9 @@ interface ITransactionManager {
   function removeAssetId(address assetId) external;
 
   // Router only methods
-  function addLiquidity(uint256 amount, address assetId, address router) external payable;
+  function addLiquidityFor(uint256 amount, address assetId, address router) external payable;
+
+  function addLiquidity(uint256 amount, address assetId) external payable;
 
   function removeLiquidity(
     uint256 amount,

@@ -13,6 +13,7 @@ import "./src/tasks/addAsset";
 import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
+import "./src/tasks/getChainId";
 
 dotEnvConfig();
 
