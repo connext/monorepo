@@ -187,7 +187,7 @@ describe("TransactionService", () => {
     });
   });
 
-  // TODO: Maybe we should test whether the events are firing for each event type?
+  // TODO: #154 Maybe we should test whether the events are firing for each event type?
   describe("attach", () => {
     it("should attach callback to event", async () => {
       const spy = Sinon.spy();

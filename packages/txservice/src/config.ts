@@ -3,7 +3,6 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { parseUnits } from "ethers/lib/utils";
 
-// TODO: TIntegerString and TUrl from utils/basic.ts not working!
 const TIntegerString = Type.RegEx(/^([0-9])*$/);
 const TUrl = Type.String({ format: "uri" });
 

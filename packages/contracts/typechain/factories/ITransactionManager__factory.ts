@@ -554,13 +554,31 @@ const _abi = [
         name: "assetId",
         type: "address",
       },
+    ],
+    name: "addLiquidity",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "router",
         type: "address",
       },
     ],
-    name: "addLiquidity",
+    name: "addLiquidityFor",
     outputs: [],
     stateMutability: "payable",
     type: "function",

@@ -166,8 +166,6 @@ export const prepareAndAssert = async (
       : expected,
   );
 
-  // TODO: add `getTransactionsByUser` assertion
-
   // Verify amount has been added to contract
   if (!userSending) {
     // Router does not send funds

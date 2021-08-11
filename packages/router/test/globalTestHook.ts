@@ -5,7 +5,13 @@ import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
-import { routerAddrMock, activeTransactionMock, singleChainTransactionMock, configMock } from "./utils";
+import {
+  routerAddrMock,
+  activeTransactionPrepareMock,
+  singleChainTransactionMock,
+  configMock,
+  activeTransactionFulfillMock,
+} from "./utils";
 import { Context } from "../src/router";
 import { ContractReader } from "../src/adapters/subgraph";
 import { ContractWriter } from "../src/adapters/contract";
@@ -30,7 +36,7 @@ export const mochaHooks = {
     messagingMock = createStubInstance(RouterNxtpNatsMessagingService);
 
     contractReaderMock = {
-      getActiveTransactions: stub().resolves([activeTransactionMock]),
+      getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
     };

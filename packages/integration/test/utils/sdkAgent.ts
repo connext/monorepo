@@ -149,7 +149,6 @@ export class SdkAgent {
 
     // Setup autofulfill of transfers + post to evt if it failed
     this.sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
-      // TODO: determine if sdk will complete or cancel transfer
       let error: NxtpErrorJson | undefined;
       try {
         await this.sdk.fulfillTransfer(data);
