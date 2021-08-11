@@ -49,10 +49,16 @@ interface ITransactionManager {
   }
 
   // The structure of the signed data for fulfill
-  struct SignedData {
+  struct SignedFulfillData {
     bytes32 transactionId;
     uint256 relayerFee;
     string functionIdentifier; // "fulfill" or "cancel"
+  }
+
+  // The structure of the signed data for cancellation
+  struct SignedCancelData {
+    bytes32 transactionId;
+    string functionIdentifier;
   }
 
   // Adding/removing asset events
@@ -100,9 +106,13 @@ interface ITransactionManager {
     address indexed router,
     bytes32 indexed transactionId,
     TransactionData txData,
-    uint256 relayerFee,
     address caller
   );
+
+  // Getters
+  function getChainId() external view returns (uint256);
+
+  function getStoredChainId() external view returns (uint256);
 
   // Helper methods
   function renounced() external returns (bool);
@@ -149,5 +159,5 @@ interface ITransactionManager {
     bytes calldata callData
   ) external returns (TransactionData memory);
 
-  function cancel(TransactionData calldata txData, uint256 relayerFee, bytes calldata signature) external returns (TransactionData memory);
+  function cancel(TransactionData calldata txData, bytes calldata signature) external returns (TransactionData memory);
 }

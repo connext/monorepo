@@ -29,7 +29,6 @@ export type TransactionData = InvariantTransactionData & VariantTransactionData;
 
 export type SignedCancelData = {
   invariantDigest: string;
-  relayerFee: string;
   cancel: "cancel"; // just the string "cancel"
 };
 
@@ -57,7 +56,6 @@ export type FulfillParams = {
 
 export type CancelParams = {
   txData: TransactionData;
-  relayerFee: string;
   signature: string;
 };
 

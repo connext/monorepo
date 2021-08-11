@@ -34,7 +34,6 @@ describe("Cancel Sender Operation", () => {
       expect(contractWriterMock.cancel).to.be.calledOnceWithExactly(
         invariantDataMock.sendingChainId,
         {
-          relayerFee: "0",
           txData: {
             ...invariantDataMock,
             amount: cancelInputMock.amount,
