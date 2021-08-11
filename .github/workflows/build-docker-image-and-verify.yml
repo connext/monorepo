@@ -84,6 +84,9 @@ jobs:
 
       - name: Test Integration
         run: yarn test:integration
+        - name: Print router logs
+          if: failure()
+          run: docker service ls
 
       - name: Lint
         run: yarn lint:all --max-warnings 0
