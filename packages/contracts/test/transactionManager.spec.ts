@@ -94,8 +94,8 @@ describe("TransactionManager", function () {
     );
   });
 
-  const transferOwnership = async (newOwner: string = constants.AddressZero) => {
-    await transferOwnershipOnContract(newOwner, transactionManager);
+  const transferOwnership = async (newOwner: string = constants.AddressZero, caller: Wallet = wallet) => {
+    await transferOwnershipOnContract(newOwner, caller, transactionManager);
     // expect(await transactionManager.renounced()).to.be.eq(newOwner === constants.AddressZero);
   };
 
@@ -468,20 +468,6 @@ describe("TransactionManager", function () {
 
     it("should set renounced", async () => {
       expect(await transactionManager.renounced()).to.be.false;
-    });
-  });
-
-  describe("renounced", () => {
-    it("should return false if owner is not renounced", async () => {
-      expect(await transactionManager.renounced()).to.be.false;
-    });
-
-    it("should return true if owner is renounced", async () => {
-      // Propose new owner of address(0)
-      await transferOwnership();
-
-      // Check renounced
-      expect(await transactionManager.renounced()).to.be.true;
     });
   });
 
