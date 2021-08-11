@@ -194,7 +194,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 amount,
     address assetId,
     address payable recipient
-  ) external override {
+  ) external override nonReentrant {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "#RL:007");
 
