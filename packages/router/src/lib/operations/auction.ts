@@ -1,4 +1,5 @@
 import { AuctionBid, AuctionPayload, getUuid, RequestContext, signAuctionBid } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
@@ -36,7 +37,7 @@ export const newAuction = async (
 
   // Validate that amount > 0. This would fail when later calling the contract,
   // thus exposing a potential gas griefing attack vector w/o this step.
-  if (parseInt(amount) <= 0) {
+  if (BigNumber.from(amount).isZero()) {
     throw new ZeroValueBid({
       methodId,
       method,
