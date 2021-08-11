@@ -173,7 +173,6 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Cancelled";
-  transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
 
