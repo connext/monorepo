@@ -34,12 +34,14 @@ export const VariantTransactionDataEncoding = tidy(`tuple(
 export const SignedFulfillDataEncoding = tidy(`tuple(
   bytes32 transactionId,
   uint256 relayerFee,
-  string functionIdentifier
+  string functionIdentifier,
+  uint256 receivingChainId
 )`);
 
 export const SignedCancelDataEncoding = tidy(`tuple(
   bytes32 transactionId,
-  string functionIdentifier
+  string functionIdentifier,
+  uint256 receivingChainId
 )`);
 
 /**
@@ -81,10 +83,10 @@ export const getVariantTransactionDigest = (txDataParams: VariantTransactionData
  * @param relayerFee - Fee to encode
  * @returns Encoded fulfill payload
  */
-export const encodeFulfillData = (transactionId: string, relayerFee: string): string => {
+export const encodeFulfillData = (transactionId: string, relayerFee: string, receivingChainId: number): string => {
   return utils.defaultAbiCoder.encode(
     [SignedFulfillDataEncoding],
-    [{ transactionId, relayerFee, functionIdentifier: "fulfill" }],
+    [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId }],
   );
 };
 
@@ -94,8 +96,11 @@ export const encodeFulfillData = (transactionId: string, relayerFee: string): st
  * @param transactionId - Unique identifier to encode
  * @returns  Encoded cancel payload
  */
-export const encodeCancelData = (transactionId: string): string => {
-  return utils.defaultAbiCoder.encode([SignedCancelDataEncoding], [{ transactionId, functionIdentifier: "cancel" }]);
+export const encodeCancelData = (transactionId: string, receivingChainId: number): string => {
+  return utils.defaultAbiCoder.encode(
+    [SignedCancelDataEncoding],
+    [{ transactionId, functionIdentifier: "cancel", receivingChainId }],
+  );
 };
 
 ////// AUCTION

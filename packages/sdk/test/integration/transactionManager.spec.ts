@@ -276,7 +276,11 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
+        const signature = await signCancelTransactionPayload(
+          transaction.transactionId,
+          transaction.receivingChainId,
+          user,
+        );
 
         const cancelParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
@@ -306,7 +310,11 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
+        const signature = await signCancelTransactionPayload(
+          transaction.transactionId,
+          transaction.receivingChainId,
+          user,
+        );
 
         const cancelParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
@@ -334,7 +342,11 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signCancelTransactionPayload(transaction.transactionId, user);
+        const signature = await signCancelTransactionPayload(
+          transaction.transactionId,
+          transaction.receivingChainId,
+          user,
+        );
 
         const cancelParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
@@ -369,7 +381,12 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee.toString(),
+          transaction.receivingChainId,
+          user,
+        );
 
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
@@ -398,7 +415,12 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee.toString(),
+          transaction.receivingChainId,
+          user,
+        );
 
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: 0 },
@@ -427,7 +449,12 @@ describe("Transaction Manager", function () {
           userTransactionManager,
         );
 
-        const signature = await signFulfillTransactionPayload(transaction.transactionId, relayerFee.toString(), user);
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee.toString(),
+          transaction.receivingChainId,
+          user,
+        );
 
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },

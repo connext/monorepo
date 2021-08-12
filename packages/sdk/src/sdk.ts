@@ -281,9 +281,10 @@ export class NxtpSdkError extends NxtpError {
 export const signFulfillTransactionPayload = async (
   transactionId: string,
   relayerFee: string,
+  receivingChainId: number,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  return await _signFulfillTransactionPayload(transactionId, relayerFee, signer);
+  return await _signFulfillTransactionPayload(transactionId, relayerFee, receivingChainId, signer);
 };
 
 /**
@@ -936,7 +937,7 @@ export class NxtpSdk {
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      signFulfillTransactionPayload(txData.transactionId, relayerFee, txData.receivingChainId, this.signer),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,

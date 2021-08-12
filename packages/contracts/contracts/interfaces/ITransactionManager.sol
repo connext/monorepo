@@ -53,12 +53,16 @@ interface ITransactionManager {
     bytes32 transactionId;
     uint256 relayerFee;
     string functionIdentifier; // "fulfill" or "cancel"
+    uint256 receivingChainId; // For domain separation
+    // address receivingTransactionManager; // For domain separation
   }
 
   // The structure of the signed data for cancellation
   struct SignedCancelData {
     bytes32 transactionId;
     string functionIdentifier;
+    uint256 receivingChainId;
+    // address receivingTransactionManager; // For domain separation
   }
 
   // Adding/removing asset events
