@@ -143,6 +143,8 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
   transaction!.callData = event.params.callData.toHexString();
+  transaction!.externalCallSuccess = event.params.success;
+  transaction!.externalCallReturnData = event.params.returnData;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
 
@@ -173,7 +175,6 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Cancelled";
-  transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
 

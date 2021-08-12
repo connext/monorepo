@@ -2,6 +2,9 @@
 
 ## Next Release
 
+## 0.0.18
+
+- [contracts] Deploy to Ropsten.
 - [router] Cancel expired transfers.
 
 ## 0.0.17

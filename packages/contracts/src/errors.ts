@@ -40,6 +40,8 @@ export const Errors: ErrorsType = {
   "032": "ALREADY_ADDED",
   "033": "NOT_ADDED",
   "034": "NO_NATIVE_ASSET",
+  "035": "NOT_PROPOSED_OWNER",
+  "036": "INVALID_PROPOSED",
 };
 
 type ErrorsPrefixType = {
@@ -61,6 +63,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#TE": "transferEther",
   "#APO": "acceptProposedOwner",
   "#OO": "onlyOwner",
+  "#OP": "onlyProposed",
   "#AR": "addRouter",
   "#RR": "removeRouter",
 };

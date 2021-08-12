@@ -31,10 +31,12 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "addRouter(address)": FunctionFragment;
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
-    "cancel(tuple,uint256,bytes)": FunctionFragment;
+    "cancel(tuple,bytes)": FunctionFragment;
     "chainId()": FunctionFragment;
     "delay()": FunctionFragment;
     "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "getChainId()": FunctionFragment;
+    "getStoredChainId()": FunctionFragment;
     "interpreter()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
@@ -44,6 +46,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "removeAssetId(address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "variantTransactionData(bytes32)": FunctionFragment;
@@ -98,7 +101,6 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -127,6 +129,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getChainId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStoredChainId",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "interpreter",
@@ -177,6 +187,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "routerBalances",
@@ -221,6 +235,11 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getChainId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getStoredChainId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "interpreter",
     data: BytesLike
@@ -248,6 +267,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerBalances",
@@ -267,8 +290,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
-    "TransactionCancelled(address,address,bytes32,tuple,uint256,address)": EventFragment;
-    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,address)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,bool,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
   };
 
@@ -384,7 +407,6 @@ export class TransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -415,6 +437,12 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getChainId(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _chainId: BigNumber }>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     interpreter(overrides?: CallOverrides): Promise<[string]>;
 
@@ -465,6 +493,10 @@ export class TransactionManager extends BaseContract {
 
     removeRouter(
       router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -534,7 +566,6 @@ export class TransactionManager extends BaseContract {
       expiry: BigNumberish;
       preparedBlockNumber: BigNumberish;
     },
-    relayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -565,6 +596,10 @@ export class TransactionManager extends BaseContract {
     callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
   interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -615,6 +650,10 @@ export class TransactionManager extends BaseContract {
 
   removeRouter(
     router: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -676,7 +715,6 @@ export class TransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -772,6 +810,10 @@ export class TransactionManager extends BaseContract {
       }
     >;
 
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
     interpreter(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -849,6 +891,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<void>;
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
@@ -934,7 +978,6 @@ export class TransactionManager extends BaseContract {
       router?: string | null,
       transactionId?: BytesLike | null,
       txData?: null,
-      relayerFee?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -972,7 +1015,6 @@ export class TransactionManager extends BaseContract {
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         },
-        BigNumber,
         string
       ],
       {
@@ -1010,7 +1052,6 @@ export class TransactionManager extends BaseContract {
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
-        relayerFee: BigNumber;
         caller: string;
       }
     >;
@@ -1023,6 +1064,8 @@ export class TransactionManager extends BaseContract {
       relayerFee?: null,
       signature?: null,
       callData?: null,
+      success?: null,
+      returnData?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -1062,6 +1105,8 @@ export class TransactionManager extends BaseContract {
         },
         BigNumber,
         string,
+        string,
+        boolean,
         string,
         string
       ],
@@ -1103,6 +1148,8 @@ export class TransactionManager extends BaseContract {
         relayerFee: BigNumber;
         signature: string;
         callData: string;
+        success: boolean;
+        returnData: string;
         caller: string;
       }
     >;
@@ -1256,7 +1303,6 @@ export class TransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1287,6 +1333,10 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getChainId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     interpreter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1337,6 +1387,10 @@ export class TransactionManager extends BaseContract {
 
     removeRouter(
       router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1413,7 +1467,6 @@ export class TransactionManager extends BaseContract {
         expiry: BigNumberish;
         preparedBlockNumber: BigNumberish;
       },
-      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1444,6 +1497,10 @@ export class TransactionManager extends BaseContract {
       callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    getChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getStoredChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     interpreter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1494,6 +1551,10 @@ export class TransactionManager extends BaseContract {
 
     removeRouter(
       router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

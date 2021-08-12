@@ -44,16 +44,11 @@ export const recoverFulfilledTransactionPayload = (
  * Generates a signature on an cancel transaction payload
  *
  * @param transactionId - Transaction ID that was signed
- * @param relayerFee - Relayer fee that was signed
  * @param signature - Signature to recover signer of
  * @returns Signature of the payload from the signer
  */
-export const signCancelTransactionPayload = async (
-  transactionId: string,
-  relayerFee: string,
-  signer: Signer,
-): Promise<string> => {
-  const payload = encodeCancelData(transactionId, relayerFee);
+export const signCancelTransactionPayload = async (transactionId: string, signer: Signer): Promise<string> => {
+  const payload = encodeCancelData(transactionId);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return signer.signMessage(utils.arrayify(hashed));
 };
@@ -66,12 +61,8 @@ export const signCancelTransactionPayload = async (
  * @param signature - Signature to recover signer of
  * @returns Recovered address of signer
  */
-export const recoverCancelTransactionPayload = (
-  transactionId: string,
-  relayerFee: string,
-  signature: string,
-): string => {
-  const payload = encodeCancelData(transactionId, relayerFee);
+export const recoverCancelTransactionPayload = (transactionId: string, signature: string): string => {
+  const payload = encodeCancelData(transactionId);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return utils.verifyMessage(utils.arrayify(hashed), signature);
 };

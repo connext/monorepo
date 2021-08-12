@@ -130,7 +130,7 @@ export class IFulfillInterpreter extends BaseContract {
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<[boolean, string] & { success: boolean; returnData: string }>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };

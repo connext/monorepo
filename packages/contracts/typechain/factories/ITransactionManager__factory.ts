@@ -249,12 +249,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -378,6 +372,18 @@ const _abi = [
         indexed: false,
         internalType: "bytes",
         name: "callData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "returnData",
         type: "bytes",
       },
       {
@@ -664,11 +670,6 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "signature",
         type: "bytes",
@@ -936,6 +937,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getStoredChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         components: [
@@ -1154,19 +1181,6 @@ const _abi = [
     ],
     name: "removeRouter",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
     stateMutability: "nonpayable",
     type: "function",
   },

@@ -207,11 +207,11 @@ export class TransactionManager {
       );
     }
 
-    const { txData, relayerFee, signature } = cancelParams;
+    const { txData, signature } = cancelParams;
     return ResultAsync.fromPromise(
       txManager
         .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-        .cancel(txData, relayerFee, signature, { from: this.signer.getAddress() }),
+        .cancel(txData, signature, { from: this.signer.getAddress() }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
           method,
