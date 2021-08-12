@@ -58,6 +58,36 @@ describe("FulfillInterpreter.sol", async () => {
       ).to.be.revertedWith(getContractError("onlyTransactionManager: NOT_TRANSACTION_MANAGER"));
     });
 
+    it("should not execute if there is no data at the `callTo` (i.e. it is an EOA)", async () => {
+      const amount = "1000";
+      const assetId = constants.AddressZero;
+      const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
+      const transactionId = getRandomBytes32();
+
+      const preExecute = await counter.count();
+      const balance = await getOnchainBalance(assetId, other.address, ethers.provider);
+
+      const callTo = Wallet.createRandom().address;
+
+      const tx = await fulfillInterpreter
+        .connect(wallet)
+        .execute(transactionId, callTo, assetId, other.address, amount, data, { value: amount });
+      const receipt = await tx.wait();
+      assertReceiptEvent(receipt, "Executed", {
+        transactionId,
+        callTo,
+        assetId,
+        fallbackAddress: other.address,
+        amount,
+        callData: data,
+        returnData: "0x",
+        success: false,
+      });
+
+      expect(await counter.count()).to.be.eq(preExecute);
+      expect(await getOnchainBalance(assetId, other.address, ethers.provider)).to.be.eq(balance.add(amount));
+    });
+
     it("should work for eth", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;

@@ -147,6 +147,7 @@ describe("TransactionManager", function () {
     assetId: string = AddressZero,
     _router: Wallet = router,
     instance: Contract = transactionManagerReceiverSide,
+    useMsgSender: boolean = false,
   ) => {
     // Get starting + expected  balance
     const routerAddr = router.address;
@@ -156,14 +157,18 @@ describe("TransactionManager", function () {
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
     const expectedLiquidity = startingLiquidity.add(amount);
 
-    const tx: providers.TransactionResponse = await instance
-      .connect(_router)
-      .addLiquidityFor(
-        amount,
-        assetId,
-        router.address,
-        assetId === AddressZero ? { value: BigNumber.from(amount) } : {},
-      );
+    const tx: providers.TransactionResponse = useMsgSender
+      ? await instance
+          .connect(_router)
+          .addLiquidity(amount, assetId, assetId === AddressZero ? { value: BigNumber.from(amount) } : {})
+      : await instance
+          .connect(_router)
+          .addLiquidityFor(
+            amount,
+            assetId,
+            router.address,
+            assetId === AddressZero ? { value: BigNumber.from(amount) } : {},
+          );
 
     const receipt = await tx.wait();
     // const [receipt, payload] = await Promise.all([tx.wait(), event]);
@@ -476,9 +481,9 @@ describe("TransactionManager", function () {
     let defaultChainTm: TransactionManager;
     const chainOverride = 25;
     beforeEach(async () => {
-      const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-      storedChainTm = (await transactionManagerFactory.deploy(chainOverride)) as TransactionManager;
-      defaultChainTm = (await transactionManagerFactory.deploy(constants.Zero)) as TransactionManager;
+      storedChainTm = await deployContract<TransactionManager>("TransactionManager", chainOverride);
+
+      defaultChainTm = await deployContract<TransactionManager>("TransactionManager", constants.Zero);
     });
 
     it("should work when there is a provided override", async () => {
@@ -597,7 +602,7 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe("addLiquidityFor", () => {
+  describe("addLiquidity / addLiquidityFor", () => {
     // TODO: #135
     // - reentrant cases
     // - rebasing/inflationary/deflationary cases
@@ -729,6 +734,13 @@ describe("TransactionManager", function () {
       const assetId = tokenA.address;
       await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
       await addAndAssertLiquidity(amount, assetId);
+    });
+
+    it("addLiqudity should add funds for msg.sender", async () => {
+      const amount = "1";
+      const assetId = tokenA.address;
+      await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
+      await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true);
     });
   });
 
