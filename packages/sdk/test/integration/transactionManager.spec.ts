@@ -62,8 +62,8 @@ describe("Transaction Manager", function () {
       receivingAddress: receiver.address,
       callDataHash: EmptyCallDataHash,
       transactionId: getRandomBytes32(),
-      sendingChainId: (await transactionManager.chainId()).toNumber(),
-      receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+      sendingChainId: (await transactionManager.getChainId()).toNumber(),
+      receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
       ...txOverrides,
     };
 

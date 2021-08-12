@@ -64,7 +64,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   mapping(bytes32 => bytes32) public variantTransactionData;
 
   /// @dev The chain id of the contract, is passed in to avoid any evm issues
-  uint256 public immutable chainId;
+  uint256 private immutable chainId;
 
   /// @dev Minimum timeout (will be the lowest on the receiving chain)
   uint256 public constant MIN_TIMEOUT = 1 days; // 24 hours
