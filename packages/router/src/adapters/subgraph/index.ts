@@ -1,5 +1,6 @@
 import { BigNumber, constants, Contract, providers } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
+import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
@@ -7,17 +8,6 @@ import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
 import { getActiveTransactions, getAssetBalance, getTransactionForChain } from "./subgraph";
-
-const ERC20Abi = [
-  // Read-Only Functions
-  "function balanceOf(address owner) view returns (uint256)",
-  "function decimals() view returns (uint8)",
-  "function symbol() view returns (string)",
-
-  // Authenticated Functions
-  "function transfer(address to, uint amount) returns (boolean)",
-  "function mint(address account, uint256 amount)",
-];
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
