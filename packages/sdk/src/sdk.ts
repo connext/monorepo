@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -24,7 +24,6 @@ import {
   NxtpError,
   NxtpErrorJson,
   Values,
-  calculateExchangeAmount,
   AuctionBid,
   isNode,
   NATS_AUTH_URL,
@@ -37,6 +36,8 @@ import {
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
+  calculateExchangeWad,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -639,7 +640,25 @@ export class NxtpSdk {
 
             // check if the price changes unfovorably by more than the slippage tolerance(percentage).
             const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-            const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
+
+            const inputDecimals = await new Contract(
+              sendingAssetId,
+              ERC20Abi,
+              this.chainConfig[sendingChainId].provider,
+            ).decimals();
+
+            const outputDecimals = await new Contract(
+              receivingAssetId,
+              ERC20Abi,
+              this.chainConfig[sendingChainId].provider,
+            ).decimals();
+
+            const lowerBound = calculateExchangeWad(
+              BigNumber.from(amount),
+              inputDecimals,
+              lowerBoundExchangeRate,
+              outputDecimals,
+            );
 
             // safe calculation if the amountReceived is greater than 4 decimals
             if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
