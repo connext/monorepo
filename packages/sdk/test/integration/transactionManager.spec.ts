@@ -53,6 +53,7 @@ describe("Transaction Manager", function () {
     recordOverrides: Partial<VariantTransactionData> = {},
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
     const transaction = {
+      receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
       router: router.address,
       sendingAssetId: tokenA.address,
@@ -279,6 +280,7 @@ describe("Transaction Manager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -313,6 +315,7 @@ describe("Transaction Manager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -345,6 +348,7 @@ describe("Transaction Manager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -385,6 +389,7 @@ describe("Transaction Manager", function () {
           transaction.transactionId,
           relayerFee.toString(),
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -419,6 +424,7 @@ describe("Transaction Manager", function () {
           transaction.transactionId,
           relayerFee.toString(),
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -453,6 +459,7 @@ describe("Transaction Manager", function () {
           transaction.transactionId,
           relayerFee.toString(),
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 

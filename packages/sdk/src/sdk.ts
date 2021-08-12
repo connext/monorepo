@@ -105,6 +105,7 @@ export const AuctionBidParamsSchema = Type.Object({
 export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
 
 export const TransactionDataSchema = Type.Object({
+  receivingChainTxManagerAddress: TAddress,
   user: TAddress,
   router: TAddress,
   sendingChainId: TChainId,
@@ -282,9 +283,16 @@ export const signFulfillTransactionPayload = async (
   transactionId: string,
   relayerFee: string,
   receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  return await _signFulfillTransactionPayload(transactionId, relayerFee, receivingChainId, signer);
+  return await _signFulfillTransactionPayload(
+    transactionId,
+    relayerFee,
+    receivingChainId,
+    receivingChainTxManagerAddress,
+    signer,
+  );
 };
 
 /**
@@ -856,6 +864,7 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
+      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
       user,
       router,
       sendingAssetId,
@@ -937,7 +946,13 @@ export class NxtpSdk {
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      signFulfillTransactionPayload(txData.transactionId, relayerFee, txData.receivingChainId, this.signer),
+      signFulfillTransactionPayload(
+        txData.transactionId,
+        relayerFee,
+        txData.receivingChainId,
+        txData.receivingChainTxManagerAddress,
+        this.signer,
+      ),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,

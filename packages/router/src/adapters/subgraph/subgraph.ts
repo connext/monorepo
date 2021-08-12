@@ -63,6 +63,8 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       const txs =
         allSenderPrepared.router?.transactions.map((senderTx): ActiveTransaction<any> | undefined => {
           const invariant: InvariantTransactionData = {
+            // FIXME: how to update subgraph client in router?
+            receivingChainTxManagerAddress: "",
             user: senderTx.user.id,
             router: senderTx.router.id,
             sendingAssetId: senderTx.sendingAssetId,
@@ -204,6 +206,8 @@ export const getTransactionForChain = async (
     ? {
         status: transaction.status,
         txData: {
+          // FIXME: how to update subgraph client in router?
+          receivingChainTxManagerAddress: "",
           user: transaction.user.id,
           router: transaction.router.id,
           sendingAssetId: transaction.sendingAssetId,

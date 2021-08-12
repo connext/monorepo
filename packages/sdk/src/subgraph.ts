@@ -28,6 +28,7 @@ export const SubgraphUri: { [chainId: number]: string } = {
  */
 export const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
+    receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
     user: transaction.user.id,
     router: transaction.router.id,
     sendingChainId: parseInt(transaction.sendingChainId),

@@ -104,6 +104,7 @@ describe("TransactionManager", function () {
     recordOverrides: Partial<VariantTransactionData> = {},
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
     const transaction = {
+      receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
       router: router.address,
       sendingAssetId: AddressZero,
@@ -343,6 +344,7 @@ describe("TransactionManager", function () {
       transaction.transactionId,
       relayerFee,
       transaction.receivingChainId,
+      transaction.receivingChainTxManagerAddress,
       user,
     );
 
@@ -436,7 +438,13 @@ describe("TransactionManager", function () {
     const expectedBalance = startingBalance.add(record.amount);
 
     const signature =
-      _signature ?? (await signCancelTransactionPayload(transaction.transactionId, transaction.receivingChainId, user));
+      _signature ??
+      (await signCancelTransactionPayload(
+        transaction.transactionId,
+        transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
+        user,
+      ));
     const tx = await instance.connect(canceller).cancel({ ...transaction, ...record }, signature);
     const receipt = await tx.wait();
     await assertReceiptEvent(receipt, "TransactionCancelled", {
@@ -1216,6 +1224,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
       await expect(
@@ -1254,6 +1263,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
 
@@ -1278,6 +1288,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
 
@@ -1321,6 +1332,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         Wallet.createRandom(),
       );
 
@@ -1352,6 +1364,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
 
@@ -1397,6 +1410,7 @@ describe("TransactionManager", function () {
         transaction.transactionId,
         relayerFee,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
 
@@ -1428,6 +1442,7 @@ describe("TransactionManager", function () {
           transaction.transactionId,
           relayerFee,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -1473,6 +1488,7 @@ describe("TransactionManager", function () {
           transaction.transactionId,
           relayerFee,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -1522,6 +1538,7 @@ describe("TransactionManager", function () {
           transaction.transactionId,
           relayerFee,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -1571,6 +1588,7 @@ describe("TransactionManager", function () {
           transaction.transactionId,
           relayerFee,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
 
@@ -1940,6 +1958,7 @@ describe("TransactionManager", function () {
       const signature = await signCancelTransactionPayload(
         transaction.transactionId,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
       await expect(
@@ -1973,6 +1992,7 @@ describe("TransactionManager", function () {
       const signature = await signCancelTransactionPayload(
         transaction.transactionId,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         user,
       );
       await expect(
@@ -2001,6 +2021,7 @@ describe("TransactionManager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
         await expect(
@@ -2037,6 +2058,7 @@ describe("TransactionManager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
         await expect(
@@ -2070,6 +2092,7 @@ describe("TransactionManager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
         await expect(
@@ -2103,6 +2126,7 @@ describe("TransactionManager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           user,
         );
         await expect(
@@ -2128,6 +2152,7 @@ describe("TransactionManager", function () {
         const signature = await signCancelTransactionPayload(
           transaction.transactionId,
           transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
           receiver,
         );
         await expect(
@@ -2159,7 +2184,12 @@ describe("TransactionManager", function () {
         { ...record, preparedBlockNumber: blockNumber },
         user,
         transactionManagerReceiverSide,
-        await signCancelTransactionPayload(transaction.transactionId, transaction.receivingChainId, receiver),
+        await signCancelTransactionPayload(
+          transaction.transactionId,
+          transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
+          receiver,
+        ),
       );
     });
 
@@ -2177,6 +2207,7 @@ describe("TransactionManager", function () {
       const signature = await signCancelTransactionPayload(
         transaction.transactionId,
         transaction.receivingChainId,
+        transaction.receivingChainTxManagerAddress,
         receiver,
       );
 

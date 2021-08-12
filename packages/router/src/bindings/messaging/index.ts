@@ -69,6 +69,7 @@ export const bindMessaging = async () => {
         logger.info({ requestContext }, "Fulfilling tx");
         const tx = await fulfill(
           {
+            receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
             user: txData.user,
             router: txData.router,
             sendingChainId: txData.sendingChainId,

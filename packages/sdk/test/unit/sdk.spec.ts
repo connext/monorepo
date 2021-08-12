@@ -104,6 +104,7 @@ describe("NxtpSdk", () => {
     recordOverrides: Partial<VariantTransactionData> = {},
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
     const transaction = {
+      receivingChainTxManagerAddress: mkAddress("0xaa"),
       user: user,
       router: router,
       sendingAssetId: mkAddress("0xc"),

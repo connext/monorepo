@@ -12,6 +12,7 @@ import { InvariantTransactionData, VariantTransactionData } from "./transactionM
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 export const InvariantTransactionDataEncoding = tidy(`tuple(
+  address receivingChainTxManagerAddress,
   address user,
   address router,
   address sendingAssetId,
@@ -35,13 +36,15 @@ export const SignedFulfillDataEncoding = tidy(`tuple(
   bytes32 transactionId,
   uint256 relayerFee,
   string functionIdentifier,
-  uint256 receivingChainId
+  uint256 receivingChainId,
+  address receivingChainTxManagerAddress
 )`);
 
 export const SignedCancelDataEncoding = tidy(`tuple(
   bytes32 transactionId,
   string functionIdentifier,
-  uint256 receivingChainId
+  uint256 receivingChainId,
+  address receivingChainTxManagerAddress
 )`);
 
 /**
@@ -81,12 +84,19 @@ export const getVariantTransactionDigest = (txDataParams: VariantTransactionData
  *
  * @param transactionId - Unique identifier to encode
  * @param relayerFee - Fee to encode
+ * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @returns Encoded fulfill payload
  */
-export const encodeFulfillData = (transactionId: string, relayerFee: string, receivingChainId: number): string => {
+export const encodeFulfillData = (
+  transactionId: string,
+  relayerFee: string,
+  receivingChainId: number,
+  receivingChainTxManagerAddress: string,
+): string => {
   return utils.defaultAbiCoder.encode(
     [SignedFulfillDataEncoding],
-    [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId }],
+    [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId, receivingChainTxManagerAddress }],
   );
 };
 
@@ -94,12 +104,18 @@ export const encodeFulfillData = (transactionId: string, relayerFee: string, rec
  * Encode a cancel payload object, as defined in the TransactionManager contract
  *
  * @param transactionId - Unique identifier to encode
+ * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @returns  Encoded cancel payload
  */
-export const encodeCancelData = (transactionId: string, receivingChainId: number): string => {
+export const encodeCancelData = (
+  transactionId: string,
+  receivingChainId: number,
+  receivingChainTxManagerAddress: string,
+): string => {
   return utils.defaultAbiCoder.encode(
     [SignedCancelDataEncoding],
-    [{ transactionId, functionIdentifier: "cancel", receivingChainId }],
+    [{ transactionId, functionIdentifier: "cancel", receivingChainId, receivingChainTxManagerAddress }],
   );
 };
 

@@ -9,6 +9,7 @@ import { AuctionBid } from "./messaging";
  * @param transactionId - Transaction ID that was signed
  * @param relayerFee - Relayer fee that was signed
  * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @param signature - Signature to recover signer of
  * @returns Signature of the payload from the signer
  */
@@ -16,9 +17,10 @@ export const signFulfillTransactionPayload = (
   transactionId: string,
   relayerFee: string,
   receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId);
+  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
   return signer.signMessage(utils.arrayify(hash));
@@ -30,6 +32,7 @@ export const signFulfillTransactionPayload = (
  * @param transactionId - Transaction ID that was signed
  * @param relayerFee - Relayer fee that was signed
  * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @param signature - Signature to recover signer of
  * @returns Recovered address of signer
  */
@@ -37,9 +40,10 @@ export const recoverFulfilledTransactionPayload = (
   transactionId: string,
   relayerFee: string,
   receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signature: string,
 ): string => {
-  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId);
+  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return utils.verifyMessage(utils.arrayify(hashed), signature);
 };
@@ -49,15 +53,17 @@ export const recoverFulfilledTransactionPayload = (
  *
  * @param transactionId - Transaction ID that was signed
  * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @param signature - Signature to recover signer of
  * @returns Signature of the payload from the signer
  */
 export const signCancelTransactionPayload = async (
   transactionId: string,
   receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signer: Signer,
 ): Promise<string> => {
-  const payload = encodeCancelData(transactionId, receivingChainId);
+  const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return signer.signMessage(utils.arrayify(hashed));
 };
@@ -67,15 +73,17 @@ export const signCancelTransactionPayload = async (
  *
  * @param transactionId - Transaction ID that was signed
  * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
  * @param signature - Signature to recover signer of
  * @returns Recovered address of signer
  */
 export const recoverCancelTransactionPayload = (
   transactionId: string,
   receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signature: string,
 ): string => {
-  const payload = encodeCancelData(transactionId, receivingChainId);
+  const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
   const hashed = utils.solidityKeccak256(["bytes"], [payload]);
   return utils.verifyMessage(utils.arrayify(hashed), signature);
 };
