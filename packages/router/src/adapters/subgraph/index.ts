@@ -75,12 +75,12 @@ export const subgraphContractReader = (): ContractReader => {
     }
     const provider =
       _providers.length === 1
-        ? new providers.JsonRpcProvider(p)
+        ? new providers.JsonRpcProvider(_providers[0])
         : new providers.FallbackProvider(
             _providers.map((p) => new providers.JsonRpcProvider(p)),
             1,
           );
-    return (await new Contract(assetId, ERC20Abi, provider).decimals()).toNumber();
+    return new Contract(assetId, ERC20Abi, provider).decimals();
   };
 
   return {

@@ -23,11 +23,11 @@ export const validExpiry = (expiry: number) => expiry - Math.floor(Date.now() / 
  * @remarks
  * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * SWAP_RATE`
  */
-export const getReceiverAmount = (amount: string, inputDecimals: number, outputDecimals: number) => {
+export const getReceiverAmount = (amount: string, inputDecimals: number, outputDecimals: number): string => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
-  return calculateExchangeWad(BigNumber.from(amount), inputDecimals, SWAP_RATE, outputDecimals);
+  return calculateExchangeWad(BigNumber.from(amount), inputDecimals, SWAP_RATE, outputDecimals).toString();
 };
 
 /**
