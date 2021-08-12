@@ -73,7 +73,6 @@ export const transferOwnershipOnContract = async (
 
   // Propose new owner
   await proposeNewOwnerOnContract(newOwner, owner, contract);
-  console.log("proposed new");
 
   // Advance block time
   const eightDays = 8 * 24 * 60 * 60;
@@ -85,7 +84,6 @@ export const transferOwnershipOnContract = async (
     newOwner === constants.AddressZero
       ? await contract.connect(caller).renounceOwnership()
       : await contract.connect(caller).acceptProposedOwner();
-  console.log("accepted");
   const acceptReceipt = await acceptTx.wait();
   assertReceiptEvent(acceptReceipt, "OwnershipTransferred", {
     previousOwner: current,
