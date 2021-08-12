@@ -6,7 +6,7 @@ use(solidity);
 import { constants, Wallet } from "ethers";
 import { Counter, FulfillInterpreter, RevertableERC20 } from "../../typechain";
 import { getContractError } from "../../src";
-import { assertReceiptEvent, getOnchainBalance } from "../utils";
+import { assertReceiptEvent, getOnchainBalance, deployContract, MAX_FEE_PER_GAS } from "../utils";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
 describe("FulfillInterpreter.sol", async () => {
@@ -18,14 +18,11 @@ describe("FulfillInterpreter.sol", async () => {
   let token: RevertableERC20;
 
   const fixture = async () => {
-    const fulfillInterpreterFactory = await ethers.getContractFactory("FulfillInterpreter");
-    const counterFactory = await ethers.getContractFactory("Counter");
-    const RevertableERC20Factory = await ethers.getContractFactory("RevertableERC20");
+    fulfillInterpreter = await deployContract<FulfillInterpreter>("FulfillInterpreter", wallet.address);
 
-    fulfillInterpreter = (await fulfillInterpreterFactory.deploy(wallet.address)) as FulfillInterpreter;
+    counter = await deployContract<Counter>("Counter");
 
-    counter = (await counterFactory.deploy()) as Counter;
-    token = (await RevertableERC20Factory.deploy()) as RevertableERC20;
+    token = await deployContract<RevertableERC20>("RevertableERC20");
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -95,7 +92,7 @@ describe("FulfillInterpreter.sol", async () => {
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
       const transactionId = getRandomBytes32();
 
-      const transferTx = await token.transfer(fulfillInterpreter.address, amount);
+      const transferTx = await token.transfer(fulfillInterpreter.address, amount, { maxFeePerGas: MAX_FEE_PER_GAS });
       await transferTx.wait();
 
       const preExecute = await counter.count();
@@ -126,7 +123,7 @@ describe("FulfillInterpreter.sol", async () => {
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
       const transactionId = getRandomBytes32();
 
-      const transferTx = await token.transfer(fulfillInterpreter.address, amount);
+      const transferTx = await token.transfer(fulfillInterpreter.address, amount, { maxFeePerGas: MAX_FEE_PER_GAS });
       await transferTx.wait();
 
       const preExecute = await counter.count();
@@ -134,7 +131,7 @@ describe("FulfillInterpreter.sol", async () => {
       const fallback = await getOnchainBalance(assetId, wallet.address, ethers.provider);
       const allowance = await token.allowance(counter.address, fulfillInterpreter.address);
 
-      const shouldRevertTx = await counter.setShouldRevert(true);
+      const shouldRevertTx = await counter.setShouldRevert(true, { maxFeePerGas: MAX_FEE_PER_GAS });
       await shouldRevertTx.wait();
 
       const tx = await fulfillInterpreter

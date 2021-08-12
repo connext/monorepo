@@ -6,7 +6,7 @@ use(solidity);
 import { constants, Wallet } from "ethers";
 
 import { ProposedOwnable } from "../typechain";
-import { proposeNewOwnerOnContract, transferOwnershipOnContract } from "./utils";
+import { deployContract, proposeNewOwnerOnContract, transferOwnershipOnContract } from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("ProposedOwnable.sol", () => {
@@ -16,18 +16,16 @@ describe("ProposedOwnable.sol", () => {
   const fixture = async () => {
     // Deploy transaction manager because it inherits the contract
     // we want to test
-    const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-
-    proposedOwnable = (await transactionManagerFactory.deploy(1337)) as ProposedOwnable;
+    proposedOwnable = await deployContract<ProposedOwnable>("TransactionManager", 1337);
   };
 
   const proposeNewOwner = async (newOwner: string = constants.AddressZero) => {
     // Propose new owner
-    return await proposeNewOwnerOnContract(newOwner, proposedOwnable);
+    return await proposeNewOwnerOnContract(newOwner, wallet, proposedOwnable);
   };
 
   const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
-    await transferOwnershipOnContract(newOwner, caller, proposedOwnable);
+    await transferOwnershipOnContract(newOwner, caller, proposedOwnable, wallet);
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
