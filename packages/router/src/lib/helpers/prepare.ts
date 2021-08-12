@@ -1,9 +1,11 @@
 import {
   AuctionBid,
-  calculateExchangeAmount,
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
+  calculateExchangeWad,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "@ethersproject/bignumber";
+import { AmountInvalid } from "../errors/prepare";
 
 const EXPIRY_DECREMENT = 3600 * 24;
 const SWAP_RATE = "0.9995"; // 0.05% fee
@@ -21,8 +23,11 @@ export const validExpiry = (expiry: number) => expiry - Math.floor(Date.now() / 
  * @remarks
  * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * SWAP_RATE`
  */
-export const getReceiverAmount = (amount: string) => {
-  return calculateExchangeAmount(amount, SWAP_RATE);
+export const getReceiverAmount = (amount: string, inputDecimals: number, outputDecimals: number) => {
+  if (amount.includes(".")) {
+    throw new AmountInvalid(amount);
+  }
+  return calculateExchangeWad(BigNumber.from(amount), inputDecimals, SWAP_RATE, outputDecimals);
 };
 
 /**
