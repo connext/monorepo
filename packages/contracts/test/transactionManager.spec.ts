@@ -118,8 +118,8 @@ describe("TransactionManager", function () {
       receivingAddress: receiver.address,
       callDataHash: EmptyCallDataHash,
       transactionId: hexlify(randomBytes(32)),
-      sendingChainId: (await transactionManager.chainId()).toNumber(),
-      receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+      sendingChainId: (await transactionManager.getChainId()).toNumber(),
+      receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
       ...txOverrides,
     };
 
@@ -428,7 +428,7 @@ describe("TransactionManager", function () {
     instance: Contract,
     _signature?: string,
   ): Promise<void> => {
-    const sendingSideCancel = (await instance.chainId()).toNumber() === transaction.sendingChainId;
+    const sendingSideCancel = (await instance.getChainId()).toNumber() === transaction.sendingChainId;
 
     const startingBalance = !sendingSideCancel
       ? await instance.routerBalances(transaction.router, transaction.receivingAssetId)
@@ -458,7 +458,7 @@ describe("TransactionManager", function () {
     });
 
     it("should set chainId", async () => {
-      expect(await transactionManager.chainId()).to.eq(1337);
+      expect(await transactionManager.getChainId()).to.eq(1337);
     });
 
     it("should set interpreter", async () => {
@@ -468,6 +468,28 @@ describe("TransactionManager", function () {
 
     it("should set renounced", async () => {
       expect(await transactionManager.renounced()).to.be.false;
+    });
+  });
+
+  describe("getChainId / getStoredChainId", async () => {
+    let storedChainTm: TransactionManager;
+    let defaultChainTm: TransactionManager;
+    const chainOverride = 25;
+    beforeEach(async () => {
+      const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
+      storedChainTm = (await transactionManagerFactory.deploy(chainOverride)) as TransactionManager;
+      defaultChainTm = (await transactionManagerFactory.deploy(constants.Zero)) as TransactionManager;
+    });
+
+    it("should work when there is a provided override", async () => {
+      expect(await storedChainTm.getChainId()).to.be.eq(chainOverride);
+      expect(await storedChainTm.getStoredChainId()).to.be.eq(chainOverride);
+    });
+
+    it("should work when there is no provided override", async () => {
+      const { chainId } = await ethers.provider.getNetwork();
+      expect(await defaultChainTm.getStoredChainId()).to.be.eq(constants.AddressZero);
+      expect(await defaultChainTm.getChainId()).to.be.eq(chainId);
     });
   });
 
@@ -1417,8 +1439,8 @@ describe("TransactionManager", function () {
           {
             sendingAssetId: AddressZero,
             receivingAssetId: assetId,
-            sendingChainId: (await transactionManager.chainId()).toNumber(),
-            receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+            sendingChainId: (await transactionManager.getChainId()).toNumber(),
+            receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
           },
           { amount: prepareAmount },
         );
@@ -1460,8 +1482,8 @@ describe("TransactionManager", function () {
           {
             sendingAssetId: AddressZero,
             receivingAssetId: assetId,
-            sendingChainId: (await transactionManager.chainId()).toNumber(),
-            receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+            sendingChainId: (await transactionManager.getChainId()).toNumber(),
+            receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
             callTo: AddressZero,
           },
           { amount: prepareAmount },
@@ -1504,8 +1526,8 @@ describe("TransactionManager", function () {
           {
             sendingAssetId: AddressZero,
             receivingAssetId: assetId,
-            sendingChainId: (await transactionManager.chainId()).toNumber(),
-            receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+            sendingChainId: (await transactionManager.getChainId()).toNumber(),
+            receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
             callTo: counter.address,
           },
           { amount: prepareAmount },
@@ -1608,8 +1630,8 @@ describe("TransactionManager", function () {
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingChainId: (await transactionManager.chainId()).toNumber(),
-          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+          sendingChainId: (await transactionManager.getChainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
           sendingAssetId: assetId,
           receivingAssetId: assetId,
         },
@@ -1641,8 +1663,8 @@ describe("TransactionManager", function () {
 
       const { transaction, record } = await getTransactionData(
         {
-          sendingChainId: (await transactionManager.chainId()).toNumber(),
-          receivingChainId: (await transactionManagerReceiverSide.chainId()).toNumber(),
+          sendingChainId: (await transactionManager.getChainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
           sendingAssetId: tokenA.address,
           receivingAssetId: assetId,
         },
