@@ -15,6 +15,6 @@ export default task("get-chain-id", "Get chainId")
     console.log("txManagerAddress: ", txManagerAddress);
 
     const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
-    const chainId = await txManager.chainId();
+    const chainId = await txManager.getChainId();
     console.log("chainId: ", chainId.toString());
   });
