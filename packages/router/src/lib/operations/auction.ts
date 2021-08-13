@@ -34,7 +34,11 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const amountReceived = getReceiverAmount(amount);
+  const inputDecimals = await contractReader.getAssetDecimals(sendingAssetId, sendingChainId);
+
+  const outputDecimals = await contractReader.getAssetDecimals(receivingAssetId, receivingChainId);
+
+  const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   if (balance.lt(amountReceived)) {

@@ -20,3 +20,10 @@ export class ExpiryInvalid extends NxtpError {
     super(`Expiry ${expiry} invalid`, context, "ExpiryInvalid");
   }
 }
+
+export class AmountInvalid extends NxtpError {
+  cancellable = true;
+  constructor(amount: string, context: any = {}) {
+    super(`Amount (${amount}) is invalid`, context, "AmountInvalid");
+  }
+}

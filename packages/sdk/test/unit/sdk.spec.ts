@@ -44,6 +44,7 @@ describe("NxtpSdk", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
+  let getDecimalsStub: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -72,6 +73,8 @@ describe("NxtpSdk", () => {
     messaging = createStubInstance(UserNxtpNatsMessagingService);
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
+
+    getDecimalsStub = stub(sdkUtils, "getDecimals").resolves(18);
 
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
@@ -461,6 +464,7 @@ describe("NxtpSdk", () => {
 
       const crossChainParamsMock = JSON.parse(JSON.stringify(crossChainParams));
       crossChainParamsMock.amount = "100000000";
+      auctionBid.amountReceived = "1";
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);

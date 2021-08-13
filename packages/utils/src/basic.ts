@@ -16,3 +16,14 @@ export const TUrl = Type.String({ format: "uri" });
 // Convenience types
 export const TChainId = Type.Number({ minimum: 1 });
 export const TDecimalString = Type.RegEx(/^[0-9]*\.?[0-9]*$/);
+
+export const ERC20Abi = [
+  // Read-Only Functions
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+
+  // Authenticated Functions
+  "function transfer(address to, uint amount) returns (boolean)",
+  "function mint(address account, uint256 amount)",
+];

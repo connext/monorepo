@@ -36,7 +36,18 @@ export const prepare = async (
     throw new SenderChainDataInvalid({ method, methodId, requestContext });
   }
 
-  const receiverAmount = getReceiverAmount(senderAmount);
+  const inputDecimals = await contractReader.getAssetDecimals(
+    invariantData.sendingAssetId,
+    invariantData.sendingChainId,
+  );
+
+  const outputDecimals = await contractReader.getAssetDecimals(
+    invariantData.receivingAssetId,
+    invariantData.receivingChainId,
+  );
+
+  const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,
     invariantData.receivingChainId,

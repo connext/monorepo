@@ -240,7 +240,6 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    console.log("created fulfill promise");
     const fulfillEventPromise = userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionFulfilled,
       100_000,
@@ -248,9 +247,7 @@ describe("Integration", () => {
     );
 
     const finishRes = await userSdk.fulfillTransfer(event);
-    console.log("got fulfill response");
     expect(finishRes.metaTxResponse).to.be.ok;
-    console.log("got fulfill response");
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
   });
