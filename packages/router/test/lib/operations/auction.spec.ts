@@ -6,7 +6,7 @@ import { expect } from "@connext/nxtp-utils/src/expect";
 import { newAuction } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
-import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_EXPIRY, routerAddrMock } from "../../utils";
+import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, MUTATED_EXPIRY, routerAddrMock } from "../../utils";
 import { txServiceMock } from "../../globalTestHook";
 import { constants } from "ethers/lib/ethers";
 
@@ -34,7 +34,7 @@ describe("Auction Operation", () => {
   describe("#newAuction", () => {
     beforeEach(() => {
       getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);
-      stub(PrepareHelperFns, "getReceiverExpiry").returns(MUTATED_EXPIRY);
+      stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
     });
