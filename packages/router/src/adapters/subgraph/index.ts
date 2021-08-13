@@ -1,5 +1,6 @@
-import { BigNumber } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
+import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
@@ -22,9 +23,18 @@ export type ContractReader = {
    *
    * @param assetId - The asset you want to determine router liquidity of
    * @param chainId - The chain you want to determine liquidity on
-   * @returns The available balance (or undefined)
+   * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+
+  /**
+   * Returns decimals for given asset
+   *
+   * @param assetId - The asset you want to determine decimals of
+   * @param chainId - The chain asset exists on
+   * @returns The decimals of the asset
+   */
+  getAssetDecimals: (assetId: string, chainId: number) => Promise<number>;
 };
 
 const sdks: Record<number, Sdk> = {};
@@ -43,9 +53,30 @@ export const subgraphContractReader = (): ContractReader => {
     sdks[parseInt(chainId)] = getSdk(client);
   });
 
+  // TODO: can this be made into a subgraph function?
+  const getAssetDecimals = async (assetId: string, chainId: number): Promise<number> => {
+    if (assetId === constants.AddressZero) {
+      return 18;
+    }
+    // Get provider
+    const { providers: _providers } = config.chainConfig[chainId] ?? {};
+    if (!providers) {
+      throw new ContractReaderNotAvailableForChain(chainId, { available: Object.keys(config.chainConfig) });
+    }
+    const provider =
+      _providers.length === 1
+        ? new providers.JsonRpcProvider(_providers[0])
+        : new providers.FallbackProvider(
+            _providers.map((p) => new providers.JsonRpcProvider(p)),
+            1,
+          );
+    return new Contract(assetId, ERC20Abi, provider).decimals();
+  };
+
   return {
     getActiveTransactions,
     getTransactionForChain,
     getAssetBalance,
+    getAssetDecimals,
   };
 };
