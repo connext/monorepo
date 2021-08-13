@@ -94,7 +94,8 @@ abstract contract ProposedOwnable {
     _setProposed(newlyProposed);
   }
 
-  /** @notice Indicates if the ownership has been renounced() by
+  /** 
+    * @notice Indicates if the ownership has been renounced() by
     * checking if current owner is address(0)
     */
   function renounced() public view returns (bool) {
