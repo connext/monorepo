@@ -52,7 +52,9 @@ import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./su
 /** Gets the expiry to use for new transfers */
 const hoursToSeconds = (hours: number) => hours * 60 * 60;
 const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
-export const getExpiry = () => Math.floor(Date.now() / 1000) + daysToSeconds(3) + hoursToSeconds(3);
+export const getExpiry = () => getTimestampInSeconds() + daysToSeconds(3) + hoursToSeconds(3);
+
+export const getTimestampInSeconds = () => Math.floor(Date.now() / 1000);
 
 /** Gets the min expiry buffer to validate */
 export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
@@ -521,20 +523,20 @@ export class NxtpSdk {
     }
 
     const expiry = _expiry ?? getExpiry();
-    if (expiry - Date.now() / 1000 < getMinExpiryBuffer()) {
+    if (expiry - getTimestampInSeconds() < getMinExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too short, must be at least ${Date.now() / 1000 + getMinExpiryBuffer()}`,
+        paramsError: `Expiry too short, must be at least ${getTimestampInSeconds() + getMinExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
 
-    if (expiry - Date.now() / 1000 > getMaxExpiryBuffer()) {
+    if (expiry - getTimestampInSeconds() > getMaxExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too high, must be at below ${Date.now() / 1000 + getMaxExpiryBuffer()}`,
+        paramsError: `Expiry too high, must be at below ${getTimestampInSeconds() + getMaxExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
