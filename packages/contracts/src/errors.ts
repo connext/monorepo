@@ -66,6 +66,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#OP": "onlyProposed",
   "#AR": "addRouter",
   "#RR": "removeRouter",
+  "#TA": "transferAssetToContract",
 };
 
 /**

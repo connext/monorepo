@@ -659,7 +659,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
-      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -670,7 +670,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -680,7 +680,7 @@ describe("TransactionManager", function () {
       const assetId = tokenA.address;
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith(getContractError("addLiquidity: ETH_WITH_ERC_TRANSFER"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: ETH_WITH_ERC_TRANSFER"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -962,7 +962,7 @@ describe("TransactionManager", function () {
           transactionManager
             .connect(user)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != amount && invariantData.sendingAssetId == native token", async () => {
@@ -974,7 +974,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: falseAmount,
             }),
-        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != 0 && invariantData.sendingAssetId != native token", async () => {
@@ -986,7 +986,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith(getContractError("prepare: ETH_WITH_ERC_TRANSFER"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: ETH_WITH_ERC_TRANSFER"));
       });
 
       it("should revert if ERC20.transferFrom fails", async () => {

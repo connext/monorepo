@@ -355,12 +355,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Validate correct amounts on msg and transfer from user to
       // contract
-      if (LibAsset.isNativeAsset(invariantData.sendingAssetId)) {
-        require(msg.value == amount, "#P:005");
-      } else {
-        require(msg.value == 0, "#P:006");
-        LibAsset.transferFromERC20(invariantData.sendingAssetId, msg.sender, address(this), amount);
-      }
+      amount = transferAssetToContract(invariantData.sendingAssetId, amount);
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
@@ -579,8 +574,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     * @param txData All of the data (invariant and variant) for a crosschain
     *               transaction. The variant data provided is checked against
     *               what was stored when the `prepare` function was called.
-    * @param relayerFee The fee that should go to the relayer when they are
-    *                   calling the function for the user
     * @param signature The user's signature that allows a transaction to be
     *                  cancelled by a relayer
     */
@@ -688,16 +681,36 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Update the router balances
     routerBalances[router][assetId] += amount;
 
-    // Validate correct amounts are transferred
-    if (LibAsset.isNativeAsset(assetId)) {
-      require(msg.value == amount, "#AL:005");
-    } else {
-      require(msg.value == 0, "#AL:006");
-      LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
-    }
+    // Transfer funds to contract
+    amount = transferAssetToContract(assetId, amount);
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);
+  }
+
+  /**
+   * @notice Handles transferring funds from msg.sender to the
+   *         transaction manager contract. Used in prepare, addLiquidity
+   * @param assetId The address to transfer
+   * @param specifiedAmount The specified amount to transfer. May not be the 
+   *                        actual amount transferred (i.e. fee on transfer 
+   *                        tokens)
+   */
+  function transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (uint256) {
+    uint256 trueAmount = specifiedAmount;
+
+    // Validate correct amounts are transferred
+    if (LibAsset.isNativeAsset(assetId)) {
+      require(msg.value == specifiedAmount, "#TA:005");
+    } else {
+      uint256 starting = LibAsset.getOwnBalance(assetId);
+      require(msg.value == 0, "#TA:006");
+      LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
+      // Calculate the *actual* amount that was sent here
+      trueAmount = LibAsset.getOwnBalance(assetId) - starting;
+    }
+
+    return trueAmount;
   }
 
   /**
