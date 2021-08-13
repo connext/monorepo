@@ -618,9 +618,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       }
 
       // Return users locked funds
-      if (txData.amount > 0) {
-        LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount);
-      }
+      // NOTE: no need to check if amount > 0 because cant be prepared on
+      // sending chain with 0 value
+      LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount);
 
     } else {
       // Receiver side, router liquidity is returned
