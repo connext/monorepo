@@ -44,7 +44,6 @@ describe("NxtpSdk", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
-  let getDecimalsStub: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -74,7 +73,9 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
-    getDecimalsStub = stub(sdkUtils, "getDecimals").resolves(18);
+    stub(sdkUtils, "getDecimals").resolves(18);
+
+    stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
