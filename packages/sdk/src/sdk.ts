@@ -59,10 +59,15 @@ export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
 /** Gets the max expiry buffer to validate */
 export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
 
+export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
+  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
+  return decimals;
+};
+
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const AUCTION_TIMEOUT = 6 * 1_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
@@ -641,17 +646,20 @@ export class NxtpSdk {
             // check if the price changes unfovorably by more than the slippage tolerance(percentage).
             const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
 
-            const inputDecimals = await new Contract(
-              sendingAssetId,
-              ERC20Abi,
-              this.chainConfig[sendingChainId].provider,
-            ).decimals();
+            const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
+            const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
 
-            const outputDecimals = await new Contract(
-              receivingAssetId,
-              ERC20Abi,
-              this.chainConfig[sendingChainId].provider,
-            ).decimals();
+            if (!sendingProvider || !receivingProvider) {
+              this.logger.error(
+                { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
+                "Provider not found",
+              );
+              return;
+            }
+
+            const inputDecimals = await getDecimals(sendingAssetId, sendingProvider);
+
+            const outputDecimals = await getDecimals(receivingAssetId, receivingProvider);
 
             const lowerBound = calculateExchangeWad(
               BigNumber.from(amount),
