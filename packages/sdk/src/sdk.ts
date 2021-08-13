@@ -50,14 +50,58 @@ import {
 } from "./transactionManager";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
-/** Gets the expiry to use for new transfers */
-export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+/**
+ * Utility to convert the number of hours into seconds
+ *
+ * @param hours - Number of hours to convert
+ * @returns Equivalent seconds
+ */
+const hoursToSeconds = (hours: number) => hours * 60 * 60;
 
-/** Gets the min expiry buffer to validate */
-export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
+/**
+ * Utility to convert the number of days into seconds
+ *
+ * @param days - Number of days to convert
+ * @returns Equivalent seconds
+ */
+const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
 
-/** Gets the max expiry buffer to validate */
-export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
+/**
+ * Gets the expiry to use for new transfers
+ *
+ * @param latestBlockTimestamp - Timestamp of the latest block on the sending chain (from `getTimestampInSeconds`)
+ * @returns Default expiry of 3 days + 3 hours (in seconds)
+ */
+export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp + daysToSeconds(3) + hoursToSeconds(3);
+
+/**
+ * Gets the current timestamp. Uses the latest block.timestamp instead of a
+ * local clock to avoid issues with time when router is validating
+ *
+ * @remarks User should use the timestamp on the chain they are preparing on (sending chain)
+ *
+ * @returns Timestamp on latest block in seconds
+ */
+export const getTimestampInSeconds = async (provider: providers.FallbackProvider) => {
+  const block = await provider.getBlock("latest");
+  return block.timestamp;
+};
+
+/**
+ * Gets the minimum expiry buffer
+ *
+ * @returns Equivalent of 2days + 1 hour in seconds
+ */
+export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
+
+/**
+ * Gets the maximum expiry buffer
+ *
+ * @remarks This is *not* the same as the contract maximum of 30days
+ *
+ * @returns Equivalent of 4 days
+ */
+export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 
 export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
   const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
@@ -524,21 +568,22 @@ export class NxtpSdk {
       });
     }
 
-    const expiry = _expiry ?? getExpiry();
-    if (expiry - Date.now() / 1000 < getMinExpiryBuffer()) {
+    const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
+    const expiry = _expiry ?? getExpiry(blockTimestamp);
+    if (expiry - blockTimestamp < getMinExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too short, must be at least ${Date.now() / 1000 + getMinExpiryBuffer()}`,
+        paramsError: `Expiry too short, must be at least ${blockTimestamp + getMinExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
 
-    if (expiry - Date.now() / 1000 > getMaxExpiryBuffer()) {
+    if (expiry - blockTimestamp > getMaxExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too high, must be at below ${Date.now() / 1000 + getMaxExpiryBuffer()}`,
+        paramsError: `Expiry too high, must be at below ${blockTimestamp + getMaxExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }

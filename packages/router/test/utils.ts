@@ -15,7 +15,7 @@ import {
 export const routerAddrMock = mkAddress("0xb");
 
 export const MUTATED_AMOUNT = "100";
-export const MUTATED_EXPIRY = 123400;
+export const MUTATED_BUFFER = 123400;
 export const BID_EXPIRY = 123401;
 
 export const configMock: NxtpRouterConfig = {

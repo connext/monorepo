@@ -4,7 +4,13 @@ import { BigNumber, providers } from "ethers/lib/ethers";
 import { getContext } from "../../router";
 import { PrepareInput } from "../entities";
 import { AuctionSignerInvalid, ExpiryInvalid, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
-import { decodeAuctionBid, getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry } from "../helpers";
+import {
+  decodeAuctionBid,
+  getReceiverAmount,
+  getReceiverExpiryBuffer,
+  recoverAuctionBid,
+  validExpiryBuffer,
+} from "../helpers";
 
 export const receiverPreparing: Map<string, boolean> = new Map();
 
@@ -57,10 +63,34 @@ export const prepare = async (
     throw new NotEnoughLiquidity(invariantData.receivingChainId, { method, methodId, requestContext });
   }
 
-  const receiverExpiry = getReceiverExpiry(senderExpiry);
-  if (!validExpiry(receiverExpiry)) {
+  // Handle the expiries.
+  // Some notes on expiries -- each participant should be using the latest
+  // block timestamp as the baseline for evaluating the expiries rather than
+  // the Date.now() to avoid local clock errors. The block.timestamp should
+  // be evaluated against the chain they are preparing on (i.e. user refs
+  // sending chain and router refs receiving chain).
+
+  // Get current block times
+  const currentBlockTimeReceivingChain = await contractReader.getBlockTime(invariantData.receivingChainId);
+  const currentBlockTimeSendingChain = await contractReader.getBlockTime(invariantData.sendingChainId);
+
+  // Get buffers
+  const senderBuffer = senderExpiry - currentBlockTimeSendingChain;
+  const receiverBuffer = getReceiverExpiryBuffer(senderBuffer);
+
+  // Calculate receiver expiry
+  const receiverExpiry = receiverBuffer + currentBlockTimeReceivingChain;
+
+  if (!validExpiryBuffer(receiverBuffer)) {
     // cancellable error
-    throw new ExpiryInvalid(receiverExpiry, { method, methodId, requestContext });
+    throw new ExpiryInvalid(receiverExpiry, {
+      method,
+      methodId,
+      requestContext,
+      senderExpiry,
+      senderBuffer,
+      receiverBuffer,
+    });
   }
 
   logger.info({ method, methodId, requestContext }, "Validated input");
