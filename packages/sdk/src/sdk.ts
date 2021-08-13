@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -24,7 +24,6 @@ import {
   NxtpError,
   NxtpErrorJson,
   Values,
-  calculateExchangeAmount,
   AuctionBid,
   isNode,
   NATS_AUTH_URL,
@@ -37,6 +36,8 @@ import {
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
+  calculateExchangeWad,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -102,10 +103,15 @@ export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); //
  */
 export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 
+export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
+  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
+  return decimals;
+};
+
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const AUCTION_TIMEOUT = 6 * 1_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
@@ -684,7 +690,28 @@ export class NxtpSdk {
 
             // check if the price changes unfovorably by more than the slippage tolerance(percentage).
             const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-            const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
+
+            const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
+            const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
+
+            if (!sendingProvider || !receivingProvider) {
+              this.logger.error(
+                { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
+                "Provider not found",
+              );
+              return;
+            }
+
+            const inputDecimals = await getDecimals(sendingAssetId, sendingProvider);
+
+            const outputDecimals = await getDecimals(receivingAssetId, receivingProvider);
+
+            const lowerBound = calculateExchangeWad(
+              BigNumber.from(amount),
+              inputDecimals,
+              lowerBoundExchangeRate,
+              outputDecimals,
+            );
 
             // safe calculation if the amountReceived is greater than 4 decimals
             if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
