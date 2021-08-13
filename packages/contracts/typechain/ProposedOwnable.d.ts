@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ProposedOwnableInterface extends ethers.utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "c_0x3826e04d(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -34,6 +35,10 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x3826e04d",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -54,6 +59,10 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x3826e04d",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
@@ -130,6 +139,11 @@ export class ProposedOwnable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -154,6 +168,11 @@ export class ProposedOwnable extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  c_0x3826e04d(
+    c__0x3826e04d: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -175,6 +194,11 @@ export class ProposedOwnable extends BaseContract {
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -213,6 +237,11 @@ export class ProposedOwnable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -236,6 +265,11 @@ export class ProposedOwnable extends BaseContract {
   populateTransaction: {
     acceptProposedOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
