@@ -4,7 +4,8 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeWad,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "ethers";
+
 import { AmountInvalid } from "../errors/prepare";
 
 const EXPIRY_DECREMENT = 3600 * 24;
