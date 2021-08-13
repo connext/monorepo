@@ -312,7 +312,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Validate correct amounts on msg and transfer from user to
       // contract
-      if (LibAsset.isEther(invariantData.sendingAssetId)) {
+      if (LibAsset.isNativeAsset(invariantData.sendingAssetId)) {
         require(msg.value == amount, "#P:005");
       } else {
         require(msg.value == 0, "#P:006");
@@ -488,14 +488,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
         // locked.
 
         // First, transfer the funds to the helper if needed
-        if (!LibAsset.isEther(txData.receivingAssetId) && toSend > 0) {
+        if (!LibAsset.isNativeAsset(txData.receivingAssetId) && toSend > 0) {
           LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
         }
 
         // Next, call `execute` on the helper. Helpers should internally
         // track funds to make sure no one user is able to take all funds
         // for tx, and handle the case of reversions
-        (success, returnData) = interpreter.execute{ value: LibAsset.isEther(txData.receivingAssetId) ? toSend : 0}(
+        (success, returnData) = interpreter.execute{ value: LibAsset.isNativeAsset(txData.receivingAssetId) ? toSend : 0}(
           txData.transactionId,
           payable(txData.callTo),
           txData.receivingAssetId,
@@ -638,7 +638,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     routerBalances[router][assetId] += amount;
 
     // Validate correct amounts are transferred
-    if (LibAsset.isEther(assetId)) {
+    if (LibAsset.isNativeAsset(assetId)) {
       require(msg.value == amount, "#AL:005");
     } else {
       require(msg.value == 0, "#AL:006");

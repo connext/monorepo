@@ -49,8 +49,8 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
     // funds transferred directly to them (i.e. Uniswap)
-    bool isEther = LibAsset.isEther(assetId);
-    if (!isEther) {
+    bool isNative = LibAsset.isNativeAsset(assetId);
+    if (!isNative) {
       LibAsset.increaseERC20Allowance(assetId, callTo, amount);
     }
 
@@ -60,7 +60,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     if (Address.isContract(callTo)) {
       // Try to execute the callData
       // the low level call will return `false` if its execution reverts
-      (success, returnData) = callTo.call{value: isEther ? amount : 0}(callData);
+      (success, returnData) = callTo.call{value: isNative ? amount : 0}(callData);
     }
 
     // Handle failure cases
@@ -68,7 +68,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
       // If it fails, transfer to fallback
       LibAsset.transferAsset(assetId, fallbackAddress, amount);
       // Decrease allowance
-      if (!isEther) {
+      if (!isNative) {
         LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
       }
     }

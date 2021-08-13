@@ -42,14 +42,14 @@ describe("LibAsset", () => {
     expect(token.address).to.be.a("string");
   });
 
-  describe("#isEther", () => {
+  describe("#isNativeAsset", () => {
     it("should return true if assetId is AddressZero", async () => {
-      const res = await libAssetTest.isEther(AddressZero);
+      const res = await libAssetTest.isNativeAsset(AddressZero);
       expect(res).to.be.true;
     });
 
     it("should return false if assetId is Non-AddressZero", async () => {
-      const res = await libAssetTest.isEther("0x0f5d2fb29fb7d3cfee444a200298f468908cc942");
+      const res = await libAssetTest.isNativeAsset("0x0f5d2fb29fb7d3cfee444a200298f468908cc942");
       expect(res).to.be.false;
     });
   });
@@ -85,14 +85,14 @@ describe("LibAsset", () => {
     });
   });
 
-  describe("#transferEther", () => {
+  describe("#transferNativeAsset", () => {
     it("should fail if transferring ether fails", async () => {
       await expect(
-        libAssetTest.connect(wallet).transferEther(wallet.address, BigNumber.from(10_000)),
-      ).to.be.revertedWith("#TE:028");
+        libAssetTest.connect(wallet).transferNativeAsset(wallet.address, BigNumber.from(10_000)),
+      ).to.be.revertedWith("#TNA:028");
     });
 
-    it("happy case: transferEther", async () => {
+    it("happy case: transferNativeAsset", async () => {
       const amount = BigNumber.from(1);
 
       await wallet.sendTransaction({
@@ -100,7 +100,7 @@ describe("LibAsset", () => {
         value: utils.parseEther(amount.toString()),
       });
 
-      await libAssetTest.connect(wallet).transferEther(receiver.address, amount);
+      await libAssetTest.connect(wallet).transferNativeAsset(receiver.address, amount);
     });
   });
 

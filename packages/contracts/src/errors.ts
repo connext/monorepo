@@ -60,7 +60,7 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#IA": "increaseERC20Allowance",
   "#DA": "decreaseERC20Allowance",
   "#OTM": "onlyTransactionManager",
-  "#TE": "transferEther",
+  "#TNA": "transferNativeAsset",
   "#APO": "acceptProposedOwner",
   "#OO": "onlyOwner",
   "#OP": "onlyProposed",
