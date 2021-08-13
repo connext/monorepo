@@ -25,10 +25,23 @@ abstract contract ProposedOwnable {
   address private _owner;
 
   address private _proposed;
+  uint256 private _proposedOwnershipTimestamp;
 
-  uint256 private _proposedTimestamp;
+  bool private _routerOwnershipRenounced;
+  uint256 private _routerOwnershipTimestamp;
+
+  bool private _assetOwnershipRenounced;
+  uint256 private _assetOwnershipTimestamp;
 
   uint256 private constant _delay = 7 days;
+
+  event RouterOwnershipRenunciationProposed(uint256 timestamp);
+
+  event RouterOwnershipRenounced(bool renounced);
+
+  event AssetOwnershipRenunciationProposed(uint256 timestamp);
+
+  event AssetOwnershipRenounced(bool renounced);
 
   event OwnershipProposed(address indexed proposedOwner);
 
@@ -60,7 +73,21 @@ abstract contract ProposedOwnable {
     * @notice Returns the address of the proposed owner.
     */
   function proposedTimestamp() public view virtual returns (uint256) {
-    return _proposedTimestamp;
+    return _proposedOwnershipTimestamp;
+  }
+
+  /**
+    * @notice Returns the timestamp when router ownership was last proposed to be renounced
+    */
+  function routerOwnershipTimestamp() public view virtual returns (uint256) {
+    return _routerOwnershipTimestamp;
+  }
+
+  /**
+    * @notice Returns the timestamp when asset ownership was last proposed to be renounced
+    */
+  function assetOwnershipTimestamp() public view virtual returns (uint256) {
+    return _assetOwnershipTimestamp;
   }
 
   /**
@@ -86,12 +113,58 @@ abstract contract ProposedOwnable {
       _;
   }
 
-  /**
-    * @notice Sets the timestamp for an owner to be proposed, and sets the
-    * newly proposed owner as step 1 in a 2-step process
-   */
-  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
-    _setProposed(newlyProposed);
+  /** 
+    * @notice Indicates if the ownership of the router whitelist has
+    * been renounced
+    */
+  function isRouterOwnershipRenounced() public view returns (bool) {
+    return _owner == address(0) || _routerOwnershipRenounced;
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the router whitelist has
+    * been renounced
+    */
+  function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
+    require(!_routerOwnershipRenounced, "#PROR:036");
+    _setRouterOwnershipTimestamp();
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the asset whitelist has
+    * been renounced
+    */
+  function renounceRouterOwnership() public virtual onlyOwner {
+    require(!_routerOwnershipRenounced, "#RRO:036");
+    require((block.timestamp - _routerOwnershipTimestamp) > _delay, "#RRO:030");
+    _setRouterOwnership(true);
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the asset whitelist has
+    * been renounced
+    */
+  function isAssetOwnershipRenounced() public view returns (bool) {
+    return _owner == address(0) || _assetOwnershipRenounced;
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the asset whitelist has
+    * been renounced
+    */
+  function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
+    require(!_assetOwnershipRenounced, "#PAOR:036");
+    _setAssetOwnershipTimestamp();
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the asset whitelist has
+    * been renounced
+    */
+  function renounceAssetOwnership() public virtual onlyOwner {
+    require(!_assetOwnershipRenounced, "#RAO:036");
+    require((block.timestamp - _assetOwnershipTimestamp) > _delay, "#RAO:030");
+    _setAssetOwnership(true);
   }
 
   /** 
@@ -103,10 +176,18 @@ abstract contract ProposedOwnable {
   }
 
   /**
+    * @notice Sets the timestamp for an owner to be proposed, and sets the
+    * newly proposed owner as step 1 in a 2-step process
+   */
+  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
+    _setProposed(newlyProposed);
+  }
+
+  /**
     * @notice Renounces ownership of the contract after a delay
     */
   function renounceOwnership() public virtual onlyOwner {
-    require((block.timestamp - _proposedTimestamp) > _delay, "#APO:030");
+    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");
     require(_proposed == address(0), "#APO:036");
     _setOwner(_proposed);
   }
@@ -116,8 +197,30 @@ abstract contract ProposedOwnable {
     * Can only be called by the current owner.
     */
   function acceptProposedOwner() public virtual onlyProposed {
-    require((block.timestamp - _proposedTimestamp) > _delay, "#APO:030");
+    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");
     _setOwner(_proposed);
+  }
+
+  ////// INTERNAL //////
+
+  function _setRouterOwnershipTimestamp() private {
+    _routerOwnershipTimestamp = block.timestamp;
+    emit RouterOwnershipRenunciationProposed(_routerOwnershipTimestamp);
+  }
+
+  function _setRouterOwnership(bool value) private {
+    _routerOwnershipRenounced = value;
+    emit RouterOwnershipRenounced(value);
+  }
+
+  function _setAssetOwnershipTimestamp() private {
+    _assetOwnershipTimestamp = block.timestamp;
+    emit AssetOwnershipRenunciationProposed(_assetOwnershipTimestamp);
+  }
+
+  function _setAssetOwnership(bool value) private {
+    _assetOwnershipRenounced = value;
+    emit AssetOwnershipRenounced(value);
   }
 
   function _setOwner(address newOwner) private {
@@ -127,7 +230,7 @@ abstract contract ProposedOwnable {
   }
 
   function _setProposed(address newlyProposed) private {
-    _proposedTimestamp = block.timestamp;
+    _proposedOwnershipTimestamp = block.timestamp;
     _proposed = newlyProposed;
     emit OwnershipProposed(_proposed);
   }

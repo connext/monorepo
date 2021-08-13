@@ -299,8 +299,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.router != address(0), "#P:001");
 
     // Router is approved *on both chains*
-    bool isRenounced = renounced(); // cache for gas
-    require(isRenounced || approvedRouters[invariantData.router], "#P:003");
+    require(isRouterOwnershipRenounced() || approvedRouters[invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
     require(invariantData.sendingChainFallback != address(0), "#P:010");
@@ -315,10 +314,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.sendingChainId == getChainId() || invariantData.receivingChainId == getChainId(), "#P:012");
 
     // Make sure the expiry is greater than min
-    require((expiry - block.timestamp) >= MIN_TIMEOUT, "#P:013");
+    uint256 buffer = expiry - block.timestamp;
+    require(buffer >= MIN_TIMEOUT, "#P:013");
 
     // Make sure the expiry is lower than max
-    require((expiry - block.timestamp) <= MAX_TIMEOUT, "#P:014");
+    require(buffer <= MAX_TIMEOUT, "#P:014");
 
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
@@ -342,7 +342,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Assets are approved
       // NOTE: Cannot check this on receiving chain because of differing
       // chain contexts
-      require(isRenounced || approvedAssets[invariantData.sendingAssetId], "#P:004");
+      require(isAssetOwnershipRenounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
       // Store the transaction variants
       variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
@@ -377,7 +377,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // NOTE: This cannot happen on both chains because of differing chain 
       // contexts. May be possible for user to create transaction that is not
       // prepare-able on the receiver chain.
-      require(isRenounced || approvedAssets[invariantData.receivingAssetId], "#P:004");
+      require(isAssetOwnershipRenounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
 
       // Check that the caller is the router
       require(msg.sender == invariantData.router, "#P:016");
@@ -669,14 +669,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Sanity check: nonzero amounts
     require(amount > 0, "#AL:002");
 
-    // Store renounced() result in memory for gas
-    bool isRenounced = renounced();
-
     // Router is approved
-    require(isRenounced || approvedRouters[router], "#AL:003");
+    require(isRouterOwnershipRenounced() || approvedRouters[router], "#AL:003");
 
     // Asset is approved
-    require(isRenounced || approvedAssets[assetId], "#AL:004");
+    require(isAssetOwnershipRenounced() || approvedAssets[assetId], "#AL:004");
 
     // Update the router balances
     routerBalances[router][assetId] += amount;
