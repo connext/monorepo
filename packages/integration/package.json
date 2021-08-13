@@ -22,7 +22,7 @@
     "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
     "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml up -d",
     "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml down",
-    "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d",
+    "docker:all:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml up -d && sleep 5",
     "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down",
     "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
     "cyclical:router": "ts-node ./test/load/routerCyclical.ts",
