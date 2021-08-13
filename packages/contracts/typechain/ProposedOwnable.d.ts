@@ -22,14 +22,22 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ProposedOwnableInterface extends ethers.utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "assetOwnershipTimestamp()": FunctionFragment;
     "c_0x3826e04d(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
+    "isAssetOwnershipRenounced()": FunctionFragment;
+    "isRouterOwnershipRenounced()": FunctionFragment;
     "owner()": FunctionFragment;
+    "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
+    "proposeRouterOwnershipRenunciation()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
+    "renounceAssetOwnership()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "renounceRouterOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "routerOwnershipTimestamp()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -37,14 +45,34 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "assetOwnershipTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "c_0x3826e04d",
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "isAssetOwnershipRenounced",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRouterOwnershipRenounced",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeAssetOwnershipRenunciation",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeRouterOwnershipRenunciation",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
   encodeFunctionData(
@@ -52,13 +80,29 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "renounceAssetOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "renounceRouterOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "routerOwnershipTimestamp",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "assetOwnershipTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -66,9 +110,25 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isAssetOwnershipRenounced",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRouterOwnershipRenounced",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "proposeAssetOwnershipRenunciation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeRouterOwnershipRenunciation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -77,18 +137,42 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "renounceAssetOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRouterOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "routerOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "AssetOwnershipRenounced(bool)": EventFragment;
+    "AssetOwnershipRenunciationProposed(uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RouterOwnershipRenounced(bool)": EventFragment;
+    "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AssetOwnershipRenounced"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AssetOwnershipRenunciationProposed"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterOwnershipRenounced"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "RouterOwnershipRenunciationProposed"
+  ): EventFragment;
 }
 
 export class ProposedOwnable extends BaseContract {
@@ -139,6 +223,8 @@ export class ProposedOwnable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     c_0x3826e04d(
       c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
@@ -146,10 +232,22 @@ export class ProposedOwnable extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeAssetOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -157,16 +255,28 @@ export class ProposedOwnable extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    renounceAssetOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    renounceRouterOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
+
+    routerOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   acceptProposedOwner(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   c_0x3826e04d(
     c__0x3826e04d: BytesLike,
@@ -175,10 +285,22 @@ export class ProposedOwnable extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
+  isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
   owner(overrides?: CallOverrides): Promise<string>;
+
+  proposeAssetOwnershipRenunciation(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  proposeRouterOwnershipRenunciation(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -186,14 +308,26 @@ export class ProposedOwnable extends BaseContract {
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  renounceAssetOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceRouterOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     c_0x3826e04d(
       c__0x3826e04d: BytesLike,
@@ -202,10 +336,20 @@ export class ProposedOwnable extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
+    isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
     owner(overrides?: CallOverrides): Promise<string>;
+
+    proposeAssetOwnershipRenunciation(overrides?: CallOverrides): Promise<void>;
 
     proposeNewOwner(
       newlyProposed: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposeRouterOwnershipRenunciation(
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -213,12 +357,26 @@ export class ProposedOwnable extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    renounceAssetOwnership(overrides?: CallOverrides): Promise<void>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
+    renounceRouterOwnership(overrides?: CallOverrides): Promise<void>;
+
     renounced(overrides?: CallOverrides): Promise<boolean>;
+
+    routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
+    AssetOwnershipRenounced(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
+    AssetOwnershipRenunciationProposed(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
+
     OwnershipProposed(
       proposedOwner?: string | null
     ): TypedEventFilter<[string], { proposedOwner: string }>;
@@ -230,12 +388,22 @@ export class ProposedOwnable extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
+
+    RouterOwnershipRenounced(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
+    RouterOwnershipRenunciationProposed(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
   };
 
   estimateGas: {
     acceptProposedOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     c_0x3826e04d(
       c__0x3826e04d: BytesLike,
@@ -244,10 +412,22 @@ export class ProposedOwnable extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeAssetOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -255,16 +435,30 @@ export class ProposedOwnable extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    renounceAssetOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    renounceRouterOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
+
+    routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     acceptProposedOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    assetOwnershipTimestamp(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     c_0x3826e04d(
@@ -274,10 +468,26 @@ export class ProposedOwnable extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    isAssetOwnershipRenounced(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRouterOwnershipRenounced(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeAssetOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -285,10 +495,22 @@ export class ProposedOwnable extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    renounceAssetOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    renounceRouterOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    routerOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }
