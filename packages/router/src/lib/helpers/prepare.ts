@@ -9,8 +9,14 @@ const EXPIRY_DECREMENT = 3600 * 24;
 const SWAP_RATE = "0.9995"; // 0.05% fee
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 
-/** Determine if expiry is valid */
-export const validExpiry = (expiry: number) => expiry - Math.floor(Date.now() / 1000) > ONE_DAY_IN_SECONDS;
+/**
+ * Determine if expiry is valid
+ *
+ * @remarks Should use the latest block of the *receiving* chain
+ *
+ * @param buffer - The expiry buffer to check validity of
+ */
+export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS;
 
 /**
  * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.
@@ -28,14 +34,14 @@ export const getReceiverAmount = (amount: string) => {
 /**
  * Returns the expiry - EXPIRY_DECREMENT to ensure the receiving-side transfer expires prior to the sending-side transfer.
  *
- * @param expiry The expiry of the transaction on the sending chain
+ * @param buffer The expiry of the transaction on the sending chain
  * @returns The expiry for the receiving-chain transaction (expires sooner than the sending-chain transaction)
  *
  * @remarks
  * Recieiving chain expires first to force the secret to be revealed on the receiving side before the sending side expires
  */
-export const getReceiverExpiry = (expiry: number): number => {
-  const rxExpiry = expiry - EXPIRY_DECREMENT;
+export const getReceiverExpiryBuffer = (buffer: number): number => {
+  const rxExpiry = buffer - EXPIRY_DECREMENT;
   return rxExpiry;
 };
 
