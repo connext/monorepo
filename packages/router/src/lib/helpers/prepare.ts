@@ -11,6 +11,7 @@ import { AmountInvalid } from "../errors/prepare";
 const EXPIRY_DECREMENT = 3600 * 24;
 const SWAP_RATE = "0.9995"; // 0.05% fee
 const ONE_DAY_IN_SECONDS = 3600 * 24;
+const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
 
 /**
  * Determine if expiry is valid
@@ -19,7 +20,7 @@ const ONE_DAY_IN_SECONDS = 3600 * 24;
  *
  * @param buffer - The expiry buffer to check validity of
  */
-export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS;
+export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS && buffer < ONE_WEEK_IN_SECONDS;
 
 /**
  * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.
