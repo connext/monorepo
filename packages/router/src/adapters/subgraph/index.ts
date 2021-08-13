@@ -7,6 +7,7 @@ import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
 import { getActiveTransactions, getAssetBalance, getTransactionForChain } from "./subgraph";
+import { getBlockTime } from "./provider";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -25,6 +26,13 @@ export type ContractReader = {
    * @returns The available balance (or undefined)
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+
+  /**
+   * Returns the block.timestamp of the latest block on the given chain
+   *
+   * @param chainId - Chain you want blocktime on
+   */
+  getBlockTime: (chainId: number) => Promise<number>;
 };
 
 const sdks: Record<number, Sdk> = {};
@@ -47,5 +55,6 @@ export const subgraphContractReader = (): ContractReader => {
     getActiveTransactions,
     getTransactionForChain,
     getAssetBalance,
+    getBlockTime,
   };
 };
