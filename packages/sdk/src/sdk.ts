@@ -50,13 +50,15 @@ import {
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
 /** Gets the expiry to use for new transfers */
-export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+const hoursToSeconds = (hours: number) => hours * 60 * 60;
+const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
+export const getExpiry = () => Math.floor(Date.now() / 1000) + daysToSeconds(3) + hoursToSeconds(3);
 
 /** Gets the min expiry buffer to validate */
-export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
+export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
 
 /** Gets the max expiry buffer to validate */
-export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
+export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
