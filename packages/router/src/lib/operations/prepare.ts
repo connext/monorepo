@@ -49,7 +49,7 @@ export const prepare = async (
   const receiverExpiry = getReceiverExpiry(senderExpiry);
   if (!validExpiry(receiverExpiry)) {
     // cancellable error
-    throw new ExpiryInvalid(receiverExpiry, { method, methodId, requestContext });
+    throw new ExpiryInvalid(receiverExpiry, { method, methodId, requestContext, senderExpiry });
   }
 
   logger.info({ method, methodId, requestContext }, "Validated input");
