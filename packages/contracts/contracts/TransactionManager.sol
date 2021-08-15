@@ -505,48 +505,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
 
     } else {
-      // The user is completing the transaction, they should get the
-      // amount that the router deposited less fees for relayer.
-
-      // Get the amount to send
-      uint256 toSend;
-      unchecked {
-        toSend = txData.amount - relayerFee;
-      }
-
-      // Send the relayer the fee
-      if (relayerFee > 0) {
-        LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
-      }
-
-      // Handle receiver chain external calls if needed
-      if (txData.callTo == address(0)) {
-        // No external calls, send directly to receiving address
-        if (toSend > 0) {
-          LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-        }
-      } else {
-        // Handle external calls with a fallback to the receiving
-        // address in case the call fails so the funds dont remain
-        // locked.
-
-        // First, transfer the funds to the helper if needed
-        if (!LibAsset.isNativeAsset(txData.receivingAssetId) && toSend > 0) {
-          LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
-        }
-
-        // Next, call `execute` on the helper. Helpers should internally
-        // track funds to make sure no one user is able to take all funds
-        // for tx, and handle the case of reversions
-        (success, returnData) = interpreter.execute{ value: LibAsset.isNativeAsset(txData.receivingAssetId) ? toSend : 0}(
-          txData.transactionId,
-          payable(txData.callTo),
-          txData.receivingAssetId,
-          payable(txData.receivingAddress),
-          toSend,
-          callData
-        );
-      }
+      (success, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
     }
 
     // Emit event
@@ -794,6 +753,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     * @param amount amount to hash
     * @param expiry expiry to hash
     * @param preparedBlockNumber preparedBlockNumber to hash
+    * @return Hash of the variant data
+    *
     */
   function hashVariantTransactionData(uint256 amount, uint256 expiry, uint256 preparedBlockNumber) internal pure returns (bytes32) {
     VariantTransactionData memory variant = VariantTransactionData({
@@ -802,5 +763,70 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       preparedBlockNumber: preparedBlockNumber
     });
     return keccak256(abi.encode(variant));
+  }
+
+  /**
+   * @notice Handles the receiving-chain fulfillment. This function should
+   *         pay the relayer and either send funds to the specified address
+   *         or execute the calldata. Will return a tuple of boolean,bytes
+   *         indicating the success and return data of the external call.
+   * @dev Separated from fulfill function to avoid stack too deep errors
+   *
+   * @param txData The TransactionData that needs to be fulfilled
+   * @param relayerFee The fee to be paid to the relayer for submission
+   * @param callData The data to be executed on the receiving chain
+   *
+   * @return Tuple representing (success, returnData) of the external call
+   */
+  function _receivingChainFulfill(
+    TransactionData calldata txData,
+    uint256 relayerFee,
+    bytes calldata callData
+  ) internal returns (bool, bytes memory) {
+    // The user is completing the transaction, they should get the
+    // amount that the router deposited less fees for relayer.
+
+    // Get the amount to send
+    uint256 toSend;
+    unchecked {
+      toSend = txData.amount - relayerFee;
+    }
+
+    // Send the relayer the fee
+    if (relayerFee > 0) {
+      LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
+    }
+
+    // Handle receiver chain external calls if needed
+    if (txData.callTo == address(0)) {
+      // No external calls, send directly to receiving address
+      if (toSend > 0) {
+        LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
+      }
+      return (false, new bytes(0));
+    } else {
+      // Handle external calls with a fallback to the receiving
+      // address in case the call fails so the funds dont remain
+      // locked.
+
+      bool isNativeAsset = LibAsset.isNativeAsset(txData.receivingAssetId);
+
+      // First, transfer the funds to the helper if needed
+      if (!isNativeAsset && toSend > 0) {
+        LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
+      }
+
+      // Next, call `execute` on the helper. Helpers should internally
+      // track funds to make sure no one user is able to take all funds
+      // for tx, and handle the case of reversions
+      return interpreter.execute{ value: isNativeAsset ? toSend : 0}(
+        txData.transactionId,
+        payable(txData.callTo),
+        txData.receivingAssetId,
+        payable(txData.receivingAddress),
+        toSend,
+        callData
+      );
+    }
   }
 }
