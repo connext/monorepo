@@ -311,14 +311,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
 
     // Make sure the chains are relevant
-    require(invariantData.sendingChainId == getChainId() || invariantData.receivingChainId == getChainId(), "#P:012");
+    uint256 _chainId = getChainId();
+    require(invariantData.sendingChainId == _chainId || invariantData.receivingChainId == _chainId, "#P:012");
 
-    // Make sure the expiry is greater than min
-    uint256 buffer = expiry - block.timestamp;
-    require(buffer >= MIN_TIMEOUT, "#P:013");
+    { // Expiry scope
+      // Make sure the expiry is greater than min
+      uint256 buffer = expiry - block.timestamp;
+      require(buffer >= MIN_TIMEOUT, "#P:013");
 
-    // Make sure the expiry is lower than max
-    require(buffer <= MAX_TIMEOUT, "#P:014");
+      // Make sure the expiry is lower than max
+      require(buffer <= MAX_TIMEOUT, "#P:014");
+    }
 
     // Make sure the hash is not a duplicate
     bytes32 digest = keccak256(abi.encode(invariantData));
@@ -332,7 +335,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     //       correct bid information without requiring an offchain store.
 
     // First determine if this is sender side or receiver side
-    if (invariantData.sendingChainId == getChainId()) {
+    if (invariantData.sendingChainId == _chainId) {
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
