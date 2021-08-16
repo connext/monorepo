@@ -1,8 +1,7 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
+  ajv,
   getRandomBytes32,
   TIntegerString,
   TAddress,
@@ -38,6 +37,7 @@ import {
   getDeployedSubgraphUri,
   calculateExchangeWad,
   ERC20Abi,
+  TransactionDataSchema,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -154,23 +154,6 @@ export const AuctionBidParamsSchema = Type.Object({
 
 export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
 
-export const TransactionDataSchema = Type.Object({
-  user: TAddress,
-  router: TAddress,
-  sendingChainId: TChainId,
-  sendingAssetId: TAddress,
-  amount: TIntegerString,
-  receivingChainId: TChainId,
-  receivingAssetId: TAddress,
-  sendingChainFallback: TAddress,
-  receivingAddress: TAddress,
-  callTo: TAddress,
-  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  expiry: Type.Number(),
-  preparedBlockNumber: Type.Number(),
-});
-
 export const TransactionPrepareEventSchema = Type.Object({
   txData: TransactionDataSchema,
   encryptedCallData: Type.String(),
@@ -248,25 +231,6 @@ export interface NxtpSdkEventPayloads {
   [NxtpSdkEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
   [NxtpSdkEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
 }
-
-const ajv = addFormats(new Ajv(), [
-  "date-time",
-  "time",
-  "date",
-  "email",
-  "hostname",
-  "ipv4",
-  "ipv6",
-  "uri",
-  "uri-reference",
-  "uuid",
-  "uri-template",
-  "json-pointer",
-  "relative-json-pointer",
-  "regex",
-])
-  .addKeyword("kind")
-  .addKeyword("modifier");
 
 /**
  * Helper to generate evt instances for all SDK events
