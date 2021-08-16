@@ -2,11 +2,10 @@
 import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import addFormats from "ajv-formats";
-import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import {
+  ajv,
   getDeployedSubgraphUri,
   isNode,
   NATS_AUTH_URL,
@@ -25,25 +24,6 @@ import {
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
-
-const ajv = addFormats(new Ajv(), [
-  "date-time",
-  "time",
-  "date",
-  "email",
-  "hostname",
-  "ipv4",
-  "ipv6",
-  "uri",
-  "uri-reference",
-  "uuid",
-  "uri-template",
-  "json-pointer",
-  "relative-json-pointer",
-  "regex",
-])
-  .addKeyword("kind")
-  .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -167,9 +147,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
