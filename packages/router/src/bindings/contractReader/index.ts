@@ -7,10 +7,23 @@ import { fulfill, prepare, cancel } from "../../lib/operations";
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
-export const bindContractReader = async () => {
-  const { contractReader } = getContext();
+export const bindContractReader = async (supportedChains: number[]) => {
+  const { contractReader, logger } = getContext();
   setInterval(async () => {
-    const transactions = await contractReader.getActiveTransactions();
+    const transactions = (await contractReader.getActiveTransactions())
+      .filter(
+        (t: ActiveTransaction<any>) => {
+          if (!supportedChains.includes(t.crosschainTx.invariant.sendingChainId)) {
+            logger.warn(
+              {
+                transaction: t,
+              }, "Ignoring transaction whose chain is not supported by this router."
+            );
+            return false;
+          }
+          return true;
+        }
+      );
     await handleActiveTransactions(transactions);
   }, getLoopInterval());
 };

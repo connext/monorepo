@@ -61,7 +61,7 @@ export const makeRouter = async () => {
     context.contractWriter = contractWriter();
 
     // bindings
-    await bindContractReader();
+    await bindContractReader(Object.keys(context.config.chainConfig).map(parseInt));
     await bindMessaging();
     await bindFastify();
     logger.info("Router ready 🚀");
