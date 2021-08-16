@@ -634,32 +634,39 @@ export class NxtpSdk {
 
     const inbox = generateMessagingInbox();
 
-    const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
-      const bids: AuctionResponse[] = [];
-      try {
-        await this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
-          if (err || !data) {
-            this.logger.error({ method, methodId, err, data }, "Error in auction response");
-            return;
-          }
-
-          this.logger.info({ method, methodId, transactionId, inbox, data }, "Got auction response");
-
-          // TODO: validate data schema
-          if (dryRun) {
-            // Resolve with first bid
-            return resolve([data]);
-          }
-
-          bids.push(data);
-        });
-      } catch (e) {
-        return reject(e);
+    const evt = Evt.create<AuctionResponse>();
+    await this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+      if (err || !data) {
+        this.logger.error({ method, methodId, err, data }, "Error in auction response");
+        return;
       }
 
+      this.logger.info({ method, methodId, transactionId, inbox, data }, "Got auction response");
+
+      evt.post(data);
+    });
+
+    const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
+      if (dryRun) {
+        try {
+          const result = await evt.waitFor();
+          return resolve([result]);
+        } catch (e) {
+          return reject(e);
+        }
+      }
+      const bids: AuctionResponse[] = [];
+      evt.attach((data) => {
+        bids.push(data);
+      });
+
       setTimeout(async () => {
-        await this.messaging.unsubscribe(inbox);
-        this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
+        try {
+          await this.messaging.unsubscribe(inbox);
+          this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
+        } catch (e) {
+          return reject(e);
+        }
         return resolve(bids);
       }, AUCTION_TIMEOUT);
     });
@@ -1041,7 +1048,8 @@ export class NxtpSdk {
                 methodId,
                 transactionId: txData.transactionId,
                 messagingError: jsonifyError(err as Error),
-              }),
+                details: "Failed to connect",
+              } as any),
           );
         }
         return okAsync(undefined);
@@ -1113,7 +1121,8 @@ export class NxtpSdk {
               methodId,
               transactionId: txData.transactionId,
               messagingError: jsonifyError(err as Error),
-            }),
+              details: "Failed to subscribe or publish",
+            } as any),
         );
       });
 
