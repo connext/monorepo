@@ -34,13 +34,16 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const inputDecimals = await contractReader.getAssetDecimals(sendingAssetId, sendingChainId);
-
-  const outputDecimals = await contractReader.getAssetDecimals(receivingAssetId, receivingChainId);
+  const [inputDecimals, outputDecimals] = await Promise.all([
+    contractReader.getAssetDecimals(sendingAssetId, sendingChainId),
+    contractReader.getAssetDecimals(receivingAssetId, receivingChainId),
+  ]);
+  logger.info({ method, methodId }, "Got decimals");
 
   const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info({ method, methodId }, "Got asset balance");
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
@@ -85,9 +88,10 @@ export const newAuction = async (
   }
 
   const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
+    contractReader.getBalance(wallet.address, sendingChainId),
+    contractReader.getBalance(wallet.address, receivingChainId),
   ]);
+  logger.info({ method, methodId }, "Got balances");
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodId,

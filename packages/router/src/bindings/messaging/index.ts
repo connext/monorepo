@@ -21,7 +21,7 @@ export const bindMessaging = async () => {
       logger.info({ requestContext }, "Received auction request");
       const { bid, bidSignature } = await newAuction(data, requestContext);
       await messaging.publishAuctionResponse(inbox, { bid, bidSignature });
-      logger.info({ requestContext }, "Handled auction request");
+      logger.info({ requestContext, inbox }, "Handled auction request");
     } catch (err) {
       logger.error({ requestContext, err: jsonifyError(err) }, "Error in auction request");
     }
