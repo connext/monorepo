@@ -70,9 +70,6 @@ export const getBalance = async (address: string, chainId: number) => {
       ? new providers.JsonRpcProvider(urls[0], chainId)
       : new providers.FallbackProvider(urls.map((url) => new providers.JsonRpcProvider(url, chainId), 1));
 
-  const start = Date.now();
   const balance = await provider.getBalance(address);
-  const elapsed = (Date.now() - start) / 1000;
-  console.log("******** getBalance time:", elapsed, "seconds");
   return balance;
 };
