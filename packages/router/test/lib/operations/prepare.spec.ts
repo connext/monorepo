@@ -26,6 +26,22 @@ describe("Prepare Receiver Operation", () => {
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
     });
 
+    it("should error if invariant data validation fails", async () => {
+      const _invariantDataMock = {...invariantDataMock, user: "abc"}
+      await expect(prepare(_invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
+        "Params invalid",
+      );
+      receiverPreparing.set(invariantDataMock.transactionId, false);
+    });
+
+    it("should error if prepare input validation fails", async () => {
+      const _prepareInputMock = {...prepareInputMock, encodedBid: "abc"}
+      await expect(prepare(invariantDataMock, _prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
+        "Params invalid",
+      );
+      receiverPreparing.set(invariantDataMock.transactionId, false);
+    });
+
     it("should not prepare if already preparing", async () => {
       receiverPreparing.set(invariantDataMock.transactionId, true);
       const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
