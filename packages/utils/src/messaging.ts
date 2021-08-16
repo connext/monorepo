@@ -2,10 +2,9 @@ import axios, { AxiosResponse } from "axios";
 import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
-
 import { Type, Static } from "@sinclair/typebox";
-import { TIntegerString, TAddress, TChainId } from "./basic";
 
+import { TIntegerString, TAddress, TChainId } from "./basic";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";

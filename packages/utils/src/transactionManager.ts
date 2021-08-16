@@ -1,4 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
+
 import { TIntegerString, TAddress, TChainId } from "./basic";
 
 // Used to include *all* info for both sending and receiving crosschain data
