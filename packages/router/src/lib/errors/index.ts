@@ -2,6 +2,6 @@ export { NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, NotEnoughGas } 
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
 
-export { AuctionSignerInvalid, ExpiryInvalid, SenderChainDataInvalid } from "./prepare";
+export { AuctionSignerInvalid, ExpiryInvalid, SenderChainDataInvalid, ParamsInvalid } from "./prepare";
 
 export { NoChainConfig } from "./fulfill";
