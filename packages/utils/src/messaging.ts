@@ -3,6 +3,9 @@ import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
 
+import { Type, Static } from "@sinclair/typebox";
+import { TIntegerString, TAddress, TChainId } from "./basic";
+
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
@@ -306,21 +309,23 @@ export type NxtpMessageEnvelope<T> = {
   error?: NxtpErrorJson;
 };
 
-export type AuctionPayload = {
-  user: string;
-  sendingChainId: number;
-  sendingAssetId: string;
-  amount: string;
-  receivingChainId: number;
-  receivingAssetId: string;
-  receivingAddress: string;
-  expiry: number;
-  transactionId: string;
-  encryptedCallData: string;
-  callDataHash: string;
-  callTo: string;
-  dryRun: boolean;
-};
+export const AuctionPayloadSchema = Type.Object({
+  user: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  receivingAddress: TAddress,
+  expiry: Type.Number(),
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  encryptedCallData: Type.RegEx(/^0x[a-fA-F0-9]*$/),
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  callTo: TAddress,
+  dryRun: Type.Boolean(),
+});
+
+export type AuctionPayload = Static<typeof AuctionPayloadSchema>;
 
 export type AuctionBid = {
   user: string;
