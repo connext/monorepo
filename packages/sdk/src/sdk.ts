@@ -669,6 +669,10 @@ export class NxtpSdk {
       evt.attach((data) => {
         bids.push(data);
       });
+
+      setTimeout(async () => {
+        return resolve(bids);
+      }, AUCTION_TIMEOUT);
     });
 
     await this.messaging.publishAuctionRequest(
