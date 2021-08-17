@@ -213,6 +213,37 @@ export class TransactionService {
     }
   }
 
+  /**
+   * Gets the decimals for an asset by chainId
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @param assetId - The hexadecimal string address whose decimals we are getting.
+   * @returns number representing the decimals of the asset
+   */
+  public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+    const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
+   * Cets the current blocktime
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current blocktime
+   */
+  public async getBlockTime(chainId: number): Promise<number> {
+    const result = await this.getProvider(chainId).getBlockTime();
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
   /// LISTENER METHODS
   /**
    * Attaches a callback to the emitted event

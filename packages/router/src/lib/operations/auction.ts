@@ -3,7 +3,14 @@ import { BigNumber } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
-import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ZeroValueBid, AuctionExpired } from "../errors";
+import {
+  NotEnoughGas,
+  NotEnoughLiquidity,
+  ProvidersNotAvailable,
+  SwapInvalid,
+  ZeroValueBid,
+  AuctionExpired,
+} from "../errors";
 import { getBidExpiry, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
@@ -75,15 +82,15 @@ export const newAuction = async (
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
   const [inputDecimals, outputDecimals] = await Promise.all([
-    contractReader.getAssetDecimals(sendingAssetId, sendingChainId),
-    contractReader.getAssetDecimals(receivingAssetId, receivingChainId),
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
   ]);
-  logger.info({ method, methodId }, "Got decimals");
+  logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
   const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info({ method, methodId }, "Got asset balance");
+  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
@@ -128,8 +135,8 @@ export const newAuction = async (
   }
 
   const [senderBalance, receiverBalance] = await Promise.all([
-    contractReader.getBalance(wallet.address, sendingChainId),
-    contractReader.getBalance(wallet.address, receivingChainId),
+    txService.getBalance(sendingChainId, wallet.address),
+    txService.getBalance(receivingChainId, wallet.address),
   ]);
   logger.info({ method, methodId }, "Got balances");
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
