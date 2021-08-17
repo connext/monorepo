@@ -15,6 +15,7 @@ import {
   getReceiverAmount,
   getReceiverExpiryBuffer,
   recoverAuctionBid,
+  validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
 
@@ -79,7 +80,7 @@ export const prepare = async (
     txService.getBlockTime(invariantData.sendingChainId),
   ]);
 
-  if (currentBlockTimeReceivingChain > bid.bidExpiry) {
+  if (!validBidExpiry(bid.expiry, currentBlockTimeReceivingChain)) {
     // cancellable error
     throw new BidExpiryInvalid(bid.bidExpiry, {
       method,
