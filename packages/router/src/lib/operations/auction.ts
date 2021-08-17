@@ -11,10 +11,7 @@ import {
   ZeroValueBid,
   AuctionExpired,
 } from "../errors";
-import { getBidExpiry, getReceiverAmount } from "../helpers";
-
-// TODO: Should this be configurable? Currently 5 minutes.
-export const AUCTION_EXPIRY_BUFFER = 5 * 60;
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -159,7 +156,7 @@ export const newAuction = async (
 
   // - Create bid object
   const blockTime = await txService.getBlockTime(receivingChainId);
-  const bidExpiry = blockTime + AUCTION_EXPIRY_BUFFER;
+  const bidExpiry = getBidExpiry(blockTime);
   const bid: AuctionBid = {
     user,
     router: wallet.address,

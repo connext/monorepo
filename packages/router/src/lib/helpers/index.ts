@@ -7,4 +7,4 @@ export {
   validBidExpiry,
 } from "./prepare";
 
-export { getBidExpiry } from "./auction";
+export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";
