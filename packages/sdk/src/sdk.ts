@@ -402,17 +402,17 @@ export class NxtpSdk {
       let _authUrl;
       switch (network) {
         case "mainnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
           break;
         }
         case "testnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
           _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
           break;
         }
         case "local": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
           _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
           break;
         }
@@ -680,12 +680,6 @@ export class NxtpSdk {
       });
 
       setTimeout(async () => {
-        try {
-          await this.messaging.unsubscribe(inbox);
-          this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
-        } catch (e) {
-          return reject(e);
-        }
         return resolve(bids);
       }, AUCTION_TIMEOUT);
     });
@@ -777,22 +771,10 @@ export class NxtpSdk {
             return msg;
           }
 
-          let decimals;
-          try {
-            decimals = await Promise.all([
-              getDecimals(sendingAssetId, sendingProvider),
-              getDecimals(receivingAssetId, receivingProvider),
-            ]);
-          } catch (e) {
-            const msg = `Failed to get decimals: ${e.message}`;
-            this.logger.error(
-              { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
-              msg,
-            );
-            return msg;
-          }
-
-          const [inputDecimals, outputDecimals] = decimals;
+          const [inputDecimals, outputDecimals] = await Promise.all([
+            getDecimals(sendingAssetId, sendingProvider),
+            getDecimals(receivingAssetId, receivingProvider),
+          ]);
 
           const lowerBound = calculateExchangeWad(
             BigNumber.from(amount),
@@ -848,6 +830,10 @@ export class NxtpSdk {
     } catch (e) {
       this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
       throw e;
+    } finally {
+      await this.messaging.unsubscribe(inbox);
+      evt.detach();
+      this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
 

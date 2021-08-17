@@ -21,6 +21,13 @@ export class ExpiryInvalid extends NxtpError {
   }
 }
 
+export class BidExpiryInvalid extends NxtpError {
+  cancellable = true;
+  constructor(expiry: number, current: number, context: any = {}) {
+    super(`Bid expiry ${expiry} invalid, current: ${current}`, context, "BidExpiryInvalid");
+  }
+}
+
 export class AmountInvalid extends NxtpError {
   cancellable = true;
   constructor(amount: string, context: any = {}) {

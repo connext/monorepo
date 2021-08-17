@@ -4,6 +4,7 @@ export {
   recoverAuctionBid,
   validExpiryBuffer,
   decodeAuctionBid,
+  validBidExpiry,
 } from "./prepare";
 
-export { getBidExpiry } from "./auction";
+export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";

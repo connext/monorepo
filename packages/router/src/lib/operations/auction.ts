@@ -11,7 +11,7 @@ import {
   ZeroValueBid,
   AuctionExpired,
 } from "../errors";
-import { getBidExpiry, getReceiverAmount } from "../helpers";
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -65,16 +65,14 @@ export const newAuction = async (
 
   // Validate expiry is valid (greater than current time plus a buffer).
   const currentTime = Math.floor(Date.now() / 1000);
-  // TODO: Should this be configurable? Currently 5 minutes.
-  const auctionExpiryBuffer = 5 * 60;
-  if (expiry <= currentTime + auctionExpiryBuffer) {
+  if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodId,
       method,
       requestContext,
       expiry,
       currentTime,
-      auctionExpiryBuffer,
+      auctionExpiryBuffer: AUCTION_EXPIRY_BUFFER,
     });
   }
 
@@ -157,6 +155,8 @@ export const newAuction = async (
   // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
+  const blockTime = await txService.getBlockTime(receivingChainId);
+  const bidExpiry = getBidExpiry(blockTime);
   const bid: AuctionBid = {
     user,
     router: wallet.address,
@@ -174,7 +174,7 @@ export const newAuction = async (
     encryptedCallData,
     sendingChainTxManagerAddress: sendingConfig.transactionManagerAddress,
     receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
-    bidExpiry: getBidExpiry(),
+    bidExpiry,
   };
   logger.info({ methodId, method, requestContext, bid }, "Generated bid");
 
