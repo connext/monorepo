@@ -8,10 +8,14 @@ const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const bindContractReader = async () => {
-  const { contractReader } = getContext();
+  const { contractReader, logger } = getContext();
   setInterval(async () => {
-    const transactions = await contractReader.getActiveTransactions();
-    await handleActiveTransactions(transactions);
+    try {
+      const transactions = await contractReader.getActiveTransactions();
+      await handleActiveTransactions(transactions);
+    } catch (err) {
+      logger.error({ err }, "Error getting active txs");
+    }
   }, getLoopInterval());
 };
 
