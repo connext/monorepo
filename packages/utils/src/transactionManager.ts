@@ -7,6 +7,7 @@ export type CrosschainTransaction = {
 
 // Direct matching of Contract types.
 export type InvariantTransactionData = {
+  receivingChainTxManagerAddress: string;
   user: string;
   router: string;
   sendingAssetId: string;

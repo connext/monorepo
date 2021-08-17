@@ -363,6 +363,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     // Emit event
     TransactionData memory txData = TransactionData({
+      receivingChainTxManagerAddress: invariantData.receivingChainTxManagerAddress,
       user: invariantData.user,
       router: invariantData.router,
       sendingAssetId: invariantData.sendingAssetId,
@@ -426,7 +427,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       require(txData.preparedBlockNumber > 0, "#F:021");
 
       // Validate the user has signed
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, signature) == txData.user, "#F:022");
+      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
 
       // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
       // 0-value crosschain tx, so only providing the fee amount
@@ -564,8 +565,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // chain.
     variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
 
+    // Get chainId for gas
+    uint256 _chainId = getChainId();
+
     // Return the appropriate locked funds
-    if (txData.sendingChainId == getChainId()) {
+    if (txData.sendingChainId == _chainId) {
       // Sender side, funds must be returned to the user
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by router
@@ -585,7 +589,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       if (txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, signature) == txData.user, "#C:022");
+        require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, _chainId, address(this), signature) == txData.user, "#C:022");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not
@@ -652,11 +656,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @notice Recovers the signer from the signature provided by the user
   /// @param transactionId Transaction identifier of tx being recovered
   /// @param signature The signature you are recovering the signer from
-  function recoverCancelSignature(bytes32 transactionId, bytes calldata signature) internal pure returns (address) {
+  function recoverCancelSignature(
+    bytes32 transactionId,
+    uint256 receivingChainId,
+    address receivingChainTxManagerAddress,
+    bytes calldata signature
+  ) internal pure returns (address) {
     // Create the signed payload
     SignedCancelData memory payload = SignedCancelData({
       transactionId: transactionId,
-      functionIdentifier: "cancel"
+      functionIdentifier: "cancel",
+      receivingChainId: receivingChainId,
+      receivingChainTxManagerAddress: receivingChainTxManagerAddress
     });
 
     // Recover
@@ -671,13 +682,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   function recoverFulfillSignature(
     bytes32 transactionId,
     uint256 relayerFee,
+    uint256 receivingChainId,
+    address receivingChainTxManagerAddress,
     bytes calldata signature
   ) internal pure returns (address) {
     // Create the signed payload
     SignedFulfillData memory payload = SignedFulfillData({
       transactionId: transactionId,
       relayerFee: relayerFee,
-      functionIdentifier: "fulfill"
+      functionIdentifier: "fulfill",
+      receivingChainId: receivingChainId,
+      receivingChainTxManagerAddress: receivingChainTxManagerAddress
     });
 
     // Recover
@@ -700,6 +715,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   /// @param txData TransactionData to hash
   function hashInvariantTransactionData(TransactionData calldata txData) internal pure returns (bytes32) {
     InvariantTransactionData memory invariant = InvariantTransactionData({
+      receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
       sendingAssetId: txData.sendingAssetId,
