@@ -1237,6 +1237,7 @@ export class NxtpSdk {
    */
   public removeAllListeners(): void {
     this.messaging.disconnect();
+    this.subgraph.stopPolling();
   }
 
   // Listener methods

@@ -91,4 +91,3 @@ export const getConfig = (useDefaultLocal = false): Config => {
   };
 };
 
-export const config: Config = getConfig();
