@@ -23,6 +23,11 @@ const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
 export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS && buffer < ONE_WEEK_IN_SECONDS;
 
 /**
+ * Determine if the bid expiry is valid.
+ */
+export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExpiry > currentTime;
+
+/**
  * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.
  *
  * @param amount The amount of the transaction on the sending chain

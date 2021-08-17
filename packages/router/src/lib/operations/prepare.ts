@@ -3,12 +3,19 @@ import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { PrepareInput } from "../entities";
-import { AuctionSignerInvalid, ExpiryInvalid, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
+import {
+  AuctionSignerInvalid,
+  BidExpiryInvalid,
+  ExpiryInvalid,
+  NotEnoughLiquidity,
+  SenderChainDataInvalid,
+} from "../errors";
 import {
   decodeAuctionBid,
   getReceiverAmount,
   getReceiverExpiryBuffer,
   recoverAuctionBid,
+  validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
 
@@ -68,8 +75,19 @@ export const prepare = async (
   // sending chain and router refs receiving chain).
 
   // Get current block times
-  const currentBlockTimeReceivingChain = await txService.getBlockTime(invariantData.receivingChainId);
-  const currentBlockTimeSendingChain = await txService.getBlockTime(invariantData.sendingChainId);
+  const [currentBlockTimeReceivingChain, currentBlockTimeSendingChain] = await Promise.all([
+    txService.getBlockTime(invariantData.receivingChainId),
+    txService.getBlockTime(invariantData.sendingChainId),
+  ]);
+
+  if (!validBidExpiry(bid.expiry, currentBlockTimeReceivingChain)) {
+    // cancellable error
+    throw new BidExpiryInvalid(bid.bidExpiry, currentBlockTimeReceivingChain, {
+      method,
+      methodId,
+      requestContext,
+    });
+  }
 
   // Get buffers
   const senderBuffer = senderExpiry - currentBlockTimeSendingChain;

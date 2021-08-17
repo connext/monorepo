@@ -7,7 +7,7 @@ import { auctionBidMock, invariantDataMock, txReceiptMock } from "@connext/nxtp-
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { prepare } from "../../../src/lib/operations";
-import { contractReaderMock, contractWriterMock } from "../../globalTestHook";
+import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
 import { receiverPreparing } from "../../../src/lib/operations/prepare";
 
 const requestContext = createRequestContext("TEST");
@@ -15,6 +15,7 @@ const requestContext = createRequestContext("TEST");
 let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], string>;
 let validExpiryStub: SinonStub<[expiry: number], boolean>;
 let decodeAuctionBidStub: SinonStub<[data: string], AuctionBid>;
+let validBidExpiryStub: SinonStub<[bidExpiry: number, currentTime: number], boolean>;
 
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
@@ -24,6 +25,7 @@ describe("Prepare Receiver Operation", () => {
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
       validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
+      validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
     });
 
     it("should not prepare if already preparing", async () => {
@@ -61,6 +63,13 @@ describe("Prepare Receiver Operation", () => {
       );
     });
 
+    it("should error if bid expiry is invalid", async () => {
+      validBidExpiryStub.returns(false);
+      await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
+        "Bid expiry",
+      );
+    });
+
     it("should release lock if contract fn errors", async () => {
       (contractWriterMock.fulfill as SinonStub).rejects("foo");
       try {
@@ -71,7 +80,7 @@ describe("Prepare Receiver Operation", () => {
 
     it("happy: should send prepare for receiving chain", async () => {
       const baseTime = Math.floor(Date.now() / 1000);
-      contractReaderMock.getBlockTime = stub().resolves(baseTime);
+      (txServiceMock.getBlockTime as SinonStub).resolves(baseTime);
       const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);

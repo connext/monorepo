@@ -44,17 +44,21 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           }
           if (err.cancellable === true) {
             logger.error({ requestContext }, "Cancellable validation error, cancelling");
-            const cancelRes = await cancel(
-              transaction.crosschainTx.invariant,
-              {
-                amount: transaction.crosschainTx.sending.amount,
-                expiry: transaction.crosschainTx.sending.expiry,
-                preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
-                side: "sender",
-              },
-              requestContext,
-            );
-            logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
+            try {
+              const cancelRes = await cancel(
+                transaction.crosschainTx.invariant,
+                {
+                  amount: transaction.crosschainTx.sending.amount,
+                  expiry: transaction.crosschainTx.sending.expiry,
+                  preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+                  side: "sender",
+                },
+                requestContext,
+              );
+              logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
+            } catch (err) {
+              logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+            }
           }
         }
       } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
