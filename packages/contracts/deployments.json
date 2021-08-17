@@ -11393,13 +11393,6 @@
       }
     }
   },
-  "31337": {
-    "hardhat": {
-      "name": "hardhat",
-      "chainId": "31337",
-      "contracts": {}
-    }
-  },
   "80001": {
     "mumbai": {
       "name": "mumbai",
