@@ -6,7 +6,7 @@ import { expect } from "@connext/nxtp-utils/src/expect";
 import { newAuction } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
-import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, MUTATED_EXPIRY, routerAddrMock } from "../../utils";
+import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { txServiceMock } from "../../globalTestHook";
 import { constants } from "ethers/lib/ethers";
 

@@ -27,6 +27,7 @@ import {
 import { providers, Signer } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt, VoidCtx } from "evt";
+import PriorityQueue from "p-queue";
 
 import { ChainConfig } from "./config";
 
@@ -81,6 +82,8 @@ export class SdkAgent {
   private readonly sdk: NxtpSdk;
 
   private cyclicalContext: VoidCtx | undefined;
+
+  private queue = new PriorityQueue({ concurrency: 1 });
 
   private readonly evts: { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } = createEvts();
 
@@ -161,6 +164,7 @@ export class SdkAgent {
           fulfilling: true,
           address: this.address,
         });
+        process.exit(1);
       }
       this.evts.TransactionCompleted.post({
         transactionId: data.txData.transactionId,
@@ -210,9 +214,9 @@ export class SdkAgent {
     // Will go in the opposite direction of the received transaction to keep
     // balance roughly equal
     this.cyclicalContext = Evt.newCtx();
-    this.evts.ReceiverTransactionFulfilled.attach(this.cyclicalContext, (data) => {
+    this.evts.ReceiverTransactionFulfilled.attach(this.cyclicalContext, async (data) => {
       const { amount, sendingAssetId, sendingChainId, receivingChainId, receivingAssetId } = data.txData;
-      this.initiateCrosschainTransfer({
+      await this.initiateCrosschainTransfer({
         amount,
         sendingChainId: receivingChainId,
         sendingAssetId: receivingAssetId,
@@ -223,9 +227,9 @@ export class SdkAgent {
 
     // On each SenderTransactionCancelled (i.e. router cancels), create a
     // new transfer that reattempts the cancelled transaction
-    this.evts.SenderTransactionCancelled.attach(this.cyclicalContext, (data) => {
+    this.evts.SenderTransactionCancelled.attach(this.cyclicalContext, async (data) => {
       const { amount, sendingAssetId, sendingChainId, receivingChainId, receivingAssetId } = data.txData;
-      this.initiateCrosschainTransfer({
+      await this.initiateCrosschainTransfer({
         amount,
         sendingChainId,
         sendingAssetId,
@@ -243,33 +247,36 @@ export class SdkAgent {
   public async initiateCrosschainTransfer(
     params: Omit<CrossChainParams, "receivingAddress" | "expiry"> & { receivingAddress?: string },
   ): Promise<void> {
-    const minExpiry = getMinExpiryBuffer(); // 36h in seconds
-    const buffer = 5 * 60; // 5 min buffer
-    // 0. Create bid
-    const bid = {
-      receivingAddress: this.address,
-      expiry: Math.floor(Date.now() / 1000) + minExpiry + buffer, // Use min + 5m
-      transactionId: getRandomBytes32(),
-      ...params,
-    };
-    let auction: AuctionResponse | undefined = undefined;
-    try {
-      // 1. Run the auction
-      auction = await this.sdk.getTransferQuote(bid);
-      // 2. Start the transfer
-      await this.sdk.prepareTransfer(auction, true);
+    return this.queue.add(async () => {
+      const minExpiry = getMinExpiryBuffer(); // 36h in seconds
+      const buffer = 5 * 60; // 5 min buffer
+      // 0. Create bid
+      const bid = {
+        receivingAddress: this.address,
+        expiry: Math.floor(Date.now() / 1000) + minExpiry + buffer, // Use min + 5m
+        transactionId: getRandomBytes32(),
+        ...params,
+      };
+      let auction: AuctionResponse | undefined = undefined;
+      try {
+        // 1. Run the auction
+        auction = await this.sdk.getTransferQuote(bid);
+        // 2. Start the transfer
+        await this.sdk.prepareTransfer(auction, true);
 
-      // Transfer will auto-fulfill based on established listeners
-    } catch (e) {
-      this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e) }, "Preparing failed");
-      this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
-      this.evts.TransactionCompleted.post({
-        transactionId: bid.transactionId,
-        address: this.address,
-        timestamp: Date.now(),
-        error: e.message,
-      });
-    }
+        // Transfer will auto-fulfill based on established listeners
+      } catch (e) {
+        this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e), auction }, "Preparing failed");
+        this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
+        this.evts.TransactionCompleted.post({
+          transactionId: bid.transactionId,
+          address: this.address,
+          timestamp: Date.now(),
+          error: e.message,
+        });
+        process.exit(1);
+      }
+    });
   }
 
   // Listener methods
