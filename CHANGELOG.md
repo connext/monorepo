@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Updated deployments for all chains.
+
 ## 0.0.18
 
 - [contracts] Deploy to Ropsten.
