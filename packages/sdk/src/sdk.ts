@@ -393,17 +393,17 @@ export class NxtpSdk {
       let _authUrl;
       switch (network) {
         case "mainnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
           break;
         }
         case "testnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
           _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
           break;
         }
         case "local": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
           _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
           break;
         }
