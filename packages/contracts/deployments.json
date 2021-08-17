@@ -321,7 +321,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+          "address": "0xcE5E0D6870594F4923322D1771CF9606C2f1dB7e",
           "abi": [
             {
               "inputs": [
@@ -351,6 +351,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -489,6 +515,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -527,6 +579,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -605,12 +662,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -642,6 +693,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -738,6 +794,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -769,6 +837,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -1012,9 +1085,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -1091,11 +1182,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -1105,6 +1191,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -1186,19 +1277,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -1214,6 +1292,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -1311,6 +1394,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -1390,12 +1478,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -1418,6 +1558,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -1510,6 +1655,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -1588,6 +1738,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -1596,6 +1753,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -1677,6 +1841,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -1702,6 +1887,19 @@
                 }
               ],
               "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -2058,7 +2256,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xbF0F4f639cDd010F38CeBEd546783BD71c9e5Ea0",
+          "address": "0x80623b8534d855479Ff4621caBE65d451A81BDFe",
           "abi": [
             {
               "inputs": [
@@ -2088,6 +2286,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -2226,6 +2450,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -2264,6 +2514,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -2342,12 +2597,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -2379,6 +2628,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -2475,6 +2729,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -2506,6 +2772,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -2667,6 +2938,24 @@
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -2674,7 +2963,7 @@
                   "type": "address"
                 }
               ],
-              "name": "addLiquidity",
+              "name": "addLiquidityFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -2731,9 +3020,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -2810,11 +3117,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -2824,6 +3126,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -2905,19 +3212,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -2933,6 +3227,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -3030,6 +3329,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -3109,12 +3413,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -3137,6 +3493,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -3229,6 +3590,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -3307,6 +3673,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -3315,6 +3688,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -3396,6 +3776,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -3421,6 +3822,19 @@
                 }
               ],
               "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -3777,7 +4191,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xd86bCB7D85163Fbc81756bb9cc22225D6ABCCadB",
+          "address": "0xD22dB9ad317A09384a86f310c973CDc350Bb510E",
           "abi": [
             {
               "inputs": [
@@ -3807,6 +4221,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -3945,6 +4385,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -3983,6 +4449,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4061,12 +4532,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -4098,6 +4563,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4194,6 +4664,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -4225,6 +4707,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4386,6 +4873,24 @@
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -4393,7 +4898,7 @@
                   "type": "address"
                 }
               ],
-              "name": "addLiquidity",
+              "name": "addLiquidityFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -4450,9 +4955,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4529,11 +5052,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -4543,6 +5061,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4624,19 +5147,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -4652,6 +5162,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4749,6 +5264,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -4828,12 +5348,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -4856,6 +5428,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -4948,6 +5525,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -5026,6 +5608,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -5034,6 +5623,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -5115,6 +5711,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -5140,6 +5757,1954 @@
                 }
               ],
               "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "variantTransactionData",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "42": {
+    "kovan": {
+      "name": "kovan",
+      "chainId": "42",
+      "contracts": {
+        "TestERC20": {
+          "address": "0xe71678794fff8846bFF855f716b0Ce9d9a78E844",
+          "abi": [
+            {
+              "inputs": [],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+                }
+              ],
+              "name": "Approval",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "value",
+                  "type": "uint256"
+                }
+              ],
+              "name": "Transfer",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+                }
+              ],
+              "name": "allowance",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "approve",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                }
+              ],
+              "name": "balanceOf",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "burn",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "decimals",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "subtractedValue",
+                  "type": "uint256"
+                }
+              ],
+              "name": "decreaseAllowance",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "spender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "addedValue",
+                  "type": "uint256"
+                }
+              ],
+              "name": "increaseAllowance",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "mint",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "name",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "symbol",
+              "outputs": [
+                {
+                  "internalType": "string",
+                  "name": "",
+                  "type": "string"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "totalSupply",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "transfer",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "sender",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "transferFrom",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "TransactionManager": {
+          "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "addedAssetId",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "removedAssetId",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "AssetRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "LiquidityAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "LiquidityRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "proposedOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "addedRouter",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "removedRouter",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterRemoved",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "transactionId",
+                  "type": "bytes32"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "txData",
+                  "type": "tuple"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "TransactionCancelled",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "transactionId",
+                  "type": "bytes32"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "txData",
+                  "type": "tuple"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "signature",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "TransactionFulfilled",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "user",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "bytes32",
+                  "name": "transactionId",
+                  "type": "bytes32"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "indexed": false,
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "txData",
+                  "type": "tuple"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "encryptedCallData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "encodedBid",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "bidSignature",
+                  "type": "bytes"
+                }
+              ],
+              "name": "TransactionPrepared",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "MAX_TIMEOUT",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "MIN_TIMEOUT",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "acceptProposedOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                }
+              ],
+              "name": "addAssetId",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "addLiquidityFor",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "addRouter",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedAssets",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedRouters",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "txData",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "signature",
+                  "type": "bytes"
+                }
+              ],
+              "name": "cancel",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "delay",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "txData",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "signature",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                }
+              ],
+              "name": "fulfill",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "interpreter",
+              "outputs": [
+                {
+                  "internalType": "contract IFulfillInterpreter",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.InvariantTransactionData",
+                  "name": "invariantData",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "expiry",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "encryptedCallData",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "encodedBid",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "bidSignature",
+                  "type": "bytes"
+                }
+              ],
+              "name": "prepare",
+              "outputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "user",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "router",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAssetId",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "sendingChainFallback",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "receivingAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "callTo",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "callDataHash",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "bytes32",
+                      "name": "transactionId",
+                      "type": "bytes32"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "sendingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "receivingChainId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "expiry",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "preparedBlockNumber",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct ITransactionManager.TransactionData",
+                  "name": "",
+                  "type": "tuple"
+                }
+              ],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newlyProposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposed",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposedTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                }
+              ],
+              "name": "removeAssetId",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "removeLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouter",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -7215,7 +9780,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xcE5E0D6870594F4923322D1771CF9606C2f1dB7e",
+          "address": "0x29E81453AAe28A63aE12c7ED7b3F8BC16629A4Fd",
           "abi": [
             {
               "inputs": [
@@ -7245,6 +9810,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -7383,6 +9974,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -7421,6 +10038,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -7499,12 +10121,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -7536,6 +10152,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -7632,6 +10253,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -7663,6 +10296,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -7824,6 +10462,24 @@
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -7831,7 +10487,7 @@
                   "type": "address"
                 }
               ],
-              "name": "addLiquidity",
+              "name": "addLiquidityFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -7888,9 +10544,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -7967,11 +10641,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -7981,6 +10650,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -8062,19 +10736,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -8090,6 +10751,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -8187,6 +10853,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -8266,12 +10937,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -8294,6 +11017,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -8386,6 +11114,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -8464,6 +11197,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -8472,6 +11212,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -8553,6 +11300,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -8589,6 +11357,19 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "bytes32",
@@ -8610,13 +11391,6 @@
           ]
         }
       }
-    }
-  },
-  "31337": {
-    "hardhat": {
-      "name": "hardhat",
-      "chainId": "31337",
-      "contracts": {}
     }
   },
   "80001": {
@@ -8941,7 +11715,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+          "address": "0x40CE4cF827cD0BFC7011a188E5584c9980c8A573",
           "abi": [
             {
               "inputs": [
@@ -8971,6 +11745,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -9109,6 +11909,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -9147,6 +11973,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9225,12 +12056,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -9262,6 +12087,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9358,6 +12188,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -9389,6 +12231,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9550,6 +12397,24 @@
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -9557,7 +12422,7 @@
                   "type": "address"
                 }
               ],
-              "name": "addLiquidity",
+              "name": "addLiquidityFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -9614,9 +12479,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9693,11 +12576,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -9707,6 +12585,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9788,19 +12671,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -9816,6 +12686,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -9913,6 +12788,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -9992,12 +12872,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -10020,6 +12952,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -10112,6 +13049,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -10190,6 +13132,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -10198,6 +13147,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -10279,6 +13235,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -10304,6 +13281,19 @@
                 }
               ],
               "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -10660,7 +13650,7 @@
           ]
         },
         "TransactionManager": {
-          "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+          "address": "0xA7639e9B3e22997CD61e302DF4b25994fE2a8bD6",
           "abi": [
             {
               "inputs": [
@@ -10690,6 +13680,32 @@
                 }
               ],
               "name": "AssetAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "AssetOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "AssetOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -10828,6 +13844,32 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "bool",
+                  "name": "renounced",
+                  "type": "bool"
+                }
+              ],
+              "name": "RouterOwnershipRenounced",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "timestamp",
+                  "type": "uint256"
+                }
+              ],
+              "name": "RouterOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "removedRouter",
@@ -10866,6 +13908,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -10944,12 +13991,6 @@
                 },
                 {
                   "indexed": false,
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -10981,6 +14022,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11077,6 +14123,18 @@
                 },
                 {
                   "indexed": false,
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                },
+                {
+                  "indexed": false,
                   "internalType": "address",
                   "name": "caller",
                   "type": "address"
@@ -11108,6 +14166,11 @@
                 },
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11269,6 +14332,24 @@
                   "internalType": "address",
                   "name": "assetId",
                   "type": "address"
+                }
+              ],
+              "name": "addLiquidity",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "assetId",
+                  "type": "address"
                 },
                 {
                   "internalType": "address",
@@ -11276,7 +14357,7 @@
                   "type": "address"
                 }
               ],
-              "name": "addLiquidity",
+              "name": "addLiquidityFor",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -11333,9 +14414,27 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "assetOwnershipTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11412,11 +14511,6 @@
                   "type": "tuple"
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "relayerFee",
-                  "type": "uint256"
-                },
-                {
                   "internalType": "bytes",
                   "name": "signature",
                   "type": "bytes"
@@ -11426,6 +14520,11 @@
               "outputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11507,19 +14606,6 @@
             },
             {
               "inputs": [],
-              "name": "chainId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "delay",
               "outputs": [
                 {
@@ -11535,6 +14621,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11632,6 +14723,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -11711,12 +14807,64 @@
             },
             {
               "inputs": [],
+              "name": "getChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_chainId",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getStoredChainId",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "interpreter",
               "outputs": [
                 {
                   "internalType": "contract IFulfillInterpreter",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isAssetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "isRouterOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
                 }
               ],
               "stateMutability": "view",
@@ -11739,6 +14887,11 @@
               "inputs": [
                 {
                   "components": [
+                    {
+                      "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
                     {
                       "internalType": "address",
                       "name": "user",
@@ -11831,6 +14984,11 @@
                   "components": [
                     {
                       "internalType": "address",
+                      "name": "receivingChainTxManagerAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
                       "name": "user",
                       "type": "address"
                     },
@@ -11909,6 +15067,13 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "proposeAssetOwnershipRenunciation",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -11917,6 +15082,13 @@
                 }
               ],
               "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11998,6 +15170,27 @@
             },
             {
               "inputs": [],
+              "name": "renounceAssetOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceRouterOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "renounced",
               "outputs": [
                 {
@@ -12023,6 +15216,19 @@
                 }
               ],
               "name": "routerBalances",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
                   "internalType": "uint256",
