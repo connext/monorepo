@@ -672,8 +672,6 @@ export class NxtpSdk {
 
       setTimeout(async () => {
         try {
-          await this.messaging.unsubscribe(inbox);
-          this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
         } catch (e) {
           return reject(e);
         }
@@ -768,22 +766,10 @@ export class NxtpSdk {
             return msg;
           }
 
-          let decimals;
-          try {
-            decimals = await Promise.all([
-              getDecimals(sendingAssetId, sendingProvider),
-              getDecimals(receivingAssetId, receivingProvider),
-            ]);
-          } catch (e) {
-            const msg = `Failed to get decimals: ${e.message}`;
-            this.logger.error(
-              { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
-              msg,
-            );
-            return msg;
-          }
-
-          const [inputDecimals, outputDecimals] = decimals;
+          const [inputDecimals, outputDecimals] = await Promise.all([
+            getDecimals(sendingAssetId, sendingProvider),
+            getDecimals(receivingAssetId, receivingProvider),
+          ]);
 
           const lowerBound = calculateExchangeWad(
             BigNumber.from(amount),
@@ -839,6 +825,9 @@ export class NxtpSdk {
     } catch (e) {
       this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
       throw e;
+    } finally {
+      await this.messaging.unsubscribe(inbox);
+      this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
 
