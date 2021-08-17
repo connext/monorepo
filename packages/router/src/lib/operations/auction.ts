@@ -8,10 +8,9 @@ import {
   signAuctionBid,
 } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
-
-import { getContext } from "../../router";
 import { BigNumber } from "ethers";
 
+import { getContext } from "../../router";
 import {
   NotEnoughGas,
   NotEnoughLiquidity,

@@ -15,6 +15,7 @@ import {
   ExpiryInvalid,
   NotEnoughLiquidity,
   SenderChainDataInvalid,
+  BidExpiryInvalid,
 } from "../errors";
 import {
   decodeAuctionBid,

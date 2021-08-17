@@ -4,6 +4,7 @@ import { TIntegerString, TAddress, TChainId } from "./basic";
 
 // Used to include *all* info for both sending and receiving crosschain data
 export const InvariantTransactionDataSchema = Type.Object({
+  receivingChainTxManagerAddress: TAddress,
   user: TAddress,
   router: TAddress,
   sendingAssetId: TAddress,
@@ -28,22 +29,7 @@ export const VariantTransactionDataSchema = Type.Object({
 
 export type VariantTransactionData = Static<typeof VariantTransactionDataSchema>;
 
-export const TransactionDataSchema = Type.Object({
-  user: TAddress,
-  router: TAddress,
-  sendingAssetId: TAddress,
-  receivingAssetId: TAddress,
-  sendingChainFallback: TAddress,
-  callTo: TAddress,
-  receivingAddress: TAddress,
-  sendingChainId: TChainId,
-  receivingChainId: TChainId,
-  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  amount: TIntegerString,
-  expiry: Type.Number(),
-  preparedBlockNumber: Type.Number(),
-});
+export const TransactionDataSchema = Type.Intersect([InvariantTransactionDataSchema, VariantTransactionDataSchema]);
 
 export type TransactionData = Static<typeof TransactionDataSchema>;
 
