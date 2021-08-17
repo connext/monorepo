@@ -173,6 +173,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -280,6 +285,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -419,6 +429,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -596,6 +611,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -681,6 +701,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -762,6 +787,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -857,6 +887,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -968,6 +1003,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -1056,6 +1096,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",

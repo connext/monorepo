@@ -92,6 +92,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   }
 
   // TransactionData
+  transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
