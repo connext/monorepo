@@ -819,6 +819,7 @@ export class NxtpSdk {
       throw e;
     } finally {
       await this.messaging.unsubscribe(inbox);
+      evt.detach();
       this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
