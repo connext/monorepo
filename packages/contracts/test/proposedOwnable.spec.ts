@@ -3,10 +3,16 @@ import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 use(solidity);
 
-import { constants, Wallet } from "ethers";
+import { constants, providers, Wallet } from "ethers";
 
 import { ProposedOwnable } from "../typechain";
-import { deployContract, proposeNewOwnerOnContract, setBlockTime, transferOwnershipOnContract } from "./utils";
+import {
+  assertReceiptEvent,
+  deployContract,
+  proposeNewOwnerOnContract,
+  setBlockTime,
+  transferOwnershipOnContract,
+} from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("ProposedOwnable.sol", () => {
@@ -24,8 +30,52 @@ describe("ProposedOwnable.sol", () => {
     return await proposeNewOwnerOnContract(newOwner, wallet, proposedOwnable);
   };
 
+  const proposeRouterOwnershipRenunciation = async () => {
+    // Propose new owner
+    const tx = await proposedOwnable.connect(wallet).proposeRouterOwnershipRenunciation();
+    const receipt: providers.TransactionReceipt = await tx.wait();
+    const block = await ethers.provider.getBlock(receipt.blockNumber);
+    assertReceiptEvent(receipt, "RouterOwnershipRenunciationProposed", { timestamp: block.timestamp });
+    expect(await proposedOwnable.routerOwnershipTimestamp()).to.be.eq(block.timestamp);
+  };
+
+  const proposeAssetOwnershipRenunciation = async () => {
+    // Propose new owner
+    const tx = await proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation();
+    const receipt: providers.TransactionReceipt = await tx.wait();
+    const block = await ethers.provider.getBlock(receipt.blockNumber);
+    assertReceiptEvent(receipt, "AssetOwnershipRenunciationProposed", { timestamp: block.timestamp });
+    expect(await proposedOwnable.assetOwnershipTimestamp()).to.be.eq(block.timestamp);
+    return receipt;
+  };
+
   const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
     await transferOwnershipOnContract(newOwner, caller, proposedOwnable, wallet);
+  };
+
+  const renounceAssetOwnership = async () => {
+    await proposeAssetOwnershipRenunciation();
+    // Advance block time
+    const eightDays = 8 * 24 * 60 * 60;
+    const { timestamp } = await ethers.provider.getBlock("latest");
+    await setBlockTime(timestamp + eightDays);
+
+    const tx = await proposedOwnable.connect(wallet).renounceAssetOwnership();
+    const receipt = await tx.wait();
+    assertReceiptEvent(receipt, "AssetOwnershipRenounced", { renounced: true });
+  };
+
+  const renounceRouterOwnership = async () => {
+    await proposeRouterOwnershipRenunciation();
+
+    // Advance block time
+    const eightDays = 8 * 24 * 60 * 60;
+    const { timestamp } = await ethers.provider.getBlock("latest");
+    await setBlockTime(timestamp + eightDays);
+
+    const tx = await proposedOwnable.connect(wallet).renounceRouterOwnership();
+    const receipt = await tx.wait();
+    assertReceiptEvent(receipt, "RouterOwnershipRenounced", { renounced: true });
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -60,6 +110,110 @@ describe("ProposedOwnable.sol", () => {
     });
   });
 
+  describe("routerOwnershipTimestamp", () => {
+    it("should work", async () => {
+      expect(await proposedOwnable.routerOwnershipTimestamp()).to.be.eq(constants.Zero);
+      await proposeRouterOwnershipRenunciation();
+    });
+  });
+
+  describe("assetOwnershipTimestamp", () => {
+    it("should work", async () => {
+      expect(await proposedOwnable.assetOwnershipTimestamp()).to.be.eq(constants.Zero);
+      await proposeAssetOwnershipRenunciation();
+    });
+  });
+
+  describe("delay", () => {
+    it("should work", async () => {
+      expect(await proposedOwnable.delay()).to.be.eq(7 * 24 * 60 * 60);
+    });
+  });
+
+  describe("isRouterOwnershipRenounced", () => {
+    it("should work if renounced", async () => {
+      await transferOwnership(constants.AddressZero, wallet);
+      expect(await proposedOwnable.renounced()).to.be.true;
+      expect(await proposedOwnable.isRouterOwnershipRenounced()).to.be.true;
+    });
+
+    it("should work if asset ownership renounced", async () => {
+      await renounceRouterOwnership();
+      expect(await proposedOwnable.renounced()).to.be.false;
+      expect(await proposedOwnable.isRouterOwnershipRenounced()).to.be.true;
+    });
+  });
+
+  describe("proposeRouterOwnershipRenunciation", () => {
+    it("should fail if its already renounced", async () => {
+      await renounceRouterOwnership();
+      await expect(proposedOwnable.connect(wallet).proposeRouterOwnershipRenunciation()).to.be.revertedWith(
+        "#PROR:036",
+      );
+    });
+
+    it("should work", async () => {
+      await proposeRouterOwnershipRenunciation();
+    });
+  });
+
+  describe("renounceRouterOwnership", () => {
+    it("should fail if its already renounced", async () => {
+      await renounceRouterOwnership();
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:036");
+    });
+
+    it("should fail if delay has not elapsed", async () => {
+      await proposeRouterOwnershipRenunciation();
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:030");
+    });
+
+    it("should work", async () => {
+      await renounceRouterOwnership();
+    });
+  });
+
+  describe("isAssetOwnershipRenounced", () => {
+    it("should work if renounced", async () => {
+      await transferOwnership(constants.AddressZero, wallet);
+      expect(await proposedOwnable.renounced()).to.be.true;
+      expect(await proposedOwnable.isAssetOwnershipRenounced()).to.be.true;
+    });
+
+    it("should work if asset ownership renounced", async () => {
+      await renounceAssetOwnership();
+      expect(await proposedOwnable.renounced()).to.be.false;
+      expect(await proposedOwnable.isAssetOwnershipRenounced()).to.be.true;
+    });
+  });
+
+  describe("proposeAssetOwnershipRenunciation", () => {
+    it("should fail if its already renounced", async () => {
+      await renounceAssetOwnership();
+      await expect(proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation()).to.be.revertedWith("#PAOR:036");
+    });
+
+    it("should work", async () => {
+      await proposeAssetOwnershipRenunciation();
+    });
+  });
+
+  describe("renounceAssetOwnership", () => {
+    it("should fail if its already renounced", async () => {
+      await renounceAssetOwnership();
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:036");
+    });
+
+    it("should fail if delay has not elapsed", async () => {
+      await proposeAssetOwnershipRenunciation();
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:030");
+    });
+
+    it("should work", async () => {
+      await renounceAssetOwnership();
+    });
+  });
+
   describe("renounced", () => {
     it("should return false if owner is not renounced", async () => {
       expect(await proposedOwnable.renounced()).to.be.false;
@@ -71,12 +225,6 @@ describe("ProposedOwnable.sol", () => {
 
       // Check renounced
       expect(await proposedOwnable.renounced()).to.be.true;
-    });
-  });
-
-  describe("delay", () => {
-    it("should work", async () => {
-      expect(await proposedOwnable.delay()).to.be.eq(7 * 24 * 60 * 60);
     });
   });
 

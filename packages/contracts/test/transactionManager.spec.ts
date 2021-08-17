@@ -673,7 +673,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address),
-      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -684,7 +684,7 @@ describe("TransactionManager", function () {
 
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith(getContractError("addLiquidity: VALUE_MISMATCH"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -694,7 +694,7 @@ describe("TransactionManager", function () {
       const assetId = tokenA.address;
       await expect(
         transactionManager.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith(getContractError("addLiquidity: ETH_WITH_ERC_TRANSFER"));
+      ).to.be.revertedWith(getContractError("transferAssetToContract: ETH_WITH_ERC_TRANSFER"));
       expect(await transactionManager.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -976,7 +976,7 @@ describe("TransactionManager", function () {
           transactionManager
             .connect(user)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
-        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != amount && invariantData.sendingAssetId == native token", async () => {
@@ -988,7 +988,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: falseAmount,
             }),
-        ).to.be.revertedWith(getContractError("prepare: VALUE_MISMATCH"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: VALUE_MISMATCH"));
       });
 
       it("should revert if msg.value != 0 && invariantData.sendingAssetId != native token", async () => {
@@ -1000,7 +1000,7 @@ describe("TransactionManager", function () {
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
               value: record.amount,
             }),
-        ).to.be.revertedWith(getContractError("prepare: ETH_WITH_ERC_TRANSFER"));
+        ).to.be.revertedWith(getContractError("transferAssetToContract: ETH_WITH_ERC_TRANSFER"));
       });
 
       it("should revert if ERC20.transferFrom fails", async () => {
@@ -1067,6 +1067,25 @@ describe("TransactionManager", function () {
             .connect(router)
             .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes),
         ).to.be.revertedWith(getContractError("prepare: INSUFFICIENT_LIQUIDITY"));
+      });
+
+      it("should work for 0-valued transactions on receiving chain", async () => {
+        const prepareAmount = "0";
+        const assetId = AddressZero;
+
+        await addAndAssertLiquidity("100", assetId, router, transactionManagerReceiverSide);
+
+        await prepareAndAssert(
+          {
+            sendingAssetId: assetId,
+            receivingAssetId: assetId,
+            sendingChainId: 1337,
+            receivingChainId: 1338,
+          },
+          { amount: prepareAmount },
+          router,
+          transactionManagerReceiverSide,
+        );
       });
     });
 
@@ -1969,13 +1988,72 @@ describe("TransactionManager", function () {
       expect(await other.getBalance()).to.be.eq(otherBalance);
       expect(await fallback.getBalance()).to.be.eq(fallbackBalance.add(counterAmount));
     });
+
+    it("happy case: user fulfills relayerFee-valued tx", async () => {
+      const prepareAmount = "10";
+      const assetId = AddressZero;
+      const relayerFee = prepareAmount;
+
+      // Add receiving liquidity
+      await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingChainId: (await transactionManager.getChainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
+          sendingAssetId: assetId,
+          receivingAssetId: assetId,
+        },
+        { amount: prepareAmount },
+      );
+
+      // Router prepares
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        relayerFee,
+        true,
+        user,
+        transactionManagerReceiverSide,
+      );
+    });
+
+    it("happy case: user fulfills 0-valued tx", async () => {
+      const prepareAmount = "0";
+      const assetId = AddressZero;
+
+      const { transaction, record } = await getTransactionData(
+        {
+          sendingChainId: (await transactionManager.getChainId()).toNumber(),
+          receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
+          sendingAssetId: assetId,
+          receivingAssetId: assetId,
+        },
+        { amount: prepareAmount },
+      );
+
+      // Router prepares
+      const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+      // User fulfills
+      await fulfillAndAssert(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        "0",
+        true,
+        user,
+        transactionManagerReceiverSide,
+      );
+    });
   });
 
   describe("cancel", () => {
     it("should error if invalid txData", async () => {
       const prepareAmount = "10";
       const assetId = AddressZero;
-      const relayerFee = constants.Zero;
 
       // Add receiving liquidity
       await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
