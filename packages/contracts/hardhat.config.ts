@@ -110,7 +110,7 @@ const config: HardhatUserConfig = {
     "arbitrum-rinkeby": {
       accounts: { mnemonic },
       chainId: 421611,
-      url: "https://rinkeby.arbitrum.io/rpc",
+      url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
     },
   },
 };
