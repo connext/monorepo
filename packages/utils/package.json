@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "yarn build --watch --preserveWatchOutput",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "test": "ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
