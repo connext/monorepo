@@ -1,6 +1,6 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
-import { BigNumber, Signer, Wallet, providers } from "ethers";
+import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
@@ -39,6 +39,7 @@ export class ChainRpcProvider {
   private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
+  private cachedDecimals: Record<string, number> = {};
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -274,6 +275,43 @@ export class ChainRpcProvider {
   public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
     return this.resultWrapper<BigNumber>(async () => {
       return await this.provider.getBalance(address);
+    });
+  }
+
+  /**
+   * Get the decimals for the ERC20 token contract.
+   *
+   * @param address The hexadecimal string address of the asset.
+   *
+   * @returns A number representing the current decimals.
+   */
+  public getDecimalsForAsset(assetId: string): ResultAsync<number, TransactionError> {
+    return this.resultWrapper<number>(async () => {
+      if (this.cachedDecimals[assetId]) {
+        return this.cachedDecimals[assetId];
+      }
+
+      if (assetId === constants.AddressZero) {
+        this.cachedDecimals[assetId] = 18;
+        return 18;
+      }
+
+      // Get provider
+      const decimals = await new Contract(assetId, ERC20Abi, this.provider).decimals();
+      this.cachedDecimals[assetId] = decimals;
+      return decimals;
+    });
+  }
+
+  /**
+   * Gets the current blocktime.
+   *
+   * @returns A number representing the current blocktime.
+   */
+  public getBlockTime(): ResultAsync<number, TransactionError> {
+    return this.resultWrapper<number>(async () => {
+      const block = await this.provider.getBlock("latest");
+      return block.timestamp;
     });
   }
 

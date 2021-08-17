@@ -91,6 +91,7 @@ export class Subgraph {
   private sdks: Record<number, Sdk> = {};
   private evts = createSubgraphEvts();
   private activeTxs: Map<string, ActiveTransaction> = new Map();
+  private pollingLoop: NodeJS.Timer | undefined;
 
   constructor(
     private readonly user: Signer,
@@ -102,13 +103,22 @@ export class Subgraph {
       const client = new GraphQLClient(subgraph);
       this.sdks[parseInt(chainId)] = getSdk(client);
     });
-    this.subgraphLoop();
+    this.startPolling();
   }
 
-  private subgraphLoop(): void {
-    setInterval(async () => {
-      await this.getActiveTransactions();
-    }, this.pollInterval);
+  public stopPolling(): void {
+    if (this.pollingLoop != null) {
+      clearInterval(this.pollingLoop);
+      this.pollingLoop = undefined;
+    }
+  }
+
+  public startPolling(): void {
+    if (this.pollingLoop == null) {
+      this.pollingLoop = setInterval(async () => {
+        await this.getActiveTransactions();
+      }, this.pollInterval);
+    }
   }
 
   /**
