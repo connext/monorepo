@@ -5,6 +5,7 @@ import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
 import {
+  NxtpSdkError,
   NxtpSdkEvent,
   ReceiverTransactionCancelledPayload,
   ReceiverTransactionFulfilledPayload,
@@ -34,7 +35,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
     sendingChainId: parseInt(transaction.sendingChainId),
     sendingAssetId: transaction.sendingAssetId,
     sendingChainFallback: transaction.sendingChainFallback,
-    amount: transaction.amount,
+    amount: transaction.amount.toString(),
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
@@ -264,7 +265,7 @@ export class Subgraph {
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
-                if (active) {
+                if (!active || active.status !== SubgraphEvents.ReceiverTransactionFulfilled) {
                   this.activeTxs.delete(senderTx.transactionId);
                   this.evts.ReceiverTransactionFulfilled.post(tx);
                 }
@@ -284,7 +285,14 @@ export class Subgraph {
                 }
                 return undefined; // no longer active
               }
-              return undefined;
+
+              // Unrecognized corresponding status, likely an error with the
+              // subgraph. Throw an error
+              throw new NxtpSdkError(`Invalid tx status (${correspondingReceiverTx.status}), check subgraph`, {
+                method: this.getActiveTransactions.name,
+                methodId,
+                transactionId: correspondingReceiverTx.transactionId,
+              });
             });
           }),
         );
