@@ -6,7 +6,22 @@ import addFormats from "ajv-formats";
 import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
-import { NATS_AUTH_URL, NATS_CLUSTER_URL, TAddress, TChainId, TIntegerString } from "@connext/nxtp-utils";
+import {
+  getDeployedSubgraphUri,
+  isNode,
+  NATS_AUTH_URL,
+  NATS_AUTH_URL_LOCAL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_CLUSTER_URL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL,
+  NATS_WS_URL_LOCAL,
+  NATS_WS_URL_TESTNET,
+  TAddress,
+  TChainId,
+  TIntegerString,
+} from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
@@ -64,6 +79,8 @@ const NxtpRouterConfigSchema = Type.Object({
   authUrl: Type.String(),
   mnemonic: Type.String(),
   swapPools: Type.Array(TSwapPool),
+  port: Type.Number({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
 });
 
 const MIN_GAS = utils.parseEther("0.1");
@@ -90,34 +107,58 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     }
     if (json) {
       configFile = JSON.parse(json);
-      console.log("Found configFile");
     }
-  } catch (e) {
-    console.warn("No config file available, trying env vars...", e);
-  }
+  } catch (e) {}
   // return configFile;
 
   if (process.env.NXTP_CONFIG) {
     try {
       configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-      if (configJson) console.log("Found process.env.NXTP_CONFIG_FILE");
     } catch (e) {
-      console.warn("No NXTP_CONFIG_FILE exists...");
+      console.warn("No NXTP_CONFIG exists...");
+    }
+  }
+
+  const network: "testnet" | "mainnet" | "local" =
+    process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet";
+  let authUrl = process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl;
+  let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl;
+  switch (network) {
+    case "mainnet": {
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
+      authUrl = authUrl ?? NATS_AUTH_URL;
+      break;
+    }
+    case "testnet": {
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
+      authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
+      break;
+    }
+    case "local": {
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
+      authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
+      break;
     }
   }
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
-    authUrl: process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl || NATS_AUTH_URL,
-    natsUrl: process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl || NATS_CLUSTER_URL,
+    authUrl,
+    natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
     chainConfig: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chainConfig
       ? configJson.chainConfig
       : configFile.chainConfig,
-    swapPools: process.env.NXTP_SWAP_POOLS || configJson.swapPools || configFile.swapPools,
+    swapPools: process.env.NXTP_SWAP_POOLS
+      ? JSON.parse(process.env.NXTP_SWAP_POOLS)
+      : configJson.swapPools
+      ? configJson.swapPools
+      : configFile.swapPools,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
+    port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
+    host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
   };
 
   // add contract deployments if they exist
@@ -129,10 +170,19 @@ export const getEnvConfig = (): NxtpRouterConfig => {
         nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
           Object.values((contractDeployments as any)[chainId])[0] as any
         ).contracts.TransactionManager.address;
-      } catch (e) {}
+      } catch (e) {
+        throw new Error(`No transactionManager address for chain ${chainId}`);
+      }
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
+    if (!chainConfig.subgraph) {
+      const subgraph = getDeployedSubgraphUri(Number(chainId));
+      if (!subgraph) {
+        throw new Error(`No transactionManager address for chain ${chainId}`);
+      }
+      nxtpConfig.chainConfig[chainId].subgraph = subgraph;
     }
   });
 
@@ -141,11 +191,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    console.error(`Invalid config: ${JSON.stringify(nxtpConfig, null, 2)}`);
     throw new Error(validate.errors?.map((err) => err.message).join(","));
   }
 
-  console.log(JSON.stringify({ ...nxtpConfig, mnemonic: "********" }, null, 2));
   return nxtpConfig;
 };
 

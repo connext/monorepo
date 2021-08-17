@@ -1,6 +1,27 @@
-# NXTP Changelog
+# Vector Changelog
 
 ## Next Release
+
+## 0.0.18
+
+- [contracts] Deploy to Ropsten.
+- [router] Cancel expired transfers.
+
+## 0.0.17
+
+- [router] Refactor router architecture.
+
+## 0.0.16
+
+- [sdk] Fix cancellation.
+- [sdk] Change method name from `cancelExpired` to `cancel`.
+- [sdk, router] Add `network` param for abstracting messaging configuration.
+- [sdk] Rename `startTransfer` and `finishTransfer` to `prepareTransfer` and `fulfillTransfer`.
+
+## 0.0.15
+
+- [txservice] Fix in gas price for Optimism.
+- [contracts] Deployments for Mumbai, Optimism Kovan, Arbitrum Rinkeby.
 
 ## 0.0.14
 

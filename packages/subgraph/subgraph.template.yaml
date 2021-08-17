@@ -28,10 +28,10 @@ dataSources:
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: TransactionPrepared(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
+        - event: TransactionPrepared(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,bytes,bytes,bytes)
           handler: handleTransactionPrepared
-        - event: TransactionFulfilled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,bytes,address)
+        - event: TransactionFulfilled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,bytes,bool,bytes,address)
           handler: handleTransactionFulfilled
-        - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,address)
+        - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address)
           handler: handleTransactionCancelled
       file: ./src/mapping.ts

@@ -17,5 +17,6 @@
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
-  "include": ["test/**/*.ts"]
+  "include": ["test/**/*.ts"],
+  "exclude": ["**/*.spec.ts"]
 }

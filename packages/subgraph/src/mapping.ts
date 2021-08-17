@@ -78,7 +78,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
   // instantiate contract to get the chainId
   let contract = TransactionManager.bind(event.address);
-  let chainId = contract.chainId();
+  let chainId = contract.getChainId();
 
   // cannot use only transactionId because of multipath routing, this below combo will be unique for active txs
   let transactionId =
@@ -92,6 +92,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   }
 
   // TransactionData
+  transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
@@ -143,6 +144,8 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.relayerFee = event.params.relayerFee;
   transaction!.signature = event.params.signature;
   transaction!.callData = event.params.callData.toHexString();
+  transaction!.externalCallSuccess = event.params.success;
+  transaction!.externalCallReturnData = event.params.returnData;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
 
@@ -173,7 +176,6 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Cancelled";
-  transaction!.relayerFee = event.params.relayerFee;
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
 

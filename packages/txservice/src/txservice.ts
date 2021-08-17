@@ -1,14 +1,20 @@
-/* eslint-disable require-jsdoc */
-import { Signer, providers, BigNumber } from "ethers";
+import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { getUuid, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
-import { AlreadyMined, RpcError, TimeoutError, TransactionError, TransactionReverted, TransactionServiceFailure } from "./error";
+import {
+  AlreadyMined,
+  RpcError,
+  TimeoutError,
+  TransactionError,
+  TransactionReverted,
+  TransactionServiceFailure,
+} from "./error";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -40,7 +46,7 @@ export interface NxtpTxServiceEventPayloads {
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
 export class TransactionService {
-  // TODO: Add an object/dictionary statically to the class prototype mapping the
+  // TODO: #152 Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
@@ -70,7 +76,7 @@ export class TransactionService {
    * providers, etc.
    */
   constructor(private readonly logger: BaseLogger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
-    // TODO: See above TODO. Should we have a getInstance() method and make constructor private ??
+    // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
 
@@ -82,19 +88,14 @@ export class TransactionService {
     Object.keys(chains).forEach((chainId) => {
       // Get this chain's config.
       const chain: ChainConfig = chains[chainId];
-      // Retrieve provider configs and ensure at least one provider is configured.
-      const providers = chain.providers;
-      if (providers.length === 0) {
-        // TODO: This should be a config parser error (i.e. thrown in config parse).
+      // Ensure at least one provider is configured.
+      if (chain.providers.length === 0) {
         const error = `Provider configurations not found for chainID: ${chainId}`;
         this.logger.error({ chainId, providers }, error);
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      this.providers.set(
-        chainIdNumber,
-        new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, providers, this.config),
-      );
+      this.providers.set(chainIdNumber, new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config));
     });
   }
 
@@ -140,10 +141,7 @@ export class TransactionService {
               "Tx was already mined, procceeding to confirmation step.",
             );
           } else {
-            this.logger.warn(
-              { method, methodId, requestContext, error },
-              "Tx submit failed for unexpected reason.",
-            );
+            this.logger.warn({ method, methodId, requestContext, error }, "Tx submit failed for unexpected reason.");
           }
           // Save the submit error to indicate we've failed here; this should be the last execution
           // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
@@ -167,12 +165,8 @@ export class TransactionService {
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
       // Check to see if we have a normal error here.
-      const acceptableErrors = [
-        TransactionReverted,
-        RpcError,
-        TransactionServiceFailure,
-      ];
-      if (acceptableErrors.some(e => error instanceof e)) {
+      const acceptableErrors = [TransactionReverted, RpcError, TransactionServiceFailure];
+      if (acceptableErrors.some((e) => error instanceof e)) {
         // If it is a normal error, we throw as is.
         throw error;
       }
@@ -190,7 +184,7 @@ export class TransactionService {
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
    * @param tx.data - Calldata to send
-   * 
+   *
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
@@ -220,15 +214,29 @@ export class TransactionService {
   }
 
   /**
-   * Returns an estimate of how much gas a given transaction would consume once sent.
+   * Gets the decimals for an asset by chainId
    *
-   * @param chainId - Chain to execute tx on
-   * @param transaction Transaction to estimate gas of
-   *
-   * @returns BigNumber representation of the approximate gas a given tx would consume
+   * @param chainId - The ID of the chain for which this call is related.
+   * @param assetId - The hexadecimal string address whose decimals we are getting.
+   * @returns number representing the decimals of the asset
    */
-  public async estimateGas(chainId: number, transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).estimateGas(transaction);
+  public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+    const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
+   * Cets the current blocktime
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current blocktime
+   */
+  public async getBlockTime(chainId: number): Promise<number> {
+    const result = await this.getProvider(chainId).getBlockTime();
     if (result.isErr()) {
       throw result.error;
     } else {
@@ -329,16 +337,19 @@ export class TransactionService {
    */
   private async submitTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Submitting tx...`);
+    this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
     const response = await transaction.submit();
+    const gas = response.gasPrice ?? transaction.data.gasPrice;
     this.logger.info(
       {
         method,
-        id: transaction.id,
-        hash: response.hash,
-        gas: (response.gasPrice ?? "unknown").toString(),
-        nonce: response.nonce,
         context,
+        id: transaction.id,
+        attempt: transaction.attempt,
+        hash: response.hash,
+        gas: `${utils.formatUnits(gas, "gwei")} gwei`,
+        gasLimit: transaction.data.gasLimit.toString(),
+        nonce: response.nonce,
       },
       "Tx submitted.",
     );
@@ -351,18 +362,17 @@ export class TransactionService {
    */
   private async confirmTransaction(transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
-    this.logger.info({ method, context }, `(${transaction.id}, ${transaction.attempt}) Confirming tx...`);
+
+    this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
     const receipt = await transaction.confirm();
     this.logger.info(
       {
         method,
-        id: transaction.id,
         context,
+        id: transaction.id,
+        attempt: transaction.attempt,
         receipt: {
-          to: receipt.to,
-          from: receipt.from,
           gasUsed: receipt.gasUsed.toString(),
-          contractAddress: receipt.contractAddress,
           transactionHash: receipt.transactionHash,
           blockHash: receipt.blockHash,
         },
@@ -381,10 +391,7 @@ export class TransactionService {
   private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
-    this.logger.error(
-      { method, id: transaction.id, receipt, context, error: jsonifyError(error) },
-      "Tx failed.",
-    );
+    this.logger.error({ method, id: transaction.id, receipt, context, error }, "Tx failed.");
     this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

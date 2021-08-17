@@ -3,7 +3,6 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { parseUnits } from "ethers/lib/utils";
 
-// TODO: TIntegerString and TUrl from utils/basic.ts not working!
 const TIntegerString = Type.RegEx(/^([0-9])*$/);
 const TUrl = Type.String({ format: "uri" });
 
@@ -88,7 +87,7 @@ const TransactionServiceConfigSchema = Type.Object({
   // % to bump gas by when tx confirmation times out.
   gasReplacementBumpPercent: Type.Number(),
   // Gas shouldn't ever exceed this amount.
-  gasLimit: TIntegerString,
+  gasMaximum: TIntegerString,
   // Minimum gas price.
   gasMinimum: TIntegerString,
 
@@ -106,6 +105,8 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultStallTimeout: Type.Optional(Type.Number()),
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
   rpcProviderMaxRetries: Type.Number(),
+  // Maximum number of times we will attempt to send a tx despite nonce expired errors.
+  maxNonceErrorCount: Type.Number(),
 
   /// CHAINS
   // Configuration for each chain that this txservice will be supporting.
@@ -122,7 +123,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   // Generally, the new gas price should be about 50% + 1 wei more, so if a gas price
   // of 10 gwei was used, the replacement should be 15.000000001 gwei.
   gasReplacementBumpPercent: 20,
-  gasLimit: parseUnits("1500", "gwei").toString(),
+  gasMaximum: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
@@ -132,4 +133,5 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   defaultConfirmationsRequired: 10,
 
   rpcProviderMaxRetries: 5,
+  maxNonceErrorCount: 10,
 } as TransactionServiceConfig;

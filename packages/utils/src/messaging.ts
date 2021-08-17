@@ -34,10 +34,18 @@ export class MessagingError extends NxtpError {
   }
 }
 
-export const NATS_AUTH_URL = "https://auth.connext.network"; // TODO add this
+export const NATS_AUTH_URL = "https://auth.connext.network";
 export const NATS_WS_URL = "wss://websocket.connext.provide.network";
 export const NATS_CLUSTER_URL =
   "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222";
+
+export const NATS_AUTH_URL_TESTNET = NATS_AUTH_URL;
+export const NATS_WS_URL_TESTNET = NATS_WS_URL;
+export const NATS_CLUSTER_URL_TESTNET = NATS_CLUSTER_URL;
+
+export const NATS_AUTH_URL_LOCAL = "http://localhost:5040";
+export const NATS_WS_URL_LOCAL = "ws://localhost:4221";
+export const NATS_CLUSTER_URL_LOCAL = "nats://localhost:4222";
 
 export type MessagingConfig = {
   signer: Signer;
@@ -54,7 +62,7 @@ export type MessagingConfig = {
  * @param signer - The signer who is being authed
  * @returns A bearer token
  *
- * TODO: fix typing
+ * TODO: #155 fix typing
  */
 export const getBearerToken = (authUrl: string, signer: Signer) => async (): Promise<string> => {
   const address = await signer.getAddress();
@@ -137,7 +145,7 @@ export class NatsBasicMessagingService {
       const token = await getBearerToken(this.authUrl!, this.signer)();
       this.bearerToken = token;
     }
-    // TODO: fail fast w sensible error message if bearer token is invalid #446
+    // TODO: #155 fail fast w sensible error message if bearer token is invalid #446
     const service = natsServiceFactory(
       {
         bearerToken: this.bearerToken,
@@ -339,17 +347,20 @@ export type AuctionResponse = {
   bidSignature?: string; // not included in dry run
 };
 
-// TODO: fix typing -- should look like this: https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L36-L41 + https://github.com/connext/nxtp/blob/f51d1f4c8a52d26736a421460c2a1e3e0ac506d7/packages/router/src/subgraph.ts#L57-L61
+export const MetaTxTypes = {
+  Fulfill: "Fulfill",
+} as const;
+export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
+
 export type MetaTxPayloads = {
-  Fulfill: MetaTxFulfillPayload;
+  [MetaTxTypes.Fulfill]: MetaTxFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
 
-// TODO: include `cancel`
-export type MetaTxTypes = "Fulfill";
+// TODO: #155 include `cancel`
 
-export type MetaTxPayload<T extends MetaTxTypes> = {
+export type MetaTxPayload<T extends MetaTxType> = {
   type: T; // can expand to more types
   relayerFee: string;
   to: string;
@@ -375,7 +386,7 @@ export const METATX_SUBJECT = "metatx";
 /**
  * @classdesc Contains the logic for handling all the NATS messaging specific to the nxtp protocol (asserts messaging versions and structure)
  */
-// TODO: add AJV structure assertions for the messaging envelopes
+// TODO: #155 add AJV structure assertions for the messaging envelopes
 export class NatsNxtpMessagingService extends NatsBasicMessagingService {
   /**
    * Publishes data to a subject that conforms to the NXTP message structure
@@ -408,7 +419,7 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
    */
   protected async subscribeToNxtpMessage<T>(subject: string, handler: (data?: T, err?: any) => void): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
-      // TODO: validate data structure
+      // TODO: #155 validate data structure
       // there was an error, run callback with error
       if (err) {
         return handler(msg?.data?.data, err);
@@ -435,7 +446,7 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
     handler: (inbox: string, data?: T, err?: NxtpErrorJson) => void,
   ): Promise<void> {
     await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
-      // TODO: validate data structure
+      // TODO: #155 validate data structure
       // there was an error, run callback with error
       if (err) {
         return handler("ERROR", msg?.data?.data, err);
@@ -553,10 +564,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
    * @returns The inbox that will receive responses
    */
-  async publishMetaTxRequest<T extends MetaTxTypes>(
-    data: MetaTxPayload<T>,
-    inbox?: string,
-  ): Promise<{ inbox: string }> {
+  async publishMetaTxRequest<T extends MetaTxType>(data: MetaTxPayload<T>, inbox?: string): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }

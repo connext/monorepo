@@ -34,6 +34,7 @@ export class TransactionManagerError extends NxtpError {
       approveReceipt?: providers.TransactionReceipt;
       methodId: string;
       method: string;
+      transactionId?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
@@ -142,6 +143,7 @@ export class TransactionManager {
         .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
         .prepare(
           {
+            receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
             user: txData.user,
             router: txData.router,
             sendingAssetId: txData.sendingAssetId,
@@ -201,20 +203,22 @@ export class TransactionManager {
         new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
           methodId,
           method,
+          transactionId: cancelParams?.txData?.transactionId ?? "",
         }),
       );
     }
 
-    const { txData, relayerFee, signature } = cancelParams;
+    const { txData, signature } = cancelParams;
     return ResultAsync.fromPromise(
       txManager
         .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-        .cancel(txData, relayerFee, signature, { from: this.signer.getAddress() }),
+        .cancel(txData, signature, { from: this.signer.getAddress() }),
       (err) =>
         new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
           method,
           methodId,
           txError: jsonifyError(err as NxtpError),
+          transactionId: cancelParams?.txData?.transactionId ?? "",
         }),
     ).andThen((tx) => {
       this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");

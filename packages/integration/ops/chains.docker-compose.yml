@@ -4,7 +4,7 @@ services:
   chain-1337:
     container_name: chain-1337-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 5 --verbose"
+    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - 8545:8545
     networks:
@@ -12,7 +12,7 @@ services:
   chain-1338:
     container_name: chain-1338-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 5 --verbose"
+    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - 8546:8545
     networks:
@@ -24,7 +24,7 @@ services:
     container_name: graph-node-1337-test
     image: graphprotocol/graph-node
     ports:
-      - "8000:8000"
+      - "8010:8000"
       - "8001:8001"
       - "8020:8020"
       - "8030:8030"
@@ -59,7 +59,7 @@ services:
     container_name: graph-node-1338-test
     image: graphprotocol/graph-node
     ports:
-      - "9000:8000"
+      - "9010:8000"
       - "9001:8001"
       - "9020:8020"
       - "9030:8030"

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.14",
+  "version": "0.0.18",
   "name": "@connext/nxtp-subgraph",
   "license": "UNLICENSED",
   "scripts": {
@@ -13,6 +13,8 @@
     "prepare:mumbai:prod": "mustache config/mumbai.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:arbitrum-rinkeby:prod": "mustache config/arbitrum-rinkeby.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:optimism-kovan:prod": "mustache config/optimism-kovan.prod.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:ropsten:prod": "mustache config/ropsten.prod.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:chapel:prod": "mustache config/chapel.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:goerli:staging": "mustache config/goerli.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:rinkeby:staging": "mustache config/rinkeby.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:local": "mustache config/local.json subgraph.template.yaml > subgraph.yaml",
@@ -21,6 +23,8 @@
     "deploy:mumbai:prod": "yarn prepare:mumbai:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-mumbai",
     "deploy:arbitrum-rinkeby:prod": "yarn prepare:arbitrum-rinkeby:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-arbitrum-rinkeby",
     "deploy:optimism-kovan:prod": "yarn prepare:optimism-kovan:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-optimism-kovan",
+    "deploy:chapel:prod": "yarn prepare:chapel:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-chapel",
+    "deploy:ropsten:prod": "yarn prepare:ropsten:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-ropsten",
     "deploy:goerli:staging": "yarn prepare:goerli:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli-staging",
     "deploy:rinkeby:staging": "yarn prepare:rinkeby:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby-staging",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",

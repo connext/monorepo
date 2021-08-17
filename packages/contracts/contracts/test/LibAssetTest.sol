@@ -15,16 +15,16 @@ contract LibAssetTest {
 
   receive() external payable {}
 
-  function isEther(address assetId) public pure returns (bool) {
-    return LibAsset.isEther(assetId);
+  function isNativeAsset(address assetId) public pure returns (bool) {
+    return LibAsset.isNativeAsset(assetId);
   }
 
   function getOwnBalance(address assetId) public view returns (uint256) {
     return LibAsset.getOwnBalance(assetId);
   }
 
-  function transferEther(address payable recipient, uint256 amount) public {
-    LibAsset.transferEther(recipient, amount);
+  function transferNativeAsset(address payable recipient, uint256 amount) public {
+    LibAsset.transferNativeAsset(recipient, amount);
   }
 
   function increaseERC20Allowance(address assetId, address spender, uint256 amount) public {

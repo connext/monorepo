@@ -173,6 +173,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -249,12 +254,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -286,6 +285,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -382,6 +386,18 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bool",
+        name: "success",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "returnData",
+        type: "bytes",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "caller",
         type: "address",
@@ -413,6 +429,11 @@ const _abi = [
       },
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -542,13 +563,31 @@ const _abi = [
         name: "assetId",
         type: "address",
       },
+    ],
+    name: "addLiquidity",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "router",
         type: "address",
       },
     ],
-    name: "addLiquidity",
+    name: "addLiquidityFor",
     outputs: [],
     stateMutability: "payable",
     type: "function",
@@ -570,6 +609,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -646,11 +690,6 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "signature",
         type: "bytes",
@@ -660,6 +699,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -743,6 +787,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -840,6 +889,11 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "user",
             type: "address",
           },
@@ -918,9 +972,40 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getStoredChainId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -1011,6 +1096,11 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainTxManagerAddress",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "user",
@@ -1136,19 +1226,6 @@ const _abi = [
     ],
     name: "removeRouter",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounced",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
     stateMutability: "nonpayable",
     type: "function",
   },

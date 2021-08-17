@@ -23,5 +23,5 @@ interface IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) external payable;
+  ) external payable returns (bool success, bytes memory returnData);
 }

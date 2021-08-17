@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils, BigNumber } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -12,21 +12,32 @@ import {
   TransactionFulfilledEvent,
   TransactionCancelledEvent,
   TChainId,
-  TransactionData,
-  CancelParams,
   encrypt,
   generateMessagingInbox,
   AuctionResponse,
   encodeAuctionBid,
-  recoverAuctionBid,
   InvariantTransactionData,
-  signFulfillTransactionPayload,
+  recoverAuctionBid as _recoverAuctionBid,
+  signFulfillTransactionPayload as _signFulfillTransactionPayload,
   MetaTxResponse,
   jsonifyError,
   NxtpError,
   NxtpErrorJson,
   Values,
-  calculateExchangeAmount,
+  AuctionBid,
+  isNode,
+  NATS_AUTH_URL,
+  NATS_CLUSTER_URL,
+  NATS_WS_URL,
+  NATS_AUTH_URL_TESTNET,
+  NATS_AUTH_URL_LOCAL,
+  NATS_CLUSTER_URL_LOCAL,
+  NATS_WS_URL_LOCAL,
+  NATS_CLUSTER_URL_TESTNET,
+  NATS_WS_URL_TESTNET,
+  getDeployedSubgraphUri,
+  calculateExchangeWad,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -37,19 +48,83 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { getDeployedSubgraphUri, Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph";
+import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
-/** Gets the expiry to use for new transfers */
-export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+/**
+ * Utility to convert the number of hours into seconds
+ *
+ * @param hours - Number of hours to convert
+ * @returns Equivalent seconds
+ */
+const hoursToSeconds = (hours: number) => hours * 60 * 60;
 
-/** Gets the min expiry buffer to validate */
-export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600;
+/**
+ * Utility to convert the number of days into seconds
+ *
+ * @param days - Number of days to convert
+ * @returns Equivalent seconds
+ */
+const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
 
+/**
+ * Gets the expiry to use for new transfers
+ *
+ * @param latestBlockTimestamp - Timestamp of the latest block on the sending chain (from `getTimestampInSeconds`)
+ * @returns Default expiry of 3 days + 3 hours (in seconds)
+ */
+export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp + daysToSeconds(3) + hoursToSeconds(3);
+
+/**
+ * Gets the current timestamp. Uses the latest block.timestamp instead of a
+ * local clock to avoid issues with time when router is validating
+ *
+ * @remarks User should use the timestamp on the chain they are preparing on (sending chain)
+ *
+ * @returns Timestamp on latest block in seconds
+ */
+export const getTimestampInSeconds = async (provider: providers.FallbackProvider) => {
+  const block = await provider.getBlock("latest");
+  return block.timestamp;
+};
+
+/**
+ * Gets the minimum expiry buffer
+ *
+ * @returns Equivalent of 2days + 1 hour in seconds
+ */
+export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
+
+/**
+ * Gets the maximum expiry buffer
+ *
+ * @remarks This is *not* the same as the contract maximum of 30days
+ *
+ * @returns Equivalent of 4 days
+ */
+export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
+
+export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
+  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
+  return decimals;
+};
+
+/**
+ * Gets the inbox and evt for a given auction. Can be done inline,
+ * but done as a helper for mocking.
+ */
+export const getAuctionRequestContext = () => {
+  const inbox = generateMessagingInbox();
+
+  const evt = Evt.create<AuctionResponse>();
+  return { inbox, evt };
+};
+
+export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const AUCTION_TIMEOUT = 6 * 1_000;
 
-declare const ethereum: any; // TODO: what to do about node?
+declare const ethereum: any; // TODO: #141 what to do about node?
 
 export const CrossChainParamsSchema = Type.Object({
   callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
@@ -68,6 +143,63 @@ export const CrossChainParamsSchema = Type.Object({
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
+export const AuctionBidParamsSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  amountReceived: TIntegerString,
+  receivingAddress: TAddress,
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  callTo: TAddress,
+  encryptedCallData: Type.String(),
+  sendingChainTxManagerAddress: TAddress,
+  receivingChainTxManagerAddress: TAddress,
+  bidExpiry: Type.Number(),
+});
+
+export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
+
+export const TransactionDataSchema = Type.Object({
+  receivingChainTxManagerAddress: TAddress,
+  user: TAddress,
+  router: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  sendingChainFallback: TAddress,
+  receivingAddress: TAddress,
+  callTo: TAddress,
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  preparedBlockNumber: Type.Number(),
+});
+
+export const TransactionPrepareEventSchema = Type.Object({
+  txData: TransactionDataSchema,
+  encryptedCallData: Type.String(),
+  encodedBid: Type.String(),
+  bidSignature: Type.String(),
+});
+
+export type TransactionPrepareEventParams = Static<typeof TransactionPrepareEventSchema>;
+
+export const CancelSchema = Type.Object({
+  txData: TransactionDataSchema,
+  relayerFee: Type.String(),
+  signature: Type.String(),
+});
+
+export type CancelParams = Static<typeof CancelSchema>;
+
 export const NxtpSdkEvents = {
   SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
   SenderTokenApprovalMined: "SenderTokenApprovalMined",
@@ -82,7 +214,7 @@ export const NxtpSdkEvents = {
 } as const;
 export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
 
-export type SenderTokenApprovalSubmitted = {
+export type SenderTokenApprovalSubmittedPayload = {
   assetId: string;
   chainId: number;
   transactionResponse: providers.TransactionResponse;
@@ -117,7 +249,7 @@ export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledE
 export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
 
 export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmitted;
+  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmittedPayload;
   [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
   [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
   [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
@@ -155,7 +287,7 @@ const ajv = addFormats(new Ajv(), [
  */
 export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
   return {
-    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmitted>(),
+    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload>(),
     [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
     [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
@@ -181,6 +313,7 @@ export class NxtpSdkError extends NxtpError {
     ParamsError: "Invalid Parameters",
     ConfigError: "Invalid Config",
     AuctionError: "Auction Error",
+    EncryptionError: "Encryption Error",
   };
 
   constructor(
@@ -194,12 +327,45 @@ export class NxtpSdkError extends NxtpError {
       txError?: NxtpErrorJson;
       signerError?: NxtpErrorJson;
       messagingError?: NxtpErrorJson;
-      auctionError?: string;
+      auctionError?: NxtpErrorJson;
+      invalidBids?: { error: Error; data: AuctionResponse | undefined }[];
+      encryptionError?: string;
     },
   ) {
     super(message, context, TransactionManagerError.type);
   }
 }
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
+ */
+export const signFulfillTransactionPayload = async (
+  transactionId: string,
+  relayerFee: string,
+  receivingChainId: number,
+  receivingChainTxManagerAddress: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  return await _signFulfillTransactionPayload(
+    transactionId,
+    relayerFee,
+    receivingChainId,
+    receivingChainTxManagerAddress,
+    signer,
+  );
+};
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
+ * @param bid - Bid information that should've been signed
+ * @param signature - Signature to recover signer of
+ * @returns Recovered signer
+ */
+export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
+  return _recoverAuctionBid(bid, signature);
+};
 
 /**
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
@@ -221,19 +387,41 @@ export class NxtpSdk {
     },
     private signer: Signer,
     private readonly logger: BaseLogger = pino(),
+    network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
-    _network?: "testnet" | "mainnet", // TODO
   ) {
+    const method = "constructor";
+    const methodId = getRandomBytes32();
+
     if (messaging) {
       this.messaging = messaging;
     } else {
+      let _natsUrl;
+      let _authUrl;
+      switch (network) {
+        case "mainnet": {
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
+          _authUrl = authUrl ?? NATS_AUTH_URL;
+          break;
+        }
+        case "testnet": {
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
+          _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
+          break;
+        }
+        case "local": {
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
+          _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
+          break;
+        }
+      }
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
         logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl,
-        authUrl,
+        natsUrl: _natsUrl,
+        authUrl: _authUrl,
       });
     }
 
@@ -254,7 +442,7 @@ export class NxtpSdk {
 
     // create configs for subclasses based on passed-in config
     Object.entries(this.chainConfig).forEach(
-      async ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
+      ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
         const chainId = parseInt(_chainId);
 
         let transactionManagerAddress = _transactionManagerAddress;
@@ -262,7 +450,12 @@ export class NxtpSdk {
           transactionManagerAddress = getDeployedTransactionManagerContractAddress(chainId);
         }
         if (!transactionManagerAddress) {
-          throw new Error(`Unable to get transactionManagerAddress for ${chainId}, please provide override`);
+          throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+            method,
+            methodId,
+            paramsError: `Unable to get transactionManagerAddress for ${chainId}, please provide override`,
+            transactionId: "",
+          });
         }
         txManagerConfig[chainId] = {
           provider,
@@ -274,7 +467,12 @@ export class NxtpSdk {
           subgraph = getDeployedSubgraphUri(chainId);
         }
         if (!subgraph) {
-          throw new Error(`Unable to get subgraph for ${chainId}, please provide override`);
+          throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+            method,
+            methodId,
+            paramsError: `Unable to get subgraph for ${chainId}, please provide override`,
+            transactionId: "",
+          });
         }
         subgraphConfig[chainId] = {
           subgraph,
@@ -306,7 +504,7 @@ export class NxtpSdk {
    *
    * @returns An array of the active transactions and their status
    */
-  public async getActiveTransactions(): Promise<{ txData: TransactionData; status: NxtpSdkEvent }[]> {
+  public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
     return txs;
   }
@@ -367,7 +565,16 @@ export class NxtpSdk {
       throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
         method,
         methodId,
-        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        configError: `Not configured for chains ${sendingChainId} & ${receivingChainId}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
+    if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Slippage Tolerance ${slippageTolerance}, must be greater than ${MIN_SLIPPAGE_TOLERANCE}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -381,12 +588,22 @@ export class NxtpSdk {
       });
     }
 
-    const expiry = _expiry ?? getExpiry();
-    if (expiry - Date.now() / 1000 < getMinExpiryBuffer()) {
+    const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
+    const expiry = _expiry ?? getExpiry(blockTimestamp);
+    if (expiry - blockTimestamp < getMinExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too short, must be at least ${Date.now() / 1000 + getMinExpiryBuffer()}`,
+        paramsError: `Expiry too short, must be at least ${blockTimestamp + getMinExpiryBuffer()}`,
+        transactionId: params.transactionId ?? "",
+      });
+    }
+
+    if (expiry - blockTimestamp > getMaxExpiryBuffer()) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: `Expiry too high, must be at below ${blockTimestamp + getMaxExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -406,123 +623,65 @@ export class NxtpSdk {
           params: [user], // you must have access to the specified account
         });
       } catch (error) {
-        let paramsError = "Error getting encryption key";
+        let encryptionError = "Error getting public key";
         if (error.code === 4001) {
           // EIP-1193 userRejectedRequest error
-          paramsError = "User rejected encryption key request";
+          encryptionError = "User rejected public key request";
         }
-        throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        throw new NxtpSdkError(NxtpSdkError.reasons.EncryptionError, {
           method,
           methodId,
-          paramsError,
+          encryptionError,
           transactionId: params.transactionId ?? "",
         });
       }
 
-      encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      try {
+        encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      } catch (e) {
+        throw new NxtpSdkError(NxtpSdkError.reasons.EncryptionError, {
+          method,
+          methodId,
+          encryptionError: e.message,
+          transactionId: params.transactionId ?? "",
+        });
+      }
     }
 
     if (!this.messaging.isConnected()) {
       await this.messaging.connect();
     }
 
-    const inbox = generateMessagingInbox();
+    const { inbox, evt } = getAuctionRequestContext();
 
-    const auctionBids: AuctionResponse[] = [];
-
-    const receivedResponsePromise = new Promise<AuctionResponse>(async (res, rej) => {
-      await new Promise<void>((ext) => {
-        setTimeout(() => {
-          ext();
-        }, AUCTION_TIMEOUT);
-        this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
-          if (err || !data) {
-            this.logger.error({ method, methodId, err, data }, "Error in auction response");
-          }
-          // dry run, return first response
-          else if (!data.bidSignature) {
-            auctionBids.push(data);
-            ext();
-          } else {
-            // validate bid
-            // check router sig on bid
-            const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
-            if (signer !== data.bid.router) {
-              this.logger.error(
-                { method, methodId, signer, router: data.bid.router },
-                "Invalid router signature on bid",
-              );
-              return;
-            }
-
-            // check contract for router liquidity
-            const routerLiq = await this.transactionManager.getRouterLiquidity(
-              receivingChainId,
-              data.bid.router,
-              receivingAssetId,
-            );
-            if (routerLiq.isOk()) {
-              if (routerLiq.value.lt(data.bid.amountReceived)) {
-                this.logger.error(
-                  { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                  `Router's liquidity low`,
-                );
-                return;
-              }
-            } else {
-              this.logger.error(
-                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                routerLiq.error.message,
-              );
-              return;
-            }
-
-            // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-            const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-            const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
-
-            if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
-              this.logger.error(
-                {
-                  method,
-                  methodId,
-                  signer,
-                  lowerBound: lowerBound,
-                  bidAmount: data.bid.amount,
-                  amountReceived: data.bid.amountReceived,
-                  slippageTolerance: slippageTolerance,
-                  router: data.bid.router,
-                },
-                "Invalid bid price: price impact is more than the slippage tolerance",
-              );
-              return;
-            }
-
-            auctionBids.push(data);
-            if (auctionBids.length >= 5) {
-              ext();
-            }
-          }
-        });
-      });
-
-      if (auctionBids.length === 0) {
-        rej(
-          new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
-            method,
-            methodId,
-            transactionId,
-            auctionError: "No bids",
-          }),
-        );
+    await this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+      if (err || !data) {
+        this.logger.error({ method, methodId, err, data }, "Error in auction response");
+        return;
       }
 
-      this.logger.info({ method, methodId, auctionBids }, "Auction bids received");
-      auctionBids.sort((a, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: check this logic
+      this.logger.info({ method, methodId, transactionId, inbox, data }, "Got auction response");
+
+      evt.post(data);
+    });
+
+    const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
+      if (dryRun) {
+        try {
+          const result = await evt.waitFor(AUCTION_TIMEOUT);
+          return resolve([result]);
+        } catch (e) {
+          return reject(e);
+        }
+      }
+      const bids: AuctionResponse[] = [];
+      evt.attach((data) => {
+        bids.push(data);
       });
 
-      res(auctionBids[0]);
+      setTimeout(async () => {
+        return resolve(bids);
+      }, AUCTION_TIMEOUT);
     });
 
     await this.messaging.publishAuctionRequest(
@@ -544,18 +703,137 @@ export class NxtpSdk {
       inbox,
     );
 
-    this.logger.info({ method, methodId }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
+    this.logger.info({ method, methodId, inbox }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
     try {
-      const auctionResponse = await receivedResponsePromise;
-      this.logger.info({ method, methodId, auctionResponse }, "Received response");
-      return auctionResponse;
+      const auctionResponses = await auctionBidsPromise;
+      this.logger.info({ method, methodId, auctionResponses, transactionId, inbox }, "Auction closed");
+      if (auctionResponses.length === 0) {
+        // TODO: better error handling here, this leads to duplicate errors
+        throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+          method,
+          methodId,
+          transactionId,
+          auctionError: {
+            type: NxtpSdkError.type,
+            message: "No auction bids received",
+            context: {
+              auctionResponses,
+            },
+          },
+        });
+      }
+      const filtered: (AuctionResponse | string)[] = await Promise.all(
+        auctionResponses.map(async (data: AuctionResponse) => {
+          // validate bid
+          // check router sig on bid
+          const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
+          if (signer !== data.bid.router) {
+            const msg = "Invalid router signature on bid";
+            this.logger.error({ method, methodId, signer, router: data.bid.router }, msg);
+            return msg;
+          }
+
+          // check contract for router liquidity
+          const routerLiq = await this.transactionManager.getRouterLiquidity(
+            receivingChainId,
+            data.bid.router,
+            receivingAssetId,
+          );
+          if (routerLiq.isOk()) {
+            if (routerLiq.value.lt(data.bid.amountReceived)) {
+              const msg = "Router's liquidity low";
+              this.logger.error(
+                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+                msg,
+              );
+              return msg;
+            }
+          } else {
+            this.logger.error(
+              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+              routerLiq.error.message,
+            );
+            return routerLiq.error.message;
+          }
+
+          // check if the price changes unfovorably by more than the slippage tolerance(percentage).
+          const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
+
+          const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
+          const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
+
+          if (!sendingProvider || !receivingProvider) {
+            const msg = "Provider not found";
+            this.logger.error(
+              { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
+              msg,
+            );
+            return msg;
+          }
+
+          const [inputDecimals, outputDecimals] = await Promise.all([
+            getDecimals(sendingAssetId, sendingProvider),
+            getDecimals(receivingAssetId, receivingProvider),
+          ]);
+
+          const lowerBound = calculateExchangeWad(
+            BigNumber.from(amount),
+            inputDecimals,
+            lowerBoundExchangeRate,
+            outputDecimals,
+          );
+
+          // safe calculation if the amountReceived is greater than 4 decimals
+          if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
+            const msg = "Invalid bid price: price impact is more than the slippage tolerance";
+            this.logger.error(
+              {
+                method,
+                methodId,
+                signer,
+                lowerBound: lowerBound,
+                bidAmount: data.bid.amount,
+                amountReceived: data.bid.amountReceived,
+                slippageTolerance: slippageTolerance,
+                router: data.bid.router,
+              },
+              msg,
+            );
+            return msg;
+          }
+
+          return data;
+        }),
+      );
+
+      const valid = filtered.filter((x) => typeof x !== "string") as AuctionResponse[];
+      const invalid = filtered.filter((x) => typeof x === "string") as string[];
+      if (valid.length === 0) {
+        // TODO: error refactors
+        throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+          method,
+          methodId,
+          transactionId,
+          auctionError: {
+            type: NxtpSdkError.type,
+            message: "No valid auction bids received",
+            context: {
+              invalidReasons: invalid.join(","),
+            },
+          },
+        });
+      }
+      const chosen = valid.sort((a: AuctionResponse, b) => {
+        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+      })[0];
+      return chosen;
     } catch (e) {
-      throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
-        method,
-        methodId,
-        transactionId,
-        auctionError: "No response received",
-      });
+      this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
+      throw e;
+    } finally {
+      await this.messaging.unsubscribe(inbox);
+      evt.detach();
+      this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
 
@@ -568,7 +846,7 @@ export class NxtpSdk {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async startTransfer(
+  public async prepareTransfer(
     transferParams: AuctionResponse,
     infiniteApprove = false,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
@@ -577,6 +855,21 @@ export class NxtpSdk {
     this.logger.info({ method, methodId, transferParams }, "Method started");
 
     const { bid, bidSignature } = transferParams;
+
+    // Validate params schema
+    const validate = ajv.compile(AuctionBidParamsSchema);
+    const valid = validate(bid);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, transferParams }, "Invalid transfer params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: bid.transactionId ?? "",
+      });
+    }
+
     const {
       user,
       router,
@@ -598,7 +891,7 @@ export class NxtpSdk {
       throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
         method,
         methodId,
-        configError: `Not configured for for chains ${sendingChainId} & ${receivingChainId}`,
+        configError: `Not configured for chains ${sendingChainId} & ${receivingChainId}`,
         transactionId,
       });
     }
@@ -608,7 +901,7 @@ export class NxtpSdk {
         method,
         methodId,
         transactionId,
-        paramsError: "bidSignature not available",
+        paramsError: "bidSignature undefined",
       });
     }
 
@@ -681,6 +974,7 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
+      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
       user,
       router,
       sendingAssetId,
@@ -715,16 +1009,15 @@ export class NxtpSdk {
   }
 
   /**
-   * Completes the transaction on the receiving chain. This function should either cancel the transaction if it is prepared incorrectly, or fulfill it if it is prepared correctly.
+   * Fulfills the transaction on the receiving chain.
    *
    * @param params - The `TransactionPrepared` event payload from the receiving chain
    * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
    * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
    * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
-   * // TODO: fix this typing, if its either or the types should reflect that
    */
-  public async finishTransfer(
-    params: TransactionPreparedEvent,
+  public async fulfillTransfer(
+    params: Omit<TransactionPreparedEvent, "caller">,
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
@@ -732,15 +1025,44 @@ export class NxtpSdk {
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, params, useRelayers }, "Method started");
 
+    // Validate params schema
+    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const valid = validate(params);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid Params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: params?.txData?.transactionId ?? "",
+      });
+    }
+
     const { txData, encryptedCallData } = params;
 
     const signerAddress = await this.signer.getAddress();
+
+    if (!this.chainConfig[txData.sendingChainId] || !this.chainConfig[txData.receivingChainId]) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ConfigError, {
+        method,
+        methodId,
+        configError: `Not configured for chains ${txData.sendingChainId} & ${txData.receivingChainId}`,
+        transactionId: txData.transactionId,
+      });
+    }
 
     this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      signFulfillTransactionPayload(
+        txData.transactionId,
+        relayerFee,
+        txData.receivingChainId,
+        txData.receivingChainTxManagerAddress,
+        this.signer,
+      ),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,
@@ -762,7 +1084,8 @@ export class NxtpSdk {
                 methodId,
                 transactionId: txData.transactionId,
                 messagingError: jsonifyError(err as Error),
-              }),
+                details: "Failed to connect",
+              } as any),
           );
         }
         return okAsync(undefined);
@@ -805,6 +1128,7 @@ export class NxtpSdk {
             await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
               this.logger.info({ method, methodId, data, err }, "MetaTx response received");
               if (err || !data) {
+                this.logger.error({ error: jsonifyError(err) }, "Got error from metatx");
                 return reject(err);
               }
               this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
@@ -833,7 +1157,8 @@ export class NxtpSdk {
               methodId,
               transactionId: txData.transactionId,
               messagingError: jsonifyError(err as Error),
-            }),
+              details: "Failed to subscribe or publish",
+            } as any),
         );
       });
 
@@ -872,11 +1197,25 @@ export class NxtpSdk {
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
 
-  // TODO: this just cancels a transaction, it is misnamed, has nothing to do with expiries
-  public async cancelExpired(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const method = this.cancelExpired.name;
+  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+    const method = this.cancel.name;
     const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, cancelParams, chainId }, "Method started");
+    this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
+
+    // Validate params schema
+    const validate = ajv.compile(CancelSchema);
+    const valid = validate(cancelParams);
+    if (!valid) {
+      const error = validate.errors?.map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      this.logger.error({ method, methodId, error: validate.errors, cancelParams }, "Invalid Params");
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        paramsError: error,
+        transactionId: cancelParams?.txData?.transactionId ?? "",
+      });
+    }
+
     const cancelRes = await this.transactionManager.cancel(chainId, cancelParams);
     if (cancelRes.isOk()) {
       this.logger.info({ method, methodId }, "Method complete");
@@ -900,6 +1239,7 @@ export class NxtpSdk {
    */
   public removeAllListeners(): void {
     this.messaging.disconnect();
+    this.subgraph.stopPolling();
   }
 
   // Listener methods
@@ -942,7 +1282,7 @@ export class NxtpSdk {
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
     if (Object.keys(SubgraphEvents).includes(event)) {
-      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any);
+      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any, timeout);
     } else {
       this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
     }

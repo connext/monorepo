@@ -14,6 +14,7 @@ import "./src/tasks/addAsset";
 import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
+import "./src/tasks/getChainId";
 
 dotEnvConfig();
 
@@ -72,6 +73,11 @@ const config: HardhatUserConfig = {
       chainId: 1,
       url: urlOverride || "http://localhost:8545",
     },
+    ropsten: {
+      accounts: { mnemonic },
+      chainId: 3,
+      url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
+    },
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
@@ -86,6 +92,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 42,
       url: urlOverride || "http://localhost:8545",
+    },
+    chapel: {
+      accounts: { mnemonic },
+      chainId: 97,
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
     },
     matic: {
       accounts: { mnemonic },

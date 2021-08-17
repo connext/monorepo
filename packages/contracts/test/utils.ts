@@ -1,10 +1,23 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-import { BigNumber, constants, Contract, ContractReceipt, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, ContractFactory, ContractReceipt, providers, Wallet } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 import { ProposedOwnable } from "../typechain";
+
+export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
+export const deployContract = async <T extends Contract = Contract>(
+  contractName: string,
+  ...args: any[]
+): Promise<T> => {
+  const factory = (await ethers.getContractFactory(contractName)) as ContractFactory;
+  const contract = await factory.deploy(...args, {
+    maxFeePerGas: MAX_FEE_PER_GAS,
+  });
+  await contract.deployed();
+  return contract as T;
+};
 
 export const getOnchainBalance = async (
   assetId: string,
@@ -40,21 +53,26 @@ export const assertReceiptEvent = async (receipt: ContractReceipt, eventName: st
   assertObject(expected, decoded);
 };
 
-export const proposeNewOwnerOnContract = async (newOwner: string, contract: ProposedOwnable) => {
+export const proposeNewOwnerOnContract = async (newOwner: string, owner: Wallet, contract: ProposedOwnable) => {
   // Propose new owner
-  const proposeTx = await contract.proposeNewOwner(newOwner);
+  const proposeTx = await contract.connect(owner).proposeNewOwner(newOwner);
   const proposeReceipt = await proposeTx.wait();
   assertReceiptEvent(proposeReceipt, "OwnershipProposed", { proposedOwner: newOwner });
   expect(await contract.proposed()).to.be.eq(newOwner);
   return proposeReceipt;
 };
 
-export const transferOwnershipOnContract = async (newOwner: string, contract: ProposedOwnable) => {
+export const transferOwnershipOnContract = async (
+  newOwner: string,
+  caller: Wallet,
+  contract: ProposedOwnable,
+  owner: Wallet,
+) => {
   // Get current owner
   const current = await contract.owner();
 
   // Propose new owner
-  await proposeNewOwnerOnContract(newOwner, contract);
+  await proposeNewOwnerOnContract(newOwner, owner, contract);
 
   // Advance block time
   const eightDays = 8 * 24 * 60 * 60;
@@ -62,7 +80,10 @@ export const transferOwnershipOnContract = async (newOwner: string, contract: Pr
   await setBlockTime(timestamp + eightDays);
 
   // Accept new owner
-  const acceptTx = await contract.acceptProposedOwner();
+  const acceptTx =
+    newOwner === constants.AddressZero
+      ? await contract.connect(caller).renounceOwnership()
+      : await contract.connect(caller).acceptProposedOwner();
   const acceptReceipt = await acceptTx.wait();
   assertReceiptEvent(acceptReceipt, "OwnershipTransferred", {
     previousOwner: current,

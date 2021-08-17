@@ -1,6 +1,6 @@
 import { Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { getUuid, TransactionData } from "@connext/nxtp-utils";
+import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
@@ -13,40 +13,22 @@ import {
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
-/**
- * Gets hosted subgraph for applicable chains
- *
- * @param chainId - The chain you want the subgraph URI for
- * @returns A string of the appropriate URI to access the hosted subgraph
- *
- * @remarks
- * Currently only returns URIs for hosted subgraphs
- */
-export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
-  switch (chainId) {
-    case 4:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
-    case 5:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli";
-    case 69:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan";
-    case 80001:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
-    case 421611:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby";
-    default:
-      return undefined;
-  }
+export const SubgraphUri: { [chainId: number]: string } = {
+  4: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
+  5: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
+  69: "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan",
+  80001: "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai",
+  421611: "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby",
 };
-
 /**
  * Converts subgraph transactions to properly typed TransactionData
  *
  * @param transaction Subgraph data
  * @returns Properly formatted TransactionData
  */
-const convertTransactionToTxData = (transaction: any): TransactionData => {
+export const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
+    receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
     user: transaction.user.id,
     router: transaction.router.id,
     sendingChainId: parseInt(transaction.sendingChainId),
@@ -56,7 +38,7 @@ const convertTransactionToTxData = (transaction: any): TransactionData => {
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
-    expiry: transaction.expiry,
+    expiry: parseInt(transaction.expiry),
     callDataHash: transaction.callDataHash,
     callTo: transaction.callTo,
     transactionId: transaction.transactionId,
@@ -95,10 +77,9 @@ export const createSubgraphEvts = (): {
 };
 
 export type ActiveTransaction = {
-  txData: TransactionData;
+  crosschainTx: CrosschainTransaction;
   status: NxtpSdkEvent;
   bidSignature: string;
-  caller: string;
   encodedBid: string;
   encryptedCallData: string;
 };
@@ -110,6 +91,7 @@ export class Subgraph {
   private sdks: Record<number, Sdk> = {};
   private evts = createSubgraphEvts();
   private activeTxs: Map<string, ActiveTransaction> = new Map();
+  private pollingLoop: NodeJS.Timer | undefined;
 
   constructor(
     private readonly user: Signer,
@@ -121,13 +103,22 @@ export class Subgraph {
       const client = new GraphQLClient(subgraph);
       this.sdks[parseInt(chainId)] = getSdk(client);
     });
-    this.subgraphLoop();
+    this.startPolling();
   }
 
-  private subgraphLoop(): void {
-    setInterval(async () => {
-      await this.getActiveTransactions();
-    }, this.pollInterval);
+  public stopPolling(): void {
+    if (this.pollingLoop != null) {
+      clearInterval(this.pollingLoop);
+      this.pollingLoop = undefined;
+    }
+  }
+
+  public startPolling(): void {
+    if (this.pollingLoop == null) {
+      this.pollingLoop = setInterval(async () => {
+        await this.getActiveTransactions();
+      }, this.pollInterval);
+    }
   }
 
   /**
@@ -180,48 +171,86 @@ export class Subgraph {
               const correspondingReceiverTx = correspondingReceiverTxs.find(
                 (tx) => tx.transactionId === senderTx.transactionId,
               );
+              const sendingTxData = convertTransactionToTxData(senderTx);
+              const {
+                amount: sendingAmount,
+                preparedBlockNumber: sendingPreparedBlockNumber,
+                expiry: sendingExpiry,
+                ...invariant
+              } = sendingTxData;
+              const sendingVariant: VariantTransactionData = {
+                amount: sendingAmount,
+                preparedBlockNumber: sendingPreparedBlockNumber,
+                expiry: sendingExpiry,
+              };
 
               const active = this.activeTxs.get(senderTx.transactionId);
               if (!correspondingReceiverTx) {
                 // if receiver doesnt exist, its a sender prepared
                 // if we are not tracking it
-                const tx = {
-                  txData: convertTransactionToTxData(senderTx),
+
+                const common = {
                   bidSignature: senderTx.bidSignature,
                   caller: senderTx.prepareCaller,
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
                   transactionHash: senderTx.prepareTransactionHash,
                 };
+                const tx: ActiveTransaction = {
+                  ...common,
+                  crosschainTx: {
+                    invariant,
+                    sending: sendingVariant,
+                  },
+                  status: SubgraphEvents.SenderTransactionPrepared,
+                };
                 if (!active) {
-                  this.evts.SenderTransactionPrepared.post(tx);
-                  this.activeTxs.set(senderTx.transactionId, {
-                    ...tx,
-                    status: SubgraphEvents.SenderTransactionPrepared,
+                  this.activeTxs.set(senderTx.transactionId, tx);
+                  this.evts.SenderTransactionPrepared.post({
+                    ...common,
+                    txData: sendingTxData,
                   });
                 }
-                return { ...tx, status: SubgraphEvents.SenderTransactionPrepared };
+                return tx;
                 // otherwise we are already tracking, no change
               }
               if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
-                const tx = {
-                  txData: convertTransactionToTxData(correspondingReceiverTx),
+                const receiverData = convertTransactionToTxData(correspondingReceiverTx);
+                const common = {
                   bidSignature: correspondingReceiverTx.bidSignature,
                   caller: correspondingReceiverTx.prepareCaller,
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
                   transactionHash: correspondingReceiverTx.prepareTransactionHash,
                 };
+                const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
+
+                const tx: ActiveTransaction = {
+                  ...common,
+                  crosschainTx: {
+                    invariant,
+                    receiving: { amount, expiry, preparedBlockNumber },
+                    sending: sendingVariant,
+                  },
+                  status: SubgraphEvents.ReceiverTransactionPrepared,
+                };
+                if (!active) {
+                  this.logger.warn(
+                    { transactionId: invariant.transactionId, active: this.activeTxs.keys() },
+                    "Missing active sender tx",
+                  );
+                }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {
-                  this.evts.ReceiverTransactionPrepared.post(tx);
-                  this.activeTxs.set(senderTx.transactionId, {
-                    ...tx,
-                    status: SubgraphEvents.ReceiverTransactionPrepared,
+                  this.activeTxs.set(senderTx.transactionId, tx);
+                  this.evts.ReceiverTransactionPrepared.post({
+                    ...common,
+                    txData: receiverData,
+                    transactionHash: correspondingReceiverTx.prepareTransactionHash,
                   });
                 }
-                return { ...tx, status: SubgraphEvents.ReceiverTransactionPrepared };
+                return tx;
                 // otherwise we are already tracking, no change
               }
               if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
@@ -236,8 +265,8 @@ export class Subgraph {
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
                 if (active) {
-                  this.evts.ReceiverTransactionFulfilled.post(tx);
                   this.activeTxs.delete(senderTx.transactionId);
+                  this.evts.ReceiverTransactionFulfilled.post(tx);
                 }
                 return undefined; // no longer active
               }
@@ -250,8 +279,8 @@ export class Subgraph {
                 };
                 // if receiver is cancelled, its a receiver cancelled
                 if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
-                  this.evts.ReceiverTransactionCancelled.post(tx);
                   this.activeTxs.delete(senderTx.transactionId);
+                  this.evts.ReceiverTransactionCancelled.post(tx);
                 }
                 return undefined; // no longer active
               }
@@ -267,7 +296,12 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info({ methodId, methodName, all }, "Queried active txs");
+      this.logger.info({
+        methodName,
+        methodId,
+        active: all.map((a) => a.crosschainTx.invariant.transactionId).join(","),
+      });
+      this.logger.debug({ methodId, methodName, all }, "Queried active txs");
     }
     return all;
   }

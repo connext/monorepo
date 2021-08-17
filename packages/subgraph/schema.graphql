@@ -25,6 +25,7 @@ type Transaction @entity {
   chainId: BigInt!
 
   # TransactionData
+  receivingChainTxManagerAddress: Bytes!
   user: User!
   router: Router!
   sendingAssetId: Bytes!
@@ -51,6 +52,8 @@ type Transaction @entity {
   relayerFee: BigInt
   signature: Bytes
   callData: String
+  externalCallSuccess: Boolean
+  externalCallReturnData: Bytes
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes
 
