@@ -35,3 +35,5 @@ echo "Deployed to arbitrum-rinkeby"
 
 # Needs to be done separetely 
 # yarn workspace @connext/nxtp-contracts hardhat deploy --network optimism-kovan
+
+yarn workspace @connext/nxtp-contracts export
