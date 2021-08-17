@@ -19,6 +19,7 @@ export const getSenderTransactionsQuery = gql`
         router {
           id
         }
+        receivingChainTxManagerAddress
         sendingAssetId
         receivingAssetId
         sendingChainFallback
@@ -62,6 +63,7 @@ export const getReceiverTransactionsQuery = gql`
         router {
           id
         }
+        receivingChainTxManagerAddress
         sendingAssetId
         receivingAssetId
         sendingChainFallback
@@ -100,6 +102,7 @@ export const getTransactionByIdQuery = gql`
       router {
         id
       }
+      receivingChainTxManagerAddress
       sendingAssetId
       receivingAssetId
       sendingChainFallback
@@ -140,6 +143,7 @@ export const getTransactionsByIdsQuery = gql`
       router {
         id
       }
+      receivingChainTxManagerAddress
       sendingAssetId
       receivingAssetId
       sendingChainFallback

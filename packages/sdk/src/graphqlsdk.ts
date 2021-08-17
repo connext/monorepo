@@ -292,6 +292,7 @@ export type Transaction = {
   id: Scalars['ID'];
   status: TransactionStatus;
   chainId: Scalars['BigInt'];
+  receivingChainTxManagerAddress: Scalars['Bytes'];
   user: User;
   router: Router;
   sendingAssetId: Scalars['Bytes'];
@@ -314,6 +315,8 @@ export type Transaction = {
   relayerFee?: Maybe<Scalars['BigInt']>;
   signature?: Maybe<Scalars['Bytes']>;
   callData?: Maybe<Scalars['String']>;
+  externalCallSuccess?: Maybe<Scalars['Boolean']>;
+  externalCallReturnData?: Maybe<Scalars['Bytes']>;
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   fulfillTransactionHash?: Maybe<Scalars['Bytes']>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
@@ -345,6 +348,12 @@ export type Transaction_Filter = {
   chainId_lte?: Maybe<Scalars['BigInt']>;
   chainId_in?: Maybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingChainTxManagerAddress?: Maybe<Scalars['Bytes']>;
+  receivingChainTxManagerAddress_not?: Maybe<Scalars['Bytes']>;
+  receivingChainTxManagerAddress_in?: Maybe<Array<Scalars['Bytes']>>;
+  receivingChainTxManagerAddress_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  receivingChainTxManagerAddress_contains?: Maybe<Scalars['Bytes']>;
+  receivingChainTxManagerAddress_not_contains?: Maybe<Scalars['Bytes']>;
   user?: Maybe<Scalars['String']>;
   user_not?: Maybe<Scalars['String']>;
   user_gt?: Maybe<Scalars['String']>;
@@ -521,6 +530,16 @@ export type Transaction_Filter = {
   callData_not_starts_with?: Maybe<Scalars['String']>;
   callData_ends_with?: Maybe<Scalars['String']>;
   callData_not_ends_with?: Maybe<Scalars['String']>;
+  externalCallSuccess?: Maybe<Scalars['Boolean']>;
+  externalCallSuccess_not?: Maybe<Scalars['Boolean']>;
+  externalCallSuccess_in?: Maybe<Array<Scalars['Boolean']>>;
+  externalCallSuccess_not_in?: Maybe<Array<Scalars['Boolean']>>;
+  externalCallReturnData?: Maybe<Scalars['Bytes']>;
+  externalCallReturnData_not?: Maybe<Scalars['Bytes']>;
+  externalCallReturnData_in?: Maybe<Array<Scalars['Bytes']>>;
+  externalCallReturnData_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  externalCallReturnData_contains?: Maybe<Scalars['Bytes']>;
+  externalCallReturnData_not_contains?: Maybe<Scalars['Bytes']>;
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   fulfillCaller_not?: Maybe<Scalars['Bytes']>;
   fulfillCaller_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -551,6 +570,7 @@ export enum Transaction_OrderBy {
   Id = 'id',
   Status = 'status',
   ChainId = 'chainId',
+  ReceivingChainTxManagerAddress = 'receivingChainTxManagerAddress',
   User = 'user',
   Router = 'router',
   SendingAssetId = 'sendingAssetId',
@@ -573,6 +593,8 @@ export enum Transaction_OrderBy {
   RelayerFee = 'relayerFee',
   Signature = 'signature',
   CallData = 'callData',
+  ExternalCallSuccess = 'externalCallSuccess',
+  ExternalCallReturnData = 'externalCallReturnData',
   FulfillCaller = 'fulfillCaller',
   FulfillTransactionHash = 'fulfillTransactionHash',
   CancelCaller = 'cancelCaller',
@@ -652,7 +674,7 @@ export type GetSenderTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'receivingChainTxManagerAddress' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -674,7 +696,7 @@ export type GetReceiverTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'receivingChainTxManagerAddress' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -694,7 +716,7 @@ export type GetTransactionQuery = (
   { __typename?: 'Query' }
   & { transaction?: Maybe<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'receivingChainTxManagerAddress' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -714,7 +736,7 @@ export type GetTransactionsQuery = (
   { __typename?: 'Query' }
   & { transactions: Array<(
     { __typename?: 'Transaction' }
-    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'callData' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
+    & Pick<Transaction, 'id' | 'status' | 'chainId' | 'receivingChainTxManagerAddress' | 'sendingAssetId' | 'receivingAssetId' | 'sendingChainFallback' | 'receivingAddress' | 'callTo' | 'sendingChainId' | 'receivingChainId' | 'callDataHash' | 'transactionId' | 'amount' | 'expiry' | 'preparedBlockNumber' | 'encryptedCallData' | 'encodedBid' | 'bidSignature' | 'relayerFee' | 'signature' | 'callData' | 'prepareCaller' | 'fulfillCaller' | 'cancelCaller' | 'prepareTransactionHash' | 'fulfillTransactionHash' | 'cancelTransactionHash'>
     & { user: (
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -742,6 +764,7 @@ export const GetSenderTransactionsDocument = gql`
     router {
       id
     }
+    receivingChainTxManagerAddress
     sendingAssetId
     receivingAssetId
     sendingChainFallback
@@ -782,6 +805,7 @@ export const GetReceiverTransactionsDocument = gql`
     router {
       id
     }
+    receivingChainTxManagerAddress
     sendingAssetId
     receivingAssetId
     sendingChainFallback
@@ -818,6 +842,7 @@ export const GetTransactionDocument = gql`
     router {
       id
     }
+    receivingChainTxManagerAddress
     sendingAssetId
     receivingAssetId
     sendingChainFallback
@@ -856,6 +881,7 @@ export const GetTransactionsDocument = gql`
     router {
       id
     }
+    receivingChainTxManagerAddress
     sendingAssetId
     receivingAssetId
     sendingChainFallback

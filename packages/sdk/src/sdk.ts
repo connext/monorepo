@@ -108,6 +108,17 @@ export const getDecimals = async (assetId: string, provider: providers.FallbackP
   return decimals;
 };
 
+/**
+ * Gets the inbox and evt for a given auction. Can be done inline,
+ * but done as a helper for mocking.
+ */
+export const getAuctionRequestContext = () => {
+  const inbox = generateMessagingInbox();
+
+  const evt = Evt.create<AuctionResponse>();
+  return { inbox, evt };
+};
+
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
@@ -295,9 +306,17 @@ export class NxtpSdkError extends NxtpError {
 export const signFulfillTransactionPayload = async (
   transactionId: string,
   relayerFee: string,
+  receivingChainId: number,
+  receivingChainTxManagerAddress: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  return await _signFulfillTransactionPayload(transactionId, relayerFee, signer);
+  return await _signFulfillTransactionPayload(
+    transactionId,
+    relayerFee,
+    receivingChainId,
+    receivingChainTxManagerAddress,
+    signer,
+  );
 };
 
 /**
@@ -346,17 +365,17 @@ export class NxtpSdk {
       let _authUrl;
       switch (network) {
         case "mainnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
           break;
         }
         case "testnet": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
           _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
           break;
         }
         case "local": {
-          _natsUrl = natsUrl ?? isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
           _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
           break;
         }
@@ -596,125 +615,36 @@ export class NxtpSdk {
       await this.messaging.connect();
     }
 
-    const inbox = generateMessagingInbox();
+    const { inbox, evt } = getAuctionRequestContext();
 
-    const auctionBids: AuctionResponse[] = [];
-    const invalidBids: { error: Error; data: AuctionResponse | undefined }[] = [];
-
-    const receivedResponsePromise = new Promise<AuctionResponse>(async (res, rej) => {
-      await new Promise<void>((ext) => {
-        setTimeout(() => {
-          ext();
-        }, AUCTION_TIMEOUT);
-        this.messaging.subscribeToAuctionResponse(inbox, async (data, err) => {
-          if (err || !data) {
-            this.logger.error({ method, methodId, err, data }, "Error in auction response");
-            invalidBids.push({ error: err, data });
-            return;
-          }
-          // dry run, return first response
-          else if (!data.bidSignature) {
-            auctionBids.push(data);
-            ext();
-          } else {
-            // validate bid
-            // check router sig on bid
-            const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
-            if (signer !== data.bid.router) {
-              const errorMessage = "Invalid router signature on bid";
-              this.logger.error({ method, methodId, signer, router: data.bid.router }, errorMessage);
-              invalidBids.push({ error: new Error(errorMessage), data });
-              return;
-            }
-
-            // check contract for router liquidity
-            const routerLiq = await this.transactionManager.getRouterLiquidity(
-              receivingChainId,
-              data.bid.router,
-              receivingAssetId,
-            );
-            if (routerLiq.isOk()) {
-              if (routerLiq.value.lt(data.bid.amountReceived)) {
-                const errorMessage = "Router's liquidity low";
-                this.logger.error(
-                  { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                  errorMessage,
-                );
-                invalidBids.push({ error: new Error(errorMessage), data });
-                return;
-              }
-            } else {
-              this.logger.error(
-                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                routerLiq.error.message,
-              );
-              invalidBids.push({ error: routerLiq.error, data });
-              return;
-            }
-
-            // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-            const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-
-            const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
-            const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
-
-            if (!sendingProvider || !receivingProvider) {
-              this.logger.error(
-                { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
-                "Provider not found",
-              );
-              return;
-            }
-
-            const inputDecimals = await getDecimals(sendingAssetId, sendingProvider);
-
-            const outputDecimals = await getDecimals(receivingAssetId, receivingProvider);
-
-            const lowerBound = calculateExchangeWad(
-              BigNumber.from(amount),
-              inputDecimals,
-              lowerBoundExchangeRate,
-              outputDecimals,
-            );
-
-            // safe calculation if the amountReceived is greater than 4 decimals
-            if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
-              const errorMessage = "Invalid bid price: price impact is more than the slippage tolerance";
-              this.logger.error(
-                {
-                  method,
-                  methodId,
-                  signer,
-                  lowerBound: lowerBound,
-                  bidAmount: data.bid.amount,
-                  amountReceived: data.bid.amountReceived,
-                  slippageTolerance: slippageTolerance,
-                  router: data.bid.router,
-                },
-                errorMessage,
-              );
-              invalidBids.push({ error: new Error(errorMessage), data });
-              return;
-            }
-
-            auctionBids.push(data);
-            if (auctionBids.length >= 5) {
-              ext();
-            }
-          }
-        });
-      });
-
-      if (auctionBids.length === 0) {
-        rej(new Error("No bids received"));
+    await this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
+      if (err || !data) {
+        this.logger.error({ method, methodId, err, data }, "Error in auction response");
+        return;
       }
 
-      this.logger.info({ method, methodId, auctionBids }, "Auction bids received");
-      auctionBids.sort((a, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+      this.logger.info({ method, methodId, transactionId, inbox, data }, "Got auction response");
+
+      evt.post(data);
+    });
+
+    const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
+      if (dryRun) {
+        try {
+          const result = await evt.waitFor(AUCTION_TIMEOUT);
+          return resolve([result]);
+        } catch (e) {
+          return reject(e);
+        }
+      }
+      const bids: AuctionResponse[] = [];
+      evt.attach((data) => {
+        bids.push(data);
       });
 
-      res(auctionBids[0]);
+      setTimeout(async () => {
+        return resolve(bids);
+      }, AUCTION_TIMEOUT);
     });
 
     await this.messaging.publishAuctionRequest(
@@ -736,21 +666,137 @@ export class NxtpSdk {
       inbox,
     );
 
-    this.logger.info({ method, methodId }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
+    this.logger.info({ method, methodId, inbox }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
     try {
-      const auctionResponse = await receivedResponsePromise;
-      this.logger.info({ method, methodId, auctionResponse }, "Received response");
-      return auctionResponse;
+      const auctionResponses = await auctionBidsPromise;
+      this.logger.info({ method, methodId, auctionResponses, transactionId, inbox }, "Auction closed");
+      if (auctionResponses.length === 0) {
+        // TODO: better error handling here, this leads to duplicate errors
+        throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+          method,
+          methodId,
+          transactionId,
+          auctionError: {
+            type: NxtpSdkError.type,
+            message: "No auction bids received",
+            context: {
+              auctionResponses,
+            },
+          },
+        });
+      }
+      const filtered: (AuctionResponse | string)[] = await Promise.all(
+        auctionResponses.map(async (data: AuctionResponse) => {
+          // validate bid
+          // check router sig on bid
+          const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
+          if (signer !== data.bid.router) {
+            const msg = "Invalid router signature on bid";
+            this.logger.error({ method, methodId, signer, router: data.bid.router }, msg);
+            return msg;
+          }
+
+          // check contract for router liquidity
+          const routerLiq = await this.transactionManager.getRouterLiquidity(
+            receivingChainId,
+            data.bid.router,
+            receivingAssetId,
+          );
+          if (routerLiq.isOk()) {
+            if (routerLiq.value.lt(data.bid.amountReceived)) {
+              const msg = "Router's liquidity low";
+              this.logger.error(
+                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+                msg,
+              );
+              return msg;
+            }
+          } else {
+            this.logger.error(
+              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
+              routerLiq.error.message,
+            );
+            return routerLiq.error.message;
+          }
+
+          // check if the price changes unfovorably by more than the slippage tolerance(percentage).
+          const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
+
+          const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
+          const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
+
+          if (!sendingProvider || !receivingProvider) {
+            const msg = "Provider not found";
+            this.logger.error(
+              { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
+              msg,
+            );
+            return msg;
+          }
+
+          const [inputDecimals, outputDecimals] = await Promise.all([
+            getDecimals(sendingAssetId, sendingProvider),
+            getDecimals(receivingAssetId, receivingProvider),
+          ]);
+
+          const lowerBound = calculateExchangeWad(
+            BigNumber.from(amount),
+            inputDecimals,
+            lowerBoundExchangeRate,
+            outputDecimals,
+          );
+
+          // safe calculation if the amountReceived is greater than 4 decimals
+          if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
+            const msg = "Invalid bid price: price impact is more than the slippage tolerance";
+            this.logger.error(
+              {
+                method,
+                methodId,
+                signer,
+                lowerBound: lowerBound,
+                bidAmount: data.bid.amount,
+                amountReceived: data.bid.amountReceived,
+                slippageTolerance: slippageTolerance,
+                router: data.bid.router,
+              },
+              msg,
+            );
+            return msg;
+          }
+
+          return data;
+        }),
+      );
+
+      const valid = filtered.filter((x) => typeof x !== "string") as AuctionResponse[];
+      const invalid = filtered.filter((x) => typeof x === "string") as string[];
+      if (valid.length === 0) {
+        // TODO: error refactors
+        throw new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
+          method,
+          methodId,
+          transactionId,
+          auctionError: {
+            type: NxtpSdkError.type,
+            message: "No valid auction bids received",
+            context: {
+              invalidReasons: invalid.join(","),
+            },
+          },
+        });
+      }
+      const chosen = valid.sort((a: AuctionResponse, b) => {
+        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+      })[0];
+      return chosen;
     } catch (e) {
-      const err = new NxtpSdkError(NxtpSdkError.reasons.AuctionError, {
-        method,
-        methodId,
-        transactionId,
-        auctionError: jsonifyError(e as NxtpError),
-        invalidBids: invalidBids,
-      });
-      this.logger.error({ method, methodId, err: jsonifyError(err) }, "Received response");
-      throw err;
+      this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
+      throw e;
+    } finally {
+      await this.messaging.unsubscribe(inbox);
+      evt.detach();
+      this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
 
@@ -891,6 +937,7 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
+      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
       user,
       router,
       sendingAssetId,
@@ -972,7 +1019,13 @@ export class NxtpSdk {
     let signature: string;
     const prepareRes = ResultAsync.fromPromise(
       // Generate signature
-      signFulfillTransactionPayload(txData.transactionId, relayerFee, this.signer),
+      signFulfillTransactionPayload(
+        txData.transactionId,
+        relayerFee,
+        txData.receivingChainId,
+        txData.receivingChainTxManagerAddress,
+        this.signer,
+      ),
       (err) =>
         new NxtpSdkError(NxtpSdkError.reasons.SigningError, {
           method,
@@ -994,7 +1047,8 @@ export class NxtpSdk {
                 methodId,
                 transactionId: txData.transactionId,
                 messagingError: jsonifyError(err as Error),
-              }),
+                details: "Failed to connect",
+              } as any),
           );
         }
         return okAsync(undefined);
@@ -1037,6 +1091,7 @@ export class NxtpSdk {
             await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
               this.logger.info({ method, methodId, data, err }, "MetaTx response received");
               if (err || !data) {
+                this.logger.error({ error: jsonifyError(err) }, "Got error from metatx");
                 return reject(err);
               }
               this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
@@ -1065,7 +1120,8 @@ export class NxtpSdk {
               methodId,
               transactionId: txData.transactionId,
               messagingError: jsonifyError(err as Error),
-            }),
+              details: "Failed to subscribe or publish",
+            } as any),
         );
       });
 
@@ -1146,6 +1202,7 @@ export class NxtpSdk {
    */
   public removeAllListeners(): void {
     this.messaging.disconnect();
+    this.subgraph.stopPolling();
   }
 
   // Listener methods

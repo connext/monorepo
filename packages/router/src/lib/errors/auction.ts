@@ -8,6 +8,18 @@ export class NotEnoughLiquidity extends NxtpError {
   }
 }
 
+export class ZeroValueBid extends NxtpError {
+  constructor(context: any = {}) {
+    super("Amount for request was invalid: must be integer greater than 0", context, "ZeroAmountRequest");
+  }
+}
+
+export class AuctionExpired extends NxtpError {
+  constructor(expiry: number, context: any = {}) {
+    super(`Auction is past (or too close to) expiry: ${expiry}`, context, "AuctionExpired");
+  }
+}
+
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
     super(`Providers not available for chainIds ${chainIds.join(",")}`, context, "ProvidersNotAvailable");

@@ -64,7 +64,7 @@ Lets assume that by this point the user has already run the auction.
 
 ### Offline Protections
 
-The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the transactions all store the `preparedBlockNumber` on them, and the contract tracks the `activeTransactionBlocks` for each user in a `mapping(address => uint256[]`). This mapping adds the `block.number` each time a transaction is prepared, and removes the `preparedBlockNumber` on completion (both `fulfill` and `cancel`). By looking at these blocks, users and routers should be able to easily find the relevant events and determine the necessary actions without needing a store of their own.
+The `TransactionManager` contract and its associated events should contain sufficient information for both the user and the router to properly resume any active transfers if they have been offline. To accomplish this, the `prepare` function will take in more parameters than are strictly needed so the relevant data can be emitted through events. Then users and routers can rely on either subgraphs or event polling to determine the necessary active transfers, and gather all data needed to complete them.
 
 ## Error Codes
 
@@ -80,15 +80,37 @@ The error definitions can be found [here](https://github.com/connext/nxtp/blob/c
 
 ## Development
 
-### Running the tests
+### Building
 
-To run the contract tests, run the following from the `modules/contracts` directory:
+First, install and build all the packages from the root:
 
 ```sh
-yarn test
+nxtp$ yarn && yarn build:all
+```
+
+Then, if you are only making updates to the contracts package, rebuild by running:
+
+```sh
+nxtp$ yarn  workspace @connext/nxtp-contracts build
+```
+
+### Running the tests
+
+To run the contract tests, run the following from the root directory:
+
+```sh
+nxtp$ yarn workspace @connext/nxtp-contracts test
 ```
 
 This command will output the gas estimates, as well as test coverage of the suites by default. There is no need to deploy or build the repo before running the tests, which will run against a local [hardhat](https://hardhat.org) network.
+
+To run the coverage tests, run the following from the root directory:
+
+```sh
+nxtp$ yarn workspace @connext/nxtp-contracts coverage
+```
+
+This command will output the coverage status instead of the gas estimates.
 
 ### Contract Deployment
 
@@ -110,7 +132,7 @@ You can also add a `.env` to the `packages/contracts` dir with the above env var
 2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts etherscan-verify --network goerli
+yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
 ```
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
@@ -118,7 +140,7 @@ You should use the `NETWORK_NAME` that corresponds to the correct network within
 3. (optional) To verify the contracts (works with Etherscan-based networks):
 
 ```sh
-yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --network goerli \<NETWORK_NAME\>
+yarn workspace @connext/nxtp-contracts etherscan-verify --solc-input --network goerli \<NETWORK_NAME\>
 ```
 
 4. Once the contracts have been deployed, export them using:

@@ -34,6 +34,7 @@ export const txReceiptMock = {
 } as unknown as providers.TransactionReceipt;
 
 export const invariantDataMock: InvariantTransactionData = {
+  receivingChainTxManagerAddress: mkAddress("0xbb"),
   user: mkAddress("0xa"),
   router: mkAddress("0xb"),
   sendingAssetId: mkAddress("0xc"),
@@ -81,6 +82,7 @@ export const txDataMock: TransactionData = {
 export const transactionSubgraphMock: any = {
   user: { id: txDataMock.user },
   router: { id: txDataMock.router },
+  receivingChainTxManagerAddress: txDataMock.receivingChainTxManagerAddress,
   sendingChainId: txDataMock.sendingChainId,
   sendingAssetId: txDataMock.sendingAssetId,
   sendingChainFallback: txDataMock.sendingChainFallback,

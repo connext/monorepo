@@ -205,6 +205,11 @@
         "components": [
           {
             "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "user",
             "type": "address"
           },
@@ -312,6 +317,11 @@
       },
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "user",
@@ -451,6 +461,11 @@
       },
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "user",
@@ -699,6 +714,11 @@
         "components": [
           {
             "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "user",
             "type": "address"
           },
@@ -784,6 +804,11 @@
         "components": [
           {
             "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "user",
             "type": "address"
           },
@@ -863,19 +888,6 @@
   },
   {
     "inputs": [],
-    "name": "chainId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "delay",
     "outputs": [
       {
@@ -891,6 +903,11 @@
     "inputs": [
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "user",
@@ -986,6 +1003,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "user",
@@ -1123,6 +1145,11 @@
         "components": [
           {
             "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "user",
             "type": "address"
           },
@@ -1211,6 +1238,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "receivingChainTxManagerAddress",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "user",

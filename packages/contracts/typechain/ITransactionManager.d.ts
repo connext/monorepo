@@ -50,6 +50,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "cancel",
     values: [
       {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -72,6 +73,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "fulfill",
     values: [
       {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -104,6 +106,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "prepare",
     values: [
       {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -259,6 +262,7 @@ export class ITransactionManager extends BaseContract {
 
     cancel(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -280,6 +284,7 @@ export class ITransactionManager extends BaseContract {
 
     fulfill(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -307,6 +312,7 @@ export class ITransactionManager extends BaseContract {
 
     prepare(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -370,6 +376,7 @@ export class ITransactionManager extends BaseContract {
 
   cancel(
     txData: {
+      receivingChainTxManagerAddress: string;
       user: string;
       router: string;
       sendingAssetId: string;
@@ -391,6 +398,7 @@ export class ITransactionManager extends BaseContract {
 
   fulfill(
     txData: {
+      receivingChainTxManagerAddress: string;
       user: string;
       router: string;
       sendingAssetId: string;
@@ -418,6 +426,7 @@ export class ITransactionManager extends BaseContract {
 
   prepare(
     txData: {
+      receivingChainTxManagerAddress: string;
       user: string;
       router: string;
       sendingAssetId: string;
@@ -475,6 +484,7 @@ export class ITransactionManager extends BaseContract {
 
     cancel(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -503,12 +513,14 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber
       ] & {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -528,6 +540,7 @@ export class ITransactionManager extends BaseContract {
 
     fulfill(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -558,12 +571,14 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber
       ] & {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -587,6 +602,7 @@ export class ITransactionManager extends BaseContract {
 
     prepare(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -616,12 +632,14 @@ export class ITransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber,
         BigNumber
       ] & {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -725,12 +743,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -762,12 +782,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -813,12 +835,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -855,12 +879,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -909,12 +935,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -949,12 +977,14 @@ export class ITransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber,
           BigNumber
         ] & {
+          receivingChainTxManagerAddress: string;
           user: string;
           router: string;
           sendingAssetId: string;
@@ -1004,6 +1034,7 @@ export class ITransactionManager extends BaseContract {
 
     cancel(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -1025,6 +1056,7 @@ export class ITransactionManager extends BaseContract {
 
     fulfill(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -1052,6 +1084,7 @@ export class ITransactionManager extends BaseContract {
 
     prepare(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -1116,6 +1149,7 @@ export class ITransactionManager extends BaseContract {
 
     cancel(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -1137,6 +1171,7 @@ export class ITransactionManager extends BaseContract {
 
     fulfill(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;
@@ -1164,6 +1199,7 @@ export class ITransactionManager extends BaseContract {
 
     prepare(
       txData: {
+        receivingChainTxManagerAddress: string;
         user: string;
         router: string;
         sendingAssetId: string;

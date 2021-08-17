@@ -41,7 +41,7 @@ export const Errors: ErrorsType = {
   "033": "NOT_ADDED",
   "034": "NO_NATIVE_ASSET",
   "035": "NOT_PROPOSED_OWNER",
-  "036": "INVALID_PROPOSED",
+  "036": "INVALID_PROPOSAL",
 };
 
 type ErrorsPrefixType = {
@@ -60,12 +60,17 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#IA": "increaseERC20Allowance",
   "#DA": "decreaseERC20Allowance",
   "#OTM": "onlyTransactionManager",
-  "#TE": "transferEther",
+  "#TNA": "transferNativeAsset",
   "#APO": "acceptProposedOwner",
   "#OO": "onlyOwner",
   "#OP": "onlyProposed",
   "#AR": "addRouter",
   "#RR": "removeRouter",
+  "#TA": "transferAssetToContract",
+  "#PROR": "proposeRouterOwnershipRenunciation",
+  "#RRO": "renounceRouterOwnership",
+  "#PAOR": "proposeAssetOwnershipRenunciation",
+  "#RAO": "renounceAssetOwnership",
 };
 
 /**

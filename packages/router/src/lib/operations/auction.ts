@@ -10,8 +10,18 @@ import {
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
-import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ParamsInvalid } from "../errors";
-import { getBidExpiry, getReceiverAmount } from "../helpers";
+import { BigNumber } from "ethers";
+
+import {
+  NotEnoughGas,
+  NotEnoughLiquidity,
+  ProvidersNotAvailable,
+  SwapInvalid,
+  ZeroValueBid,
+  AuctionExpired,
+  ParamsInvalid,
+} from "../errors";
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -50,19 +60,59 @@ export const newAuction = async (
     callTo,
     transactionId,
     receivingAddress,
+    // TODO: Remove this debug code from production.
     dryRun,
   } = data;
+
+  // TODO: Implement rate limit per user (approximately 1/5s ?).
+
+  try {
+    // Using try/catch in case amount is invalid number (e.g. negative, decimal, etc).
+    const amountBigNumber = BigNumber.from(amount);
+    // Validate that amount > 0. This would fail when later calling the contract,
+    // thus exposing a potential gas griefing attack vector w/o this step.
+    if (amountBigNumber.isZero()) {
+      // Throwing empty error as the ZeroValueBid error below will override it.
+      throw new Error("Amount was zero.");
+    }
+  } catch (e) {
+    throw new ZeroValueBid({
+      methodId,
+      method,
+      requestContext,
+      amount,
+      receivingAssetId,
+      receivingChainId,
+      error: e.message,
+    });
+  }
+
+  // Validate expiry is valid (greater than current time plus a buffer).
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
+    throw new AuctionExpired(expiry, {
+      methodId,
+      method,
+      requestContext,
+      expiry,
+      currentTime,
+      auctionExpiryBuffer: AUCTION_EXPIRY_BUFFER,
+    });
+  }
 
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const inputDecimals = await contractReader.getAssetDecimals(sendingAssetId, sendingChainId);
-
-  const outputDecimals = await contractReader.getAssetDecimals(receivingAssetId, receivingChainId);
+  const [inputDecimals, outputDecimals] = await Promise.all([
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
+  ]);
+  logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
   const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
@@ -110,6 +160,7 @@ export const newAuction = async (
     txService.getBalance(sendingChainId, wallet.address),
     txService.getBalance(receivingChainId, wallet.address),
   ]);
+  logger.info({ method, methodId }, "Got balances");
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodId,
@@ -128,6 +179,8 @@ export const newAuction = async (
   // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
+  const blockTime = await txService.getBlockTime(receivingChainId);
+  const bidExpiry = getBidExpiry(blockTime);
   const bid: AuctionBid = {
     user,
     router: wallet.address,
@@ -145,7 +198,7 @@ export const newAuction = async (
     encryptedCallData,
     sendingChainTxManagerAddress: sendingConfig.transactionManagerAddress,
     receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
-    bidExpiry: getBidExpiry(),
+    bidExpiry,
   };
   logger.info({ methodId, method, requestContext, bid }, "Generated bid");
 

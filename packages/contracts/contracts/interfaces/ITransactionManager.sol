@@ -8,6 +8,7 @@ interface ITransactionManager {
   // receiving chains. The hash of this is what gets signed
   // to ensure the signature can be used on both chains.
   struct InvariantTransactionData {
+    address receivingChainTxManagerAddress;
     address user;
     address router;
     address sendingAssetId;
@@ -32,6 +33,7 @@ interface ITransactionManager {
 
   // All Transaction data, constant and variable
   struct TransactionData {
+    address receivingChainTxManagerAddress;
     address user;
     address router;
     address sendingAssetId;
@@ -53,12 +55,16 @@ interface ITransactionManager {
     bytes32 transactionId;
     uint256 relayerFee;
     string functionIdentifier; // "fulfill" or "cancel"
+    uint256 receivingChainId; // For domain separation
+    address receivingChainTxManagerAddress; // For domain separation
   }
 
   // The structure of the signed data for cancellation
   struct SignedCancelData {
     bytes32 transactionId;
     string functionIdentifier;
+    uint256 receivingChainId;
+    address receivingChainTxManagerAddress; // For domain separation
   }
 
   // Adding/removing asset events

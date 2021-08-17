@@ -1,4 +1,4 @@
-import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
+import { createRequestContext, jsonifyError, safeJsonStringify } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 import { ActiveTransaction, CrosschainTransactionStatus, FulfillPayload, PreparePayload } from "../../lib/entities";
@@ -37,20 +37,28 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           );
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Prepared receiver");
         } catch (err) {
-          logger.error({ err: jsonifyError(err), requestContext }, "Error preparing receiver");
+          if (safeJsonStringify(jsonifyError(err)).includes("#P:015")) {
+            logger.warn({ requestContext, err: err.message }, "Receiver transaction already prepared");
+          } else {
+            logger.error({ err: jsonifyError(err), requestContext }, "Error preparing receiver");
+          }
           if (err.cancellable === true) {
             logger.error({ requestContext }, "Cancellable validation error, cancelling");
-            const cancelRes = await cancel(
-              transaction.crosschainTx.invariant,
-              {
-                amount: transaction.crosschainTx.sending.amount,
-                expiry: transaction.crosschainTx.sending.expiry,
-                preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
-                side: "sender",
-              },
-              requestContext,
-            );
-            logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
+            try {
+              const cancelRes = await cancel(
+                transaction.crosschainTx.invariant,
+                {
+                  amount: transaction.crosschainTx.sending.amount,
+                  expiry: transaction.crosschainTx.sending.expiry,
+                  preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+                  side: "sender",
+                },
+                requestContext,
+              );
+              logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
+            } catch (err) {
+              logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+            }
           }
         }
       } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
@@ -73,7 +81,11 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           );
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Fulfilled sender");
         } catch (err) {
-          logger.error({ err: jsonifyError(err), requestContext }, "Error fulfilling sender");
+          if (safeJsonStringify(jsonifyError(err)).includes("#F:019")) {
+            logger.warn({ requestContext, err: err.message }, "Sender alredy fulfilled");
+          } else {
+            logger.error({ err: jsonifyError(err), requestContext }, "Error fulfilling sender");
+          }
         }
       } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
         const requestContext = createRequestContext("ContractReader => ReceiverExpired");
