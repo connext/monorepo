@@ -25,7 +25,7 @@ export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS
 /**
  * Determine if the bid expiry is valid.
  */
-export const validBidExpiry = (bidExpiry: number, currentTime: number) => currentTime > bidExpiry;
+export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExpiry > currentTime;
 
 /**
  * Returns the amount * SWAP_RATE to deduct fees when going from sending -> recieving chain to incentivize routing.

@@ -82,7 +82,7 @@ export const prepare = async (
 
   if (!validBidExpiry(bid.expiry, currentBlockTimeReceivingChain)) {
     // cancellable error
-    throw new BidExpiryInvalid(bid.bidExpiry, {
+    throw new BidExpiryInvalid(bid.bidExpiry, currentBlockTimeReceivingChain, {
       method,
       methodId,
       requestContext,
