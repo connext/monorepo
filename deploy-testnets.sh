@@ -26,7 +26,7 @@ echo "Deployed to chapel"
 
 echo "Deploying to mumbai"
 yarn workspace @connext/nxtp-contracts hardhat deploy --network mumbai
-yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --network mumbai
+yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --network mumbai --api-key "$POLYGON_ETHERSCAN_API_KEY"
 echo "Deployed to mumbai"
 
 echo "Deploying to arbitrum-rinkeby"
