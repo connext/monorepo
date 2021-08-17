@@ -32,6 +32,8 @@ export const mochaHooks = {
     txServiceMock = createStubInstance(TransactionService);
     txServiceMock.getBalance.resolves(parseEther("1"));
     txServiceMock.sendTx.resolves(txReceiptMock);
+    txServiceMock.getDecimalsForAsset.resolves(18);
+    txServiceMock.getBlockTime.resolves(Math.floor(Date.now() / 1000));
 
     messagingMock = createStubInstance(RouterNxtpNatsMessagingService);
 
@@ -39,8 +41,6 @@ export const mochaHooks = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
-      getAssetDecimals: stub().resolves(18),
-      getBlockTime: stub().resolves(Math.floor(Date.now() / 1000)),
     };
 
     contractWriterMock = {
