@@ -27,3 +27,5 @@ ops/data
 **/*/.nyc_output/*
 packages/router/*config.json
 
+packages/contracts/artifacts-ovm
+packages/contracts/cache-ovm

@@ -34,10 +34,7 @@ library LibAsset {
   * @return Balance held by contracts using this library
   */
   function getOwnBalance(address assetId) internal view returns (uint256) {
-    return
-      isNativeAsset(assetId)
-        ? address(this).balance
-        : IERC20(assetId).balanceOf(address(this));
+    return IERC20(assetId).balanceOf(address(this));
   }
 
   /** 
@@ -65,7 +62,7 @@ library LibAsset {
       address recipient,
       uint256 amount
   ) internal {
-    SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
+    OVM_SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
   }
 
   /** 
@@ -81,7 +78,7 @@ library LibAsset {
     address to,
     uint256 amount
   ) internal {
-    SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
+    OVM_SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
   }
 
   /** 
@@ -96,7 +93,7 @@ library LibAsset {
     uint256 amount
   ) internal {
     require(!isNativeAsset(assetId), "#IA:034");
-    SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
+    OVM_SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
   }
 
   /**
@@ -111,13 +108,13 @@ library LibAsset {
     uint256 amount
   ) internal {
     require(!isNativeAsset(assetId), "#DA:034");
-    SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
+    OVM_SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
   }
 
   /**
   * @notice Wrapper function to transfer a given asset (native or erc20) to
   *         some recipient. Should handle all non-compliant return value
-  *         tokens as well by using the SafeERC20 contract by open zeppelin.
+  *         tokens as well by using the OVM_SafeERC20 contract by open zeppelin.
   * @param assetId Asset id for transfer (address(0) for native asset, 
   *                token address for erc20s)
   * @param recipient Address to send asset to
