@@ -3,7 +3,14 @@ import { BigNumber } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
-import { NotEnoughGas, NotEnoughLiquidity, ProvidersNotAvailable, SwapInvalid, ZeroValueBid, AuctionExpired } from "../errors";
+import {
+  NotEnoughGas,
+  NotEnoughLiquidity,
+  ProvidersNotAvailable,
+  SwapInvalid,
+  ZeroValueBid,
+  AuctionExpired,
+} from "../errors";
 import { getBidExpiry, getReceiverAmount } from "../helpers";
 
 export const newAuction = async (
@@ -74,13 +81,16 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const inputDecimals = await contractReader.getAssetDecimals(sendingAssetId, sendingChainId);
-
-  const outputDecimals = await contractReader.getAssetDecimals(receivingAssetId, receivingChainId);
+  const [inputDecimals, outputDecimals] = await Promise.all([
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
+  ]);
+  logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
   const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
@@ -128,6 +138,7 @@ export const newAuction = async (
     txService.getBalance(sendingChainId, wallet.address),
     txService.getBalance(receivingChainId, wallet.address),
   ]);
+  logger.info({ method, methodId }, "Got balances");
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodId,

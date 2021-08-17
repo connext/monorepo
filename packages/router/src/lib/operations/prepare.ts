@@ -22,7 +22,7 @@ export const prepare = async (
   const method = "prepare";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter, contractReader } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
 
   const { encryptedCallData, encodedBid, bidSignature, senderAmount, senderExpiry } = input;
@@ -42,14 +42,11 @@ export const prepare = async (
     throw new SenderChainDataInvalid({ method, methodId, requestContext });
   }
 
-  const inputDecimals = await contractReader.getAssetDecimals(
-    invariantData.sendingAssetId,
-    invariantData.sendingChainId,
-  );
+  const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
 
-  const outputDecimals = await contractReader.getAssetDecimals(
-    invariantData.receivingAssetId,
+  const outputDecimals = await txService.getDecimalsForAsset(
     invariantData.receivingChainId,
+    invariantData.receivingAssetId,
   );
 
   const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
@@ -71,8 +68,8 @@ export const prepare = async (
   // sending chain and router refs receiving chain).
 
   // Get current block times
-  const currentBlockTimeReceivingChain = await contractReader.getBlockTime(invariantData.receivingChainId);
-  const currentBlockTimeSendingChain = await contractReader.getBlockTime(invariantData.sendingChainId);
+  const currentBlockTimeReceivingChain = await txService.getBlockTime(invariantData.receivingChainId);
+  const currentBlockTimeSendingChain = await txService.getBlockTime(invariantData.sendingChainId);
 
   // Get buffers
   const senderBuffer = senderExpiry - currentBlockTimeSendingChain;
