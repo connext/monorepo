@@ -2036,6 +2036,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp@workspace:."
   dependencies:
+    "@istanbuljs/nyc-config-typescript": ^1.0.1
     "@jtbennett/ts-project-scripts": ^1.0.0-rc.4
     "@types/node": ^16.4.5
     "@typescript-eslint/eslint-plugin": ^4.28.5
@@ -3335,6 +3336,19 @@ __metadata:
     js-yaml: ^3.13.1
     resolve-from: ^5.0.0
   checksum: f7f3b1c922bf5e36a7f747b2a80fedc9c2e1ebd7e03dc73082fca7c1066cc4e2e2ac39827aded6a087c32294e9c032ff3e50bc9041fcf757b4a38ca97418b652
+  languageName: node
+  linkType: hard
+
+"@istanbuljs/nyc-config-typescript@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@istanbuljs/nyc-config-typescript@npm:1.0.1"
+  dependencies:
+    "@istanbuljs/schema": ^0.1.2
+  peerDependencies:
+    nyc: ">=15"
+    source-map-support: "*"
+    ts-node: "*"
+  checksum: 28c19a10ee0d9d46cf8602ffe296c43997b3b6d153f6c15dda99e4a25f7ed56cc5bc43574a0d24aa3685e5155fb09a50291115662820a1849044c91dd5d513d3
   languageName: node
   linkType: hard
 
