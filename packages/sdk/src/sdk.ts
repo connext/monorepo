@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   getRandomBytes32,
@@ -24,7 +24,6 @@ import {
   NxtpError,
   NxtpErrorJson,
   Values,
-  calculateExchangeAmount,
   AuctionBid,
   isNode,
   NATS_AUTH_URL,
@@ -37,6 +36,8 @@ import {
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
+  calculateExchangeWad,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -49,19 +50,68 @@ import {
 } from "./transactionManager";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
 
-/** Gets the expiry to use for new transfers */
-export const getExpiry = () => Math.floor(Date.now() / 1000) + 3600 * 24 * 3;
+/**
+ * Utility to convert the number of hours into seconds
+ *
+ * @param hours - Number of hours to convert
+ * @returns Equivalent seconds
+ */
+const hoursToSeconds = (hours: number) => hours * 60 * 60;
 
-/** Gets the min expiry buffer to validate */
-export const getMinExpiryBuffer = () => 3600 * 24 * 2 + 3600; // 2 days + 1 hour
+/**
+ * Utility to convert the number of days into seconds
+ *
+ * @param days - Number of days to convert
+ * @returns Equivalent seconds
+ */
+const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
 
-/** Gets the max expiry buffer to validate */
-export const getMaxExpiryBuffer = () => 3600 * 24 * 4; // 4 days
+/**
+ * Gets the expiry to use for new transfers
+ *
+ * @param latestBlockTimestamp - Timestamp of the latest block on the sending chain (from `getTimestampInSeconds`)
+ * @returns Default expiry of 3 days + 3 hours (in seconds)
+ */
+export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp + daysToSeconds(3) + hoursToSeconds(3);
+
+/**
+ * Gets the current timestamp. Uses the latest block.timestamp instead of a
+ * local clock to avoid issues with time when router is validating
+ *
+ * @remarks User should use the timestamp on the chain they are preparing on (sending chain)
+ *
+ * @returns Timestamp on latest block in seconds
+ */
+export const getTimestampInSeconds = async (provider: providers.FallbackProvider) => {
+  const block = await provider.getBlock("latest");
+  return block.timestamp;
+};
+
+/**
+ * Gets the minimum expiry buffer
+ *
+ * @returns Equivalent of 2days + 1 hour in seconds
+ */
+export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
+
+/**
+ * Gets the maximum expiry buffer
+ *
+ * @remarks This is *not* the same as the contract maximum of 30days
+ *
+ * @returns Equivalent of 4 days
+ */
+export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
+
+export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
+  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
+  return decimals;
+};
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const AUCTION_TIMEOUT = 6 * 1_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
@@ -527,21 +577,22 @@ export class NxtpSdk {
       });
     }
 
-    const expiry = _expiry ?? getExpiry();
-    if (expiry - Date.now() / 1000 < getMinExpiryBuffer()) {
+    const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
+    const expiry = _expiry ?? getExpiry(blockTimestamp);
+    if (expiry - blockTimestamp < getMinExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too short, must be at least ${Date.now() / 1000 + getMinExpiryBuffer()}`,
+        paramsError: `Expiry too short, must be at least ${blockTimestamp + getMinExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
 
-    if (expiry - Date.now() / 1000 > getMaxExpiryBuffer()) {
+    if (expiry - blockTimestamp > getMaxExpiryBuffer()) {
       throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
         method,
         methodId,
-        paramsError: `Expiry too high, must be at below ${Date.now() / 1000 + getMaxExpiryBuffer()}`,
+        paramsError: `Expiry too high, must be at below ${blockTimestamp + getMaxExpiryBuffer()}`,
         transactionId: params.transactionId ?? "",
       });
     }
@@ -648,7 +699,28 @@ export class NxtpSdk {
 
             // check if the price changes unfovorably by more than the slippage tolerance(percentage).
             const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-            const lowerBound = calculateExchangeAmount(amount, lowerBoundExchangeRate);
+
+            const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
+            const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
+
+            if (!sendingProvider || !receivingProvider) {
+              this.logger.error(
+                { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
+                "Provider not found",
+              );
+              return;
+            }
+
+            const inputDecimals = await getDecimals(sendingAssetId, sendingProvider);
+
+            const outputDecimals = await getDecimals(receivingAssetId, receivingProvider);
+
+            const lowerBound = calculateExchangeWad(
+              BigNumber.from(amount),
+              inputDecimals,
+              lowerBoundExchangeRate,
+              outputDecimals,
+            );
 
             // safe calculation if the amountReceived is greater than 4 decimals
             if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {

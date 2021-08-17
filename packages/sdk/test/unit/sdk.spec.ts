@@ -73,6 +73,10 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
+    stub(sdkUtils, "getDecimals").resolves(18);
+
+    stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
 
@@ -462,6 +466,7 @@ describe("NxtpSdk", () => {
 
       const crossChainParamsMock = JSON.parse(JSON.stringify(crossChainParams));
       crossChainParamsMock.amount = "100000000";
+      auctionBid.amountReceived = "1";
 
       messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);

@@ -39,6 +39,8 @@ export const mochaHooks = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
+      getAssetDecimals: stub().resolves(18),
+      getBlockTime: stub().resolves(Math.floor(Date.now() / 1000)),
     };
 
     contractWriterMock = {

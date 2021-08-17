@@ -1,7 +1,8 @@
-import { ethers, waffle } from "hardhat";
+import { waffle } from "hardhat";
 import { expect, use } from "chai";
 import { utils } from "ethers";
 import { solidity } from "ethereum-waffle";
+import { deployContract, MAX_FEE_PER_GAS } from "../utils";
 
 use(solidity);
 
@@ -21,11 +22,9 @@ describe("LibAsset", () => {
   let token: TestERC20;
 
   const fixture = async () => {
-    const libAssetTestFactory = await ethers.getContractFactory("LibAssetTest");
-    const testERC20Factory = await ethers.getContractFactory("TestERC20");
+    libAssetTest = await deployContract<LibAssetTest>("LibAssetTest");
 
-    libAssetTest = (await libAssetTestFactory.deploy()) as LibAssetTest;
-    token = (await testERC20Factory.deploy()) as TestERC20;
+    token = await deployContract<TestERC20>("TestERC20");
     return { libAssetTest, token };
   };
 
@@ -109,7 +108,8 @@ describe("LibAsset", () => {
     it("happy case: transferERC20", async () => {
       const amount = BigNumber.from(1);
 
-      await token.connect(wallet).transfer(libAssetTest.address, amount);
+      const transfer = await token.connect(wallet).transfer(libAssetTest.address, amount);
+      await transfer.wait();
 
       const approveRes = await token.connect(wallet).approve(libAssetTest.address, amount);
       await approveRes.wait();
@@ -125,16 +125,18 @@ describe("LibAsset", () => {
 
   describe("increaseERC20Allowance", () => {
     it("should revert if its ether", async () => {
-      await expect(libAssetTest.increaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
-        getContractError("increaseERC20Allowance: NO_NATIVE_ASSET"),
-      );
+      await expect(
+        libAssetTest.increaseERC20Allowance(AddressZero, wallet.address, "10", { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith(getContractError("increaseERC20Allowance: NO_NATIVE_ASSET"));
     });
 
     it("should work", async () => {
       const amount = 100;
       const starting = await token.allowance(libAssetTest.address, other.address);
 
-      const tx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      const tx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+      });
       await tx.wait();
 
       const final = await token.allowance(libAssetTest.address, other.address);
@@ -144,21 +146,25 @@ describe("LibAsset", () => {
 
   describe("decreaseERC20Allowance", () => {
     it("should revert if its ether", async () => {
-      await expect(libAssetTest.decreaseERC20Allowance(AddressZero, wallet.address, "10")).to.be.revertedWith(
-        getContractError("decreaseERC20Allowance: NO_NATIVE_ASSET"),
-      );
+      await expect(
+        libAssetTest.decreaseERC20Allowance(AddressZero, wallet.address, "10", { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith(getContractError("decreaseERC20Allowance: NO_NATIVE_ASSET"));
     });
 
     it("should work", async () => {
       const amount = 100;
 
       // Increase allowance
-      const increaseTx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100);
+      const increaseTx = await libAssetTest.increaseERC20Allowance(token.address, other.address, 100, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+      });
       await increaseTx.wait();
 
       const starting = await token.allowance(libAssetTest.address, other.address);
 
-      const decreaseTx = await libAssetTest.decreaseERC20Allowance(token.address, other.address, 100);
+      const decreaseTx = await libAssetTest.decreaseERC20Allowance(token.address, other.address, 100, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+      });
       await decreaseTx.wait();
 
       const final = await token.allowance(libAssetTest.address, other.address);

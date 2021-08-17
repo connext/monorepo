@@ -1,3 +1,9 @@
-export { getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry, decodeAuctionBid } from "./prepare";
+export {
+  getReceiverAmount,
+  getReceiverExpiryBuffer,
+  recoverAuctionBid,
+  validExpiryBuffer,
+  decodeAuctionBid,
+} from "./prepare";
 
 export { getBidExpiry } from "./auction";

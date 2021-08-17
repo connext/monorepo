@@ -6,7 +6,7 @@ use(solidity);
 import { constants, Wallet } from "ethers";
 
 import { ProposedOwnable } from "../typechain";
-import { proposeNewOwnerOnContract, transferOwnershipOnContract } from "./utils";
+import { deployContract, proposeNewOwnerOnContract, setBlockTime, transferOwnershipOnContract } from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("ProposedOwnable.sol", () => {
@@ -16,18 +16,16 @@ describe("ProposedOwnable.sol", () => {
   const fixture = async () => {
     // Deploy transaction manager because it inherits the contract
     // we want to test
-    const transactionManagerFactory = await ethers.getContractFactory("TransactionManager");
-
-    proposedOwnable = (await transactionManagerFactory.deploy(1337)) as ProposedOwnable;
+    proposedOwnable = await deployContract<ProposedOwnable>("TransactionManager", 1337);
   };
 
   const proposeNewOwner = async (newOwner: string = constants.AddressZero) => {
     // Propose new owner
-    return await proposeNewOwnerOnContract(newOwner, proposedOwnable);
+    return await proposeNewOwnerOnContract(newOwner, wallet, proposedOwnable);
   };
 
   const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
-    await transferOwnershipOnContract(newOwner, caller, proposedOwnable);
+    await transferOwnershipOnContract(newOwner, caller, proposedOwnable, wallet);
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -88,6 +86,33 @@ describe("ProposedOwnable.sol", () => {
     });
     it("should work", async () => {
       await proposeNewOwner(other.address);
+    });
+  });
+
+  describe("renounceOwnership", () => {
+    it("should fail if the delay hasnt elapsed", async () => {
+      await proposeNewOwner(constants.AddressZero);
+      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("#APO:030");
+    });
+
+    it("should fail if the proposed != address(0)", async () => {
+      await proposeNewOwner(Wallet.createRandom().address);
+
+      // Advance block time
+      const eightDays = 8 * 24 * 60 * 60;
+      const { timestamp } = await ethers.provider.getBlock("latest");
+      await setBlockTime(timestamp + eightDays);
+
+      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("#APO:036");
+    });
+
+    it("should fail if not called by owner", async () => {
+      await proposeNewOwner(constants.AddressZero);
+      await expect(proposedOwnable.connect(other).renounceOwnership()).to.be.revertedWith("#OO:029");
+    });
+
+    it("should work", async () => {
+      await transferOwnership(constants.AddressZero, wallet);
     });
   });
 

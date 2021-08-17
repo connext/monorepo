@@ -1,11 +1,11 @@
 import { SinonStub, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { constants } from "ethers/lib/ethers";
-import { AuctionBid, createRequestContext, mkAddress } from "@connext/nxtp-utils";
+import { AuctionBid, createRequestContext } from "@connext/nxtp-utils";
 import { auctionBidMock, invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
-import { MUTATED_AMOUNT, MUTATED_EXPIRY, prepareInputMock, routerAddrMock } from "../../utils";
+import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { prepare } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock } from "../../globalTestHook";
 import { receiverPreparing } from "../../../src/lib/operations/prepare";
@@ -20,9 +20,9 @@ describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
     beforeEach(() => {
       stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);
-      stub(PrepareHelperFns, "getReceiverExpiry").returns(MUTATED_EXPIRY);
+      stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
-      validExpiryStub = stub(PrepareHelperFns, "validExpiry").returns(true);
+      validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
     });
 
@@ -70,6 +70,8 @@ describe("Prepare Receiver Operation", () => {
     });
 
     it("happy: should send prepare for receiving chain", async () => {
+      const baseTime = Math.floor(Date.now() / 1000);
+      contractReaderMock.getBlockTime = stub().resolves(baseTime);
       const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
@@ -78,7 +80,7 @@ describe("Prepare Receiver Operation", () => {
         {
           txData: invariantDataMock,
           amount: MUTATED_AMOUNT,
-          expiry: MUTATED_EXPIRY,
+          expiry: baseTime + MUTATED_BUFFER,
           bidSignature: prepareInputMock.bidSignature,
           encodedBid: prepareInputMock.encodedBid,
           encryptedCallData: prepareInputMock.encryptedCallData,
