@@ -90,12 +90,12 @@ const config: HardhatUserConfig = {
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     chapel: {
       accounts: { mnemonic },
       chainId: 97,
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+      url: "https://data-seed-prebsc-2-s1.binance.org:8545/",
     },
     matic: {
       accounts: { mnemonic },
