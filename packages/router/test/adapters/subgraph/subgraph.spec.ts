@@ -1,4 +1,5 @@
 import { expect, mkAddress } from "@connext/nxtp-utils/src";
+import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { BigNumber, constants } from "ethers";
 import { reset, restore, SinonStub, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
@@ -41,7 +42,28 @@ describe("Subgraph Adapter", () => {
   describe.skip("getActiveTransactions", () => {});
 
   describe("getTransactionForChain", () => {
-    it("should work");
+    it("should work", async () => {
+      const transaction = transactionSubgraphMock;
+      const transactionId = transaction.transactionId;
+      const user = transaction.user.id;
+
+      sdks[chainId].GetTransaction.resolves({ transaction });
+      getSdkStub.returns(sdks);
+
+      const result = await getTransactionForChain(transactionId, user, chainId);
+      expect(result).to.containSubset({
+        txData: {
+          ...transaction,
+          sendingChainId: parseInt(transaction.sendingChainId),
+          receivingChainId: parseInt(transaction.receivingChainId),
+          expiry: parseInt(transaction.expiry),
+          preparedBlockNumber: parseInt(transaction.preparedBlockNumber),
+          user,
+          router: transaction.router.id,
+        },
+      });
+    });
+
     it("should return undefined if it does not exist", async () => {
       const transactionId = mkAddress("0xa");
       const user = mkAddress("0xbbb");
@@ -56,6 +78,15 @@ describe("Subgraph Adapter", () => {
           transactionId: `${transactionId}-${user}-${routerAddrMock}`,
         }),
       ).to.be.true;
+    });
+
+    it("should throw if sdk throws", async () => {
+      const transactionId = mkAddress("0xa");
+      const user = mkAddress("0xbbb");
+
+      sdks[chainId].GetTransaction.rejects(new Error("fail"));
+
+      await expect(getTransactionForChain(transactionId, user, chainId)).to.be.rejectedWith("fail");
     });
 
     it("should throw if there is no sdk", async () => {
