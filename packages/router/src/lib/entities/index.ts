@@ -6,7 +6,12 @@ export {
   PreparePayload,
   FulfillPayload,
   CancelPayload,
+  ContractReader,
 } from "./contractReader";
+
+export { ContractWriter } from "./contractWriter";
+
+export { PriceOracle } from "./priceOracle";
 
 export { PrepareInput, PrepareInputSchema } from "./prepare";
 

@@ -1,7 +1,8 @@
 import { logger, Wallet } from "ethers";
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { ChainData, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino, { BaseLogger } from "pino";
+import { fetchJson } from "ethers/lib/utils";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
@@ -12,6 +13,7 @@ import { bindFastify } from "./bindings/fastify";
 
 export type Context = {
   config: NxtpRouterConfig;
+  chainData: ChainData;
   wallet: Wallet;
   logger: BaseLogger;
   messaging: RouterNxtpNatsMessagingService;
@@ -32,6 +34,7 @@ export const makeRouter = async () => {
   try {
     // set up external, config based services
     context.config = getConfig();
+    context.chainData = await fetchJson("https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json");
     context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
     context.logger = pino({
       level: context.config.logLevel,

@@ -2,6 +2,14 @@ import { Type, Static } from "@sinclair/typebox";
 
 import { TIntegerString, TAddress, TChainId } from "./basic";
 
+/**
+ * Hardcoded gas estimates, based on contract tests gas profiling.
+ */
+export const GAS_ESTIMATES = {
+  prepare: 84000,
+  fulfill: 104000,
+};
+
 // Used to include *all* info for both sending and receiving crosschain data
 export const InvariantTransactionDataSchema = Type.Object({
   receivingChainTxManagerAddress: TAddress,
