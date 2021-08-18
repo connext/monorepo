@@ -11,9 +11,5 @@ export const writeStatsToFile = (testName: string, data: Record<string, any>) =>
       throw new Error("Make stats dir failed.");
     }
   });
-  fs.writeFile(statsFile, JSON.stringify(data), (error) => {
-    if (error) {
-      throw new Error(`Failed to save stats report!`);
-    }
-  });
+  fs.writeFileSync(statsFile, JSON.stringify(data));
 };
