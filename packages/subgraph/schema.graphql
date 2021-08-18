@@ -23,6 +23,7 @@ type Transaction @entity {
   # Subgraph Meta
   status: TransactionStatus!
   chainId: BigInt!
+  preparedTimestamp: BigInt!
 
   # TransactionData
   receivingChainTxManagerAddress: Bytes!

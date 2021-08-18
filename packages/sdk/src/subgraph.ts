@@ -22,6 +22,7 @@ export type THistoricalTransactionStatus = typeof HistoricalTransactionStatus[ke
 export type HistoricalTransaction = {
   status: THistoricalTransactionStatus;
   crosschainTx: CrosschainTransaction;
+  preparedTimestamp: number;
   fulfilledTxHash?: string;
 };
 
@@ -87,6 +88,7 @@ export type ActiveTransaction = {
   bidSignature: string;
   encodedBid: string;
   encryptedCallData: string;
+  preparedTimestamp: number;
 };
 
 /**
@@ -200,6 +202,7 @@ export class Subgraph {
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
                   transactionHash: senderTx.prepareTransactionHash,
+                  preparedTimestamp: senderTx.preparedTimestamp,
                 };
                 const tx: ActiveTransaction = {
                   ...common,
@@ -227,6 +230,7 @@ export class Subgraph {
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
                   transactionHash: correspondingReceiverTx.prepareTransactionHash,
+                  preparedTimestamp: senderTx.preparedTimestamp,
                 };
                 const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
 
@@ -364,6 +368,7 @@ export class Subgraph {
               return {
                 status: HistoricalTransactionStatus.FULFILLED,
                 fulfilledTxHash: receiverTx.fulfillTransactionHash,
+                preparedTimestamp: correspondingSenderTx.preparedTimestamp,
                 crosschainTx: {
                   invariant: {
                     user,
@@ -414,26 +419,30 @@ export class Subgraph {
           status: TransactionStatus.Cancelled,
         });
 
-        const cancelled = senderCancelled.map((tx): CrosschainTransaction | undefined => {
+        const cancelled = senderCancelled.map((tx): HistoricalTransaction | undefined => {
           return {
-            invariant: {
-              user,
-              router: tx.router.id,
-              sendingChainId: Number(tx.sendingChainId),
-              sendingAssetId: tx.sendingAssetId,
-              sendingChainFallback: tx.sendingChainFallback,
-              receivingChainId: Number(tx.receivingChainId),
-              receivingAssetId: tx.receivingAssetId,
-              receivingAddress: tx.receivingAddress,
-              callTo: tx.callTo,
-              callDataHash: tx.callDataHash,
-              transactionId: tx.transactionId,
-              receivingChainTxManagerAddress: tx.receivingChainTxManagerAddress,
-            },
-            sending: {
-              amount: tx.amount,
-              expiry: Number(tx.expiry),
-              preparedBlockNumber: Number(tx.preparedBlockNumber),
+            status: HistoricalTransactionStatus.CANCELLED,
+            preparedTimestamp: tx.preparedTimestamp,
+            crosschainTx: {
+              invariant: {
+                user,
+                router: tx.router.id,
+                sendingChainId: Number(tx.sendingChainId),
+                sendingAssetId: tx.sendingAssetId,
+                sendingChainFallback: tx.sendingChainFallback,
+                receivingChainId: Number(tx.receivingChainId),
+                receivingAssetId: tx.receivingAssetId,
+                receivingAddress: tx.receivingAddress,
+                callTo: tx.callTo,
+                callDataHash: tx.callDataHash,
+                transactionId: tx.transactionId,
+                receivingChainTxManagerAddress: tx.receivingChainTxManagerAddress,
+              },
+              sending: {
+                amount: tx.amount,
+                expiry: Number(tx.expiry),
+                preparedBlockNumber: Number(tx.preparedBlockNumber),
+              },
             },
           };
         });
@@ -441,15 +450,11 @@ export class Subgraph {
         return cancelled
           .filter((x) => !!x)
           .flat()
-          .filter((x) => !!x) as CrosschainTransaction[];
+          .filter((x) => !!x) as HistoricalTransaction[];
       }),
     );
 
-    return fulfilledTxs.flat().concat(
-      cancelledTxs.flat().map((crosschainTx) => {
-        return { crosschainTx, status: HistoricalTransactionStatus.CANCELLED } as HistoricalTransaction;
-      }),
-    );
+    return fulfilledTxs.flat().concat(cancelledTxs.flat());
   }
 
   // Listener methods

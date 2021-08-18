@@ -10,6 +10,7 @@ export const getSenderTransactionsQuery = gql`
       id
       status
       chainId
+      preparedTimestamp
       user {
         id
       }
@@ -52,6 +53,7 @@ export const getReceiverTransactionsQuery = gql`
       id
       status
       chainId
+      preparedTimestamp
       user {
         id
       }
@@ -90,6 +92,7 @@ export const getTransactionByIdQuery = gql`
       id
       status
       chainId
+      preparedTimestamp
       user {
         id
       }
@@ -131,6 +134,7 @@ export const getTransactionsByIdsQuery = gql`
       id
       status
       chainId
+      preparedTimestamp
       user {
         id
       }

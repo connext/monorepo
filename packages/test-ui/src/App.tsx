@@ -135,6 +135,7 @@ function App(): React.ReactElement | null {
             invariant,
             sending: { amount, expiry, preparedBlockNumber },
           },
+          preparedTimestamp: Math.floor(Date.now() / 1000),
           bidSignature: data.bidSignature,
           encodedBid: data.encodedBid,
           encryptedCallData: data.encryptedCallData,
@@ -173,6 +174,7 @@ function App(): React.ReactElement | null {
           // TODO: is there a better way to
           // get the info here?
           table.push({
+            preparedTimestamp: Math.floor(Date.now() / 1000),
             crosschainTx: {
               invariant,
               sending: {} as any, // Find to do this, since it defaults to receiver side info
@@ -343,9 +345,9 @@ function App(): React.ReactElement | null {
 
   const columns = [
     {
-      title: "Transaction Id",
-      dataIndex: "txId",
-      key: "txId",
+      title: "Prepared At",
+      dataIndex: "preparedAt",
+      key: "preparedAt",
     },
     {
       title: "Sending Chain",
@@ -439,9 +441,9 @@ function App(): React.ReactElement | null {
 
   const historicalColumns = [
     {
-      title: "Transaction Id",
-      dataIndex: "txId",
-      key: "txId",
+      title: "Prepared At",
+      dataIndex: "preparedAt",
+      key: "preparedAt",
     },
     {
       title: "Sending Chain",
@@ -563,13 +565,7 @@ function App(): React.ReactElement | null {
                     receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
                     asset: findAssetInSwap(tx.crosschainTx),
                     key: tx.crosschainTx.invariant.transactionId,
-                    txId: `${tx.crosschainTx.invariant.transactionId.substr(
-                      0,
-                      6,
-                    )}...${tx.crosschainTx.invariant.transactionId.substr(
-                      tx.crosschainTx.invariant.transactionId.length - 5,
-                      tx.crosschainTx.invariant.transactionId.length - 1,
-                    )}`,
+                    preparedAt: tx.preparedTimestamp,
                     expires:
                       variant.expiry > Date.now() / 1000
                         ? `${((variant.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
@@ -798,13 +794,7 @@ function App(): React.ReactElement | null {
                     receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
                     asset: findAssetInSwap(tx.crosschainTx),
                     key: tx.crosschainTx.invariant.transactionId,
-                    txId: `${tx.crosschainTx.invariant.transactionId.substr(
-                      0,
-                      6,
-                    )}...${tx.crosschainTx.invariant.transactionId.substr(
-                      tx.crosschainTx.invariant.transactionId.length - 5,
-                      tx.crosschainTx.invariant.transactionId.length - 1,
-                    )}`,
+                    preparedAt: tx.preparedTimestamp,
                     txHash: { txHash: tx.fulfilledTxHash, chainId: tx.crosschainTx.invariant.receivingChainId },
                   };
                 })}
