@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils/src/expect";
+import { expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig } from "../src/config";
 import { configMock } from "./utils";
@@ -83,12 +83,30 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getConfig();
+        res = getEnvConfig();
       } catch (e) {
         error = e;
       }
 
       expect(error).to.be.undefined;
+    });
+  });
+
+  describe("getConfig", () => {
+    it("should work", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_AUTH_URL: configMock.authUrl,
+        NXTP_NATS_URL: configMock.natsUrl,
+        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
+        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
+        NXTP_LOG_LEVEL: configMock.logLevel,
+      });
+
+      const env = getEnvConfig();
+      expect(getConfig()).to.be.deep.eq(env);
     });
   });
 });

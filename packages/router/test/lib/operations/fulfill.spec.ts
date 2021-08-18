@@ -1,13 +1,14 @@
 import { expect } from "@connext/nxtp-utils/src/expect";
-import { constants } from "ethers/lib/ethers";
-import { createRequestContext, mkAddress, TransactionData } from "@connext/nxtp-utils";
-import { fulfillParamsMock, invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import { createRequestContext } from "@connext/nxtp-utils";
+import { invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
 
-import { fulfill } from "../../../src/lib/operations";
+import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
 import { fulfillInputMock } from "../../utils";
 
 const requestContext = createRequestContext("TEST");
+
+const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
   describe("#fulfillReceiver", () => {

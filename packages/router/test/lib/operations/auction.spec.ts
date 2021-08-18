@@ -3,7 +3,7 @@ import { sigMock } from "@connext/nxtp-utils/src/mock";
 import { SinonStub, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils/src/expect";
 
-import { newAuction } from "../../../src/lib/operations";
+import { getOperations } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
 import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
@@ -31,6 +31,7 @@ const auctionPayload: AuctionPayload = {
 let getReceiverAmountStub: SinonStub;
 
 describe("Auction Operation", () => {
+  const { newAuction } = getOperations();
   describe("#newAuction", () => {
     beforeEach(() => {
       getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);

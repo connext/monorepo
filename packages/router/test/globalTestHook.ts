@@ -4,7 +4,7 @@ import { txReceiptMock, sigMock } from "@connext/nxtp-utils/src/mock";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
   routerAddrMock,
   activeTransactionPrepareMock,
