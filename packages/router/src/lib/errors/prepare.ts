@@ -1,5 +1,12 @@
 import { NxtpError } from "@connext/nxtp-utils";
 
+export class ParamsInvalid extends NxtpError {
+  cancellable = true;
+  constructor(context: any = {}) {
+    super(`Params invalid`, context, "ParamsInvalid");
+  }
+}
+
 export class AuctionSignerInvalid extends NxtpError {
   cancellable = true;
   constructor(expected: string, recovered: string, context: any = {}) {

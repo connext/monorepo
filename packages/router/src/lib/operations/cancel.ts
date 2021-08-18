@@ -1,8 +1,15 @@
-import { getUuid, InvariantTransactionData, RequestContext } from "@connext/nxtp-utils";
+import {
+  ajv,
+  getUuid,
+  InvariantTransactionData,
+  InvariantTransactionDataSchema,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import { providers } from "ethers";
 
 import { getContext } from "../../router";
-import { CancelInput } from "../entities";
+import { ParamsInvalid } from "../errors";
+import { CancelInput, CancelInputSchema } from "../entities";
 
 export const senderCancelling: Map<string, boolean> = new Map();
 export const receiverCancelling: Map<string, boolean> = new Map();
@@ -17,6 +24,37 @@ export const cancel = async (
 
   const { logger, contractWriter } = getContext();
   logger.info({ method, methodId, requestContext, invariantData, input }, "Method start");
+
+  // Validate InvariantData schema
+  const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
+  const validInvariantData = validateInvariantData(invariantData);
+  if (!validInvariantData) {
+    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error(
+      { method, methodId, error: validateInvariantData.errors, invariantData },
+      "Invalid invariantData params",
+    );
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
+
+  // Validate Prepare Input schema
+  const validateInput = ajv.compile(CancelInputSchema);
+  const validInput = validateInput(input);
+  if (!validInput) {
+    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
 
   const { side, amount, preparedBlockNumber, expiry } = input;
 

@@ -1,14 +1,21 @@
-import { getUuid, InvariantTransactionData, RequestContext } from "@connext/nxtp-utils";
+import {
+  ajv,
+  getUuid,
+  InvariantTransactionData,
+  InvariantTransactionDataSchema,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { PrepareInput } from "../entities";
+import { PrepareInput, PrepareInputSchema } from "../entities";
 import {
+  ParamsInvalid,
   AuctionSignerInvalid,
-  BidExpiryInvalid,
   ExpiryInvalid,
   NotEnoughLiquidity,
   SenderChainDataInvalid,
+  BidExpiryInvalid,
 } from "../errors";
 import {
   decodeAuctionBid,
@@ -31,6 +38,37 @@ export const prepare = async (
 
   const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
+
+  // Validate InvariantData schema
+  const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
+  const validInvariantData = validateInvariantData(invariantData);
+  if (!validInvariantData) {
+    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error(
+      { method, methodId, error: validateInvariantData.errors, invariantData },
+      "Invalid invariantData params",
+    );
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
+
+  // Validate Prepare Input schema
+  const validateInput = ajv.compile(PrepareInputSchema);
+  const validInput = validateInput(input);
+  if (!validInput) {
+    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
 
   const { encryptedCallData, encodedBid, bidSignature, senderAmount, senderExpiry } = input;
 

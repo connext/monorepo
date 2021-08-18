@@ -1,4 +1,6 @@
 import { utils } from "ethers";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 /**
  * Creates an eth-address compatible string with given prefix
@@ -53,3 +55,22 @@ export function validateAndParseAddress(address: string): string {
     throw new Error(`${address} is not a valid address.`);
   }
 }
+
+export const ajv = addFormats(new Ajv(), [
+  "date-time",
+  "time",
+  "date",
+  "email",
+  "hostname",
+  "ipv4",
+  "ipv6",
+  "uri",
+  "uri-reference",
+  "uuid",
+  "uri-template",
+  "json-pointer",
+  "relative-json-pointer",
+  "regex",
+])
+  .addKeyword("kind")
+  .addKeyword("modifier");

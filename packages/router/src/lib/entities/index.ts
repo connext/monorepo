@@ -8,8 +8,8 @@ export {
   CancelPayload,
 } from "./contractReader";
 
-export { PrepareInput } from "./prepare";
+export { PrepareInput, PrepareInputSchema } from "./prepare";
 
-export { FulfillInput } from "./fulfill";
+export { FulfillInput, FulfillInputSchema } from "./fulfill";
 
-export { CancelInput } from "./cancel";
+export { CancelInput, CancelInputSchema } from "./cancel";
