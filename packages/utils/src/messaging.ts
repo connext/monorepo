@@ -555,10 +555,13 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param inbox - Inbox where auction responses are sent
    * @param handler - Callback to be executed when an auction response is receivied
    */
-  async subscribeToAuctionResponse(inbox: string, handler: (data?: AuctionResponse, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessage(inbox, (data?: AuctionResponse, err?: any) => {
-      return handler(data, err);
-    });
+  async subscribeToAuctionResponse(handler: (inbox: string, data?: AuctionResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
+      `*.*.${AUCTION_SUBJECT}.response`,
+      (inbox: string, data?: AuctionResponse, err?: NxtpErrorJson) => {
+        return handler(inbox, data, err);
+      },
+    );
   }
 
   /**

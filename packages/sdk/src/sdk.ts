@@ -340,7 +340,7 @@ export class NxtpSdk {
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
 
-  constructor(
+  private constructor(
     private readonly chainConfig: {
       [chainId: number]: {
         provider: providers.FallbackProvider;
@@ -448,6 +448,28 @@ export class NxtpSdk {
       this.logger.child({ module: "TransactionManager" }),
     );
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
+  }
+
+  static async init(
+    chainConfig: {
+      [chainId: number]: {
+        provider: providers.FallbackProvider;
+        transactionManagerAddress?: string;
+        subgraph?: string;
+      };
+    },
+    signer: Signer,
+    logger: BaseLogger = pino(),
+    network: "testnet" | "mainnet" | "local" = "mainnet",
+    natsUrl?: string,
+    authUrl?: string,
+    messaging?: UserNxtpNatsMessagingService,
+  ): Promise<NxtpSdk> {
+    const sdk = new NxtpSdk(chainConfig, signer, logger, network, natsUrl, authUrl, messaging);
+
+    // Setup the subscriptions
+
+    return sdk;
   }
 
   /**
