@@ -4,12 +4,12 @@
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@types/node": "^16.4.5",
-    "@types/react": "^17.0.15",
+    "@types/node": "^14.17.5",
+    "@types/react": "^17.0.18",
     "@types/react-dom": "^17.0.9",
-    "antd": "^4.16.9",
+    "antd": "^4.16.12",
     "axios": "^0.21.1",
-    "ethers": "^5.4.2",
+    "ethers": "^5.4.4",
     "pino": "^6.13.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -43,6 +43,6 @@
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "devDependencies": {
     "@types/eslint": "^7.28.0",
-    "eslint": "^7.31.0"
+    "eslint": "^7.32.0"
   }
 }
