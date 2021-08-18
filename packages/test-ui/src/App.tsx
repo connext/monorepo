@@ -668,7 +668,7 @@ function App(): React.ReactElement | null {
                         utils.parseEther(form.getFieldValue("amount")).toString(),
                         form.getFieldValue("receivingAddress"),
                       );
-                      form.setFieldsValue({ receivedAmount: utils.formatEther(response!.bid.amountReceived) });
+                      form.setFieldsValue({ receivedAmount: utils.formatEther(response.bid.amountReceived) });
                     }}
                   >
                     Get Quote

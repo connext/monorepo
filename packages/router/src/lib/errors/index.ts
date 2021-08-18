@@ -9,6 +9,12 @@ export {
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
 
-export { AuctionSignerInvalid, ExpiryInvalid, SenderChainDataInvalid, BidExpiryInvalid } from "./prepare";
+export {
+  AuctionSignerInvalid,
+  ExpiryInvalid,
+  SenderChainDataInvalid,
+  ParamsInvalid,
+  BidExpiryInvalid,
+} from "./prepare";
 
 export { NoChainConfig } from "./fulfill";

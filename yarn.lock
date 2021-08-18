@@ -2013,6 +2013,8 @@ __metadata:
     "@types/sinon": ^10.0.2
     "@types/sinon-chai": ^3
     "@typescript-eslint/eslint-plugin": ^4.28.5
+    ajv: ^8.6.2
+    ajv-formats: ^2.1.0
     axios: ^0.21.1
     chai: 4.3.4
     chai-as-promised: 7.1.1

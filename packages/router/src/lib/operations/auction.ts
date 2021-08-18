@@ -1,6 +1,14 @@
-import { AuctionBid, AuctionPayload, getUuid, RequestContext, signAuctionBid } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import {
+  ajv,
+  AuctionBid,
+  AuctionPayloadSchema,
+  AuctionPayload,
+  getUuid,
+  RequestContext,
+  signAuctionBid,
+} from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
+import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
 import {
@@ -10,6 +18,7 @@ import {
   SwapInvalid,
   ZeroValueBid,
   AuctionExpired,
+  ParamsInvalid,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount } from "../helpers";
 
@@ -22,6 +31,20 @@ export const newAuction = async (
 
   const { logger, config, contractReader, txService, wallet } = getContext();
   logger.info({ method, methodId, requestContext, data }, "Method start");
+
+  // Validate params
+  const validateInput = ajv.compile(AuctionPayloadSchema);
+  const validInput = validateInput(data);
+  if (!validInput) {
+    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error({ method, methodId, error: validateInput.errors, data }, "Invalid params");
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
 
   const {
     user,

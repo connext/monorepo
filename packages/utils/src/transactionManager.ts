@@ -1,42 +1,60 @@
+import { Type, Static } from "@sinclair/typebox";
+
+import { TIntegerString, TAddress, TChainId } from "./basic";
+
 // Used to include *all* info for both sending and receiving crosschain data
-export type CrosschainTransaction = {
-  invariant: InvariantTransactionData;
-  sending: VariantTransactionData;
-  receiving?: VariantTransactionData;
-};
+export const InvariantTransactionDataSchema = Type.Object({
+  receivingChainTxManagerAddress: TAddress,
+  user: TAddress,
+  router: TAddress,
+  sendingAssetId: TAddress,
+  receivingAssetId: TAddress,
+  sendingChainFallback: TAddress,
+  callTo: TAddress,
+  receivingAddress: TAddress,
+  sendingChainId: TChainId,
+  receivingChainId: TChainId,
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+});
 
 // Direct matching of Contract types.
-export type InvariantTransactionData = {
-  receivingChainTxManagerAddress: string;
-  user: string;
-  router: string;
-  sendingAssetId: string;
-  receivingAssetId: string;
-  sendingChainFallback: string;
-  callTo: string;
-  receivingAddress: string;
-  sendingChainId: number;
-  receivingChainId: number;
-  callDataHash: string;
-  transactionId: string;
-};
+export type InvariantTransactionData = Static<typeof InvariantTransactionDataSchema>;
 
-export type VariantTransactionData = {
-  amount: string;
-  expiry: number;
-  preparedBlockNumber: number;
-};
-export type TransactionData = InvariantTransactionData & VariantTransactionData;
+export const VariantTransactionDataSchema = Type.Object({
+  amount: TIntegerString,
+  expiry: Type.Number(),
+  preparedBlockNumber: Type.Number(),
+});
 
-export type SignedCancelData = {
-  invariantDigest: string;
-  cancel: "cancel"; // just the string "cancel"
-};
+export type VariantTransactionData = Static<typeof VariantTransactionDataSchema>;
 
-export type SignedFulfillData = {
-  invariantDigest: string;
-  relayerFee: string;
-};
+export const TransactionDataSchema = Type.Intersect([InvariantTransactionDataSchema, VariantTransactionDataSchema]);
+
+export type TransactionData = Static<typeof TransactionDataSchema>;
+
+export const SignedCancelDataSchema = Type.Object({
+  invariantDigest: Type.String(),
+  relayerFee: TIntegerString,
+  cancel: Type.RegEx(/cancel/), // just the string "cancel"
+});
+
+export const CrosschainTransactionSchema = Type.Object({
+  invariant: InvariantTransactionDataSchema,
+  sending: VariantTransactionDataSchema,
+  receiving: Type.Optional(VariantTransactionDataSchema),
+});
+
+export type CrosschainTransaction = Static<typeof CrosschainTransactionSchema>;
+
+export type SignedCancelData = Static<typeof SignedCancelDataSchema>;
+
+export const SignedFulfillDataSchema = Type.Object({
+  invariantDigest: Type.String(),
+  relayerFee: TIntegerString,
+});
+
+export type SignedFulfillData = Static<typeof SignedFulfillDataSchema>;
 
 // Functions
 export type PrepareParams = {

@@ -39,6 +39,11 @@ describe("Auction Operation", () => {
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
     });
 
+    it("should error if auction payload data validation fails", async () => {
+      const _auctionPayload = { ...auctionPayload, user: "abc" };
+      await expect(newAuction(_auctionPayload, requestContext)).to.eventually.be.rejectedWith("Params invalid");
+    });
+
     it("should error if not enough available liquidity for auction", async () => {
       getReceiverAmountStub.returns("10002");
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Not enough liquidity");
