@@ -1,6 +1,5 @@
 import { BigNumber } from "ethers";
 import { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 import { err, ok } from "neverthrow";
 
@@ -15,7 +14,7 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
 } from "../src/error";
-import { mkHash } from "@connext/nxtp-utils";
+import { mkHash, expect } from "@connext/nxtp-utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 

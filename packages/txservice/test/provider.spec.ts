@@ -1,6 +1,5 @@
-import { BigNumber, providers, Signer, utils, Wallet } from "ethers";
+import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 
 import { ChainRpcProvider } from "../src/provider";
@@ -14,8 +13,8 @@ import {
   TEST_TX_RESPONSE,
   DEFAULT_GAS_LIMIT,
 } from "./constants";
-import { getRandomAddress, getRandomBytes32 } from "@connext/nxtp-utils";
-import { TransactionReadError } from "../src/error";
+import { getRandomAddress, getRandomBytes32, expect } from "@connext/nxtp-utils";
+import { RpcError, TransactionReadError } from "../src/error";
 
 // : main tests:
 // - isReady
@@ -230,6 +229,29 @@ describe("ChainRpcProvider", () => {
     });
   });
 
+  describe("getDecimalsForAsset", () => {
+    it("happy: should return 18 for the native asset", async () => {
+      const result = await chainProvider.getDecimalsForAsset(constants.AddressZero);
+
+      expect(result.isOk()).to.be.true;
+      expect(result.isOk() && result.value === 18).to.be.true;
+    });
+  });
+
+  describe("getBlockTime", () => {
+    it("happy: should return the block time", async () => {
+      const blockTime = Math.floor(Date.now() / 1000);
+      coreProvider.getBlock.resolves({ timestamp: blockTime } as unknown as providers.Block);
+
+      const result = await chainProvider.getBlockTime();
+
+      expect(result.isOk()).to.be.true;
+      expect(result.isOk() && result.value === blockTime).to.be.true;
+      expect(coreProvider.getBlock.callCount).to.equal(1);
+      expect(coreProvider.getBlock.getCall(0).args[0]).to.deep.eq("latest");
+    });
+  });
+
   describe("estimateGas", () => {
     it("should return the gas estimate", async () => {
       const rawCommand = "estimateGas";
@@ -298,6 +320,10 @@ describe("ChainRpcProvider", () => {
   describe("isReady", () => {
     it("should give RpcError if provider network not ready", async () => {
       Sinon.stub(coreProvider, "ready").get(() => false);
+
+      const result = await chainProvider.getBlockTime();
+      expect(result.isErr()).to.be.true;
+      expect(result.isErr() && result.error.message === RpcError.reasons.OutOfSync).to.be.true;
     });
   });
 });

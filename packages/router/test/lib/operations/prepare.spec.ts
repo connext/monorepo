@@ -1,12 +1,17 @@
 import { SinonStub, stub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import { constants } from "ethers/lib/ethers";
-import { AuctionBid, createRequestContext } from "@connext/nxtp-utils";
-import { auctionBidMock, invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import {
+  AuctionBid,
+  createRequestContext,
+  expect,
+  auctionBidMock,
+  invariantDataMock,
+  txReceiptMock,
+} from "@connext/nxtp-utils";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
-import { prepare } from "../../../src/lib/operations";
+import { getOperations } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
 import { receiverPreparing } from "../../../src/lib/operations/prepare";
 
@@ -16,6 +21,8 @@ let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], strin
 let validExpiryStub: SinonStub<[expiry: number], boolean>;
 let decodeAuctionBidStub: SinonStub<[data: string], AuctionBid>;
 let validBidExpiryStub: SinonStub<[bidExpiry: number, currentTime: number], boolean>;
+
+const { prepare } = getOperations();
 
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {

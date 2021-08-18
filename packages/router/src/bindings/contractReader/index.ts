@@ -2,7 +2,7 @@ import { createRequestContext, jsonifyError, safeJsonStringify } from "@connext/
 
 import { getContext } from "../../router";
 import { ActiveTransaction, CrosschainTransactionStatus, FulfillPayload, PreparePayload } from "../../lib/entities";
-import { fulfill, prepare, cancel } from "../../lib/operations";
+import { getOperations } from "../../lib/operations";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -21,6 +21,7 @@ export const bindContractReader = async () => {
 
 export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
   const { logger } = getContext();
+  const { prepare, cancel, fulfill } = getOperations();
   return await Promise.all(
     transactions.map(async (transaction): Promise<void> => {
       if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {

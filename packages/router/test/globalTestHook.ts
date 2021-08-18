@@ -1,10 +1,9 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
-import { txReceiptMock, sigMock } from "@connext/nxtp-utils/src/mock";
+import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock } from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
   routerAddrMock,
   activeTransactionPrepareMock,

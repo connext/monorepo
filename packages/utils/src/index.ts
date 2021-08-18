@@ -5,6 +5,8 @@ export * from "./delay";
 export * from "./util";
 export * from "./encode";
 export * from "./error";
+export * from "./expect";
+export * from "./mock";
 export * from "./math";
 export * from "./crypto";
 export * from "./signatures";
