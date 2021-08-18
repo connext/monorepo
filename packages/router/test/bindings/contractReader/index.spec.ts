@@ -1,7 +1,5 @@
-import { InvariantTransactionData, mkBytes32, RequestContext } from "@connext/nxtp-utils";
-import { txReceiptMock } from "@connext/nxtp-utils/src/mock";
-import { SinonStub, stub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
+import { InvariantTransactionData, mkBytes32, RequestContext, txReceiptMock, expect, delay } from "@connext/nxtp-utils";
+import { reset, restore, SinonStub, stub } from "sinon";
 import { providers } from "ethers/lib/ethers";
 
 import {
@@ -11,12 +9,13 @@ import {
   FulfillInput,
   PrepareInput,
 } from "../../../src/lib/entities";
-import { handleActiveTransactions } from "../../../src/bindings/contractReader/index";
+import * as binding from "../../../src/bindings/contractReader/index";
 import * as PrepareFns from "../../../src/lib/operations/prepare";
 import * as FulfillFns from "../../../src/lib/operations/fulfill";
 import * as CancelFns from "../../../src/lib/operations/cancel";
 import { ExpiryInvalid } from "../../../src/lib/errors";
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
+import { contractReaderMock } from "../../globalTestHook";
 
 let prepareMock: SinonStub<
   [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContext],
@@ -66,7 +65,7 @@ describe("Contract Reader Binding", () => {
         status: CrosschainTransactionStatus.ReceiverExpired,
       };
 
-      await handleActiveTransactions([prepare, fulfill, cancel, expired]);
+      await binding.handleActiveTransactions([prepare, fulfill, cancel, expired]);
 
       // prepare receiver
       expect(prepareMock).to.be.calledWith(prepare.crosschainTx.invariant, {
@@ -110,6 +109,33 @@ describe("Contract Reader Binding", () => {
         preparedBlockNumber: expired.crosschainTx.receiving.preparedBlockNumber,
         side: "receiver",
       });
+    });
+  });
+
+  describe("getLoopInterval", async () => {
+    expect(binding.getLoopInterval()).to.be.eq(15_000);
+  });
+
+  describe("bindContractReader", () => {
+    const interval = 250;
+
+    let handleActiveTransactionsStub: SinonStub;
+    beforeEach(() => {
+      handleActiveTransactionsStub = stub(binding, "handleActiveTransactions").resolves();
+      stub(binding, "getLoopInterval").returns(interval);
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("should work", async () => {
+      await binding.bindContractReader();
+      await delay(interval + 10);
+      expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
+      expect(handleActiveTransactionsStub.callCount).to.be.eq(1);
+      // done();
     });
   });
 });

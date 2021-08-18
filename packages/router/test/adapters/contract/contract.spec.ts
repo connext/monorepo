@@ -1,12 +1,13 @@
-import { createRequestContext, mkAddress } from "@connext/nxtp-utils";
 import {
+  createRequestContext,
+  mkAddress,
   fulfillParamsMock,
   txReceiptMock,
   txDataMock,
   prepareParamsMock,
   cancelParamsMock,
-} from "@connext/nxtp-utils/src/mock";
-import { expect } from "@connext/nxtp-utils/src/expect";
+  expect,
+} from "@connext/nxtp-utils";
 
 import { fulfill, getContractAddress, prepare, cancel, removeLiquidity } from "../../../src/adapters/contract/contract";
 import * as ContractFns from "../../../src/adapters/contract/contract";

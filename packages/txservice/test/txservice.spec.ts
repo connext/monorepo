@@ -1,6 +1,5 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";
@@ -15,10 +14,9 @@ import {
   TEST_READ_TX,
   DEFAULT_GAS_LIMIT,
 } from "./constants";
-import { AlreadyMined, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
-import { getRandomAddress, getRandomBytes32, RequestContext } from "@connext/nxtp-utils";
-import { DEFAULT_CONFIG } from "../src/config";
-import { ok } from "neverthrow";
+import { AlreadyMined, RpcError, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
+import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect } from "@connext/nxtp-utils";
+import { err, ok } from "neverthrow";
 import { EvtError } from "evt";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
@@ -184,6 +182,50 @@ describe("TransactionService", () => {
       expect(balance.eq(testBalance)).to.be.true;
       expect(chainProvider.getBalance.callCount).to.equal(1);
       expect(chainProvider.getBalance.getCall(0).args[0]).to.deep.eq(testAddress);
+    });
+
+    it("should throw if provider fails", async () => {
+      chainProvider.getBalance.resolves(err(new RpcError("fail")));
+
+      await expect(txService.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("getDecimalsForAsset", () => {
+    it("happy", async () => {
+      const decimals = 18;
+      const assetId = mkAddress("0xaaa");
+      chainProvider.getDecimalsForAsset.resolves(ok(decimals));
+
+      const retrieved = await txService.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, assetId);
+
+      expect(retrieved).to.be.eq(decimals);
+      expect(chainProvider.getDecimalsForAsset.callCount).to.equal(1);
+      expect(chainProvider.getDecimalsForAsset.getCall(0).args[0]).to.deep.eq(assetId);
+    });
+
+    it("should throw if provider fails", async () => {
+      chainProvider.getBalance.resolves(err(new RpcError("fail")));
+
+      await expect(txService.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("getBlockTime", () => {
+    it("happy", async () => {
+      const time = Math.floor(Date.now() / 1000);
+      chainProvider.getBlockTime.resolves(ok(time));
+
+      const blockTime = await txService.getBlockTime(TEST_SENDER_CHAIN_ID);
+
+      expect(blockTime).to.be.eq(time);
+      expect(chainProvider.getBlockTime.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      chainProvider.getBlockTime.resolves(err(new RpcError("fail")));
+
+      await expect(txService.getBlockTime(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
   });
 
