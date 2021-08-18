@@ -20,8 +20,8 @@ export const bindMessaging = async () => {
     try {
       logger.info({ requestContext }, "Received auction request");
       const { bid, bidSignature } = await newAuction(data, requestContext);
-      await messaging.publishAuctionResponse(inbox, { bid, bidSignature }),
-        logger.info({ requestContext }, "Handled auction request");
+      await messaging.publishAuctionResponse(inbox, { bid, bidSignature });
+      logger.info({ requestContext, inbox }, "Handled auction request");
     } catch (err) {
       logger.error({ requestContext, err: jsonifyError(err) }, "Error in auction request");
     }
@@ -69,6 +69,7 @@ export const bindMessaging = async () => {
         logger.info({ requestContext }, "Fulfilling tx");
         const tx = await fulfill(
           {
+            receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
             user: txData.user,
             router: txData.router,
             sendingChainId: txData.sendingChainId,

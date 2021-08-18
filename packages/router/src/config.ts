@@ -2,11 +2,10 @@
 import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import addFormats from "ajv-formats";
-import Ajv from "ajv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import {
+  ajv,
   getDeployedSubgraphUri,
   isNode,
   NATS_AUTH_URL,
@@ -25,25 +24,6 @@ import {
 import { config as dotenvConfig } from "dotenv";
 
 dotenvConfig();
-
-const ajv = addFormats(new Ajv(), [
-  "date-time",
-  "time",
-  "date",
-  "email",
-  "hostname",
-  "ipv4",
-  "ipv6",
-  "uri",
-  "uri-reference",
-  "uuid",
-  "uri-template",
-  "json-pointer",
-  "relative-json-pointer",
-  "regex",
-])
-  .addKeyword("kind")
-  .addKeyword("modifier");
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -125,17 +105,17 @@ export const getEnvConfig = (): NxtpRouterConfig => {
   let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl;
   switch (network) {
     case "mainnet": {
-      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL : NATS_WS_URL;
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
       authUrl = authUrl ?? NATS_AUTH_URL;
       break;
     }
     case "testnet": {
-      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET;
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
       authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
       break;
     }
     case "local": {
-      natsUrl = natsUrl ? natsUrl : isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL;
+      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
       authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
       break;
     }
@@ -167,9 +147,9 @@ export const getEnvConfig = (): NxtpRouterConfig => {
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }

@@ -3,6 +3,7 @@ import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
 import { RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, Contract, utils } from "ethers";
+// eslint-disable-next-line node/no-extraneous-import
 import { Zero } from "@ethersproject/constants";
 
 import { getConfig } from "../utils/config";
@@ -167,8 +168,8 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
     const iterationData = {
       loopNumber,
       concurrency,
-      averageExecutionTime: `${avgExecutionTime / 60} min`,
-      medianExecutionTime: `${executionTimes[Math.floor(executionTimes.length / 2)]} min`,
+      averageExecutionTime: `${Math.round(100 * (avgExecutionTime / 1000)) / 100}s`,
+      medianExecutionTime: `${Math.round(100 * (executionTimes[Math.floor(executionTimes.length / 2)] / 3600)) / 1000}s`,
       errored: errored.length,
       successful: results.length - errored.length,
       errors,

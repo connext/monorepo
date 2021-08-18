@@ -4,7 +4,7 @@ import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import pino from "pino";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance } from "sinon";
 
 import { Subgraph, convertTransactionToTxData } from "../../src/subgraph";
 import { Transaction, TransactionStatus, User, Router, getSdk } from "../../src/graphqlsdk";
@@ -38,6 +38,7 @@ describe("NxtpSdk", () => {
       chainId: sendingChainId,
       user: {} as User,
       router: {} as Router,
+      receivingChainTxManagerAddress: mkAddress("0xaa"),
       sendingAssetId: mkAddress("0xc"),
       receivingAssetId: mkAddress("0xd"),
       sendingChainFallback: user,

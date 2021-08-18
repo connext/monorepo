@@ -143,6 +143,7 @@ export class TransactionManager {
         .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
         .prepare(
           {
+            receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
             user: txData.user,
             router: txData.router,
             sendingAssetId: txData.sendingAssetId,

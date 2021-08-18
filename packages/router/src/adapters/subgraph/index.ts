@@ -22,7 +22,7 @@ export type ContractReader = {
    *
    * @param assetId - The asset you want to determine router liquidity of
    * @param chainId - The chain you want to determine liquidity on
-   * @returns The available balance (or undefined)
+   * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
 };

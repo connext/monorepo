@@ -18,7 +18,7 @@ import { getSdks } from ".";
 
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet } = getContext();
+  const { wallet, logger } = getContext();
   const routerAddress = wallet.address;
 
   // get local context
@@ -44,11 +44,14 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       });
 
       // get all existing txs corresponding to all the sender prepared txs by id
+      let allSenderPreparedTx = allSenderPrepared.router?.transactions ?? [];
       const queries = await Promise.all(
         Object.entries(receivingChains).map(async ([cId, txIds]) => {
           const _sdk = sdks[Number(cId)];
           if (!_sdk) {
-            throw new ContractReaderNotAvailableForChain(Number(cId));
+            logger.error({ cId }, "No contract reader available for receiver chain, filtering txs");
+            // filter all txs where no contract reader on receiver side
+            allSenderPreparedTx = allSenderPreparedTx.filter((tx) => tx.receivingChainId !== cId);
           }
           const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;
@@ -61,8 +64,9 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       // if it is fulfilled, call the handleReceiverFulfill handler
       // if it is cancelled, call the handlerReceiverCancel handler
       const txs =
-        allSenderPrepared.router?.transactions.map((senderTx): ActiveTransaction<any> | undefined => {
+        allSenderPreparedTx.map((senderTx): ActiveTransaction<any> | undefined => {
           const invariant: InvariantTransactionData = {
+            receivingChainTxManagerAddress: senderTx.receivingChainTxManagerAddress,
             user: senderTx.user.id,
             router: senderTx.router.id,
             sendingAssetId: senderTx.sendingAssetId,
@@ -204,6 +208,7 @@ export const getTransactionForChain = async (
     ? {
         status: transaction.status,
         txData: {
+          receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
           user: transaction.user.id,
           router: transaction.router.id,
           sendingAssetId: transaction.sendingAssetId,

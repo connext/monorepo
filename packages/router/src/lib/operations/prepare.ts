@@ -1,10 +1,30 @@
-import { getUuid, InvariantTransactionData, RequestContext } from "@connext/nxtp-utils";
+import {
+  ajv,
+  getUuid,
+  InvariantTransactionData,
+  InvariantTransactionDataSchema,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { PrepareInput } from "../entities";
-import { AuctionSignerInvalid, ExpiryInvalid, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
-import { decodeAuctionBid, getReceiverAmount, getReceiverExpiry, recoverAuctionBid, validExpiry } from "../helpers";
+import { PrepareInput, PrepareInputSchema } from "../entities";
+import {
+  ParamsInvalid,
+  AuctionSignerInvalid,
+  ExpiryInvalid,
+  NotEnoughLiquidity,
+  SenderChainDataInvalid,
+  BidExpiryInvalid,
+} from "../errors";
+import {
+  decodeAuctionBid,
+  getReceiverAmount,
+  getReceiverExpiryBuffer,
+  recoverAuctionBid,
+  validBidExpiry,
+  validExpiryBuffer,
+} from "../helpers";
 
 export const receiverPreparing: Map<string, boolean> = new Map();
 
@@ -16,8 +36,39 @@ export const prepare = async (
   const method = "prepare";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter, contractReader } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
+
+  // Validate InvariantData schema
+  const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
+  const validInvariantData = validateInvariantData(invariantData);
+  if (!validInvariantData) {
+    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error(
+      { method, methodId, error: validateInvariantData.errors, invariantData },
+      "Invalid invariantData params",
+    );
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
+
+  // Validate Prepare Input schema
+  const validateInput = ajv.compile(PrepareInputSchema);
+  const validInput = validateInput(input);
+  if (!validInput) {
+    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    throw new ParamsInvalid({
+      method,
+      methodId,
+      paramsError: error,
+      requestContext,
+    });
+  }
 
   const { encryptedCallData, encodedBid, bidSignature, senderAmount, senderExpiry } = input;
 
@@ -36,7 +87,15 @@ export const prepare = async (
     throw new SenderChainDataInvalid({ method, methodId, requestContext });
   }
 
-  const receiverAmount = getReceiverAmount(senderAmount);
+  const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
+
+  const outputDecimals = await txService.getDecimalsForAsset(
+    invariantData.receivingChainId,
+    invariantData.receivingAssetId,
+  );
+
+  const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,
     invariantData.receivingChainId,
@@ -46,10 +105,45 @@ export const prepare = async (
     throw new NotEnoughLiquidity(invariantData.receivingChainId, { method, methodId, requestContext });
   }
 
-  const receiverExpiry = getReceiverExpiry(senderExpiry);
-  if (!validExpiry(receiverExpiry)) {
+  // Handle the expiries.
+  // Some notes on expiries -- each participant should be using the latest
+  // block timestamp as the baseline for evaluating the expiries rather than
+  // the Date.now() to avoid local clock errors. The block.timestamp should
+  // be evaluated against the chain they are preparing on (i.e. user refs
+  // sending chain and router refs receiving chain).
+
+  // Get current block times
+  const [currentBlockTimeReceivingChain, currentBlockTimeSendingChain] = await Promise.all([
+    txService.getBlockTime(invariantData.receivingChainId),
+    txService.getBlockTime(invariantData.sendingChainId),
+  ]);
+
+  if (!validBidExpiry(bid.expiry, currentBlockTimeReceivingChain)) {
     // cancellable error
-    throw new ExpiryInvalid(receiverExpiry, { method, methodId, requestContext });
+    throw new BidExpiryInvalid(bid.bidExpiry, currentBlockTimeReceivingChain, {
+      method,
+      methodId,
+      requestContext,
+    });
+  }
+
+  // Get buffers
+  const senderBuffer = senderExpiry - currentBlockTimeSendingChain;
+  const receiverBuffer = getReceiverExpiryBuffer(senderBuffer);
+
+  // Calculate receiver expiry
+  const receiverExpiry = receiverBuffer + currentBlockTimeReceivingChain;
+
+  if (!validExpiryBuffer(receiverBuffer)) {
+    // cancellable error
+    throw new ExpiryInvalid(receiverExpiry, {
+      method,
+      methodId,
+      requestContext,
+      senderExpiry,
+      senderBuffer,
+      receiverBuffer,
+    });
   }
 
   logger.info({ method, methodId, requestContext }, "Validated input");

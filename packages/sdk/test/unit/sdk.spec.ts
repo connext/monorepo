@@ -6,6 +6,9 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
+  AuctionResponse,
+  generateMessagingInbox,
+  delay,
 } from "@connext/nxtp-utils";
 import { err, ok, errAsync, okAsync } from "neverthrow";
 import { expect } from "chai";
@@ -25,9 +28,10 @@ import {
 } from "../../src/sdk";
 
 import * as sdkUtils from "../../src/sdk";
-import { Subgraph, ActiveTransaction } from "../../src/subgraph";
+import { Subgraph } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
+import { Evt } from "evt";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -52,6 +56,8 @@ describe("NxtpSdk", () => {
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
 
+  const auctionEvt = Evt.create<AuctionResponse>();
+
   beforeEach(() => {
     provider1337 = createStubInstance(providers.FallbackProvider);
     (provider1337 as any)._isProvider = true;
@@ -73,10 +79,16 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
+    stub(sdkUtils, "getDecimals").resolves(18);
+
+    stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+
+    stub(sdkUtils, "getAuctionRequestContext").returns({ evt: auctionEvt, inbox: generateMessagingInbox() });
+
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
 
-    stub(sdkUtils, "AUCTION_TIMEOUT").value("1_000");
+    stub(sdkUtils, "AUCTION_TIMEOUT").value(1_000);
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -104,6 +116,7 @@ describe("NxtpSdk", () => {
     recordOverrides: Partial<VariantTransactionData> = {},
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
     const transaction = {
+      receivingChainTxManagerAddress: mkAddress("0xaa"),
       user: user,
       router: router,
       sendingAssetId: mkAddress("0xc"),
@@ -383,25 +396,30 @@ describe("NxtpSdk", () => {
 
     it.skip("should error if eth_getEncryptionPublicKey errors", async () => {});
 
-    it("should log error if recoverAuctionSigner errors", async () => {
+    it("should not include improperly signed bids", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.user);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
       let error;
       try {
-        await sdk.getTransferQuote(crossChainParams);
+        await Promise.all([
+          sdk.getTransferQuote(crossChainParams),
+          new Promise(async (resolve) => {
+            await delay(200);
+            auctionEvt.post({ bidSignature, bid: auctionBid });
+            resolve(undefined);
+          }),
+        ]);
       } catch (e) {
         error = e;
       }
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
       expect(error.context.transactionId).to.be.eq(crossChainParams.transactionId);
-      expect(error.context.auctionError.message).to.include("No bids received");
-      expect(error.context.invalidBids[0].error.message).to.include("Invalid router signature on bid");
-      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
+      expect(error.context.auctionError.message).to.include("No valid auction bids received");
+      expect(error.context.auctionError.context.invalidReasons.includes("Invalid router signature on bid")).to.be.true;
     });
 
     it("should log error if getRouterLiquidity errors", async () => {
@@ -409,7 +427,6 @@ describe("NxtpSdk", () => {
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);
 
       transactionManager.getRouterLiquidity.returns(
@@ -424,36 +441,50 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        await sdk.getTransferQuote(crossChainParams);
+        await Promise.all([
+          sdk.getTransferQuote(crossChainParams),
+          new Promise(async (resolve) => {
+            await delay(200);
+            auctionEvt.post({ bidSignature, bid: auctionBid });
+            resolve(undefined);
+          }),
+        ]);
       } catch (e) {
         error = e;
       }
+
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
-      expect(error.context.auctionError.message).to.include("No bids received");
-      expect(error.context.invalidBids[0].error.message).to.include(TransactionManagerError.reasons.TxServiceError);
-      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
+      expect(error.context.auctionError.message).to.include("No valid auction bids received");
+      expect(error.context.auctionError.context.invalidReasons.includes(TransactionManagerError.reasons.TxServiceError))
+        .to.be.true;
     });
 
     it("should log error if router liquidity is lower than amountReceived", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);
 
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived).sub("1")));
 
       let error;
       try {
-        await sdk.getTransferQuote(crossChainParams);
+        await Promise.all([
+          sdk.getTransferQuote(crossChainParams),
+          new Promise(async (resolve) => {
+            await delay(200);
+            auctionEvt.post({ bidSignature, bid: auctionBid });
+            resolve(undefined);
+          }),
+        ]);
       } catch (e) {
         error = e;
       }
+
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
-      expect(error.context.auctionError.message).to.include("No bids received");
-      expect(error.context.invalidBids[0].error.message).to.include("Router's liquidity low");
-      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
+      expect(error.context.auctionError.message).to.include("No valid auction bids received");
+      expect(error.context.auctionError.context.invalidReasons).to.include("Router's liquidity low");
     });
 
     it("should log error if amountReceived is lower than lower bound", async () => {
@@ -461,37 +492,49 @@ describe("NxtpSdk", () => {
 
       const crossChainParamsMock = JSON.parse(JSON.stringify(crossChainParams));
       crossChainParamsMock.amount = "100000000";
+      auctionBid.amountReceived = "1";
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
       let error;
       try {
-        await sdk.getTransferQuote(crossChainParamsMock);
+        await Promise.all([
+          sdk.getTransferQuote(crossChainParams),
+          new Promise(async (resolve) => {
+            await delay(200);
+            auctionEvt.post({ bidSignature, bid: auctionBid });
+            resolve(undefined);
+          }),
+        ]);
       } catch (e) {
         error = e;
       }
+
       expect(error).to.be.an("error");
       expect(error.message).to.be.eq(NxtpSdkError.reasons.AuctionError);
-      expect(error.context.auctionError.message).to.include("No bids received");
-      expect(error.context.invalidBids[0].error.message).to.include(
+      expect(error.context.auctionError.message).to.include("No valid auction bids received");
+      expect(error.context.auctionError.context.invalidReasons).to.include(
         "Invalid bid price: price impact is more than the slippage tolerance",
       );
-      expect(error.context.invalidBids[0].data.bid).to.be.eq(auctionBid);
     });
 
     it("happy: should get a transfer quote => dryRun ", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
+      const { crossChainParams, auctionBid } = getMock();
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature: undefined });
-      let error;
-      let res;
-      try {
-        res = await sdk.getTransferQuote(crossChainParams);
-      } catch (e) {
-        error = e;
-      }
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
+
+      const [res] = await Promise.all([
+        sdk.getTransferQuote(crossChainParams),
+        new Promise(async (resolve) => {
+          await delay(200);
+          auctionEvt.post({ bidSignature: undefined, bid: auctionBid });
+          resolve(undefined);
+        }),
+      ]);
+
+      console.log("****** res");
 
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.undefined;
@@ -500,17 +543,17 @@ describe("NxtpSdk", () => {
     it("happy: should get a transfer quote", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
-      messaging.subscribeToAuctionResponse.yields({ bid: auctionBid, bidSignature });
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.returns(okAsync(BigNumber.from(auctionBid.amountReceived)));
 
-      let error;
-      let res;
-      try {
-        res = await sdk.getTransferQuote(crossChainParams);
-      } catch (e) {
-        error = e;
-      }
+      const [res] = await Promise.all([
+        sdk.getTransferQuote(crossChainParams),
+        new Promise(async (resolve) => {
+          await delay(200);
+          auctionEvt.post({ bidSignature, bid: auctionBid });
+          resolve(undefined);
+        }),
+      ]);
 
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);

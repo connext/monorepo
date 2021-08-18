@@ -25,6 +25,7 @@ type Transaction @entity {
   chainId: BigInt!
 
   # TransactionData
+  receivingChainTxManagerAddress: Bytes!
   user: User!
   router: Router!
   sendingAssetId: Bytes!
