@@ -13,13 +13,18 @@ import {
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
-export const SubgraphUri: { [chainId: number]: string } = {
-  4: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
-  5: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
-  69: "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan",
-  80001: "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai",
-  421611: "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby",
+export const HistoricalTransactionStatus = {
+  FULFILLED: "FULFILLED",
+  CANCELLED: "CANCELLED",
+} as const;
+export type THistoricalTransactionStatus = typeof HistoricalTransactionStatus[keyof typeof HistoricalTransactionStatus];
+
+export type HistoricalTransaction = {
+  status: THistoricalTransactionStatus;
+  crosschainTx: CrosschainTransaction;
+  fulfilledTxHash?: string;
 };
+
 /**
  * Converts subgraph transactions to properly typed TransactionData
  *
@@ -306,11 +311,11 @@ export class Subgraph {
     return all;
   }
 
-  async getHistoricalTransactions(): Promise<CrosschainTransaction[]> {
+  async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     const methodName = "getHistoricalTransactions";
     const methodId = getUuid();
 
-    const txs = await Promise.all(
+    const fulfilledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
         const user = (await this.user.getAddress()).toLowerCase();
         const chainId = parseInt(c);
@@ -345,7 +350,7 @@ export class Subgraph {
               transactionIds: receiverTxs.map((tx) => tx.transactionId),
             });
 
-            return receiverTxs.map((receiverTx): CrosschainTransaction | undefined => {
+            return receiverTxs.map((receiverTx): HistoricalTransaction | undefined => {
               const correspondingSenderTx = correspondingSenderTxs.find(
                 (tx) => tx.transactionId === receiverTx.transactionId,
               );
@@ -357,28 +362,33 @@ export class Subgraph {
                 return undefined;
               }
               return {
-                invariant: {
-                  user,
-                  router: receiverTx.router,
-                  sendingChainId: Number(receiverTx.sendingChainId),
-                  sendingAssetId: receiverTx.sendingAssetId,
-                  sendingChainFallback: receiverTx.sendingChainFallback,
-                  receivingChainId: Number(receiverTx.receivingChainId),
-                  receivingAssetId: receiverTx.receivingAssetId,
-                  receivingAddress: receiverTx.receivingAddress,
-                  callTo: receiverTx.callTo,
-                  callDataHash: receiverTx.callDataHash,
-                  transactionId: receiverTx.transactionId,
-                },
-                sending: {
-                  amount: correspondingSenderTx.amount,
-                  expiry: Number(correspondingSenderTx.expiry),
-                  preparedBlockNumber: Number(correspondingSenderTx.preparedBlockNumber),
-                },
-                receiving: {
-                  amount: receiverTx.amount,
-                  expiry: Number(receiverTx.expiry),
-                  preparedBlockNumber: Number(receiverTx.preparedBlockNumber),
+                status: HistoricalTransactionStatus.FULFILLED,
+                fulfilledTxHash: receiverTx.fulfillTransactionHash,
+                crosschainTx: {
+                  invariant: {
+                    user,
+                    router: receiverTx.router,
+                    sendingChainId: Number(receiverTx.sendingChainId),
+                    sendingAssetId: receiverTx.sendingAssetId,
+                    sendingChainFallback: receiverTx.sendingChainFallback,
+                    receivingChainId: Number(receiverTx.receivingChainId),
+                    receivingAssetId: receiverTx.receivingAssetId,
+                    receivingAddress: receiverTx.receivingAddress,
+                    callTo: receiverTx.callTo,
+                    callDataHash: receiverTx.callDataHash,
+                    transactionId: receiverTx.transactionId,
+                    receivingChainTxManagerAddress: receiverTx.receivingChainTxManagerAddress,
+                  },
+                  sending: {
+                    amount: correspondingSenderTx.amount,
+                    expiry: Number(correspondingSenderTx.expiry),
+                    preparedBlockNumber: Number(correspondingSenderTx.preparedBlockNumber),
+                  },
+                  receiving: {
+                    amount: receiverTx.amount,
+                    expiry: Number(receiverTx.expiry),
+                    preparedBlockNumber: Number(receiverTx.preparedBlockNumber),
+                  },
                 },
               };
             });
@@ -387,11 +397,59 @@ export class Subgraph {
         return historicalTxs
           .filter((x) => !!x)
           .flat()
+          .filter((x) => !!x) as HistoricalTransaction[];
+      }),
+    );
+
+    const cancelledTxs = await Promise.all(
+      Object.keys(this.sdks).map(async (c) => {
+        const user = (await this.user.getAddress()).toLowerCase();
+        const chainId = parseInt(c);
+        const subgraph = this.sdks[chainId];
+
+        // get all receiver fulfilled
+        const { transactions: senderCancelled } = await subgraph.GetSenderTransactions({
+          sendingChainId: chainId,
+          userId: user,
+          status: TransactionStatus.Cancelled,
+        });
+
+        const cancelled = senderCancelled.map((tx): CrosschainTransaction | undefined => {
+          return {
+            invariant: {
+              user,
+              router: tx.router.id,
+              sendingChainId: Number(tx.sendingChainId),
+              sendingAssetId: tx.sendingAssetId,
+              sendingChainFallback: tx.sendingChainFallback,
+              receivingChainId: Number(tx.receivingChainId),
+              receivingAssetId: tx.receivingAssetId,
+              receivingAddress: tx.receivingAddress,
+              callTo: tx.callTo,
+              callDataHash: tx.callDataHash,
+              transactionId: tx.transactionId,
+              receivingChainTxManagerAddress: tx.receivingChainTxManagerAddress,
+            },
+            sending: {
+              amount: tx.amount,
+              expiry: Number(tx.expiry),
+              preparedBlockNumber: Number(tx.preparedBlockNumber),
+            },
+          };
+        });
+
+        return cancelled
+          .filter((x) => !!x)
+          .flat()
           .filter((x) => !!x) as CrosschainTransaction[];
       }),
     );
 
-    return txs.flat();
+    return fulfilledTxs.flat().concat(
+      cancelledTxs.flat().map((crosschainTx) => {
+        return { crosschainTx, status: HistoricalTransactionStatus.CANCELLED } as HistoricalTransaction;
+      }),
+    );
   }
 
   // Listener methods

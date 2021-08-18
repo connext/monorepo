@@ -1,10 +1,15 @@
 /* eslint-disable require-jsdoc */
 import React, { useEffect, useState } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
-import { BigNumber, providers, Signer, utils } from "ethers";
+import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import pino from "pino";
-import { ActiveTransaction, NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { AuctionResponse, getRandomBytes32, TransactionPreparedEvent } from "@connext/nxtp-utils";
+import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction } from "@connext/nxtp-sdk";
+import {
+  AuctionResponse,
+  CrosschainTransaction,
+  getRandomBytes32,
+  TransactionPreparedEvent,
+} from "@connext/nxtp-utils";
 
 import "./App.css";
 import { chainConfig, swapConfig } from "./constants";
@@ -22,6 +27,13 @@ Object.entries(chainConfig).forEach(([chainId, { provider, subgraph, transaction
   };
 });
 
+const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
+  swapConfig.find((sc) =>
+    Object.values(sc.assets).find(
+      (a) => utils.getAddress(a) === utils.getAddress(crosschainTx.invariant.sendingAssetId),
+    ),
+  )?.name ?? "UNKNOWN";
+
 function App(): React.ReactElement | null {
   const [chainData, setChainData] = useState<any[]>([]);
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
@@ -30,6 +42,7 @@ function App(): React.ReactElement | null {
   const [sdk, setSdk] = useState<NxtpSdk>();
   const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<ActiveTransaction[]>([]);
+  const [historicalTransferTableColumns, setHistoricalTransferTableColumns] = useState<HistoricalTransaction[]>([]);
   const [selectedPool, setSelectedPool] = useState(swapConfig[0]);
 
   const [userBalance, setUserBalance] = useState<BigNumber>();
@@ -110,6 +123,7 @@ function App(): React.ReactElement | null {
       console.log("activeTxs: ", activeTxs);
 
       const historicalTxs = await _sdk.getHistoricalTransactions();
+      setHistoricalTransferTableColumns(historicalTxs);
       console.log("historicalTxs: ", historicalTxs);
 
       _sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, (data) => {
@@ -212,6 +226,11 @@ function App(): React.ReactElement | null {
     };
     init();
   }, [web3Provider, signer]);
+
+  const getExplorerLinkForTx = (tx: string, chainId: number) => {
+    const explorer = chainData.find((data) => data.chainId === chainId).explorers[0]?.url;
+    return explorer ? `${explorer}/tx/${tx}` : "#";
+  };
 
   const switchChains = async (targetChainId: number) => {
     if (!signer || !web3Provider) {
@@ -344,9 +363,14 @@ function App(): React.ReactElement | null {
       key: "asset",
     },
     {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
+      title: "Sent Amount",
+      dataIndex: "sentAmount",
+      key: "sentAmount",
+    },
+    {
+      title: "Received Amount",
+      dataIndex: "receivedAmount",
+      key: "receivedAmount",
     },
     {
       title: "Status",
@@ -410,6 +434,57 @@ function App(): React.ReactElement | null {
           return <></>;
         }
       },
+    },
+  ];
+
+  const historicalColumns = [
+    {
+      title: "Transaction Id",
+      dataIndex: "txId",
+      key: "txId",
+    },
+    {
+      title: "Sending Chain",
+      dataIndex: "sendingChain",
+      key: "sendingChain",
+    },
+    {
+      title: "Receiving Chain",
+      dataIndex: "receivingChain",
+      key: "receivingChain",
+    },
+    {
+      title: "Asset",
+      dataIndex: "asset",
+      key: "asset",
+    },
+    {
+      title: "Sent Amount",
+      dataIndex: "sentAmount",
+      key: "sentAmount",
+    },
+    {
+      title: "Received Amount",
+      dataIndex: "receivedAmount",
+      key: "receivedAmount",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "Tx Hash",
+      dataIndex: "txHash",
+      key: "txHash",
+      render: ({ txHash, chainId }: { txHash: string; chainId: number }) =>
+        txHash ? (
+          <a href={getExplorerLinkForTx(txHash, chainId)} target="_blank">
+            View Tx
+          </a>
+        ) : (
+          <></>
+        ),
     },
   ];
 
@@ -481,11 +556,12 @@ function App(): React.ReactElement | null {
                   // Use receiver side info by default
                   const variant = tx.crosschainTx.receiving ?? tx.crosschainTx.sending;
                   return {
-                    amount: variant.amount,
+                    sentAmount: utils.formatEther(tx.crosschainTx.sending.amount),
+                    receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
                     status: tx.status,
                     sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
                     receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
-                    asset: "TEST",
+                    asset: findAssetInSwap(tx.crosschainTx),
                     key: tx.crosschainTx.invariant.transactionId,
                     txId: `${tx.crosschainTx.invariant.transactionId.substr(
                       0,
@@ -671,7 +747,9 @@ function App(): React.ReactElement | null {
                         utils.parseEther(form.getFieldValue("amount")).toString(),
                         form.getFieldValue("receivingAddress"),
                       );
-                      form.setFieldsValue({ receivedAmount: utils.formatEther(response.bid.amountReceived) });
+                      form.setFieldsValue({
+                        receivedAmount: utils.formatEther(response?.bid.amountReceived ?? constants.Zero),
+                      });
                     }}
                   >
                     Get Quote
@@ -696,6 +774,46 @@ function App(): React.ReactElement | null {
           </Form>
         </Col>
       </Row>
+
+      {historicalTransferTableColumns.length > 0 && (
+        <>
+          <Row gutter={16}>
+            <Col span={3}></Col>
+            <Col span={8}>
+              <Typography.Title level={2}>Historical Transfers</Typography.Title>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={3}></Col>
+            <Col span={20}>
+              <Table
+                columns={historicalColumns}
+                dataSource={historicalTransferTableColumns.map((tx) => {
+                  // Use receiver side info by default
+                  return {
+                    sentAmount: utils.formatEther(tx.crosschainTx.sending.amount),
+                    receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
+                    status: tx.status,
+                    sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
+                    receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
+                    asset: findAssetInSwap(tx.crosschainTx),
+                    key: tx.crosschainTx.invariant.transactionId,
+                    txId: `${tx.crosschainTx.invariant.transactionId.substr(
+                      0,
+                      6,
+                    )}...${tx.crosschainTx.invariant.transactionId.substr(
+                      tx.crosschainTx.invariant.transactionId.length - 5,
+                      tx.crosschainTx.invariant.transactionId.length - 1,
+                    )}`,
+                    txHash: { txHash: tx.fulfilledTxHash, chainId: tx.crosschainTx.invariant.receivingChainId },
+                  };
+                })}
+              />
+            </Col>
+            <Col span={3}></Col>
+          </Row>
+        </>
+      )}
     </div>
   );
 }

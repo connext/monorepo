@@ -38,7 +38,6 @@ import {
   calculateExchangeWad,
   ERC20Abi,
   TransactionDataSchema,
-  CrosschainTransaction,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -49,7 +48,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
+import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
 
 /**
  * Utility to convert the number of hours into seconds
@@ -478,7 +477,7 @@ export class NxtpSdk {
    *
    * @returns An array of historical transactions
    */
-  public async getHistoricalTransactions(): Promise<CrosschainTransaction[]> {
+  public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     const txs = await this.subgraph.getHistoricalTransactions();
     return txs;
   }
