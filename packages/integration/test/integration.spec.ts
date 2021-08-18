@@ -254,7 +254,7 @@ describe("Integration", () => {
     expect(fulfillEvent).to.be.ok;
   });
 
-  it("should send Native tokens", async function () {
+  it.skip("should send Native tokens", async function () {
     this.timeout(120_000);
 
     let quote: AuctionResponse;
