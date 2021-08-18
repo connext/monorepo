@@ -169,7 +169,9 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
       loopNumber,
       concurrency,
       averageExecutionTime: `${Math.round(100 * (avgExecutionTime / 1000)) / 100}s`,
-      medianExecutionTime: `${Math.round(100 * (executionTimes[Math.floor(executionTimes.length / 2)] / 3600)) / 1000}s`,
+      medianExecutionTime: `${
+        Math.round(100 * (executionTimes[Math.floor(executionTimes.length / 2)] / 3600)) / 1000
+      }s`,
       errored: errored.length,
       successful: results.length - errored.length,
       errors,
