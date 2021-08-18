@@ -1,7 +1,5 @@
 import { SinonStub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
-import { createRequestContext } from "@connext/nxtp-utils";
-import { invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import { expect, invariantDataMock, txReceiptMock, createRequestContext } from "@connext/nxtp-utils";
 
 import { cancelInputMock } from "../../utils";
 import { contractWriterMock } from "../../globalTestHook";

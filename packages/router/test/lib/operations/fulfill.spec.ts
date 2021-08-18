@@ -1,6 +1,4 @@
-import { expect } from "@connext/nxtp-utils/src/expect";
-import { createRequestContext } from "@connext/nxtp-utils";
-import { invariantDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import { createRequestContext, invariantDataMock, txReceiptMock, expect } from "@connext/nxtp-utils";
 
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";

@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils/src";
+import { expect } from "@connext/nxtp-utils";
 import { getBidExpiry } from "../../../src/lib/helpers";
 
 describe("getBidExpiry", () => {

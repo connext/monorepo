@@ -1,7 +1,5 @@
-import { AuctionPayload, createRequestContext, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { sigMock } from "@connext/nxtp-utils/src/mock";
+import { AuctionPayload, createRequestContext, mkAddress, mkBytes32, expect, sigMock } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 
 import { getOperations } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";

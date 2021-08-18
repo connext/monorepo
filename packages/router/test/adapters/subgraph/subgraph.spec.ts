@@ -1,6 +1,5 @@
-import { expect, mkAddress } from "@connext/nxtp-utils/src";
-import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
-import { BigNumber, constants } from "ethers";
+import { expect, mkAddress, transactionSubgraphMock } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import { reset, restore, SinonStub, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
 import { getAssetBalance, getTransactionForChain } from "../../../src/adapters/subgraph/subgraph";

@@ -1,5 +1,12 @@
-import { createRequestContext, expect, MetaTxPayload, MetaTxTypes, mkAddress, mkSig } from "@connext/nxtp-utils";
-import { txDataMock, txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import {
+  createRequestContext,
+  expect,
+  MetaTxPayload,
+  MetaTxTypes,
+  txDataMock,
+  txReceiptMock,
+  mkSig,
+} from "@connext/nxtp-utils";
 import { restore, reset, SinonStub, stub } from "sinon";
 import * as operations from "../../../src/lib/operations";
 import { AuctionExpired } from "../../../src/lib/errors";

@@ -1,4 +1,4 @@
-import { expect, jsonifyError } from "@connext/nxtp-utils/src";
+import { expect, jsonifyError } from "@connext/nxtp-utils";
 import { AmountInvalid } from "../../../src/lib/errors/prepare";
 import {
   getReceiverAmount,

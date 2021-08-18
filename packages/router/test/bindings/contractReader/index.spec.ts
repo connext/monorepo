@@ -1,7 +1,5 @@
-import { InvariantTransactionData, mkBytes32, RequestContext } from "@connext/nxtp-utils";
-import { txReceiptMock } from "@connext/nxtp-utils/src/mock";
+import { InvariantTransactionData, mkBytes32, RequestContext, txReceiptMock, expect, delay } from "@connext/nxtp-utils";
 import { reset, restore, SinonStub, stub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import { providers } from "ethers/lib/ethers";
 
 import {
@@ -17,7 +15,6 @@ import * as FulfillFns from "../../../src/lib/operations/fulfill";
 import * as CancelFns from "../../../src/lib/operations/cancel";
 import { ExpiryInvalid } from "../../../src/lib/errors";
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
-import { delay } from "@connext/nxtp-utils/src";
 import { contractReaderMock } from "../../globalTestHook";
 
 let prepareMock: SinonStub<

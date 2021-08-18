@@ -1,6 +1,5 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import pino from "pino";
 
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";
@@ -16,7 +15,7 @@ import {
   DEFAULT_GAS_LIMIT,
 } from "./constants";
 import { AlreadyMined, RpcError, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
-import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext } from "@connext/nxtp-utils";
+import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect } from "@connext/nxtp-utils";
 import { err, ok } from "neverthrow";
 import { EvtError } from "evt";
 
