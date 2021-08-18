@@ -1,5 +1,5 @@
 import { NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
-import { constants, Contract, providers, utils, Wallet } from "ethers";
+import { constants, Contract, providers, utils, Wallet, BigNumber } from "ethers";
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
@@ -21,8 +21,8 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const tokenAddressSending = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
-const tokenAddressReceiving = tokenAddressSending;
+const erc20Address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;
 
@@ -41,24 +41,17 @@ const chainProviders = {
     subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
   },
 };
+
 const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 
 const sugarDaddy = new Wallet(fundedPk);
 const MIN_ETH = utils.parseEther("0.5");
 const ETH_GIFT = utils.parseEther("1");
-const tokenSending = new Contract(
-  tokenAddressSending,
-  TestTokenABI,
-  sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
-);
-const tokenReceiving = new Contract(
-  tokenAddressReceiving,
-  TestTokenABI,
-  sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
-);
+
 const MIN_TOKEN = utils.parseEther("5");
 const TOKEN_GIFT = utils.parseEther("10");
+
 const txManagerSending = new Contract(
   txManagerAddressSending,
   TransactionManagerArtifact.abi,
@@ -76,7 +69,22 @@ describe("Integration", () => {
   let userSdk: NxtpSdk;
   let userWallet: Wallet;
 
-  before(async () => {
+  const tokenSending = new Contract(
+    erc20Address,
+    TestTokenABI,
+    sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
+  );
+
+  const tokenReceiving = new Contract(
+    erc20Address,
+    TestTokenABI,
+    sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
+  );
+
+  const setupBeforeEach = async (sendingTokenAddress: string, receivingTokenAddress: string): Promise<void> => {
+    const tokenAddressSending = sendingTokenAddress;
+    const tokenAddressReceiving = receivingTokenAddress;
+
     const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(router);
     const balanceReceiving = await chainProviders[RECEIVING_CHAIN].provider.getBalance(router);
 
@@ -149,11 +157,22 @@ describe("Integration", () => {
     );
     if (liquiditySending.lt(MIN_TOKEN)) {
       logger.info({ chainId: SENDING_CHAIN }, "Adding liquidity");
-      const approvetx = await tokenSending.approve(txManagerSending.address, constants.MaxUint256);
-      const approveReceipt = await approvetx.wait(2);
-      logger.info({ transactionHash: approveReceipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity approved");
-      const tx = await txManagerSending.addLiquidityFor(TOKEN_GIFT, tokenAddressSending, router);
+      if (tokenAddressSending !== AddressZero) {
+        const approvetx = await tokenSending.approve(txManagerSending.address, constants.MaxUint256);
+        const approveReceipt = await approvetx.wait(2);
+        logger.info(
+          { transactionHash: approveReceipt.transactionHash, chainId: SENDING_CHAIN },
+          "addLiquidity approved",
+        );
+      }
+      const tx = await txManagerSending.addLiquidityFor(
+        TOKEN_GIFT,
+        tokenAddressSending,
+        router,
+        tokenAddressSending === AddressZero ? { value: BigNumber.from(TOKEN_GIFT) } : {},
+      );
       const receipt = await tx.wait(2);
+
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "addLiquidity mined");
     }
 
@@ -169,28 +188,36 @@ describe("Integration", () => {
     );
     if (liquidityReceiving.lt(MIN_TOKEN)) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Adding liquidity");
-      const approvetx = await tokenReceiving.approve(txManagerReceiving.address, constants.MaxUint256);
-      const approveReceipt = await approvetx.wait(2);
-      logger.info(
-        { transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN },
-        "addLiquidity approved",
+      if (tokenAddressSending !== AddressZero) {
+        const approvetx = await tokenReceiving.approve(txManagerReceiving.address, constants.MaxUint256);
+        const approveReceipt = await approvetx.wait(2);
+        logger.info(
+          { transactionHash: approveReceipt.transactionHash, chainId: RECEIVING_CHAIN },
+          "addLiquidity approved",
+        );
+      }
+      const tx = await txManagerReceiving.addLiquidityFor(
+        TOKEN_GIFT,
+        tokenAddressReceiving,
+        router,
+        tokenAddressReceiving === AddressZero ? { value: BigNumber.from(TOKEN_GIFT) } : {},
       );
-      const tx = await txManagerReceiving.addLiquidityFor(TOKEN_GIFT, tokenAddressReceiving, router);
       const receipt = await tx.wait(2);
+
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "addLiquidity mined");
     }
-  });
+  };
 
   beforeEach(async () => {
     userWallet = Wallet.createRandom();
 
     // fund user sender side
     const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(userWallet.address);
-    if (balanceSending.lt(MIN_ETH)) {
+    if (balanceSending.lt(TOKEN_GIFT)) {
       logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
         .connect(chainProviders[SENDING_CHAIN].provider)
-        .sendTransaction({ to: userWallet.address, value: ETH_GIFT });
+        .sendTransaction({ to: userWallet.address, value: TOKEN_GIFT });
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to user mined: ");
     }
@@ -214,12 +241,17 @@ describe("Integration", () => {
   it("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
+    const sendingAssetId = erc20Address;
+    const receivingAssetId = erc20Address;
+
+    await setupBeforeEach(sendingAssetId, receivingAssetId);
+
     let quote: AuctionResponse;
     try {
       quote = await userSdk.getTransferQuote({
         amount: utils.parseEther("1").toString(),
-        receivingAssetId: tokenAddressReceiving,
-        sendingAssetId: tokenAddressSending,
+        receivingAssetId: sendingAssetId,
+        sendingAssetId: receivingAssetId,
         receivingAddress: userWallet.address,
         expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
         sendingChainId: SENDING_CHAIN,
@@ -232,10 +264,8 @@ describe("Integration", () => {
 
     expect(quote.bid).to.be.ok;
     expect(quote.bidSignature).to.be.ok;
-
     const res = await userSdk.prepareTransfer(quote!);
     expect(res.prepareResponse.hash).to.be.ok;
-
     const event = await userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,
       100_000,
@@ -254,15 +284,24 @@ describe("Integration", () => {
     expect(fulfillEvent).to.be.ok;
   });
 
-  it.skip("should send Native tokens", async function () {
+  it("should send Native tokens", async function () {
     this.timeout(120_000);
+
+    const sendingAssetId = AddressZero;
+    const receivingAssetId = AddressZero;
+
+    await setupBeforeEach(sendingAssetId, receivingAssetId);
+
+    const balance = await chainProviders[SENDING_CHAIN].provider.getBalance(txManagerAddressReceiving);
+    const balance2 = await chainProviders[RECEIVING_CHAIN].provider.getBalance(txManagerAddressSending);
+    console.log(utils.formatEther(balance), utils.formatEther(balance2));
 
     let quote: AuctionResponse;
     try {
       quote = await userSdk.getTransferQuote({
         amount: utils.parseEther("1").toString(),
-        receivingAssetId: AddressZero,
-        sendingAssetId: AddressZero,
+        receivingAssetId: sendingAssetId,
+        sendingAssetId: receivingAssetId,
         receivingAddress: userWallet.address,
         expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
         sendingChainId: SENDING_CHAIN,
