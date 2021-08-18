@@ -6,6 +6,8 @@ import { TransactionManager } from "@connext/nxtp-contracts/typechain";
 import { AuctionResponse, jsonifyError } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 
+const { AddressZero } = constants;
+
 const TestTokenABI = [
   // Read-Only Functions
   "function balanceOf(address owner) view returns (uint256)",
@@ -209,7 +211,7 @@ describe("Integration", () => {
     );
   });
 
-  it("should send tokens", async function () {
+  it("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
     let quote: AuctionResponse;
@@ -218,6 +220,49 @@ describe("Integration", () => {
         amount: utils.parseEther("1").toString(),
         receivingAssetId: tokenAddressReceiving,
         sendingAssetId: tokenAddressSending,
+        receivingAddress: userWallet.address,
+        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+        sendingChainId: SENDING_CHAIN,
+        receivingChainId: RECEIVING_CHAIN,
+      });
+    } catch (err) {
+      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
+      throw err;
+    }
+
+    expect(quote.bid).to.be.ok;
+    expect(quote.bidSignature).to.be.ok;
+
+    const res = await userSdk.prepareTransfer(quote!);
+    expect(res.prepareResponse.hash).to.be.ok;
+
+    const event = await userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const fulfillEventPromise = userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const finishRes = await userSdk.fulfillTransfer(event);
+    expect(finishRes.metaTxResponse).to.be.ok;
+    const fulfillEvent = await fulfillEventPromise;
+    expect(fulfillEvent).to.be.ok;
+  });
+
+  it("should send Native tokens", async function () {
+    this.timeout(120_000);
+
+    let quote: AuctionResponse;
+    try {
+      quote = await userSdk.getTransferQuote({
+        amount: utils.parseEther("1").toString(),
+        receivingAssetId: AddressZero,
+        sendingAssetId: AddressZero,
         receivingAddress: userWallet.address,
         expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
         sendingChainId: SENDING_CHAIN,
