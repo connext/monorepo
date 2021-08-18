@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.19
+
 - [contracts] Updated deployments for all chains.
 - [sdk] Add method to get historical transfers.
 
