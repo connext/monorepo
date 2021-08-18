@@ -42,7 +42,6 @@
     "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
   },
   "resolutions": {
-    "assemblyscript": "git+https://github.com/AssemblyScript/assemblyscript.git#v0.6",
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   }
 }
