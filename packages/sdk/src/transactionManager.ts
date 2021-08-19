@@ -295,32 +295,18 @@ export class TransactionManager {
    * @param assetId - The asset you want to check the liquidity of
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
-  getRouterLiquidity(
-    chainId: number,
-    router: string,
-    assetId: string,
-  ): ResultAsync<BigNumber, TransactionManagerError> {
+  async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
     const method = "Contract::getLiquidity";
     const methodId = getUuid();
 
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-        }),
-      );
+      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
+        methodId,
+        method,
+      });
     }
 
-    return ResultAsync.fromPromise(
-      txManager.routerBalances(router, assetId),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
-    );
+    return await txManager.routerBalances(router, assetId);
   }
 }

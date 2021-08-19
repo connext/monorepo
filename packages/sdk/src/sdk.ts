@@ -12,7 +12,7 @@ import {
   TransactionCancelledEvent,
   TChainId,
   encrypt,
-  generateMessagingInbox,
+  generateMessagingInbox as _generateMessagingInbox,
   AuctionResponse,
   encodeAuctionBid,
   InvariantTransactionData,
@@ -38,6 +38,7 @@ import {
   calculateExchangeWad,
   ERC20Abi,
   TransactionDataSchema,
+  delay,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -310,6 +311,14 @@ export const signFulfillTransactionPayload = async (
 /**
  * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
  *
+ */
+export const generateMessagingInbox = (): string => {
+  return _generateMessagingInbox();
+};
+
+/**
+ * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
+ *
  * @param bid - Bid information that should've been signed
  * @param signature - Signature to recover signer of
  * @returns Recovered signer
@@ -460,6 +469,8 @@ export class NxtpSdk {
     await this.messaging.subscribeToMetaTxResponse((inbox: string, data?: MetaTxResponse, err?: any) => {
       this.metaTxResponseEt.post({ inbox, data, err });
     });
+
+    await delay(1000);
   }
 
   /**
@@ -681,7 +692,7 @@ export class NxtpSdk {
       inbox,
     );
 
-    this.logger.info({ method, methodId, inbox }, `Waiting up to ${AUCTION_TIMEOUT} seconds for responses`);
+    this.logger.info({ method, methodId, inbox }, `Waiting up to ${AUCTION_TIMEOUT} ms for responses`);
     try {
       const auctionResponses = await auctionBidsPromise;
       this.logger.info({ method, methodId, auctionResponses, transactionId, inbox }, "Auction closed");
@@ -712,13 +723,13 @@ export class NxtpSdk {
           }
 
           // check contract for router liquidity
-          const routerLiq = await this.transactionManager.getRouterLiquidity(
-            receivingChainId,
-            data.bid.router,
-            receivingAssetId,
-          );
-          if (routerLiq.isOk()) {
-            if (routerLiq.value.lt(data.bid.amountReceived)) {
+          try {
+            const routerLiq = await this.transactionManager.getRouterLiquidity(
+              receivingChainId,
+              data.bid.router,
+              receivingAssetId,
+            );
+            if (routerLiq.lt(data.bid.amountReceived)) {
               const msg = "Router's liquidity low";
               this.logger.error(
                 { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
@@ -726,12 +737,10 @@ export class NxtpSdk {
               );
               return msg;
             }
-          } else {
-            this.logger.error(
-              { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-              routerLiq.error.message,
-            );
-            return routerLiq.error.message;
+          } catch (err) {
+            const msg = "Error getting router liquidity";
+            this.logger.error({ method, methodId, sendingChainId, receivingChainId, err: jsonifyError(err) }, msg);
+            return msg;
           }
 
           // check if the price changes unfovorably by more than the slippage tolerance(percentage).

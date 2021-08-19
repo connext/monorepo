@@ -1,11 +1,5 @@
-import {
-  mkAddress,
-  getRandomBytes32,
-  TransactionData,
-  expect,
-  transactionSubgraphMock,
-  txDataMock,
-} from "@connext/nxtp-utils";
+import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";

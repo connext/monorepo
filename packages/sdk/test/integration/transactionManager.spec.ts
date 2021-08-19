@@ -1,12 +1,14 @@
 import { ethers, waffle } from "hardhat";
-import { expect } from "chai";
-import { getRandomBytes32, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import {
   PrepareParams,
   FulfillParams,
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
+  getRandomBytes32,
+  InvariantTransactionData,
+  VariantTransactionData,
 } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { utils, constants } from "ethers";
 
 import {
@@ -230,12 +232,9 @@ describe("Transaction Manager", function () {
           bidSignature: EmptyBytes,
         };
 
-        const res = await userTransactionManager.prepare(InvalidChainId, prepareParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        await expect(userTransactionManager.prepare(InvalidChainId, prepareParams)).to.eventually.be.rejectedWith(
+          TransactionManagerError.reasons.NoTransactionManagerAddress,
+        );
       });
 
       it("should error if transaction fails", async () => {
@@ -250,12 +249,9 @@ describe("Transaction Manager", function () {
           bidSignature: EmptyBytes,
         };
 
-        const res = await userTransactionManager.prepare(transaction.sendingChainId, prepareParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        await expect(
+          userTransactionManager.prepare(transaction.sendingChainId, prepareParams),
+        ).to.eventually.be.rejectedWith("cannot estimate gas");
       });
 
       it("happy case", async () => {
@@ -296,12 +292,9 @@ describe("Transaction Manager", function () {
 
         await setBlockTime(+record.expiry + 1_000);
 
-        const res = await userTransactionManager.cancel(InvalidChainId, cancelParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        await expect(userTransactionManager.cancel(InvalidChainId, cancelParams)).to.eventually.be.rejectedWith(
+          TransactionManagerError.reasons.NoTransactionManagerAddress,
+        );
       });
 
       it("should error if transaction fails", async () => {
@@ -329,12 +322,9 @@ describe("Transaction Manager", function () {
           signature: signature,
         };
 
-        const res = await userTransactionManager.cancel(transaction.sendingChainId, cancelParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        await expect(
+          userTransactionManager.cancel(transaction.sendingChainId, cancelParams),
+        ).to.eventually.be.rejectedWith("cannot estimate gas");
       });
 
       it("happy case", async () => {
@@ -365,9 +355,8 @@ describe("Transaction Manager", function () {
         await setBlockTime(+record.expiry + 1_000);
 
         const res = await userTransactionManager.cancel(transaction.sendingChainId, cancelParams);
-        expect(res.isOk()).to.be.true;
 
-        const receipt = await (res as any).value.wait();
+        const receipt = await res.wait();
 
         expect(receipt.status).to.be.eq(1);
       });
@@ -404,25 +393,16 @@ describe("Transaction Manager", function () {
           callData: EmptyBytes,
         };
 
-        const res = await routerTransactionManager.fulfill(InvalidChainId, fulfillParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        await expect(routerTransactionManager.fulfill(InvalidChainId, fulfillParams)).to.eventually.be.rejectedWith(
+          TransactionManagerError.reasons.NoTransactionManagerAddress,
+        );
       });
 
       it("should error if transaction fails", async () => {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(
-          transaction,
-          record,
-          user,
-          transactionManager,
-          userTransactionManager,
-        );
+        await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
 
         const signature = await signFulfillTransactionPayload(
           transaction.transactionId,
@@ -439,12 +419,9 @@ describe("Transaction Manager", function () {
           callData: EmptyBytes,
         };
 
-        const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        await expect(
+          routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams),
+        ).to.eventually.be.rejectedWith("cannot estimate gas");
       });
 
       it("happy case", async () => {
@@ -476,9 +453,7 @@ describe("Transaction Manager", function () {
 
         const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);
 
-        expect(res.isOk()).to.be.true;
-
-        const receipt = await (res as any).value.wait();
+        const receipt = await res.wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -486,19 +461,15 @@ describe("Transaction Manager", function () {
     describe("approveTokensIfNeeded", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
-        const res = await userTransactionManager.approveTokensIfNeeded(InvalidChainId, tokenA.address, "1");
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        await expect(
+          userTransactionManager.approveTokensIfNeeded(InvalidChainId, tokenA.address, "1"),
+        ).to.eventually.be.rejectedWith(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("happy case", async () => {
         const res = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
-        expect(res.isOk()).to.be.true;
 
-        const receipt = await (res as any).value.wait();
+        const receipt = await res.wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -514,28 +485,20 @@ describe("Transaction Manager", function () {
     describe("getRouterLiquidity", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
-        const res = await routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address);
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        await expect(
+          routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address),
+        ).to.eventually.be.rejectedWith(TransactionManagerError.reasons.NoTransactionManagerAddress);
       });
 
       it("should error if txService error", async () => {
-        const res = await routerTransactionManager.getRouterLiquidity(sendingChainId, router.address, "0x");
-
-        expect(res.isOk()).to.be.false;
-        expect(res.isErr()).to.be.true;
-
-        expect((res as any).error.message).to.be.eq(TransactionManagerError.reasons.TxServiceError);
+        await expect(
+          routerTransactionManager.getRouterLiquidity(sendingChainId, router.address, "0x"),
+        ).to.eventually.be.rejectedWith("invalid address");
       });
 
       it("happy case", async () => {
         const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
-
-        expect(res.isOk()).to.be.true;
-        expect((res as any).value.toString()).to.be.eq(routerFunds);
+        expect(res.toString()).to.be.eq(routerFunds);
       });
     });
   });
