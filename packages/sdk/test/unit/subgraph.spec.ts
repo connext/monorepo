@@ -1,4 +1,5 @@
 import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
 import pino from "pino";
@@ -83,6 +84,7 @@ const convertMockedToActiveTransaction = (
     bidSignature,
     encodedBid,
     encryptedCallData,
+    preparedTimestamp: Math.floor(Date.now() / 1000),
     crosschainTx: {
       invariant: {
         receivingChainTxManagerAddress,
@@ -161,6 +163,7 @@ describe("Subgraph", () => {
       expiry: Math.floor(Date.now() / 1000) + day + 5_000,
       preparedBlockNumber: BigNumber.from(1),
       encryptedCallData: EmptyCallDataHash,
+      preparedTimestamp: Math.floor(Date.now() / 1000),
       prepareCaller: user,
       bidSignature: EmptyCallDataHash,
       encodedBid: EmptyCallDataHash,

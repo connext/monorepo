@@ -587,7 +587,7 @@ describe("NxtpSdk", () => {
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
           }),
-        ).to.eventually.be.rejectedWith(NxtpSdkError.reasons.ParamsError);
+        ).to.eventually.be.rejectedWith(NxtpSdkError.reasons.ConfigError);
       });
 
       it("unkown receivingChainId", async () => {
