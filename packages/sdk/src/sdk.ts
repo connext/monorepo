@@ -43,11 +43,8 @@ import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import {
-  TransactionManager,
-  getDeployedTransactionManagerContractAddress,
-  TransactionManagerError,
-} from "./transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContractAddress } from "./transactionManager";
+import { TransactionManagerError, SubmitError } from "./error";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
 
 /**
@@ -904,10 +901,10 @@ export class NxtpSdk {
             return ResultAsync.fromPromise(
               approveTx.wait(1),
               (err) =>
-                new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
-                  txError: jsonifyError(err as NxtpError),
-                  method,
-                  methodId,
+                new SubmitError(method, methodId, sendingChainId, err, {
+                  transactionId: txData.transactionId,
+                  transactionData: txData,
+                  params: transferParams,
                 }),
             );
           }
@@ -917,12 +914,20 @@ export class NxtpSdk {
           // handle optional approval
           if (approveReceipt) {
             if (approveReceipt?.status === 0) {
+              // NOTE: This block actually shouldn't be called - transaction service should always throw in the event of a tx revert.
+              // So we should be in the error block here.
               return errAsync(
-                new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, sendingChainId, {
-                  approveReceipt,
+                new SubmitError(
                   method,
                   methodId,
-                }),
+                  sendingChainId,
+                  "Transaction receipt status was zero. (Transaction service failure occurred! Receipt should never have status of 0 without an error.)",
+                  {
+                    transactionId: txData.transactionId,
+                    transactionData: txData,
+                    params: transferParams,
+                  },
+                ),
               );
             }
             this.logger.info(

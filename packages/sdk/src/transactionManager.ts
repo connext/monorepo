@@ -1,14 +1,7 @@
-
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
-import {
-  PrepareParams,
-  CancelParams,
-  FulfillParams,
-  NxtpError,
-  getUuid,
-} from "@connext/nxtp-utils";
+import { PrepareParams, CancelParams, FulfillParams, getUuid } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
@@ -283,8 +276,7 @@ export class TransactionManager {
 
     return ResultAsync.fromPromise(
       this.signer.getAddress(),
-      (err) =>
-        new SubmitError(method, methodId, chainId, err),
+      (err) => new SubmitError(method, methodId, chainId, err),
     ).andThen((signerAddress) => {
       const erc20 = new Contract(
         assetId,
@@ -294,15 +286,13 @@ export class TransactionManager {
 
       return ResultAsync.fromPromise(
         erc20.allowance(signerAddress, txManager.address),
-        (err) =>
-          new SubmitError(method, methodId, chainId, err),
+        (err) => new SubmitError(method, methodId, chainId, err),
       ).andThen((approved) => {
         this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
         if (approved.lt(amount)) {
           return ResultAsync.fromPromise(
             erc20.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount),
-            (err) =>
-              new SubmitError(method, methodId, chainId, err),
+            (err) => new SubmitError(method, methodId, chainId, err),
           );
         } else {
           this.logger.info({ method, methodId, approved: approved.toString(), amount }, "Allowance sufficient");
@@ -340,8 +330,7 @@ export class TransactionManager {
 
     return ResultAsync.fromPromise(
       txManager.routerBalances(router, assetId),
-      (err) =>
-        new SubmitError(method, methodId, chainId, err),
+      (err) => new SubmitError(method, methodId, chainId, err),
     );
   }
 }

@@ -1,15 +1,24 @@
-import { CancelParams, FulfillParams, jsonifyError, NxtpError, NxtpErrorJson, PrepareParams } from "@connext/nxtp-utils";
+import {
+  AuctionResponse,
+  CancelParams,
+  FulfillParams,
+  jsonifyError,
+  NxtpError,
+  PrepareParams,
+} from "@connext/nxtp-utils";
 import { providers } from "ethers";
 
 /**
  * @classdesc Abstract error class thrown by the `TransactionManager` class.
  */
-export class TransactionManagerError extends NxtpError {}
+export class TransactionManagerError extends NxtpError {
+  static readonly type = TransactionManagerError.name;
+}
 
 /**
  * @classdesc Error thrown by the `TransactionManager` class if no transactionManager was available for the specified chain.
  */
- export class ChainNotSupported extends TransactionManagerError {
+export class ChainNotSupported extends TransactionManagerError {
   static readonly type = ChainNotSupported.name;
 
   constructor(
@@ -24,12 +33,16 @@ export class TransactionManagerError extends NxtpError {}
       router?: string;
     } = {},
   ) {
-    super("No transactionManager found for chain.", {
-      method,
-      methodId,
-      chainId,
-      ...context,
-    }, ChainNotSupported.type);
+    super(
+      "No transactionManager found for chain.",
+      {
+        method,
+        methodId,
+        chainId,
+        ...context,
+      },
+      ChainNotSupported.type,
+    );
   }
 }
 
@@ -37,7 +50,7 @@ export class TransactionManagerError extends NxtpError {}
  * @classdesc Defines the error thrown by the `TransactionManager` class when a transaction fails to be submitted.
  */
 export class SubmitError extends TransactionManagerError {
-  static readonly type = "TransactionManagerError";
+  static readonly type = SubmitError.name;
 
   constructor(
     public readonly method: string,
@@ -48,15 +61,19 @@ export class SubmitError extends TransactionManagerError {
       transactionId?: string;
       approveReceipt?: providers.TransactionReceipt;
       transactionData?: any;
-      params?: PrepareParams | FulfillParams | CancelParams;
+      params?: PrepareParams | FulfillParams | CancelParams | AuctionResponse;
     } = {},
   ) {
-    super("Error submitting transaction", {
-      method,
-      methodId,
-      chainId,
-      txserviceError: jsonifyError(txserviceError as NxtpError),
-      ...context,
-    }, SubmitError.type);
+    super(
+      "Error submitting transaction",
+      {
+        method,
+        methodId,
+        chainId,
+        txserviceError: jsonifyError(txserviceError as NxtpError),
+        ...context,
+      },
+      SubmitError.type,
+    );
   }
 }
