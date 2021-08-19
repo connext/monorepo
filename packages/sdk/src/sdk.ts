@@ -1,4 +1,4 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet, Contract, logger } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   ajv,
@@ -664,7 +664,7 @@ export class NxtpSdk {
         .pipe((data) => data.inbox === inbox)
         .attach(auctionCtx, (data) => {
           if (!data.data || data.err) {
-            logger.warn({ inbox }, "Invalid bid received");
+            this.logger.warn({ inbox }, "Invalid bid received");
             return;
           }
           bids.push(data.data);
