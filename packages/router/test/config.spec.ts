@@ -105,7 +105,7 @@ describe("Config", () => {
         NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
-      const env = getEnvConfig();
+      const env = getEnvConfig(chainDataMock);
       expect(getConfig()).to.be.deep.eq(env);
     });
   });
