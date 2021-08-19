@@ -160,7 +160,7 @@ export class SdkAgent {
           fulfilling: true,
           address: this.address,
         });
-        process.exit(1);
+        // process.exit(1);
       }
       this.evts.TransactionCompleted.post({
         transactionId: data.txData.transactionId,
@@ -270,7 +270,7 @@ export class SdkAgent {
           timestamp: Date.now(),
           error: e.message,
         });
-        process.exit(1);
+        // process.exit(1);
       }
     });
   }
