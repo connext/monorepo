@@ -41,7 +41,8 @@ const CHAIN_DATA = new Promise<Map<string, any> | null>((resolve) => {
       // Cache the chain data locally.
       fs.writeFileSync("chaindata.json", JSON.stringify(data));
       resolve(chainDataToMap(data));
-    }).catch((err) => {
+    })
+    .catch((err) => {
       console.error(`Error occurred retrieving chain data from ${url}`, err);
       // Check to see if we have the chain data cached locally.
       if (fs.existsSync("./chaindata.json")) {
@@ -175,7 +176,9 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
 
   const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
   if (chainData == null && !overrideRecommendedConfirmations) {
-    throw new Error("No chain data provided.");
+    throw new Error(
+      "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
+    );
   }
   const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1").confirmations) + 3 : 10;
   // add contract deployments if they exist
