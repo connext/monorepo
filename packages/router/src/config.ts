@@ -225,7 +225,7 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    throw new Error(validate.errors?.map((err) => err.message).join(","));
+    throw new Error(validate.errors?.map((err: any) => err.message).join(","));
   }
 
   return nxtpConfig;
@@ -236,11 +236,13 @@ let nxtpConfig: NxtpRouterConfig | undefined;
 /**
  * Caches and returns the environment config
  *
+ * @param chainDataOverride - overrides the set chain data; used for debugging, unit tests, etc.
+ * 
  * @returns The config
  */
-export const getConfig = async (): Promise<NxtpRouterConfig> => {
+export const getConfig = async (chainDataOverride?: Map<string, any>): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    const chainData = await CHAIN_DATA;
+    const chainData = chainDataOverride ?? await CHAIN_DATA;
     nxtpConfig = getEnvConfig(chainData);
   }
   return nxtpConfig;
