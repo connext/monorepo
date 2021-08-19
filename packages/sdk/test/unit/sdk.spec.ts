@@ -506,7 +506,7 @@ describe("NxtpSdk", () => {
       );
     });
 
-    it.only("should error if prepare errors", async () => {
+    it("should error if prepare errors", async () => {
       const { auctionBid, bidSignature } = getMock();
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
@@ -520,7 +520,7 @@ describe("NxtpSdk", () => {
         }),
       );
       await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
-        NxtpSdkError.reasons.ParamsError,
+        TransactionManagerError.reasons.TxServiceError,
       );
     });
 
@@ -621,8 +621,14 @@ describe("NxtpSdk", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
+      stub(sdkUtils, "META_TX_TIMEOUT").value(1_000);
 
-      messaging.subscribeToMetaTxResponse.yields("inbox", new Error("fails"));
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          err: "Blahhh",
+        });
+      }, 200);
 
       await expect(
         sdk.fulfillTransfer({
@@ -632,33 +638,32 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith("fails");
+      ).to.eventually.be.rejectedWith("Evt timeout");
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
 
       const transactionHash = mkHash("0xc");
-      messaging.subscribeToMetaTxResponse.yields({
-        transactionHash: transactionHash,
-        chainId: sendingChainId,
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: {
+            transactionHash,
+            chainId: sendingChainId,
+          },
+        });
+      }, 200);
+
+      const res = await sdk.fulfillTransfer({
+        txData: { ...transaction, ...record },
+
+        encryptedCallData: EmptyCallDataHash,
+        encodedBid: EmptyCallDataHash,
+        bidSignature: EmptyCallDataHash,
       });
 
-      let error;
-      let res;
-      try {
-        res = await sdk.fulfillTransfer({
-          txData: { ...transaction, ...record },
-
-          encryptedCallData: EmptyCallDataHash,
-          encodedBid: EmptyCallDataHash,
-          bidSignature: EmptyCallDataHash,
-        });
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
       expect(res.metaTxResponse.transactionHash).to.be.eq(transactionHash);
       expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
     });
@@ -677,13 +682,17 @@ describe("NxtpSdk", () => {
         }),
       );
       await expect(
-        sdk.fulfillTransfer({
-          txData: { ...transaction, ...record },
+        sdk.fulfillTransfer(
+          {
+            txData: { ...transaction, ...record },
 
-          encryptedCallData: EmptyCallDataHash,
-          encodedBid: EmptyCallDataHash,
-          bidSignature: EmptyCallDataHash,
-        }),
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          },
+          "0",
+          false,
+        ),
       ).to.eventually.be.rejectedWith(TransactionManagerError.reasons.TxServiceError);
     });
 

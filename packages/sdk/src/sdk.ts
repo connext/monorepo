@@ -111,7 +111,8 @@ export const getDecimals = async (assetId: string, provider: providers.FallbackP
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6 * 1_000;
+export const AUCTION_TIMEOUT = 6_000;
+export const META_TX_TIMEOUT = 60_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
@@ -347,7 +348,7 @@ export class NxtpSdk {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
-  private readonly metaTxResponseEt = createMessagingEvt<MetaTxResponse>();
+  private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
   constructor(
     private readonly chainConfig: {
@@ -467,7 +468,7 @@ export class NxtpSdk {
     });
 
     await this.messaging.subscribeToMetaTxResponse((inbox: string, data?: MetaTxResponse, err?: any) => {
-      this.metaTxResponseEt.post({ inbox, data, err });
+      this.metaTxResponseEvt.post({ inbox, data, err });
     });
 
     await delay(1000);
@@ -1031,6 +1032,7 @@ export class NxtpSdk {
     }
 
     if (useRelayers) {
+      this.logger.info({ method, methodId }, "Fulfilling using relayers");
       if (!this.messaging.isConnected()) {
         await this.initMessaging();
       }
@@ -1038,31 +1040,34 @@ export class NxtpSdk {
       // send through messaging to metatx relayers
       const responseInbox = generateMessagingInbox();
 
-      const [response] = await Promise.all([
-        this.metaTxResponseEt
-          .pipe((data) => data.inbox === responseInbox && !!data.data?.transactionHash)
-          .waitFor(60_000),
-        this.messaging.publishMetaTxRequest(
-          {
-            type: "Fulfill",
-            relayerFee,
-            to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
-            chainId: txData.receivingChainId,
-            data: {
-              relayerFee,
-              signature,
-              txData,
-              callData,
-            },
-          },
-          responseInbox,
-        ),
-      ]);
+      const metaTxProm = this.metaTxResponseEvt
+        .pipe((data) => data.inbox === responseInbox)
+        .pipe((data) => !!data.data?.transactionHash)
+        .pipe((data) => !data.err)
+        .waitFor(META_TX_TIMEOUT);
 
+      await this.messaging.publishMetaTxRequest(
+        {
+          type: "Fulfill",
+          relayerFee,
+          to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+          chainId: txData.receivingChainId,
+          data: {
+            relayerFee,
+            signature,
+            txData,
+            callData,
+          },
+        },
+        responseInbox,
+      );
+
+      const response = await metaTxProm;
       const metaTxRes = response.data;
       this.logger.info({ method, methodId }, "Method complete");
       return { metaTxResponse: metaTxRes };
     } else {
+      this.logger.info({ method, methodId }, "Fulfilling with user's signer");
       const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
         callData,
         relayerFee,
@@ -1123,7 +1128,7 @@ export class NxtpSdk {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
-    this.metaTxResponseEt.detach();
+    this.metaTxResponseEvt.detach();
     this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();
