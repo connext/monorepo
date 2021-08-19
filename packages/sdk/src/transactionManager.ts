@@ -1,45 +1,20 @@
-import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
-import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { BaseLogger } from "pino";
 import {
   PrepareParams,
   CancelParams,
   FulfillParams,
   NxtpError,
-  NxtpErrorJson,
-  Values,
-  jsonifyError,
   getUuid,
 } from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
+import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-/**
- * @classdesc Defines the error thrown by the `TransactionManager` class
- */
-export class TransactionManagerError extends NxtpError {
-  static readonly type = "TransactionManagerError";
-  static readonly reasons = {
-    TxServiceError: "Error submitting transaction",
-    NoTransactionManagerAddress: "No transactionManager found for chain",
-  };
-
-  constructor(
-    public readonly message: Values<typeof TransactionManagerError.reasons> | string,
-    public readonly chainId: number,
-    public readonly context: {
-      txError?: NxtpErrorJson;
-      approveReceipt?: providers.TransactionReceipt;
-      methodId: string;
-      method: string;
-      transactionId?: string;
-    },
-  ) {
-    super(message, context, TransactionManagerError.type);
-  }
-}
+import { TransactionManagerError, ChainNotSupported, SubmitError } from "./error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -129,9 +104,8 @@ export class TransactionManager {
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
+        new ChainNotSupported(method, methodId, chainId, {
+          transactionId: prepareParams?.txData?.transactionId ?? "",
         }),
       );
     }
@@ -164,10 +138,10 @@ export class TransactionManager {
           { value: constants.Zero, from: this.signer.getAddress() },
         ),
       (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
+        new SubmitError(method, methodId, chainId, err, {
+          transactionId: txData.transactionId,
+          transactionData: txData,
+          params: prepareParams,
         }),
     ).andThen((tx) => {
       this.logger.info({ txHash: tx.hash, method, methodId }, "Prepare transaction submitted");
@@ -200,9 +174,7 @@ export class TransactionManager {
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
+        new ChainNotSupported(method, methodId, chainId, {
           transactionId: cancelParams?.txData?.transactionId ?? "",
         }),
       );
@@ -214,11 +186,10 @@ export class TransactionManager {
         .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
         .cancel(txData, signature, { from: this.signer.getAddress() }),
       (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-          transactionId: cancelParams?.txData?.transactionId ?? "",
+        new SubmitError(method, methodId, chainId, err, {
+          transactionId: txData.transactionId,
+          transactionData: txData,
+          params: cancelParams,
         }),
     ).andThen((tx) => {
       this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
@@ -253,9 +224,8 @@ export class TransactionManager {
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
+        new ChainNotSupported(method, methodId, chainId, {
+          transactionId: fulfillParams?.txData?.transactionId ?? "",
         }),
       );
     }
@@ -268,10 +238,10 @@ export class TransactionManager {
           from: this.signer.getAddress(),
         }),
       (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
+        new SubmitError(method, methodId, chainId, err, {
+          transactionId: txData.transactionId,
+          transactionData: txData,
+          params: fulfillParams,
         }),
     ).andThen((tx) => {
       this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
@@ -304,9 +274,9 @@ export class TransactionManager {
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
+        new ChainNotSupported(method, methodId, chainId, {
+          assetId,
+          amount,
         }),
       );
     }
@@ -314,11 +284,7 @@ export class TransactionManager {
     return ResultAsync.fromPromise(
       this.signer.getAddress(),
       (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
+        new SubmitError(method, methodId, chainId, err),
     ).andThen((signerAddress) => {
       const erc20 = new Contract(
         assetId,
@@ -329,22 +295,14 @@ export class TransactionManager {
       return ResultAsync.fromPromise(
         erc20.allowance(signerAddress, txManager.address),
         (err) =>
-          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-            method,
-            methodId,
-            txError: jsonifyError(err as NxtpError),
-          }),
+          new SubmitError(method, methodId, chainId, err),
       ).andThen((approved) => {
         this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
         if (approved.lt(amount)) {
           return ResultAsync.fromPromise(
             erc20.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount),
             (err) =>
-              new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-                method,
-                methodId,
-                txError: jsonifyError(err as NxtpError),
-              }),
+              new SubmitError(method, methodId, chainId, err),
           );
         } else {
           this.logger.info({ method, methodId, approved: approved.toString(), amount }, "Allowance sufficient");
@@ -373,9 +331,9 @@ export class TransactionManager {
     const txManager = this.chainConfig[chainId]?.transactionManager;
     if (!txManager) {
       return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
+        new ChainNotSupported(method, methodId, chainId, {
+          assetId,
+          router,
         }),
       );
     }
@@ -383,11 +341,7 @@ export class TransactionManager {
     return ResultAsync.fromPromise(
       txManager.routerBalances(router, assetId),
       (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
+        new SubmitError(method, methodId, chainId, err),
     );
   }
 }
