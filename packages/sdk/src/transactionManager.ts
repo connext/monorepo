@@ -8,13 +8,11 @@ import {
   NxtpError,
   NxtpErrorJson,
   Values,
-  jsonifyError,
   getUuid,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 /**
  * @classdesc Defines the error thrown by the `TransactionManager` class
@@ -24,6 +22,7 @@ export class TransactionManagerError extends NxtpError {
   static readonly reasons = {
     TxServiceError: "Error submitting transaction",
     NoTransactionManagerAddress: "No transactionManager found for chain",
+    NoProvider: "No provider configured for chain",
   };
 
   constructor(
@@ -123,40 +122,48 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
       throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
         methodId,
         method,
       });
     }
 
+    if (!provider) {
+      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
+        method,
+        methodId,
+      });
+    }
+
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const tx = await txManager
-      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-      .prepare(
-        {
-          receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-          user: txData.user,
-          router: txData.router,
-          sendingAssetId: txData.sendingAssetId,
-          receivingAssetId: txData.receivingAssetId,
-          sendingChainFallback: txData.sendingChainFallback,
-          callTo: txData.callTo,
-          receivingAddress: txData.receivingAddress,
-          sendingChainId: txData.sendingChainId,
-          receivingChainId: txData.receivingChainId,
-          callDataHash: txData.callDataHash,
-          transactionId: txData.transactionId,
-        },
-        amount,
-        expiry,
-        encryptedCallData,
-        encodedBid,
-        bidSignature,
-        { value: constants.Zero, from: this.signer.getAddress() },
-      );
+    const tx = await transactionManager.connect(this.signer.connect(provider)).prepare(
+      {
+        receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
+        receivingAddress: txData.receivingAddress,
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
+        callDataHash: txData.callDataHash,
+        transactionId: txData.transactionId,
+      },
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
+      {
+        value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
+        from: await this.signer.getAddress(),
+      },
+    );
     this.logger.info({ txHash: tx.hash, method, methodId }, "Prepare transaction submitted");
     return tx;
   }
@@ -180,18 +187,24 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
       throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
         methodId,
         method,
-        transactionId: cancelParams?.txData?.transactionId ?? "",
+      });
+    }
+
+    if (!provider) {
+      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
+        method,
+        methodId,
       });
     }
 
     const { txData, signature } = cancelParams;
-    const tx = await txManager
-      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
+    const tx = await transactionManager
+      .connect(this.signer.connect(provider))
       .cancel(txData, signature, { from: this.signer.getAddress() });
 
     this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
@@ -219,17 +232,24 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
       throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
         methodId,
         method,
       });
     }
 
+    if (!provider) {
+      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
+        method,
+        methodId,
+      });
+    }
+
     const { txData, relayerFee, signature, callData } = fulfillParams;
-    const tx = await txManager
-      .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
+    const tx = await transactionManager
+      .connect(this.signer.connect(provider))
       .fulfill(txData, relayerFee, signature, callData, {
         from: this.signer.getAddress(),
       });
@@ -259,26 +279,28 @@ export class TransactionManager {
 
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
-    const config = this.chainConfig[chainId];
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
       throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
         methodId,
         method,
       });
     }
 
-    const signerAddress = await this.signer.getAddress();
-    const erc20 = new Contract(
-      assetId,
-      ERC20.abi,
-      this.signer.provider ? this.signer : this.signer.connect(config.provider),
-    ) as IERC20Minimal;
+    if (!provider) {
+      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
+        method,
+        methodId,
+      });
+    }
 
-    const approved = await erc20.allowance(signerAddress, txManager.address);
+    const signerAddress = await this.signer.getAddress();
+    const erc20 = new Contract(assetId, ERC20.abi, this.signer.connect(provider)) as IERC20Minimal;
+
+    const approved = await erc20.allowance(signerAddress, transactionManager.address);
     this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
     if (approved.lt(amount)) {
-      const tx = await erc20.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount);
+      const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
       this.logger.info({ txHash: tx.hash, method, methodId }, "Approve transaction submitted");
       return tx;
     } else {
