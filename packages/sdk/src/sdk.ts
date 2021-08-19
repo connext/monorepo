@@ -1,4 +1,4 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract, logger } from "ethers";
 import { Evt } from "evt";
 import {
   ajv,
@@ -106,17 +106,6 @@ export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
   const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
   return decimals;
-};
-
-/**
- * Gets the inbox and evt for a given auction. Can be done inline,
- * but done as a helper for mocking.
- */
-export const getAuctionRequestContext = () => {
-  const inbox = generateMessagingInbox();
-
-  const evt = Evt.create<AuctionResponse>();
-  return { inbox, evt };
 };
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
@@ -331,6 +320,13 @@ export const recoverAuctionBid = (bid: AuctionBid, signature: string): string =>
 };
 
 /**
+ * Used to make mocking easier
+ */
+export const createMessagingEvt = <T>() => {
+  return Evt.create<{ inbox: string; data?: T; err?: any }>();
+};
+
+/**
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
  *
  */
@@ -339,6 +335,11 @@ export class NxtpSdk {
   private readonly transactionManager: TransactionManager;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
+
+  // Keep messaging evts separate from the evt container that has things
+  // attached to it
+  private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
+  private readonly metaTxResponseEt = createMessagingEvt<MetaTxResponse>();
 
   private constructor(
     private readonly chainConfig: {
@@ -468,20 +469,16 @@ export class NxtpSdk {
     const sdk = new NxtpSdk(chainConfig, signer, logger, network, natsUrl, authUrl, messaging);
 
     // Setup the subscriptions
+    await sdk.messaging.connect();
+    await sdk.messaging.subscribeToAuctionResponse((inbox: string, data?: AuctionResponse, err?: any) => {
+      sdk.auctionResponseEvt.post({ inbox, data, err });
+    });
+
+    await sdk.messaging.subscribeToMetaTxResponse((inbox: string, data?: MetaTxResponse, err?: any) => {
+      sdk.metaTxResponseEt.post({ inbox, data, err });
+    });
 
     return sdk;
-  }
-
-  /**
-   * Connects the messaging service used by the user
-   *
-   * @param bearerToken - (optional) The messaging bearer token. If not provided, one will be created and returned
-   *
-   * @returns The used bearer token
-   */
-  public async connectMessaging(bearerToken?: string): Promise<string> {
-    const token = await this.messaging.connect(bearerToken);
-    return token;
   }
 
   /**
@@ -643,38 +640,39 @@ export class NxtpSdk {
       }
     }
 
-    if (!this.messaging.isConnected()) {
-      await this.messaging.connect();
-    }
-
-    const { inbox, evt } = getAuctionRequestContext();
-
-    await this.messaging.subscribeToAuctionResponse(inbox, (data, err) => {
-      if (err || !data) {
-        this.logger.error({ method, methodId, err, data }, "Error in auction response");
-        return;
-      }
-
-      this.logger.info({ method, methodId, transactionId, inbox, data }, "Got auction response");
-
-      evt.post(data);
-    });
+    const inbox = generateMessagingInbox();
 
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
       if (dryRun) {
         try {
-          const result = await evt.waitFor(AUCTION_TIMEOUT);
-          return resolve([result]);
+          const result = await this.auctionResponseEvt
+            .pipe((data) => data.inbox === inbox)
+            .pipe((data) => {
+              if (!data.data || data.err) {
+                return false;
+              }
+              return true;
+            })
+            .waitFor(AUCTION_TIMEOUT);
+          return resolve([result.data!]);
         } catch (e) {
           return reject(e);
         }
       }
+      const auctionCtx = Evt.newCtx();
       const bids: AuctionResponse[] = [];
-      evt.attach((data) => {
-        bids.push(data);
-      });
+      this.auctionResponseEvt
+        .pipe((data) => data.inbox === inbox)
+        .attach(auctionCtx, (data) => {
+          if (!data.data || data.err) {
+            logger.debug({ inbox }, "Invalid bid received");
+            return;
+          }
+          bids.push(data.data);
+        });
 
       setTimeout(async () => {
+        this.auctionResponseEvt.detach(auctionCtx);
         return resolve(bids);
       }, AUCTION_TIMEOUT);
     });
@@ -825,10 +823,6 @@ export class NxtpSdk {
     } catch (e) {
       this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
       throw e;
-    } finally {
-      await this.messaging.unsubscribe(inbox);
-      evt.detach();
-      this.logger.info({ method, methodId, transactionId, inbox }, "Unsubscribed from bids");
     }
   }
 
@@ -1116,35 +1110,38 @@ export class NxtpSdk {
 
         return ResultAsync.fromPromise(
           new Promise<MetaTxResponse>(async (resolve, reject) => {
-            if (!this.messaging.isConnected()) {
-              await this.messaging.connect();
-            }
+            try {
+              const [response] = await Promise.all([
+                this.metaTxResponseEt.pipe((data) => data.inbox === responseInbox).waitFor(),
+                this.messaging.publishMetaTxRequest(
+                  {
+                    type: "Fulfill",
+                    relayerFee,
+                    to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+                    chainId: txData.receivingChainId,
+                    data: {
+                      relayerFee,
+                      signature,
+                      txData,
+                      callData,
+                    },
+                  },
+                  responseInbox,
+                ),
+              ]);
 
-            await this.messaging.subscribeToMetaTxResponse(responseInbox, (data, err) => {
-              this.logger.info({ method, methodId, data, err }, "MetaTx response received");
-              if (err || !data) {
-                this.logger.error({ error: jsonifyError(err) }, "Got error from metatx");
-                return reject(err);
+              if (response.err) {
+                return reject(response.err);
               }
-              this.logger.info({ method, methodId, responseInbox, data }, "Fulfill metaTx response received");
-              return resolve(data);
-            });
 
-            await this.messaging.publishMetaTxRequest(
-              {
-                type: "Fulfill",
-                relayerFee,
-                to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
-                chainId: txData.receivingChainId,
-                data: {
-                  relayerFee,
-                  signature,
-                  txData,
-                  callData,
-                },
-              },
-              responseInbox,
-            );
+              if (!response.data) {
+                return reject(new Error(`No data found in metatx response`));
+              }
+
+              return resolve(response.data);
+            } catch (e) {
+              return reject(e);
+            }
           }),
           (err) =>
             new NxtpSdkError(NxtpSdkError.reasons.MessagingError, {
