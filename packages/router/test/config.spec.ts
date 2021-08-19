@@ -1,9 +1,7 @@
 import { expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig } from "../src/config";
-import { configMock } from "./utils";
-
-const TEST_CHAIN_DATA = JSON.parse(fs.readFileSync("./chaindata.test.json", "utf-8"));
+import { configMock, chainDataMock } from "./utils";
 
 describe("Config", () => {
   afterEach(() => {
@@ -12,7 +10,7 @@ describe("Config", () => {
   });
 
   describe("getEnvConfig", () => {
-    it("should read config from NXTP Config with testnet network values ovveridden", () => {
+    it("should read config from NXTP Config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",
@@ -24,7 +22,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig(TEST_CHAIN_DATA);
+        res = getEnvConfig(chainDataMock);
       } catch (e) {
         error = e;
       }
@@ -32,7 +30,7 @@ describe("Config", () => {
       expect(error).to.be.undefined;
     });
 
-    it("should read config from NXTP Config with local network values ovveridden", () => {
+    it("should read config from NXTP Config with local network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",
@@ -43,7 +41,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig(TEST_CHAIN_DATA);
+        res = getEnvConfig(chainDataMock);
       } catch (e) {
         error = e;
       }
@@ -61,7 +59,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig(TEST_CHAIN_DATA);
+        res = getEnvConfig(chainDataMock);
       } catch (e) {
         error = e;
       }

@@ -180,7 +180,7 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
       "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1").confirmations) + 3 : 10;
+  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 10;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
@@ -206,7 +206,8 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
     }
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations;
-    const recommended = chainData?.get(chainId).confirmations ?? recommendedDefaultConfirmations;
+    console.log("HI", chainId);
+    const recommended = chainData?.get(chainId)?.confirmations ?? recommendedDefaultConfirmations;
     if (confirmations < recommended) {
       if (overrideRecommendedConfirmations) {
         console.warn(

@@ -106,3 +106,22 @@ export const singleChainTransactionMock: SingleChainTransaction = {
   status: SdkTransactionStatus.Fulfilled,
   txData: { ...invariantDataMock, ...variantDataMock },
 };
+
+const chainDataToMap = (data: any) => {
+  const chainData: Map<string, any> = new Map();
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const chainId = item.chainId.toString();
+    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
+  }
+  console.log(chainData);
+  return chainData;
+};
+
+export const chainDataMock = chainDataToMap([
+  {
+    "name": "Unit Test Chain",
+    "chainId": 1337,
+    "confirmations": 1,
+  },
+]);
