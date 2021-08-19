@@ -117,7 +117,7 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const sdk = await NxtpSdk.init(
+    const sdk = new NxtpSdk(
       chainProviders,
       signer,
       logger.child({ name: "Sdk" }),
@@ -126,6 +126,7 @@ export class SdkAgent {
       authUrl,
       messaging,
     );
+    await sdk.initMessaging();
     const agent = new SdkAgent(address, chainProviders, signer, logger, sdk);
 
     // Parrot all events
