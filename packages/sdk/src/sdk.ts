@@ -39,6 +39,7 @@ import {
   ERC20Abi,
   TransactionDataSchema,
   delay,
+  getOnchainBalance,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -879,6 +880,20 @@ export class NxtpSdk {
         methodId,
         configError: `Not configured for chains ${sendingChainId} & ${receivingChainId}`,
         transactionId,
+      });
+    }
+
+    const balance = await getOnchainBalance(
+      sendingAssetId,
+      await this.signer.getAddress(),
+      this.chainConfig[sendingChainId].provider,
+    );
+    if (balance.lt(amount)) {
+      throw new NxtpSdkError(NxtpSdkError.reasons.ParamsError, {
+        method,
+        methodId,
+        transactionId,
+        paramsError: `Insufficient balance of ${sendingAssetId}. Has ${balance.toString()}, needs ${amount}`,
       });
     }
 
