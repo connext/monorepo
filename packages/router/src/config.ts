@@ -206,7 +206,6 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
     }
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations;
-    console.log("HI", chainId);
     const recommended = chainData?.get(chainId)?.confirmations ?? recommendedDefaultConfirmations;
     if (confirmations < recommended) {
       if (overrideRecommendedConfirmations) {
