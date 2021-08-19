@@ -380,7 +380,7 @@ export class Subgraph {
                 crosschainTx: {
                   invariant: {
                     user,
-                    router: receiverTx.router,
+                    router: receiverTx.router.id,
                     sendingChainId: Number(receiverTx.sendingChainId),
                     sendingAssetId: receiverTx.sendingAssetId,
                     sendingChainFallback: receiverTx.sendingChainFallback,
