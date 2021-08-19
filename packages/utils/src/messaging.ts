@@ -586,9 +586,12 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param inbox - Where relayers will be sending responses
    * @param handler - Callback to handle relayer responses
    */
-  async subscribeToMetaTxResponse(inbox: string, handler: (data?: MetaTxResponse, err?: any) => void): Promise<void> {
-    await this.subscribeToNxtpMessage(inbox, (data?: MetaTxResponse, err?: any) => {
-      return handler(data, err);
-    });
+  async subscribeToMetaTxResponse(handler: (inbox: string, data?: MetaTxResponse, err?: any) => void): Promise<void> {
+    await this.subscribeToNxtpMessageWithInbox<MetaTxResponse>(
+      `*.*.${METATX_SUBJECT}.response`,
+      (inbox: string, data?: MetaTxResponse, err?: NxtpErrorJson) => {
+        return handler(inbox, data, err);
+      },
+    );
   }
 }
