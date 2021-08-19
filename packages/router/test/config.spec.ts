@@ -83,7 +83,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig();
+        res = getEnvConfig(chainDataMock);
       } catch (e) {
         error = e;
       }
