@@ -664,7 +664,7 @@ export class NxtpSdk {
         .pipe((data) => data.inbox === inbox)
         .attach(auctionCtx, (data) => {
           if (!data.data || data.err) {
-            logger.debug({ inbox }, "Invalid bid received");
+            logger.warn({ inbox }, "Invalid bid received");
             return;
           }
           bids.push(data.data);
