@@ -3,6 +3,8 @@ import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig } from "../src/config";
 import { configMock } from "./utils";
 
+const TEST_CHAIN_DATA = JSON.parse(fs.readFileSync("./chaindata.test.json", "utf-8"));
+
 describe("Config", () => {
   afterEach(() => {
     restore();
@@ -22,7 +24,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig();
+        res = getEnvConfig(TEST_CHAIN_DATA);
       } catch (e) {
         error = e;
       }
@@ -41,7 +43,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig();
+        res = getEnvConfig(TEST_CHAIN_DATA);
       } catch (e) {
         error = e;
       }
@@ -59,7 +61,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig();
+        res = getEnvConfig(TEST_CHAIN_DATA);
       } catch (e) {
         error = e;
       }

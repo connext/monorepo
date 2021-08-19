@@ -1,0 +1,587 @@
+[
+  {
+    "name": "",
+    "chainId": 0,
+    "confirmations": 0,
+    "shortName": "",
+    "chain": "",
+    "network": "",
+    "networkId": 0,
+    "nativeCurrency": { "name": "", "symbol": "", "decimals": 18 },
+    "assetId": {},
+    "rpc": [],
+    "faucets": [],
+    "infoURL": ""
+  },
+  {
+    "name": "Ethereum Mainnet",
+    "chainId": 1,
+    "confirmations": 7,
+    "shortName": "eth",
+    "chain": "ETH",
+    "network": "mainnet",
+    "networkId": 1,
+    "nativeCurrency": { "name": "Ether", "symbol": "ETH", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      },
+      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0": {
+        "symbol": "MATIC",
+        "mainnetEquivalent": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"
+      },
+      "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942": {
+        "symbol": "MANA",
+        "mainnetEquivalent": "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"
+      },
+      "0x6B175474E89094C44Da98b954EedeAC495271d0F": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0xdAC17F958D2ee523a2206206994597C13D831ec7": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984": {
+        "symbol": "UNI",
+        "mainnetEquivalent": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+      },
+      "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": {
+        "symbol": "WETH",
+        "mainnetEquivalent": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      },
+      "0xB8c77482e45F1F44dE1745F52C74426C631bDD52": {
+        "symbol": "BNB",
+        "mainnetEquivalent": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
+      },
+      "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      },
+      "0x4fabb145d64652a948d72533023f6e7a623c7c53": {
+        "symbol": "BUSD",
+        "mainnetEquivalent": "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+      },
+      "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb": {
+        "symbol": "PLOTX",
+        "mainnetEquivalent": "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb"
+      }
+    },
+    "rpc": [
+      "https://mainnet.infura.io/v3/${INFURA_API_KEY}",
+      "wss://mainnet.infura.io/ws/v3/${INFURA_API_KEY}",
+      "https://api.mycryptoapi.com/eth",
+      "https://cloudflare-eth.com"
+    ],
+    "faucets": [],
+    "infoURL": "https://ethereum.org",
+    "explorers": [{ "name": "etherscan", "url": "https://etherscan.io", "icon": "etherscan", "standard": "EIP3091" }]
+  },
+  {
+    "name": "Ethereum Testnet Ropsten",
+    "chainId": 3,
+    "confirmations": 1,
+    "shortName": "rop",
+    "chain": "ETH",
+    "network": "ropsten",
+    "networkId": 3,
+    "nativeCurrency": { "name": "Ropsten Ether", "symbol": "ROP", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    "rpc": ["https://ropsten.infura.io/v3/${INFURA_API_KEY}", "wss://ropsten.infura.io/ws/v3/${INFURA_API_KEY}"],
+    "faucets": [],
+    "infoURL": "",
+    "explorers": [
+      { "name": "etherscan", "url": "https://ropsten.etherscan.io", "icon": "etherscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Ethereum Testnet Rinkeby",
+    "chainId": 4,
+    "confirmations": 1,
+    "shortName": "rin",
+    "chain": "ETH",
+    "network": "rinkeby",
+    "networkId": 4,
+    "nativeCurrency": { "name": "Rinkeby Ether", "symbol": "RIN", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      },
+      "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      },
+      "0xD92E713d051C37EbB2561803a3b5FBAbc4962431": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      }
+    },
+    "rpc": ["https://rinkeby.infura.io/v3/${INFURA_API_KEY}", "wss://rinkeby.infura.io/ws/v3/${INFURA_API_KEY}"],
+    "faucets": ["https://faucet.rinkeby.io"],
+    "infoURL": "https://www.rinkeby.io",
+    "explorers": [
+      { "name": "etherscan", "url": "https://rinkeby.etherscan.io", "icon": "etherscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Ethereum Testnet Görli",
+    "chainId": 5,
+    "confirmations": 1,
+    "shortName": "gor",
+    "chain": "ETH",
+    "network": "goerli",
+    "networkId": 5,
+    "nativeCurrency": { "name": "Görli Ether", "symbol": "GOR", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      },
+      "0x04dfd3cfca0e110b6b3c2e7d2384a851d1665988": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      },
+      "0x7a652687E2f9167cdC9831C0f9B5C3Ff5E5Bc5C7": {
+        "symbol": "PROPS",
+        "mainnetEquivalent": "0x6fe56c0bcdd471359019fcbc48863d6c3e9d4f41"
+      },
+      "0x07DDC851a1bee757335EBcd7B14348359fDaB60f": {
+        "symbol": "PLOTX",
+        "mainnetEquivalent": "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb"
+      }
+    },
+    "rpc": ["https://rpc.goerli.mudit.blog/", "https://rpc.slock.it/goerli ", "https://goerli.prylabs.net/"],
+    "faucets": ["https://goerli-faucet.slock.it/?address=${ADDRESS}", "https://faucet.goerli.mudit.blog"],
+    "infoURL": "https://goerli.net/#about",
+    "explorers": [
+      { "name": "etherscan", "url": "https://goerli.etherscan.io", "icon": "etherscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Ethereum Testnet Kovan",
+    "chainId": 42,
+    "confirmations": 1,
+    "shortName": "kov",
+    "chain": "ETH",
+    "network": "kovan",
+    "networkId": 42,
+    "nativeCurrency": { "name": "Kovan Ether", "symbol": "KOV", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      },
+      "0x67e1816bEEcB2a2852f9305049483f32b5c7ef60": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      },
+      "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0x0736d0c130b2ead47476cc262dbed90d7c4eeabd": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x48987E8B356e0dE474ddE9Bc10541F8106C88A23": {
+        "symbol": "PROPS",
+        "mainnetEquivalent": "0x6fe56c0bcdd471359019fcbc48863d6c3e9d4f41"
+      }
+    },
+    "rpc": [
+      "https://kovan.poa.network",
+      "http://kovan.poa.network:8545",
+      "https://kovan.infura.io/v3/${INFURA_API_KEY}",
+      "wss://kovan.infura.io/ws/v3/${INFURA_API_KEY}",
+      "ws://kovan.poa.network:8546"
+    ],
+    "faucets": ["https://faucet.kovan.network", "https://gitter.im/kovan-testnet/faucet"],
+    "infoURL": "https://kovan-testnet.github.io/website",
+    "explorers": [
+      { "name": "etherscan", "url": "https://kovan.etherscan.io", "icon": "etherscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Binance Smart Chain Mainnet",
+    "chainId": 56,
+    "confirmations": 10,
+    "shortName": "bnb",
+    "chain": "BSC",
+    "network": "mainnet",
+    "networkId": 56,
+    "nativeCurrency": { "name": "Binance Chain Native Token", "symbol": "BNB", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "BNB",
+        "mainnetEquivalent": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
+      },
+      "0x55d398326f99059fF775485246999027B3197955": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1": {
+        "symbol": "UNI",
+        "mainnetEquivalent": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+      },
+      "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0xe9e7cea3dedca5984780bafc599bd69add087d56": {
+        "symbol": "BUSD",
+        "mainnetEquivalent": "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+      },
+      "0x532197ec38756b9956190b845d99b4b0a88e4ca9": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      }
+    },
+    "rpc": [
+      "https://bsc-dataseed1.binance.org",
+      "https://bsc-dataseed2.binance.org",
+      "https://bsc-dataseed3.binance.org",
+      "https://bsc-dataseed4.binance.org",
+      "https://bsc-dataseed1.defibit.io",
+      "https://bsc-dataseed2.defibit.io",
+      "https://bsc-dataseed3.defibit.io",
+      "https://bsc-dataseed4.defibit.io",
+      "https://bsc-dataseed1.ninicoin.io",
+      "https://bsc-dataseed2.ninicoin.io",
+      "https://bsc-dataseed3.ninicoin.io",
+      "https://bsc-dataseed4.ninicoin.io",
+      "wss://bsc-ws-node.nariox.org"
+    ],
+    "faucets": [],
+    "infoURL": "https://www.binance.org",
+    "explorers": [{ "name": "bscscan", "url": "https://bscscan.com", "icon": "bscscan", "standard": "EIP3091" }]
+  },
+  {
+    "name": "Optimism Testnet Kovan",
+    "chainId": 69,
+    "confirmations": 1,
+    "shortName": "opt-kov",
+    "chain": "KOPT",
+    "network": "optimism-kovan",
+    "networkId": 69,
+    "nativeCurrency": { "name": "Ether", "symbol": "ETH", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "ETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    "rpc": ["https://kovan.optimism.io"],
+    "faucets": [],
+    "infoURL": "https://community.optimism.io/",
+    "explorers": [
+      {
+        "name": "optimismscan-kovan",
+        "url": "https://kovan-optimistic.etherscan.io",
+        "icon": "etherscan",
+        "standard": "EIP3091"
+      }
+    ]
+  },
+  {
+    "name": "Binance Smart Chain Testnet",
+    "chainId": 97,
+    "confirmations": 1,
+    "shortName": "bnbt",
+    "chain": "BSC",
+    "network": "testnet",
+    "networkId": 97,
+    "nativeCurrency": { "name": "Binance Chain Native Token", "symbol": "BNB", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "BNB",
+        "mainnetEquivalent": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
+      },
+      "0x532197ec38756b9956190b845d99b4b0a88e4ca9": {
+        "symbol": "PAID",
+        "mainnetEquivalent": "0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787"
+      },
+      "0xa5dd524379382a6a756920509109e078c7ba026c": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x9780881bf45b83ee028c4c1de7e0c168df8e9eef": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "0xc74cc783ed2dbcd06e06266e72ad9d9680cf3cee": {
+        "symbol": "BUSD",
+        "mainnetEquivalent": "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+      }
+    },
+    "rpc": [
+      "https://data-seed-prebsc-1-s1.binance.org:8545",
+      "https://data-seed-prebsc-2-s1.binance.org:8545",
+      "https://data-seed-prebsc-1-s2.binance.org:8545",
+      "https://data-seed-prebsc-2-s2.binance.org:8545",
+      "https://data-seed-prebsc-1-s3.binance.org:8545",
+      "https://data-seed-prebsc-2-s3.binance.org:8545"
+    ],
+    "faucets": ["https://testnet.binance.org/faucet-smart"],
+    "infoURL": "https://www.binance.org",
+    "explorers": [{ "name": "bscscan", "url": "https://testnet.bscscan.com", "icon": "bscscan", "standard": "EIP3091" }]
+  },
+  {
+    "name": "xDAI Chain",
+    "chainId": 100,
+    "confirmations": 10,
+    "shortName": "xdai",
+    "chain": "XDAI",
+    "network": "mainnet",
+    "networkId": 100,
+    "nativeCurrency": { "name": "xDAI", "symbol": "xDAI", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "XDAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0x4ECaBa5870353805a9F068101A40E0f32ed605C6": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x4537e328Bf7e4eFA29D05CAeA260D7fE26af9D74": {
+        "symbol": "UNI",
+        "mainnetEquivalent": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+      },
+      "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "0x44fA8E6f47987339850636F88629646662444217": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      }
+    },
+    "rpc": [
+      "https://rpc.xdaichain.com",
+      "https://xdai.poanetwork.dev",
+      "wss://rpc.xdaichain.com/wss",
+      "wss://xdai.poanetwork.dev/wss",
+      "http://xdai.poanetwork.dev",
+      "https://dai.poa.network",
+      "ws://xdai.poanetwork.dev:8546"
+    ],
+    "faucets": [],
+    "infoURL": "https://forum.poa.network/c/xdai-chain",
+    "explorers": [
+      { "name": "blockscout", "url": "https://blockscout.com/poa/xdai/", "icon": "blockscout", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Huobi ECO Chain Mainnet",
+    "chainId": 128,
+    "confirmations": 10,
+    "shortName": "heco",
+    "chain": "Heco",
+    "network": "mainnet",
+    "networkId": 128,
+    "nativeCurrency": { "name": "Huobi ECO Chain Native Token", "symbol": "HT", "decimals": 18 },
+    "rpc": ["https://http-mainnet.hecochain.com", "wss://ws-mainnet.hecochain.com"],
+    "faucets": [],
+    "infoURL": "https://www.hecochain.com",
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "HT",
+        "mainnetEquivalent": "0x6f259637dcD74C767781E37Bc6133cd6A68aa161"
+      },
+      "0x0298c2b32eaE4da002a15f36fdf7615BEa3DA047": {
+        "symbol": "HUSD",
+        "mainnetEquivalent": "0xdF574c24545E5FfEcb9a659c229253D4111d87e1"
+      }
+    },
+    "explorers": [
+      { "name": "hecoscan", "url": "https://scan.hecochain.com", "icon": "hecoscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Matic Mainnet",
+    "chainId": 137,
+    "confirmations": 10,
+    "shortName": "matic",
+    "chain": "Matic",
+    "network": "mainnet",
+    "networkId": 137,
+    "nativeCurrency": { "name": "Matic", "symbol": "MATIC", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000001010": {
+        "symbol": "MATIC",
+        "mainnetEquivalent": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"
+      },
+      "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      },
+      "0xA1c57f48F0Deb89f569dFbE6E2B7f46D33606fD4": {
+        "symbol": "MANA",
+        "mainnetEquivalent": "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"
+      },
+      "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0xb33EaAd8d922B1083446DC23f610c2567fB5180f": {
+        "symbol": "UNI",
+        "mainnetEquivalent": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+      },
+      "0xc2132D05D31c914a87C6611C10748AEb04B58e8F": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619": {
+        "symbol": "WETH (PoS)",
+        "mainnetEquivalent": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      },
+      "0xe82808eaA78339b06a691fd92E1Be79671cAd8D3": {
+        "symbol": "PLOTX",
+        "mainnetEquivalent": "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb"
+      }
+    },
+    "rpc": ["https://rpc-mainnet.matic.network", "wss://ws-mainnet.matic.network"],
+    "faucets": [],
+    "infoURL": "https://matic.network/",
+    "explorers": [
+      { "name": "polygonscan", "url": "https://polygonscan.com/", "icon": "polygonscan", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Fantom Opera",
+    "chainId": 250,
+    "confirmations": 10,
+    "shortName": "ftm",
+    "chain": "FTM",
+    "network": "mainnet",
+    "networkId": 250,
+    "nativeCurrency": { "name": "Fantom", "symbol": "FTM", "decimals": 18 },
+    "rpc": ["https://rpcapi.fantom.network"],
+    "faucets": [],
+    "explorers": [{ "name": "ftmscan", "url": "https://ftmscan.com", "icon": "ftmscan", "standard": "EIP3091" }],
+    "infoURL": "https://fantom.foundation",
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "FTM",
+        "mainnetEquivalent": "0x4e15361fd6b4bb609fa63c81a2be19d873717870"
+      },
+      "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e": {
+        "symbol": "DAI",
+        "mainnetEquivalent": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      },
+      "0x049d68029688eabf473097a2fc38ef61633a3c7a": {
+        "symbol": "USDT",
+        "mainnetEquivalent": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      },
+      "0x04068da6c83afcfa0e13ba15a6696662335d5b75": {
+        "symbol": "USDC",
+        "mainnetEquivalent": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+      }
+    }
+  },
+  {
+    "name": "Arbitrum One",
+    "chainId": 42161,
+    "confirmations": 10,
+    "shortName": "ArbOne",
+    "chain": "Arb",
+    "network": "arbitrum",
+    "networkId": 421611,
+    "nativeCurrency": { "name": "Arbitrum Ether", "symbol": "tETH", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "tETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    "rpc": ["https://arb1.arbitrum.io/rpc"],
+    "faucets": [],
+    "infoURL": "",
+    "explorers": [
+      "",
+      { "name": "arbitrum", "url": "https://explorer.arbitrum.io/", "icon": "arbitrum", "standard": "EIP3091" }
+    ]
+  },
+  {
+    "name": "Matic Testnet Mumbai",
+    "chainId": 80001,
+    "confirmations": 1,
+    "shortName": "maticmum",
+    "chain": "Matic",
+    "network": "testnet",
+    "networkId": 80001,
+    "nativeCurrency": { "name": "Matic", "symbol": "tMATIC", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000001010": {
+        "symbol": "MATIC",
+        "mainnetEquivalent": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"
+      },
+      "0x48987E8B356e0dE474ddE9Bc10541F8106C88A23": {
+        "symbol": "PROPS",
+        "mainnetEquivalent": "0x6fe56c0bcdd471359019fcbc48863d6c3e9d4f41"
+      },
+      "0x07DDC851a1bee757335EBcd7B14348359fDaB60f": {
+        "symbol": "PLOTX",
+        "mainnetEquivalent": "0x72F020f8f3E8fd9382705723Cd26380f8D0c66Bb"
+      }
+    },
+    "rpc": ["https://rpc-mumbai.matic.today", "wss://ws-mumbai.matic.today"],
+    "faucets": ["https://faucet.matic.network/"],
+    "infoURL": "https://matic.network/",
+    "explorers": [
+      {
+        "name": "maticvigil",
+        "url": "https://explorer-mumbai.maticvigil.com",
+        "icon": "maticvigil",
+        "standard": "EIP3091"
+      }
+    ]
+  },
+  {
+    "name": "Arbitrum Testnet Rinkeby",
+    "chainId": 421611,
+    "confirmations": 1,
+    "shortName": "ArbTest",
+    "chain": "Arb",
+    "network": "arbitrum",
+    "networkId": 421611,
+    "nativeCurrency": { "name": "Arbitrum Ether", "symbol": "tETH", "decimals": 18 },
+    "assetId": {
+      "0x0000000000000000000000000000000000000000": {
+        "symbol": "tETH",
+        "mainnetEquivalent": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    "rpc": ["https://rinkeby.arbitrum.io/rpc"],
+    "faucets": [],
+    "infoURL": "",
+    "explorers": [
+      "",
+      {
+        "name": "arbitrum",
+        "url": "https://rinkeby-explorer.arbitrum.io/#/",
+        "icon": "arbitrum",
+        "standard": "EIP3091"
+      }
+    ]
+  }
+]
