@@ -200,7 +200,7 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "TOKEN_GIFT to user mined: ");
     }
 
-    userSdk = new NxtpSdk(
+    userSdk = await NxtpSdk.init(
       chainProviders,
       userWallet,
       pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),

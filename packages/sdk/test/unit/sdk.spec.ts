@@ -56,9 +56,9 @@ describe("NxtpSdk", () => {
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
 
-  const auctionEvt = Evt.create<AuctionResponse>();
+  const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     provider1337 = createStubInstance(providers.FallbackProvider);
     (provider1337 as any)._isProvider = true;
     provider1338 = provider1337;
@@ -83,7 +83,7 @@ describe("NxtpSdk", () => {
 
     stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
-    stub(sdkUtils, "getAuctionRequestContext").returns({ evt: auctionEvt, inbox: generateMessagingInbox() });
+    stub(sdkUtils, "createMessagingEvt").returns(messageEvt);
 
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
@@ -97,7 +97,7 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
+    sdk = await NxtpSdk.init(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
@@ -188,7 +188,7 @@ describe("NxtpSdk", () => {
   };
 
   describe("#constructor", () => {
-    it("should error if transaction manager doesn't exist for chainId", () => {
+    it("should error if transaction manager doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
           provider: provider1337,
@@ -201,7 +201,7 @@ describe("NxtpSdk", () => {
       };
       let error;
       try {
-        const instance = new NxtpSdk(
+        const instance = await NxtpSdk.init(
           _chainConfig,
           signer,
           logger,
@@ -216,7 +216,7 @@ describe("NxtpSdk", () => {
       expect(error.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
     });
 
-    it("should error if subgraph doesn't exist for chainId", () => {
+    it("should error if subgraph doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
           provider: provider1337,
@@ -230,7 +230,7 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        const instance = new NxtpSdk(
+        const instance = await NxtpSdk.init(
           _chainConfig,
           signer,
           logger,
@@ -245,7 +245,7 @@ describe("NxtpSdk", () => {
       expect(error.message).to.be.eq(NxtpSdkError.reasons.ConfigError);
     });
 
-    it("happy: constructor, get transactionManager address", () => {
+    it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {
           provider: provider1337,
@@ -256,23 +256,14 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
-    });
-  });
-
-  describe("#connectMessaging", () => {
-    const assertMessaging = async (bearerToken?: string) => {
-      const res = await sdk.connectMessaging(bearerToken);
-      expect(res).to.be.eq(response);
-    };
-    it("happy connectMessaging with bearerToken", async () => {
-      const bearerToken = "hello";
-
-      await assertMessaging(bearerToken);
-    });
-
-    it("happy connectMessaging", async () => {
-      await assertMessaging();
+      const instance = await NxtpSdk.init(
+        chainConfig,
+        signer,
+        logger,
+        undefined,
+        "http://example.com",
+        "http://example.com",
+      );
     });
   });
 
@@ -408,7 +399,7 @@ describe("NxtpSdk", () => {
           sdk.getTransferQuote(crossChainParams),
           new Promise(async (resolve) => {
             await delay(200);
-            auctionEvt.post({ bidSignature, bid: auctionBid });
+            messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
             resolve(undefined);
           }),
         ]);
@@ -445,7 +436,7 @@ describe("NxtpSdk", () => {
           sdk.getTransferQuote(crossChainParams),
           new Promise(async (resolve) => {
             await delay(200);
-            auctionEvt.post({ bidSignature, bid: auctionBid });
+            messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
             resolve(undefined);
           }),
         ]);
@@ -473,7 +464,7 @@ describe("NxtpSdk", () => {
           sdk.getTransferQuote(crossChainParams),
           new Promise(async (resolve) => {
             await delay(200);
-            auctionEvt.post({ bidSignature, bid: auctionBid });
+            messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
             resolve(undefined);
           }),
         ]);
@@ -503,7 +494,7 @@ describe("NxtpSdk", () => {
           sdk.getTransferQuote(crossChainParams),
           new Promise(async (resolve) => {
             await delay(200);
-            auctionEvt.post({ bidSignature, bid: auctionBid });
+            messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
             resolve(undefined);
           }),
         ]);
@@ -529,7 +520,7 @@ describe("NxtpSdk", () => {
         sdk.getTransferQuote(crossChainParams),
         new Promise(async (resolve) => {
           await delay(200);
-          auctionEvt.post({ bidSignature: undefined, bid: auctionBid });
+          messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
           resolve(undefined);
         }),
       ]);
@@ -548,7 +539,7 @@ describe("NxtpSdk", () => {
         sdk.getTransferQuote(crossChainParams),
         new Promise(async (resolve) => {
           await delay(200);
-          auctionEvt.post({ bidSignature, bid: auctionBid });
+          messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
           resolve(undefined);
         }),
       ]);

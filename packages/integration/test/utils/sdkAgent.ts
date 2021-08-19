@@ -79,8 +79,6 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
  * @classdesc Manages a single agent assocuated with a single sdk instance. This class does not throw errors, instead emits them as events
  */
 export class SdkAgent {
-  private readonly sdk: NxtpSdk;
-
   private cyclicalContext: VoidCtx | undefined;
 
   private queue = new PriorityQueue({ concurrency: 1 });
@@ -89,25 +87,13 @@ export class SdkAgent {
 
   private constructor(
     public readonly address: string,
-    private readonly chainProviders: {
+    private readonly _chainProviders: {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
-    private readonly signer: Signer,
+    private readonly _signer: Signer,
     private readonly logger: BaseLogger,
-    natsUrl?: string,
-    authUrl?: string,
-    messaging?: UserNxtpNatsMessagingService,
-  ) {
-    this.sdk = new NxtpSdk(
-      this.chainProviders,
-      this.signer,
-      this.logger.child({ name: "SdkAgent" }),
-      "local",
-      natsUrl,
-      authUrl,
-      messaging,
-    );
-  }
+    private readonly sdk: NxtpSdk,
+  ) {}
 
   /**
    * Creates a new agent
@@ -131,7 +117,16 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const agent = new SdkAgent(address, chainProviders, signer, logger, natsUrl, authUrl, messaging);
+    const sdk = await NxtpSdk.init(
+      chainProviders,
+      signer,
+      logger.child({ name: "Sdk" }),
+      "local",
+      natsUrl,
+      authUrl,
+      messaging,
+    );
+    const agent = new SdkAgent(address, chainProviders, signer, logger, sdk);
 
     // Parrot all events
     agent.setupListeners();
