@@ -112,7 +112,7 @@ export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
-export const META_TX_TIMEOUT = 60_000;
+export const META_TX_TIMEOUT = 300_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
