@@ -106,7 +106,7 @@ function App(): React.ReactElement | null {
       const { chainId } = await signer.provider!.getNetwork();
       console.log("chainId: ", chainId);
       setInjectedProviderChainId(chainId);
-      const _sdk = await NxtpSdk.init(
+      const _sdk = new NxtpSdk(
         chainProviders,
         signer,
         pino({ level: "info" }),
