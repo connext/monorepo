@@ -5,6 +5,7 @@ import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
 import {
+  NxtpSdkError,
   NxtpSdkEvent,
   ReceiverTransactionCancelledPayload,
   ReceiverTransactionFulfilledPayload,
@@ -13,13 +14,19 @@ import {
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
 
-export const SubgraphUri: { [chainId: number]: string } = {
-  4: "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
-  5: "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
-  69: "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan",
-  80001: "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai",
-  421611: "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby",
+export const HistoricalTransactionStatus = {
+  FULFILLED: "FULFILLED",
+  CANCELLED: "CANCELLED",
+} as const;
+export type THistoricalTransactionStatus = typeof HistoricalTransactionStatus[keyof typeof HistoricalTransactionStatus];
+
+export type HistoricalTransaction = {
+  status: THistoricalTransactionStatus;
+  crosschainTx: CrosschainTransaction;
+  preparedTimestamp: number;
+  fulfilledTxHash?: string;
 };
+
 /**
  * Converts subgraph transactions to properly typed TransactionData
  *
@@ -34,7 +41,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
     sendingChainId: parseInt(transaction.sendingChainId),
     sendingAssetId: transaction.sendingAssetId,
     sendingChainFallback: transaction.sendingChainFallback,
-    amount: transaction.amount,
+    amount: transaction.amount.toString(),
     receivingChainId: parseInt(transaction.receivingChainId),
     receivingAssetId: transaction.receivingAssetId,
     receivingAddress: transaction.receivingAddress,
@@ -82,6 +89,7 @@ export type ActiveTransaction = {
   bidSignature: string;
   encodedBid: string;
   encryptedCallData: string;
+  preparedTimestamp: number;
 };
 
 /**
@@ -195,6 +203,7 @@ export class Subgraph {
                   encodedBid: senderTx.encodedBid,
                   encryptedCallData: senderTx.encryptedCallData,
                   transactionHash: senderTx.prepareTransactionHash,
+                  preparedTimestamp: senderTx.preparedTimestamp,
                 };
                 const tx: ActiveTransaction = {
                   ...common,
@@ -222,6 +231,7 @@ export class Subgraph {
                   encodedBid: correspondingReceiverTx.encodedBid,
                   encryptedCallData: correspondingReceiverTx.encryptedCallData,
                   transactionHash: correspondingReceiverTx.prepareTransactionHash,
+                  preparedTimestamp: senderTx.preparedTimestamp,
                 };
                 const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
 
@@ -264,7 +274,7 @@ export class Subgraph {
                 };
                 // if receiver is fulfilled, its a receiver fulfilled
                 // if we are not tracking it or the status changed post an event
-                if (active) {
+                if (!active || active.status !== SubgraphEvents.ReceiverTransactionFulfilled) {
                   this.activeTxs.delete(senderTx.transactionId);
                   this.evts.ReceiverTransactionFulfilled.post(tx);
                 }
@@ -284,7 +294,14 @@ export class Subgraph {
                 }
                 return undefined; // no longer active
               }
-              return undefined;
+
+              // Unrecognized corresponding status, likely an error with the
+              // subgraph. Throw an error
+              throw new NxtpSdkError(`Invalid tx status (${correspondingReceiverTx.status}), check subgraph`, {
+                method: this.getActiveTransactions.name,
+                methodId,
+                transactionId: correspondingReceiverTx.transactionId,
+              });
             });
           }),
         );
@@ -304,6 +321,148 @@ export class Subgraph {
       this.logger.debug({ methodId, methodName, all }, "Queried active txs");
     }
     return all;
+  }
+
+  async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
+    const methodName = "getHistoricalTransactions";
+    const methodId = getUuid();
+
+    const fulfilledTxs = await Promise.all(
+      Object.keys(this.sdks).map(async (c) => {
+        const user = (await this.user.getAddress()).toLowerCase();
+        const chainId = parseInt(c);
+        const subgraph = this.sdks[chainId];
+
+        // get all receiver fulfilled
+        const { transactions: receiverFulfilled } = await subgraph.GetReceiverTransactions({
+          receivingChainId: chainId,
+          userId: user,
+          status: TransactionStatus.Fulfilled,
+        });
+
+        // for each, break up receiving txs by chain
+        const receiverPerChain: Record<number, any[]> = {};
+        receiverFulfilled.forEach((tx) => {
+          if (!receiverPerChain[tx.sendingChainId]) {
+            receiverPerChain[tx.sendingChainId] = [tx];
+          } else {
+            receiverPerChain[tx.sendingChainId].push(tx);
+          }
+        });
+
+        const historicalTxs = await Promise.all(
+          Object.entries(receiverPerChain).map(async ([chainId, receiverTxs]) => {
+            const _sdk = this.sdks[parseInt(chainId)];
+            if (!_sdk) {
+              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+              return undefined;
+            }
+
+            const { transactions: correspondingSenderTxs } = await _sdk.GetTransactions({
+              transactionIds: receiverTxs.map((tx) => tx.transactionId),
+            });
+
+            return receiverTxs.map((receiverTx): HistoricalTransaction | undefined => {
+              const correspondingSenderTx = correspondingSenderTxs.find(
+                (tx) => tx.transactionId === receiverTx.transactionId,
+              );
+              if (!correspondingSenderTx) {
+                this.logger.error(
+                  { methodId, methodName, receiverTx },
+                  "No corresponding sender tx, this should never happen",
+                );
+                return undefined;
+              }
+              return {
+                status: HistoricalTransactionStatus.FULFILLED,
+                fulfilledTxHash: receiverTx.fulfillTransactionHash,
+                preparedTimestamp: correspondingSenderTx.preparedTimestamp,
+                crosschainTx: {
+                  invariant: {
+                    user,
+                    router: receiverTx.router,
+                    sendingChainId: Number(receiverTx.sendingChainId),
+                    sendingAssetId: receiverTx.sendingAssetId,
+                    sendingChainFallback: receiverTx.sendingChainFallback,
+                    receivingChainId: Number(receiverTx.receivingChainId),
+                    receivingAssetId: receiverTx.receivingAssetId,
+                    receivingAddress: receiverTx.receivingAddress,
+                    callTo: receiverTx.callTo,
+                    callDataHash: receiverTx.callDataHash,
+                    transactionId: receiverTx.transactionId,
+                    receivingChainTxManagerAddress: receiverTx.receivingChainTxManagerAddress,
+                  },
+                  sending: {
+                    amount: correspondingSenderTx.amount,
+                    expiry: Number(correspondingSenderTx.expiry),
+                    preparedBlockNumber: Number(correspondingSenderTx.preparedBlockNumber),
+                  },
+                  receiving: {
+                    amount: receiverTx.amount,
+                    expiry: Number(receiverTx.expiry),
+                    preparedBlockNumber: Number(receiverTx.preparedBlockNumber),
+                  },
+                },
+              };
+            });
+          }),
+        );
+        return historicalTxs
+          .filter((x) => !!x)
+          .flat()
+          .filter((x) => !!x) as HistoricalTransaction[];
+      }),
+    );
+
+    const cancelledTxs = await Promise.all(
+      Object.keys(this.sdks).map(async (c) => {
+        const user = (await this.user.getAddress()).toLowerCase();
+        const chainId = parseInt(c);
+        const subgraph = this.sdks[chainId];
+
+        // get all receiver fulfilled
+        const { transactions: senderCancelled } = await subgraph.GetSenderTransactions({
+          sendingChainId: chainId,
+          userId: user,
+          status: TransactionStatus.Cancelled,
+        });
+
+        const cancelled = senderCancelled.map((tx): HistoricalTransaction | undefined => {
+          return {
+            status: HistoricalTransactionStatus.CANCELLED,
+            preparedTimestamp: tx.preparedTimestamp,
+            crosschainTx: {
+              invariant: {
+                user,
+                router: tx.router.id,
+                sendingChainId: Number(tx.sendingChainId),
+                sendingAssetId: tx.sendingAssetId,
+                sendingChainFallback: tx.sendingChainFallback,
+                receivingChainId: Number(tx.receivingChainId),
+                receivingAssetId: tx.receivingAssetId,
+                receivingAddress: tx.receivingAddress,
+                callTo: tx.callTo,
+                callDataHash: tx.callDataHash,
+                transactionId: tx.transactionId,
+                receivingChainTxManagerAddress: tx.receivingChainTxManagerAddress,
+              },
+              sending: {
+                amount: tx.amount,
+                expiry: Number(tx.expiry),
+                preparedBlockNumber: Number(tx.preparedBlockNumber),
+              },
+            },
+          };
+        });
+
+        return cancelled
+          .filter((x) => !!x)
+          .flat()
+          .filter((x) => !!x) as HistoricalTransaction[];
+      }),
+    );
+
+    return fulfilledTxs.flat().concat(cancelledTxs.flat());
   }
 
   // Listener methods

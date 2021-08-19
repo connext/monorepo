@@ -48,6 +48,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   // Begin transfers
   log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
 
+  const startTime = Date.now();
   const killSwitch = await manager.startCyclicalTransfers({
     sendingAssetId,
     sendingChainId,
@@ -56,11 +57,16 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     amount: utils.parseEther("0.0000001").toString(),
   });
 
-  log.warn({}, "Activating kill switch");
-  setInterval(() => killSwitch(), durationMs);
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      log.warn({ duration, numberOfAgents, durationMs, startTime, now: Date.now() }, "Activating kill switch");
+      killSwitch();
+      resolve(undefined);
+    }, durationMs);
+  });
 
-  // Wait 60s for stragglers
-  await delay(30 * 1000);
+  // Wait 90s for stragglers
+  await delay(90 * 1000);
 
   log.warn({ duration, numberOfAgents }, "Test complete, printing summary");
 
@@ -74,4 +80,4 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   process.exit(0);
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "10"), parseInt(process.env.DURATION ?? "10"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "10"), parseInt(process.env.DURATION ?? "15"));

@@ -186,11 +186,13 @@ export class SdkManager {
       });
     }
 
-    return () => {
+    const killSwitch = () => {
       this.agents.map((agent) => {
         agent.cancelCyclicalTransfers();
       });
     };
+
+    return killSwitch;
   }
 
   /**
@@ -204,7 +206,7 @@ export class SdkManager {
         }
         return transfer.end - transfer.start;
       })
-      .filter((x) => !!x) as number[];
+      .filter((x) => typeof x !== "undefined") as number[];
     const total = times.reduce((a, b) => a + b, 0);
     const average = total / times.length;
     const longest = times.sort((a, b) => b - a)[0];

@@ -1,5 +1,4 @@
-import { mkAddress } from "@connext/nxtp-utils";
-import { variantDataMock, invariantDataMock } from "@connext/nxtp-utils/src/mock";
+import { mkAddress, variantDataMock, invariantDataMock } from "@connext/nxtp-utils";
 
 import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";

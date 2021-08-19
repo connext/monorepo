@@ -534,8 +534,6 @@ describe("NxtpSdk", () => {
         }),
       ]);
 
-      console.log("****** res");
-
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.undefined;
     });

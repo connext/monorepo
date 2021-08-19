@@ -1,0 +1,9 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "all": true,
+  "check-coverage": true,
+  "branches": 70,
+  "lines": 70,
+  "functions": 70,
+  "statements": 70
+}

@@ -1,7 +1,13 @@
-export { newAuction } from "./auction";
+import { newAuction } from "./auction";
+import { fulfill } from "./fulfill";
+import { prepare } from "./prepare";
+import { cancel } from "./cancel";
 
-export { fulfill } from "./fulfill";
-
-export { prepare } from "./prepare";
-
-export { cancel } from "./cancel";
+export const getOperations = () => {
+  return {
+    newAuction,
+    fulfill,
+    prepare,
+    cancel,
+  };
+};

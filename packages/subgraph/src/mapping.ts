@@ -118,6 +118,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // Meta
   transaction.status = "Prepared";
   transaction.chainId = chainId;
+  transaction.preparedTimestamp = event.block.timestamp;
 
   transaction.save();
 

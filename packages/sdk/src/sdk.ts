@@ -48,7 +48,7 @@ import {
   getDeployedTransactionManagerContractAddress,
   TransactionManagerError,
 } from "./transactionManager";
-import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction } from "./subgraph";
+import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
 
 /**
  * Utility to convert the number of hours into seconds
@@ -469,6 +469,16 @@ export class NxtpSdk {
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const txs = await this.subgraph.getActiveTransactions();
+    return txs;
+  }
+
+  /**
+   * Gets historical transactions
+   *
+   * @returns An array of historical transactions
+   */
+  public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
+    const txs = await this.subgraph.getHistoricalTransactions();
     return txs;
   }
 

@@ -3,8 +3,7 @@ import { constants, Contract, providers, utils, Wallet, BigNumber } from "ethers
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { AuctionResponse, jsonifyError } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils/src/expect";
+import { AuctionResponse, jsonifyError, expect } from "@connext/nxtp-utils";
 
 const { AddressZero } = constants;
 
