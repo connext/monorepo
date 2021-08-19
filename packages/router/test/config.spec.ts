@@ -93,7 +93,7 @@ describe("Config", () => {
   });
 
   describe("getConfig", () => {
-    it("should work", () => {
+    it("should work", async () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_AUTH_URL: configMock.authUrl,
@@ -106,7 +106,8 @@ describe("Config", () => {
       });
 
       const env = getEnvConfig(chainDataMock);
-      expect(getConfig()).to.be.deep.eq(env);
+      const config = await getConfig(chainDataMock);
+      expect(config).to.be.deep.eq(env);
     });
   });
 });

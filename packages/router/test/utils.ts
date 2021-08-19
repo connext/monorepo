@@ -114,7 +114,6 @@ const chainDataToMap = (data: any) => {
     const chainId = item.chainId.toString();
     chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
   }
-  console.log(chainData);
   return chainData;
 };
 
