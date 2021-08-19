@@ -12,6 +12,7 @@ import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
 export const metaTxRequestBinding = async (
+  from: string,
   inbox: string,
   data?: MetaTxPayload<any>,
   err?: NxtpErrorJson,
@@ -87,7 +88,7 @@ export const metaTxRequestBinding = async (
     requestContext,
   );
   if (tx) {
-    await messaging.publishMetaTxResponse(inbox, { chainId, transactionHash: tx.transactionHash });
+    await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
   }
   logger.info({ requestContext }, "Handled fulfill request");
 };

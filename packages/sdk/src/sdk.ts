@@ -463,11 +463,13 @@ export class NxtpSdk {
   async initMessaging() {
     // Setup the subscriptions
     await this.messaging.connect();
-    await this.messaging.subscribeToAuctionResponse((inbox: string, data?: AuctionResponse, err?: any) => {
-      this.auctionResponseEvt.post({ inbox, data, err });
-    });
+    await this.messaging.subscribeToAuctionResponse(
+      (_from: string, inbox: string, data?: AuctionResponse, err?: any) => {
+        this.auctionResponseEvt.post({ inbox, data, err });
+      },
+    );
 
-    await this.messaging.subscribeToMetaTxResponse((inbox: string, data?: MetaTxResponse, err?: any) => {
+    await this.messaging.subscribeToMetaTxResponse((_from: string, inbox: string, data?: MetaTxResponse, err?: any) => {
       this.metaTxResponseEvt.post({ inbox, data, err });
     });
 
