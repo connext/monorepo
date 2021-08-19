@@ -11,6 +11,7 @@ import {
   ActiveTransaction,
   createSubgraphEvts,
   SubgraphEvents,
+  HistoricalTransactionStatus,
 } from "../../src/subgraph";
 import * as graphqlsdk from "../../src/graphqlsdk";
 
@@ -414,6 +415,115 @@ describe("Subgraph", () => {
       }).resolves({ transactions: [receiver] });
 
       await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("Invalid tx status (fail), check subgraph");
+    });
+  });
+
+  describe("getHistoricalTransactions", async () => {
+    it("should fail if GetReceiverTransactions fails", async () => {
+      sdkStub.GetReceiverTransactions.rejects(new Error("fail"));
+
+      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+    });
+
+    it("should fail if GetTransactions fails", async () => {
+      sdkStub.GetReceiverTransactions.resolves({ transactions: [transactionSubgraphMock] });
+      sdkStub.GetTransactions.rejects(new Error("fail"));
+
+      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+    });
+
+    it("should fail if GetSenderTransactions fails", async () => {
+      sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+
+      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+    });
+
+    it("should ignore transactions without matching sender side tx", async () => {
+      sdkStub.GetReceiverTransactions.resolves({ transactions: [transactionSubgraphMock] });
+
+      const result = await subgraph.getHistoricalTransactions();
+      expect(result).to.be.deep.eq([]);
+    });
+
+    it("should return receiver fulfilled transactions", async () => {
+      sdkStub.GetReceiverTransactions.onCall(0).resolves({ transactions: [transactionSubgraphMock] });
+      sdkStub.GetReceiverTransactions.onCall(1).resolves({ transactions: [] });
+      sdkStub.GetTransactions.resolves({ transactions: [transactionSubgraphMock] });
+
+      const result = await subgraph.getHistoricalTransactions();
+      expect(result).to.be.deep.eq([
+        {
+          status: HistoricalTransactionStatus.FULFILLED,
+          fulfilledTxHash: transactionSubgraphMock.fulfillTransactionHash,
+          preparedTimestamp: transactionSubgraphMock.preparedTimestamp,
+          crosschainTx: {
+            invariant: {
+              user,
+              router: transactionSubgraphMock.router.id,
+              sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
+              sendingAssetId: transactionSubgraphMock.sendingAssetId,
+              sendingChainFallback: transactionSubgraphMock.sendingChainFallback,
+              receivingChainId: parseInt(transactionSubgraphMock.receivingChainId.toString()),
+              receivingAssetId: transactionSubgraphMock.receivingAssetId,
+              receivingAddress: transactionSubgraphMock.receivingAddress,
+              callTo: transactionSubgraphMock.callTo,
+              callDataHash: transactionSubgraphMock.callDataHash,
+              transactionId: transactionSubgraphMock.transactionId,
+              receivingChainTxManagerAddress: transactionSubgraphMock.receivingChainTxManagerAddress,
+            },
+            sending: {
+              amount: transactionSubgraphMock.amount,
+              expiry: parseInt(transactionSubgraphMock.expiry.toString()),
+              preparedBlockNumber: parseInt(transactionSubgraphMock.preparedBlockNumber.toString()),
+            },
+            receiving: {
+              amount: transactionSubgraphMock.amount,
+              expiry: parseInt(transactionSubgraphMock.expiry.toString()),
+              preparedBlockNumber: parseInt(transactionSubgraphMock.preparedBlockNumber.toString()),
+            },
+          },
+        },
+      ]);
+    });
+
+    it("should return sender cancelled transactions", async () => {
+      sdkStub.GetSenderTransactions.onCall(0).resolves({ transactions: [transactionSubgraphMock] });
+      sdkStub.GetSenderTransactions.onCall(1).resolves({ transactions: [] });
+      sdkStub.GetTransactions.resolves({ transactions: [transactionSubgraphMock] });
+
+      const result = await subgraph.getHistoricalTransactions();
+      expect(result).to.be.deep.eq([
+        {
+          status: HistoricalTransactionStatus.CANCELLED,
+          preparedTimestamp: transactionSubgraphMock.preparedTimestamp,
+          crosschainTx: {
+            invariant: {
+              user,
+              router: transactionSubgraphMock.router.id,
+              sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
+              sendingAssetId: transactionSubgraphMock.sendingAssetId,
+              sendingChainFallback: transactionSubgraphMock.sendingChainFallback,
+              receivingChainId: parseInt(transactionSubgraphMock.receivingChainId.toString()),
+              receivingAssetId: transactionSubgraphMock.receivingAssetId,
+              receivingAddress: transactionSubgraphMock.receivingAddress,
+              callTo: transactionSubgraphMock.callTo,
+              callDataHash: transactionSubgraphMock.callDataHash,
+              transactionId: transactionSubgraphMock.transactionId,
+              receivingChainTxManagerAddress: transactionSubgraphMock.receivingChainTxManagerAddress,
+            },
+            sending: {
+              amount: transactionSubgraphMock.amount,
+              expiry: parseInt(transactionSubgraphMock.expiry.toString()),
+              preparedBlockNumber: parseInt(transactionSubgraphMock.preparedBlockNumber.toString()),
+            },
+          },
+        },
+      ]);
+    });
+
+    it("should return an empty array if there were no receiver fulfilled transactions and no cancelled transactions", async () => {
+      const result = await subgraph.getHistoricalTransactions();
+      expect(result).to.be.deep.eq([]);
     });
   });
 
