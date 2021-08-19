@@ -1,6 +1,5 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-import https from "https";
-import { readFileSync } from "fs";
+import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
@@ -23,42 +22,37 @@ import {
   TIntegerString,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
+import { fetchJson } from "ethers/lib/utils";
 
-// TODO: Should we be caching chain data locally? Like, request at most once per day, or once per week?
-// Maybe there could be a versioning system of this remote config, and we can use that to check whether our
-// local cache is up to date?
-const CHAIN_DATA = new Promise<Map<string, any>>((resolve) => {
-  // TODO: Using raw github api is not a stable solution.
+const CHAIN_DATA = new Promise<Map<string, any> | null>((resolve) => {
   const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
-  https.get(
-    url,
-    {
-      headers: {
-        accept: "text/html",
-      },
-    },
-    (res) => {
-      let data = "";
-      res.on("data", (chunk) => {
-        data += chunk.toString();
-      });
-      res.on("error", (err) => {
-        console.error(err);
-        // Should we throw or simply log error here? It could be dangerous to let the router start without the chain data.
-        throw new Error("Could not fetch chain data from " + url);
-      });
-      res.on("end", () => {
-        const parsed = JSON.parse(data);
-        const chainData: Map<string, any> = new Map();
-        // Reorganize this list into a mapping by chain ID for quicker lookup.
-        parsed.forEach((item: any) => {
-          const chainId = item.chainId.toString();
-          chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
-        });
-        resolve(chainData);
-      });
-    },
-  );
+  // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
+  const chainDataToMap = (data: any) => {
+    const chainData: Map<string, any> = new Map();
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      const chainId = item.chainId.toString();
+      chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
+    }
+    return chainData;
+  };
+  fetchJson(url)
+    .then((data) => {
+      // Cache the chain data locally.
+      fs.writeFileSync("chaindata.json", JSON.stringify(data));
+      resolve(chainDataToMap(data));
+    }).catch((err) => {
+      console.error(`Error occurred retrieving chain data from ${url}`, err);
+      // Check to see if we have the chain data cached locally.
+      if (fs.existsSync("./chaindata.json")) {
+        console.log("Using cached chain data.");
+        const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
+        resolve(chainDataToMap(data));
+      }
+      // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
+      console.warn("Could not fetch chain data, and no cached chain data was available.");
+      resolve(null);
+    });
 });
 
 dotenvConfig();
@@ -110,7 +104,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, any>): NxtpRouterConfig => {
+export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -119,9 +113,9 @@ export const getEnvConfig = (chainData: Map<string, any>): NxtpRouterConfig => {
 
     if (process.env.NXTP_CONFIG_FILE) {
       console.log("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
-      json = readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
+      json = fs.readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
     } else {
-      json = readFileSync("config.json", "utf-8");
+      json = fs.readFileSync("config.json", "utf-8");
     }
     if (json) {
       configFile = JSON.parse(json);
@@ -180,7 +174,10 @@ export const getEnvConfig = (chainData: Map<string, any>): NxtpRouterConfig => {
   };
 
   const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
-  const recommendedDefaultConfirmations = parseInt(chainData.get("1").confirmations) + 3 || 10;
+  if (chainData == null && !overrideRecommendedConfirmations) {
+    throw new Error("No chain data provided.");
+  }
+  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1").confirmations) + 3 : 10;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
@@ -206,7 +203,7 @@ export const getEnvConfig = (chainData: Map<string, any>): NxtpRouterConfig => {
     }
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations;
-    const recommended = chainData.get(chainId).confirmations ?? recommendedDefaultConfirmations;
+    const recommended = chainData?.get(chainId).confirmations ?? recommendedDefaultConfirmations;
     if (confirmations < recommended) {
       if (overrideRecommendedConfirmations) {
         console.warn(
