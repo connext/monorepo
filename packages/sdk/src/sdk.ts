@@ -483,8 +483,7 @@ export class NxtpSdk {
    * @returns An array of the active transactions and their status
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
-    const txs = await this.subgraph.getActiveTransactions();
-    return txs;
+    return this.subgraph.getActiveTransactions();
   }
 
   /**
@@ -493,8 +492,7 @@ export class NxtpSdk {
    * @returns An array of historical transactions
    */
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
-    const txs = await this.subgraph.getHistoricalTransactions();
-    return txs;
+    return this.subgraph.getHistoricalTransactions();
   }
 
   /**

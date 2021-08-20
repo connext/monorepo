@@ -25,7 +25,7 @@ import {
 } from "../../src/sdk";
 
 import * as sdkUtils from "../../src/sdk";
-import { Subgraph } from "../../src/subgraph";
+import { HistoricalTransactionStatus, Subgraph } from "../../src/subgraph";
 import { TransactionManager, TransactionManagerError } from "../../src/transactionManager";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
 import { Evt } from "evt";
@@ -262,6 +262,36 @@ describe("NxtpSdk", () => {
     });
   });
 
+  describe("#initMessaging", () => {
+    it("should fail if connect fails", async () => {
+      messaging.connect.rejects(new Error("fail"));
+
+      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+    });
+
+    it("should fail if subscribeToAuctionResponse fails", async () => {
+      messaging.subscribeToAuctionResponse.rejects(new Error("fail"));
+
+      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+      expect(messaging.connect.callCount).to.be.eq(1);
+    });
+
+    it("should fail if subscribeToMetaTxResponse fails", async () => {
+      messaging.subscribeToMetaTxResponse.rejects(new Error("fail"));
+
+      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+      expect(messaging.connect.callCount).to.be.eq(1);
+      expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
+    });
+
+    it("should work", async () => {
+      await sdk.initMessaging();
+      expect(messaging.connect.callCount).to.be.eq(1);
+      expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
+      expect(messaging.subscribeToMetaTxResponse.callCount).to.be.eq(1);
+    });
+  });
+
   describe("#getActiveTransactions", () => {
     it("happy getActiveTransactions", async () => {
       const { transaction, record } = await getTransactionData();
@@ -276,6 +306,23 @@ describe("NxtpSdk", () => {
       subgraph.getActiveTransactions.resolves([activeTransaction]);
       const res = await sdk.getActiveTransactions();
       expect(res[0]).to.be.eq(activeTransaction);
+    });
+  });
+
+  describe("#getHistoricalTransactions", () => {
+    it("should work", async () => {
+      const { transaction, record } = await getTransactionData();
+      const activeTransaction = {
+        crosschainTx: { invariant: transaction, sending: record, receiving: record },
+        status: HistoricalTransactionStatus.FULFILLED,
+        bidSignature: EmptyBytes,
+        encodedBid: EmptyBytes,
+        encryptedCallData: EmptyBytes,
+        preparedTimestamp: Math.floor(Date.now() / 1000),
+      };
+      subgraph.getHistoricalTransactions.resolves([activeTransaction]);
+      const res = await sdk.getHistoricalTransactions();
+      expect(res).to.be.deep.eq([activeTransaction]);
     });
   });
 
@@ -338,7 +385,14 @@ describe("NxtpSdk", () => {
       );
     });
 
-    it.skip("should error if eth_getEncryptionPublicKey errors", async () => {});
+    it("should error if eth_getEncryptionPublicKey errors", async () => {
+      const callData = getRandomBytes32();
+      const { crossChainParams } = getMock({ callData });
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(NxtpSdkError.reasons.EncryptionError);
+    });
+
+    it.skip("should fail if encrypt fails", async () => {});
 
     it("should not include improperly signed bids", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
@@ -469,9 +523,21 @@ describe("NxtpSdk", () => {
       });
     });
 
-    it("should error if bidSignature undefined", async () => {
+    it("should error if it has insufficient balance", async () => {
       const { auctionBid, bidSignature } = getMock({}, {}, "");
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
+      balanceStub.resolves(BigNumber.from(0));
+      try {
+        await sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature });
+        expect("Should error").to.be.undefined;
+      } catch (e) {
+        expect(e.message).to.be.eq(NxtpSdkError.reasons.ParamsError);
+        expect(e.context.paramsError).to.include(`Insufficient balance`);
+      }
+    });
+
+    it("should error if bidSignature undefined", async () => {
+      const { auctionBid } = getMock({}, {}, "");
+      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined })).to.eventually.be.rejectedWith(
         NxtpSdkError.reasons.ParamsError,
       );
     });
