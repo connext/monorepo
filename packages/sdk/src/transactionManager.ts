@@ -104,6 +104,12 @@ export class TransactionManager {
     return this.chainConfig[chainId].transactionManager.address;
   }
 
+  /**
+   * Returns a connected signer. This is necessary because the browser-injected signer will not allow a provider to be connected.
+   *
+   * @param provider - The provider to connect if not a browser
+   * @returns The connected signer
+   */
   getConnectedSigner(provider: providers.FallbackProvider): Signer {
     if (isNode()) {
       return this.signer.connect(provider);
