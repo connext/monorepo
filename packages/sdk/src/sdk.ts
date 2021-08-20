@@ -525,11 +525,11 @@ export class NxtpSdk {
     const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
     const expiry = _expiry ?? getExpiry(blockTimestamp);
     if (expiry - blockTimestamp < getMinExpiryBuffer()) {
-      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMinExpiryBuffer(), blockTimestamp);
+      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
     if (expiry - blockTimestamp > getMaxExpiryBuffer()) {
-      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMinExpiryBuffer(), blockTimestamp);
+      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
     const transactionId = params.transactionId ?? getRandomBytes32();

@@ -298,8 +298,8 @@ export class Subgraph {
               // Unrecognized corresponding status, likely an error with the
               // subgraph. Throw an error
               throw new InvalidTxStatus(
-                correspondingReceiverTx.status,
                 correspondingReceiverTx.transactionId,
+                correspondingReceiverTx.status,
                 correspondingReceiverTx,
               );
             });

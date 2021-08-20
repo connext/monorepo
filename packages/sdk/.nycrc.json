@@ -1,4 +1,4 @@
 {
   "extends": "../../.nycrc.json",
-  "exclude": ["src/queries.ts", "test/**/*.ts"]
+  "exclude": ["src/queries.ts", "src/error.ts", "test/**/*.ts"]
 }

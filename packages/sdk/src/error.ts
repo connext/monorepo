@@ -134,8 +134,8 @@ export class InvalidExpiry extends ParamsError {
   }
   constructor(
     public readonly expiry: number,
-    public readonly maxExpiryBuffer: number,
     public readonly minExpiryBuffer: number,
+    public readonly maxExpiryBuffer: number,
     public readonly timestamp: number,
     public readonly context: any = {},
   ) {
