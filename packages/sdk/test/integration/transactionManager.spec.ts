@@ -27,6 +27,7 @@ import {
   TransactionManager,
   TransactionManagerError,
 } from "../../src/transactionManager";
+import { ChainNotConfigured } from "../../src/error";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
@@ -45,6 +46,8 @@ describe("Transaction Manager", function () {
   const receivingChainId = 1338;
   const routerFunds = "1000";
   const userFunds = "100";
+
+  const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
   let userTransactionManager: TransactionManager;
   let routerTransactionManager: TransactionManager;
@@ -170,26 +173,6 @@ describe("Transaction Manager", function () {
     expect(tokenB.address).to.be.a("string");
   });
 
-  describe("class TransactionManagerError", () => {
-    it("happy: constructor", async () => {
-      const methodId = getRandomBytes32();
-      const method = "test";
-      const err = new TransactionManagerError(
-        TransactionManagerError.reasons.NoTransactionManagerAddress,
-        sendingChainId,
-        {
-          methodId,
-          method,
-        },
-      );
-
-      expect(err.msg).to.be.eq(TransactionManagerError.reasons.NoTransactionManagerAddress);
-      expect(err.chainId).to.be.eq(sendingChainId);
-      expect(err.context.method).to.be.eq(method);
-      expect(err.context.methodId).to.be.eq(methodId);
-    });
-  });
-
   describe("getDeployedTransactionManagerContractAddress", () => {
     it("happy case: returns undefined", async () => {
       const chainId = sendingChainId;
@@ -233,7 +216,7 @@ describe("Transaction Manager", function () {
         };
 
         await expect(userTransactionManager.prepare(InvalidChainId, prepareParams)).to.be.rejectedWith(
-          TransactionManagerError.reasons.NoTransactionManagerAddress,
+          ChainNotConfigured.getMessage(InvalidChainId, supportedChains),
         );
       });
 
@@ -293,7 +276,7 @@ describe("Transaction Manager", function () {
         await setBlockTime(+record.expiry + 1_000);
 
         await expect(userTransactionManager.cancel(InvalidChainId, cancelParams)).to.be.rejectedWith(
-          TransactionManagerError.reasons.NoTransactionManagerAddress,
+          ChainNotConfigured.getMessage(InvalidChainId, supportedChains),
         );
       });
 
@@ -394,7 +377,7 @@ describe("Transaction Manager", function () {
         };
 
         await expect(routerTransactionManager.fulfill(InvalidChainId, fulfillParams)).to.be.rejectedWith(
-          TransactionManagerError.reasons.NoTransactionManagerAddress,
+          ChainNotConfigured.getMessage(InvalidChainId, supportedChains),
         );
       });
 
@@ -463,7 +446,7 @@ describe("Transaction Manager", function () {
         const InvalidChainId = 123;
         await expect(
           userTransactionManager.approveTokensIfNeeded(InvalidChainId, tokenA.address, "1"),
-        ).to.be.rejectedWith(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
 
       it("happy case", async () => {
@@ -487,7 +470,7 @@ describe("Transaction Manager", function () {
         const InvalidChainId = 123;
         await expect(
           routerTransactionManager.getRouterLiquidity(InvalidChainId, router.address, tokenB.address),
-        ).to.be.rejectedWith(TransactionManagerError.reasons.NoTransactionManagerAddress);
+        ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
 
       it("should error if txService error", async () => {
