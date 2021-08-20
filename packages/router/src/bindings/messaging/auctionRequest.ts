@@ -4,6 +4,7 @@ import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
 export const auctionRequestBinding = async (
+  from: string,
   inbox: string,
   data?: AuctionPayload,
   err?: NxtpErrorJson,
@@ -19,6 +20,6 @@ export const auctionRequestBinding = async (
   // On every new auction broadcast, route to the new auction handler
   logger.info({ requestContext }, "Received auction request");
   const { bid, bidSignature } = await newAuction(data, requestContext);
-  await messaging.publishAuctionResponse(inbox, { bid, bidSignature });
+  await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature });
   logger.info({ requestContext, inbox }, "Handled auction request");
 };
