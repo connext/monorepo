@@ -41,6 +41,8 @@ export class ChainRpcProvider {
   private cachedGas?: CachedGas;
   private cachedDecimals: Record<string, number> = {};
 
+  private readonly pendingTxs: Record<number, { response: providers.TransactionResponse; added: number }> = {};
+
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
 
@@ -113,6 +115,8 @@ export class ChainRpcProvider {
 
     // TODO: #146 We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+
+    this.monitorBlockades();
   }
 
   /**
@@ -139,6 +143,9 @@ export class ChainRpcProvider {
             // Send the transaction.
             const response = await this.signer.sendTransaction(transaction);
 
+            // Store the transaction response in pending txs
+            this.pendingTxs[response.nonce] = { response, added: this.pendingTxs[response.nonce].added ?? Date.now() };
+
             // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
             if (response == null) {
               throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
@@ -152,7 +159,7 @@ export class ChainRpcProvider {
             let validated: providers.TransactionResponse | null = await this.provider.getTransaction(response.hash);
             const start = Date.now();
             // TODO: Waiting up until a hardcoded 15 seconds.
-            while(validated == null && Date.now() < start + 15000) {
+            while (validated == null && Date.now() < start + 15000) {
               delay(1000);
               validated = await this.provider.getTransaction(response.hash);
             }
@@ -218,7 +225,14 @@ export class ChainRpcProvider {
     return this.resultWrapper<providers.TransactionReceipt>(() => {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
-      return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
+      const receipt = (response as any).wait(
+        confirmations ?? this.confirmationsRequired,
+        timeout ?? this.confirmationTimeout,
+      );
+
+      // Remove from pending txs once its been confirmed
+      delete this.pendingTxs[response.nonce];
+      return receipt;
     });
   }
 
@@ -449,5 +463,83 @@ export class ChainRpcProvider {
    */
   private incrementNonce() {
     this._nonce++;
+  }
+
+  private async monitorBlockades() {
+    while (true) {
+      // First, check to see that there are pending txs
+      if (Object.keys(this.pendingTxs).length === 0) {
+        return;
+      }
+
+      // Get the blocking nonce and corresponding record
+      const blockade = await this.provider.getTransactionCount("pending");
+
+      // If the blockade is our *current* nonce, we can ignore since it will
+      // be sent at the next tx
+      // TODO: ^^ is this a safe assumption
+      if (blockade === (await this.getNonce())) {
+        return;
+      }
+
+      const { added, response } = this.pendingTxs[blockade] ?? {};
+
+      if (!added && !response) {
+        // This means we have no record at the blocking nonce *but* we do
+        // have pending transactions that should get mined.
+
+        // Send a dummy transaction at the blockcade nonce to get the queue
+        // moving
+        this.logger.info({ blockade, nonce: await this.getNonce() }, "Sending dummy tx to unblock");
+        // TODO: this should be sent at the highest gas to clear the queue
+        // quickly. ANd gas limit should be fixed
+        const response = await this.sendTransaction({
+          to: constants.AddressZero,
+          value: BigNumber.from(0),
+          nonce: blockade,
+          data: "0x",
+          gasLimit: BigNumber.from(10),
+          gasPrice: BigNumber.from("0xmaxgas"),
+          chainId: this.chainId,
+        });
+        if (response.isErr()) {
+          // TODO: handle error
+          return;
+        }
+        await this.confirmTransaction(response.value, 2);
+        return;
+      }
+
+      // Now you have the transaction response that you need to clear.
+      // Resend this transaction at a high gas price.
+
+      // Ideally, how high this gas price is should be determined by how
+      // long youve been waiting, and how many other txs in the queue.
+
+      const elapsed = Date.now() - added;
+      const TOO_LONG = 2 * 60 * 1000; // should be config determined, for now 2min
+
+      const blocked = Object.keys(this.pendingTxs).filter((nonce) => parseInt(nonce) > blockade).length;
+
+      const gasPrice =
+        elapsed >= TOO_LONG || blocked > 10
+          ? BigNumber.from("0xmaxgas")
+          : response.gasPrice!.add(BigNumber.from("0xgasbump").mul(2));
+
+      const resubmitted = await this.sendTransaction({
+        to: response.to!,
+        value: response.value,
+        nonce: response.nonce,
+        data: response.data,
+        gasLimit: response.gasLimit,
+        gasPrice,
+        chainId: response.chainId,
+      });
+      if (resubmitted.isErr()) {
+        // TODO: handle error
+        return;
+      }
+      await this.confirmTransaction(resubmitted.value, 2);
+    }
   }
 }
