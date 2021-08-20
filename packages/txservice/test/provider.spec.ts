@@ -16,6 +16,20 @@ import {
 import { getRandomAddress, getRandomBytes32, expect } from "@connext/nxtp-utils";
 import { RpcError, TransactionReadError } from "../src/error";
 
+// : main tests:
+// - isReady
+// - sendTransaction
+// - readTransaction
+// - getGasPrice
+// - getBalance
+// - estimateGas
+
+// TODO: #153 Error cases to handle here (i.e. make sure ChainRpcProvider handles correctly):
+// - rpc failure
+// - provider stops responding
+// - no providers are in sync
+// - bad data ?
+
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let signer: SinonStubbedInstance<Wallet>;
@@ -45,7 +59,6 @@ describe("ChainRpcProvider", () => {
     });
 
     coreProvider = createStubInstance(providers.FallbackProvider);
-    coreProvider.getTransaction.resolves(TEST_TX_RESPONSE);
     (chainProvider as any).provider = coreProvider;
     Sinon.stub(coreProvider, "ready").get(() => true);
   });
