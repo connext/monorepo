@@ -45,6 +45,7 @@ describe("NxtpSdk", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
+  let balanceStub: SinonStub;
 
   let user: string = mkAddress("0xa");
   let router: string = mkAddress("0xb");
@@ -58,7 +59,8 @@ describe("NxtpSdk", () => {
   beforeEach(async () => {
     provider1337 = createStubInstance(providers.FallbackProvider);
     (provider1337 as any)._isProvider = true;
-    provider1338 = provider1337;
+    provider1338 = createStubInstance(providers.FallbackProvider);
+    (provider1338 as any)._isProvider = true;
     const chainConfig = {
       [sendingChainId]: {
         provider: provider1337,
@@ -80,6 +82,8 @@ describe("NxtpSdk", () => {
 
     stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
+    balanceStub = stub(sdkUtils, "getOnchainBalance");
+    balanceStub.resolves(BigNumber.from(0));
     stub(sdkUtils, "createMessagingEvt").returns(messageEvt);
 
     signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
@@ -481,6 +485,7 @@ describe("NxtpSdk", () => {
 
     it("should error if approve transaction.wait errors", async () => {
       const { auctionBid, bidSignature } = getMock();
+      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
       TxResponseMock.wait = () => Promise.reject(new Error("fails"));
@@ -492,6 +497,7 @@ describe("NxtpSdk", () => {
 
     it("should error if approve transaction reverts", async () => {
       const { auctionBid, bidSignature } = getMock();
+      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
       const TxReceiptMock = JSON.parse(JSON.stringify(TxReceipt));
@@ -510,6 +516,7 @@ describe("NxtpSdk", () => {
       const { auctionBid, bidSignature } = getMock();
       const mockMethod = "transfer";
       const mockMethodId = getRandomBytes32();
+      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.resolves(undefined);
       transactionManager.prepare.rejects(
@@ -526,6 +533,7 @@ describe("NxtpSdk", () => {
 
     it("happy: start transfer with suffice approval", async () => {
       const { auctionBid, bidSignature } = getMock();
+      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.returns(undefined);
       transactionManager.prepare.resolves(TxResponse);
@@ -536,6 +544,7 @@ describe("NxtpSdk", () => {
 
     it("happy: start transfer ", async () => {
       const { auctionBid, bidSignature } = getMock();
+      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.resolves(TxResponse);
       transactionManager.prepare.resolves(TxResponse);
@@ -630,15 +639,19 @@ describe("NxtpSdk", () => {
         });
       }, 200);
 
-      await expect(
-        sdk.fulfillTransfer({
+      try {
+        await sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
 
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
-        }),
-      ).to.eventually.be.rejectedWith("Evt timeout");
+        });
+        expect("Should have errored").to.be.undefined;
+      } catch (e) {
+        expect(e.message).to.be.eq(NxtpSdkError.reasons.TxError);
+        expect(e.context.txError.message).to.include("No relayer response");
+      }
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {

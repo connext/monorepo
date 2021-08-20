@@ -39,7 +39,7 @@ import {
   ERC20Abi,
   TransactionDataSchema,
   delay,
-  getOnchainBalance,
+  getOnchainBalance as _getOnchainBalance,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -87,6 +87,9 @@ export const getTimestampInSeconds = async (provider: providers.FallbackProvider
   const block = await provider.getBlock("latest");
   return block.timestamp;
 };
+
+export const getOnchainBalance = (assetId: string, address: string, provider: providers.FallbackProvider) =>
+  _getOnchainBalance(assetId, address, provider);
 
 /**
  * Gets the minimum expiry buffer
