@@ -3,11 +3,14 @@
   "exclude": [
     "src/index.ts",
     "src/router.ts",
+    "src/adapters/contract/index.ts",
     "src/adapters/subgraph/graphqlsdk.ts",
     "src/adapters/subgraph/index.ts",
     "src/adapters/subgraph/queries.ts",
     "src/bindings/fastify/index.ts",
     "src/bindings/messaging/index.ts",
-    "src/lib/errors/*.ts"
+    "src/lib/errors/*.ts",
+    "src/lib/entities/*.ts",
+    "test/**/*.ts"
   ]
 }
