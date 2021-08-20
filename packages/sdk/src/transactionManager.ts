@@ -9,6 +9,7 @@ import {
   NxtpErrorJson,
   Values,
   getUuid,
+  isNode,
 } from "@connext/nxtp-utils";
 import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
@@ -104,6 +105,19 @@ export class TransactionManager {
   }
 
   /**
+   * Returns a connected signer. This is necessary because the browser-injected signer will not allow a provider to be connected.
+   *
+   * @param provider - The provider to connect if not a browser
+   * @returns The connected signer
+   */
+  getConnectedSigner(provider: providers.FallbackProvider): Signer {
+    if (isNode()) {
+      return this.signer.connect(provider);
+    }
+    return this.signer;
+  }
+
+  /**
    * Sends the prepare transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to prepare the transaction on (transactionData.sendingChainId)
@@ -139,7 +153,9 @@ export class TransactionManager {
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const tx = await transactionManager.connect(this.signer.connect(provider)).prepare(
+    const signer = this.getConnectedSigner(provider);
+
+    const tx = await transactionManager.connect(signer).prepare(
       {
         receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
         user: txData.user,
@@ -203,9 +219,8 @@ export class TransactionManager {
     }
 
     const { txData, signature } = cancelParams;
-    const tx = await transactionManager
-      .connect(this.signer.connect(provider))
-      .cancel(txData, signature, { from: this.signer.getAddress() });
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).cancel(txData, signature, { from: this.signer.getAddress() });
 
     this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
     return tx;
@@ -248,11 +263,10 @@ export class TransactionManager {
     }
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
-    const tx = await transactionManager
-      .connect(this.signer.connect(provider))
-      .fulfill(txData, relayerFee, signature, callData, {
-        from: this.signer.getAddress(),
-      });
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature, callData, {
+      from: this.signer.getAddress(),
+    });
 
     this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
     return tx;
@@ -295,7 +309,8 @@ export class TransactionManager {
     }
 
     const signerAddress = await this.signer.getAddress();
-    const erc20 = new Contract(assetId, ERC20.abi, this.signer.connect(provider)) as IERC20Minimal;
+    const signer = this.getConnectedSigner(provider);
+    const erc20 = new Contract(assetId, ERC20.abi, signer) as IERC20Minimal;
 
     const approved = await erc20.allowance(signerAddress, transactionManager.address);
     this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
