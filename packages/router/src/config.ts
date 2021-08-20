@@ -6,6 +6,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import {
   ajv,
+  ChainData,
   getDeployedSubgraphUri,
   isNode,
   NATS_AUTH_URL,
@@ -24,39 +25,37 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
 
-const CHAIN_DATA = new Promise<Map<string, any> | null>((resolve) => {
-  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
-  // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
-  const chainDataToMap = (data: any) => {
-    const chainData: Map<string, any> = new Map();
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      const chainId = item.chainId.toString();
-      chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
-    }
-    return chainData;
-  };
-  fetchJson(url)
-    .then((data) => {
-      // Cache the chain data locally.
-      fs.writeFileSync("chaindata.json", JSON.stringify(data));
-      resolve(chainDataToMap(data));
-    })
-    .catch((err) => {
-      console.error(`Error occurred retrieving chain data from ${url}`, err);
-      // Check to see if we have the chain data cached locally.
-      if (fs.existsSync("./chaindata.json")) {
-        console.log("Using cached chain data.");
-        const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
-        resolve(chainDataToMap(data));
-      }
-      // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
-      console.warn("Could not fetch chain data, and no cached chain data was available.");
-      resolve(null);
-    });
-});
-
 dotenvConfig();
+
+// Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
+const chainDataToMap = (data: any): Map<string, ChainData> => {
+  const chainData: Map<string, ChainData> = new Map();
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const chainId = item.chainId.toString();
+    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")) as ChainData);
+  }
+  return chainData;
+};
+
+const getChainData = async (): Promise<Map<string, ChainData> | undefined> => {
+  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
+  try {
+    const data = await fetchJson(url);
+    return chainDataToMap(data);
+  } catch (err) {
+    console.error(`Error occurred retrieving chain data from ${url}`, err);
+    // Check to see if we have the chain data cached locally.
+    if (fs.existsSync("./chaindata.json")) {
+      console.log("Using cached chain data.");
+      const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
+      return chainDataToMap(data);
+    }
+    // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
+    console.warn("Could not fetch chain data, and no cached chain data was available.");
+    return undefined;
+  }
+};
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
@@ -105,7 +104,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConfig => {
+export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -175,21 +174,21 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
   };
 
   const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
-  if (chainData == null && !overrideRecommendedConfirmations) {
+  if (!chainData && !overrideRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 10;
+  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 1;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
-          (contractDeployments as any)[chainId],
-        )[0] as any).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
+          Object.values((contractDeployments as any)[chainId])[0] as any
+        ).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
@@ -206,6 +205,12 @@ export const getEnvConfig = (chainData: Map<string, any> | null): NxtpRouterConf
     }
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations;
+
+    // don't validate test chains confirmations
+    if (["1337", "1338"].includes(chainId)) {
+      return;
+    }
+
     const recommended = chainData?.get(chainId)?.confirmations ?? recommendedDefaultConfirmations;
     if (confirmations < recommended) {
       if (overrideRecommendedConfirmations) {
@@ -237,12 +242,12 @@ let nxtpConfig: NxtpRouterConfig | undefined;
  * Caches and returns the environment config
  *
  * @param chainDataOverride - overrides the set chain data; used for debugging, unit tests, etc.
- * 
+ *
  * @returns The config
  */
-export const getConfig = async (chainDataOverride?: Map<string, any>): Promise<NxtpRouterConfig> => {
+export const getConfig = async (chainDataOverride?: Map<string, ChainData>): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    const chainData = chainDataOverride ?? await CHAIN_DATA;
+    const chainData = chainDataOverride ?? (await getChainData());
     nxtpConfig = getEnvConfig(chainData);
   }
   return nxtpConfig;
