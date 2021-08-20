@@ -5,7 +5,6 @@ import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
 import {
-  NxtpSdkError,
   NxtpSdkEvent,
   ReceiverTransactionCancelledPayload,
   ReceiverTransactionFulfilledPayload,
@@ -13,6 +12,7 @@ import {
   SenderTransactionPreparedPayload,
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
+import { InvalidTxStatus } from "./error";
 
 export const HistoricalTransactionStatus = {
   FULFILLED: "FULFILLED",
@@ -297,11 +297,11 @@ export class Subgraph {
 
               // Unrecognized corresponding status, likely an error with the
               // subgraph. Throw an error
-              throw new NxtpSdkError(`Invalid tx status (${correspondingReceiverTx.status}), check subgraph`, {
-                method: this.getActiveTransactions.name,
-                methodId,
-                transactionId: correspondingReceiverTx.transactionId,
-              });
+              throw new InvalidTxStatus(
+                correspondingReceiverTx.status,
+                correspondingReceiverTx.transactionId,
+                correspondingReceiverTx,
+              );
             });
           }),
         );

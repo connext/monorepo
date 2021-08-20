@@ -6,7 +6,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotSupported } from "./error";
+import { ChainNotConfigured } from "./error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -104,16 +104,8 @@ export class TransactionManager {
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      new ChainNotSupported(method, methodId, chainId, {
-        transactionId: prepareParams?.txData?.transactionId ?? "",
-      });
-    }
-
-    if (!provider) {
-      new ChainNotSupported(method, methodId, chainId, {
-        transactionId: prepareParams?.txData?.transactionId ?? "",
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
@@ -169,16 +161,8 @@ export class TransactionManager {
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new ChainNotSupported(method, methodId, chainId, {
-        transactionId: cancelParams?.txData?.transactionId ?? "",
-      });
-    }
-
-    if (!provider) {
-      throw new ChainNotSupported(method, methodId, chainId, {
-        transactionId: cancelParams?.txData?.transactionId ?? "",
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, signature } = cancelParams;
@@ -211,16 +195,8 @@ export class TransactionManager {
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      new ChainNotSupported(method, methodId, chainId, {
-        transactionId: fulfillParams?.txData?.transactionId ?? "",
-      });
-    }
-
-    if (!provider) {
-      new ChainNotSupported(method, methodId, chainId, {
-        transactionId: fulfillParams?.txData?.transactionId ?? "",
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
@@ -255,18 +231,8 @@ export class TransactionManager {
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new ChainNotSupported(method, methodId, chainId, {
-        assetId,
-        amount,
-      });
-    }
-
-    if (!provider) {
-      new ChainNotSupported(method, methodId, chainId, {
-        assetId,
-        amount,
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const signerAddress = await this.signer.getAddress();
@@ -294,17 +260,11 @@ export class TransactionManager {
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
   async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
-    const method = "Contract::getLiquidity";
-    const methodId = getUuid();
-
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      throw new ChainNotSupported(method, methodId, chainId, {
-        assetId,
-        router,
-      });
+    const { transactionManager } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    return await txManager.routerBalances(router, assetId);
+    return transactionManager.routerBalances(router, assetId);
   }
 }
