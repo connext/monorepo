@@ -152,8 +152,8 @@ export class SdkAgent {
       try {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
-        this.logger.error({ transactionId: data.txData.transactionId, error: jsonifyError(e) }, "Fulfilling failed");
         error = jsonifyError(e);
+        this.logger.error({ transactionId: data.txData.transactionId, error }, "Fulfilling failed");
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
           error,
           params: data,
@@ -262,13 +262,14 @@ export class SdkAgent {
 
         // Transfer will auto-fulfill based on established listeners
       } catch (e) {
-        this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e), auction }, "Preparing failed");
-        this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
+        const error = jsonifyError(e);
+        this.logger.error({ transactionId: bid.transactionId, error, auction }, "Preparing failed");
+        this.evts.InitiateFailed.post({ params: auction, address: this.address, error: error.message });
         this.evts.TransactionCompleted.post({
           transactionId: bid.transactionId,
           address: this.address,
           timestamp: Date.now(),
-          error: e.message,
+          error: jsonifyError(e),
         });
         // process.exit(1);
       }
