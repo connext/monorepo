@@ -6,6 +6,7 @@ import {
   txDataMock,
   txReceiptMock,
   mkSig,
+  mkAddress,
 } from "@connext/nxtp-utils";
 import { restore, reset, SinonStub, stub } from "sinon";
 import * as operations from "../../../src/lib/operations";
@@ -17,6 +18,8 @@ import { messagingMock } from "../../globalTestHook";
 const err = new AuctionExpired(800).toJson();
 
 const inbox = "inbox";
+
+const from = mkAddress("0xfff");
 
 const requestContext = createRequestContext("metaTxRequestBinding");
 
@@ -50,7 +53,7 @@ describe("metaTxRequestBinding", () => {
   });
 
   it("should work", async () => {
-    await metaTxRequestBinding(inbox, data, undefined, requestContext);
+    await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
 
     const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
 
@@ -71,7 +74,7 @@ describe("metaTxRequestBinding", () => {
       ),
     ).to.be.true;
     expect(
-      messagingMock.publishMetaTxResponse.calledOnceWithExactly(inbox, {
+      messagingMock.publishMetaTxResponse.calledOnceWithExactly(from, inbox, {
         chainId: data.chainId,
         transactionHash: txReceiptMock.transactionHash,
       }),
@@ -81,7 +84,7 @@ describe("metaTxRequestBinding", () => {
   it("shouldnt publish if there is no tx response", async () => {
     fulfillStub.resolves(undefined);
 
-    await metaTxRequestBinding(inbox, data, undefined, requestContext);
+    await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
 
     const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
 
@@ -105,13 +108,13 @@ describe("metaTxRequestBinding", () => {
   });
 
   it("should do nothing if there is an error", async () => {
-    await metaTxRequestBinding(inbox, data, err, requestContext);
+    await metaTxRequestBinding(from, inbox, data, err, requestContext);
 
     expect(fulfillStub.callCount).to.be.eq(0);
   });
 
   it("should do nothing if there is no data", async () => {
-    await metaTxRequestBinding(inbox, undefined, err, requestContext);
+    await metaTxRequestBinding(from, inbox, undefined, err, requestContext);
 
     expect(fulfillStub.callCount).to.be.eq(0);
   });
@@ -119,17 +122,17 @@ describe("metaTxRequestBinding", () => {
   it.skip("should do nothing if there is no chain config", async () => {});
 
   it("should do nothing if it is not a fulfill request", async () => {
-    await metaTxRequestBinding(inbox, { ...data, type: "fail" });
+    await metaTxRequestBinding(from, inbox, { ...data, type: "fail" });
     expect(fulfillStub.callCount).to.be.eq(0);
   });
 
   it("should do nothing if it is not fulfilling on the receiving chain", async () => {
-    await metaTxRequestBinding(inbox, { ...data, chainId: 123457 });
+    await metaTxRequestBinding(from, inbox, { ...data, chainId: 123457 });
     expect(fulfillStub.callCount).to.be.eq(0);
   });
 
   it("should fail if fulfill fails", async () => {
     fulfillStub.rejects(new Error("fail"));
-    await expect(metaTxRequestBinding(inbox, data)).to.be.rejectedWith("fail");
+    await expect(metaTxRequestBinding(from, inbox, data)).to.be.rejectedWith("fail");
   });
 });
