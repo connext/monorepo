@@ -662,8 +662,9 @@ export class NxtpSdk {
       const auctionCtx = Evt.newCtx();
       const bids: AuctionResponse[] = [];
       this.auctionResponseEvt
+        .pipe(auctionCtx)
         .pipe((data) => data.inbox === inbox)
-        .attach(auctionCtx, (data) => {
+        .attach((data) => {
           if (!data.data || data.err) {
             this.logger.warn({ inbox }, "Invalid bid received");
             return;
@@ -1079,10 +1080,23 @@ export class NxtpSdk {
         responseInbox,
       );
 
-      const response = await metaTxProm;
-      const metaTxRes = response.data;
-      this.logger.info({ method, methodId }, "Method complete");
-      return { metaTxResponse: metaTxRes };
+      try {
+        const response = await metaTxProm;
+        const metaTxRes = response.data;
+        this.logger.info({ method, methodId }, "Method complete");
+        return { metaTxResponse: metaTxRes };
+      } catch (e) {
+        throw new NxtpSdkError(NxtpSdkError.reasons.TxError, {
+          method,
+          methodId,
+          transactionId: txData.transactionId,
+          txError: {
+            message: `No relayer response within ${META_TX_TIMEOUT / 1000}s`,
+            context: {},
+            type: NxtpSdkError.type,
+          },
+        });
+      }
     } else {
       this.logger.info({ method, methodId }, "Fulfilling with user's signer");
       const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
