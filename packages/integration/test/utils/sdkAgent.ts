@@ -79,8 +79,6 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
  * @classdesc Manages a single agent assocuated with a single sdk instance. This class does not throw errors, instead emits them as events
  */
 export class SdkAgent {
-  private readonly sdk: NxtpSdk;
-
   private cyclicalContext: VoidCtx | undefined;
 
   private queue = new PriorityQueue({ concurrency: 1 });
@@ -89,25 +87,13 @@ export class SdkAgent {
 
   private constructor(
     public readonly address: string,
-    private readonly chainProviders: {
+    private readonly _chainProviders: {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
-    private readonly signer: Signer,
+    private readonly _signer: Signer,
     private readonly logger: BaseLogger,
-    natsUrl?: string,
-    authUrl?: string,
-    messaging?: UserNxtpNatsMessagingService,
-  ) {
-    this.sdk = new NxtpSdk(
-      this.chainProviders,
-      this.signer,
-      this.logger.child({ name: "SdkAgent" }),
-      "local",
-      natsUrl,
-      authUrl,
-      messaging,
-    );
-  }
+    private readonly sdk: NxtpSdk,
+  ) {}
 
   /**
    * Creates a new agent
@@ -131,7 +117,17 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const agent = new SdkAgent(address, chainProviders, signer, logger, natsUrl, authUrl, messaging);
+    const sdk = new NxtpSdk(
+      chainProviders,
+      signer,
+      logger.child({ name: "Sdk" }),
+      "local",
+      natsUrl,
+      authUrl,
+      messaging,
+    );
+    await sdk.initMessaging();
+    const agent = new SdkAgent(address, chainProviders, signer, logger, sdk);
 
     // Parrot all events
     agent.setupListeners();
@@ -156,15 +152,15 @@ export class SdkAgent {
       try {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
-        this.logger.error({ transactionId: data.txData.transactionId, error: jsonifyError(e) }, "Fulfilling failed");
         error = jsonifyError(e);
+        this.logger.error({ transactionId: data.txData.transactionId, error }, "Fulfilling failed");
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
           error,
           params: data,
           fulfilling: true,
           address: this.address,
         });
-        process.exit(1);
+        // process.exit(1);
       }
       this.evts.TransactionCompleted.post({
         transactionId: data.txData.transactionId,
@@ -266,15 +262,16 @@ export class SdkAgent {
 
         // Transfer will auto-fulfill based on established listeners
       } catch (e) {
-        this.logger.error({ transactionId: bid.transactionId, error: jsonifyError(e), auction }, "Preparing failed");
-        this.evts.InitiateFailed.post({ params: auction, address: this.address, error: e.message });
+        const error = jsonifyError(e);
+        this.logger.error({ transactionId: bid.transactionId, error, auction }, "Preparing failed");
+        this.evts.InitiateFailed.post({ params: auction, address: this.address, error: error.message });
         this.evts.TransactionCompleted.post({
           transactionId: bid.transactionId,
           address: this.address,
           timestamp: Date.now(),
-          error: e.message,
+          error: jsonifyError(e),
         });
-        process.exit(1);
+        // process.exit(1);
       }
     });
   }

@@ -1,6 +1,7 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils/src/expect";
 import { GraphQLClient } from "graphql-request";
 import { createStubInstance, reset, restore, SinonStubbedInstance } from "sinon";
+
 import { getSdk } from "../../src/graphqlsdk";
 
 describe("graphqlsdk", () => {

@@ -200,13 +200,17 @@ function App(): React.ReactElement | null {
         }
       });
 
-      _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, (data) => {
+      _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, async (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
         setActiveTransferTableColumns(
           activeTransferTableColumns.filter(
             (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
           ),
         );
+
+        const historicalTxs = await _sdk.getHistoricalTransactions();
+        setHistoricalTransferTableColumns(historicalTxs);
+        console.log("historicalTxs: ", historicalTxs);
       });
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionCancelled, (data) => {
@@ -558,7 +562,7 @@ function App(): React.ReactElement | null {
                   // Use receiver side info by default
                   const variant = tx.crosschainTx.receiving ?? tx.crosschainTx.sending;
                   return {
-                    sentAmount: utils.formatEther(tx.crosschainTx.sending.amount),
+                    sentAmount: utils.formatEther(tx.crosschainTx.sending?.amount ?? "0"),
                     receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
                     status: tx.status,
                     sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),

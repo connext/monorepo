@@ -11,20 +11,20 @@ export const bindMessaging = async () => {
   // Setup Messaging Service events
 
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
-  await messaging.subscribeToAuctionRequest(async (inbox, data, err) => {
+  await messaging.subscribeToAuctionRequest(async (from, inbox, data, err) => {
     const requestContext = createRequestContext("subscribeToAuctionRequest");
     try {
-      await auctionRequestBinding(inbox, data, err, requestContext);
+      await auctionRequestBinding(from, inbox, data, err, requestContext);
     } catch (e) {
       logger.error({ requestContext, err: jsonifyError(e) }, "Error in auction request");
     }
   });
 
   // <from>.metatx
-  await messaging.subscribeToMetaTxRequest(async (inbox, data, err) => {
+  await messaging.subscribeToMetaTxRequest(async (from, inbox, data, err) => {
     const requestContext = createRequestContext("subscribeToMetaTxRequest");
     try {
-      await metaTxRequestBinding(inbox, data, err, requestContext);
+      await metaTxRequestBinding(from, inbox, data, err, requestContext);
     } catch (err) {
       logger.error({ requestContext, err: jsonifyError(err) }, "Error fulfilling request");
     }

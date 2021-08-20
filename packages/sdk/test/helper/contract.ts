@@ -116,7 +116,7 @@ export const prepareAndAssert = async (
 
   const invariantDigest = getInvariantTransactionDigest(transaction);
 
-  expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(utils.formatBytes32String(""));
+  await expect(instance.variantTransactionData(invariantDigest)).to.eventually.be.eq(utils.formatBytes32String(""));
   // Send tx
   const prepareParams: PrepareParams = {
     txData: transaction,
@@ -129,9 +129,7 @@ export const prepareAndAssert = async (
 
   const res = await transactionManagerObj.prepare(transaction.sendingChainId, prepareParams);
 
-  expect(res.isOk()).to.be.true;
-
-  const receipt = await res.value.wait();
+  const receipt = await res.wait();
   expect(receipt.status).to.be.eq(1);
 
   const variantDigest = getVariantTransactionDigest({
@@ -140,7 +138,7 @@ export const prepareAndAssert = async (
     preparedBlockNumber: receipt.blockNumber,
   });
 
-  expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
+  await expect(instance.variantTransactionData(invariantDigest)).to.eventually.be.eq(variantDigest);
 
   // Verify receipt event
   const txData = { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber };
