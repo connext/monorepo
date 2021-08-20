@@ -110,14 +110,14 @@ export const newAuction = async (
 
   const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
 
-  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
-  if (balance.lt(amountReceived)) {
+  const liquidity = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info({ method, methodId, liquidity: liquidity.toString() }, "Got asset balance");
+  if (liquidity.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
       method,
       requestContext,
-      balance: balance.toString(),
+      liquidity: liquidity.toString(),
       amount,
       receivingAssetId,
       receivingChainId,
