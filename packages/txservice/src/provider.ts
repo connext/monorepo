@@ -506,6 +506,9 @@ export class ChainRpcProvider {
           // TODO: handle error
           return;
         }
+        // NOTE: this may not be the best way to confirm this tx. the point is
+        // it should *not* be bumped, it should be dealt with
+        // here and immediately to free up the queue of pending txs
         await this.confirmTransaction(response.value, 2);
         return;
       }
