@@ -36,7 +36,6 @@
     "graphql": "^15.5.1",
     "graphql-request": "^3.5.0",
     "graphql-tag": "^2.12.5",
-    "neverthrow": "^4.2.2",
     "pino": "^6.13.0"
   },
   "devDependencies": {

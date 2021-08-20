@@ -1,4 +1,4 @@
-import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
+import { delay, ERC20Abi, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -147,7 +147,24 @@ export class ChainRpcProvider {
               });
             }
 
-            // We increment the nonce here, as we know the transaction was sent (response is defined).
+            // TODO: Improve this with the serialized-confirmation solution.
+            // Validate that the transaction is on chain. Since the tx was just sent, it may take a while to be indexed.
+            let validated: providers.TransactionResponse | null = await this.provider.getTransaction(response.hash);
+            const start = Date.now();
+            // TODO: Waiting up until a hardcoded 15 seconds.
+            while(validated == null && Date.now() < start + 15000) {
+              delay(1000);
+              validated = await this.provider.getTransaction(response.hash);
+            }
+
+            if (!validated) {
+              throw new TransactionServiceFailure("Failed to validate transaction sent to chain.", {
+                transaction,
+                response,
+              });
+            }
+
+            // We increment the nonce here, as we know the transaction was sent and received on chain.
             this.incrementNonce();
             return { response, success: true };
           } catch (e) {

@@ -42,8 +42,10 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const { assetId: sendingAssetId } = swap.assets.find((a) => a.chainId === sendingChainId)!;
   const { assetId: receivingAssetId } = swap.assets.find((a) => a.chainId === receivingChainId)!;
 
-  // Fund agents with tokens on sending chain
+  // Fund agents with tokens on sending + receiving chain
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
+
+  await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
 
   // Begin transfers
   log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
