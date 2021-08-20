@@ -1,74 +1,41 @@
-import { BigNumber, providers, Signer } from "ethers";
+import { BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
-// import { getUuid } from "@connext/nxtp-utils";
 
-// import { TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
-import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { GasPrice, WriteTransaction } from "./types";
+import { Transaction } from "./transaction";
+import { TimeoutError, TransactionReverted } from "./error";
 
-class MetaTransaction {
-  // Responses, in the order of attempts made for this tx.
-  public responses: providers.TransactionResponse[] = [];
-  // Receipt that we received for the on-chain transaction that was mined with
-  // the desired number of confirmations.
-  public receipt?: providers.TransactionReceipt;
-
-  // Which transaction attempt we are on.
-  private _attempt = 0;
-  /**
-   * Getter to return the internal attempt
-   *
-   * @returns The _attempt of the transction
-   */
-  public get attempt(): number {
-    return this._attempt;
-  }
-
-  /**
-   * Retrieves all data needed to format a full transaction, including current gas price set, nonce, etc.
-   */
-  public get data(): FullTransaction {
-    return {
-      ...this.minTx,
-      gasPrice: this.gasPrice.get(),
-      nonce: this.nonce,
-      gasLimit: this.gasPrice.limit,
-    };
-  }
-
-  /**
-   * A data structure used for management of the lifecycle of one on-chain transaction.
-   *
-   * @param logger The pino.BaseLogger instance we use for logging.
-   * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
-   * @param minTx The minimum transaction data required to send a transaction.
-   * @param gasPrice Initialized gas price tracker for this transaction.
-   */
-  constructor(
-    public readonly minTx: WriteTransaction,
-    public readonly nonce: number,
-    private readonly gasPrice: GasPrice,
-  ) {}
-}
-
+// TODO: sep file
 // Thread safe stack manager.
 class TransactionBuffer {
   // Both of the following are functionally treated as stacks (LIFO).
-  private completed: MetaTransaction[] = [];
-  private pending: MetaTransaction[] = [];
+  private validated: Transaction[] = [];
+  private pending: Transaction[] = [];
   // Should be used to access either of the stacks.
   private readonly accessQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
 
   // Push a new tx to pending.
-  public async push() {
+  public async push(transaction: Transaction) {
     // TODO: We may want to cap the pending stack here.
+    await this.accessQueue.add(() => {
+      this.pending.push(transaction);
+    });
   }
 
   // Move latest pending to completed.
-  public async shift() {
-    // TODO: Trim the completed stack.
+  // @returns boolean whether operation was successful, or if there was no pending tx to shift.
+  public async shift(): Promise<boolean> {
+    // TODO: Trim the validated stack when it gets "too long" to save memory space.
+    return await this.accessQueue.add((): boolean => {
+      const transaction = this.pending.shift();
+      if (!transaction) {
+        return false;
+      }
+      this.validated.push(transaction);
+      return true;
+    });
   }
 
   /**
@@ -87,45 +54,58 @@ class TransactionBuffer {
     return (await this.getLastTx())?.nonce;
   }
 
-  private async getLastTx(): Promise<MetaTransaction | null> {
-    return await this.accessQueue.add(() => {
+  private async getLastTx(): Promise<Transaction | null> {
+    return await this.accessQueue.add((): Transaction | null => {
       if (this.pending.length > 0) {
         return this.pending[this.pending.length - 1];
-      } else if (this.completed.length > 0) {
-        return this.completed[this.completed.length - 1];
+      } else if (this.validated.length > 0) {
+        return this.validated[this.validated.length - 1];
       }
       return null;
     });
   }
 }
 
-export class RpcDispatch {
-  private readonly submitQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+// TODO: We may want to remodel dispatch to either extend ChainRpcProvider or just move all the ChainRpcProvider functionality over here.
+// For now, a sep. class for simplicity of introducing new functionality.
+/**
+ * @classdesc Dispatches and monitors transaction queue.
+ */
+export class TransactionDispatch {
   public readonly chainId: number;
 
+  private readonly submitQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+  // A queue for execution of transaction validation. When it completes, we'll shift the transaction from
+  // pending stack -> validated stack in the buffer.
+  private readonly validateQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
+  private readonly buffer: TransactionBuffer = new TransactionBuffer();
+
   /**
+   * Centralized transaction dispatch management class.
    *
    * @param logger The pino.BaseLogger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    */
-  constructor(
-    private readonly logger: BaseLogger,
-    public readonly provider: ChainRpcProvider
-  ) {
+  constructor(private readonly logger: BaseLogger, private readonly provider: ChainRpcProvider) {
     this.chainId = this.provider.chainId;
   }
 
-  public async submit(tx: WriteTransaction) {
+  public async submit(minTx: WriteTransaction): Promise<Transaction> {
+    const method = this.submit.name;
+    // get gas estimate
     let gasLimit: BigNumber;
-    let result = await this.provider.estimateGas(tx);
+    let result = await this.provider.estimateGas(minTx);
     if (result.isErr()) {
       if (result.error instanceof TransactionReverted) {
+        // If we get a TransactionReverted error, that means the gas estimate call
+        // indicated our transaction would fail on-chain. The details of the failure will
+        // be included in the error.
         throw result.error;
       }
       this.logger.warn(
         {
-          method: this.submit.name,
-          transaction: tx,
+          method,
+          transaction: minTx,
           error: result.error,
         },
         "Estimate gas failed due to an unexpected error.",
@@ -135,54 +115,86 @@ export class RpcDispatch {
       gasLimit = result.value;
     }
 
+    // get gas price
     result = await this.provider.getGasPrice();
     if (result.isErr()) {
       throw result.error;
     }
     const gasPrice = new GasPrice(result.value, gasLimit);
-  
 
-    
-
-    // Queue up the execution of the transaction.
-    result = await this.submitQueue.add(
-      async (): Promise<{ value: MetaTx | Error; success: boolean }> => {
-        try {
-          // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
-          const nonce = transaction.nonce ?? (await this.transactionBuffer.getNonce());
-
-          // Send the transaction.
-          const response = 
-
-          // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
-          if (response == null) {
-            throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-              transaction,
-              response,
-            });
+    // Queue up the transaction with these values.
+    const submitResult = await this.submitQueue.add(
+      async (): Promise<{ value: Transaction | Error; success: boolean }> => {
+        // NOTE: This call must be here, serialized within the queue, as it is depenedent on pending transaction count.
+        // If transaction buffer returns null, that indicates the buffer is empty; meaning we haven't sent any transactions yet.
+        let nonce = await this.buffer.getNonce();
+        if (!nonce) {
+          const result = await this.provider.getTransactionCount();
+          if (result.isErr()) {
+            throw result.error;
+          } else {
+            nonce = result.value;
           }
-
-          const value = this.transactionBuffer.push(nonce, response);
-          return { value, success: true };
+        }
+        try {
+          // Create a new transaction instance to track lifecycle.
+          const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gasPrice);
+          // Send transaction. Initial submit ought to be done in the queue for priority reasons.
+          await transaction.submit();
+          // Push to the pending stack, which will handle validation for this transaction.
+          await this.buffer.push(transaction);
+          // NOTE: We asyncronously add to validation queue here. This will ensure it gets validated in the right
+          // order, yet we don't sit around and wait for validation here.
+          this.addToValidation(transaction);
+          return { value: transaction, success: true };
         } catch (e) {
+          // validate that the transaction failed on chain?
+          // didn't fail on chain? log this occurrence w/ error but ignore error ?!? -> WTF?
+          // if it did fail on chain, THROW
           return { value: e, success: false };
         }
       },
     );
-    if (!result.success) {
-      throw result.value;
+    if (submitResult.success) {
+      return submitResult.value as Transaction;
+    } else {
+      throw submitResult.value;
     }
-    // Now we block until the transaction is validated (meaning that it's received 1 confirmation on chain).
-    const meta: MetaTx = result.value as MetaTx;
-    await meta.validate();
-    return meta.response;
-
-    // add to submit queue, new tx
-    // block until submit completed
-    // error ? throw. else...
-    // wait until 1 confirm
-    // timeout ?
-    // check to see if we are the
   }
 
+  private async addToValidation(transaction: Transaction) {
+    this.validateQueue.add(async () => {
+      // wait for 1 confirmation, aka validation
+      try {
+        await transaction.validate();
+        // **shift from pending stack, push to validated stack
+        await this.buffer.shift(transaction.id);
+      } catch (error) {
+        // timeout? (e.g. after 60sec).
+        // (optional sanity check): getTransaction, check that it exists on chain
+        // doesn't exist?
+        // TODO: backfill with a bunk tx
+        // note: even if the tx is *not* the blockade, we need to backfill this one, or it will block all txs that follow.
+
+        if (error instanceof TimeoutError) {
+          // This will bump gas price and append this transaction to the end of the validation queue again.
+          // TODO: nested try catch = not pretty
+          try {
+            transaction.bumpGasPrice();
+            await transaction.submit();
+            // add this tx to the end of the validation queue
+            this.addToValidation(transaction);
+          } catch (e) {
+            // error?
+            // validate that the transaction failed on chain ??
+            // didn't fail on chain? -> WTF
+            // mark tx with error
+            // return;
+          }
+        } else {
+          throw error;
+        }
+      }
+    });
+  }
 }

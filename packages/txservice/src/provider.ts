@@ -1,4 +1,4 @@
-import { delay, ERC20Abi, NxtpError } from "@connext/nxtp-utils";
+import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -23,102 +23,6 @@ const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
 };
 
-class MetaTx {
-  constructor(
-    public readonly nonce: number,
-    public readonly timestamp: number,
-    public readonly response: providers.TransactionResponse,
-    public readonly validated: boolean,
-  ) {}
-
-  public validate = () => {
-
-  }
-}
-
-/**
- * @classdesc Will wrap a stack of transaction info and handle all serialized operation on submit and confirm side.
- * 
- * 
- */
-class TransactionBuffer {
-  // Both of the following are functionally treated as stacks (LIFO).
-  private completed: MetaTx[] = []
-  private pending: MetaTx[] = []
-  // Should be used to access either of the stacks.
-  private readonly accessQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
-
-  constructor(private readonly logger: BaseLogger, private readonly signer: Signer) {}
-
-  public push(nonce: number, response: providers.TransactionResponse) {
-    const timestamp = Date.now();
-    // Use the access queue to push.
-    this.accessQueue.add(() => {
-      this.pending.push(
-        {
-          nonce,
-          timestamp,
-          response,
-          validated: false,
-          
-        }
-      );
-    });
-  }
-
-  // So the expected behavior here is that, if the top transaction takes too long (needs to be bumped), we indicate a timeout occurred and
-  // then resubmit with bumped price.
-
-  // private async push(meta: MetaTx) {
-  private async confirmThread() {
-    while (true) {
-      if (this.pending.length > 0) {
-        // We want to confirm the first tx, and then go through the remaining list and see if they should be flagged to be bumped.
-        const meta = this.pending[0];
-        // First check the timestamp to see if this transaction has expired.
-        
-
-        // Next, 
-      } else {
-        // wait 1s
-        delay(1000);
-      }
-    }
-  }
-
-  
-  /**
-   * Get the current nonce value for our signer.
-   *
-   * @remarks
-   * Caller should still be prepared to get the incorrect nonce back. For instance,
-   * if the provider that just handled our sent tx has suddenly gone offline, this
-   * method may give the wrong nonce. This can be solved by making additional calls to
-   * submit the tx.
-   *
-   * @returns A number value for the current nonce.
-   *
-   * @throws RpcError if we fail to get transaction count from all providers.
-   */
-  public async getNonce(): Promise<number> {
-    // Update nonce value to greatest of all nonce values retrieved.
-    const nonce = (await this.getLastTx())?.nonce ?? await this.signer.getTransactionCount("pending");
-    return nonce;
-  }
-
-  private async getLastTx(): Promise<MetaTx | null> {
-    return await this.accessQueue.add(() => {
-      if (this.pending.length > 0) {
-        return this.pending[this.pending.length - 1];
-      } else if (this.completed.length > 0) {
-        return this.completed[this.completed.length - 1];
-      }
-      return null;
-    });
-  }
-
-}
-
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
 
@@ -139,8 +43,6 @@ export class ChainRpcProvider {
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
-
-  private transactionBuffer: TransactionBuffer;
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -206,7 +108,6 @@ export class ChainRpcProvider {
 
     // TODO: #146 We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
-    this.transactionBuffer = new TransactionBuffer(logger, this.signer);
   }
 
   /**
@@ -426,6 +327,17 @@ export class ChainRpcProvider {
         }
       }
       throw new UnpredictableGasLimit({ errors });
+    });
+  }
+
+  /**
+   * Gets the current pending transaction count.
+   *
+   * @returns Number of transactions sent, including pending transactions.
+   */
+   public getTransactionCount(): ResultAsync<number, TransactionError> {
+    return this.resultWrapper<number>(async () => {
+      return await this.signer.getTransactionCount("pending");
     });
   }
 

@@ -7,6 +7,7 @@ import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CON
 import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
+import { TransactionDispatch } from "./dispatch";
 import {
   AlreadyMined,
   RpcError,
@@ -61,6 +62,9 @@ export class TransactionService {
 
   private config: TransactionServiceConfig;
   private providers: Map<number, ChainRpcProvider> = new Map();
+  // TODO: Don't like this. Maybe we should replace above map with just this one,
+  // and we could either grab the core provider from dispatch or just turn dispatch into ChainRpcProvider.
+  private dispatches: Map<number, TransactionDispatch> = new Map();
 
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
@@ -95,7 +99,9 @@ export class TransactionService {
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      this.providers.set(chainIdNumber, new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config));
+      const provider = new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config);
+      this.providers.set(chainIdNumber, provider);
+      this.dispatches.set(chainIdNumber, new TransactionDispatch(this.logger, provider));
     });
   }
 
@@ -121,11 +127,26 @@ export class TransactionService {
     const methodId = getUuid();
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
-    const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
-    let submitFailed = false;
+    // TODO: GetDispatch function!
+    const dispatch = this.dispatches.get(tx.chainId);
+    if (!dispatch) {
+      throw new Error("Blah blah no dispatch for chain ID wow");
+    }
+    const transaction = await dispatch.submit(tx);
+
+      // -> TX FAILED.
+  //
+  // -> TX SUBMITTED.
+  //
+  // wait and listen for transaction.validated (poll/check the stack every 1s).
+  // tx errored out?
+  // -> TX FAILED.
+  // wait for desired # of confirmations
+  // timeout? LOST CONNECTION: SHUTDOWN?!
+  // -> TX CONFIRMED.
 
     try {
-      while (!transaction.didFinish()) {
+      while (!transaction.didFinish) {
         // Submit step.
         try {
           await this.submitTransaction(transaction, requestContext);
