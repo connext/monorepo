@@ -80,7 +80,7 @@ describe("Integration", () => {
     sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
   );
 
-  const setupBeforeEach = async (sendingTokenAddress: string, receivingTokenAddress: string): Promise<void> => {
+  const setupTest = async (sendingTokenAddress: string, receivingTokenAddress: string): Promise<void> => {
     const tokenAddressSending = sendingTokenAddress;
     const tokenAddressReceiving = receivingTokenAddress;
 
@@ -141,7 +141,9 @@ describe("Integration", () => {
     }
 
     const liquiditySending = await txManagerSending.routerBalances(router, tokenAddressSending);
+    console.log("liquiditySending: ", liquiditySending.toString());
     const liquidityReceiving = await txManagerReceiving.routerBalances(router, tokenAddressReceiving);
+    console.log("liquidityReceiving: ", liquidityReceiving.toString());
 
     // fund if necessary
     logger.info(
@@ -207,6 +209,45 @@ describe("Integration", () => {
     }
   };
 
+  const test = async (sendingAssetId: string, receivingAssetId: string) => {
+    let quote: AuctionResponse;
+    try {
+      quote = await userSdk.getTransferQuote({
+        amount: utils.parseEther("1").toString(),
+        receivingAssetId,
+        sendingAssetId,
+        receivingAddress: userWallet.address,
+        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
+        sendingChainId: SENDING_CHAIN,
+        receivingChainId: RECEIVING_CHAIN,
+      });
+    } catch (err) {
+      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
+      throw err;
+    }
+
+    expect(quote.bid).to.be.ok;
+    expect(quote.bidSignature).to.be.ok;
+    const res = await userSdk.prepareTransfer(quote!);
+    expect(res.prepareResponse.hash).to.be.ok;
+    const event = await userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionPrepared,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const fulfillEventPromise = userSdk.waitFor(
+      NxtpSdkEvents.ReceiverTransactionFulfilled,
+      100_000,
+      (data) => data.txData.transactionId === res.transactionId,
+    );
+
+    const finishRes = await userSdk.fulfillTransfer(event);
+    expect(finishRes.metaTxResponse).to.be.ok;
+    const fulfillEvent = await fulfillEventPromise;
+    expect(fulfillEvent).to.be.ok;
+  };
+
   beforeEach(async () => {
     userWallet = Wallet.createRandom();
 
@@ -237,50 +278,15 @@ describe("Integration", () => {
     );
   });
 
-  it("should send ERC20 tokens", async function () {
+  it.only("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
     const sendingAssetId = erc20Address;
     const receivingAssetId = erc20Address;
 
-    await setupBeforeEach(sendingAssetId, receivingAssetId);
+    await setupTest(sendingAssetId, receivingAssetId);
 
-    let quote: AuctionResponse;
-    try {
-      quote = await userSdk.getTransferQuote({
-        amount: utils.parseEther("1").toString(),
-        receivingAssetId: sendingAssetId,
-        sendingAssetId: receivingAssetId,
-        receivingAddress: userWallet.address,
-        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-        sendingChainId: SENDING_CHAIN,
-        receivingChainId: RECEIVING_CHAIN,
-      });
-    } catch (err) {
-      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
-      throw err;
-    }
-
-    expect(quote.bid).to.be.ok;
-    expect(quote.bidSignature).to.be.ok;
-    const res = await userSdk.prepareTransfer(quote!);
-    expect(res.prepareResponse.hash).to.be.ok;
-    const event = await userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionPrepared,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
-
-    const fulfillEventPromise = userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
-
-    const finishRes = await userSdk.fulfillTransfer(event);
-    expect(finishRes.metaTxResponse).to.be.ok;
-    const fulfillEvent = await fulfillEventPromise;
-    expect(fulfillEvent).to.be.ok;
+    await test(sendingAssetId, receivingAssetId);
   });
 
   it("should send Native tokens", async function () {
@@ -289,49 +295,8 @@ describe("Integration", () => {
     const sendingAssetId = AddressZero;
     const receivingAssetId = AddressZero;
 
-    await setupBeforeEach(sendingAssetId, receivingAssetId);
+    await setupTest(sendingAssetId, receivingAssetId);
 
-    const balance = await chainProviders[SENDING_CHAIN].provider.getBalance(txManagerAddressReceiving);
-    const balance2 = await chainProviders[RECEIVING_CHAIN].provider.getBalance(txManagerAddressSending);
-    console.log(utils.formatEther(balance), utils.formatEther(balance2));
-
-    let quote: AuctionResponse;
-    try {
-      quote = await userSdk.getTransferQuote({
-        amount: utils.parseEther("1").toString(),
-        receivingAssetId: sendingAssetId,
-        sendingAssetId: receivingAssetId,
-        receivingAddress: userWallet.address,
-        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3,
-        sendingChainId: SENDING_CHAIN,
-        receivingChainId: RECEIVING_CHAIN,
-      });
-    } catch (err) {
-      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
-      throw err;
-    }
-
-    expect(quote.bid).to.be.ok;
-    expect(quote.bidSignature).to.be.ok;
-
-    const res = await userSdk.prepareTransfer(quote!);
-    expect(res.prepareResponse.hash).to.be.ok;
-
-    const event = await userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionPrepared,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
-
-    const fulfillEventPromise = userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
-
-    const finishRes = await userSdk.fulfillTransfer(event);
-    expect(finishRes.metaTxResponse).to.be.ok;
-    const fulfillEvent = await fulfillEventPromise;
-    expect(fulfillEvent).to.be.ok;
+    await test(sendingAssetId, receivingAssetId);
   });
 });
