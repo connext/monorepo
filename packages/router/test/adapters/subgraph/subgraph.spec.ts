@@ -2,7 +2,12 @@ import { expect, mkAddress, transactionSubgraphMock } from "@connext/nxtp-utils"
 import { constants } from "ethers";
 import { reset, restore, SinonStub, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
-import { getAssetBalance, getTransactionForChain } from "../../../src/adapters/subgraph/subgraph";
+import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
+import {
+  getActiveTransactions,
+  getAssetBalance,
+  getTransactionForChain,
+} from "../../../src/adapters/subgraph/subgraph";
 import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
 import { routerAddrMock } from "../../utils";
 
@@ -28,8 +33,8 @@ describe("Subgraph Adapter", () => {
   beforeEach(() => {
     sdks = {
       [chainId]: {
-        GetSenderTransactions: stub().resolves([]),
-        GetTransactions: stub().resolves([]),
+        GetSenderTransactions: stub().resolves({ router: { transactions: [] } }),
+        GetTransactions: stub().resolves({ transactions: [] }),
         GetTransaction: stub().resolves(undefined),
         GetAssetBalance: stub().resolves(constants.Zero),
       },
@@ -38,7 +43,33 @@ describe("Subgraph Adapter", () => {
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
   });
 
-  describe.skip("getActiveTransactions", () => {});
+  describe("getActiveTransactions", () => {
+    it("should fail GetSenderTransactions fails", async () => {
+      sdks[chainId].GetSenderTransactions.rejects(new Error("fail"));
+
+      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+    });
+
+    it("should fail GetTransaction fails", async () => {
+      sdks[chainId].GetSenderTransactions.resolves({
+        router: {
+          transactions: [{ ...transactionSubgraphMock, receivingChainId: chainId }],
+        },
+      });
+
+      sdks[chainId].GetTransactions.rejects(new Error("fail"));
+
+      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+
+      expect(
+        sdks[chainId].GetSenderTransactions.calledOnceWithExactly({
+          routerId: routerAddrMock,
+          sendingChainId: chainId,
+          status: TransactionStatus.Prepared,
+        }),
+      ).to.be.true;
+    });
+  });
 
   describe("getTransactionForChain", () => {
     it("should work", async () => {

@@ -16,3 +16,4 @@ export * from "./transactionManager";
 export * from "./request";
 export * from "./subgraph";
 export * from "./asset";
+export * from "./chainData";
