@@ -13,6 +13,3 @@ applications:
         baseDirectory: packages/test-ui/build
         files:
           - "**/*"
-      cache:
-        paths:
-          - node_modules/**/*
