@@ -124,6 +124,7 @@ describe("NxtpSdk", () => {
   });
 
   afterEach(() => {
+    sdk.removeAllListeners();
     restore();
     reset();
   });
@@ -490,8 +491,33 @@ describe("NxtpSdk", () => {
 
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
+      }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
+
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.eq(bidSignature);
+    });
+
+    it("happy: should get a transfer quote from a preferred router", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      const nonPreferredBid: AuctionBid = {
+        ...auctionBid,
+        router: mkAddress("0xddd"),
+        amountReceived: BigNumber.from(auctionBid.amountReceived).add(1).toString(),
+      };
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid } });
+      }, 100);
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+      }, 150);
+      const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouter: auctionBid.router });
 
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);
