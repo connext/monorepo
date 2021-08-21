@@ -26,11 +26,11 @@ class TransactionBuffer {
 
   // Move latest pending to completed.
   // @returns boolean whether operation was successful, or if there was no pending tx to shift.
-  public async shift(): Promise<boolean> {
+  public async shift(id: string): Promise<boolean> {
     // TODO: Trim the validated stack when it gets "too long" to save memory space.
     return await this.accessQueue.add((): boolean => {
-      const transaction = this.pending.shift();
-      if (!transaction) {
+      const transaction = this.pending.find((transaction) => transaction.id === id);
+      if (transaction == null) {
         return false;
       }
       this.validated.push(transaction);
@@ -168,29 +168,24 @@ export class TransactionDispatch {
       try {
         await transaction.validate();
         // **shift from pending stack, push to validated stack
-        await this.buffer.shift(transaction.id);
+        const success = await this.buffer.shift(transaction.id);
+        if (!success) {
+          this.logger.warn({
+            id: transaction.id,
+          }, "Failed to locate transaction in pending buffer.");
+        }
       } catch (error) {
-        // timeout? (e.g. after 60sec).
-        // (optional sanity check): getTransaction, check that it exists on chain
-        // doesn't exist?
-        // TODO: backfill with a bunk tx
-        // note: even if the tx is *not* the blockade, we need to backfill this one, or it will block all txs that follow.
-
         if (error instanceof TimeoutError) {
+          // TODO: (optional sanity check): getTransaction, check that it exists on chain
+            // doesn't exist? TODO: backfill with a bunk tx
+            // note: even if the tx is *not* the blockade, we need to backfill this one, or it will block all txs that follow.
+
           // This will bump gas price and append this transaction to the end of the validation queue again.
-          // TODO: nested try catch = not pretty
-          try {
-            transaction.bumpGasPrice();
-            await transaction.submit();
-            // add this tx to the end of the validation queue
-            this.addToValidation(transaction);
-          } catch (e) {
-            // error?
-            // validate that the transaction failed on chain ??
-            // didn't fail on chain? -> WTF
-            // mark tx with error
-            // return;
-          }
+          // TODO: if error, validate that the transaction failed on chain ??
+          transaction.bumpGasPrice();
+          await transaction.submit();
+          // add this tx to the end of the validation queue
+          this.addToValidation(transaction);
         } else {
           throw error;
         }

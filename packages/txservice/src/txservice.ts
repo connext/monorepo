@@ -1,7 +1,7 @@
 import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { getUuid, RequestContext } from "@connext/nxtp-utils";
+import { delay, getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
@@ -9,9 +9,7 @@ import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TransactionDispatch } from "./dispatch";
 import {
-  AlreadyMined,
   RpcError,
-  TimeoutError,
   TransactionError,
   TransactionReverted,
   TransactionServiceFailure,
@@ -132,57 +130,26 @@ export class TransactionService {
     if (!dispatch) {
       throw new Error("Blah blah no dispatch for chain ID wow");
     }
+
     const transaction = await dispatch.submit(tx);
-
-      // -> TX FAILED.
-  //
-  // -> TX SUBMITTED.
-  //
-  // wait and listen for transaction.validated (poll/check the stack every 1s).
-  // tx errored out?
-  // -> TX FAILED.
-  // wait for desired # of confirmations
-  // timeout? LOST CONNECTION: SHUTDOWN?!
-  // -> TX CONFIRMED.
-
+    // -> TX SUBMITTED. TODO: emit
     try {
-      while (!transaction.didFinish) {
-        // Submit step.
-        try {
-          await this.submitTransaction(transaction, requestContext);
-        } catch (error) {
-          // IFF this is the first attempt, throw.
-          // Otherwise, we should go ahead and get the receipt.
-          if (transaction.attempt <= 1) {
-            throw error;
-          } else if (error instanceof AlreadyMined) {
-            // If the error is an AlreadyMined error, we probably don't need to log a warning here.
-            this.logger.debug(
-              { method, methodId, requestContext, context: error.context },
-              "Tx was already mined, procceeding to confirmation step.",
-            );
-          } else {
-            this.logger.warn({ method, methodId, requestContext, error }, "Tx submit failed for unexpected reason.");
-          }
-          // Save the submit error to indicate we've failed here; this should be the last execution
-          // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
-          // mined, but we have logged it above.
-          submitFailed = true;
-        }
-
-        // Confirm step.
-        try {
-          await this.confirmTransaction(transaction, requestContext);
-        } catch (error) {
-          if (!submitFailed && error instanceof TimeoutError) {
-            // This will bump gas price and loop back around starting at the
-            // submit step.
-            transaction.bumpGasPrice();
-          } else {
-            throw error;
-          }
+      // TODO: Hardcoding final expiry as 30 minutes from now.
+      const finalExpiry = Date.now() + 30 * 60 * 1000;
+      // wait and listen for transaction.validated (poll/check the stack every 1s).
+      while (!transaction.validated) {
+        delay(1000);
+        if (transaction.error) {
+          throw transaction.error;
+        } else if (Date.now() > finalExpiry) {
+          // TODO: If this occurrs, it may indicate we have lost connection with providers and we ought to shut down the system until
+          // connection is regained.
+          throw new TransactionServiceFailure("Final expiry occurred.", { transaction: transaction.data });
         }
       }
+
+      await this.confirmTransaction(transaction, requestContext);
+      // -> TX CONFIRMED. TODO: emit
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
       // Check to see if we have a normal error here.

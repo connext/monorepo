@@ -1,8 +1,8 @@
-import { BigNumber, providers } from "ethers";
+import { providers } from "ethers";
 import { BaseLogger } from "pino";
 import { getUuid } from "@connext/nxtp-utils";
 
-import { TransactionServiceConfig } from "./config";
+import { DEFAULT_CONFIG } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { FullTransaction, GasPrice, WriteTransaction } from "./types";
 import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
@@ -194,23 +194,25 @@ export class Transaction {
     // it will throw a TransactionTimeout error.
     const result = await this.provider.confirmTransaction(this.response, 1, this.timeUntilExpiry());
     if (result.isErr()) {
-      this._error = result.error;
-      if (this._error instanceof TransactionReplaced) {
+      const { error } = result;
+      if (error instanceof TransactionReplaced) {
         // TODO: #150 Should we handle error.reason?:
         // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
-        this.receipt = this._error.receipt;
+        this.receipt = error.receipt;
         // error.replacement - the replacement transaction (a TransactionResponse)
-        this.response = this._error.replacement;
+        this.response = error.replacement;
         this._validated = true;
-      } else if (this._error instanceof TransactionReverted) {
+      } else if (error instanceof TransactionReverted) {
         // NOTE: This is the official receipt with status of 0, so it's safe to say the
         // transaction was in fact reverted and we should throw here.
-        this.receipt = this._error.receipt;
+        this.receipt = error.receipt;
         this._validated = true;
-        throw this._error;
+        this._error = error;
+        throw error;
       } else {
-        throw this._error;
+        this._error = error;
+        throw error;
       }
     } else {
       this.receipt = result.value;
@@ -250,7 +252,8 @@ export class Transaction {
   public bumpGasPrice() {
     const currentPrice = this.gasPrice.get();
     // Scale up gas by percentage as specified by config.
-    const bumpedGasPrice = currentPrice.add(currentPrice.mul(this.config.gasReplacementBumpPercent).div(100)).add(1);
+    // TODO: Replace with actual config.
+    const bumpedGasPrice = currentPrice.add(currentPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
     this.gasPrice.set(bumpedGasPrice);
     this.logger.info(
       {
