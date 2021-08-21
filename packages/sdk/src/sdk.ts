@@ -508,7 +508,7 @@ export class NxtpSdk {
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
-      preferredRouter,
+      preferredRouter: _preferredRouter,
     } = params;
     if (!this.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.chainConfig));
@@ -525,6 +525,8 @@ export class NxtpSdk {
     if (parseFloat(slippageTolerance) > parseFloat(MAX_SLIPPAGE_TOLERANCE)) {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
+
+    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
 
     const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
     const expiry = _expiry ?? getExpiry(blockTimestamp);
