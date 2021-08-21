@@ -61,6 +61,8 @@ import {
 } from "./error";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
 
+export { contractDeployments } from "./transactionManager";
+
 /**
  * Utility to convert the number of hours into seconds
  *

@@ -1,4 +1,5 @@
 /* eslint-disable require-jsdoc */
+import { ChainData } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 
 const TestTokenABI = [
@@ -32,4 +33,19 @@ export const getBalance = async (
     balance = await contract.balanceOf(address);
   }
   return balance;
+};
+
+export const getChainName = (chainId: number, chainData: ChainData[]): string => {
+  const chain = chainData.find((chain) => chain?.chainId === chainId);
+  return chain?.name ?? chainId.toString();
+};
+
+export const getExplorerLinkForTx = (tx: string, chainId: number, chainData: ChainData[]) => {
+  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+  return explorer ? `${explorer}/tx/${tx}` : "#";
+};
+
+export const getExplorerLinkForAddress = (address: string, chainId: number, chainData: ChainData[]) => {
+  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+  return explorer ? `${explorer}/address/${address}` : "#";
 };
