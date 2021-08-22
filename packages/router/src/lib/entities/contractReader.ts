@@ -1,5 +1,4 @@
 import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
-import { Type, Static } from "@sinclair/typebox";
 
 import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 

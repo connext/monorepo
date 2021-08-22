@@ -8,8 +8,6 @@ import {
   SingleChainTransaction,
   CrosschainTransactionStatus,
   CancelPayload,
-  FulfillPayload,
-  PreparePayload,
 } from "../../lib/entities";
 
 import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
