@@ -1,8 +1,9 @@
-import { createRequestContext, jsonifyError, safeJsonStringify } from "@connext/nxtp-utils";
+import { createRequestContext, getUuid, jsonifyError, safeJsonStringify } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 import { ActiveTransaction, CrosschainTransactionStatus, FulfillPayload, PreparePayload } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
+import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -20,20 +21,46 @@ export const bindContractReader = async () => {
 };
 
 export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
-  const { logger } = getContext();
+  const method = "handleActiveTransactions";
+  const methodId = getUuid();
+  const { logger, txService, config } = getContext();
   const { prepare, cancel, fulfill } = getOperations();
   return await Promise.all(
     transactions.map(async (transaction): Promise<void> => {
       if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {
-        const preparePayload: PreparePayload = transaction.payload;
+        const _transaction = transaction as ActiveTransaction<"SenderPrepared">;
+        const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.sendingChainId];
+        if (!chainConfig) {
+          // this should not happen, this should get checked before this point
+          throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
+        }
+        const senderReceipt = await txService.getTransactionReceipt(
+          _transaction.crosschainTx.invariant.sendingChainId,
+          _transaction.payload.senderPreparedHash,
+        );
+        if (senderReceipt.confirmations < chainConfig.confirmations) {
+          logger.info(
+            {
+              method,
+              methodId,
+              txConfirmations: senderReceipt.confirmations,
+              configuredConfirmations: chainConfig.confirmations,
+              chainId: _transaction.crosschainTx.invariant.sendingChainId,
+              txHash: _transaction.payload.senderPreparedHash,
+            },
+            "Waiting for safe confirmations",
+          );
+          return;
+        }
+        const preparePayload: PreparePayload = _transaction.payload;
         const requestContext = createRequestContext("ContractReader => SenderPrepared");
         try {
           logger.info({ requestContext }, "Preparing receiver");
           const receipt = await prepare(
-            transaction.crosschainTx.invariant,
+            _transaction.crosschainTx.invariant,
             {
-              senderExpiry: transaction.crosschainTx.sending.expiry,
-              senderAmount: transaction.crosschainTx.sending.amount,
+              senderExpiry: _transaction.crosschainTx.sending.expiry,
+              senderAmount: _transaction.crosschainTx.sending.amount,
               bidSignature: preparePayload.bidSignature,
               encodedBid: preparePayload.encodedBid,
               encryptedCallData: preparePayload.encryptedCallData,
@@ -67,16 +94,41 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           }
         }
       } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
-        const fulfillPayload: FulfillPayload = transaction.payload;
+        const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;
+        const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
+        if (!chainConfig) {
+          // this should not happen, this should get checked before this point
+          throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
+        }
+        const receiverReceipt = await txService.getTransactionReceipt(
+          _transaction.crosschainTx.invariant.receivingChainId,
+          _transaction.payload.receiverFulfilledHash,
+        );
+        if (receiverReceipt.confirmations < chainConfig.confirmations) {
+          logger.info(
+            {
+              method,
+              methodId,
+              chainId: _transaction.crosschainTx.invariant.receivingChainId,
+              txHash: _transaction.payload.receiverFulfilledHash,
+              txConfirmations: receiverReceipt.confirmations,
+              configuredConfirmations: chainConfig.confirmations,
+            },
+            "Waiting for safe confirmations",
+          );
+          return;
+        }
+
+        const fulfillPayload: FulfillPayload = _transaction.payload;
         const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");
         try {
           logger.info({ requestContext }, "Fulfilling sender");
           const receipt = await fulfill(
-            transaction.crosschainTx.invariant,
+            _transaction.crosschainTx.invariant,
             {
-              amount: transaction.crosschainTx.sending.amount,
-              expiry: transaction.crosschainTx.sending.expiry,
-              preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+              amount: _transaction.crosschainTx.sending.amount,
+              expiry: _transaction.crosschainTx.sending.expiry,
+              preparedBlockNumber: _transaction.crosschainTx.sending.preparedBlockNumber,
               signature: fulfillPayload.signature,
               callData: fulfillPayload.callData,
               relayerFee: fulfillPayload.relayerFee,

@@ -316,6 +316,18 @@ export class ChainRpcProvider {
   }
 
   /**
+   * Gets a transaction.
+   *
+   * @returns A number representing the current blocktime.
+   */
+  public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
+    return this.resultWrapper<providers.TransactionReceipt>(async () => {
+      const receipt = await this.provider.getTransactionReceipt(hash);
+      return receipt;
+    });
+  }
+
+  /**
    * Estimate gas cost for the specified transaction.
    *
    * @remarks
