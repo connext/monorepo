@@ -4,6 +4,7 @@ import { SinonStub, stub } from "sinon";
 import { getOperations } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { txServiceMock } from "../../globalTestHook";
 import { constants } from "ethers/lib/ethers";
@@ -36,6 +37,8 @@ describe("Auction Operation", () => {
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
+
+      stub(SharedHelperFns, "getNtpTime").resolves(Math.floor(Date.now() / 1000));
     });
 
     it("should error if auction payload data validation fails", async () => {

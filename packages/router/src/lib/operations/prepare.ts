@@ -19,6 +19,7 @@ import {
 } from "../errors";
 import {
   decodeAuctionBid,
+  getNtpTime,
   getReceiverAmount,
   getReceiverExpiryBuffer,
   recoverAuctionBid,
@@ -106,21 +107,15 @@ export const prepare = async (
   }
 
   // Handle the expiries.
-  // Some notes on expiries -- each participant should be using the latest
-  // block timestamp as the baseline for evaluating the expiries rather than
-  // the Date.now() to avoid local clock errors. The block.timestamp should
-  // be evaluated against the chain they are preparing on (i.e. user refs
-  // sending chain and router refs receiving chain).
+  // Some notes on expiries -- each participant should be using a neutral NTP time source rather than
+  // Date.now() to avoid local clock errors
 
-  // Get current block times
-  const [currentBlockTimeReceivingChain, currentBlockTimeSendingChain] = await Promise.all([
-    txService.getBlockTime(invariantData.receivingChainId),
-    txService.getBlockTime(invariantData.sendingChainId),
-  ]);
+  // Get current time
+  const currentTime = await getNtpTime();
 
-  if (!validBidExpiry(bid.expiry, currentBlockTimeReceivingChain)) {
+  if (!validBidExpiry(bid.expiry, currentTime)) {
     // cancellable error
-    throw new BidExpiryInvalid(bid.bidExpiry, currentBlockTimeReceivingChain, {
+    throw new BidExpiryInvalid(bid.bidExpiry, currentTime, {
       method,
       methodId,
       requestContext,
@@ -128,11 +123,11 @@ export const prepare = async (
   }
 
   // Get buffers
-  const senderBuffer = senderExpiry - currentBlockTimeSendingChain;
+  const senderBuffer = senderExpiry - currentTime;
   const receiverBuffer = getReceiverExpiryBuffer(senderBuffer);
 
   // Calculate receiver expiry
-  const receiverExpiry = receiverBuffer + currentBlockTimeReceivingChain;
+  const receiverExpiry = receiverBuffer + currentTime;
 
   if (!validExpiryBuffer(receiverBuffer)) {
     // cancellable error

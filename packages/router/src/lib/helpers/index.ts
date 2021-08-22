@@ -8,3 +8,5 @@ export {
 } from "./prepare";
 
 export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";
+
+export { getNtpTime } from "./shared";

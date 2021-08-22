@@ -38,6 +38,7 @@ import {
   delay,
   getOnchainBalance as _getOnchainBalance,
   MetaTxTypes,
+  getNtpTime,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -95,9 +96,8 @@ export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp 
  *
  * @returns Timestamp on latest block in seconds
  */
-export const getTimestampInSeconds = async (provider: providers.FallbackProvider) => {
-  const block = await provider.getBlock("latest");
-  return block.timestamp;
+export const getTimestampInSeconds = async (): Promise<number> => {
+  return await getNtpTime();
 };
 
 export const getOnchainBalance = (assetId: string, address: string, provider: providers.FallbackProvider) =>
@@ -528,7 +528,7 @@ export class NxtpSdk {
 
     const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
 
-    const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
+    const blockTimestamp = await getTimestampInSeconds();
     const expiry = _expiry ?? getExpiry(blockTimestamp);
     if (expiry - blockTimestamp < getMinExpiryBuffer()) {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
