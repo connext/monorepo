@@ -575,6 +575,7 @@ export class NxtpSdk {
     const inbox = generateMessagingInbox();
 
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
+      this.auctionResponseEvt.attach((data) => console.log("GOT BID!!!", data));
       if (dryRun) {
         try {
           const result = await this.auctionResponseEvt

@@ -41,6 +41,7 @@ import {
   SubmitError,
   UnknownAuctionError,
 } from "../../src/error";
+import { getAddress } from "ethers/lib/utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -59,8 +60,8 @@ describe("NxtpSdk", () => {
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
 
-  let user: string = mkAddress("0xa");
-  let router: string = mkAddress("0xb");
+  let user: string = getAddress(mkAddress("0xa"));
+  let router: string = getAddress(mkAddress("0xb"));
   let sendingChainId: number = 1337;
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
