@@ -21,7 +21,7 @@ export const txReceiptMock = {
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
-  confirmations: 1,
+  confirmations: 5,
   contractAddress: mkAddress(),
   cumulativeGasUsed: constants.One,
   from: mkAddress(),
