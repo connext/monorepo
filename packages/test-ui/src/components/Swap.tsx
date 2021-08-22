@@ -248,6 +248,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     receivingAssetId: string,
     amount: string,
     receivingAddress: string,
+    preferredRouter?: string,
   ): Promise<AuctionResponse | undefined> => {
     if (!sdk) {
       return;
@@ -270,6 +271,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       amount,
       transactionId,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
+      preferredRouter,
     });
     setAuctionResponse(response);
     return response;
@@ -672,6 +674,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 <Input />
               </Form.Item>
 
+              <Form.Item label="Preferred Router" name="preferredRouter">
+                <Input placeholder="Do not use unless testing routers" />
+              </Form.Item>
+
               <Form.Item label="Received Amount" name="receivedAmount">
                 <Input
                   disabled
@@ -698,6 +704,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                           receivingAssetId,
                           utils.parseEther(form.getFieldValue("amount")).toString(),
                           form.getFieldValue("receivingAddress"),
+                          form.getFieldValue("preferredRouter"),
                         );
                         form.setFieldsValue({
                           receivedAmount: utils.formatEther(response?.bid.amountReceived ?? constants.Zero),

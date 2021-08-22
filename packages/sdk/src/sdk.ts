@@ -145,6 +145,7 @@ export const CrossChainParamsSchema = Type.Object({
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
   slippageTolerance: Type.Optional(Type.String()),
   dryRun: Type.Optional(Type.Boolean()),
+  preferredRouter: Type.Optional(TAddress),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -507,6 +508,7 @@ export class NxtpSdk {
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
+      preferredRouter: _preferredRouter,
     } = params;
     if (!this.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.chainConfig));
@@ -523,6 +525,8 @@ export class NxtpSdk {
     if (parseFloat(slippageTolerance) > parseFloat(MAX_SLIPPAGE_TOLERANCE)) {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
+
+    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
 
     const blockTimestamp = await getTimestampInSeconds(this.chainConfig[sendingChainId].provider);
     const expiry = _expiry ?? getExpiry(blockTimestamp);
@@ -571,33 +575,50 @@ export class NxtpSdk {
     const inbox = generateMessagingInbox();
 
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
+      this.auctionResponseEvt.attach((data) => console.log("GOT BID!!!", data));
       if (dryRun) {
         try {
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
-            .pipe((data) => {
-              if (!data.data || data.err) {
-                return false;
-              }
-              return true;
-            })
+            .pipe((data) => !!data.data)
+            .pipe((data) => !data.err)
             .waitFor(AUCTION_TIMEOUT);
           return resolve([result.data!]);
         } catch (e) {
           return reject(e);
         }
       }
+
+      if (preferredRouter) {
+        this.logger.warn({ method, methodId, preferredRouter }, "Waiting for preferred router");
+        try {
+          const result = await this.auctionResponseEvt
+            .pipe((data) => data.inbox === inbox)
+            .pipe((data) => !!data.data)
+            .pipe((data) => !data.err)
+            .pipe((data) => data.data?.bid.router === preferredRouter)
+            .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
+          return resolve([result.data!]);
+        } catch (e) {
+          return reject(e);
+        }
+      }
+
       const auctionCtx = Evt.newCtx();
       const bids: AuctionResponse[] = [];
       this.auctionResponseEvt
         .pipe(auctionCtx)
         .pipe((data) => data.inbox === inbox)
-        .attach((data) => {
-          if (!data.data || data.err) {
-            this.logger.warn({ inbox }, "Invalid bid received");
-            return;
+        .pipe((data) => !!data.data)
+        .pipe((data) => {
+          if (data.err) {
+            this.logger.warn({ inbox, err: data.err }, "Invalid bid received");
+            return false;
           }
-          bids.push(data.data);
+          return true;
+        })
+        .attach((data) => {
+          bids.push(data.data!);
         });
 
       setTimeout(async () => {

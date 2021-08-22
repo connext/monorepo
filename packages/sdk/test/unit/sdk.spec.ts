@@ -41,6 +41,7 @@ import {
   SubmitError,
   UnknownAuctionError,
 } from "../../src/error";
+import { getAddress } from "ethers/lib/utils";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -59,8 +60,8 @@ describe("NxtpSdk", () => {
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
 
-  let user: string = mkAddress("0xa");
-  let router: string = mkAddress("0xb");
+  let user: string = getAddress(mkAddress("0xa"));
+  let router: string = getAddress(mkAddress("0xb"));
   let sendingChainId: number = 1337;
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
@@ -124,6 +125,7 @@ describe("NxtpSdk", () => {
   });
 
   afterEach(() => {
+    sdk.removeAllListeners();
     restore();
     reset();
   });
@@ -490,8 +492,33 @@ describe("NxtpSdk", () => {
 
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
+      }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
+
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.eq(bidSignature);
+    });
+
+    it("happy: should get a transfer quote from a preferred router", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      const nonPreferredBid: AuctionBid = {
+        ...auctionBid,
+        router: mkAddress("0xddd"),
+        amountReceived: BigNumber.from(auctionBid.amountReceived).add(1).toString(),
+      };
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid } });
+      }, 100);
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+      }, 150);
+      const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouter: auctionBid.router });
 
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);
