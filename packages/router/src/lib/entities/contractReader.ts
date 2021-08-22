@@ -12,26 +12,30 @@ export const CrosschainTransactionStatus = {
 
 export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[keyof typeof CrosschainTransactionStatus];
 
-export const PreparePayloadSchema = Type.Object({
-  encryptedCallData: Type.String(),
-  encodedBid: Type.String(),
-  bidSignature: Type.String(),
-});
-export type PreparePayload = Static<typeof PreparePayloadSchema>;
+export type PreparePayload = {
+  encryptedCallData: string;
+  encodedBid: string;
+  bidSignature: string;
+};
 
-// export const CancelPayloadSchema = Type.Record(Type.String(), );
 export type CancelPayload = Record<string, never>;
 
-export type FulfillPayload = CancelPayload & {
+export type FulfillPayload = {
   signature: string;
   relayerFee: string;
   callData: string;
 };
 
 export type CrosschainTransactionPayload = {
-  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
-  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
-  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
+  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload & {
+    senderPreparedHash: string;
+  };
+  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
+    receiverFulfilledHash: string;
+  };
+  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload & {
+    receiverCancelledHash: string;
+  };
   [CrosschainTransactionStatus.ReceiverExpired]: FulfillPayload;
 };
 
