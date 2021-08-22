@@ -3,6 +3,7 @@
 ## Next Release
 
 - [test-ui] Router liquidity management UI.
+- [test-ui] Test preferred router.
 
 ## 0.0.19
 
