@@ -192,7 +192,7 @@ export class Transaction {
 
     // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
     // it will throw a TransactionTimeout error.
-    const result = await this.provider.confirmTransaction(this.response, 1, this.timeUntilExpiry());
+    const result = await this.provider.confirmTransaction(this.response, 1);
     if (result.isErr()) {
       const { error } = result;
       if (error instanceof TransactionReplaced) {
@@ -265,8 +265,8 @@ export class Transaction {
     );
   }
 
-  private timeUntilExpiry(): number {
-    const expiry = this.timestamp + this.provider.confirmationTimeout;
+  public timeUntilExpiry(): number {
+    const expiry = this.timestamp + (this.provider.confirmationTimeout * this.provider.confirmationsRequired);
     return expiry - Date.now();
   }
 

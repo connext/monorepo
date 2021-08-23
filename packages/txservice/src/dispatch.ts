@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
+import { delay } from "@connext/nxtp-utils";
 
 import { ChainRpcProvider } from "./provider";
 import { GasPrice, WriteTransaction } from "./types";
@@ -74,6 +75,7 @@ class TransactionBuffer {
 export class TransactionDispatch {
   public readonly chainId: number;
 
+  // This queue is used for the first submit of each transaction in order to assign nonce.
   private readonly submitQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   // A queue for execution of transaction validation. When it completes, we'll shift the transaction from
   // pending stack -> validated stack in the buffer.
@@ -145,7 +147,7 @@ export class TransactionDispatch {
           await this.buffer.push(transaction);
           // NOTE: We asyncronously add to validation queue here. This will ensure it gets validated in the right
           // order, yet we don't sit around and wait for validation here.
-          this.addToValidation(transaction);
+          this.addToValidationQueue(transaction);
           return { value: transaction, success: true };
         } catch (e) {
           // validate that the transaction failed on chain?
@@ -162,7 +164,57 @@ export class TransactionDispatch {
     }
   }
 
-  private async addToValidation(transaction: Transaction) {
+  private async backfillLoop() {
+    while (true) {
+      delay(1000);
+      // Lazy solution: we only care about a potential hold-up if it could hold anything up.
+      if (this.buffer.pendingLength < 2) {
+        continue;
+      }
+      const result = await this.provider.getTransactionCount();
+      if (result.isErr()) {
+        // TODO: log
+      }
+      const currentNonce = result.isOk() ? result.value : -1;
+      const tx: Transaction | undefined = this.buffer.getTxByNonce(currentNonce);
+      if (tx == null) {
+        // are there tx's AHEAD of this nonce, waiting on it?
+        // BC it could just be the latest nonce and we're currently not doing anything
+        // TODO: backfill
+        this.backfill(currentNonce);
+        this.logger.error({ nonce: currentNonce }, "Non-existent transaction required backfill.");
+      } else {
+        if (tx.didFinish) {
+          continue;
+        }
+        // Check to make sure that the transaction is doing stuff
+        const ttl = tx.timeUntilExpiry();
+        if (ttl < 0) {
+          // TODO: backfill.
+          this.backfill(currentNonce);
+          this.logger.error({ nonce: currentNonce }, "Expired transaction required backfill.");
+        } else {
+          if (tx.attempt > 5) {
+            try {
+              // You get 1 hail mary. (This should throw if it fails).
+              await this.hailMary(tx);
+            } catch (e) {
+              // If it fails from there, kill tx and backfill
+              await tx.kill(e);
+              this.backfill(currentNonce);
+              this.logger.error({ error: e, nonce: currentNonce }, "Transaction required backfill: HM failed.");
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private async backfill(nonce: number) {
+    // TODO:
+  }
+
+  private async addToValidationQueue(transaction: Transaction) {
     this.validateQueue.add(async () => {
       // wait for 1 confirmation, aka validation
       try {
@@ -185,7 +237,7 @@ export class TransactionDispatch {
           transaction.bumpGasPrice();
           await transaction.submit();
           // add this tx to the end of the validation queue
-          this.addToValidation(transaction);
+          this.addToValidationQueue(transaction);
         } else {
           throw error;
         }
