@@ -394,14 +394,15 @@ export class NxtpSdk {
     Object.entries(this.chainConfig).forEach(
       ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
         const chainId = parseInt(_chainId);
-
         let transactionManagerAddress = _transactionManagerAddress;
         if (!transactionManagerAddress) {
-          transactionManagerAddress = getDeployedTransactionManagerContract(chainId)!.address;
+          const res = getDeployedTransactionManagerContract(chainId);
+          if (!res || !res.address) {
+            throw new NoTransactionManager(chainId);
+          }
+          transactionManagerAddress = res!.address;
         }
-        if (!transactionManagerAddress) {
-          throw new NoTransactionManager(chainId);
-        }
+
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
