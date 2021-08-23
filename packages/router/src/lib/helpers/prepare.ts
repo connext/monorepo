@@ -3,6 +3,8 @@ import {
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeWad,
+  calculateExchangeAmount,
+  getRateFromPercentage,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -27,6 +29,19 @@ export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS
 export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExpiry > currentTime;
 
 /**
+ * Returns the swapRate
+ *
+ * @param TODO
+ * @returns The swapRate, determined by the AMM
+ *
+ * @remarks
+ * TODO: getSwapRate using AMM
+ */
+export const getSwapRate = async (): Promise<string> => {
+  return "1";
+};
+
+/**
  * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
  *
  * @param amount The amount of the transaction on the sending chain
@@ -35,16 +50,25 @@ export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExp
  * @remarks
  * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * swapRate`
  */
-export const getReceiverAmount = (
+export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
-  swapRate: string,
   outputDecimals: number,
-): string => {
+  routerFee: string,
+): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
-  return calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals).toString();
+  // 1. swap rate from AMM
+  const swapRate = await getSwapRate();
+  let amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
+
+  // 2. flat fee by Router
+  let routerFeeRate = getRateFromPercentage(routerFee);
+  let receivingAmount = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate).toString();
+
+  // TODO:  gas fee reimbursement
+  return receivingAmount;
 };
 
 /**
