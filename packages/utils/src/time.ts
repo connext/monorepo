@@ -1,8 +1,15 @@
-import { Client } from "ntp-time";
+import { fetchJson } from "ethers/lib/utils";
 
-const ntpClient = new Client("a.st1.ntp.br", 123, { timeout: 5000 });
-
-export const getNtpTime = async () => {
-  const time = await ntpClient.syncTime();
-  return Math.floor(time.destinationTimestamp / 1000); // in seconds
+import { isNode } from "./env";
+/**
+ * Gets the current time in seconds. On browser environments, use a server to avoid issues where
+ * the user's clock is out of sync.
+ * @returns The current time in seconds.
+ */
+export const getNtpTimeSeconds = async () => {
+  if (isNode()) {
+    return Math.floor(Date.now() / 1000);
+  }
+  const time = await fetchJson("https://www.timeapi.io/api/Time/current/zone?timeZone=UTC");
+  return Math.floor(Date.parse(time.dateTime) / 1000);
 };
