@@ -7,6 +7,7 @@ import {
   getRandomBytes32,
   InvariantTransactionData,
   VariantTransactionData,
+  getDeployedTransactionManagerContract,
 } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { utils, constants } from "ethers";
@@ -22,11 +23,7 @@ import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/
 
 import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
-import {
-  getDeployedTransactionManagerContractAddress,
-  TransactionManager,
-  TransactionManagerError,
-} from "../../src/transactionManager";
+import { TransactionManager } from "../../src/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 
 const { AddressZero } = constants;
@@ -173,16 +170,16 @@ describe("Transaction Manager", function () {
     expect(tokenB.address).to.be.a("string");
   });
 
-  describe("getDeployedTransactionManagerContractAddress", () => {
+  describe("getDeployedTransactionManagerContract", () => {
     it("happy case: returns undefined", async () => {
       const chainId = sendingChainId;
-      const res = getDeployedTransactionManagerContractAddress(chainId);
+      const res = getDeployedTransactionManagerContract(chainId);
       expect(res).to.be.undefined;
     });
     it("happy case", async () => {
       const chainId = 5;
-      const res = getDeployedTransactionManagerContractAddress(chainId);
-      expect(res).to.be.a("string");
+      const res = getDeployedTransactionManagerContract(chainId);
+      expect(res.address).to.be.a("string");
     });
   });
 

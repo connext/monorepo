@@ -56,6 +56,11 @@ export function validateAndParseAddress(address: string): string {
   }
 }
 
+export function getRateFromPercentage(percentage: string): string {
+  const rate = (1 - parseFloat(percentage) / 100).toString();
+  return rate;
+}
+
 export const ajv = addFormats(new Ajv(), [
   "date-time",
   "time",

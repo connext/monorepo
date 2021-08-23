@@ -1,8 +1,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography } from "antd";
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { contractDeployments } from "@connext/nxtp-sdk";
-import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getDeployedTransactionManagerContract } from "@connext/nxtp-utils";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 
@@ -10,15 +9,6 @@ type RouterProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
   chainData?: ChainData[];
-};
-
-const getTransactionManagerContractAddressForChain = (chainId: number): { address: string; abi: any } | undefined => {
-  const contract = (Object.values((contractDeployments as any)[chainId.toString()] ?? {})[0] as any)?.contracts
-    .TransactionManager;
-  if (contract) {
-    return { address: contract.address, abi: contract.abi };
-  }
-  return undefined;
 };
 
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
@@ -33,7 +23,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       }
       const { chainId } = await signer.provider!.getNetwork();
       setInjectedProviderChainId(chainId);
-      const _txManager = getTransactionManagerContractAddressForChain(chainId);
+      const _txManager = getDeployedTransactionManagerContract(chainId);
       if (_txManager) {
         setTxManager(new Contract(_txManager.address, _txManager.abi, signer));
       }

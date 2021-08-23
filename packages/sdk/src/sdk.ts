@@ -39,11 +39,12 @@ import {
   getOnchainBalance as _getOnchainBalance,
   MetaTxTypes,
   getNtpTime,
+  getDeployedTransactionManagerContract,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { TransactionManager, getDeployedTransactionManagerContractAddress } from "./transactionManager";
+import { TransactionManager } from "./transactionManager";
 import {
   SubmitError,
   NoTransactionManager,
@@ -61,8 +62,6 @@ import {
   MetaTxTimeout,
 } from "./error";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
-
-export { contractDeployments } from "./transactionManager";
 
 /**
  * Utility to convert the number of hours into seconds
@@ -398,7 +397,7 @@ export class NxtpSdk {
 
         let transactionManagerAddress = _transactionManagerAddress;
         if (!transactionManagerAddress) {
-          transactionManagerAddress = getDeployedTransactionManagerContractAddress(chainId);
+          transactionManagerAddress = getDeployedTransactionManagerContract(chainId)!.address;
         }
         if (!transactionManagerAddress) {
           throw new NoTransactionManager(chainId);
