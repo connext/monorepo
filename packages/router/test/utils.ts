@@ -27,6 +27,8 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
+      feePercentage: 0.05,
+      safeRelayerFeePercentage: 0.1,
     },
     1338: {
       confirmations: 1,
@@ -34,6 +36,8 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
+      feePercentage: 0.05,
+      safeRelayerFeePercentage: 0.1,
     },
   },
   mnemonic: "hello world",
@@ -65,7 +69,7 @@ export const fulfillInputMock: FulfillInput = {
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
   signature: "0xabcd",
-  relayerFee: "123",
+  relayerFee: "100000",
   callData: "0xbaa",
   side: "receiver",
 };
@@ -91,7 +95,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
   crosschainTx: { sending: variantDataMock, invariant: invariantDataMock, receiving: variantDataMock },
   payload: {
     callData: "0x",
-    relayerFee: "123",
+    relayerFee: "100000",
     signature: "0xabc",
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
@@ -100,7 +104,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
 export const singleChainTransactionMock: SingleChainTransaction = {
   bidSignature: "0xdbc",
   signature: "0xfee",
-  relayerFee: "12",
+  relayerFee: "100000",
   encodedBid: "0xdef",
   encryptedCallData: "0xabc",
   status: SdkTransactionStatus.Fulfilled,
@@ -119,8 +123,8 @@ const chainDataToMap = (data: any) => {
 
 export const chainDataMock = chainDataToMap([
   {
-    "name": "Unit Test Chain",
-    "chainId": 1337,
-    "confirmations": 1,
+    name: "Unit Test Chain",
+    chainId: 1337,
+    confirmations: 1,
   },
 ]);
