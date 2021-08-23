@@ -17,4 +17,4 @@ export {
   BidExpiryInvalid,
 } from "./prepare";
 
-export { NoChainConfig } from "./fulfill";
+export { NoChainConfig, NotEnoughRelayerFee } from "./fulfill";
