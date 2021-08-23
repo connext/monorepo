@@ -4,6 +4,7 @@
 
 - [test-ui] Router liquidity management UI.
 - [test-ui] Test preferred router.
+- [sdk] Use NTP time server instead of block time.
 
 ## 0.0.19
 
