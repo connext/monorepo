@@ -2,7 +2,6 @@
 import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import {
   ajv,
@@ -21,15 +20,13 @@ import {
   TAddress,
   TChainId,
   TIntegerString,
+  getDeployedTransactionManagerContract,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
 
-const minimumFeeAllowed = 0;
-const maximumFeeAllowed = 15;
-
-const minimumRelayerFeeAllowed = 0;
-const maximumRelayerFeeAllowed = 5;
+const minimumFeePercentageAllowed = 0; // 0.00%
+const maximumFeePercentageAllowed = 15; // 15.00%
 
 const MIN_GAS = utils.parseEther("0.1");
 
@@ -71,11 +68,8 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
-  feePercentage: Type.Number({ minimum: minimumFeeAllowed, maximum: maximumFeeAllowed }),
-  safeRelayerFeePercentage: Type.Number({
-    minimum: minimumRelayerFeeAllowed,
-    maximum: maximumRelayerFeeAllowed,
-  }),
+  feePercentage: Type.Number({ minimum: minimumFeePercentageAllowed, maximum: maximumFeePercentageAllowed }),
+  safeRelayerFee: Type.Number({ minimum: 0 }),
 });
 
 export const TSwapPool = Type.Object({
@@ -123,7 +117,6 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     let json: string;
 
     if (process.env.NXTP_CONFIG_FILE) {
-      console.info("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
       json = fs.readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
     } else {
       json = fs.readFileSync("config.json", "utf-8");
@@ -196,13 +189,11 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
-      try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
-          (contractDeployments as any)[chainId],
-        )[0] as any).contracts.TransactionManager.address;
-      } catch (e) {
+      const res = getDeployedTransactionManagerContract(chainId);
+      if (!res) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
+      nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
