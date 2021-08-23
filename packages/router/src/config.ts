@@ -20,14 +20,36 @@ import {
   TAddress,
   TChainId,
   TIntegerString,
-  getDeployedTransactionManagerContract,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
 
 dotenvConfig();
+
+/**
+ * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+
+  const contract = record[name]?.contracts?.TransactionManager;
+
+  if (contract) {
+    return { address: contract.address, abi: contract.abi };
+  }
+
+  return undefined;
+};
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
 export const chainDataToMap = (data: any): Map<string, ChainData> => {

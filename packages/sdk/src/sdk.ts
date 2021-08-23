@@ -38,13 +38,12 @@ import {
   delay,
   getOnchainBalance as _getOnchainBalance,
   MetaTxTypes,
-  getDeployedTransactionManagerContract,
   getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { TransactionManager } from "./transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager";
 import {
   SubmitError,
   NoTransactionManager,

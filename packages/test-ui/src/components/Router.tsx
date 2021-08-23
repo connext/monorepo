@@ -1,7 +1,8 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography } from "antd";
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, getDeployedTransactionManagerContract } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 

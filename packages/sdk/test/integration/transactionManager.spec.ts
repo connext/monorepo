@@ -7,7 +7,6 @@ import {
   getRandomBytes32,
   InvariantTransactionData,
   VariantTransactionData,
-  getDeployedTransactionManagerContract,
 } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { utils, constants } from "ethers";
@@ -23,7 +22,7 @@ import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/
 
 import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
-import { TransactionManager } from "../../src/transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContract } from "../../src/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 
 const { AddressZero } = constants;
