@@ -139,7 +139,7 @@ abstract contract ProposedOwnable {
     require(!_routerOwnershipRenounced, "#RRO:036");
 
     // Ensure there has been a proposal cycle started
-    require(_routerOwnershipTimestamp > 0, "");
+    require(_routerOwnershipTimestamp > 0, "#RRO:037");
 
     // Delay has elapsed
     require((block.timestamp - _routerOwnershipTimestamp) > _delay, "#RRO:030");
@@ -177,7 +177,7 @@ abstract contract ProposedOwnable {
     require(!_assetOwnershipRenounced, "#RAO:036");
 
     // Ensure there has been a proposal cycle started
-    require(_assetOwnershipTimestamp > 0, "");
+    require(_assetOwnershipTimestamp > 0, "#RAO:037");
 
     // Ensure delay has elapsed
     require((block.timestamp - _assetOwnershipTimestamp) > _delay, "#RAO:030");
@@ -199,6 +199,12 @@ abstract contract ProposedOwnable {
     * newly proposed owner as step 1 in a 2-step process
    */
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
+    // Contract as source of truth
+    require(_proposed != newlyProposed || newlyProposed == address(0), "#PNO:036");
+
+    // Sanity check: reasonable proposal
+    require(_owner != newlyProposed, "#PNO:036");
+
     _setProposed(newlyProposed);
   }
 
@@ -206,17 +212,14 @@ abstract contract ProposedOwnable {
     * @notice Renounces ownership of the contract after a delay
     */
   function renounceOwnership() public virtual onlyOwner {
-    // Contract as sournce of truth
-    require(_owner != address(0), "");
-
     // Ensure there has been a proposal cycle started
-    require(_proposedOwnershipTimestamp > 0, "");
+    require(_proposedOwnershipTimestamp > 0, "#RO:037");
 
     // Ensure delay has elapsed
-    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");
+    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#RO:030");
 
     // Require proposed is set to 0
-    require(_proposed == address(0), "#APO:036");
+    require(_proposed == address(0), "#RO:036");
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
@@ -227,11 +230,8 @@ abstract contract ProposedOwnable {
     * Can only be called by the current owner.
     */
   function acceptProposedOwner() public virtual onlyProposed {
-    // Contract as source of truth
-    require(_owner != _proposed, "");
-
     // Ensure there has been a proposal cycle started
-    require(_proposedOwnershipTimestamp > 0, "");
+    require(_proposedOwnershipTimestamp > 0, "#APO:037");
 
     // Ensure delay has elapsed
     require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");
