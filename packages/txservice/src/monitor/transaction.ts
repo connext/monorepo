@@ -2,15 +2,33 @@ import { providers } from "ethers";
 import { BaseLogger } from "pino";
 import { getUuid } from "@connext/nxtp-utils";
 
-import { DEFAULT_CONFIG } from "./config";
-import { ChainRpcProvider } from "./provider";
-import { FullTransaction, GasPrice, WriteTransaction } from "./types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "./error";
+import { DEFAULT_CONFIG } from "../config";
+import { ChainRpcProvider } from "../provider";
+import { FullTransaction, Gas, WriteTransaction } from "../types";
+import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
+
+export interface TransactionInterface {
+  id: string,
+  timestamp: number,
+  params: FullTransaction,
+  error: Error | undefined,
+  attempt: number,
+  validated: boolean,
+  didSubmit: boolean,
+  didFinish: boolean,
+  responses: providers.TransactionResponse[],
+  receipt?: providers.TransactionReceipt,
+  submit(): Promise<providers.TransactionResponse>,
+  validate(): Promise<void>,
+  confirm(): Promise<providers.TransactionReceipt>,
+  bumpGasPrice(): void,
+  timeUntilExpiry(): number,
+}
 
 /**
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
  */
-export class Transaction {
+export class Transaction implements TransactionInterface {
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
   // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
@@ -26,8 +44,8 @@ export class Transaction {
   public timestamp: number = Date.now();
 
   // This error will be set in the instance of a failure.
-  private _error: Error | null = null;
-  public get error(): Error | null {
+  private _error: Error | undefined;
+  public get error(): Error | undefined {
     return this._error;
   }
 
@@ -66,14 +84,14 @@ export class Transaction {
   }
 
   /**
-   * Retrieves all data needed to format a full transaction, including current gas price set, nonce, etc.
+   * Retrieves all params needed to format a full transaction, including current gas price set, nonce, etc.
    */
-  public get data(): FullTransaction {
+  public get params(): FullTransaction {
     return {
       ...this.minTx,
-      gasPrice: this.gasPrice.get(),
+      gasPrice: this.gas.price,
       nonce: this.nonce,
-      gasLimit: this.gasPrice.limit,
+      gasLimit: this.gas.limit,
     };
   }
 
@@ -84,19 +102,20 @@ export class Transaction {
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
    * @param nonce Assigned nonce number for this transaction.
-   * @param gasPrice The GasPrice tracker instance.
+   * @param gas The Gas tracker instance, which will include price, limit, and maximum.
    */
   constructor(
     private readonly logger: BaseLogger,
     private readonly provider: ChainRpcProvider,
     public readonly minTx: WriteTransaction,
     public readonly nonce: number,
-    public readonly gasPrice: GasPrice,
+    public readonly gas: Gas,
+    public readonly isBackfill = false,
   ) {
     this.logger.debug(
       {
         id: this.id,
-        data: this.data,
+        params: this.params,
         timestamp: this.timestamp,
       },
       "New transaction created.",
@@ -117,7 +136,7 @@ export class Transaction {
       // defined as optional. Handle that case?
       // If there isn't a lastPrice, we're going to skip this validation step.
       const lastPrice = this.responses[this.responses.length - 1].gasPrice;
-      if (lastPrice && this.gasPrice.get().lte(lastPrice)) {
+      if (lastPrice && this.gas.price.lte(lastPrice)) {
         // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
         throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
       }
@@ -129,32 +148,14 @@ export class Transaction {
       throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
     }
 
-    // Increment transaction attempts made.
+    // Increment transaction # attempts made.
     this._attempt++;
+    // Set the timestamp according to when we first submitted.
     this.timestamp = Date.now();
 
     // Send the tx.
-    let result = await this.provider.sendTransaction(this.data);
-
-    // If the error is a NonceExpired error and we haven't submitted yet, we want to keep
-    // trying to send here. Reason being that it may take a few tries to get the correct
-    // transaction count back from the provider.
-    if (!this.didSubmit) {
-      let nonceErrorCount = 0;
-      while (
-        result.isErr() &&
-        result.error instanceof AlreadyMined &&
-        result.error.reason === AlreadyMined.reasons.NonceExpired &&
-        // TODO: Hardcoded maxNonceErrorCount
-        nonceErrorCount < 10
-      ) {
-        nonceErrorCount++;
-        this.logger.warn({ id: this.id, nonceErrorCount }, "Received nonce expired error.");
-        result = await this.provider.sendTransaction(this.data);
-      }
-    }
-
-    // If we end up with a different error, it should be thrown here.
+    const result = await this.provider.sendTransaction(this);
+    // If we end up with an error, it should be thrown here.
     if (result.isErr()) {
       this._error = result.error;
       throw result.error;
@@ -250,16 +251,15 @@ export class Transaction {
    * Bump the gas price for this tx up by the configured percentage.
    */
   public bumpGasPrice() {
-    const currentPrice = this.gasPrice.get();
+    const previousPrice = this.gas.price;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
-    const bumpedGasPrice = currentPrice.add(currentPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
-    this.gasPrice.set(bumpedGasPrice);
+    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
     this.logger.info(
       {
         method: this.bumpGasPrice.name,
-        previousGasPrice: currentPrice.toString(),
-        newGasPrice: bumpedGasPrice.toString(),
+        previousGasPrice: previousPrice.toString(),
+        newGasPrice: this.gas.price.toString(),
       },
       "Bumping tx gas price for reattempt.",
     );
@@ -267,6 +267,11 @@ export class Transaction {
 
   public timeUntilExpiry(): number {
     const expiry = this.timestamp + (this.provider.confirmationTimeout * this.provider.confirmationsRequired);
+    return expiry - Date.now();
+  }
+
+  public timeUntilNConfirmations(n = 1): number {
+    const expiry = this.timestamp + (this.provider.confirmationTimeout * n);
     return expiry - Date.now();
   }
 
@@ -305,6 +310,8 @@ export class Transaction {
       });
     }
 
+    // TODO: Replace with an impatient, iterating wait() that checks to make sure we receive continued confirmations.
+    // Alternatively, have wait() running in the background (ever since submit) and simply poll here.
     const response = this.response;
     if (this.receipt.confirmations < this.provider.confirmationsRequired) {
       // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.

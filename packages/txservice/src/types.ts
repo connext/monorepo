@@ -14,7 +14,7 @@ export type WriteTransaction = {
 } & ReadTransaction;
 
 export type FullTransaction = {
-  nonce?: number;
+  nonce: number;
   gasPrice: BigNumber;
   gasLimit: BigNumber;
 } & WriteTransaction;
@@ -27,23 +27,15 @@ export type CachedGas = {
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
  */
-export class GasPrice {
+export class Gas {
   private _gasPrice: BigNumber;
   private readonly _maxGasPrice: BigNumber;
-
-  constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
-    this._gasPrice = baseValue;
-    // Convert the gas limit into wei units using the base value.
-    const limitInWei = limit.mul(baseValue);
-    // Enforce a max gas price 20% higher than the base value as a buffer.
-    this._maxGasPrice = limitInWei.add(limitInWei.mul(6).div(5));
-  }
 
   /**
    * Gets the current gas price
    * @returns BigNumber representation of gas price
    */
-  public get(): BigNumber {
+  public get price(): BigNumber {
     return BigNumber.from(this._gasPrice);
   }
 
@@ -52,9 +44,17 @@ export class GasPrice {
    *
    * @param value - Gas price to set
    */
-  public set(value: BigNumber) {
+  public set price(value: BigNumber) {
     this.validate(value);
     this._gasPrice = value;
+  }
+
+  constructor(public readonly baseValue: BigNumber, public readonly limit: BigNumber) {
+    this._gasPrice = baseValue;
+    // Convert the gas limit into wei units using the base value.
+    const limitInWei = limit.mul(baseValue);
+    // Enforce a max gas price 20% higher than the base value as a buffer.
+    this._maxGasPrice = limitInWei.add(limitInWei.mul(6).div(5));
   }
 
   /**

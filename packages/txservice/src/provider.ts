@@ -2,10 +2,10 @@ import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
-import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
+import { TransactionMonitor, TransactionInterface } from "./monitor";
 import {
   parseError,
   RpcError,
@@ -15,7 +15,7 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
-import { FullTransaction, CachedGas, ReadTransaction } from "./types";
+import { CachedGas, ReadTransaction, WriteTransaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -36,10 +36,10 @@ export class ChainRpcProvider {
   private readonly _providers: providers.JsonRpcProvider[];
   private readonly provider: providers.FallbackProvider;
   private readonly signer: Signer;
-  private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
   private cachedDecimals: Record<string, number> = {};
+  private monitor: TransactionMonitor;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -108,21 +108,30 @@ export class ChainRpcProvider {
 
     // TODO: #146 We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+
+    // TODO: This is an antipattern, or at least feels like one, in conjuction with the
+    // createTransaction() and sendTransaction() methods below. If sendTransaction() should only ever be called within
+    // Transaction class's submit() method, why should it be exposed below?
+    this.monitor = new TransactionMonitor(this.logger, this);
+  }
+
+  public async createTransaction(minTx: WriteTransaction): Promise<TransactionInterface> {
+    return await this.monitor.createTransaction(minTx);
   }
 
   /**
    * Send the transaction request to the provider.
-   * @param tx The full transaction data for the request.
+   * @param tx The transaction used for the request.
    * @returns An object containing the response or error if an error occurred,
    * and a success boolean indicating whether the process did result in an error.
    */
-  public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
+  public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
+    const { params } = tx;
     const transaction = {
-      ...tx,
-      value: BigNumber.from(tx.value || 0),
+      ...params,
+      value: BigNumber.from(params.value || 0),
     };
-
     return this.resultWrapper<providers.TransactionResponse>(async () => {
       return await this.signer.sendTransaction(transaction);
     });
@@ -277,6 +286,12 @@ export class ChainRpcProvider {
     return this.resultWrapper<number>(async () => {
       const block = await this.provider.getBlock("latest");
       return block.timestamp;
+    });
+  }
+
+  public getAddress(): ResultAsync<string, TransactionError> {
+    return this.resultWrapper<string>(async () => {
+      return await this.signer.getAddress();
     });
   }
 
