@@ -140,8 +140,12 @@ export const newAuction = async (
   }
 
   // getting the swap rate from the receiver side config
-  const swapRate = (1 - parseFloat(config.chainConfig[receivingChainId].feePercentage.toString()) / 100).toString();
-  const amountReceived = getReceiverAmount(amount, inputDecimals, swapRate, outputDecimals);
+  const amountReceived = await getReceiverAmount(
+    amount,
+    inputDecimals,
+    outputDecimals,
+    config.chainConfig[receivingChainId].feePercentage.toString(),
+  );
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");

@@ -95,11 +95,12 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const swapRate = (
-    1 -
-    parseFloat(config.chainConfig[invariantData.receivingChainId].feePercentage.toString()) / 100
-  ).toString();
-  const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, swapRate, outputDecimals);
+  const receiverAmount = await getReceiverAmount(
+    senderAmount,
+    inputDecimals,
+    outputDecimals,
+    config.chainConfig[invariantData.receivingChainId].feePercentage.toString(),
+  );
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,
