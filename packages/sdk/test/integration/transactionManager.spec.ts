@@ -169,6 +169,18 @@ describe("Transaction Manager", function () {
     expect(tokenB.address).to.be.a("string");
   });
 
+  describe("#getDeployedTransactionManagerContract", () => {
+    it("should undefined if no transaction manager", () => {
+      const res = getDeployedTransactionManagerContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedTransactionManagerContract(4);
+      expect(res).to.be.ok;
+    });
+  });
+
   describe("getDeployedTransactionManagerContract", () => {
     it("happy case: returns undefined", async () => {
       const chainId = sendingChainId;

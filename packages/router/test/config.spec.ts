@@ -1,6 +1,6 @@
 import { expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
-import { getEnvConfig, getConfig } from "../src/config";
+import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
 import * as ConfigHelperFns from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
@@ -8,6 +8,18 @@ describe("Config", () => {
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("#getDeployedTransactionManagerContract", () => {
+    it("should undefined if no transaction manager", () => {
+      const res = getDeployedTransactionManagerContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedTransactionManagerContract(4);
+      expect(res).to.be.ok;
+    });
   });
 
   describe("getEnvConfig", () => {
