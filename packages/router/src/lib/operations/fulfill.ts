@@ -4,7 +4,6 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  calculateExchangeAmount,
 } from "@connext/nxtp-utils";
 import { providers, BigNumber } from "ethers";
 

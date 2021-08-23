@@ -37,7 +37,7 @@ export const prepare = async (
   const method = "prepare";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
 
   // Validate InvariantData schema

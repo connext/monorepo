@@ -400,7 +400,7 @@ export class NxtpSdk {
           if (!res || !res.address) {
             throw new NoTransactionManager(chainId);
           }
-          transactionManagerAddress = res!.address;
+          transactionManagerAddress = res.address;
         }
 
         txManagerConfig[chainId] = {
