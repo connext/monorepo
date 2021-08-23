@@ -19,7 +19,7 @@ import {
 } from "../errors";
 import {
   decodeAuctionBid,
-  getNtpTime,
+  getNtpTimeSeconds,
   getReceiverAmount,
   getReceiverExpiryBuffer,
   recoverAuctionBid,
@@ -116,7 +116,7 @@ export const prepare = async (
   // Date.now() to avoid local clock errors
 
   // Get current time
-  const currentTime = await getNtpTime();
+  const currentTime = await getNtpTimeSeconds();
 
   if (!validBidExpiry(bid.expiry, currentTime)) {
     // cancellable error

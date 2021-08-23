@@ -38,7 +38,7 @@ describe("Auction Operation", () => {
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
 
-      stub(SharedHelperFns, "getNtpTime").resolves(Math.floor(Date.now() / 1000));
+      stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
     });
 
     it("should error if auction payload data validation fails", async () => {

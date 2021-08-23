@@ -20,7 +20,7 @@ import {
   AuctionExpired,
   ParamsInvalid,
 } from "../errors";
-import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTime } from "../helpers";
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -87,7 +87,7 @@ export const newAuction = async (
   }
 
   // Validate expiry is valid (greater than current time plus a buffer).
-  const currentTime = await getNtpTime();
+  const currentTime = await getNtpTimeSeconds();
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodId,

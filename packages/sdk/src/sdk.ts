@@ -38,8 +38,8 @@ import {
   delay,
   getOnchainBalance as _getOnchainBalance,
   MetaTxTypes,
-  getNtpTime,
   getDeployedTransactionManagerContract,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
@@ -96,7 +96,7 @@ export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp 
  * @returns Timestamp on latest block in seconds
  */
 export const getTimestampInSeconds = async (): Promise<number> => {
-  return await getNtpTime();
+  return await getNtpTimeSeconds();
 };
 
 export const getOnchainBalance = (assetId: string, address: string, provider: providers.FallbackProvider) =>

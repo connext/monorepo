@@ -1,8 +1,8 @@
-import { getNtpTime as _getNtpTime } from "@connext/nxtp-utils";
+import { getNtpTimeSeconds as _getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 /**
  * Helper to allow easy mocking
  */
-export const getNtpTime = async () => {
-  return await _getNtpTime()
+export const getNtpTimeSeconds = async () => {
+  return await _getNtpTimeSeconds();
 };

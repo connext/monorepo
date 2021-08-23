@@ -113,7 +113,6 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
             // check if expired on the receiver side
             if (receiving.expiry < Date.now() / 1000) {
-              // TODO: use NTP!!!
               // receiver expired
               return {
                 crosschainTx: {
