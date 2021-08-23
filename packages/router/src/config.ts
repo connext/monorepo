@@ -36,7 +36,7 @@ const MIN_GAS = utils.parseEther("0.1");
 dotenvConfig();
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
-const chainDataToMap = (data: any): Map<string, ChainData> => {
+export const chainDataToMap = (data: any): Map<string, ChainData> => {
   const chainData: Map<string, ChainData> = new Map();
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
@@ -55,7 +55,7 @@ const getChainData = async (): Promise<Map<string, ChainData> | undefined> => {
     console.error(`Error occurred retrieving chain data from ${url}`, err);
     // Check to see if we have the chain data cached locally.
     if (fs.existsSync("./chaindata.json")) {
-      console.log("Using cached chain data.");
+      console.info("Using cached chain data.");
       const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
       return chainDataToMap(data);
     }
@@ -72,7 +72,7 @@ export const TChainConfig = Type.Object({
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
   feePercentage: Type.Number({ minimum: minimumFeeAllowed, maximum: maximumFeeAllowed }),
-  minRelayerFeePercentage: Type.Number({
+  safeRelayerFeePercentage: Type.Number({
     minimum: minimumRelayerFeeAllowed,
     maximum: maximumRelayerFeeAllowed,
   }),
@@ -88,7 +88,7 @@ export const TSwapPool = Type.Object({
   ),
 });
 
-const NxtpRouterConfigSchema = Type.Object({
+export const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
   chainConfig: Type.Record(TIntegerString, TChainConfig),
   logLevel: Type.Union([
@@ -123,7 +123,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     let json: string;
 
     if (process.env.NXTP_CONFIG_FILE) {
-      console.log("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
+      console.info("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
       json = fs.readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
     } else {
       json = fs.readFileSync("config.json", "utf-8");
@@ -185,7 +185,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
   };
 
   const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
-  if (!chainData && !overrideRecommendedConfirmations) {
+  if (!chainData && chainData!.size == 0 && !overrideRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
