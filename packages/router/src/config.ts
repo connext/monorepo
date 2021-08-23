@@ -25,6 +25,14 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
 
+const minimumFeeAllowed = 0;
+const maximumFeeAllowed = 15;
+
+const minimumRelayerFeeAllowed = 0;
+const maximumRelayerFeeAllowed = 5;
+
+const MIN_GAS = utils.parseEther("0.1");
+
 dotenvConfig();
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
@@ -63,6 +71,11 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
+  feePercentage: Type.Number({ minimum: minimumFeeAllowed, maximum: maximumFeeAllowed }),
+  minRelayerFeePercentage: Type.Number({
+    minimum: minimumRelayerFeeAllowed,
+    maximum: maximumRelayerFeeAllowed,
+  }),
 });
 
 export const TSwapPool = Type.Object({
@@ -94,8 +107,6 @@ const NxtpRouterConfigSchema = Type.Object({
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
 });
-
-const MIN_GAS = utils.parseEther("0.1");
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
 
@@ -186,9 +197,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
       try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
+        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (Object.values(
+          (contractDeployments as any)[chainId],
+        )[0] as any).contracts.TransactionManager.address;
       } catch (e) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
