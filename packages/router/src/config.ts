@@ -189,7 +189,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
-      const res = getDeployedTransactionManagerContract(chainId);
+      const res = getDeployedTransactionManagerContract(parseInt(chainId));
       if (!res) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
