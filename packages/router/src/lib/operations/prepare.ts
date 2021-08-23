@@ -37,7 +37,7 @@ export const prepare = async (
   const method = "prepare";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
 
   // Validate InvariantData schema
@@ -95,7 +95,12 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  const receiverAmount = getReceiverAmount(
+    senderAmount,
+    inputDecimals,
+    config.chainConfig[invariantData.receivingChainId].feePercentage.toString(),
+    outputDecimals,
+  );
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,

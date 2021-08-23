@@ -108,7 +108,12 @@ export const newAuction = async (
   ]);
   logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
-  const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
+  const amountReceived = getReceiverAmount(
+    amount,
+    inputDecimals,
+    config.chainConfig[receivingChainId].feePercentage.toString(),
+    outputDecimals,
+  );
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
