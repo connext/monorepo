@@ -30,14 +30,14 @@ describe("validBidExpiry", () => {
 
 describe("getReceiverAmount", () => {
   it("should work", async () => {
-    const result = await getReceiverAmount("10000", 1, 1, "0.05");
+    const result = await getReceiverAmount("10000", 1, 1);
     expect(result).to.be.eq((10000 * 0.9995).toString());
   });
 
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1, "0.05");
+      await getReceiverAmount("1.0", 1, 1);
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);

@@ -25,9 +25,6 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
 
-const minimumFeePercentageAllowed = 0; // 0.00%
-const maximumFeePercentageAllowed = 15; // 15.00%
-
 const MIN_GAS = utils.parseEther("0.1");
 
 dotenvConfig();
@@ -68,7 +65,6 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
-  feePercentage: Type.Number({ minimum: minimumFeePercentageAllowed, maximum: maximumFeePercentageAllowed }),
   safeRelayerFee: Type.Number({ minimum: 0 }),
 });
 

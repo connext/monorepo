@@ -10,6 +10,7 @@ import { BigNumber } from "ethers";
 
 import { AmountInvalid } from "../errors/prepare";
 
+const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
@@ -54,7 +55,6 @@ export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
   outputDecimals: number,
-  routerFee: string,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
@@ -64,7 +64,7 @@ export const getReceiverAmount = async (
   let amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
 
   // 2. flat fee by Router
-  let routerFeeRate = getRateFromPercentage(routerFee);
+  let routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   let receivingAmount = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate).toString();
 
   // TODO:  gas fee reimbursement
