@@ -79,19 +79,13 @@ export const fulfill = async (
     throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
   }
 
-  const safeRelayerFeePercentage: string = config.chainConfig[fulfillChain].safeRelayerFeePercentage.toString();
-  const relayerFeeLowerBound = calculateExchangeAmount(
-    BigNumber.from(input.amount).toString(),
-    safeRelayerFeePercentage,
-  );
-
+  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee.toString();
   if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
     throw new NotEnoughRelayerFee(fulfillChain, {
       method,
       methodId,
       requestContext,
       relayerFee: input.relayerFee,
-      safeRelayerFeePercentage: safeRelayerFeePercentage,
       relayerFeeLowerBound: relayerFeeLowerBound,
     });
   }
