@@ -40,7 +40,7 @@ export const TEST_TX_RESPONSE: TransactionResponse = {
 
 export const TEST_FULL_TX: FullTransaction = {
   ...TEST_TX,
-  nonce: undefined,
+  nonce: 15,
   gasPrice: TEST_TX_RESPONSE.gasPrice,
   gasLimit: TEST_TX_RESPONSE.gasLimit,
 };

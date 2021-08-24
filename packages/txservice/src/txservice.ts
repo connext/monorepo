@@ -1,7 +1,7 @@
 import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { getUuid, RequestContext } from "@connext/nxtp-utils";
+import { delay, getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
@@ -122,8 +122,8 @@ export class TransactionService {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
           this.logger.debug(
-            { method, methodId, requestContext, id: transaction.id },
-            `Transaction received ${error.type} error.`,
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction submit step: received ${error.type} error.`,
           );
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
@@ -154,8 +154,8 @@ export class TransactionService {
           await transaction.validate();
         } catch (error) {
           this.logger.debug(
-            { method, methodId, requestContext, id: transaction.id },
-            `Transaction received ${error.type} error.`,
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction validation step: received ${error.type} error.`,
           );
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to validate. We should bump the tx and submit again.
@@ -170,11 +170,17 @@ export class TransactionService {
           }
         }
 
-        // Confirm: get target # confirmations.
+        
+
         try {
+          // Confirm: get target # confirmations.
           await this.confirmTransaction(transaction, requestContext);
           break;
         } catch (error) {
+          this.logger.debug(
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction confirmation step: received ${error.type} error.`,
+          );
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
             this.logger.warn(
