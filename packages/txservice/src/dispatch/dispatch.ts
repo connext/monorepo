@@ -1,7 +1,7 @@
 import { BigNumber, Signer } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
-import { delay } from "@connext/nxtp-utils";
+import { delay, jsonifyError } from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
 import { TransactionReverted } from "../error";
@@ -176,7 +176,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       }
       const result = await this.getTransactionCount();
       if (result.isErr()) {
-        // TODO: log?
+        this.logger.error({ err: jsonifyError(result.error) }, "Failed to get transaction count");
         // TODO: If we keep getting failures due to RPC issue, escape out?
         continue;
       }
