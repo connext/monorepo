@@ -1,4 +1,4 @@
-import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
+import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -7,6 +7,7 @@ import { BaseLogger } from "pino";
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import { TransactionMonitor, TransactionInterface } from "./monitor";
 import {
+  MonitorAborted,
   parseError,
   RpcError,
   TransactionError,
@@ -40,6 +41,7 @@ export class ChainRpcProvider {
   private cachedGas?: CachedGas;
   private cachedDecimals: Record<string, number> = {};
   private monitor: TransactionMonitor;
+  private aborted: Error | undefined = undefined;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -113,6 +115,16 @@ export class ChainRpcProvider {
     // createTransaction() and sendTransaction() methods below. If sendTransaction() should only ever be called within
     // Transaction class's submit() method, why should it be exposed below?
     this.monitor = new TransactionMonitor(this.logger, this);
+    this.monitor.aborted.attach(({ error }) => {
+      this.aborted = error;
+      this.monitor.stop();
+    });
+  }
+
+  private assertNotAborted(): void {
+    if (this.aborted) {
+      throw new MonitorAborted({ backfillError: jsonifyError(this.aborted) });
+    }
   }
 
   public async createTransaction(minTx: WriteTransaction): Promise<TransactionInterface> {
@@ -133,6 +145,7 @@ export class ChainRpcProvider {
       value: BigNumber.from(params.value || 0),
     };
     return this.resultWrapper<providers.TransactionResponse>(async () => {
+      this.assertNotAborted();
       return await this.signer.sendTransaction(transaction);
     });
   }

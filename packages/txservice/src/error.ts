@@ -2,12 +2,27 @@ import { Values, NxtpError } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
-export class TransactionError extends NxtpError {
+export abstract class TransactionError extends NxtpError {
   /**
    * Generic class for all transaction-related errors. Usually appropriate for these
    * errors to occur throughout transaction lifecycle.
    */
   static readonly type = TransactionError.name;
+}
+
+export class MonitorAborted extends TransactionError {
+  /**
+   * Thrown if a backfill transaction fails and other txs are attempted
+   */
+  static readonly type = MonitorAborted.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Failed to send backfill transaction, refusing to send any additional transactions",
+      context,
+      MonitorAborted.type,
+    );
+  }
 }
 
 export class RpcError extends TransactionError {

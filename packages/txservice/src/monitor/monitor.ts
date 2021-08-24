@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
 import { delay } from "@connext/nxtp-utils";
+import { Evt } from "evt";
 
 import { ChainRpcProvider } from "../provider";
 import { Gas, WriteTransaction } from "../types";
@@ -27,6 +28,8 @@ export class TransactionMonitor {
   // Flag to indicate whether we should continue monitoring. This will stop the loop if flipped.
   private shouldMonitor = true;
   private isActive = false;
+
+  public aborted: Evt<{ abort: boolean; error: Error }> = Evt.create<{ abort: boolean; error: Error }>();
 
   /**
    * Centralized transaction monitoring class.
@@ -258,7 +261,7 @@ export class TransactionMonitor {
         },
         "Backfill failed",
       );
+      this.aborted.post({ abort: true, error });
     }
   }
-
 }
