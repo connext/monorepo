@@ -15,7 +15,7 @@ import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumber, BigNumberish, constants, Contract, ContractReceipt, utils, providers } from "ethers";
 
 // import types
-import { Counter, TransactionManager, RevertableERC20, ERC20 } from "../typechain";
+import { Counter, TransactionManager, RevertableERC20, ERC20, FeeERC20 } from "../typechain";
 import {
   assertReceiptEvent,
   deployContract,
@@ -38,6 +38,7 @@ describe("TransactionManager", function () {
   let counter: Counter;
   let tokenA: RevertableERC20;
   let tokenB: RevertableERC20;
+  let feeToken: FeeERC20;
   const sendingChainId = 1337;
   const receivingChainId = 1338;
 
@@ -50,9 +51,11 @@ describe("TransactionManager", function () {
 
     tokenB = await deployContract<RevertableERC20>("RevertableERC20");
 
+    feeToken = await deployContract<FeeERC20>("FeeERC20");
+
     counter = await deployContract<Counter>("Counter");
 
-    return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
+    return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB, feeToken };
   };
 
   const addPrivileges = async (tm: TransactionManager, routers: string[], assets: string[]) => {
@@ -89,13 +92,23 @@ describe("TransactionManager", function () {
     tx = await tokenB.connect(wallet).transfer(user.address, prepareFunds);
     await tx.wait();
 
+    const feeFunds = "10000";
+    tx = await feeToken.connect(wallet).transfer(user.address, feeFunds);
+    await tx.wait();
+    tx = await feeToken.connect(wallet).transfer(router.address, feeFunds);
+    await tx.wait();
+
     // Prep contracts with router and assets
-    await addPrivileges(transactionManager, [router.address], [AddressZero, tokenA.address, tokenB.address]);
+    await addPrivileges(
+      transactionManager,
+      [router.address],
+      [AddressZero, tokenA.address, tokenB.address, feeToken.address],
+    );
 
     await addPrivileges(
       transactionManagerReceiverSide,
       [router.address],
-      [AddressZero, tokenA.address, tokenB.address],
+      [AddressZero, tokenA.address, tokenB.address, feeToken.address],
     );
   });
 
@@ -149,6 +162,7 @@ describe("TransactionManager", function () {
     _router: Wallet = router,
     instance: Contract = transactionManagerReceiverSide,
     useMsgSender: boolean = false,
+    fee: BigNumberish = 0,
   ) => {
     // Get starting + expected  balance
     const routerAddr = router.address;
@@ -156,7 +170,7 @@ describe("TransactionManager", function () {
     const expectedBalance = startingBalance.sub(amount);
 
     const startingLiquidity = await instance.routerBalances(routerAddr, assetId);
-    const expectedLiquidity = startingLiquidity.add(amount);
+    const expectedLiquidity = startingLiquidity.add(amount).sub(fee);
 
     const tx: providers.TransactionResponse = useMsgSender
       ? await instance
@@ -180,7 +194,7 @@ describe("TransactionManager", function () {
     await assertReceiptEvent(receipt, "LiquidityAdded", {
       router: routerAddr,
       assetId,
-      amount,
+      amount: BigNumber.from(amount).sub(fee),
       caller: receipt.from,
     });
 
@@ -245,6 +259,7 @@ describe("TransactionManager", function () {
     preparer: Wallet = user,
     instance: TransactionManager = transactionManager,
     encryptedCallData: string = EmptyBytes,
+    fee: BigNumberish = 0,
   ): Promise<ContractReceipt> => {
     const { transaction, record } = await getTransactionData(txOverrides, recordOverrides);
 
@@ -281,8 +296,10 @@ describe("TransactionManager", function () {
     const receipt = await prepareTx.wait();
     expect(receipt.status).to.be.eq(1);
 
+    const feeAdjustedAmount = userSending ? BigNumber.from(record.amount).sub(fee).toString() : record.amount;
+
     const variantDigest = getVariantTransactionDigest({
-      amount: record.amount,
+      amount: feeAdjustedAmount,
       expiry: record.expiry,
       preparedBlockNumber: receipt.blockNumber,
     });
@@ -290,7 +307,12 @@ describe("TransactionManager", function () {
     expect(await instance.variantTransactionData(invariantDigest)).to.be.eq(variantDigest);
 
     // Verify receipt event
-    const txData = { ...transaction, ...record, preparedBlockNumber: receipt.blockNumber };
+    const txData = {
+      ...transaction,
+      ...record,
+      preparedBlockNumber: receipt.blockNumber,
+      amount: feeAdjustedAmount,
+    };
     await assertReceiptEvent(receipt, "TransactionPrepared", {
       user: transaction.user,
       router: transaction.router,
@@ -306,7 +328,7 @@ describe("TransactionManager", function () {
     const finalPreparerAmount = userSending
       ? await getOnchainBalance(transaction.sendingAssetId, preparer.address, ethers.provider)
       : await instance.routerBalances(transaction.router, transaction.receivingAssetId);
-    const expected = initialPreparerAmount.sub(record.amount);
+    const expected = initialPreparerAmount.sub(record.amount); // dont use fee adjusted because it is burned / came from router
     expect(finalPreparerAmount).to.be.eq(
       transaction.sendingAssetId === AddressZero && userSending
         ? expected.sub(receipt.effectiveGasPrice.mul(receipt.cumulativeGasUsed))
@@ -319,7 +341,7 @@ describe("TransactionManager", function () {
       return receipt;
     }
     const finalContractAmount = await getOnchainBalance(transaction.sendingAssetId, instance.address, ethers.provider);
-    expect(finalContractAmount).to.be.eq(initialContractAmount.add(record.amount));
+    expect(finalContractAmount).to.be.eq(initialContractAmount.add(feeAdjustedAmount));
 
     return receipt;
   };
@@ -619,7 +641,6 @@ describe("TransactionManager", function () {
   describe("addLiquidity / addLiquidityFor", () => {
     // TODO: #135
     // - reentrant cases
-    // - rebasing/inflationary/deflationary cases
     it("should revert if router address is empty", async () => {
       const amount = "1";
       const assetId = AddressZero;
@@ -755,6 +776,14 @@ describe("TransactionManager", function () {
       const assetId = tokenA.address;
       await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
       await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true);
+    });
+
+    it("should work for fee on transfer tokens", async () => {
+      const amount = "10";
+      const assetId = feeToken.address;
+      await approveTokens(amount, router, transactionManagerReceiverSide.address, feeToken);
+
+      await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true, await feeToken.fee());
     });
   });
 
@@ -1254,6 +1283,18 @@ describe("TransactionManager", function () {
       );
 
       await prepareAndAssert(transaction, record, other, transactionManager);
+    });
+
+    it("should work for user preparing with fee on transfer token", async () => {
+      const prepareAmount = "10";
+      const assetId = feeToken.address;
+
+      const { transaction, record } = await getTransactionData(
+        { sendingAssetId: assetId, receivingAssetId: tokenB.address },
+        { amount: prepareAmount },
+      );
+
+      await prepareAndAssert(transaction, record, user, transactionManager, undefined, await feeToken.fee());
     });
   });
 
