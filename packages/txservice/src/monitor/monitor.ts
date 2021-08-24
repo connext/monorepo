@@ -10,6 +10,9 @@ import { TransactionReverted } from "../error";
 import { Transaction } from "./transaction";
 import { TransactionBuffer } from "./buffer";
 
+// TODO: Make poll parity (in ms) configurable
+const MONITOR_POLL_PARITY = 5_000;
+
 /**
  * @classdesc Wraps and monitors transaction queue; handles transactions' initial creation and nonce assignment.
  *
@@ -134,8 +137,7 @@ export class TransactionMonitor {
   private async backfillLoop() {
     // TODO: Make sure this loop is throw-proof
     while (true) {
-      // TODO: Make poll parity (in seconds) configurable
-      delay(1000);
+      delay(MONITOR_POLL_PARITY);
       // Lazy solution: we only care about a potential hold-up if it could hold anything up.
       if (this.buffer.pending.length < 2) {
         continue;
@@ -152,6 +154,8 @@ export class TransactionMonitor {
       if (currentNonce > lastNonce) {
         // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
         // indexed, meaning their nonces have been used and there won't be any need to backfill.
+        // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
+        delay(MONITOR_POLL_PARITY);
         continue;
       }
       const tx: Transaction | undefined = this.buffer.get(currentNonce);
@@ -250,34 +254,4 @@ export class TransactionMonitor {
     }
   }
 
-  // private async addToValidationQueue(transaction: Transaction) {
-  //   this.validateQueue.add(async () => {
-  //     // wait for 1 confirmation, aka validation
-  //     try {
-  //       await transaction.validate();
-  //       // **shift from pending stack, push to validated stack
-  //       const success = await this.buffer.shift(transaction.id);
-  //       if (!success) {
-  //         this.logger.warn({
-  //           id: transaction.id,
-  //         }, "Failed to locate transaction in pending buffer.");
-  //       }
-  //     } catch (error) {
-  //       if (error instanceof TimeoutError) {
-  //         // TODO: (optional sanity check): getTransaction, check that it exists on chain
-  //           // doesn't exist? TODO: backfill with a bunk tx
-  //           // note: even if the tx is *not* the blockade, we need to backfill this one, or it will block all txs that follow.
-
-  //         // This will bump gas price and append this transaction to the end of the validation queue again.
-  //         // TODO: if error, validate that the transaction failed on chain ??
-  //         transaction.bumpGasPrice();
-  //         await transaction.submit();
-  //         // add this tx to the end of the validation queue
-  //         this.addToValidationQueue(transaction);
-  //       } else {
-  //         throw error;
-  //       }
-  //     }
-  //   });
-  // }
 }
