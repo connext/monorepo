@@ -43,7 +43,7 @@ describe.only("TransactionService", () => {
 
   let transactionState = {
     didFinish: false,
-  }
+  };
 
   beforeEach(() => {
     transactionState.didFinish = false;

@@ -170,10 +170,8 @@ export class TransactionService {
           }
         }
 
-        
-
+        // Confirm: get target # confirmations.
         try {
-          // Confirm: get target # confirmations.
           await this.confirmTransaction(transaction, requestContext);
           break;
         } catch (error) {
