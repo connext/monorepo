@@ -11,6 +11,8 @@ export class TransactionError extends NxtpError {
 }
 
 export class RpcError extends TransactionError {
+  static readonly type = RpcError.name;
+
   /**
    * Indicates the RPC Providers are malfunctioning. If errors of this type persist,
    * ensure you have a sufficient number of backup providers configured.
@@ -23,7 +25,7 @@ export class RpcError extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
-    super(reason, context);
+    super(reason, context, RpcError.type);
   }
 }
 
@@ -38,7 +40,7 @@ export class TransactionReadError extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof TransactionReverted.reasons>, public readonly context: any = {}) {
-    super(reason, context);
+    super(reason, context, TransactionReadError.type);
   }
 }
 
@@ -79,7 +81,7 @@ export class TransactionReverted extends TransactionError {
     public readonly receipt?: providers.TransactionReceipt,
     public readonly context: any = {},
   ) {
-    super(reason, context);
+    super(reason, context, TransactionReverted.type);
   }
 }
 
@@ -100,7 +102,7 @@ export class TransactionReplaced extends TransactionError {
     public readonly replacement: providers.TransactionResponse,
     public readonly context: any = {},
   ) {
-    super("Transaction replaced.", context);
+    super("Transaction replaced.", context, TransactionReplaced.type);
   }
 }
 
@@ -113,7 +115,7 @@ export class TimeoutError extends TransactionError {
   static readonly type = TimeoutError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Operation timed out.", context);
+    super("Operation timed out.", context, TimeoutError.type);
   }
 }
 
@@ -125,7 +127,7 @@ export class UnpredictableGasLimit extends TransactionError {
   static readonly type = UnpredictableGasLimit.name;
 
   constructor(public readonly context: any = {}) {
-    super("The gas estimate could not be determined.", context);
+    super("The gas estimate could not be determined.", context, UnpredictableGasLimit.type);
   }
 }
 
@@ -143,7 +145,7 @@ export class AlreadyMined extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof AlreadyMined.reasons>, public readonly context: any = {}) {
-    super(reason, context);
+    super(reason, context, AlreadyMined.type);
   }
 }
 
@@ -159,7 +161,7 @@ export class ServerError extends TransactionError {
   static readonly type = ServerError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Server error occurred", context);
+    super("Server error occurred", context, ServerError.type);
   }
 }
 
@@ -168,13 +170,13 @@ export class TransactionKilled extends TransactionError {
    * An error indicating that the transaction was killed by the monitor loop due to
    * it taking too long, and blocking (potentially too many) transactions in the pending
    * queue.
-   * 
+   *
    * It will be replaced with a backfill transaction at max gas.
    */
-  static readonly type = ServerError.name;
+  static readonly type = TransactionKilled.name;
 
   constructor(public readonly context: any = {}) {
-    super("Transaction was killed by monitor loop.", context);
+    super("Transaction was killed by monitor loop.", context, TransactionKilled.type);
   }
 }
 
@@ -206,7 +208,7 @@ export class TransactionServiceFailure extends NxtpError {
     public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
     public readonly context: any = {},
   ) {
-    super(reason, context);
+    super(reason, context, TransactionServiceFailure.type);
   }
 }
 
