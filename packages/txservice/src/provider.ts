@@ -350,7 +350,7 @@ export class ChainRpcProvider {
    *
    * @returns Number of transactions sent, including pending transactions.
    */
-   public getTransactionCount(): ResultAsync<number, TransactionError> {
+  public getTransactionCount(): ResultAsync<number, TransactionError> {
     return this.resultWrapper<number>(async () => {
       return await this.signer.getTransactionCount("pending");
     });
@@ -397,5 +397,4 @@ export class ChainRpcProvider {
     }
     return true;
   }
-
 }

@@ -6,12 +6,7 @@ import { getUuid, RequestContext } from "@connext/nxtp-utils";
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
-import {
-  AlreadyMined,
-  TimeoutError,
-  TransactionError,
-  TransactionServiceFailure,
-} from "./error";
+import { AlreadyMined, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionInterface } from "./monitor";
 
 export type TxServiceSubmittedEvent = {
@@ -121,7 +116,6 @@ export class TransactionService {
     this.logger.info({ method, methodId, requestContext, tx }, "Method start");
 
     const transaction = await this.getProvider(tx.chainId).createTransaction(tx);
-    this.logger.debug({ method, methodId, requestContext, params: transaction.params, id: transaction.id }, "Transaction created");
     try {
       while (!transaction.didFinish) {
         // Submit: send to chain.
@@ -129,8 +123,8 @@ export class TransactionService {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
           this.logger.debug(
-            { method, methodId, id: transaction.id },
-            `Transaction received ${error.type} error.`
+            { method, methodId, requestContext, id: transaction.id },
+            `Transaction received ${error.type} error.`,
           );
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
@@ -147,8 +141,8 @@ export class TransactionService {
             } else {
               // Ignore this error, proceed to validation step.
               this.logger.debug(
-                { method, methodId, id: transaction.id },
-                "Continuing to confirmation step."
+                { method, methodId, requestContext, id: transaction.id },
+                "Continuing to confirmation step.",
               );
             }
           } else {
@@ -162,14 +156,14 @@ export class TransactionService {
           await transaction.validate();
         } catch (error) {
           this.logger.debug(
-            { method, methodId, id: transaction.id },
-            `Transaction received ${error.type} error.`
+            { method, methodId, requestContext, id: transaction.id },
+            `Transaction received ${error.type} error.`,
           );
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to validate. We should bump the tx and submit again.
             this.logger.debug(
-              { method, methodId, id: transaction.id },
-              "Bumping transaction gas price for resubmit."
+              { method, methodId, requestContext, id: transaction.id },
+              "Bumping transaction gas price for resubmit.",
             );
             transaction.bumpGasPrice();
             continue;
@@ -186,8 +180,8 @@ export class TransactionService {
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
             this.logger.warn(
-              { method, methodId, id: transaction.id },
-              "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction."
+              { method, methodId, requestContext, id: transaction.id },
+              "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction.",
             );
             continue;
           } else {

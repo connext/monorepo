@@ -8,21 +8,21 @@ import { FullTransaction, Gas, WriteTransaction } from "../types";
 import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
 
 export interface TransactionInterface {
-  id: string,
-  timestamp: number,
-  params: FullTransaction,
-  error: Error | undefined,
-  attempt: number,
-  validated: boolean,
-  didSubmit: boolean,
-  didFinish: boolean,
-  responses: providers.TransactionResponse[],
-  receipt?: providers.TransactionReceipt,
-  submit(): Promise<providers.TransactionResponse>,
-  validate(): Promise<void>,
-  confirm(): Promise<providers.TransactionReceipt>,
-  bumpGasPrice(): void,
-  timeUntilExpiry(): number,
+  id: string;
+  timestamp: number;
+  params: FullTransaction;
+  error: Error | undefined;
+  attempt: number;
+  validated: boolean;
+  didSubmit: boolean;
+  didFinish: boolean;
+  responses: providers.TransactionResponse[];
+  receipt?: providers.TransactionReceipt;
+  submit(): Promise<providers.TransactionResponse>;
+  validate(): Promise<void>;
+  confirm(): Promise<providers.TransactionReceipt>;
+  bumpGasPrice(): void;
+  timeUntilExpiry(): number;
 }
 
 /**
@@ -116,7 +116,8 @@ export class Transaction implements TransactionInterface {
       {
         id: this.id,
         params: this.params,
-        timestamp: this.timestamp,
+        createdAt: this.timestamp,
+        isBackfill,
       },
       "New transaction created.",
     );
@@ -266,12 +267,12 @@ export class Transaction implements TransactionInterface {
   }
 
   public timeUntilExpiry(): number {
-    const expiry = this.timestamp + (this.provider.confirmationTimeout * this.provider.confirmationsRequired);
+    const expiry = this.timestamp + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
     return expiry - Date.now();
   }
 
   public timeUntilNConfirmations(n = 1): number {
-    const expiry = this.timestamp + (this.provider.confirmationTimeout * n);
+    const expiry = this.timestamp + this.provider.confirmationTimeout * n;
     return expiry - Date.now();
   }
 
@@ -297,6 +298,7 @@ export class Transaction implements TransactionInterface {
       throw new TransactionServiceFailure("Transaction confirm was called, but no transaction has been sent.", {
         method,
         id: this.id,
+        didSubmit: this.didSubmit,
       });
     }
 
@@ -304,6 +306,7 @@ export class Transaction implements TransactionInterface {
     if (!this.validated || this.receipt == null || this.response == null) {
       throw new TransactionServiceFailure("Transaction confirm was called, but transaction has not been validated.", {
         method,
+        validated: this.validated,
         receipt: this.receipt ? this.receipt.transactionHash : null,
         response: this.response ? this.response.hash : null,
         id: this.id,
@@ -313,11 +316,12 @@ export class Transaction implements TransactionInterface {
     // TODO: Replace with an impatient, iterating wait() that checks to make sure we receive continued confirmations.
     // Alternatively, have wait() running in the background (ever since submit) and simply poll here.
     const response = this.response;
-    if (this.receipt.confirmations < this.provider.confirmationsRequired) {
-      // Now we'll wait (up until an absurd amount of time) to receive all confirmations needed.
-      // TODO: #151 Maybe set timeout to confirmationsRequired * confirmationTimeout...?
-      const result = await this.provider.confirmTransaction(response, undefined, 60_000 * 20);
+    for (let i = 2; i < this.provider.confirmationsRequired; i++) {
+      // TODO: Is this maximum necessary?
+      const timeout = Math.max(this.timeUntilNConfirmations(i), 5);
+      const result = await this.provider.confirmTransaction(response, i, timeout);
       if (result.isErr()) {
+        this._error = result.error;
         // No errors should occur during this confirmation attempt.
         throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
           method,

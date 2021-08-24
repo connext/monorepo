@@ -38,7 +38,7 @@ export class TransactionMonitor {
    * This will create a transaction with an assigned nonce as well as estimated gas / set gas price.
    * We use this structure to essentially enforce all created transactions are saved locally in the buffer for
    * continue monitoring, thus enabling us to further ensure they all go through.
-   * 
+   *
    * @param minTx - Minimum transaction params needed to form a transaction for sending.
    *
    * @returns Transaction instance with populated params, ready for submit.
@@ -134,17 +134,26 @@ export class TransactionMonitor {
   private async backfillLoop() {
     // TODO: Make sure this loop is throw-proof
     while (true) {
+      // TODO: Make poll parity (in seconds) configurable
       delay(1000);
-      const pending = this.buffer.pending;
       // Lazy solution: we only care about a potential hold-up if it could hold anything up.
-      if (pending.length < 2) {
+      if (this.buffer.pending.length < 2) {
         continue;
       }
       const result = await this.provider.getTransactionCount();
       if (result.isErr()) {
-        // TODO: log
+        // TODO: log?
+        // TODO: If we keep getting failures due to RPC issue, escape out?
+        continue;
       }
-      const currentNonce = result.isOk() ? result.value : -1;
+      const currentNonce = result.value ?? -1;
+      // Buffer's last nonce must be defined, assuming there is at least 2 pending transactions.
+      const lastNonce = this.buffer.getLastNonce()!;
+      if (currentNonce > lastNonce) {
+        // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
+        // indexed, meaning their nonces have been used and there won't be any need to backfill.
+        continue;
+      }
       const tx: Transaction | undefined = this.buffer.get(currentNonce);
       if (tx == null) {
         // BC it could just be the latest nonce and we're currently not doing anything
@@ -181,32 +190,64 @@ export class TransactionMonitor {
 
   private async backfill(nonce: number, blockade: Transaction | undefined, reason: string, context: any = {}) {
     const method = this.backfill.name;
+    try {
+      this.logger.error(
+        {
+          method,
+          ...context,
+          nonce,
+          id: blockade?.id,
+          timestamp: blockade?.timestamp,
+          blockade: blockade?.params,
+          hashes: blockade?.responses.map((r) => r.hash),
+        },
+        `Transaction requires backfill: ${reason}`,
+      );
+      const addressResult = await this.provider.getAddress();
+      if (addressResult.isErr()) {
+        throw addressResult.error;
+      }
+      // Sending a 0 wei transaction to fill the gap. We only have to eat the cost of gas here.
+      const minTx: WriteTransaction = {
+        chainId: this.chainId,
+        value: BigNumber.from(0),
+        data: "0x",
+        to: addressResult.value,
+      };
+      const gas = await this.getGas(minTx);
+      // Set gas to maximum.
+      gas.setToMax();
+      // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
+      const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gas, true);
+      this.buffer.insert(nonce, transaction, true);
 
-    const addressResult = await this.provider.getAddress();
-    if (addressResult.isErr()) {
-      throw addressResult.error;
+      const result = await this.provider.sendTransaction(transaction);
+      if (result.isErr()) {
+        throw result.error;
+      }
+      this.logger.info(
+        {
+          method,
+          ...context,
+          nonce,
+          blockadeId: blockade?.id,
+          backfillId: transaction.id,
+        },
+        "Backfill completed successfully",
+      );
+    } catch (error) {
+      // TODO: Backfill failed, we should shut the system down!
+      this.logger.error(
+        {
+          method,
+          ...context,
+          nonce,
+          backfilledTxId: blockade?.id,
+          error,
+        },
+        "Backfill failed",
+      );
     }
-    // Sending a 0 wei transaction to fill the gap. We only have to eat the cost of gas here.
-    const minTx: WriteTransaction = {
-      chainId: this.chainId,
-      value: BigNumber.from(0),
-      data: "0x",
-      to: addressResult.value,
-    };
-    const gas = await this.getGas(minTx);
-    // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
-    const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gas, true);
-    this.buffer.insert(nonce, transaction, true);
-
-    const sendResult = await this.provider.sendTransaction(transaction);
-    if (sendResult.isErr()) {
-      throw sendResult.error;
-    }
-
-    this.logger.error(
-      { method, ...context, nonce, backfillTx: sendResult.value },
-      `Transaction required backfill: ${reason}`,
-    );
   }
 
   // private async addToValidationQueue(transaction: Transaction) {

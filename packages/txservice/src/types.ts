@@ -57,11 +57,15 @@ export class Gas {
     this._maxGasPrice = limitInWei.add(limitInWei.mul(6).div(5));
   }
 
+  public setToMax() {
+    this._gasPrice = this._maxGasPrice.sub(10);
+  }
+
   /**
    * Check to see if the gas price provided is past the max. If so, throw.
-   * 
+   *
    * @param value Gas price to validate.
-   * 
+   *
    * @throws TransactionServiceFailure with reason MaxGasPriceReached if we exceed the limit.
    */
   private validate(value: BigNumber) {
