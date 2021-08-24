@@ -126,7 +126,11 @@ abstract contract ProposedOwnable {
     * been renounced
     */
   function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
-    require(!_routerOwnershipRenounced, "#PROR:036");
+    // Use contract as source of truth
+    // Will fail if all ownership is renounced by modifier
+    require(!_routerOwnershipRenounced, "#PROR:038");
+
+    // Begin delay, emit event
     _setRouterOwnershipTimestamp();
   }
 
@@ -136,7 +140,8 @@ abstract contract ProposedOwnable {
     */
   function renounceRouterOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
-    require(!_routerOwnershipRenounced, "#RRO:036");
+    // Will fail if all ownership is renounced by modifier
+    require(!_routerOwnershipRenounced, "#RRO:038");
 
     // Ensure there has been a proposal cycle started
     require(_routerOwnershipTimestamp > 0, "#RRO:037");
@@ -144,7 +149,7 @@ abstract contract ProposedOwnable {
     // Delay has elapsed
     require((block.timestamp - _routerOwnershipTimestamp) > _delay, "#RRO:030");
 
-    // Set owner, emit event, reset timestamp to 0
+    // Set renounced, emit event, reset timestamp to 0
     _setRouterOwnership(true);
   }
 
@@ -162,7 +167,8 @@ abstract contract ProposedOwnable {
     */
   function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
     // Contract as sournce of truth
-    require(!_assetOwnershipRenounced, "#PAOR:036");
+    // Will fail if all ownership is renounced by modifier
+    require(!_assetOwnershipRenounced, "#PAOR:038");
 
     // Start cycle, emit event
     _setAssetOwnershipTimestamp();
@@ -174,7 +180,8 @@ abstract contract ProposedOwnable {
     */
   function renounceAssetOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
-    require(!_assetOwnershipRenounced, "#RAO:036");
+    // Will fail if all ownership is renounced by modifier
+    require(!_assetOwnershipRenounced, "#RAO:038");
 
     // Ensure there has been a proposal cycle started
     require(_assetOwnershipTimestamp > 0, "#RAO:037");
@@ -191,7 +198,7 @@ abstract contract ProposedOwnable {
     * checking if current owner is address(0)
     */
   function renounced() public view returns (bool) {
-    return owner() == address(0);
+    return _owner == address(0);
   }
 
   /**
@@ -203,7 +210,7 @@ abstract contract ProposedOwnable {
     require(_proposed != newlyProposed || newlyProposed == address(0), "#PNO:036");
 
     // Sanity check: reasonable proposal
-    require(_owner != newlyProposed, "#PNO:036");
+    require(_owner != newlyProposed, "#PNO:038");
 
     _setProposed(newlyProposed);
   }
@@ -230,8 +237,13 @@ abstract contract ProposedOwnable {
     * Can only be called by the current owner.
     */
   function acceptProposedOwner() public virtual onlyProposed {
-    // Ensure there has been a proposal cycle started
-    require(_proposedOwnershipTimestamp > 0, "#APO:037");
+    // Contract as source of truth
+    require(_owner != _proposed, "#APO:038");
+
+    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because
+    // the only time this would happen is if the _proposed was never
+    // set (will fail from modifier) or if the owner == _proposed (checked
+    // above)
 
     // Ensure delay has elapsed
     require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");

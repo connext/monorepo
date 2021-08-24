@@ -43,7 +43,7 @@ export const Errors: ErrorsType = {
   "035": "NOT_PROPOSED_OWNER",
   "036": "INVALID_PROPOSAL",
   "037": "NO_PROPOSAL",
-  "038": "ALREADY_RENOUNCED",
+  "038": "NO_OWNERSHIP_CHANGE",
 };
 
 type ErrorsPrefixType = {

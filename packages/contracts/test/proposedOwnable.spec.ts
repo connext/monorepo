@@ -146,10 +146,10 @@ describe("ProposedOwnable.sol", () => {
   });
 
   describe("proposeRouterOwnershipRenunciation", () => {
-    it("should fail if its already renounced", async () => {
+    it("should fail if router ownership is already renounced", async () => {
       await renounceRouterOwnership();
       await expect(proposedOwnable.connect(wallet).proposeRouterOwnershipRenunciation()).to.be.revertedWith(
-        "#PROR:036",
+        "#PROR:038",
       );
     });
 
@@ -159,9 +159,9 @@ describe("ProposedOwnable.sol", () => {
   });
 
   describe("renounceRouterOwnership", () => {
-    it("should fail if its already renounced", async () => {
+    it("should fail if router ownership is already renounced", async () => {
       await renounceRouterOwnership();
-      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:036");
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:038");
     });
 
     it("should fail if there is no proposal in place", async () => {
@@ -193,9 +193,9 @@ describe("ProposedOwnable.sol", () => {
   });
 
   describe("proposeAssetOwnershipRenunciation", () => {
-    it("should fail if its already renounced", async () => {
+    it("should fail if asset ownership already renounced", async () => {
       await renounceAssetOwnership();
-      await expect(proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation()).to.be.revertedWith("#PAOR:036");
+      await expect(proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation()).to.be.revertedWith("#PAOR:038");
     });
 
     it("should work", async () => {
@@ -204,9 +204,9 @@ describe("ProposedOwnable.sol", () => {
   });
 
   describe("renounceAssetOwnership", () => {
-    it("should fail if its already renounced", async () => {
+    it("should fail if asset ownership is already renounced", async () => {
       await renounceAssetOwnership();
-      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:036");
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:038");
     });
 
     it("should fail if no proposal was made", async () => {
@@ -248,7 +248,7 @@ describe("ProposedOwnable.sol", () => {
     });
 
     it("should fail if proposing the owner", async () => {
-      await expect(proposedOwnable.connect(wallet).proposeNewOwner(wallet.address)).to.be.revertedWith("#PNO:036");
+      await expect(proposedOwnable.connect(wallet).proposeNewOwner(wallet.address)).to.be.revertedWith("#PNO:038");
     });
 
     it("should work", async () => {
@@ -293,12 +293,12 @@ describe("ProposedOwnable.sol", () => {
       await expect(proposedOwnable.connect(wallet).acceptProposedOwner()).to.be.revertedWith("#OP:035");
     });
 
-    it("should fail if there was no proposal", async () => {
+    it("should fail if there is no effective change in ownership", async () => {
       // First make and accept a new owner
       await transferOwnership(other.address);
 
       // Then try again
-      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#APO:037");
+      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#APO:038");
     });
 
     it("should fail if delay has not elapsed", async () => {
