@@ -1,6 +1,6 @@
 import { providers } from "ethers";
 import { BaseLogger } from "pino";
-import { getUuid } from "@connext/nxtp-utils";
+import { delay, getUuid } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
 import { ChainRpcProvider } from "../provider";
@@ -288,8 +288,18 @@ export class Transaction implements TransactionInterface {
     return expiry - Date.now();
   }
 
-  public kill() {
+  /**
+   * Kills the transaction (marking it as discontinued, preventing submit).
+   * Will block until the transaction is expired.
+   * 
+   * @remarks
+   * This method is not required by TransactionInterface, as it should not be exposed outside of this
+   * submodule. It should only be accessible to TransactionMonitor.
+   */
+  public async kill() {
     this._discontinued = true;
+    await delay(this.timeUntilExpiry());
+    return;
   }
 
   /**

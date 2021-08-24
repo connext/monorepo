@@ -138,10 +138,10 @@ export class TransactionMonitor {
     // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
     while (true) {
-      delay(MONITOR_POLL_PARITY);
+      await delay(MONITOR_POLL_PARITY);
       // Lazy solution: we only care about a potential hold-up if it could hold anything up.
       if (this.buffer.pending.length < 2) {
-        delay(MONITOR_POLL_PARITY);
+        await delay(MONITOR_POLL_PARITY);
         continue;
       }
       const result = await this.provider.getTransactionCount();
@@ -157,7 +157,7 @@ export class TransactionMonitor {
         // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
         // indexed, meaning their nonces have been used and there won't be any need to backfill.
         // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
-        delay(MONITOR_POLL_PARITY);
+        await delay(MONITOR_POLL_PARITY);
         continue;
       }
       const tx: Transaction | undefined = this.buffer.get(currentNonce);
