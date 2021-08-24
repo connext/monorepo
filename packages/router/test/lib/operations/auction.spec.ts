@@ -33,7 +33,7 @@ describe("Auction Operation", () => {
   const { newAuction } = getOperations();
   describe("#newAuction", () => {
     beforeEach(() => {
-      getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);
+      getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);

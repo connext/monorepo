@@ -22,11 +22,7 @@ import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/
 
 import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
-import {
-  getDeployedTransactionManagerContractAddress,
-  TransactionManager,
-  TransactionManagerError,
-} from "../../src/transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContract } from "../../src/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 
 const { AddressZero } = constants;
@@ -173,16 +169,28 @@ describe("Transaction Manager", function () {
     expect(tokenB.address).to.be.a("string");
   });
 
-  describe("getDeployedTransactionManagerContractAddress", () => {
+  describe("#getDeployedTransactionManagerContract", () => {
+    it("should undefined if no transaction manager", () => {
+      const res = getDeployedTransactionManagerContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedTransactionManagerContract(4);
+      expect(res).to.be.ok;
+    });
+  });
+
+  describe("getDeployedTransactionManagerContract", () => {
     it("happy case: returns undefined", async () => {
       const chainId = sendingChainId;
-      const res = getDeployedTransactionManagerContractAddress(chainId);
+      const res = getDeployedTransactionManagerContract(chainId);
       expect(res).to.be.undefined;
     });
     it("happy case", async () => {
       const chainId = 5;
-      const res = getDeployedTransactionManagerContractAddress(chainId);
-      expect(res).to.be.a("string");
+      const res = getDeployedTransactionManagerContract(chainId);
+      expect(res.address).to.be.a("string");
     });
   });
 
