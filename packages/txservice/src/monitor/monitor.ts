@@ -69,16 +69,13 @@ export class TransactionMonitor {
     // Queue up the transaction with these values.
     const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
-        // NOTE: This call must be here, serialized within the queue, as it is depenedent on current pending transaction count.
+        // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
         const nonce = await this.getNonce();
-        // Create a new transaction instance to track lifecycle.
+        // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
         const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gas);
         this.buffer.insert(nonce, transaction);
         return { value: transaction, success: true };
       } catch (e) {
-        // validate that the transaction failed on chain?
-        // didn't fail on chain? log this occurrence w/ error but ignore error ?!? -> WTF?
-        // if it did fail on chain, THROW
         return { value: e, success: false };
       }
     });
@@ -178,7 +175,7 @@ export class TransactionMonitor {
       const tx: Transaction | undefined = this.buffer.get(currentNonce);
       if (tx == null) {
         // This is a "legit" nonce gap!
-        this.backfill(currentNonce, undefined, "NOT_FOUND");
+        await this.backfill(currentNonce, undefined, "NOT_FOUND");
       } else {
         if (tx.didFinish || tx.isBackfill) {
           // IF the transaction did finish already, or this is already being backfilled (from a previous iteration
@@ -191,13 +188,13 @@ export class TransactionMonitor {
         // Check to make sure that the transaction has leftover time to live.
         const ttl = tx.timeUntilExpiry();
         if (ttl < 0) {
-          this.backfill(currentNonce, tx, "EXPIRED");
+          await this.backfill(currentNonce, tx, "EXPIRED");
         } else {
           if (tx.attempt > 5) {
             // This will mark a transaction for death, but it does get 1 hail mary; the transaction
             // can still attempt to confirm whatever's currently been submitted.
             await tx.kill();
-            this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
+            await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
           }
         }
       }

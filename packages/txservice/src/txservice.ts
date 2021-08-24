@@ -152,7 +152,6 @@ export class TransactionService {
 
         // Validate: wait for 1 confirmation.
         try {
-          // TODO: Should we emit event to listeners for this step?
           await transaction.validate();
         } catch (error) {
           this.logger.debug(

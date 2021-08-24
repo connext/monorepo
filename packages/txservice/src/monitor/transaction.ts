@@ -5,7 +5,7 @@ import { delay, getUuid } from "@connext/nxtp-utils";
 import { DEFAULT_CONFIG } from "../config";
 import { ChainRpcProvider } from "../provider";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
-import { TransactionKilled, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
+import { TimeoutError, TransactionKilled, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
 
 export interface TransactionInterface {
   id: string;
@@ -339,16 +339,22 @@ export class Transaction implements TransactionInterface {
       });
     }
 
-    // TODO: Replace with an impatient, iterating wait() that checks to make sure we receive continued confirmations.
-    // Alternatively, have wait() running in the background (ever since submit) and simply poll here.
+    // Here we do an impatient, iterating confirmation wait() that checks to make sure we receive continued confirmations.
+    // TODO: Alternatively, we could have wait() running in the background (ever since submit?) and simply poll here. Might be
+    // more economic...
     const response = this.response;
     for (let i = 2; i < this.provider.confirmationsRequired; i++) {
-      // TODO: Is this maximum necessary?
-      const timeout = Math.max(this.timeUntilNConfirmations(i), 5);
+      // This maximum here actually ensures a minimum of at least 5 second wait period.
+      // Meaning we at least give response.wait() some time to attempt confirm, even if this tx has just expired.
+      const timeout = Math.max(this.timeUntilNConfirmations(i), 5_000);
       const result = await this.provider.confirmTransaction(response, i, timeout);
       if (result.isErr()) {
         this._error = result.error;
-        // No errors should occur during this confirmation attempt.
+        if (result.error.type === TimeoutError.type) {
+          // This implies a re-org occurred.
+          throw result.error;
+        }
+        // No other errors should occur during this confirmation attempt.
         throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
           method,
           receipt: this.receipt,
