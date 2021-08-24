@@ -395,7 +395,7 @@ export class ChainRpcProvider {
   /**
    * Check to make sure we have not aborted this chain provider. This assert
    * should only be called within sendTransaction (or upon transaction create, etc).
-   * 
+   *
    * @throws DispatchAborted error if we have aborted.
    */
   protected assertNotAborted(): void {

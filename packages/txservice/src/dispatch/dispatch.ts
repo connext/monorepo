@@ -44,20 +44,14 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
    * configuration.
    */
-   constructor(
+  constructor(
     logger: BaseLogger,
     signer: string | Signer,
     public readonly chainId: number,
     chainConfig: ChainConfig,
     config: TransactionServiceConfig,
   ) {
-    super(
-      logger,
-      signer,
-      chainId,
-      chainConfig,
-      config,
-    );
+    super(logger, signer, chainId, chainConfig, config);
     // A separate loop will make sure they get through or get backfilled.
     this.startMonitor();
   }
