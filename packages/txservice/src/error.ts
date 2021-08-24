@@ -23,7 +23,7 @@ export class RpcError extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
-    super(reason);
+    super(reason, context);
   }
 }
 
@@ -38,7 +38,7 @@ export class TransactionReadError extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof TransactionReverted.reasons>, public readonly context: any = {}) {
-    super(reason);
+    super(reason, context);
   }
 }
 
@@ -79,7 +79,7 @@ export class TransactionReverted extends TransactionError {
     public readonly receipt?: providers.TransactionReceipt,
     public readonly context: any = {},
   ) {
-    super(reason);
+    super(reason, context);
   }
 }
 
@@ -100,7 +100,7 @@ export class TransactionReplaced extends TransactionError {
     public readonly replacement: providers.TransactionResponse,
     public readonly context: any = {},
   ) {
-    super("Transaction replaced.");
+    super("Transaction replaced.", context);
   }
 }
 
@@ -113,7 +113,7 @@ export class TimeoutError extends TransactionError {
   static readonly type = TimeoutError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Operation timed out.");
+    super("Operation timed out.", context);
   }
 }
 
@@ -125,7 +125,7 @@ export class UnpredictableGasLimit extends TransactionError {
   static readonly type = UnpredictableGasLimit.name;
 
   constructor(public readonly context: any = {}) {
-    super("The gas estimate could not be determined.");
+    super("The gas estimate could not be determined.", context);
   }
 }
 
@@ -159,7 +159,22 @@ export class ServerError extends TransactionError {
   static readonly type = ServerError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Server error occurred");
+    super("Server error occurred", context);
+  }
+}
+
+export class TransactionKilled extends TransactionError {
+  /**
+   * An error indicating that the transaction was killed by the monitor loop due to
+   * it taking too long, and blocking (potentially too many) transactions in the pending
+   * queue.
+   * 
+   * It will be replaced with a backfill transaction at max gas.
+   */
+  static readonly type = ServerError.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Transaction was killed by monitor loop.", context);
   }
 }
 
@@ -191,7 +206,7 @@ export class TransactionServiceFailure extends NxtpError {
     public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
     public readonly context: any = {},
   ) {
-    super(reason);
+    super(reason, context);
   }
 }
 

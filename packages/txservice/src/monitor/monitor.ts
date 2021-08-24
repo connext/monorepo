@@ -136,10 +136,12 @@ export class TransactionMonitor {
 
   private async backfillLoop() {
     // TODO: Make sure this loop is throw-proof
+    // TODO: Throttle this loop during lulls in traffic, speed up during high load??
     while (true) {
       delay(MONITOR_POLL_PARITY);
       // Lazy solution: we only care about a potential hold-up if it could hold anything up.
       if (this.buffer.pending.length < 2) {
+        delay(MONITOR_POLL_PARITY);
         continue;
       }
       const result = await this.provider.getTransactionCount();
@@ -160,8 +162,7 @@ export class TransactionMonitor {
       }
       const tx: Transaction | undefined = this.buffer.get(currentNonce);
       if (tx == null) {
-        // BC it could just be the latest nonce and we're currently not doing anything
-        // TODO: backfill
+        // This is a "legit" nonce gap!
         this.backfill(currentNonce, undefined, "NOT_FOUND");
       } else {
         if (tx.didFinish || tx.isBackfill) {
@@ -178,27 +179,22 @@ export class TransactionMonitor {
           this.backfill(currentNonce, tx, "EXPIRED");
         } else {
           if (tx.attempt > 5) {
-            try {
-              // You get 1 hail mary. (This should throw if it fails).
-              await this.hailMary(tx);
-            } catch (error) {
-              // If it fails from there, kill tx and backfill
-              await tx.kill(error);
-              this.backfill(currentNonce, tx, "TTL_HM_FAILED", { error });
-            }
+            // This will mark a transaction for death, but it does get 1 hail mary; the transaction
+            // can still attempt to confirm whatever's currently been submitted.
+            await tx.kill();
+            this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
           }
         }
       }
     }
   }
 
-  private async backfill(nonce: number, blockade: Transaction | undefined, reason: string, context: any = {}) {
+  private async backfill(nonce: number, blockade: Transaction | undefined, reason: string) {
     const method = this.backfill.name;
     try {
       this.logger.error(
         {
           method,
-          ...context,
           nonce,
           id: blockade?.id,
           timestamp: blockade?.timestamp,
@@ -232,7 +228,6 @@ export class TransactionMonitor {
       this.logger.info(
         {
           method,
-          ...context,
           nonce,
           blockadeId: blockade?.id,
           backfillId: transaction.id,
@@ -244,7 +239,6 @@ export class TransactionMonitor {
       this.logger.error(
         {
           method,
-          ...context,
           nonce,
           backfilledTxId: blockade?.id,
           error,

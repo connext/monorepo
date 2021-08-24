@@ -5,7 +5,7 @@ import { getUuid } from "@connext/nxtp-utils";
 import { DEFAULT_CONFIG } from "../config";
 import { ChainRpcProvider } from "../provider";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
-import { TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
+import { TransactionKilled, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
 
 export interface TransactionInterface {
   id: string;
@@ -14,6 +14,7 @@ export interface TransactionInterface {
   error: Error | undefined;
   attempt: number;
   validated: boolean;
+  discontinued: boolean;
   didSubmit: boolean;
   didFinish: boolean;
   responses: providers.TransactionResponse[];
@@ -42,6 +43,12 @@ export class Transaction implements TransactionInterface {
   // TODO: private setter
   // Timestamp initially set on creation, but will be updated each time submit() is called.
   public timestamp: number = Date.now();
+
+  // Indicates whether this transaction has been killed by monitor loop.
+  private _discontinued = false;
+  public get discontinued(): boolean {
+    return this._discontinued;
+  }
 
   // This error will be set in the instance of a failure.
   private _error: Error | undefined;
@@ -147,6 +154,11 @@ export class Transaction implements TransactionInterface {
     if (this.didFinish) {
       // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
       throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
+    }
+
+    // Check to make sure we haven't been killed by monitor loop.
+    if (this.discontinued) {
+      throw new TransactionKilled({ method });
     }
 
     // Increment transaction # attempts made.
@@ -274,6 +286,10 @@ export class Transaction implements TransactionInterface {
   public timeUntilNConfirmations(n = 1): number {
     const expiry = this.timestamp + this.provider.confirmationTimeout * n;
     return expiry - Date.now();
+  }
+
+  public kill() {
+    this._discontinued = true;
   }
 
   /**
