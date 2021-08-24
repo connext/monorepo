@@ -95,7 +95,7 @@ export class TransactionMonitor {
     let gasLimit: BigNumber;
     let result = await this.provider.estimateGas(transaction);
     if (result.isErr()) {
-      if (result.error instanceof TransactionReverted) {
+      if (result.error.type === TransactionReverted.type) {
         // If we get a TransactionReverted error, that means the gas estimate call
         // indicated our transaction would fail on-chain. The details of the failure will
         // be included in the error.

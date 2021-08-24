@@ -337,7 +337,7 @@ export class ChainRpcProvider {
           const sanitizedError = parseError(error);
           // If we get a TransactionReverted error, we can assume that the transaction will fail,
           // and we ought to just throw here.
-          if (sanitizedError instanceof TransactionReverted) {
+          if (sanitizedError.type === TransactionReverted.type) {
             throw sanitizedError;
           } else {
             errors.push(error);

@@ -5,7 +5,13 @@ import { delay, getUuid } from "@connext/nxtp-utils";
 import { DEFAULT_CONFIG } from "../config";
 import { ChainRpcProvider } from "../provider";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
-import { TimeoutError, TransactionKilled, TransactionReplaced, TransactionReverted, TransactionServiceFailure } from "../error";
+import {
+  TimeoutError,
+  TransactionKilled,
+  TransactionReplaced,
+  TransactionReverted,
+  TransactionServiceFailure,
+} from "../error";
 
 export interface TransactionInterface {
   id: string;
@@ -208,8 +214,9 @@ export class Transaction implements TransactionInterface {
     // it will throw a TransactionTimeout error.
     const result = await this.provider.confirmTransaction(this.response, 1);
     if (result.isErr()) {
-      const { error } = result;
-      if (error instanceof TransactionReplaced) {
+      const { error: _error } = result;
+      if (_error.type === TransactionReplaced.type) {
+        const error = _error as TransactionReplaced;
         // TODO: #150 Should we handle error.reason?:
         // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
@@ -217,7 +224,8 @@ export class Transaction implements TransactionInterface {
         // error.replacement - the replacement transaction (a TransactionResponse)
         this.response = error.replacement;
         this._validated = true;
-      } else if (error instanceof TransactionReverted) {
+      } else if (_error.type === TransactionReverted.type) {
+        const error = _error as TransactionReverted;
         // NOTE: This is the official receipt with status of 0, so it's safe to say the
         // transaction was in fact reverted and we should throw here.
         this.receipt = error.receipt;
@@ -225,8 +233,8 @@ export class Transaction implements TransactionInterface {
         this._error = error;
         throw error;
       } else {
-        this._error = error;
-        throw error;
+        this._error = _error;
+        throw _error;
       }
     } else {
       this.receipt = result.value;
@@ -291,7 +299,7 @@ export class Transaction implements TransactionInterface {
   /**
    * Kills the transaction (marking it as discontinued, preventing submit).
    * Will block until the transaction is expired.
-   * 
+   *
    * @remarks
    * This method is not required by TransactionInterface, as it should not be exposed outside of this
    * submodule. It should only be accessible to TransactionMonitor.

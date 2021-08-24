@@ -233,7 +233,7 @@ export class TransactionServiceFailure extends NxtpError {
  * @returns NxtpError
  */
 export const parseError = (error: any): NxtpError => {
-  if (error instanceof NxtpError) {
+  if (error.type === NxtpError.name) {
     // If the error has already been parsed into a native error, just return it.
     return error;
   }

@@ -37,7 +37,7 @@ export class NxtpError extends Error {
   constructor(
     public readonly msg: Values<typeof NxtpError.reasons>,
     public readonly context: any = {},
-    public readonly type = "NxtpError",
+    public readonly type = NxtpError.name,
   ) {
     super(msg);
   }
@@ -52,6 +52,6 @@ export class NxtpError extends Error {
   }
 
   public static fromJson(json: NxtpErrorJson): NxtpError {
-    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? "NxtpError");
+    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? NxtpError.name);
   }
 }
