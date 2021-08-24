@@ -143,7 +143,6 @@ export class Subgraph {
   async getActiveTransactions(): Promise<ActiveTransaction[]> {
     const methodName = "getActiveTransactions";
     const methodId = getUuid();
-    console.log("starting getActiveTransactions");
 
     // Step 1: handle any already listed as active transactions.
     // This is important to make sure the events are properly emitted
