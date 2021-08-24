@@ -1,2 +1,2 @@
 export { TransactionInterface } from "./transaction";
-export { TransactionMonitor } from "./monitor";
+export { TransactionDispatch } from "./dispatch";

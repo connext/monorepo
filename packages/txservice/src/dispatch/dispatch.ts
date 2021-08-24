@@ -1,13 +1,13 @@
-import { BigNumber } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
-import { delay } from "@connext/nxtp-utils";
-import { Evt } from "evt";
+import { delay, jsonifyError } from "@connext/nxtp-utils";
 
-import { ChainRpcProvider } from "../provider";
 import { Gas, WriteTransaction } from "../types";
-import { TransactionReverted } from "../error";
+import { DispatchAborted, TransactionReverted } from "../error";
+import { ChainConfig, TransactionServiceConfig } from "../config";
 
+import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TransactionBuffer } from "./buffer";
 
@@ -19,8 +19,7 @@ const MONITOR_POLL_PARITY = 5_000;
  *
  * All transactions created through txservice must go through here.
  */
-export class TransactionMonitor {
-  public readonly chainId: number;
+export class TransactionDispatch extends ChainRpcProvider {
   // This queue is used for creation of Transactions - specifically, for assigning nonce.
   private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   // Buffer for monitoring transactions locally. Enables us to perform lookback and ensure all of them get through.
@@ -29,29 +28,53 @@ export class TransactionMonitor {
   private shouldMonitor = true;
   private isActive = false;
 
-  public aborted: Evt<{ abort: boolean; error: Error }> = Evt.create<{ abort: boolean; error: Error }>();
-
   /**
-   * Centralized transaction monitoring class.
+   * Centralized transaction monitoring class. Extends ChainRpcProvider, thus exposing all provider methods
+   * through this class.
    *
-   * @param logger The pino.BaseLogger instance we use for logging.
-   * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
+   * @param logger pino.BaseLogger used for logging.
+   * @param signer Signer instance or private key used for signing transactions.
+   * @param chainId The ID of the chain for which this class's providers will be servicing.
+   * @param chainConfig Configuration for this specified chain, including the providers we'll
+   * be using for it.
+   * @param config The shared TransactionServiceConfig with general configuration.
+   *
+   * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
+   * configuration.
    */
-  constructor(private readonly logger: BaseLogger, private readonly provider: ChainRpcProvider) {
-    this.chainId = this.provider.chainId;
+   constructor(
+    logger: BaseLogger,
+    signer: string | Signer,
+    public readonly chainId: number,
+    chainConfig: ChainConfig,
+    config: TransactionServiceConfig,
+  ) {
+    super(
+      logger,
+      signer,
+      chainId,
+      chainConfig,
+      config,
+    );
     // A separate loop will make sure they get through or get backfilled.
-    this.start();
+    this.startMonitor();
   }
 
-  public stop() {
+  public stopMonitor() {
     this.shouldMonitor = false;
   }
 
-  public start() {
+  public startMonitor() {
     this.shouldMonitor = true;
     if (!this.isActive) {
       this.isActive = true;
-      this.backfillLoop();
+      this.monitorLoop();
+    }
+  }
+
+  private assertNotAborted(): void {
+    if (this.aborted) {
+      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
     }
   }
 
@@ -75,7 +98,7 @@ export class TransactionMonitor {
         // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
         const nonce = await this.getNonce();
         // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
-        const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gas);
+        const transaction = new Transaction(this.logger, this, minTx, nonce, gas);
         this.buffer.insert(nonce, transaction);
         return { value: transaction, success: true };
       } catch (e) {
@@ -93,7 +116,7 @@ export class TransactionMonitor {
     const method = this.getGas.name;
     // Get gas estimate.
     let gasLimit: BigNumber;
-    let result = await this.provider.estimateGas(transaction);
+    let result = await this.estimateGas(transaction);
     if (result.isErr()) {
       if (result.error.type === TransactionReverted.type) {
         // If we get a TransactionReverted error, that means the gas estimate call
@@ -115,7 +138,7 @@ export class TransactionMonitor {
     }
 
     // Get gas price and create tracker instance.
-    result = await this.provider.getGasPrice();
+    result = await this.getGasPrice();
     if (result.isErr()) {
       throw result.error;
     }
@@ -138,7 +161,7 @@ export class TransactionMonitor {
   private async getNonce(): Promise<number> {
     // Update nonce value to greatest of all nonce values retrieved.
     const buffer = this.buffer.getLastNonce() ?? -1;
-    const result = await this.provider.getTransactionCount();
+    const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
@@ -149,7 +172,7 @@ export class TransactionMonitor {
     return Math.max(buffer + 1, pending);
   }
 
-  private async backfillLoop() {
+  private async monitorLoop() {
     // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
     while (this.shouldMonitor) {
@@ -159,7 +182,7 @@ export class TransactionMonitor {
         await delay(MONITOR_POLL_PARITY);
         continue;
       }
-      const result = await this.provider.getTransactionCount();
+      const result = await this.getTransactionCount();
       if (result.isErr()) {
         // TODO: log?
         // TODO: If we keep getting failures due to RPC issue, escape out?
@@ -219,7 +242,7 @@ export class TransactionMonitor {
         },
         `Transaction requires backfill: ${reason}`,
       );
-      const addressResult = await this.provider.getAddress();
+      const addressResult = await this.getAddress();
       if (addressResult.isErr()) {
         throw addressResult.error;
       }
@@ -234,10 +257,10 @@ export class TransactionMonitor {
       // Set gas to maximum.
       gas.setToMax();
       // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
-      const transaction = new Transaction(this.logger, this.provider, minTx, nonce, gas, true);
+      const transaction = new Transaction(this.logger, this, minTx, nonce, gas, true);
       this.buffer.insert(nonce, transaction, true);
 
-      const result = await this.provider.sendTransaction(transaction);
+      const result = await this.sendTransaction(transaction);
       if (result.isErr()) {
         throw result.error;
       }
@@ -251,7 +274,7 @@ export class TransactionMonitor {
         "Backfill completed successfully",
       );
     } catch (error) {
-      // TODO: Backfill failed, we should shut the system down!
+      // Backfill failed, we should shut the system down.
       this.logger.error(
         {
           method,
@@ -261,7 +284,8 @@ export class TransactionMonitor {
         },
         "Backfill failed",
       );
-      this.aborted.post({ abort: true, error });
+      // Raise the abort flag.
+      this.aborted = error;
     }
   }
 }

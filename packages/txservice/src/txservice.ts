@@ -5,9 +5,8 @@ import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
-import { ChainRpcProvider } from "./provider";
 import { AlreadyMined, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
-import { TransactionInterface } from "./monitor";
+import { TransactionDispatch, TransactionInterface } from "./dispatch";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -53,7 +52,7 @@ export class TransactionService {
   };
 
   private config: TransactionServiceConfig;
-  private providers: Map<number, ChainRpcProvider> = new Map();
+  private providers: Map<number, TransactionDispatch> = new Map();
 
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
@@ -88,7 +87,7 @@ export class TransactionService {
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config);
+      const provider = new TransactionDispatch(this.logger, signer, chainIdNumber, chain, this.config);
       this.providers.set(chainIdNumber, provider);
     });
   }
@@ -340,7 +339,7 @@ export class TransactionService {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  private getProvider(chainId: number): ChainRpcProvider {
+  private getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new TransactionServiceFailure(

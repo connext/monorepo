@@ -10,17 +10,17 @@ export abstract class TransactionError extends NxtpError {
   static readonly type = TransactionError.name;
 }
 
-export class MonitorAborted extends TransactionError {
+export class DispatchAborted extends TransactionError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted
    */
-  static readonly type = MonitorAborted.name;
+  static readonly type = DispatchAborted.name;
 
   constructor(public readonly context: any = {}) {
     super(
       "Failed to send backfill transaction, refusing to send any additional transactions",
       context,
-      MonitorAborted.type,
+      DispatchAborted.type,
     );
   }
 }

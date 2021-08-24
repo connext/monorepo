@@ -3,7 +3,6 @@ import { BaseLogger } from "pino";
 import { delay, getUuid } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
-import { ChainRpcProvider } from "../provider";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
 import {
   TimeoutError,
@@ -12,6 +11,8 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
 } from "../error";
+
+import { ChainRpcProvider } from "./provider";
 
 export interface TransactionInterface {
   id: string;

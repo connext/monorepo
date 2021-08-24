@@ -4,10 +4,9 @@ import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ether
 import { okAsync, ResultAsync } from "neverthrow";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
-import { TransactionMonitor, TransactionInterface } from "./monitor";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
 import {
-  MonitorAborted,
+  DispatchAborted,
   parseError,
   RpcError,
   TransactionError,
@@ -15,8 +14,10 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
   UnpredictableGasLimit,
-} from "./error";
-import { CachedGas, ReadTransaction, WriteTransaction } from "./types";
+} from "../error";
+import { CachedGas, ReadTransaction } from "../types";
+
+import { TransactionInterface } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -40,8 +41,7 @@ export class ChainRpcProvider {
   private readonly quorum: number;
   private cachedGas?: CachedGas;
   private cachedDecimals: Record<string, number> = {};
-  private monitor: TransactionMonitor;
-  private aborted: Error | undefined = undefined;
+  protected aborted: Error | undefined = undefined;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -61,7 +61,7 @@ export class ChainRpcProvider {
    * configuration.
    */
   constructor(
-    private readonly logger: BaseLogger,
+    protected readonly logger: BaseLogger,
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
@@ -110,25 +110,6 @@ export class ChainRpcProvider {
 
     // TODO: #146 We may ought to do this instantiation in the txservice constructor.
     this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
-
-    // TODO: This is an antipattern, or at least feels like one, in conjuction with the
-    // createTransaction() and sendTransaction() methods below. If sendTransaction() should only ever be called within
-    // Transaction class's submit() method, why should it be exposed below?
-    this.monitor = new TransactionMonitor(this.logger, this);
-    this.monitor.aborted.attach(({ error }) => {
-      this.aborted = error;
-      this.monitor.stop();
-    });
-  }
-
-  private assertNotAborted(): void {
-    if (this.aborted) {
-      throw new MonitorAborted({ backfillError: jsonifyError(this.aborted) });
-    }
-  }
-
-  public async createTransaction(minTx: WriteTransaction): Promise<TransactionInterface> {
-    return await this.monitor.createTransaction(minTx);
   }
 
   /**
@@ -145,7 +126,6 @@ export class ChainRpcProvider {
       value: BigNumber.from(params.value || 0),
     };
     return this.resultWrapper<providers.TransactionResponse>(async () => {
-      this.assertNotAborted();
       return await this.signer.sendTransaction(transaction);
     });
   }
@@ -407,6 +387,10 @@ export class ChainRpcProvider {
         method,
         chainId: this.chainId,
       });
+    }
+    // Check to make sure we have not aborted this chain provider.
+    if (this.aborted) {
+      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
     }
     return true;
   }
