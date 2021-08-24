@@ -118,6 +118,9 @@ export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); //
 export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 
 export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
+  if (assetId === constants.AddressZero) {
+    return 18;
+  }
   const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
   return decimals;
 };
