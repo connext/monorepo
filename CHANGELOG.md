@@ -1,8 +1,14 @@
 # Vector Changelog
 
+## Next Release
+
+## 0.0.22
+
+- [sdk] Add back `connectMessaging` with proper functionality.
+
 ## 0.0.21
 
-- [sdk] Add back `connectMessaging` with proper functionality
+- [sdk] Add back `connectMessaging` with proper functionality.
 
 ## 0.0.20
 
