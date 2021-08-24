@@ -13,14 +13,13 @@ export class TransactionBuffer {
   private buffer: Map<number, Transaction> = new Map();
 
   public get pending(): Transaction[] {
-    return this.orderedKeys()
-      .map((nonce) => this.get(nonce) ?? null)
-      .filter(tx => tx != null && !tx.didFinish) as Transaction[];
+    // Use this opportunity to trim previous finished transactions.
+    return this.trim()
+      .map(nonce => this.get(nonce) ?? null)
+      .filter(tx => tx != null) as Transaction[];
   }
 
   public insert(nonce: number, transaction: Transaction, overwrite = false) {
-    // TODO: detect gap in nonce? throw if there's an attempt to insert out of order?
-    // TODO: Trim backend of buffer? Maybe keep a maximum of 1000 transactions?
     if (!overwrite && this.get(nonce) != null) {
       throw new TransactionServiceFailure(
         `Attempted to overwrite transaction at nonce ${nonce}!`,
@@ -45,5 +44,22 @@ export class TransactionBuffer {
 
   private orderedKeys() {
     return Array.from(this.buffer.keys()).sort();
+  }
+
+  /**
+   * 
+   * @remarks It is okay if we trim all transactions in the buffer, and end up with none left;
+   * it just means we'll use provider to get current nonce.
+   * 
+   * @returns Remaining keys after trimming.
+   */
+  private trim(): number[] {
+    return this.orderedKeys().filter(k => {
+      if (this.get(k)?.didFinish) {
+        this.buffer.delete(k);
+        return false;
+      }
+      return true;
+    });
   }
 }
