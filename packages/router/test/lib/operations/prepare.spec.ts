@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { getOperations } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
@@ -27,16 +28,17 @@ const { prepare } = getOperations();
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
     beforeEach(() => {
-      stub(PrepareHelperFns, "getReceiverAmount").returns(MUTATED_AMOUNT);
+      stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
       validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
+      stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
     });
 
     it("should error if invariant data validation fails", async () => {
-      const _invariantDataMock = {...invariantDataMock, user: "abc"}
+      const _invariantDataMock = { ...invariantDataMock, user: "abc" };
       await expect(prepare(_invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );
@@ -44,7 +46,7 @@ describe("Prepare Receiver Operation", () => {
     });
 
     it("should error if prepare input validation fails", async () => {
-      const _prepareInputMock = {...prepareInputMock, encodedBid: "abc"}
+      const _prepareInputMock = { ...prepareInputMock, encodedBid: "abc" };
       await expect(prepare(invariantDataMock, _prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );

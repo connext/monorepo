@@ -5,3 +5,9 @@ export class NoChainConfig extends NxtpError {
     super(`No chain config for chainId ${chainId}`, context, "NoChainConfig");
   }
 }
+
+export class NotEnoughRelayerFee extends NxtpError {
+  constructor(chainId: number, context: any = {}) {
+    super(`Not enough relayer fee, ${chainId}`, context, "NotEnoughRelayerFee");
+  }
+}

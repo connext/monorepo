@@ -154,7 +154,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   // router receives liquidity back on sender fulfill
   if (transaction.chainId == transaction.sendingChainId) {
-    let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);

@@ -17,11 +17,11 @@ import {
   CancelParams,
 } from "./index";
 
-export const txReceiptMock = {
+export const txReceiptMock = ({
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
-  confirmations: 1,
+  confirmations: 5,
   contractAddress: mkAddress(),
   cumulativeGasUsed: constants.One,
   from: mkAddress(),
@@ -31,7 +31,7 @@ export const txReceiptMock = {
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown as providers.TransactionReceipt;
+} as unknown) as providers.TransactionReceipt;
 
 export const invariantDataMock: InvariantTransactionData = {
   receivingChainTxManagerAddress: mkAddress("0xbb"),
@@ -49,7 +49,7 @@ export const invariantDataMock: InvariantTransactionData = {
 };
 
 export const variantDataMock: VariantTransactionData = {
-  amount: "123",
+  amount: "1000000",
   expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
   preparedBlockNumber: 1234,
 };

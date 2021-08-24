@@ -230,13 +230,28 @@ export class TransactionService {
   }
 
   /**
-   * Cets the current blocktime
+   * Gets the current blocktime
    *
    * @param chainId - The ID of the chain for which this call is related.
    * @returns number representing the current blocktime
    */
   public async getBlockTime(chainId: number): Promise<number> {
     const result = await this.getProvider(chainId).getBlockTime();
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
+   * Gets a trsanction receipt by hash
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current blocktime
+   */
+  public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
+    const result = await this.getProvider(chainId).getTransactionReceipt(hash);
     if (result.isErr()) {
       throw result.error;
     } else {

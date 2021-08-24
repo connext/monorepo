@@ -14,6 +14,7 @@ import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
 import "./src/tasks/getChainId";
+import "./src/tasks/renounceOwnership";
 
 dotEnvConfig();
 

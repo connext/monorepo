@@ -1,44 +1,12 @@
+import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { BaseLogger } from "pino";
+import { PrepareParams, CancelParams, FulfillParams, getUuid, isNode } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
-import {
-  PrepareParams,
-  CancelParams,
-  FulfillParams,
-  NxtpError,
-  NxtpErrorJson,
-  Values,
-  getUuid,
-} from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-/**
- * @classdesc Defines the error thrown by the `TransactionManager` class
- */
-export class TransactionManagerError extends NxtpError {
-  static readonly type = "TransactionManagerError";
-  static readonly reasons = {
-    TxServiceError: "Error submitting transaction",
-    NoTransactionManagerAddress: "No transactionManager found for chain",
-    NoProvider: "No provider configured for chain",
-  };
-
-  constructor(
-    public readonly message: Values<typeof TransactionManagerError.reasons> | string,
-    public readonly chainId: number,
-    public readonly context: {
-      txError?: NxtpErrorJson;
-      approveReceipt?: providers.TransactionReceipt;
-      methodId: string;
-      method: string;
-      transactionId?: string;
-    },
-  ) {
-    super(message, context, TransactionManagerError.type);
-  }
-}
+import { ChainNotConfigured } from "./error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -46,16 +14,20 @@ export class TransactionManagerError extends NxtpError {
  * @param chainId - The chain you want the address on
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
-export const getDeployedTransactionManagerContractAddress = (chainId: number): string | undefined => {
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
   const record = (contractDeployments as any)[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
   }
 
-  const address = record[name]?.contracts?.TransactionManager?.address;
+  const contract = record[name]?.contracts?.TransactionManager;
 
-  return address;
+  if (contract) {
+    return { address: contract.address, abi: contract.abi };
+  }
+
+  return undefined;
 };
 
 /**
@@ -104,6 +76,19 @@ export class TransactionManager {
   }
 
   /**
+   * Returns a connected signer. This is necessary because the browser-injected signer will not allow a provider to be connected.
+   *
+   * @param provider - The provider to connect if not a browser
+   * @returns The connected signer
+   */
+  getConnectedSigner(provider: providers.FallbackProvider): Signer {
+    if (isNode()) {
+      return this.signer.connect(provider);
+    }
+    return this.signer;
+  }
+
+  /**
    * Sends the prepare transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to prepare the transaction on (transactionData.sendingChainId)
@@ -123,23 +108,15 @@ export class TransactionManager {
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-        methodId,
-        method,
-      });
-    }
-
-    if (!provider) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
-        method,
-        methodId,
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const tx = await transactionManager.connect(this.signer.connect(provider)).prepare(
+    const signer = this.getConnectedSigner(provider);
+
+    const tx = await transactionManager.connect(signer).prepare(
       {
         receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
         user: txData.user,
@@ -188,24 +165,13 @@ export class TransactionManager {
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-        methodId,
-        method,
-      });
-    }
-
-    if (!provider) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
-        method,
-        methodId,
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, signature } = cancelParams;
-    const tx = await transactionManager
-      .connect(this.signer.connect(provider))
-      .cancel(txData, signature, { from: this.signer.getAddress() });
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).cancel(txData, signature, { from: this.signer.getAddress() });
 
     this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
     return tx;
@@ -233,26 +199,15 @@ export class TransactionManager {
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-        methodId,
-        method,
-      });
-    }
-
-    if (!provider) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
-        method,
-        methodId,
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
-    const tx = await transactionManager
-      .connect(this.signer.connect(provider))
-      .fulfill(txData, relayerFee, signature, callData, {
-        from: this.signer.getAddress(),
-      });
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature, callData, {
+      from: this.signer.getAddress(),
+    });
 
     this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
     return tx;
@@ -280,22 +235,13 @@ export class TransactionManager {
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-        methodId,
-        method,
-      });
-    }
-
-    if (!provider) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoProvider, chainId, {
-        method,
-        methodId,
-      });
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const signerAddress = await this.signer.getAddress();
-    const erc20 = new Contract(assetId, ERC20.abi, this.signer.connect(provider)) as IERC20Minimal;
+    const signer = this.getConnectedSigner(provider);
+    const erc20 = new Contract(assetId, ERC20.abi, signer) as IERC20Minimal;
 
     const approved = await erc20.allowance(signerAddress, transactionManager.address);
     this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
@@ -318,17 +264,11 @@ export class TransactionManager {
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
   async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
-    const method = "Contract::getLiquidity";
-    const methodId = getUuid();
-
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      throw new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-        methodId,
-        method,
-      });
+    const { transactionManager } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    return await txManager.routerBalances(router, assetId);
+    return transactionManager.routerBalances(router, assetId);
   }
 }

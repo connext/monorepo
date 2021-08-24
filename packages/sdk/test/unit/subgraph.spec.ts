@@ -17,6 +17,7 @@ import * as graphqlsdk from "../../src/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
+import { InvalidTxStatus } from "../../src/error";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -414,7 +415,9 @@ describe("Subgraph", () => {
         transactionIds: [sender.transactionId],
       }).resolves({ transactions: [receiver] });
 
-      await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("Invalid tx status (fail), check subgraph");
+      await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
+        InvalidTxStatus.getMessage("fail", sender.transactionId),
+      );
     });
   });
 

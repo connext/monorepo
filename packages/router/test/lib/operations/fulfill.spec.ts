@@ -38,6 +38,12 @@ describe("Fulfill Receiver Operation", () => {
       ).to.eventually.be.rejectedWith("No chain config for chainId");
     });
 
+    it("should error if relayer fee is lower than the lower bound", async () => {
+      await expect(
+        fulfill(invariantDataMock, { ...fulfillInputMock, relayerFee: "1" }, requestContext),
+      ).to.eventually.be.rejectedWith("Not enough relayer fee");
+    });
+
     it("should not fulfill if already fulfilling", async () => {
       receiverFulfilling.set(invariantDataMock.transactionId, true);
       const receipt = await fulfill(invariantDataMock, fulfillInputMock, requestContext);
