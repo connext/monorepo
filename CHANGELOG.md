@@ -1,5 +1,9 @@
 # Vector Changelog
 
+## 0.0.21
+
+- [sdk] Add back `connectMessaging` with proper functionality
+
 ## 0.0.20
 
 - [test-ui] Router liquidity management UI.
