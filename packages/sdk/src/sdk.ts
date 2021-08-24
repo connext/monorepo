@@ -430,9 +430,9 @@ export class NxtpSdk {
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
   }
 
-  async connectMessaging(bearerToken?: string) {
+  async connectMessaging(bearerToken?: string): Promise<string> {
     // Setup the subscriptions
-    await this.messaging.connect(bearerToken);
+    const token = await this.messaging.connect(bearerToken);
     await this.messaging.subscribeToAuctionResponse(
       (_from: string, inbox: string, data?: AuctionResponse, err?: any) => {
         this.auctionResponseEvt.post({ inbox, data, err });
@@ -444,6 +444,7 @@ export class NxtpSdk {
     });
 
     await delay(1000);
+    return token;
   }
 
   /**
