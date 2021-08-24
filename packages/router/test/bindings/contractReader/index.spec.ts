@@ -15,7 +15,7 @@ import * as FulfillFns from "../../../src/lib/operations/fulfill";
 import * as CancelFns from "../../../src/lib/operations/cancel";
 import { ExpiryInvalid } from "../../../src/lib/errors";
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
-import { contractReaderMock } from "../../globalTestHook";
+import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 
 let prepareMock: SinonStub<
   [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContext],
@@ -109,6 +109,14 @@ describe("Contract Reader Binding", () => {
         preparedBlockNumber: expired.crosschainTx.receiving.preparedBlockNumber,
         side: "receiver",
       });
+    });
+
+    it("should not prepare tx if not enough confirmations", async () => {
+      const badTx = { ...txReceiptMock, confirmations: 0 };
+      txServiceMock.getTransactionReceipt.resolves(badTx);
+      const prepare: ActiveTransaction<"SenderPrepared"> = { ...activeTransactionPrepareMock };
+      await binding.handleActiveTransactions([prepare]);
+      expect(prepareMock).callCount(0);
     });
   });
 

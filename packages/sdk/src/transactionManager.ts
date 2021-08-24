@@ -1,45 +1,14 @@
+import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { BaseLogger } from "pino";
+import { PrepareParams, CancelParams, FulfillParams, getUuid, isNode } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
-import {
-  PrepareParams,
-  CancelParams,
-  FulfillParams,
-  NxtpError,
-  NxtpErrorJson,
-  Values,
-  jsonifyError,
-  getUuid,
-} from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-/**
- * @classdesc Defines the error thrown by the `TransactionManager` class
- */
-export class TransactionManagerError extends NxtpError {
-  static readonly type = "TransactionManagerError";
-  static readonly reasons = {
-    TxServiceError: "Error submitting transaction",
-    NoTransactionManagerAddress: "No transactionManager found for chain",
-  };
+import { ChainNotConfigured } from "./error";
 
-  constructor(
-    public readonly message: Values<typeof TransactionManagerError.reasons> | string,
-    public readonly chainId: number,
-    public readonly context: {
-      txError?: NxtpErrorJson;
-      approveReceipt?: providers.TransactionReceipt;
-      methodId: string;
-      method: string;
-      transactionId?: string;
-    },
-  ) {
-    super(message, context, TransactionManagerError.type);
-  }
-}
+export const contractDeployments = _contractDeployments;
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -105,6 +74,19 @@ export class TransactionManager {
   }
 
   /**
+   * Returns a connected signer. This is necessary because the browser-injected signer will not allow a provider to be connected.
+   *
+   * @param provider - The provider to connect if not a browser
+   * @returns The connected signer
+   */
+  getConnectedSigner(provider: providers.FallbackProvider): Signer {
+    if (isNode()) {
+      return this.signer.connect(provider);
+    }
+    return this.signer;
+  }
+
+  /**
    * Sends the prepare transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to prepare the transaction on (transactionData.sendingChainId)
@@ -117,62 +99,48 @@ export class TransactionManager {
    * @param prepareParams.bidSignature - The signature on the winning bid
    * @returns If successful, returns the `TransactionResponse` from the signer once the transaction has been submitted, not mined. If the function errors, will return a TransacionManagerError
    */
-  prepare(
-    chainId: number,
-    prepareParams: PrepareParams,
-  ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
+  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionResponse> {
     const method = "Contract::prepare";
     const methodId = getUuid();
 
     this.logger.info({ method, methodId, prepareParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-        }),
-      );
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    return ResultAsync.fromPromise(
-      txManager
-        .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-        .prepare(
-          {
-            receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-            user: txData.user,
-            router: txData.router,
-            sendingAssetId: txData.sendingAssetId,
-            receivingAssetId: txData.receivingAssetId,
-            sendingChainFallback: txData.sendingChainFallback,
-            callTo: txData.callTo,
-            receivingAddress: txData.receivingAddress,
-            sendingChainId: txData.sendingChainId,
-            receivingChainId: txData.receivingChainId,
-            callDataHash: txData.callDataHash,
-            transactionId: txData.transactionId,
-          },
-          amount,
-          expiry,
-          encryptedCallData,
-          encodedBid,
-          bidSignature,
-          { value: constants.Zero, from: this.signer.getAddress() },
-        ),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
-    ).andThen((tx) => {
-      this.logger.info({ txHash: tx.hash, method, methodId }, "Prepare transaction submitted");
-      return okAsync(tx);
-    });
+    const signer = this.getConnectedSigner(provider);
+
+    const tx = await transactionManager.connect(signer).prepare(
+      {
+        receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
+        user: txData.user,
+        router: txData.router,
+        sendingAssetId: txData.sendingAssetId,
+        receivingAssetId: txData.receivingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        callTo: txData.callTo,
+        receivingAddress: txData.receivingAddress,
+        sendingChainId: txData.sendingChainId,
+        receivingChainId: txData.receivingChainId,
+        callDataHash: txData.callDataHash,
+        transactionId: txData.transactionId,
+      },
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
+      {
+        value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
+        from: await this.signer.getAddress(),
+      },
+    );
+    this.logger.info({ txHash: tx.hash, method, methodId }, "Prepare transaction submitted");
+    return tx;
   }
 
   /**
@@ -188,42 +156,23 @@ export class TransactionManager {
    * @remarks
    * Can be the sender chain if the transfer has expired, or the receiver chain before the expiry
    */
-  cancel(
-    chainId: number,
-    cancelParams: CancelParams,
-  ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
+  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionResponse> {
     const method = "Contract::cancel";
     const methodId = getUuid();
 
     this.logger.info({ method, methodId, cancelParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-          transactionId: cancelParams?.txData?.transactionId ?? "",
-        }),
-      );
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, signature } = cancelParams;
-    return ResultAsync.fromPromise(
-      txManager
-        .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-        .cancel(txData, signature, { from: this.signer.getAddress() }),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-          transactionId: cancelParams?.txData?.transactionId ?? "",
-        }),
-    ).andThen((tx) => {
-      this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
-      return okAsync(tx);
-    });
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).cancel(txData, signature, { from: this.signer.getAddress() });
+
+    this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
+    return tx;
   }
 
   /**
@@ -241,42 +190,25 @@ export class TransactionManager {
    * @remarks
    * User cannot be assumed to have gas on the receiving chain, so may use a relayer rather than submit the transaction themselves.
    */
-  fulfill(
-    chainId: number,
-    fulfillParams: FulfillParams,
-  ): ResultAsync<providers.TransactionResponse, TransactionManagerError> {
+  async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionResponse> {
     const method = "Contract::fulfill";
     const methodId = getUuid();
 
     this.logger.info({ method, methodId, fulfillParams }, "Method start");
 
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-        }),
-      );
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
-    return ResultAsync.fromPromise(
-      txManager
-        .connect(this.signer.provider ? this.signer : this.signer.connect(this.chainConfig[chainId].provider))
-        .fulfill(txData, relayerFee, signature, callData, {
-          from: this.signer.getAddress(),
-        }),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
-    ).andThen((tx) => {
-      this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
-      return okAsync(tx);
+    const signer = this.getConnectedSigner(provider);
+    const tx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature, callData, {
+      from: this.signer.getAddress(),
     });
+
+    this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
+    return tx;
   }
 
   /**
@@ -289,69 +221,36 @@ export class TransactionManager {
    *
    * @returns If successful, either returns `TransactionResponse` from the signer once the transaction has been submitted, not mined if the allowance was increased, or undefined if the allowance >= amount. If it errors, returns a `TransactionManagerError`.
    */
-  approveTokensIfNeeded(
+  async approveTokensIfNeeded(
     chainId: number,
     assetId: string,
     amount: string,
     infiniteApprove = false,
-  ): ResultAsync<providers.TransactionResponse | undefined, TransactionManagerError> {
+  ): Promise<providers.TransactionResponse | undefined> {
     const method = "Contract::approveTokensIfNeeded";
     const methodId = getUuid();
 
     this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
 
-    const config = this.chainConfig[chainId];
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-        }),
-      );
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    return ResultAsync.fromPromise(
-      this.signer.getAddress(),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
-    ).andThen((signerAddress) => {
-      const erc20 = new Contract(
-        assetId,
-        ERC20.abi,
-        this.signer.provider ? this.signer : this.signer.connect(config.provider),
-      ) as IERC20Minimal;
+    const signerAddress = await this.signer.getAddress();
+    const signer = this.getConnectedSigner(provider);
+    const erc20 = new Contract(assetId, ERC20.abi, signer) as IERC20Minimal;
 
-      return ResultAsync.fromPromise(
-        erc20.allowance(signerAddress, txManager.address),
-        (err) =>
-          new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-            method,
-            methodId,
-            txError: jsonifyError(err as NxtpError),
-          }),
-      ).andThen((approved) => {
-        this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
-        if (approved.lt(amount)) {
-          return ResultAsync.fromPromise(
-            erc20.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : amount),
-            (err) =>
-              new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-                method,
-                methodId,
-                txError: jsonifyError(err as NxtpError),
-              }),
-          );
-        } else {
-          this.logger.info({ method, methodId, approved: approved.toString(), amount }, "Allowance sufficient");
-          return okAsync(undefined);
-        }
-      });
-    });
+    const approved = await erc20.allowance(signerAddress, transactionManager.address);
+    this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
+    if (approved.lt(amount)) {
+      const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
+      this.logger.info({ txHash: tx.hash, method, methodId }, "Approve transaction submitted");
+      return tx;
+    } else {
+      this.logger.info({ method, methodId, approved: approved.toString(), amount }, "Allowance sufficient");
+      return undefined;
+    }
   }
 
   /**
@@ -362,32 +261,12 @@ export class TransactionManager {
    * @param assetId - The asset you want to check the liquidity of
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
-  getRouterLiquidity(
-    chainId: number,
-    router: string,
-    assetId: string,
-  ): ResultAsync<BigNumber, TransactionManagerError> {
-    const method = "Contract::getLiquidity";
-    const methodId = getUuid();
-
-    const txManager = this.chainConfig[chainId]?.transactionManager;
-    if (!txManager) {
-      return errAsync(
-        new TransactionManagerError(TransactionManagerError.reasons.NoTransactionManagerAddress, chainId, {
-          methodId,
-          method,
-        }),
-      );
+  async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
+    const { transactionManager } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    return ResultAsync.fromPromise(
-      txManager.routerBalances(router, assetId),
-      (err) =>
-        new TransactionManagerError(TransactionManagerError.reasons.TxServiceError, chainId, {
-          method,
-          methodId,
-          txError: jsonifyError(err as NxtpError),
-        }),
-    );
+    return transactionManager.routerBalances(router, assetId);
   }
 }

@@ -5,7 +5,6 @@ import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
 import {
-  NxtpSdkError,
   NxtpSdkEvent,
   ReceiverTransactionCancelledPayload,
   ReceiverTransactionFulfilledPayload,
@@ -13,6 +12,7 @@ import {
   SenderTransactionPreparedPayload,
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
+import { InvalidTxStatus } from "./error";
 
 export const HistoricalTransactionStatus = {
   FULFILLED: "FULFILLED",
@@ -297,11 +297,11 @@ export class Subgraph {
 
               // Unrecognized corresponding status, likely an error with the
               // subgraph. Throw an error
-              throw new NxtpSdkError(`Invalid tx status (${correspondingReceiverTx.status}), check subgraph`, {
-                method: this.getActiveTransactions.name,
-                methodId,
-                transactionId: correspondingReceiverTx.transactionId,
-              });
+              throw new InvalidTxStatus(
+                correspondingReceiverTx.transactionId,
+                correspondingReceiverTx.status,
+                correspondingReceiverTx,
+              );
             });
           }),
         );
@@ -313,11 +313,14 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info({
-        methodName,
-        methodId,
-        active: all.map((a) => a.crosschainTx.invariant.transactionId).join(","),
-      });
+      this.logger.info(
+        {
+          methodName,
+          methodId,
+          active: all.length,
+        },
+        "Queried active txs",
+      );
       this.logger.debug({ methodId, methodName, all }, "Queried active txs");
     }
     return all;
@@ -380,7 +383,7 @@ export class Subgraph {
                 crosschainTx: {
                   invariant: {
                     user,
-                    router: receiverTx.router,
+                    router: receiverTx.router.id,
                     sendingChainId: Number(receiverTx.sendingChainId),
                     sendingAssetId: receiverTx.sendingAssetId,
                     sendingChainFallback: receiverTx.sendingChainFallback,

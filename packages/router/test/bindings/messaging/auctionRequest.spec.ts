@@ -55,6 +55,7 @@ const bidSignature = mkSig("0xeee");
 const err = new AuctionExpired(800).toJson();
 
 const inbox = "inbox";
+const from = mkAddress("0xfff");
 
 const requestContext = createRequestContext("auctionRequestBinding");
 
@@ -72,14 +73,14 @@ describe("auctionRequestBinding", () => {
   });
 
   it("should work", async () => {
-    await auctionRequestBinding(inbox, auctionPayload, undefined, requestContext);
+    await auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext);
 
     expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
-    expect(messagingMock.publishAuctionResponse.calledOnceWithExactly(inbox, { bid, bidSignature })).to.be.true;
+    expect(messagingMock.publishAuctionResponse.calledOnceWithExactly(from, inbox, { bid, bidSignature })).to.be.true;
   });
 
   it("should not proceed if there is an error", async () => {
-    await auctionRequestBinding(inbox, auctionPayload, err);
+    await auctionRequestBinding(from, inbox, auctionPayload, err);
     expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(0);
     expect(newAuctionStub.callCount).to.be.eq(0);
   });
@@ -92,13 +93,15 @@ describe("auctionRequestBinding", () => {
 
   it("should throw if newAuction fails", async () => {
     newAuctionStub.rejects(new Error("fail"));
-    await expect(auctionRequestBinding(inbox, auctionPayload)).to.be.rejectedWith("fail");
+    await expect(auctionRequestBinding(from, inbox, auctionPayload)).to.be.rejectedWith("fail");
     expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(0);
   });
 
   it("should throw if messaging.publishAuctionResponse fails", async () => {
     messagingMock.publishAuctionResponse.rejects(new Error("fail"));
-    await expect(auctionRequestBinding(inbox, auctionPayload, undefined, requestContext)).to.be.rejectedWith("fail");
+    await expect(auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext)).to.be.rejectedWith(
+      "fail",
+    );
     expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
   });
 });

@@ -202,7 +202,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     *                asset you're adding liquidity for
     * @param router The router you are adding liquidity on behalf of
     */
-  function addLiquidityFor(uint256 amount, address assetId, address router) external payable override {
+  function addLiquidityFor(uint256 amount, address assetId, address router) external payable override nonReentrant {
     _addLiquidityForRouter(amount, assetId, router);
   }
 
@@ -213,7 +213,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     * @param assetId The address (or `address(0)` if native asset) of the
     *                asset you're adding liquidity for
     */
-  function addLiquidity(uint256 amount, address assetId) external payable override {
+  function addLiquidity(uint256 amount, address assetId) external payable override nonReentrant {
     _addLiquidityForRouter(amount, assetId, msg.sender);
   }
 
@@ -291,7 +291,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     bytes calldata encryptedCallData,
     bytes calldata encodedBid,
     bytes calldata bidSignature
-  ) external payable override returns (TransactionData memory) {
+  ) external payable override nonReentrant returns (TransactionData memory) {
     // Sanity check: user is sensible
     require(invariantData.user != address(0), "#P:009");
 
@@ -347,9 +347,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // chain contexts
       require(isAssetOwnershipRenounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
 
-      // Store the transaction variants
-      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
-
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
       // lock their funds in the contract for the router to claim after
@@ -359,6 +356,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Validate correct amounts on msg and transfer from user to
       // contract
       amount = transferAssetToContract(invariantData.sendingAssetId, amount);
+
+      // Store the transaction variants. This happens after transferring to
+      // account for fee on transfer tokens
+      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
@@ -641,11 +642,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Asset is approved
     require(isAssetOwnershipRenounced() || approvedAssets[assetId], "#AL:004");
 
-    // Update the router balances
-    routerBalances[router][assetId] += amount;
-
     // Transfer funds to contract
     amount = transferAssetToContract(assetId, amount);
+
+    // Update the router balances. Happens after pulling funds to account for
+    // the fee on transfer tokens
+    routerBalances[router][assetId] += amount;
 
     // Emit event
     emit LiquidityAdded(router, assetId, amount, msg.sender);

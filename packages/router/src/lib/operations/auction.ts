@@ -20,7 +20,7 @@ import {
   AuctionExpired,
   ParamsInvalid,
 } from "../errors";
-import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount } from "../helpers";
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -87,7 +87,7 @@ export const newAuction = async (
   }
 
   // Validate expiry is valid (greater than current time plus a buffer).
-  const currentTime = Math.floor(Date.now() / 1000);
+  const currentTime = await getNtpTimeSeconds();
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodId,
@@ -178,8 +178,7 @@ export const newAuction = async (
   // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
-  const blockTime = await txService.getBlockTime(receivingChainId);
-  const bidExpiry = getBidExpiry(blockTime);
+  const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
     user,
     router: wallet.address,
