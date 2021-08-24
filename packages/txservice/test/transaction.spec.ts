@@ -3,8 +3,8 @@ import { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon"
 import pino from "pino";
 import { err, ok } from "neverthrow";
 
-import { ChainRpcProvider } from "../src/provider";
-import { Transaction } from "../src/transaction";
+import { ChainRpcProvider } from "../src/dispatch/provider";
+import { Transaction } from "../src/dispatch/transaction";
 import { DEFAULT_CONFIG } from "../src/config";
 import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, DEFAULT_GAS_LIMIT } from "./constants";
 import {

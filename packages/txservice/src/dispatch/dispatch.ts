@@ -50,10 +50,13 @@ export class TransactionDispatch extends ChainRpcProvider {
     public readonly chainId: number,
     chainConfig: ChainConfig,
     config: TransactionServiceConfig,
+    startMonitor = true,
   ) {
     super(logger, signer, chainId, chainConfig, config);
     // A separate loop will make sure they get through or get backfilled.
-    this.startMonitor();
+    if (startMonitor) {
+      this.startMonitor();
+    }
   }
 
   public stopMonitor() {
@@ -169,57 +172,61 @@ export class TransactionDispatch extends ChainRpcProvider {
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
     while (this.shouldMonitor) {
       await delay(MONITOR_POLL_PARITY);
-      // Lazy solution: we only care about a potential hold-up if it could hold anything up.
-      if (this.buffer.pending.length < 2) {
-        await delay(MONITOR_POLL_PARITY);
-        continue;
+      await this.monitor();
+    }
+    this.isActive = false;
+  }
+
+  public async monitor(): Promise<void> {
+    // Lazy solution: we only care about a potential hold-up if it could hold anything up.
+    if (this.buffer.pending().length < 2) {
+      await delay(MONITOR_POLL_PARITY);
+      return;
+    }
+    const result = await this.getTransactionCount();
+    if (result.isErr()) {
+      this.logger.error({ err: jsonifyError(result.error) }, "Failed to get transaction count");
+      // TODO: If we keep getting failures due to RPC issue, escape out?
+      return;
+    }
+    const currentNonce = result.value ?? -1;
+    // Buffer's last nonce must be defined, assuming there is at least 2 pending transactions.
+    const lastNonce = this.buffer.getLastNonce()!;
+    if (currentNonce > lastNonce) {
+      // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
+      // indexed, meaning their nonces have been used and there won't be any need to backfill.
+      // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
+      await delay(MONITOR_POLL_PARITY);
+      return;
+    }
+    const tx: Transaction | undefined = this.buffer.get(currentNonce);
+    if (!tx) {
+      // This is a "legit" nonce gap!
+      await this.backfill(currentNonce, undefined, "NOT_FOUND");
+    } else {
+      if (tx.didFinish || tx.isBackfill) {
+        // IF the transaction did finish already, or this is already being backfilled (from a previous iteration
+        // here), we can ignore this one.
+        // TODO: Do we actually want to proceed even if a tx IS a backfill? What would that accomplish? Because if
+        // even the backfill isn't working, then how would ANOTHER backfill solve anything? In fact, maybe we want to
+        // shut things down if even a backfill tx isn't going through?
+        return;
       }
-      const result = await this.getTransactionCount();
-      if (result.isErr()) {
-        this.logger.error({ err: jsonifyError(result.error) }, "Failed to get transaction count");
-        // TODO: If we keep getting failures due to RPC issue, escape out?
-        continue;
-      }
-      const currentNonce = result.value ?? -1;
-      // Buffer's last nonce must be defined, assuming there is at least 2 pending transactions.
-      const lastNonce = this.buffer.getLastNonce()!;
-      if (currentNonce > lastNonce) {
-        // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
-        // indexed, meaning their nonces have been used and there won't be any need to backfill.
-        // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
-        await delay(MONITOR_POLL_PARITY);
-        continue;
-      }
-      const tx: Transaction | undefined = this.buffer.get(currentNonce);
-      if (tx == null) {
-        // This is a "legit" nonce gap!
-        await this.backfill(currentNonce, undefined, "NOT_FOUND");
+      // Check to make sure that the transaction has leftover time to live.
+      const ttl = tx.timeUntilExpiry();
+      if (ttl < 0) {
+        await this.backfill(currentNonce, tx, "EXPIRED");
       } else {
-        if (tx.didFinish || tx.isBackfill) {
-          // IF the transaction did finish already, or this is already being backfilled (from a previous iteration
-          // here), we can ignore this one.
-          // TODO: Do we actually want to proceed even if a tx IS a backfill? What would that accomplish? Because if
-          // even the backfill isn't working, then how would ANOTHER backfill solve anything? In fact, maybe we want to
-          // shut things down if even a backfill tx isn't going through?
-          continue;
-        }
-        // Check to make sure that the transaction has leftover time to live.
-        const ttl = tx.timeUntilExpiry();
-        if (ttl < 0) {
-          await this.backfill(currentNonce, tx, "EXPIRED");
-        } else {
-          if (tx.attempt > TOO_MANY_ATTEMPTS) {
-            // This will mark a transaction for death, but it does get 1 hail mary; the transaction
-            // can still attempt to confirm whatever's currently been submitted.
-            // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
-            // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
-            await tx.kill();
-            await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
-          }
+        if (tx.attempt > TOO_MANY_ATTEMPTS) {
+          // This will mark a transaction for death, but it does get 1 hail mary; the transaction
+          // can still attempt to confirm whatever's currently been submitted.
+          // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
+          // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
+          await tx.kill();
+          await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
         }
       }
     }
-    this.isActive = false;
   }
 
   private async backfill(nonce: number, blockade: Transaction | undefined, reason: string) {

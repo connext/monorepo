@@ -12,7 +12,7 @@ export class TransactionBuffer {
   // we want to do? If so, orderedKeys() will become obsolete.
   private buffer: Map<number, Transaction> = new Map();
 
-  public get pending(): Transaction[] {
+  public pending(): Transaction[] {
     // Use this opportunity to trim previous finished transactions.
     return this.trim()
       .map((nonce) => this.get(nonce) ?? null)

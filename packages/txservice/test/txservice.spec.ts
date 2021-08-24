@@ -3,8 +3,8 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonS
 import pino from "pino";
 
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";
-import { Transaction } from "../src/transaction";
-import { ChainRpcProvider } from "../src/provider";
+import { Transaction } from "../src/dispatch/transaction";
+import { ChainRpcProvider } from "../src/dispatch/provider";
 import {
   makeChaiReadable,
   TEST_SENDER_CHAIN_ID,

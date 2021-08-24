@@ -2,7 +2,7 @@ import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import pino from "pino";
 
-import { ChainRpcProvider } from "../src/provider";
+import { ChainRpcProvider } from "../src/dispatch/provider";
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import {
   makeChaiReadable,
