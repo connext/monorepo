@@ -24,6 +24,9 @@ export class TransactionMonitor {
   private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   // Buffer for monitoring transactions locally. Enables us to perform lookback and ensure all of them get through.
   private readonly buffer: TransactionBuffer = new TransactionBuffer();
+  // Flag to indicate whether we should continue monitoring. This will stop the loop if flipped.
+  private shouldMonitor = true;
+  private isActive = false;
 
   /**
    * Centralized transaction monitoring class.
@@ -34,7 +37,19 @@ export class TransactionMonitor {
   constructor(private readonly logger: BaseLogger, private readonly provider: ChainRpcProvider) {
     this.chainId = this.provider.chainId;
     // A separate loop will make sure they get through or get backfilled.
-    this.backfillLoop();
+    this.start();
+  }
+
+  public stop() {
+    this.shouldMonitor = false;
+  }
+
+  public start() {
+    this.shouldMonitor = true;
+    if (!this.isActive) {
+      this.isActive = true;
+      this.backfillLoop();
+    }
   }
 
   /**
@@ -137,7 +152,7 @@ export class TransactionMonitor {
   private async backfillLoop() {
     // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
-    while (true) {
+    while (this.shouldMonitor) {
       await delay(MONITOR_POLL_PARITY);
       // Lazy solution: we only care about a potential hold-up if it could hold anything up.
       if (this.buffer.pending.length < 2) {
@@ -187,6 +202,7 @@ export class TransactionMonitor {
         }
       }
     }
+    this.isActive = false;
   }
 
   private async backfill(nonce: number, blockade: Transaction | undefined, reason: string) {
