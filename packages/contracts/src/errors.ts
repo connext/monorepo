@@ -42,6 +42,8 @@ export const Errors: ErrorsType = {
   "034": "NO_NATIVE_ASSET",
   "035": "NOT_PROPOSED_OWNER",
   "036": "INVALID_PROPOSAL",
+  "037": "NO_PROPOSAL",
+  "038": "NO_OWNERSHIP_CHANGE",
 };
 
 type ErrorsPrefixType = {
@@ -71,6 +73,8 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#RRO": "renounceRouterOwnership",
   "#PAOR": "proposeAssetOwnershipRenunciation",
   "#RAO": "renounceAssetOwnership",
+  "#PNO": "proposeNewOwner",
+  "#RO": "renounceOwnership",
 };
 
 /**
