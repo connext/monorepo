@@ -246,8 +246,11 @@ describe("Integration", () => {
     );
 
     const finishRes = await userSdk.fulfillTransfer(event, utils.parseEther("0.00001").toString());
+    console.info("fullfill Transfer at receiver side", finishRes);
+
     expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
+    console.info("fullfill Event", fulfillEvent);
     expect(fulfillEvent).to.be.ok;
   });
 });
