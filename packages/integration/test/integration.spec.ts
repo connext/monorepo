@@ -245,7 +245,7 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    const finishRes = await userSdk.fulfillTransfer(event);
+    const finishRes = await userSdk.fulfillTransfer(event, utils.parseEther("0.00001").toString());
     expect(finishRes.metaTxResponse).to.be.ok;
     const fulfillEvent = await fulfillEventPromise;
     expect(fulfillEvent).to.be.ok;
