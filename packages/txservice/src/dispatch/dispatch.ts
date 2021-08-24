@@ -13,6 +13,8 @@ import { TransactionBuffer } from "./buffer";
 
 // TODO: Make poll parity (in ms) configurable
 const MONITOR_POLL_PARITY = 5_000;
+// How many attempts until we consider a blocking tx as taking too long.
+const TOO_MANY_ATTEMPTS = 5;
 
 /**
  * @classdesc Wraps and monitors transaction queue; handles transactions' initial creation and nonce assignment.
@@ -82,6 +84,8 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns Transaction instance with populated params, ready for submit.
    */
   public async createTransaction(minTx: WriteTransaction): Promise<Transaction> {
+    // Make sure we haven't aborted dispatch.
+    this.assertNotAborted();
     // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
     // that, if we get past this method, we can safely assume that the transaction will go through on submit, saving for
     // instances where the provider malfunctions.
@@ -210,9 +214,11 @@ export class TransactionDispatch extends ChainRpcProvider {
         if (ttl < 0) {
           await this.backfill(currentNonce, tx, "EXPIRED");
         } else {
-          if (tx.attempt > 5) {
+          if (tx.attempt > TOO_MANY_ATTEMPTS) {
             // This will mark a transaction for death, but it does get 1 hail mary; the transaction
             // can still attempt to confirm whatever's currently been submitted.
+            // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
+            // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
             await tx.kill();
             await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
           }

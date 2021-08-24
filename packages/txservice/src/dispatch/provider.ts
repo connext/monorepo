@@ -126,6 +126,7 @@ export class ChainRpcProvider {
       value: BigNumber.from(params.value || 0),
     };
     return this.resultWrapper<providers.TransactionResponse>(async () => {
+      this.assertNotAborted();
       return await this.signer.sendTransaction(transaction);
     });
   }
@@ -388,10 +389,18 @@ export class ChainRpcProvider {
         chainId: this.chainId,
       });
     }
-    // Check to make sure we have not aborted this chain provider.
+    return true;
+  }
+
+  /**
+   * Check to make sure we have not aborted this chain provider. This assert
+   * should only be called within sendTransaction (or upon transaction create, etc).
+   * 
+   * @throws DispatchAborted error if we have aborted.
+   */
+  protected assertNotAborted(): void {
     if (this.aborted) {
       throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
     }
-    return true;
   }
 }
