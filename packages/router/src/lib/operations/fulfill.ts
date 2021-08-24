@@ -5,11 +5,11 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { providers } from "ethers";
+import { providers, BigNumber } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
-import { NoChainConfig, ParamsInvalid } from "../errors";
+import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 
 export const senderFulfilling: Map<string, boolean> = new Map();
 export const receiverFulfilling: Map<string, boolean> = new Map();
@@ -78,10 +78,22 @@ export const fulfill = async (
     throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
   }
 
+  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee.toString();
+  if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
+    throw new NotEnoughRelayerFee(fulfillChain, {
+      method,
+      methodId,
+      requestContext,
+      relayerFee: input.relayerFee,
+      relayerFeeLowerBound: relayerFeeLowerBound,
+    });
+  }
+
   if (map.get(invariantData.transactionId)) {
     logger.info({ methodId, method, requestContext, transactionId: invariantData.transactionId }, "Already fulfilling");
     return;
   }
+
   map.set(invariantData.transactionId, true);
 
   try {

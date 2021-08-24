@@ -43,7 +43,7 @@ import {
 import pino, { BaseLogger } from "pino";
 import { Type, Static } from "@sinclair/typebox";
 
-import { TransactionManager, getDeployedTransactionManagerContractAddress } from "./transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager";
 import {
   SubmitError,
   NoTransactionManager,
@@ -61,8 +61,6 @@ import {
   MetaTxTimeout,
 } from "./error";
 import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
-
-export { contractDeployments } from "./transactionManager";
 
 /**
  * Utility to convert the number of hours into seconds
@@ -395,14 +393,15 @@ export class NxtpSdk {
     Object.entries(this.chainConfig).forEach(
       ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
         const chainId = parseInt(_chainId);
-
         let transactionManagerAddress = _transactionManagerAddress;
         if (!transactionManagerAddress) {
-          transactionManagerAddress = getDeployedTransactionManagerContractAddress(chainId);
+          const res = getDeployedTransactionManagerContract(chainId);
+          if (!res || !res.address) {
+            throw new NoTransactionManager(chainId);
+          }
+          transactionManagerAddress = res.address;
         }
-        if (!transactionManagerAddress) {
-          throw new NoTransactionManager(chainId);
-        }
+
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,

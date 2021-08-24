@@ -95,7 +95,7 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const receiverAmount = getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  const receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,
