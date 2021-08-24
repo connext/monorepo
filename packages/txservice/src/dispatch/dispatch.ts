@@ -223,6 +223,10 @@ export class TransactionDispatch extends ChainRpcProvider {
           // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
           // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
           await tx.kill();
+          // Make sure that the transaction didn't manage to confirm.
+          if (tx.didFinish) {
+            return;
+          }
           await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
         }
       }
