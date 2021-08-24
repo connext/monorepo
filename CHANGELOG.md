@@ -1,6 +1,6 @@
 # Vector Changelog
 
-## Next Release
+## 0.0.20
 
 - [test-ui] Router liquidity management UI.
 - [test-ui] Test preferred router.
