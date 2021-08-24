@@ -1,10 +1,10 @@
 import { BigNumber, Signer } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
-import { delay, jsonifyError } from "@connext/nxtp-utils";
+import { delay } from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
-import { DispatchAborted, TransactionReverted } from "../error";
+import { TransactionReverted } from "../error";
 import { ChainConfig, TransactionServiceConfig } from "../config";
 
 import { ChainRpcProvider } from "./provider";
@@ -69,12 +69,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     if (!this.isActive) {
       this.isActive = true;
       this.monitorLoop();
-    }
-  }
-
-  private assertNotAborted(): void {
-    if (this.aborted) {
-      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
     }
   }
 
