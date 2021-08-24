@@ -108,22 +108,6 @@ export const newAuction = async (
   ]);
   logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
-  const amountReceived = getReceiverAmount(amount, inputDecimals, outputDecimals);
-
-  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
-  if (balance.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
-      methodId,
-      method,
-      requestContext,
-      balance: balance.toString(),
-      amount,
-      receivingAssetId,
-      receivingChainId,
-    });
-  }
-
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
   const receivingConfig = config.chainConfig[receivingChainId];
@@ -152,6 +136,23 @@ export const newAuction = async (
       methodId,
       method,
       requestContext,
+    });
+  }
+
+  // getting the swap rate from the receiver side config
+  const amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+
+  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
+  if (balance.lt(amountReceived)) {
+    throw new NotEnoughLiquidity(receivingChainId, {
+      methodId,
+      method,
+      requestContext,
+      balance: balance.toString(),
+      amount,
+      receivingAssetId,
+      receivingChainId,
     });
   }
 

@@ -2,7 +2,6 @@
 import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { utils } from "ethers";
 import {
   ajv,
@@ -24,11 +23,36 @@ import {
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 import { fetchJson } from "ethers/lib/utils";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+
+const MIN_GAS = utils.parseEther("0.1");
 
 dotenvConfig();
 
+/**
+ * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+
+  const contract = record[name]?.contracts?.TransactionManager;
+
+  if (contract) {
+    return { address: contract.address, abi: contract.abi };
+  }
+
+  return undefined;
+};
+
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
-const chainDataToMap = (data: any): Map<string, ChainData> => {
+export const chainDataToMap = (data: any): Map<string, ChainData> => {
   const chainData: Map<string, ChainData> = new Map();
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
@@ -47,7 +71,7 @@ const getChainData = async (): Promise<Map<string, ChainData> | undefined> => {
     console.error(`Error occurred retrieving chain data from ${url}`, err);
     // Check to see if we have the chain data cached locally.
     if (fs.existsSync("./chaindata.json")) {
-      console.log("Using cached chain data.");
+      console.info("Using cached chain data.");
       const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
       return chainDataToMap(data);
     }
@@ -63,6 +87,7 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
+  safeRelayerFee: Type.Number({ minimum: 0 }),
 });
 
 export const TSwapPool = Type.Object({
@@ -75,7 +100,7 @@ export const TSwapPool = Type.Object({
   ),
 });
 
-const NxtpRouterConfigSchema = Type.Object({
+export const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
   chainConfig: Type.Record(TIntegerString, TChainConfig),
   logLevel: Type.Union([
@@ -95,8 +120,6 @@ const NxtpRouterConfigSchema = Type.Object({
   host: Type.String({ format: "ipv4" }),
 });
 
-const MIN_GAS = utils.parseEther("0.1");
-
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
 
 /**
@@ -112,7 +135,6 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     let json: string;
 
     if (process.env.NXTP_CONFIG_FILE) {
-      console.log("process.env.NXTP_CONFIG_FILE: ", process.env.NXTP_CONFIG_FILE);
       json = fs.readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
     } else {
       json = fs.readFileSync("config.json", "utf-8");
@@ -174,7 +196,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
   };
 
   const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
-  if (!chainData && !overrideRecommendedConfirmations) {
+  if (!chainData && chainData!.size == 0 && !overrideRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
@@ -185,13 +207,11 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.transactionManagerAddress) {
-      try {
-        nxtpConfig.chainConfig[chainId].transactionManagerAddress = (
-          Object.values((contractDeployments as any)[chainId])[0] as any
-        ).contracts.TransactionManager.address;
-      } catch (e) {
+      const res = getDeployedTransactionManagerContract(parseInt(chainId));
+      if (!res) {
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
+      nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
