@@ -4,7 +4,7 @@ import PriorityQueue from "p-queue";
 import { delay, jsonifyError, mkAddress } from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
-import { AlreadyMined, TransactionReverted } from "../error";
+import { AlreadyMined, TransactionReplaced, TransactionReverted } from "../error";
 import { ChainConfig, TransactionServiceConfig } from "../config";
 
 import { ChainRpcProvider } from "./provider";
@@ -254,9 +254,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       gas.setToMax();
       // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
       const transaction = new Transaction(this.logger, this, minTx, nonce, gas, true);
-      this.buffer.insert(nonce, transaction, true);
-      addedToBuffer = true;
-
       const response = await this.sendTransaction(transaction);
       if (response.isErr()) {
         throw response.error;
@@ -265,6 +262,8 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (receipt.isErr()) {
         throw receipt.error;
       }
+      this.buffer.insert(nonce, transaction, true);
+      addedToBuffer = true;
       this.logger.info(
         {
           method,
@@ -311,6 +310,20 @@ export class TransactionDispatch extends ChainRpcProvider {
             true,
           );
         }
+        return;
+      } else if (error.type === TransactionReplaced.type) {
+        // The backfill was replaced by the original transaction, so we can just ignore it.
+        this.logger.info(
+          {
+            method,
+            nonce,
+            originalTxId: blockade?.id,
+            error,
+            replacement: error.replacement?.hash,
+            receipt: error.receipt?.hash,
+          },
+          "Backfill failed: Transaction replaced",
+        );
         return;
       }
       // Backfill failed, we should shut the system down.

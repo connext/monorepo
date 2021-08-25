@@ -392,8 +392,8 @@ export class Transaction implements TransactionInterface {
    * @returns The time until this transaction expires.
    */
   private timeUntilExpiry(): number {
-    // We allow an extra 10 seconds to give a bit of leeway for the transaction to be resubmitted after expiry.
-    const resubmitGracePeriod = 10_000;
+    // We allow extra time to give a bit of leeway for the transaction to be resubmitted/etc after expiry.
+    const resubmitGracePeriod = 20_000;
     const expiry = this.timestamp + resubmitGracePeriod + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
     return expiry - Date.now();
   }
