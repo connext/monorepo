@@ -131,7 +131,8 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
     const pending = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
-    return Math.max(this._nonce, pending);
+    this._nonce = Math.max(this._nonce, pending);
+    return this._nonce;
   }
 
   /**
