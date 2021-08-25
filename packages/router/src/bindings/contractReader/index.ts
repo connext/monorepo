@@ -119,8 +119,17 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           return;
         }
 
-        const fulfillPayload: FulfillPayload = _transaction.payload;
+        // TODO: sensible to use blocktime for now?
         const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");
+        if (transaction.crosschainTx.sending.expiry <= Math.floor(Date.now() / 1000)) {
+          logger.error(
+            { requestContext, transactionId: transaction.crosschainTx.invariant.transactionId },
+            "Sender tx unrecoverable",
+          );
+          return;
+        }
+
+        const fulfillPayload: FulfillPayload = _transaction.payload;
         try {
           logger.info({ requestContext }, "Fulfilling sender");
           const receipt = await fulfill(
@@ -160,7 +169,18 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           );
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled receiver");
         } catch (err) {
-          logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
+          const json = jsonifyError(err);
+          if (err?.context?.message.includes("#C:019")) {
+            logger.warn(
+              {
+                requestContext,
+                transaction: transaction.crosschainTx.invariant.transactionId,
+              },
+              "Already cancelled",
+            );
+            return;
+          }
+          logger.error({ err: json, requestContext }, "Error cancelling receiver");
         }
       }
     }),
