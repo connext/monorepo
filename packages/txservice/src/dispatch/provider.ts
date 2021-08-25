@@ -380,8 +380,20 @@ export class ChainRpcProvider {
   private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
-        // TODO: #148 Reimplement retry ability.
-        return method();
+        // TODO: #148 Add max retry configuration.
+        const errors = [];
+        while(errors.length < 5) {
+          try {
+            return method();
+          } catch (e) {
+            if (e.type === RpcError.type) {
+              errors.push(e);
+            } else {
+              throw e;
+            }
+          }
+        }
+        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
       }),
       (error) => {
         // Parse error into TransactionError, etc.

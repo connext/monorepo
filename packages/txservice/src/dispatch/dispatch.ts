@@ -125,13 +125,14 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns A number value for the current nonce.
    */
   private async getNonce(): Promise<number> {
+    const buffer = (this.buffer.getLastNonce() ?? -1) + 1;
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
     const pending = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
-    this._nonce = Math.max(this._nonce, pending);
+    this._nonce = Math.max(this._nonce, pending, buffer);
     return this._nonce;
   }
 
@@ -262,9 +263,13 @@ export class TransactionDispatch extends ChainRpcProvider {
       this.buffer.insert(nonce, transaction, true);
       addedToBuffer = true;
 
-      const result = await this.sendTransaction(transaction);
-      if (result.isErr()) {
-        throw result.error;
+      const response = await this.sendTransaction(transaction);
+      if (response.isErr()) {
+        throw response.error;
+      }
+      const receipt = await this.confirmTransaction(response.value);
+      if (receipt.isErr()) {
+        throw receipt.error;
       }
       this.logger.info(
         {
@@ -273,7 +278,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           blockadeId: blockade?.id,
           backfillTx: {
             id: transaction.id,
-            hash: result.value.hash,
+            hash: response.value.hash,
             gasPrice: transaction.params.gasPrice.toString(),
             gasLimit: transaction.params.gasLimit.toString(),
             value: transaction.params.value.toString(),

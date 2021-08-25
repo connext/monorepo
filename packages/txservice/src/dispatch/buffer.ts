@@ -43,7 +43,7 @@ export class TransactionBuffer {
   }
 
   public getLastNonce(): number | undefined {
-    return this.orderedKeys().pop();
+    return Math.max(...Array.from(this.buffer.keys()));
   }
 
   private orderedKeys() {

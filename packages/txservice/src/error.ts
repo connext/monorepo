@@ -37,6 +37,7 @@ export class RpcError extends TransactionError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ServerError: "An RPC server error occurred.",
+    ConnectionReset: "Connection was reset by peer.",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
@@ -266,6 +267,8 @@ export const parseError = (error: any): NxtpError => {
     )
   ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
+  } else if (message.match(/ECONNRESET/)) {
+    return new RpcError(RpcError.reasons.ConnectionReset, context);
   }
 
   switch (error.code) {
