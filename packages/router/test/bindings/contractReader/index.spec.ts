@@ -56,16 +56,8 @@ describe("Contract Reader Binding", () => {
           invariant: { ...activeTransactionPrepareMock.crosschainTx.invariant, transactionId: mkBytes32("0x2345") },
         },
       };
-      const expired: ActiveTransaction<"ReceiverExpired"> = {
-        ...activeTransactionFulfillMock,
-        crosschainTx: {
-          ...activeTransactionFulfillMock.crosschainTx,
-          invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0x3456") },
-        },
-        status: CrosschainTransactionStatus.ReceiverExpired,
-      };
 
-      await binding.handleActiveTransactions([prepare, fulfill, cancel, expired]);
+      await binding.handleActiveTransactions([prepare, fulfill, cancel]);
 
       // prepare receiver
       expect(prepareMock).to.be.calledWith(prepare.crosschainTx.invariant, {
@@ -101,14 +93,6 @@ describe("Contract Reader Binding", () => {
         preparedBlockNumber: cancel.crosschainTx.sending.preparedBlockNumber,
         side: "sender",
       });
-
-      // cancel receiver
-      expect(cancelMock).to.be.calledWith(expired.crosschainTx.invariant, {
-        amount: expired.crosschainTx.receiving.amount,
-        expiry: expired.crosschainTx.receiving.expiry,
-        preparedBlockNumber: expired.crosschainTx.receiving.preparedBlockNumber,
-        side: "receiver",
-      });
     });
 
     it("should not prepare tx if not enough confirmations", async () => {
@@ -117,6 +101,114 @@ describe("Contract Reader Binding", () => {
       const prepare: ActiveTransaction<"SenderPrepared"> = { ...activeTransactionPrepareMock };
       await binding.handleActiveTransactions([prepare]);
       expect(prepareMock).callCount(0);
+    });
+
+    it("should handle expired txs properly", async () => {
+      const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0x123") },
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverExpired,
+      };
+
+      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0x456") },
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+
+      const senderExpiredWithReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0x789") },
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+
+      await binding.handleActiveTransactions([receiverExpired, senderExpiredNoReceiver, senderExpiredWithReceiver]);
+
+      // receiverExpired
+      expect(cancelMock).to.be.calledWith(receiverExpired.crosschainTx.invariant, {
+        amount: receiverExpired.crosschainTx.receiving.amount,
+        expiry: receiverExpired.crosschainTx.receiving.expiry,
+        preparedBlockNumber: receiverExpired.crosschainTx.receiving.preparedBlockNumber,
+        side: "receiver",
+      });
+
+      // senderExpiredNoReceiver
+      expect(cancelMock).to.be.calledWith(senderExpiredNoReceiver.crosschainTx.invariant, {
+        amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
+        expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
+        preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+
+      // senderExpiredWithReceiver
+      expect(cancelMock).to.be.calledWith(senderExpiredWithReceiver.crosschainTx.invariant, {
+        amount: senderExpiredWithReceiver.crosschainTx.sending.amount,
+        expiry: senderExpiredWithReceiver.crosschainTx.sending.expiry,
+        preparedBlockNumber: senderExpiredWithReceiver.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+
+      expect(cancelMock).to.be.calledWith(senderExpiredWithReceiver.crosschainTx.invariant, {
+        amount: senderExpiredWithReceiver.crosschainTx.receiving.amount,
+        expiry: senderExpiredWithReceiver.crosschainTx.receiving.expiry,
+        preparedBlockNumber: senderExpiredWithReceiver.crosschainTx.receiving.preparedBlockNumber,
+        side: "receiver",
+      });
+    });
+
+    it("should handle ReceiverCancelled", async () => {
+      const receiverCancelled: ActiveTransaction<"ReceiverCancelled"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverCancelled,
+      };
+
+      await binding.handleActiveTransactions([receiverCancelled]);
+
+      expect(cancelMock).to.be.calledOnceWith(receiverCancelled.crosschainTx.invariant, {
+        amount: receiverCancelled.crosschainTx.sending.amount,
+        expiry: receiverCancelled.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverCancelled.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+    });
+
+    it("should handle ReceiverNotConfigured", async () => {
+      const receiverNotConfigured: ActiveTransaction<"ReceiverNotConfigured"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverNotConfigured,
+      };
+
+      await binding.handleActiveTransactions([receiverNotConfigured]);
+
+      expect(cancelMock).to.be.calledOnceWith(receiverNotConfigured.crosschainTx.invariant, {
+        amount: receiverNotConfigured.crosschainTx.sending.amount,
+        expiry: receiverNotConfigured.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverNotConfigured.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
     });
   });
 

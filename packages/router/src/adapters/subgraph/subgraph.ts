@@ -1,4 +1,4 @@
-import { getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { getNtpTimeSeconds, getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
@@ -33,13 +33,54 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
 
       // create list of txIds for each receiving chain
       const receivingChains: Record<string, string[]> = {};
-      allSenderPrepared.router?.transactions.forEach(({ transactionId, receivingChainId }) => {
-        if (receivingChains[receivingChainId]) {
-          receivingChains[receivingChainId].push(transactionId);
+      const toCancel: any[] = []; // i hate these types!!
+      allSenderPrepared.router?.transactions.forEach((senderTx) => {
+        const _sdk = sdks[Number(senderTx.receivingChainId)];
+        if (!_sdk) {
+          // if receiving SDK doesnt exist, cancel all the txs
+          logger.error(
+            { cId, transactionId: senderTx.transactionId },
+            "No contract reader available for receiver chain, marking sender tx for cancellation",
+          );
+          toCancel.push(senderTx);
+        }
+        if (receivingChains[senderTx.receivingChainId]) {
+          receivingChains[senderTx.receivingChainId].push(senderTx.transactionId);
         } else {
-          receivingChains[receivingChainId] = [transactionId];
+          receivingChains[senderTx.receivingChainId] = [senderTx.transactionId];
         }
       });
+
+      const receiverNotConfigured = toCancel.map((senderTx) => {
+        return {
+          crosschainTx: {
+            invariant: {
+              receivingChainTxManagerAddress: senderTx.receivingChainTxManagerAddress,
+              user: senderTx.user.id,
+              router: senderTx.router.id,
+              sendingAssetId: senderTx.sendingAssetId,
+              sendingChainId: Number(senderTx.sendingChainId),
+              sendingChainFallback: senderTx.sendingChainFallback,
+              receivingChainId: Number(senderTx.receivingChainId),
+              receivingAssetId: senderTx.receivingAssetId,
+              receivingAddress: senderTx.receivingAddress,
+              callTo: senderTx.callTo,
+              callDataHash: senderTx.callDataHash,
+              transactionId: senderTx.transactionId,
+            },
+            sending: {
+              amount: senderTx.amount,
+              expiry: Number(senderTx.expiry),
+              preparedBlockNumber: Number(senderTx.preparedBlockNumber),
+            },
+          },
+          payload: {},
+          status: CrosschainTransactionStatus.ReceiverNotConfigured,
+        } as ActiveTransaction<"ReceiverNotConfigured">;
+      });
+
+      // get time to use for loop
+      const currentTime = await getNtpTimeSeconds();
 
       // get all existing txs corresponding to all the sender prepared txs by id
       let allSenderPreparedTx = allSenderPrepared.router?.transactions ?? [];
@@ -48,8 +89,12 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           const _sdk = sdks[Number(cId)];
           if (!_sdk) {
             logger.error({ cId }, "No contract reader available for receiver chain, filtering txs");
-            // filter all txs where no contract reader on receiver side
-            allSenderPreparedTx = allSenderPreparedTx.filter((tx) => tx.receivingChainId !== cId);
+            // filter all txs where no contract reader on receiver side and not expired yet
+            // if its expired on sender side, we can still cancel it, it will be marked for cancellation later
+            allSenderPreparedTx = allSenderPreparedTx.filter(
+              (tx) => tx.receivingChainId !== cId && currentTime > tx.expiry,
+            );
+            return [];
           }
           const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;
@@ -87,7 +132,29 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           const correspondingReceiverTx = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
           );
-          if (!correspondingReceiverTx) {
+
+          const receiving: VariantTransactionData | undefined = correspondingReceiverTx
+            ? {
+                amount: correspondingReceiverTx.amount,
+                expiry: Number(correspondingReceiverTx.expiry),
+                preparedBlockNumber: Number(correspondingReceiverTx.preparedBlockNumber),
+              }
+            : undefined;
+
+          if (currentTime > senderTx.expiry) {
+            // sender expired takes precedence over receiver expired
+            return {
+              crosschainTx: {
+                invariant,
+                sending,
+                receiving,
+              },
+              payload: {},
+              status: CrosschainTransactionStatus.SenderExpired,
+            } as ActiveTransaction<"SenderExpired">;
+          }
+
+          if (!receiving) {
             // sender prepared
             return {
               crosschainTx: {
@@ -105,33 +172,20 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           }
 
           // we have a receiver tx at this point
-          const receiving: VariantTransactionData = {
-            amount: correspondingReceiverTx.amount,
-            expiry: Number(correspondingReceiverTx.expiry),
-            preparedBlockNumber: Number(correspondingReceiverTx.preparedBlockNumber),
-          };
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Prepared) {
-            // check if expired on the receiver side
-            if (receiving.expiry < Date.now() / 1000) {
-              // receiver expired
-              return {
-                crosschainTx: {
-                  invariant,
-                  sending,
-                  receiving,
-                },
-                payload: {
-                  signature: correspondingReceiverTx.signature,
-                  relayerFee: correspondingReceiverTx.relayerFee,
-                  callData: correspondingReceiverTx.callData!,
-                },
-                status: CrosschainTransactionStatus.ReceiverExpired,
-              } as ActiveTransaction<"ReceiverExpired">;
-            }
-            // receiver prepared, no status for this
+          // if expired, return
+          if (currentTime > receiving.expiry && correspondingReceiverTx!.status === SdkTransactionStatus.Prepared) {
+            return {
+              crosschainTx: {
+                invariant,
+                sending,
+                receiving,
+              },
+              payload: {},
+              status: CrosschainTransactionStatus.ReceiverExpired,
+            } as ActiveTransaction<"ReceiverExpired">;
           }
 
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
+          if (correspondingReceiverTx!.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -140,15 +194,15 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
                 receiving,
               },
               payload: {
-                signature: correspondingReceiverTx.signature,
-                relayerFee: correspondingReceiverTx.relayerFee,
-                callData: correspondingReceiverTx.callData!,
-                receiverFulfilledHash: correspondingReceiverTx.fulfillTransactionHash,
+                signature: correspondingReceiverTx!.signature,
+                relayerFee: correspondingReceiverTx!.relayerFee,
+                callData: correspondingReceiverTx!.callData!,
+                receiverFulfilledHash: correspondingReceiverTx!.fulfillTransactionHash,
               },
               status: CrosschainTransactionStatus.ReceiverFulfilled,
             } as ActiveTransaction<"ReceiverFulfilled">;
           }
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Cancelled) {
+          if (correspondingReceiverTx!.status === SdkTransactionStatus.Cancelled) {
             // receiver cancelled
             return {
               crosschainTx: {
@@ -163,7 +217,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           return undefined;
         }) ?? [];
       const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction<any>[];
-      return filterUndefined;
+      return filterUndefined.concat(receiverNotConfigured);
     }),
   );
   const flattened = allChains.filter((x) => !!x).flat();

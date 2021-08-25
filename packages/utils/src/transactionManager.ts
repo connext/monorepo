@@ -97,6 +97,5 @@ export type TransactionFulfilledEvent = {
 
 export type TransactionCancelledEvent = {
   txData: TransactionData;
-  relayerFee: string;
   caller: string;
 };

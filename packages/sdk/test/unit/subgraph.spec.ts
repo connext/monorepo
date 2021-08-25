@@ -130,6 +130,7 @@ describe("Subgraph", () => {
     GetTransaction: SinonStub;
     GetTransactions: SinonStub;
   };
+  let getSdkStub: SinonStub;
 
   const chainConfig = {
     [sendingChainId]: {
@@ -186,7 +187,8 @@ describe("Subgraph", () => {
       GetTransactions: stub().resolves({ transactions: [] }),
     };
 
-    stub(graphqlsdk, "getSdk").returns(sdkStub);
+    getSdkStub = stub(graphqlsdk, "getSdk");
+    getSdkStub.returns(sdkStub);
 
     subgraph = new Subgraph(signer, chainConfig, logger);
   });
@@ -215,209 +217,396 @@ describe("Subgraph", () => {
   });
 
   describe("getActiveTransactions", async () => {
-    it("should work if there are no sender transactions", async () => {
-      const res = await subgraph.getActiveTransactions();
-      expect(res).to.be.deep.eq([]);
-      expect(sdkStub.GetSenderTransactions.callCount).to.be.eq(2);
-      expect(sdkStub.GetSenderTransactions.getCall(0).args[0]).to.containSubset({
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
+    describe("sender transactions where status is not Prepared", () => {
+      it("should fail if GetTransactions for sending chain fails", async () => {
+        const transactionId = getRandomBytes32();
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(
+            NxtpSdkEvents.SenderTransactionPrepared,
+            getMockTransaction({ transactionId }),
+          ),
+        );
+
+        sdkStub.GetTransactions.onFirstCall().rejects(new Error("fail"));
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
       });
-      expect(sdkStub.GetSenderTransactions.getCall(1).args[0]).to.containSubset({
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
+
+      it("should fail if GetTransactions for receiving chain fails", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
+        );
+
+        sdkStub.GetTransactions.onFirstCall().resolves({
+          transactions: [subgraphSending],
+        });
+        sdkStub.GetTransactions.onSecondCall().rejects(new Error("fail"));
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
+        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
+      });
+
+      it("should fail if there are receiving chain txs with duplicate txIds", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
+        );
+
+        sdkStub.GetTransactions.onFirstCall().resolves({
+          transactions: [subgraphSending],
+        });
+        sdkStub.GetTransactions.onSecondCall().resolves({
+          transactions: [subgraphSending, subgraphSending],
+        });
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("Duplicate transaction ids");
+        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+      });
+
+      it("should fail if sender tx is fulfilled and there is no matching receiver tx", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
+        );
+
+        sdkStub.GetTransactions.onFirstCall().resolves({
+          transactions: [subgraphSending],
+        });
+        sdkStub.GetTransactions.onSecondCall().resolves({
+          transactions: [],
+        });
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
+          "Sender fulfilled, no fulfilled receiver transaction",
+        );
+        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+      });
+
+      it("should fail if sender tx is fulfilled and matching receiver tx status is not fulfilled", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
+        );
+
+        sdkStub.GetTransactions.onFirstCall().resolves({
+          transactions: [subgraphSending],
+        });
+        sdkStub.GetTransactions.onSecondCall().resolves({
+          transactions: [{ ...subgraphSending, status: graphqlsdk.TransactionStatus.Prepared }],
+        });
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
+          "Sender fulfilled, no fulfilled receiver transaction",
+        );
+        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+        });
+      });
+
+      it("should ignore sender txs where the status is Prepared", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Prepared });
+        (subgraph as any).activeTxs.set(
+          transactionId,
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
+        );
+
+        sdkStub.GetTransactions.resolves({
+          transactions: [subgraphSending],
+        });
+
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
+        expect(
+          sdkStub.GetTransactions.calledOnceWithExactly({
+            transactionIds: [transactionId],
+          }),
+        ).to.be.true;
+      });
+
+      it("should post to sender transaction cancelled evt if the sending tx is cancelled", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Cancelled });
+        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
+        (subgraph as any).activeTxs.set(transactionId, active);
+
+        sdkStub.GetTransactions.resolves({
+          transactions: [subgraphSending],
+        });
+
+        const [res, evt] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(SubgraphEvents.SenderTransactionCancelled, 2_000),
+        ]);
+        expect(evt).to.be.deep.eq({
+          txData: { ...active.crosschainTx.invariant, ...active.crosschainTx.sending },
+          caller: subgraphSending.cancelCaller,
+          transactionHash: subgraphSending.cancelTransactionHash,
+        });
+        expect(res).to.be.deep.eq([]);
+        expect((subgraph as any).activeTxs.get(transactionId)).to.be.undefined;
+      });
+
+      it("should post to receiver transaction fulfilled evt if the status is fulfilled", async () => {
+        const transactionId = getRandomBytes32();
+        const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
+        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
+        (subgraph as any).activeTxs.set(transactionId, active);
+
+        sdkStub.GetTransactions.resolves({
+          transactions: [subgraphSending],
+        });
+
+        const [res, evt] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, 2_000),
+        ]);
+        expect(evt).to.be.deep.eq({
+          txData: { ...active.crosschainTx.invariant, ...active.crosschainTx.receiving },
+          caller: subgraphSending.fulfillCaller,
+          transactionHash: subgraphSending.fulfillTransactionHash,
+          signature: subgraphSending.signature,
+          relayerFee: subgraphSending.relayerFee,
+          callData: subgraphSending.callData,
+        });
+        expect(res).to.be.deep.eq([]);
+        expect((subgraph as any).activeTxs.get(transactionId)).to.be.undefined;
       });
     });
 
-    it("should work if there is a sender chain tx that is prepared", async () => {
-      const senderPrepared = getMockTransaction();
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [senderPrepared] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
-
-      sdkStub.GetTransactions.withArgs({
-        transactionIds: [senderPrepared.transactionId],
-      }).resolves({ transactions: [] });
-
-      const [res, event] = await Promise.all([
-        subgraph.getActiveTransactions(),
-        subgraph.waitFor(NxtpSdkEvents.SenderTransactionPrepared, 5_000),
-      ]);
-      expect(res.length).to.be.eq(1);
-      expect(res[0]).to.containSubset(
-        convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, senderPrepared),
-      );
-      expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(senderPrepared));
-    });
-
-    it("should work if there is a sender chain tx prepared and a receiver chain tx prepared", async () => {
-      const senderPrepared = getMockTransaction();
-      const receiverPrepared = getMockTransaction({
-        chainId: receivingChainId,
-        transactionId: senderPrepared.transactionId,
-        callDataHash: senderPrepared.callDataHash,
+    describe("sender transactions where status is Prepared", () => {
+      it("should work if there are no sender transactions", async () => {
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
+        expect(sdkStub.GetSenderTransactions.callCount).to.be.eq(2);
+        expect(sdkStub.GetSenderTransactions.getCall(0).args[0]).to.containSubset({
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        });
+        expect(sdkStub.GetSenderTransactions.getCall(1).args[0]).to.containSubset({
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        });
       });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [senderPrepared] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
-        transactionIds: [senderPrepared.transactionId],
-      }).resolves({ transactions: [receiverPrepared] });
+      it("should work if there is a sender chain tx that is prepared", async () => {
+        const senderPrepared = getMockTransaction();
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [senderPrepared] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
 
-      const [res, event] = await Promise.all([
-        subgraph.getActiveTransactions(),
-        subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionPrepared, 5_000),
-      ]);
-      expect(res.length).to.be.eq(1);
-      expect(res[0]).to.containSubset(
-        convertMockedToActiveTransaction(NxtpSdkEvents.ReceiverTransactionPrepared, senderPrepared, receiverPrepared),
-      );
-      expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiverPrepared));
-    });
+        sdkStub.GetTransactions.withArgs({
+          transactionIds: [senderPrepared.transactionId],
+        }).resolves({ transactions: [] });
 
-    it("should work if the sender tx is prepared and receiver tx is fulfilled", async () => {
-      const sender = getMockTransaction();
-      const receiver = getMockTransaction({
-        chainId: receivingChainId,
-        transactionId: sender.transactionId,
-        callDataHash: sender.callDataHash,
-        status: graphqlsdk.TransactionStatus.Fulfilled,
+        const [res, event] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(NxtpSdkEvents.SenderTransactionPrepared, 5_000),
+        ]);
+        expect(res.length).to.be.eq(1);
+        expect(res[0]).to.containSubset(
+          convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, senderPrepared),
+        );
+        expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(senderPrepared));
       });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [sender] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
-        transactionIds: [sender.transactionId],
-      }).resolves({ transactions: [receiver] });
+      it("should work if there is a sender chain tx prepared and a receiver chain tx prepared", async () => {
+        const senderPrepared = getMockTransaction();
+        const receiverPrepared = getMockTransaction({
+          chainId: receivingChainId,
+          transactionId: senderPrepared.transactionId,
+          callDataHash: senderPrepared.callDataHash,
+        });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [senderPrepared] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
 
-      // const res = await subgraph.getActiveTransactions();
-      const [res, event] = await Promise.all([
-        subgraph.getActiveTransactions(),
-        subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionFulfilled, 5_000),
-      ]);
-      expect(res).to.be.deep.eq([]);
-      expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiver));
-    });
+        sdkStub.GetTransactions.withArgs({
+          transactionIds: [senderPrepared.transactionId],
+        }).resolves({ transactions: [receiverPrepared] });
 
-    it("should work if the sender tx is prepared and receiver tx is cancelled", async () => {
-      const sender = getMockTransaction();
-      const receiver = getMockTransaction({
-        chainId: receivingChainId,
-        transactionId: sender.transactionId,
-        callDataHash: sender.callDataHash,
-        status: graphqlsdk.TransactionStatus.Cancelled,
+        const [res, event] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionPrepared, 5_000),
+        ]);
+        expect(res.length).to.be.eq(1);
+        expect(res[0]).to.containSubset(
+          convertMockedToActiveTransaction(NxtpSdkEvents.ReceiverTransactionPrepared, senderPrepared, receiverPrepared),
+        );
+        expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiverPrepared));
       });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [sender] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
-        transactionIds: [sender.transactionId],
-      }).resolves({ transactions: [receiver] });
+      it("should work if the sender tx is prepared and receiver tx is fulfilled", async () => {
+        const sender = getMockTransaction();
+        const receiver = getMockTransaction({
+          chainId: receivingChainId,
+          transactionId: sender.transactionId,
+          callDataHash: sender.callDataHash,
+          status: graphqlsdk.TransactionStatus.Fulfilled,
+        });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [sender] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
 
-      const [res, event] = await Promise.all([
-        subgraph.getActiveTransactions(),
-        subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionCancelled, 5_000),
-      ]);
-      expect(res).to.be.deep.eq([]);
-      expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiver));
-    });
+        sdkStub.GetTransactions.withArgs({
+          transactionIds: [sender.transactionId],
+        }).resolves({ transactions: [receiver] });
 
-    it("should fail if it cannot call `GetSenderTransactions`", async () => {
-      sdkStub.GetSenderTransactions.rejects(new Error("fail"));
-      await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
-    });
-
-    it("should fail if there is a sender tx, but it fails to call `GetTransactions`", async () => {
-      const senderPrepared = getMockTransaction();
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [senderPrepared] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
-
-      sdkStub.GetTransactions.rejects(new Error("fail"));
-      await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
-    });
-
-    it("should return empty array if it cannot find an sdk for the receiving chain on sender tx", async () => {
-      const senderPrepared = getMockTransaction({ receivingChainId: 9876 });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [senderPrepared] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
-
-      const res = await subgraph.getActiveTransactions();
-      expect(res).to.be.deep.eq([]);
-    });
-
-    it("should fail if the receiver tx status is unrecognized", async () => {
-      const sender = getMockTransaction();
-      const receiver = getMockTransaction({
-        chainId: receivingChainId,
-        transactionId: sender.transactionId,
-        callDataHash: sender.callDataHash,
-        status: "fail" as any,
+        // const res = await subgraph.getActiveTransactions();
+        const [res, event] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionFulfilled, 5_000),
+        ]);
+        expect(res).to.be.deep.eq([]);
+        expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiver));
       });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [sender] });
-      sdkStub.GetSenderTransactions.withArgs({
-        sendingChainId: receivingChainId,
-        userId: user,
-        status: graphqlsdk.TransactionStatus.Prepared,
-      }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
-        transactionIds: [sender.transactionId],
-      }).resolves({ transactions: [receiver] });
+      it("should work if the sender tx is prepared and receiver tx is cancelled", async () => {
+        const sender = getMockTransaction();
+        const receiver = getMockTransaction({
+          chainId: receivingChainId,
+          transactionId: sender.transactionId,
+          callDataHash: sender.callDataHash,
+          status: graphqlsdk.TransactionStatus.Cancelled,
+        });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [sender] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
 
-      await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
-        InvalidTxStatus.getMessage("fail", sender.transactionId),
-      );
+        sdkStub.GetTransactions.withArgs({
+          transactionIds: [sender.transactionId],
+        }).resolves({ transactions: [receiver] });
+
+        const [res, event] = await Promise.all([
+          subgraph.getActiveTransactions(),
+          subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionCancelled, 5_000),
+        ]);
+        expect(res).to.be.deep.eq([]);
+        expect(event.txData).to.be.deep.eq(convertMockedToTransactionData(receiver));
+      });
+
+      it("should fail if it cannot call `GetSenderTransactions`", async () => {
+        sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+      });
+
+      it("should fail if there is a sender tx, but it fails to call `GetTransactions`", async () => {
+        const senderPrepared = getMockTransaction();
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [senderPrepared] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
+
+        sdkStub.GetTransactions.rejects(new Error("fail"));
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+      });
+
+      it("should return empty array if it cannot find an sdk for the receiving chain on sender tx", async () => {
+        const senderPrepared = getMockTransaction({ receivingChainId: 9876 });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [senderPrepared] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
+
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
+      });
+
+      it("should fail if the receiver tx status is unrecognized", async () => {
+        const sender = getMockTransaction();
+        const receiver = getMockTransaction({
+          chainId: receivingChainId,
+          transactionId: sender.transactionId,
+          callDataHash: sender.callDataHash,
+          status: "fail" as any,
+        });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [sender] });
+        sdkStub.GetSenderTransactions.withArgs({
+          sendingChainId: receivingChainId,
+          userId: user,
+          status: graphqlsdk.TransactionStatus.Prepared,
+        }).resolves({ transactions: [] });
+
+        sdkStub.GetTransactions.withArgs({
+          transactionIds: [sender.transactionId],
+        }).resolves({ transactions: [receiver] });
+
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
+          InvalidTxStatus.getMessage("fail", sender.transactionId),
+        );
+      });
     });
   });
 

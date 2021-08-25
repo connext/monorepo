@@ -1,4 +1,4 @@
-import { mkAddress, variantDataMock, invariantDataMock } from "@connext/nxtp-utils";
+import { mkAddress, variantDataMock, invariantDataMock, mkBytes32 } from "@connext/nxtp-utils";
 
 import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
@@ -27,7 +27,6 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
-      feePercentage: 0.05,
       safeRelayerFee: 1000,
     },
     1338: {
@@ -36,7 +35,6 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
-      feePercentage: 0.05,
       safeRelayerFee: 1000,
     },
   },
@@ -87,6 +85,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
     bidSignature: "0xdbc",
     encodedBid: "0xdef",
     encryptedCallData: "0xabc",
+    senderPreparedHash: mkBytes32("0xa"),
   },
   status: CrosschainTransactionStatus.SenderPrepared,
 };
@@ -97,6 +96,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
     callData: "0x",
     relayerFee: "100000",
     signature: "0xabc",
+    receiverFulfilledHash: mkBytes32("0xa"),
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
 };
