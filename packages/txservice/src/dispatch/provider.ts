@@ -15,7 +15,7 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "../error";
-import { CachedGas, ReadTransaction } from "../types";
+import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
 
 import { TransactionInterface } from "./transaction";
 
@@ -40,6 +40,7 @@ export class ChainRpcProvider {
   private readonly signer: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;
+  private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
   protected aborted: Error | undefined = undefined;
 
@@ -366,6 +367,11 @@ export class ChainRpcProvider {
    * @returns Number of transactions sent, including pending transactions.
    */
   public getTransactionCount(): ResultAsync<number, TransactionError> {
+    // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
+    if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
+      return okAsync(this.cachedTransactionCount.value);
+    }
+
     return this.resultWrapper<number>(async () => {
       return await this.signer.getTransactionCount("pending");
     });

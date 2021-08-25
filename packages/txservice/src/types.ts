@@ -19,10 +19,16 @@ export type FullTransaction = {
   gasLimit: BigNumber;
 } & WriteTransaction;
 
+// TODO: Cache all the provider call responses, and have one singular data structure for managing that cache.
 export type CachedGas = {
   price: BigNumber;
   timestamp: number;
 };
+
+export type CachedTransactionCount = {
+  value: number;
+  timestamp: number;
+}
 
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
