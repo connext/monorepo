@@ -20,12 +20,19 @@ export class TransactionBuffer {
   }
 
   public insert(nonce: number, transaction: Transaction, overwrite = false) {
-    if (!overwrite && this.get(nonce) != null) {
+    if (!overwrite && this.get(nonce) !== undefined) {
+      const existingTx = this.get(nonce)!;
       throw new TransactionServiceFailure(`Attempted to overwrite transaction at nonce ${nonce}!`, {
         method: this.insert.name,
         nonce,
-        transaction,
-        savedTransaction: this.get(nonce),
+        offendingTransaction: {
+          id: transaction.id,
+          nonce: transaction.nonce,
+        },
+        existingTransaction: {
+          id: existingTx.id,
+          nonce: existingTx.nonce,
+        },
       });
     }
     this.buffer.set(nonce, transaction);
