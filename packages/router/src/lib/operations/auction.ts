@@ -59,7 +59,6 @@ export const newAuction = async (
     callTo,
     transactionId,
     receivingAddress,
-    // TODO: Remove this debug code from production.
     dryRun,
   } = data;
 

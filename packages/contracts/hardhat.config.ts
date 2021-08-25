@@ -108,6 +108,11 @@ const config: HardhatUserConfig = {
       chainId: 43113,
       url: "https://api.avax-test.network/ext/bc/C/rpc",
     },
+    mbase: {
+      accounts: { mnemonic },
+      chainId: 1287,
+      url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
