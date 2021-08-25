@@ -389,21 +389,22 @@ export class Transaction implements TransactionInterface {
 
   /// HELPERS
   /**
-   * @returns The time until this transaction expires.
+   * @param n - The number of confirmations to mark our end time.
+   * @returns The time until this transaction should have acquired N confirmations.
    */
-  private timeUntilExpiry(): number {
-    // We allow extra time to give a bit of leeway for the transaction to be resubmitted/etc after expiry.
-    const resubmitGracePeriod = 20_000;
-    const expiry = this.timestamp + resubmitGracePeriod + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
+  public timeUntilNConfirmations(n = 1): number {
+    const expiry = this.timestamp + this.provider.confirmationTimeout * n;
     return expiry - Date.now();
   }
 
   /**
-   * @param n - The number of confirmations to mark our end time.
-   * @returns The time until this transaction should have acquired N confirmations.
+   * @returns The time until this transaction expires.
    */
-   private timeUntilNConfirmations(n = 1): number {
-    const expiry = this.timestamp + this.provider.confirmationTimeout * n;
+  public timeUntilExpiry(): number {
+    // We allow extra time to give a bit of leeway for the transaction to be resubmitted/etc after expiry.
+    const resubmitGracePeriod = 60_000;
+    const expiry =
+      this.timestamp + resubmitGracePeriod + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
     return expiry - Date.now();
   }
 }

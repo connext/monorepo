@@ -258,7 +258,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (response.isErr()) {
         throw response.error;
       }
-      const receipt = await this.confirmTransaction(response.value);
+      const receipt = await this.confirmTransaction(response.value, this.confirmationsRequired, transaction.timeUntilExpiry());
       if (receipt.isErr()) {
         throw receipt.error;
       }

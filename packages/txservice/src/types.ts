@@ -54,9 +54,10 @@ export class Gas {
     // Enforce a max gas price 250% higher than the base value as a buffer.
     // This means, using the default config (at the time of writing this) we'll be able to execute about
     // 10 gas bumps before hitting the ceiling.
-    const reasonablePrice = utils.parseUnits("2000", "gwei");
+    // TODO: Use the config to set this value.
+    const absoluteMax = utils.parseUnits("2000", "gwei");
     const max = baseValue.mul(5).div(2);
-    this._maxGasPrice = max.gt(reasonablePrice) ? reasonablePrice : max;
+    this._maxGasPrice = max.gt(absoluteMax) ? absoluteMax : max;
   }
 
   public setToMax() {
