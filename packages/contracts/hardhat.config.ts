@@ -103,6 +103,11 @@ const config: HardhatUserConfig = {
       chainId: 137,
       url: urlOverride || "http://localhost:8545",
     },
+    mbase: {
+      accounts: { mnemonic },
+      chainId: 1287,
+      url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
