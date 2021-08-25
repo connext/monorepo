@@ -26,7 +26,7 @@ import { fetchJson } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
-const MIN_RELAYER_FEE = utils.parseEther("0");
+const MIN_RELAYER_FEE = 0; // relayerFee is in respective chain native asset unit
 
 dotenvConfig();
 
