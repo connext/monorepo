@@ -27,7 +27,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
-      safeRelayerFee: 1000,
+      safeRelayerFee: "1000",
     },
     1338: {
       confirmations: 1,
@@ -35,7 +35,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
-      safeRelayerFee: 1000,
+      safeRelayerFee: "1000",
     },
   },
   mnemonic: "hello world",

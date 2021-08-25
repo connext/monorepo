@@ -245,14 +245,14 @@ The above command runs local chains and messaging and take care of local deploym
       "confirmations": 1,
       "subgraph": "http://localhost:8010/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      "safeRelayerFee": 100
+      "safeRelayerFee": "100"
     },
     "1338": {
       "providers": ["http://localhost:8546"],
       "confirmations": 1,
       "subgraph": "http://localhost:9010/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      "safeRelayerFee": 100
+      "safeRelayerFee": "100"
     }
   },
   "logLevel": "info",
