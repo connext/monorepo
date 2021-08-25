@@ -1,4 +1,4 @@
-import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { delay, ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -404,18 +404,20 @@ export class ChainRpcProvider {
    */
   private retryWrapper<T>(method: () => Promise<T>, retries = 5): Promise<T> {
     // TODO: #148 Add max retry configuration.
-    return new Promise<T>(() => {
+    // NOTE: resolve() and reject() must be used here.
+    return new Promise<T>(async (resolve, reject) => {
       const errors = [];
       while(errors.length < retries) {
         try {
-          return method();
+          resolve(method());
         } catch (e) {
           if (e.type === RpcError.type) {
             errors.push(e);
           } else {
-            throw e;
+            reject(e);
           }
         }
+        await delay(100);
       }
       throw new RpcError(RpcError.reasons.FailedToSend, { errors });
     });
