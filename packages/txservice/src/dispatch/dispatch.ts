@@ -337,7 +337,8 @@ export class TransactionDispatch extends ChainRpcProvider {
         `Backfill failed: ${error.type}`,
       );
       // Raise the abort flag.
-      this.aborted = error;
+      // TODO / DEBUG: Temporarily disabled for debugging.
+      // this.aborted = error;
     }
   }
 
