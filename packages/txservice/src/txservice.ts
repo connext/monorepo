@@ -112,7 +112,15 @@ export class TransactionService {
   public async sendTx(tx: WriteTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = getUuid();
-    this.logger.info({ method, methodId, requestContext, tx: { ...tx, value: tx.value.toString() } }, "Method start");
+    this.logger.info(
+      {
+        method,
+        methodId,
+        requestContext,
+        tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
+      },
+      "Method start",
+    );
 
     const transaction = await this.getProvider(tx.chainId).createTransaction(tx);
     try {

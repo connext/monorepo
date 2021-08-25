@@ -259,7 +259,14 @@ export class TransactionDispatch extends ChainRpcProvider {
           method,
           nonce,
           blockadeId: blockade?.id,
-          backfillId: transaction.id,
+          backfillTx: {
+            id: transaction.id,
+            hash: result.value.hash,
+            gasPrice: transaction.params.gasPrice.toString(),
+            gasLimit: transaction.params.gasLimit.toString(),
+            value: transaction.params.value.toString(),
+            to: transaction.params.to.toString(),
+          },
         },
         "Backfill completed successfully",
       );
