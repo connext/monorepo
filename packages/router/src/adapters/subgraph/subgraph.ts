@@ -135,7 +135,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
 
           // we have a receiver tx at this point
           // if expired, return
-          if (currentTime > receiving.expiry) {
+          if (currentTime > receiving.expiry && correspondingReceiverTx!.status === SdkTransactionStatus.Prepared) {
             return {
               crosschainTx: {
                 invariant,
