@@ -1,4 +1,4 @@
-import { delay, ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -427,7 +427,6 @@ export class ChainRpcProvider {
             reject(error);
           }
         }
-        await delay(100);
       }
       throw new RpcError(RpcError.reasons.FailedToSend, { errors });
     });
