@@ -267,7 +267,7 @@ export const parseError = (error: any): NxtpError => {
     )
   ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
-  } else if (message.match(/ECONNRESET/)) {
+  } else if (message.match(/ECONNRESET|ECONNREFUSED/)) {
     return new RpcError(RpcError.reasons.ConnectionReset, context);
   }
 

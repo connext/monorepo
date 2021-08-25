@@ -178,20 +178,21 @@ export class TransactionDispatch extends ChainRpcProvider {
       // TODO: If we keep getting failures due to RPC issue, escape out?
       return;
     }
-    const currentNonce = result.value ?? -1;
+    // This nonce will belong to the last transaction that's been indexed.
+    const indexedNonce = result.value ?? -1;
     // Buffer's last nonce must be defined, assuming there is at least 2 pending transactions.
-    const lastNonce = this.buffer.getLastNonce()!;
-    if (currentNonce > lastNonce) {
+    const currentNonce = Math.max(this.buffer.getLastNonce()!, this._nonce);
+    if (indexedNonce >= currentNonce) {
       // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
       // indexed, meaning their nonces have been used and there won't be any need to backfill.
       // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
       await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       return;
     }
-    const tx: Transaction | undefined = this.buffer.get(currentNonce);
+    const tx: Transaction | undefined = this.buffer.get(indexedNonce);
     if (!tx) {
       // This is a "legit" nonce gap!
-      await this.backfill(currentNonce, undefined, "NOT_FOUND");
+      await this.backfill(indexedNonce, undefined, "NOT_FOUND");
     } else {
       if (tx.didFinish) {
         // IF the transaction did finish already, we can ignore this one.
@@ -200,14 +201,14 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Check to make sure that the transaction is not expired.
       if (tx.expired) {
         await tx.kill();
-        await this.backfill(currentNonce, tx, "EXPIRED");
+        await this.backfill(indexedNonce, tx, "EXPIRED");
       } else if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
         // This will mark a transaction for death, but it does get 1 hail mary; the transaction
         // can still attempt to confirm whatever's currently been submitted.
         // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
         // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
         await tx.kill();
-        await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
+        await this.backfill(indexedNonce, tx, "TAKING_TOO_LONG");
       }
     }
   }
