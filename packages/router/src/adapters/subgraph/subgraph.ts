@@ -110,7 +110,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
             expiry: Number(correspondingReceiverTx.expiry),
             preparedBlockNumber: Number(correspondingReceiverTx.preparedBlockNumber),
           };
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Prepared) {
             // check if expired on the receiver side
             if (receiving.expiry < Date.now() / 1000) {
               // receiver expired
@@ -128,6 +128,10 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
                 status: CrosschainTransactionStatus.ReceiverExpired,
               } as ActiveTransaction<"ReceiverExpired">;
             }
+            // receiver prepared, no status for this
+          }
+
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {

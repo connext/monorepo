@@ -59,6 +59,8 @@ export const removeDecimals = (value: string): string => {
 /**
  * Calculates an exchange with the given amount of precision using wad math
  *
+ * @remarks Will not round properly, prefer wad calculations
+ *
  * @param inputAmount - Amount to exchange
  * @param swapRate - Exchange rate
  * @param precision - (optional) The precision to use in the output amount. Defaults to 18
