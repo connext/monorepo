@@ -201,6 +201,25 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
             logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
           }
         }
+      } else if (transaction.status === CrosschainTransactionStatus.ReceiverCancelled) {
+        // if receiver is cancelled, cancel the sender as well
+        const requestContext = createRequestContext("ContractReader => ReceiverCancelled");
+        try {
+          logger.info({ requestContext }, "Cancelling sender after receiver cancelled");
+          const receipt = await cancel(
+            transaction.crosschainTx.invariant,
+            {
+              amount: transaction.crosschainTx.sending.amount,
+              expiry: transaction.crosschainTx.sending.expiry,
+              preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+              side: "sender",
+            },
+            requestContext,
+          );
+          logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled sender");
+        } catch (err) {
+          logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+        }
       }
     }),
   );
