@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## 0.0.23
+## 0.0.24
 
 - [sdk] Use local clock for all time calcs.
 
