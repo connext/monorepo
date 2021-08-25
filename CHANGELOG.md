@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Deploy to Avalanche Fuji.
+
 ## 0.0.25
 
 - [router] Fix bug in subgraph loop.
