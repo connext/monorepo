@@ -30,6 +30,11 @@ export class TransactionDispatch extends ChainRpcProvider {
   // How many attempts until we consider a blocking tx as taking too long.
   private static TOO_MANY_ATTEMPTS = 5;
 
+  // The current nonce of the signer is tracked locally here. It will be used for comparison
+  // to the nonce we get back from the pending transaction count call to our providers.
+  // NOTE: Should not be accessed outside of the helper methods, getNonce and incrementNonce.
+  private _nonce = 0;
+
   /**
    * Centralized transaction monitoring class. Extends ChainRpcProvider, thus exposing all provider methods
    * through this class.
@@ -94,6 +99,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
         const transaction = new Transaction(this.logger, this, minTx, nonce, gas);
         this.buffer.insert(nonce, transaction);
+        this.incrementNonce();
         return { value: transaction, success: true };
       } catch (e) {
         return { value: e, success: false };
@@ -119,17 +125,20 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns A number value for the current nonce.
    */
   private async getNonce(): Promise<number> {
-    // Update nonce value to greatest of all nonce values retrieved.
-    const buffer = this.buffer.getLastNonce() ?? -1;
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
-    // If transaction buffer above returns null, that indicates the buffer is empty; meaning
-    // we haven't sent any transactions yet, and we'll use this value here.
     const pending = result.value;
-    // Increment if we got back a value from buffer as we want the value of last tx's nonce + 1.
-    return Math.max(buffer + 1, pending);
+    // Set to whichever value is higher. This should almost always be our local nonce.
+    return Math.max(this._nonce, pending);
+  }
+
+  /**
+   * Increments the nonce by one. Should ONLY ever be called within the serialized queue.
+   */
+  private incrementNonce() {
+    this._nonce++;
   }
 
   /**
