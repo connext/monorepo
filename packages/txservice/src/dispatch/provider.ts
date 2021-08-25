@@ -373,7 +373,9 @@ export class ChainRpcProvider {
     }
 
     return this.resultWrapper<number>(async () => {
-      return await this.signer.getTransactionCount("pending");
+      const value = await this.signer.getTransactionCount("pending");
+      this.cachedTransactionCount = { value, timestamp: Date.now() };
+      return value;
     });
   }
 
