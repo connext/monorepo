@@ -30,7 +30,6 @@ export interface TransactionInterface {
   validate(): Promise<void>;
   confirm(): Promise<providers.TransactionReceipt>;
   bumpGasPrice(): void;
-  timeUntilExpiry(): number;
 }
 
 /**
@@ -46,6 +45,12 @@ export class Transaction implements TransactionInterface {
   // Receipt that we received for the on-chain transaction that was mined with
   // the desired number of confirmations.
   public receipt?: providers.TransactionReceipt;
+
+  public get expired(): boolean {
+    // A transaction is considered expired once we've gone over our alotted time to confirm our last submission,
+    // and no attempt has been made to resubmit.
+    return this.timeUntilExpiry() <= 0;
+  }
 
   // TODO: private setter
   // Timestamp initially set on creation, but will be updated each time submit() is called.
@@ -137,6 +142,7 @@ export class Transaction implements TransactionInterface {
     );
   }
 
+  /// LIFECYCLE
   /**
    * Makes a single attempt to send this transaction based on its current data.
    *
@@ -170,8 +176,6 @@ export class Transaction implements TransactionInterface {
 
     // Increment transaction # attempts made.
     this._attempt++;
-    // Set the timestamp according to when we first submitted.
-    this.timestamp = Date.now();
 
     // Send the tx.
     const result = await this.provider.sendTransaction(this);
@@ -180,6 +184,9 @@ export class Transaction implements TransactionInterface {
       this._error = result.error;
       throw result.error;
     }
+
+    // Set the timestamp according to when we last submitted.
+    this.timestamp = Date.now();
 
     const response = result.value;
 
@@ -224,10 +231,13 @@ export class Transaction implements TransactionInterface {
         this.receipt = error.receipt;
         // error.replacement - the replacement transaction (a TransactionResponse)
         if (!error.replacement) {
-          throw new TransactionServiceFailure("Transaction was replaced, but no replacement transaction was returned.", {
-            method,
-            id: this.id,
-          });
+          throw new TransactionServiceFailure(
+            "Transaction was replaced, but no replacement transaction was returned.",
+            {
+              method,
+              id: this.id,
+            },
+          );
         }
         this.response = error.replacement;
         // TODO: Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
@@ -274,50 +284,6 @@ export class Transaction implements TransactionInterface {
         });
       }
     }
-  }
-
-  /**
-   * Bump the gas price for this tx up by the configured percentage.
-   */
-  public bumpGasPrice() {
-    const previousPrice = this.gas.price;
-    // Scale up gas by percentage as specified by config.
-    // TODO: Replace with actual config.
-    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
-    this.logger.info(
-      {
-        method: this.bumpGasPrice.name,
-        id: this.id,
-        attempt: this.attempt,
-        previousGasPrice: previousPrice.toString(),
-        newGasPrice: this.gas.price.toString(),
-      },
-      "Bumping tx gas price for reattempt.",
-    );
-  }
-
-  public timeUntilExpiry(): number {
-    const expiry = this.timestamp + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
-    return expiry - Date.now();
-  }
-
-  public timeUntilNConfirmations(n = 1): number {
-    const expiry = this.timestamp + this.provider.confirmationTimeout * n;
-    return expiry - Date.now();
-  }
-
-  /**
-   * Kills the transaction (marking it as discontinued, preventing submit).
-   * Will block until the transaction is expired.
-   *
-   * @remarks
-   * This method is not required by TransactionInterface, as it should not be exposed outside of this
-   * submodule. It should only be accessible to TransactionMonitor.
-   */
-  public async kill() {
-    this._discontinued = true;
-    await delay(this.timeUntilExpiry());
-    return;
   }
 
   /**
@@ -385,5 +351,59 @@ export class Transaction implements TransactionInterface {
     }
 
     return this.receipt;
+  }
+
+  /**
+   * Bump the gas price for this tx up by the configured percentage.
+   */
+  public bumpGasPrice() {
+    const previousPrice = this.gas.price;
+    // Scale up gas by percentage as specified by config.
+    // TODO: Replace with actual config.
+    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
+    this.logger.info(
+      {
+        method: this.bumpGasPrice.name,
+        id: this.id,
+        attempt: this.attempt,
+        previousGasPrice: previousPrice.toString(),
+        newGasPrice: this.gas.price.toString(),
+      },
+      "Bumping tx gas price for reattempt.",
+    );
+  }
+
+  /**
+   * Kills the transaction (marking it as discontinued, preventing submit).
+   * Will block until the transaction is expired.
+   *
+   * @remarks
+   * This method is not required by TransactionInterface, as it should not be exposed outside of this
+   * submodule. It should only be accessible to TransactionMonitor.
+   */
+  public async kill() {
+    this._discontinued = true;
+    await delay(Math.max(this.timeUntilExpiry(), 1_000));
+    return;
+  }
+
+  /// HELPERS
+  /**
+   * @returns The time until this transaction expires.
+   */
+  private timeUntilExpiry(): number {
+    // We allow extra time to give a bit of leeway for the transaction to be resubmitted/etc after expiry.
+    const resubmitGracePeriod = 20_000;
+    const expiry = this.timestamp + resubmitGracePeriod + this.provider.confirmationTimeout * this.provider.confirmationsRequired;
+    return expiry - Date.now();
+  }
+
+  /**
+   * @param n - The number of confirmations to mark our end time.
+   * @returns The time until this transaction should have acquired N confirmations.
+   */
+   private timeUntilNConfirmations(n = 1): number {
+    const expiry = this.timestamp + this.provider.confirmationTimeout * n;
+    return expiry - Date.now();
   }
 }
