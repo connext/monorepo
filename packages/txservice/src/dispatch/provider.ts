@@ -394,6 +394,7 @@ export class ChainRpcProvider {
         return this.retryWrapper(method);
       }),
       (error) => {
+        // TODO: Possibly anti-pattern/redundant with retry wrapper.
         // Parse error into TransactionError, etc.
         return parseError(error);
       },
@@ -419,10 +420,11 @@ export class ChainRpcProvider {
         try {
           resolve(method());
         } catch (e) {
-          if (e.type === RpcError.type) {
-            errors.push(e);
+          const error = parseError(e);
+          if (error.type === RpcError.type) {
+            errors.push(error);
           } else {
-            reject(e);
+            reject(error);
           }
         }
         await delay(100);

@@ -32,6 +32,7 @@ export type NxtpErrorJson = {
  * Is also able to be hydrated from a json
  */
 export class NxtpError extends Error {
+  public readonly isNxtpError = true;
   static readonly reasons: { [key: string]: string };
 
   constructor(
