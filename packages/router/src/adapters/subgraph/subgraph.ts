@@ -1,4 +1,4 @@
-import { getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { getNtpTimeSeconds, getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
@@ -57,6 +57,8 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       );
       const correspondingReceiverTxs = queries.flat();
 
+      const currentTime = await getNtpTimeSeconds();
+
       // foreach sender prepared check if corresponding receiver exists
       // if it does not, call the handleSenderPrepare handler
       // if it is fulfilled, call the handleReceiverFulfill handler
@@ -87,7 +89,29 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           const correspondingReceiverTx = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
           );
-          if (!correspondingReceiverTx) {
+
+          const receiving: VariantTransactionData | undefined = correspondingReceiverTx
+            ? {
+                amount: correspondingReceiverTx.amount,
+                expiry: Number(correspondingReceiverTx.expiry),
+                preparedBlockNumber: Number(correspondingReceiverTx.preparedBlockNumber),
+              }
+            : undefined;
+
+          if (currentTime > senderTx.expiry) {
+            // sender expired takes precedence over receiver expired
+            return {
+              crosschainTx: {
+                invariant,
+                sending,
+                receiving,
+              },
+              payload: {},
+              status: CrosschainTransactionStatus.SenderExpired,
+            } as ActiveTransaction<"SenderExpired">;
+          }
+
+          if (!receiving) {
             // sender prepared
             return {
               crosschainTx: {
@@ -105,29 +129,20 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           }
 
           // we have a receiver tx at this point
-          const receiving: VariantTransactionData = {
-            amount: correspondingReceiverTx.amount,
-            expiry: Number(correspondingReceiverTx.expiry),
-            preparedBlockNumber: Number(correspondingReceiverTx.preparedBlockNumber),
-          };
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
-            // check if expired on the receiver side
-            if (receiving.expiry < Date.now() / 1000) {
-              // receiver expired
-              return {
-                crosschainTx: {
-                  invariant,
-                  sending,
-                  receiving,
-                },
-                payload: {
-                  signature: correspondingReceiverTx.signature,
-                  relayerFee: correspondingReceiverTx.relayerFee,
-                  callData: correspondingReceiverTx.callData!,
-                },
-                status: CrosschainTransactionStatus.ReceiverExpired,
-              } as ActiveTransaction<"ReceiverExpired">;
-            }
+          // if expired, return
+          if (currentTime > receiving.expiry) {
+            return {
+              crosschainTx: {
+                invariant,
+                sending,
+                receiving,
+              },
+              payload: {},
+              status: CrosschainTransactionStatus.ReceiverExpired,
+            } as ActiveTransaction<"ReceiverExpired">;
+          }
+
+          if (correspondingReceiverTx!.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -136,15 +151,15 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
                 receiving,
               },
               payload: {
-                signature: correspondingReceiverTx.signature,
-                relayerFee: correspondingReceiverTx.relayerFee,
-                callData: correspondingReceiverTx.callData!,
-                receiverFulfilledHash: correspondingReceiverTx.fulfillTransactionHash,
+                signature: correspondingReceiverTx!.signature,
+                relayerFee: correspondingReceiverTx!.relayerFee,
+                callData: correspondingReceiverTx!.callData!,
+                receiverFulfilledHash: correspondingReceiverTx!.fulfillTransactionHash,
               },
               status: CrosschainTransactionStatus.ReceiverFulfilled,
             } as ActiveTransaction<"ReceiverFulfilled">;
           }
-          if (correspondingReceiverTx.status === SdkTransactionStatus.Cancelled) {
+          if (correspondingReceiverTx!.status === SdkTransactionStatus.Cancelled) {
             // receiver cancelled
             return {
               crosschainTx: {

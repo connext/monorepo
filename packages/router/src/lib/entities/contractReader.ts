@@ -4,6 +4,7 @@ import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgra
 
 export const CrosschainTransactionStatus = {
   SenderPrepared: "SenderPrepared",
+  SenderExpired: "SenderExpired",
   ReceiverFulfilled: "ReceiverFulfilled",
   ReceiverCancelled: "ReceiverCancelled",
   ReceiverExpired: "ReceiverExpired",
@@ -29,13 +30,14 @@ export type CrosschainTransactionPayload = {
   [CrosschainTransactionStatus.SenderPrepared]: PreparePayload & {
     senderPreparedHash: string;
   };
+  [CrosschainTransactionStatus.SenderExpired]: CancelPayload;
   [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
     receiverFulfilledHash: string;
   };
   [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload & {
     receiverCancelledHash: string;
   };
-  [CrosschainTransactionStatus.ReceiverExpired]: FulfillPayload;
+  [CrosschainTransactionStatus.ReceiverExpired]: CancelPayload;
 };
 
 export type ActiveTransaction<T extends TCrosschainTransactionStatus> = {
