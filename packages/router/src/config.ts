@@ -26,6 +26,7 @@ import { fetchJson } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
+const MIN_RELAYER_FEE = utils.parseEther("0");
 
 dotenvConfig();
 
@@ -215,6 +216,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
+    if (!chainConfig.safeRelayerFee) {
+      nxtpConfig.chainConfig[chainId].safeRelayerFee = MIN_RELAYER_FEE.toNumber();
     }
     if (!chainConfig.subgraph) {
       const subgraph = getDeployedSubgraphUri(Number(chainId));
