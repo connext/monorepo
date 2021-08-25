@@ -59,7 +59,7 @@ describe("ChainRpcProvider", () => {
     reset();
   });
 
-  describe("sendTransaction", () => {
+  describe("#sendTransaction", () => {
     it("happy: should send the transaction", async () => {
       const result = await chainProvider.sendTransaction(transaction);
 
@@ -92,7 +92,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("confirmTransaction", () => {
+  describe("#confirmTransaction", () => {
     it("happy: should confirm the transaction using response argument's wait method", async () => {
       const stub = Sinon.stub();
       stub.resolves(TEST_TX_RECEIPT);
@@ -124,7 +124,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("readTransaction", () => {
+  describe("#readTransaction", () => {
     it("happy: should read the transaction", async () => {
       const fakeData = getRandomBytes32();
       signer.call.resolves(fakeData);
@@ -151,7 +151,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("estimateGas", () => {
+  describe("#estimateGas", () => {
     it("should return the gas estimate", async () => {
       const rawCommand = "estimateGas";
       const rpcCommand = `eth_${rawCommand}`;
@@ -216,7 +216,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getGasPrice", () => {
+  describe("#getGasPrice", () => {
     it("happy: should return the gas price", async () => {
       const testGasPrice = utils.parseUnits("100", "gwei") as BigNumber;
       // Gas price gets bumped by X% in this method.
@@ -277,7 +277,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getBalance", () => {
+  describe("#getBalance", () => {
     it("happy: should return the balance", async () => {
       const testBalance = utils.parseUnits("42", "ether");
       const testAddress = getRandomAddress();
@@ -292,7 +292,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getDecimalsForAsset", () => {
+  describe("#getDecimalsForAsset", () => {
     it("happy: should return 18 for the native asset", async () => {
       const result = await chainProvider.getDecimalsForAsset(constants.AddressZero);
 
@@ -301,7 +301,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getBlockTime", () => {
+  describe("#getBlockTime", () => {
     it("happy: should return the block time", async () => {
       const blockTime = Math.floor(Date.now() / 1000);
       coreProvider.getBlock.resolves({ timestamp: blockTime } as unknown as providers.Block);
@@ -315,7 +315,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getAddress", () => {
+  describe("#getAddress", () => {
     it("happy: should return the address", async () => {
       const testAddress = getRandomAddress();
       signer.getAddress.resolves(testAddress);
@@ -328,7 +328,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getTransactionReceipt", () => {
+  describe("#getTransactionReceipt", () => {
     it("happy: should return the transaction receipt", async () => {
       const testTransactionReceipt = {
         ...TEST_TX_RECEIPT,
@@ -344,7 +344,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("getTransactionCount", () => {
+  describe("#getTransactionCount", () => {
     it("happy: should return the transaction count", async () => {
       const testTransactionCount = Math.floor(Math.random() * 1000);
       signer.getTransactionCount.resolves(testTransactionCount);
@@ -360,7 +360,7 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("isReady", () => {
+  describe("#isReady", () => {
     it("should give RpcError if provider network not ready", async () => {
       Sinon.stub(coreProvider, "ready").get(() => false);
 

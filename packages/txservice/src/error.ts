@@ -262,7 +262,7 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   } else if (
     message.match(
-      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/,
+      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
     )
   ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);

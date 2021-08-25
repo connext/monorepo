@@ -66,7 +66,6 @@ export class TransactionDispatch extends ChainRpcProvider {
   public startMonitor() {
     this.shouldMonitor = true;
     if (!this.isActive) {
-      this.isActive = true;
       this.monitorLoop();
     }
   }
@@ -137,11 +136,14 @@ export class TransactionDispatch extends ChainRpcProvider {
    *
    */
   private async monitorLoop() {
-    // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
+    if (this.isActive) {
+      return;
+    }
+    this.isActive = true;
     while (this.shouldMonitor) {
-      await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       await this.monitor();
+      await delay(TransactionDispatch.MONITOR_POLL_PARITY);
     }
     this.isActive = false;
   }
