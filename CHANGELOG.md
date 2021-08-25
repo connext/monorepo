@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.23
+
+- [sdk] Use local clock for all time calcs.
+
 ## 0.0.22
 
 - [sdk] Add back `connectMessaging` with proper functionality.
