@@ -40,7 +40,7 @@ export class Transaction implements TransactionInterface {
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
   // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
-  private response: providers.TransactionResponse | null = null;
+  private response: providers.TransactionResponse | undefined = undefined;
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
   // Receipt that we received for the on-chain transaction that was mined with
@@ -223,7 +223,14 @@ export class Transaction implements TransactionInterface {
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         this.receipt = error.receipt;
         // error.replacement - the replacement transaction (a TransactionResponse)
+        if (!error.replacement) {
+          throw new TransactionServiceFailure("Transaction was replaced, but no replacement transaction was returned.", {
+            method,
+            id: this.id,
+          });
+        }
         this.response = error.replacement;
+        // TODO: Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
         this._validated = true;
       } else if (_error.type === TransactionReverted.type) {
         const error = _error as TransactionReverted;
@@ -280,6 +287,8 @@ export class Transaction implements TransactionInterface {
     this.logger.info(
       {
         method: this.bumpGasPrice.name,
+        id: this.id,
+        attempt: this.attempt,
         previousGasPrice: previousPrice.toString(),
         newGasPrice: this.gas.price.toString(),
       },
@@ -338,7 +347,7 @@ export class Transaction implements TransactionInterface {
     }
 
     // Ensure we've been validated.
-    if (!this.validated || this.receipt == null || this.response == null) {
+    if (!this.validated || this.receipt === undefined || this.response === undefined) {
       throw new TransactionServiceFailure("Transaction confirm was called, but transaction has not been validated.", {
         method,
         validated: this.validated,

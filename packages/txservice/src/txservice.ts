@@ -1,7 +1,7 @@
 import { Signer, providers, BigNumber, utils } from "ethers";
 import { BaseLogger } from "pino";
 import { Evt } from "evt";
-import { delay, getUuid, RequestContext } from "@connext/nxtp-utils";
+import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
