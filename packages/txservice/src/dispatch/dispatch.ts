@@ -193,17 +193,13 @@ export class TransactionDispatch extends ChainRpcProvider {
       // This is a "legit" nonce gap!
       await this.backfill(currentNonce, undefined, "NOT_FOUND");
     } else {
-      if (tx.didFinish || tx.isBackfill) {
-        // IF the transaction did finish already, or this is already being backfilled (from a previous iteration
-        // here), we can ignore this one.
-        // TODO: Do we actually want to proceed even if a tx IS a backfill? What would that accomplish? Because if
-        // even the backfill isn't working, then how would ANOTHER backfill solve anything? In fact, maybe we want to
-        // shut things down if even a backfill tx isn't going through?
+      if (tx.didFinish) {
+        // IF the transaction did finish already, we can ignore this one.
         return;
       }
-      // Check to make sure that the transaction has leftover time to live.
-      const ttl = tx.timeUntilExpiry();
-      if (ttl < 0) {
+      // Check to make sure that the transaction is not expired.
+      if (tx.expired) {
+        await tx.kill();
         await this.backfill(currentNonce, tx, "EXPIRED");
       } else {
         if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
@@ -212,10 +208,6 @@ export class TransactionDispatch extends ChainRpcProvider {
           // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
           // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
           await tx.kill();
-          // Make sure that the transaction didn't manage to confirm.
-          if (tx.didFinish) {
-            return;
-          }
           await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
         }
       }
@@ -229,9 +221,13 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @param reason - The reason for the backfill, a string value to be specify in logs.
    */
   private async backfill(nonce: number, blockade: Transaction | undefined, reason: string) {
+    // Make sure that the blockade transaction didn't manage to confirm.
+    if (blockade?.didFinish) {
+      return;
+    }
+
     const method = this.backfill.name;
     let addedToBuffer = false;
-
     try {
       this.logger.error(
         {
@@ -338,9 +334,9 @@ export class TransactionDispatch extends ChainRpcProvider {
   /**
    * A helper method to get the Gas tracker instance, which is used to hold price and limit.
    *
-   * @param {WriteTransaction} transaction - The transaction to get the Gas tracker for.
+   * @param transaction - The transaction to get the Gas tracker for.
    *
-   * @returns {Gas} A GasTracker instance.
+   * @returns A GasTracker instance.
    *
    * @throws TransactionReverted if gas estimate fails.
    */
