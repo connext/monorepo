@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Fix bug in subgraph loop.
+
 ## 0.0.24
 
 - [sdk] Use local clock for all time calcs.
