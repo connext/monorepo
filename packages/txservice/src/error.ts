@@ -267,7 +267,7 @@ export const parseError = (error: any): NxtpError => {
     )
   ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
-  } else if (message.match(/ECONNRESET|ECONNREFUSED/)) {
+  } else if (message.match(/ECONNRESET|ECONNREFUSED|failed to meet quorum/)) {
     return new RpcError(RpcError.reasons.ConnectionReset, context);
   }
 

@@ -196,8 +196,10 @@ export class ChainRpcProvider {
         try {
           // This call will prepare the transaction params for us (hexlify tx, etc).
           // TODO: #147 Is there any reason prepare should be called for each iteration?
-          const args = provider.prepareRequest("estimateGas", { transaction });
-          result = await provider.send(args[0], args[1]);
+          result = await this.retryWrapper<string>(async () => {
+            const args = provider.prepareRequest("estimateGas", { transaction });
+            return await provider.send(args[0], args[1]);
+          });
         } catch (error) {
           const sanitizedError = parseError(error);
           // If we get a TransactionReverted error, we can assume that the transaction will fail,
@@ -371,35 +373,52 @@ export class ChainRpcProvider {
 
   /// HELPERS
   /**
-   * The result wrapper used for executing multiple retries for RPC requests to providers.
-   * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
-   * or externally (for the provider's network).
+   * The result wrapper is used for wrapping and parsing errors, as well as ensuring that providers are ready
+   * before any call is made.
    *
    * @param method The method callback to execute and wrap in retries.
+   * 
+   * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
   private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
-        // TODO: #148 Add max retry configuration.
-        const errors = [];
-        while(errors.length < 5) {
-          try {
-            return method();
-          } catch (e) {
-            if (e.type === RpcError.type) {
-              errors.push(e);
-            } else {
-              throw e;
-            }
-          }
-        }
-        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+        return this.retryWrapper(method);
       }),
       (error) => {
         // Parse error into TransactionError, etc.
         return parseError(error);
       },
     );
+  }
+
+  /**
+   * The retry wrapper is used for executing multiple retries for RPC requests to providers.
+   * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
+   * or externally (for the provider's network).
+   *
+   * @param method The method callback to execute and wrap in retries.
+   * @param retries The maximum number of retries to attempt (default = 5).
+   * 
+   * @returns A promise returning the specified type.
+   */
+  private retryWrapper<T>(method: () => Promise<T>, retries = 5): Promise<T> {
+    // TODO: #148 Add max retry configuration.
+    return new Promise<T>(() => {
+      const errors = [];
+      while(errors.length < retries) {
+        try {
+          return method();
+        } catch (e) {
+          if (e.type === RpcError.type) {
+            errors.push(e);
+          } else {
+            throw e;
+          }
+        }
+      }
+      throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+    });
   }
 
   /**

@@ -383,7 +383,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     if (result.isErr()) {
       throw result.error;
     }
-    const gas = new Gas(result.value, gasLimit);
-    return gas;
+    return new Gas(result.value, gasLimit);
   }
 }
