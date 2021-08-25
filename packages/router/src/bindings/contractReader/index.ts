@@ -13,6 +13,7 @@ export const bindContractReader = async () => {
   setInterval(async () => {
     try {
       const transactions = await contractReader.getActiveTransactions();
+      logger.info({ transactions }, "Got active transactions");
       await handleActiveTransactions(transactions);
     } catch (err) {
       logger.error({ err }, "Error getting active txs");
