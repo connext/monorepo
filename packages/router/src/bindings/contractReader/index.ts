@@ -13,6 +13,7 @@ export const bindContractReader = async () => {
   setInterval(async () => {
     try {
       const transactions = await contractReader.getActiveTransactions();
+      logger.info({ transactions }, "Got active transactions");
       await handleActiveTransactions(transactions);
     } catch (err) {
       logger.error({ err }, "Error getting active txs");
@@ -161,6 +162,44 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
           logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled receiver");
         } catch (err) {
           logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
+        }
+      } else if (transaction.status === CrosschainTransactionStatus.SenderExpired) {
+        // if sender is expired, both sender and receiver are expired so cancel both
+        const requestContext = createRequestContext("ContractReader => SenderExpired");
+        try {
+          logger.info({ requestContext }, "Cancelling expired sender");
+          const receipt = await cancel(
+            transaction.crosschainTx.invariant,
+            {
+              amount: transaction.crosschainTx.sending.amount,
+              expiry: transaction.crosschainTx.sending.expiry,
+              preparedBlockNumber: transaction.crosschainTx.sending.preparedBlockNumber,
+              side: "sender",
+            },
+            requestContext,
+          );
+          logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled sender");
+        } catch (err) {
+          logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+        }
+
+        if (transaction.crosschainTx.receiving) {
+          try {
+            logger.info({ requestContext }, "Cancelling expired receiver");
+            const receipt = await cancel(
+              transaction.crosschainTx.invariant,
+              {
+                amount: transaction.crosschainTx.receiving!.amount,
+                expiry: transaction.crosschainTx.receiving!.expiry,
+                preparedBlockNumber: transaction.crosschainTx.receiving!.preparedBlockNumber,
+                side: "receiver",
+              },
+              requestContext,
+            );
+            logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled receiver");
+          } catch (err) {
+            logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
+          }
         }
       }
     }),
