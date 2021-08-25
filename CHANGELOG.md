@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.25
+
 - [router] Fix bug in subgraph loop.
 
 ## 0.0.24
