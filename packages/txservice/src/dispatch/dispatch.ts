@@ -11,11 +11,6 @@ import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 import { TransactionBuffer } from "./buffer";
 
-// TODO: Make poll parity (in ms) configurable
-const MONITOR_POLL_PARITY = 5_000;
-// How many attempts until we consider a blocking tx as taking too long.
-const TOO_MANY_ATTEMPTS = 5;
-
 /**
  * @classdesc Wraps and monitors transaction queue; handles transactions' initial creation and nonce assignment.
  *
@@ -29,6 +24,11 @@ export class TransactionDispatch extends ChainRpcProvider {
   // Flag to indicate whether we should continue monitoring. This will stop the loop if flipped.
   private shouldMonitor = true;
   private isActive = false;
+
+  // TODO: Make poll parity (in ms) configurable
+  private static MONITOR_POLL_PARITY = 5_000;
+  // How many attempts until we consider a blocking tx as taking too long.
+  private static TOO_MANY_ATTEMPTS = 5;
 
   /**
    * Centralized transaction monitoring class. Extends ChainRpcProvider, thus exposing all provider methods
@@ -140,7 +140,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
     while (this.shouldMonitor) {
-      await delay(MONITOR_POLL_PARITY);
+      await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       await this.monitor();
     }
     this.isActive = false;
@@ -156,7 +156,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   public async monitor(): Promise<void> {
     // Lazy solution: we only care about a potential hold-up if it could hold anything up.
     if (this.buffer.pending().length < 2) {
-      await delay(MONITOR_POLL_PARITY);
+      await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       return;
     }
     const result = await this.getTransactionCount();
@@ -172,7 +172,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       // If the pending transaction count > buffer's last nonce, then we are all caught up; all tx's are
       // indexed, meaning their nonces have been used and there won't be any need to backfill.
       // We can probably wait at least another poll cycle safely in this case (to avoid hammering provider).
-      await delay(MONITOR_POLL_PARITY);
+      await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       return;
     }
     const tx: Transaction | undefined = this.buffer.get(currentNonce);
@@ -193,7 +193,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (ttl < 0) {
         await this.backfill(currentNonce, tx, "EXPIRED");
       } else {
-        if (tx.attempt > TOO_MANY_ATTEMPTS) {
+        if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
           // This will mark a transaction for death, but it does get 1 hail mary; the transaction
           // can still attempt to confirm whatever's currently been submitted.
           // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
