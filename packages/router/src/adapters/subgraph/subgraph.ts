@@ -56,7 +56,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
             allSenderPreparedTx = allSenderPreparedTx.filter(
               (tx) => tx.receivingChainId !== cId && currentTime > tx.expiry,
             );
-            return;
+            return [];
           }
           const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;
