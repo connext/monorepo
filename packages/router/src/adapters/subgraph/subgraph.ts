@@ -41,6 +41,9 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
         }
       });
 
+      // get time to use for loop
+      const currentTime = await getNtpTimeSeconds();
+
       // get all existing txs corresponding to all the sender prepared txs by id
       let allSenderPreparedTx = allSenderPrepared.router?.transactions ?? [];
       const queries = await Promise.all(
@@ -48,16 +51,17 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           const _sdk = sdks[Number(cId)];
           if (!_sdk) {
             logger.error({ cId }, "No contract reader available for receiver chain, filtering txs");
-            // filter all txs where no contract reader on receiver side
-            allSenderPreparedTx = allSenderPreparedTx.filter((tx) => tx.receivingChainId !== cId);
+            // filter all txs where no contract reader on receiver side and not expired yet
+            // if its expired on sender side, we can still cancel it, it will be marked for cancellation later
+            allSenderPreparedTx = allSenderPreparedTx.filter(
+              (tx) => tx.receivingChainId !== cId && currentTime > tx.expiry,
+            );
           }
           const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;
         }),
       );
       const correspondingReceiverTxs = queries.flat();
-
-      const currentTime = await getNtpTimeSeconds();
 
       // foreach sender prepared check if corresponding receiver exists
       // if it does not, call the handleSenderPrepare handler
