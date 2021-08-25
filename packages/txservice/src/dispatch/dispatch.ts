@@ -201,15 +201,13 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (tx.expired) {
         await tx.kill();
         await this.backfill(currentNonce, tx, "EXPIRED");
-      } else {
-        if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
-          // This will mark a transaction for death, but it does get 1 hail mary; the transaction
-          // can still attempt to confirm whatever's currently been submitted.
-          // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
-          // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
-          await tx.kill();
-          await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
-        }
+      } else if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
+        // This will mark a transaction for death, but it does get 1 hail mary; the transaction
+        // can still attempt to confirm whatever's currently been submitted.
+        // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
+        // we kill it... ensuring that there is indeed no hope of getting it through before we give up entirely.
+        await tx.kill();
+        await this.backfill(currentNonce, tx, "TAKING_TOO_LONG");
       }
     }
   }
