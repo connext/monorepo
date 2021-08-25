@@ -126,7 +126,7 @@ export class SdkAgent {
       authUrl,
       messaging,
     );
-    await sdk.initMessaging();
+    await sdk.connectMessaging();
     const agent = new SdkAgent(address, chainProviders, signer, logger, sdk);
 
     // Parrot all events

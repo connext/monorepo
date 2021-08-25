@@ -273,30 +273,30 @@ describe("NxtpSdk", () => {
     });
   });
 
-  describe("#initMessaging", () => {
+  describe("#connectMessaging", () => {
     it("should fail if connect fails", async () => {
       messaging.connect.rejects(new Error("fail"));
 
-      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
     });
 
     it("should fail if subscribeToAuctionResponse fails", async () => {
       messaging.subscribeToAuctionResponse.rejects(new Error("fail"));
 
-      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
       expect(messaging.connect.callCount).to.be.eq(1);
     });
 
     it("should fail if subscribeToMetaTxResponse fails", async () => {
       messaging.subscribeToMetaTxResponse.rejects(new Error("fail"));
 
-      await expect(sdk.initMessaging()).to.be.rejectedWith("fail");
+      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
       expect(messaging.connect.callCount).to.be.eq(1);
       expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
     });
 
     it("should work", async () => {
-      await sdk.initMessaging();
+      await sdk.connectMessaging();
       expect(messaging.connect.callCount).to.be.eq(1);
       expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
       expect(messaging.subscribeToMetaTxResponse.callCount).to.be.eq(1);

@@ -430,9 +430,9 @@ export class NxtpSdk {
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
   }
 
-  async initMessaging() {
+  async connectMessaging(bearerToken?: string): Promise<string> {
     // Setup the subscriptions
-    await this.messaging.connect();
+    const token = await this.messaging.connect(bearerToken);
     await this.messaging.subscribeToAuctionResponse(
       (_from: string, inbox: string, data?: AuctionResponse, err?: any) => {
         this.auctionResponseEvt.post({ inbox, data, err });
@@ -444,6 +444,7 @@ export class NxtpSdk {
     });
 
     await delay(1000);
+    return token;
   }
 
   /**
@@ -571,7 +572,7 @@ export class NxtpSdk {
     }
 
     if (!this.messaging.isConnected()) {
-      await this.initMessaging();
+      await this.connectMessaging();
     }
 
     const inbox = generateMessagingInbox();
@@ -967,7 +968,7 @@ export class NxtpSdk {
     if (useRelayers) {
       this.logger.info({ method, methodId }, "Fulfilling using relayers");
       if (!this.messaging.isConnected()) {
-        await this.initMessaging();
+        await this.connectMessaging();
       }
 
       // send through messaging to metatx relayers

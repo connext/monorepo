@@ -2,6 +2,16 @@
 
 ## Next Release
 
+## 0.0.22
+
+- [sdk] Add back `connectMessaging` with proper functionality.
+
+## 0.0.21
+
+- [sdk] Add back `connectMessaging` with proper functionality.
+
+## 0.0.20
+
 - [test-ui] Router liquidity management UI.
 - [test-ui] Test preferred router.
 - [sdk] Use NTP time server instead of block time.
