@@ -103,6 +103,11 @@ const config: HardhatUserConfig = {
       chainId: 137,
       url: urlOverride || "http://localhost:8545",
     },
+    fuji: {
+      accounts: { mnemonic },
+      chainId: 43113,
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+    },
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
