@@ -9,6 +9,7 @@ import {
   ReceiverTransactionCancelledPayload,
   ReceiverTransactionFulfilledPayload,
   ReceiverTransactionPreparedPayload,
+  SenderTransactionCancelledPayload,
   SenderTransactionPreparedPayload,
 } from "./sdk";
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
@@ -55,6 +56,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
 
 export const SubgraphEvents = {
   SenderTransactionPrepared: "SenderTransactionPrepared",
+  SenderTransactionCancelled: "SenderTransactionCancelled",
   ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
   ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
   ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
@@ -63,6 +65,7 @@ export type SubgraphEvent = typeof SubgraphEvents[keyof typeof SubgraphEvents];
 
 export interface SubgraphEventPayloads {
   [SubgraphEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
+  [SubgraphEvents.SenderTransactionCancelled]: SenderTransactionCancelledPayload;
   [SubgraphEvents.ReceiverTransactionPrepared]: ReceiverTransactionPreparedPayload;
   [SubgraphEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
   [SubgraphEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
@@ -77,6 +80,7 @@ export const createSubgraphEvts = (): {
 } => {
   return {
     [SubgraphEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
+    [SubgraphEvents.SenderTransactionCancelled]: Evt.create<SenderTransactionCancelledPayload>(),
     [SubgraphEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload>(),
     [SubgraphEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload>(),
     [SubgraphEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload>(),
@@ -140,6 +144,131 @@ export class Subgraph {
     const methodName = "getActiveTransactions";
     const methodId = getUuid();
 
+    // Step 1: handle any already listed as active transactions.
+    // This is important to make sure the events are properly emitted
+    // when sdks remain online for the duration of the transaction.
+    // i.e. consider the case the sender tx is fulfilled before the loop
+    // begins again. then it would not be captured by the subgraph only
+    // loop but would exist in the class memory
+
+    // Get all ids organized in an object with keyed on their receiving chain id
+    const idsBySendingChains: Record<string, string[]> = {};
+    [...this.activeTxs.entries()].forEach(([id, tx]) => {
+      if (!idsBySendingChains[tx.crosschainTx.invariant.sendingChainId]) {
+        idsBySendingChains[tx.crosschainTx.invariant.sendingChainId] = [id];
+      } else {
+        idsBySendingChains[tx.crosschainTx.invariant.sendingChainId].push(id);
+      }
+    });
+
+    // Gather matching sending-chain records from the subgraph that will *not*
+    // be handled by step 2 (i.e. statuses are *not* prepared)
+    const nonPreparedSendingTxs: any[] = [];
+    const correspondingReceiverTxIdsByChain: Record<string, string[]> = {};
+    await Promise.all(
+      Object.keys(idsBySendingChains).map(async (sendingChain) => {
+        const sendingSubgraph = this.sdks[parseInt(sendingChain)];
+        if (!sendingSubgraph) {
+          return;
+        }
+        const ids = idsBySendingChains[sendingChain];
+        if (ids.length === 0) {
+          return;
+        }
+        const { transactions } = await sendingSubgraph.GetTransactions({ transactionIds: ids });
+        if (transactions.length === 0) {
+          return;
+        }
+
+        // Get transactions to add
+        const toAdd = transactions.filter((x) => !!x && x.status !== TransactionStatus.Prepared);
+
+        // Add results to sending tx array
+        nonPreparedSendingTxs.push(...toAdd);
+      }),
+    );
+
+    // Get corresponding receiver transaction records
+    nonPreparedSendingTxs.forEach((transaction) => {
+      if (!correspondingReceiverTxIdsByChain[transaction.receivingChainId]) {
+        correspondingReceiverTxIdsByChain[transaction.receivingChainId] = [transaction.transactionId];
+      } else {
+        correspondingReceiverTxIdsByChain[transaction.receivingChainId].push(transaction.transactionId);
+      }
+    });
+
+    const correspondingReceiverTxs: any[] = [];
+    await Promise.all(
+      Object.keys(correspondingReceiverTxIdsByChain).map(async (receivingChain) => {
+        const subgraph = this.sdks[parseInt(receivingChain)];
+        if (!subgraph) {
+          return;
+        }
+        const ids = correspondingReceiverTxIdsByChain[receivingChain];
+        if (ids.length === 0) {
+          return;
+        }
+        const { transactions } = await subgraph.GetTransactions({ transactionIds: ids });
+        if (transactions.length === 0) {
+          return;
+        }
+
+        // Get transactions to add
+        const toAdd = transactions.filter((x) => !!x);
+
+        // Add results to sending tx array
+        correspondingReceiverTxs.push(...toAdd);
+      }),
+    );
+
+    // For all non-prepared sending transactions, post to the correct evt
+    // and update the transaction map
+    nonPreparedSendingTxs.map((transaction) => {
+      const record = this.activeTxs.get(transaction.transactionId)!;
+      const receivingMatches = correspondingReceiverTxs.filter((x) => x.transactionId === transaction.transactionId);
+      if (receivingMatches.length > 1) {
+        throw new Error("Duplicate transaction ids");
+      }
+      const [match] = receivingMatches;
+      if (transaction.status === TransactionStatus.Cancelled) {
+        // Remove from active transactions
+        this.activeTxs.delete(transaction.transactionId);
+
+        // Post data to evt
+        const { invariant, sending } = record.crosschainTx;
+        this.evts.SenderTransactionCancelled.post({
+          txData: { ...invariant, ...sending },
+          caller: transaction.cancelCaller,
+          transactionHash: transaction.cancelTransactionHash,
+        });
+        return;
+      }
+
+      if (transaction.status === TransactionStatus.Fulfilled) {
+        // Remove from active transactions
+        this.activeTxs.delete(transaction.transactionId);
+
+        // Find the matching receiver subgraph tx
+        if (!match || match.status !== TransactionStatus.Fulfilled) {
+          // This should never happen
+          throw new Error("Sender fulfilled, no fulfilled receiver transaction");
+        }
+
+        // Post to receiver transaction fulfilled evt
+        const { invariant, receiving } = record.crosschainTx;
+        this.evts.ReceiverTransactionFulfilled.post({
+          transactionHash: match.fulfillTranssactionHash,
+          txData: { ...invariant, ...receiving! },
+          signature: match.signature,
+          relayerFee: match.relayerFee,
+          callData: match.callData,
+          caller: match.fulfillCaller,
+        });
+      }
+    });
+
+    // Step 2: handle any not-listed active transactions (i.e. sdk has
+    // gone offline at some point during the transactions)
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
         const user = (await this.user.getAddress()).toLowerCase();
@@ -168,14 +297,13 @@ export class Subgraph {
           Object.entries(senderPerChain).map(async ([chainId, senderTxs]) => {
             const _sdk = this.sdks[parseInt(chainId)];
             if (!_sdk) {
-              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
               return undefined;
             }
             const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
               transactionIds: senderTxs.map((tx) => tx.transactionId),
             });
 
-            return senderTxs.map((senderTx): ActiveTransaction | undefined => {
+            const active = senderTxs.map((senderTx): ActiveTransaction | undefined => {
               const correspondingReceiverTx = correspondingReceiverTxs.find(
                 (tx) => tx.transactionId === senderTx.transactionId,
               );
@@ -303,6 +431,8 @@ export class Subgraph {
                 correspondingReceiverTx,
               );
             });
+
+            return active;
           }),
         );
 
