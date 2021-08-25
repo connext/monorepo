@@ -1,10 +1,10 @@
 import { BigNumber, Signer } from "ethers";
 import { BaseLogger } from "pino";
 import PriorityQueue from "p-queue";
-import { delay, jsonifyError } from "@connext/nxtp-utils";
+import { delay, jsonifyError, mkAddress } from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
-import { TransactionReverted } from "../error";
+import { AlreadyMined, TransactionReverted } from "../error";
 import { ChainConfig, TransactionServiceConfig } from "../config";
 
 import { ChainRpcProvider } from "./provider";
@@ -107,40 +107,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
-  private async getGas(transaction: WriteTransaction): Promise<Gas> {
-    const method = this.getGas.name;
-    // Get gas estimate.
-    let gasLimit: BigNumber;
-    let result = await this.estimateGas(transaction);
-    if (result.isErr()) {
-      if (result.error.type === TransactionReverted.type) {
-        // If we get a TransactionReverted error, that means the gas estimate call
-        // indicated our transaction would fail on-chain. The details of the failure will
-        // be included in the error.
-        throw result.error;
-      }
-      this.logger.warn(
-        {
-          method,
-          transaction: transaction,
-          error: result.error,
-        },
-        "Estimate gas failed due to an unexpected error.",
-      );
-      throw result.error;
-    } else {
-      gasLimit = result.value;
-    }
-
-    // Get gas price and create tracker instance.
-    result = await this.getGasPrice();
-    if (result.isErr()) {
-      throw result.error;
-    }
-    const gas = new Gas(result.value, gasLimit);
-    return gas;
-  }
-
   /**
    * Get the current nonce value. Should ONLY ever be called within a serialized
    * queue.
@@ -167,6 +133,9 @@ export class TransactionDispatch extends ChainRpcProvider {
     return Math.max(buffer + 1, pending);
   }
 
+  /**
+   *
+   */
   private async monitorLoop() {
     // TODO: Make sure this loop is throw-proof
     // TODO: Throttle this loop during lulls in traffic, speed up during high load??
@@ -177,6 +146,13 @@ export class TransactionDispatch extends ChainRpcProvider {
     this.isActive = false;
   }
 
+  /**
+   * The method that actually performs the monitoring used in the loop above. Will scan the current
+   * buffer for any funny business: i.e. nonce gaps and stuck transactions.
+   * @remarks
+   * Left exposed as public as it is useful for testing, and we may want to eventually execute
+   * this on a whim (i.e. when a specific event occurs).
+   */
   public async monitor(): Promise<void> {
     // Lazy solution: we only care about a potential hold-up if it could hold anything up.
     if (this.buffer.pending().length < 2) {
@@ -233,8 +209,16 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
+  /**
+   * Method to execute a generic backfill at a specified nonce.
+   * @param nonce - The nonce to backfill at.
+   * @param blockade - The transaction that's blocking. Used predominantly for logging.
+   * @param reason - The reason for the backfill, a string value to be specify in logs.
+   */
   private async backfill(nonce: number, blockade: Transaction | undefined, reason: string) {
     const method = this.backfill.name;
+    let addedToBuffer = false;
+
     try {
       this.logger.error(
         {
@@ -264,6 +248,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
       const transaction = new Transaction(this.logger, this, minTx, nonce, gas, true);
       this.buffer.insert(nonce, transaction, true);
+      addedToBuffer = true;
 
       const result = await this.sendTransaction(transaction);
       if (result.isErr()) {
@@ -279,6 +264,37 @@ export class TransactionDispatch extends ChainRpcProvider {
         "Backfill completed successfully",
       );
     } catch (error) {
+      if (error.type === AlreadyMined.type) {
+        // We can assume that the transaction was sent using the signer outside of dispatch,
+        // and as a result, we didn't have it stored in the buffer.
+        this.logger.warn(
+          { method, nonce, backfilledTxId: blockade?.id, error },
+          "Backfill failed: Transaction already mined",
+        );
+        if (!addedToBuffer) {
+          // Fill the gap with a fake transaction. This tx will be labeled with .isBackfill = true,
+          // and get removed as soon as the buffer trims up to its nonce.
+          this.buffer.insert(
+            nonce,
+            new Transaction(
+              this.logger,
+              this,
+              {
+                chainId: this.chainId,
+                value: BigNumber.from(0),
+                data: "0x",
+                to: mkAddress(),
+              },
+              nonce,
+              new Gas(BigNumber.from(1), BigNumber.from(24001)),
+              true,
+            ),
+            // overwrite
+            true,
+          );
+        }
+        return;
+      }
       // Backfill failed, we should shut the system down.
       this.logger.error(
         {
@@ -287,10 +303,54 @@ export class TransactionDispatch extends ChainRpcProvider {
           backfilledTxId: blockade?.id,
           error,
         },
-        "Backfill failed",
+        `Backfill failed: ${error.type}`,
       );
       // Raise the abort flag.
       this.aborted = error;
     }
+  }
+
+  /// HELPERS
+  /**
+   * A helper method to get the Gas tracker instance, which is used to hold price and limit.
+   *
+   * @param {WriteTransaction} transaction - The transaction to get the Gas tracker for.
+   *
+   * @returns {Gas} A GasTracker instance.
+   *
+   * @throws TransactionReverted if gas estimate fails.
+   */
+  private async getGas(transaction: WriteTransaction): Promise<Gas> {
+    const method = this.getGas.name;
+    // Get gas estimate.
+    let gasLimit: BigNumber;
+    let result = await this.estimateGas(transaction);
+    if (result.isErr()) {
+      if (result.error.type === TransactionReverted.type) {
+        // If we get a TransactionReverted error, that means the gas estimate call
+        // indicated our transaction would fail on-chain. The details of the failure will
+        // be included in the error.
+        throw result.error;
+      }
+      this.logger.warn(
+        {
+          method,
+          transaction: transaction,
+          error: result.error,
+        },
+        "Estimate gas failed due to an unexpected error.",
+      );
+      throw result.error;
+    } else {
+      gasLimit = result.value;
+    }
+
+    // Get gas price and create tracker instance.
+    result = await this.getGasPrice();
+    if (result.isErr()) {
+      throw result.error;
+    }
+    const gas = new Gas(result.value, gasLimit);
+    return gas;
   }
 }

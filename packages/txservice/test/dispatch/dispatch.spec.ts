@@ -42,6 +42,14 @@ describe("Dispatch", () => {
     txDispatch.getTransactionCount = stub().returns(okAsync(TEST_TX_RESPONSE.nonce));
   });
 
+  describe("", async () => {});
+
+  describe("", async () => {});
+
+  describe("", async () => {});
+
+  describe("", async () => {});
+
   describe("#monitor", async () => {
     it("should backfill tx if txDispatch.getTransactionCount === txBuffer.getLastNonce", async () => {
       txBuffer.getLastNonce.resolves(TEST_TX_RESPONSE.nonce);

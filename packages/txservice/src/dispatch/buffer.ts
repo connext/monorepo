@@ -51,11 +51,21 @@ export class TransactionBuffer {
    * @returns Remaining keys after trimming.
    */
   private trim(): number[] {
+    // Once we've found the point where transactions stop being "finished",
+    // we want to leave the rest in there.
+    let foundSeparator = false;
     return this.orderedKeys().filter((k) => {
-      if (this.get(k)?.didFinish) {
-        this.buffer.delete(k);
-        return false;
+      if (foundSeparator) {
+        return true;
       }
+      const tx = this.get(k);
+      if (tx) {
+        if (tx.didFinish || tx.isBackfill || tx.error !== undefined || tx.discontinued) {
+          this.buffer.delete(k);
+          return false;
+        }
+      }
+      foundSeparator = true;
       return true;
     });
   }

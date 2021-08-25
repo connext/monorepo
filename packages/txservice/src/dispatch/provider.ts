@@ -174,6 +174,56 @@ export class ChainRpcProvider {
   }
 
   /**
+   * Estimate gas cost for the specified transaction.
+   *
+   * @remarks
+   *
+   * Because estimateGas is almost always our "point of failure" - the point where its
+   * indicated by the provider that our tx would fail on chain - and ethers obscures the
+   * revert error code when it fails through its typical API, we had to implement our own
+   * estimateGas call through RPC directly.
+   *
+   * @param transaction The ethers TransactionRequest data in question.
+   *
+   * @returns A BigNumber representing the estimated gas value.
+   */
+  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
+    return this.resultWrapper<BigNumber>(async () => {
+      const errors: any[] = [];
+      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
+      for (const provider of this._providers) {
+        let result: string;
+        try {
+          // This call will prepare the transaction params for us (hexlify tx, etc).
+          // TODO: #147 Is there any reason prepare should be called for each iteration?
+          const args = provider.prepareRequest("estimateGas", { transaction });
+          result = await provider.send(args[0], args[1]);
+        } catch (error) {
+          const sanitizedError = parseError(error);
+          // If we get a TransactionReverted error, we can assume that the transaction will fail,
+          // and we ought to just throw here.
+          if (sanitizedError.type === TransactionReverted.type) {
+            throw sanitizedError;
+          } else {
+            errors.push(error);
+            continue;
+          }
+        }
+
+        try {
+          return BigNumber.from(result);
+        } catch (error) {
+          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
+            invalidEstimate: result,
+            error: error.message,
+          });
+        }
+      }
+      throw new UnpredictableGasLimit({ errors });
+    });
+  }
+
+  /**
    * Get the current gas price for the chain for which this instance is servicing.
    * @returns The BigNumber value for the current gas price.
    */
@@ -283,6 +333,11 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Gets the signer's address.
+   *
+   * @returns A hash string address belonging to the signer.
+   */
   public getAddress(): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(async () => {
       return await this.signer.getAddress();
@@ -292,62 +347,14 @@ export class ChainRpcProvider {
   /**
    * Gets a transaction.
    *
-   * @returns A number representing the current blocktime.
+   * @param hash - the transaction hash to get the receipt for.
+   *
+   * @returns A TransactionReceipt instance.
    */
   public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
     return this.resultWrapper<providers.TransactionReceipt>(async () => {
       const receipt = await this.provider.getTransactionReceipt(hash);
       return receipt;
-    });
-  }
-
-  /**
-   * Estimate gas cost for the specified transaction.
-   *
-   * @remarks
-   *
-   * Because estimateGas is almost always our "point of failure" - the point where its
-   * indicated by the provider that our tx would fail on chain - and ethers obscures the
-   * revert error code when it fails through its typical API, we had to implement our own
-   * estimateGas call through RPC directly.
-   *
-   * @param transaction The ethers TransactionRequest data in question.
-   *
-   * @returns A BigNumber representing the estimated gas value.
-   */
-  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
-      const errors: any[] = [];
-      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
-      for (const provider of this._providers) {
-        let result: string;
-        try {
-          // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: #147 Is there any reason prepare should be called for each iteration?
-          const args = provider.prepareRequest("estimateGas", { transaction });
-          result = await provider.send(args[0], args[1]);
-        } catch (error) {
-          const sanitizedError = parseError(error);
-          // If we get a TransactionReverted error, we can assume that the transaction will fail,
-          // and we ought to just throw here.
-          if (sanitizedError.type === TransactionReverted.type) {
-            throw sanitizedError;
-          } else {
-            errors.push(error);
-            continue;
-          }
-        }
-
-        try {
-          return BigNumber.from(result);
-        } catch (error) {
-          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
-            invalidEstimate: result,
-            error: error.message,
-          });
-        }
-      }
-      throw new UnpredictableGasLimit({ errors });
     });
   }
 
