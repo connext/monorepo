@@ -191,10 +191,12 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
     const tx: Transaction | undefined = this.buffer.get(indexedNonce);
     if (!tx) {
-      // This is a "legit" nonce gap!
+      // TODO: We need to verify that this is indeed a valid nonce gap.
+      
+      // If it is, then we need to backfill the gap.
       await this.backfill(indexedNonce, undefined, "NOT_FOUND");
     } else {
-      if (tx.didFinish) {
+      if (tx.didFinish || tx.error) {
         // IF the transaction did finish already, we can ignore this one.
         return;
       }

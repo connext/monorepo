@@ -15,8 +15,8 @@ export class TransactionBuffer {
   public pending(): Transaction[] {
     // Use this opportunity to trim previous finished transactions.
     return this.trim()
-      .map((nonce) => this.get(nonce) ?? null)
-      .filter((tx) => tx != null) as Transaction[];
+      .map(nonce => this.get(nonce) ?? null)
+      .filter(tx => tx != null) as Transaction[];
   }
 
   public insert(nonce: number, transaction: Transaction, overwrite = false) {
@@ -60,20 +60,24 @@ export class TransactionBuffer {
   private trim(): number[] {
     // Once we've found the point where transactions stop being "finished",
     // we want to leave the rest in there.
-    let foundSeparator = false;
-    return this.orderedKeys().filter((k) => {
-      if (foundSeparator) {
-        return true;
+    let highestIndex = -1;
+    // Keys are ordered lowest to highest nonce values.
+    const keys = this.orderedKeys();
+    for (let i = 0; i < keys.length; i++) {
+      const nonce = keys[i];
+      const tx = this.get(nonce);
+      if (!tx) {
+        // For some reason, this tx is already missing. Not sure why this would happen (probably async
+        // r/w), but we are ignoring it for now.
+        continue;
       }
-      const tx = this.get(k);
-      if (tx) {
-        if (tx.didFinish || tx.isBackfill || tx.error !== undefined || tx.discontinued) {
-          this.buffer.delete(k);
-          return false;
-        }
+      if (tx.didFinish) {
+        highestIndex = i;
       }
-      foundSeparator = true;
-      return true;
-    });
+    }
+    // We want to trim everything below the highest finished nonce's index.
+    keys.splice(0, highestIndex).forEach(nonce => this.buffer.delete(nonce));
+    // Return remaining keys.
+    return keys;
   }
 }
