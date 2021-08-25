@@ -168,6 +168,48 @@ describe("Contract Reader Binding", () => {
         side: "receiver",
       });
     });
+
+    it("should handle ReceiverCancelled", async () => {
+      const receiverCancelled: ActiveTransaction<"ReceiverCancelled"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverCancelled,
+      };
+
+      await binding.handleActiveTransactions([receiverCancelled]);
+
+      expect(cancelMock).to.be.calledOnceWith(receiverCancelled.crosschainTx.invariant, {
+        amount: receiverCancelled.crosschainTx.sending.amount,
+        expiry: receiverCancelled.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverCancelled.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+    });
+
+    it("should handle ReceiverNotConfigured", async () => {
+      const receiverNotConfigured: ActiveTransaction<"ReceiverNotConfigured"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverNotConfigured,
+      };
+
+      await binding.handleActiveTransactions([receiverNotConfigured]);
+
+      expect(cancelMock).to.be.calledOnceWith(receiverNotConfigured.crosschainTx.invariant, {
+        amount: receiverNotConfigured.crosschainTx.sending.amount,
+        expiry: receiverNotConfigured.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverNotConfigured.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+    });
   });
 
   describe("getLoopInterval", async () => {
