@@ -64,15 +64,10 @@ export const getReceiverAmount = async (
 
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
-  const receivingAmount = calculateExchangeWad(
-    amountAfterSwapRate,
-    outputDecimals,
-    routerFeeRate,
-    outputDecimals,
-  ).toString();
+  const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);
 
   // TODO:  gas fee reimbursement
-  return receivingAmount;
+  return receivingAmount.toString();
 };
 
 /**
