@@ -24,7 +24,7 @@ let chainProvider: ChainRpcProvider;
 let coreProvider: SinonStubbedInstance<providers.FallbackProvider>;
 let transaction: SinonStubbedInstance<Transaction>;
 
-describe("ChainRpcProvider", () => {
+describe.skip("ChainRpcProvider", () => {
   beforeEach(async () => {
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);

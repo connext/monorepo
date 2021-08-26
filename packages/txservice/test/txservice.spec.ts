@@ -32,7 +32,7 @@ let context: RequestContext = {
 
 /// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
 /// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
-describe("TransactionService", () => {
+describe.skip("TransactionService", () => {
   let validateAttemptShouldSucceed = 1;
   let confirmAttemptShouldSucceed = 1;
   let attempts = {
