@@ -10,6 +10,9 @@ IFS=$'\n\t'
 
 # Set variable values.
 
+# @dev run from root nxtp directory w/
+# [sudo] bash docker/router/build-router.sh
+
 app_full_name=@connext/nxtp-router
 app_name=nxtp-router # remove scope like "@my-org/", if any.
 short_app_dir=router # i.e. packages/router to /router
@@ -54,7 +57,7 @@ docker build \
   --tag "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
   --build-arg APP_NAME="${app_full_name}" \
-  --file ./docker/Dockerfile \
+  --file ./docker/router/Dockerfile \
   .
 
 if [ -n "$DOCKER_REPO" ]; then
@@ -97,7 +100,7 @@ docker build \
     --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
     --build-arg APP_NAME="${app_full_name}" \
     --build-arg SHORT_APP_DIR="${short_app_dir}" \
-    --file ./docker/Dockerfile \
+    --file ./docker/router/Dockerfile \
     .
 
 # tag images
