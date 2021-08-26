@@ -30,12 +30,12 @@ const RECEIVING_CHAIN = 1338;
 
 const chainProviders = {
   [SENDING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545")]),
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545", SENDING_CHAIN)]),
     transactionManagerAddress: txManagerAddressSending,
     subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
   },
   [RECEIVING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546")]),
+    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546", RECEIVING_CHAIN)]),
     transactionManagerAddress: txManagerAddressReceiving,
     subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
   },

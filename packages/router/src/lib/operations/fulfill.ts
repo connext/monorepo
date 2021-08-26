@@ -11,9 +11,6 @@ import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 
-export const senderFulfilling: Map<string, boolean> = new Map();
-export const receiverFulfilling: Map<string, boolean> = new Map();
-
 export const fulfill = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
@@ -65,13 +62,10 @@ export const fulfill = async (
   );
 
   let fulfillChain: number;
-  let map;
   if (side === "sender") {
     fulfillChain = invariantData.sendingChainId;
-    map = senderFulfilling;
   } else {
     fulfillChain = invariantData.receivingChainId;
-    map = receiverFulfilling;
   }
 
   if (!config.chainConfig[fulfillChain]) {
@@ -89,27 +83,16 @@ export const fulfill = async (
     });
   }
 
-  if (map.get(invariantData.transactionId)) {
-    logger.info({ methodId, method, requestContext, transactionId: invariantData.transactionId }, "Already fulfilling");
-    return;
-  }
-
-  map.set(invariantData.transactionId, true);
-
-  try {
-    const receipt = await contractWriter.fulfill(
-      fulfillChain,
-      {
-        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-        signature: signature,
-        relayerFee: relayerFee,
-        callData: callData,
-      },
-      requestContext,
-    );
-    logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
-    return receipt;
-  } finally {
-    map.delete(invariantData.transactionId);
-  }
+  const receipt = await contractWriter.fulfill(
+    fulfillChain,
+    {
+      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+      signature: signature,
+      relayerFee: relayerFee,
+      callData: callData,
+    },
+    requestContext,
+  );
+  logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
+  return receipt;
 };

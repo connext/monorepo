@@ -11,9 +11,6 @@ import { getContext } from "../../router";
 import { ParamsInvalid } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 
-export const senderCancelling: Map<string, boolean> = new Map();
-export const receiverCancelling: Map<string, boolean> = new Map();
-
 export const cancel = async (
   invariantData: InvariantTransactionData,
   input: CancelInput,
@@ -59,20 +56,11 @@ export const cancel = async (
   const { side, amount, preparedBlockNumber, expiry } = input;
 
   let cancelChain: number;
-  let map: Map<string, boolean>;
   if (side === "sender") {
     cancelChain = invariantData.sendingChainId;
-    map = senderCancelling;
   } else {
     cancelChain = invariantData.receivingChainId;
-    map = receiverCancelling;
   }
-
-  if (map.get(invariantData.transactionId)) {
-    logger.info({ methodId, method, requestContext, transactionId: invariantData.transactionId }, "Already cancelling");
-    return;
-  }
-  map.set(invariantData.transactionId, true);
 
   // Send to tx service
   logger.info(
@@ -80,18 +68,14 @@ export const cancel = async (
     "Sending cancel tx",
   );
 
-  try {
-    const receipt = await contractWriter.cancel(
-      cancelChain,
-      {
-        txData: { ...invariantData, amount, preparedBlockNumber, expiry },
-        signature: "0x",
-      },
-      requestContext,
-    );
-    logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
-    return receipt;
-  } finally {
-    map.delete(invariantData.transactionId);
-  }
+  const receipt = await contractWriter.cancel(
+    cancelChain,
+    {
+      txData: { ...invariantData, amount, preparedBlockNumber, expiry },
+      signature: "0x",
+    },
+    requestContext,
+  );
+  logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
+  return receipt;
 };

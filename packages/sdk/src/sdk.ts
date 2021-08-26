@@ -746,7 +746,7 @@ export class NxtpSdk {
       return chosen;
     } catch (e) {
       this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
-      throw new UnknownAuctionError(transactionId, jsonifyError(e), payload);
+      throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { method, methodId, transactionId });
     }
   }
 

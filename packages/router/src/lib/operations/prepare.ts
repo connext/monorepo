@@ -27,8 +27,6 @@ import {
   validExpiryBuffer,
 } from "../helpers";
 
-export const receiverPreparing: Map<string, boolean> = new Map();
-
 export const prepare = async (
   invariantData: InvariantTransactionData,
   input: PrepareInput,
@@ -143,32 +141,23 @@ export const prepare = async (
 
   logger.info({ method, methodId, requestContext }, "Validated input");
 
-  if (receiverPreparing.get(invariantData.transactionId)) {
-    logger.info({ methodId, method, requestContext, transactionId: invariantData.transactionId }, "Already preparing");
-    return;
-  }
-  receiverPreparing.set(invariantData.transactionId, true);
-
   logger.info(
     { method, methodId, requestContext, transactionId: invariantData.transactionId },
     "Sending receiver prepare tx",
   );
-  try {
-    const receipt = await contractWriter.prepare(
-      invariantData.receivingChainId,
-      {
-        txData: invariantData,
-        amount: receiverAmount,
-        expiry: receiverExpiry,
-        bidSignature,
-        encodedBid,
-        encryptedCallData,
-      },
-      requestContext,
-    );
-    logger.info({ method, methodId, transactionId: invariantData.transactionId }, "Sent receiver prepare tx");
-    return receipt;
-  } finally {
-    receiverPreparing.delete(invariantData.transactionId);
-  }
+
+  const receipt = await contractWriter.prepare(
+    invariantData.receivingChainId,
+    {
+      txData: invariantData,
+      amount: receiverAmount,
+      expiry: receiverExpiry,
+      bidSignature,
+      encodedBid,
+      encryptedCallData,
+    },
+    requestContext,
+  );
+  logger.info({ method, methodId, transactionId: invariantData.transactionId }, "Sent receiver prepare tx");
+  return receipt;
 };
