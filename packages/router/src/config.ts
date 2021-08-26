@@ -201,9 +201,8 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    const chainRecommendedConfirmations = chainData
-      ? parseInt(chainData.get(chainId).confirmations) ?? defaultConfirmations
-      : defaultConfirmations;
+    const chainRecommendedConfirmations =
+      chainData && chainData.has(chainId) ? parseInt(chainData.get(chainId).confirmations) : defaultConfirmations;
     if (!chainConfig.transactionManagerAddress) {
       const res = getDeployedTransactionManagerContract(parseInt(chainId));
       if (!res) {
