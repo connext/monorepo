@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.0.28
+
+- [subgraph] Add default URLs
+- [router] Properly handle chain confirmation defaults
+
 ## 0.0.27
 
 - [contracts] Deploy to FTM, BSC, MATIC, XDAI
