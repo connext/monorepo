@@ -16,7 +16,6 @@ import * as CancelFns from "../../../src/lib/operations/cancel";
 import { ExpiryInvalid } from "../../../src/lib/errors";
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
-import { cancel } from "../../../src/adapters/contract/contract";
 
 let prepareMock: SinonStub<
   [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContext],
