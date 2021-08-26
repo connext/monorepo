@@ -115,7 +115,17 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
           );
           logger.info({ requestContext, txHash: cancelRes?.transactionHash }, "Cancelled transaction");
         } catch (err) {
-          logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+          if (safeJsonStringify(jsonifyError(err)).includes("#C:019")) {
+            logger.warn(
+              {
+                requestContext,
+                transaction: _transaction.crosschainTx.invariant.transactionId,
+              },
+              "Already cancelled",
+            );
+          } else {
+            logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
+          }
         }
       }
     } finally {
@@ -197,8 +207,7 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       );
       logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled receiver");
     } catch (err) {
-      const json = jsonifyError(err);
-      if (json?.context?.message.includes("#C:019")) {
+      if (safeJsonStringify(jsonifyError(err)).includes("#C:019")) {
         logger.warn(
           {
             requestContext,
@@ -206,9 +215,9 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
           },
           "Already cancelled",
         );
-        return;
+      } else {
+        logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling receiver");
       }
-      logger.error({ err: json, requestContext }, "Error cancelling receiver");
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
@@ -233,8 +242,7 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       );
       logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled sender");
     } catch (err) {
-      const json = jsonifyError(err);
-      if (json?.context?.message.includes("#C:019")) {
+      if (safeJsonStringify(jsonifyError(err)).includes("#C:019")) {
         logger.warn(
           {
             requestContext,
@@ -243,7 +251,7 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
           "Already cancelled",
         );
       } else {
-        logger.error({ err: json, requestContext }, "Error cancelling sender");
+        logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -274,8 +282,7 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       );
       logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled sender");
     } catch (err) {
-      const json = jsonifyError(err);
-      if (json?.context?.message.includes("#C:019")) {
+      if (safeJsonStringify(jsonifyError(err)).includes("#C:019")) {
         logger.warn(
           {
             requestContext,
@@ -284,7 +291,7 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
           "Already cancelled",
         );
       } else {
-        logger.error({ err: json, requestContext }, "Error cancelling sender");
+        logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -311,7 +318,17 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       );
       logger.info({ requestContext, txHash: receipt?.transactionHash }, "Cancelled sender");
     } catch (err) {
-      logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+      if (safeJsonStringify(jsonifyError(err)).includes("#C:019")) {
+        logger.warn(
+          {
+            requestContext,
+            transaction: _transaction.crosschainTx.invariant.transactionId,
+          },
+          "Already cancelled",
+        );
+      } else {
+        logger.error({ err: jsonifyError(err), requestContext }, "Error cancelling sender");
+      }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
