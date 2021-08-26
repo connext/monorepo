@@ -2,7 +2,7 @@
 
 ## Next Release
 
-- [contracts] Deploy to Avalanche Fuji.
+- [contracts] Deploy to Avalanche Fuji, FTM, BSC, MATIC, XDAI
 
 ## 0.0.25
 
