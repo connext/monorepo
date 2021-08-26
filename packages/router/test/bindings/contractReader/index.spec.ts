@@ -13,7 +13,7 @@ import * as binding from "../../../src/bindings/contractReader/index";
 import * as PrepareFns from "../../../src/lib/operations/prepare";
 import * as FulfillFns from "../../../src/lib/operations/fulfill";
 import * as CancelFns from "../../../src/lib/operations/cancel";
-import { ExpiryInvalid } from "../../../src/lib/errors";
+import { ContractReaderNotAvailableForChain, ExpiryInvalid } from "../../../src/lib/errors";
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 
@@ -37,6 +37,17 @@ describe("Contract Reader Binding", () => {
       prepareMock = stub(PrepareFns, "prepare").resolves(txReceiptMock);
       fulfillMock = stub(FulfillFns, "fulfill").resolves(txReceiptMock);
       cancelMock = stub(CancelFns, "cancel").resolves(txReceiptMock);
+    });
+
+    it("should throw error if no config for SenderPrepared", async () => {
+      const prepare: ActiveTransaction<"SenderPrepared"> = {
+        ...activeTransactionPrepareMock,
+        crosschainTx: {
+          ...activeTransactionPrepareMock.crosschainTx,
+          invariant: { ...activeTransactionPrepareMock.crosschainTx.invariant, sendingChainId: 1234 },
+        },
+      };
+      await expect(binding.handleSingle(prepare)).to.eventually.be.rejectedWith(ContractReaderNotAvailableForChain);
     });
 
     it("should handle SenderPrepared", async () => {
@@ -88,6 +99,49 @@ describe("Contract Reader Binding", () => {
         preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
         side: "sender",
       });
+    });
+
+    it("should handle SenderPrepared error cancellable errors", async () => {
+      prepareMock.rejects(new ExpiryInvalid(1234));
+      cancelMock.rejects(new Error("foo"));
+      const prepare: ActiveTransaction<"SenderPrepared"> = activeTransactionPrepareMock;
+      await binding.handleSingle(prepare);
+
+      expect(prepareMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
+        senderExpiry: prepare.crosschainTx.sending.expiry,
+        senderAmount: prepare.crosschainTx.sending.amount,
+        bidSignature: prepare.payload.bidSignature,
+        encodedBid: prepare.payload.encodedBid,
+        encryptedCallData: prepare.payload.encryptedCallData,
+      });
+
+      expect(cancelMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
+        amount: prepare.crosschainTx.sending.amount,
+        expiry: prepare.crosschainTx.sending.expiry,
+        preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
+        side: "sender",
+      });
+
+      expect(binding.handlingTracker.get(prepare.crosschainTx.invariant.transactionId)).to.be.undefined;
+    });
+
+    it("should not fulfill tx if not enough confirmations", async () => {
+      const fulfill: ActiveTransaction<"ReceiverFulfilled"> = activeTransactionFulfillMock;
+      const badTx = { ...txReceiptMock, confirmations: 0 };
+      txServiceMock.getTransactionReceipt.resolves(badTx);
+      await binding.handleSingle(fulfill);
+      expect(prepareMock).callCount(0);
+    });
+
+    it("should throw error if no config for ReceiverFulfilled", async () => {
+      const prepare: ActiveTransaction<"ReceiverFulfilled"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, receivingChainId: 1234 },
+        },
+      };
+      await expect(binding.handleSingle(prepare)).to.eventually.be.rejectedWith(ContractReaderNotAvailableForChain);
     });
 
     it("should handle ReceiverFulfilled", async () => {
@@ -242,7 +296,7 @@ describe("Contract Reader Binding", () => {
         status: CrosschainTransactionStatus.ReceiverNotConfigured,
       };
 
-      await binding.handleActiveTransactions([receiverNotConfigured]);
+      await binding.handleSingle(receiverNotConfigured);
 
       expect(cancelMock).to.be.calledOnceWith(receiverNotConfigured.crosschainTx.invariant, {
         amount: receiverNotConfigured.crosschainTx.sending.amount,
@@ -256,7 +310,7 @@ describe("Contract Reader Binding", () => {
       const badTx = { ...txReceiptMock, confirmations: 0 };
       txServiceMock.getTransactionReceipt.resolves(badTx);
       const prepare: ActiveTransaction<"SenderPrepared"> = { ...activeTransactionPrepareMock };
-      await binding.handleActiveTransactions([prepare]);
+      await binding.handleSingle(prepare);
       expect(prepareMock).callCount(0);
     });
   });

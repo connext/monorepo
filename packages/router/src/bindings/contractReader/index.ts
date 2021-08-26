@@ -57,7 +57,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.sendingChainId];
     if (!chainConfig) {
       // this should not happen, this should get checked before this point
-      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
+      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {
+        method,
+        methodId,
+      });
     }
     const senderReceipt = await txService.getTransactionReceipt(
       _transaction.crosschainTx.invariant.sendingChainId,
