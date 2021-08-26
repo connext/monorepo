@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.30
+
+- [router] Fix fantom subgraph url
+
 ## 0.0.29
 
 - [router] Fix `undefined` handling of confirmations
