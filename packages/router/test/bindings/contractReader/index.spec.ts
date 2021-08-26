@@ -130,7 +130,7 @@ describe("Contract Reader Binding", () => {
       const badTx = { ...txReceiptMock, confirmations: 0 };
       txServiceMock.getTransactionReceipt.resolves(badTx);
       await binding.handleSingle(fulfill);
-      expect(prepareMock).callCount(0);
+      expect(fulfillMock).callCount(0);
     });
 
     it("should throw error if no config for ReceiverFulfilled", async () => {
