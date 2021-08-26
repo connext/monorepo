@@ -3,7 +3,6 @@ import { createRequestContext, invariantDataMock, txReceiptMock, expect } from "
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
 import { fulfillInputMock } from "../../utils";
-import { receiverFulfilling } from "../../../src/lib/operations/fulfill";
 
 const requestContext = createRequestContext("TEST");
 
@@ -42,13 +41,6 @@ describe("Fulfill Receiver Operation", () => {
       await expect(
         fulfill(invariantDataMock, { ...fulfillInputMock, relayerFee: "1" }, requestContext),
       ).to.eventually.be.rejectedWith("Not enough relayer fee");
-    });
-
-    it("should not fulfill if already fulfilling", async () => {
-      receiverFulfilling.set(invariantDataMock.transactionId, true);
-      const receipt = await fulfill(invariantDataMock, fulfillInputMock, requestContext);
-      expect(receipt).to.be.undefined;
-      receiverFulfilling.set(invariantDataMock.transactionId, false);
     });
 
     it("happy: should fulfill on sender chain", async () => {

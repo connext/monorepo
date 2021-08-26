@@ -19,16 +19,17 @@ export const handlingTracker: Map<string, TCrosschainTransactionStatus> = new Ma
 export const bindContractReader = async () => {
   const { contractReader, logger } = getContext();
   setInterval(async () => {
+    let transactions: ActiveTransaction<any>[] = [];
     try {
-      const transactions = await contractReader.getActiveTransactions();
+      transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
         logger.info({ transactions: transactions.length }, "Got active transactions");
         logger.debug({ transactions }, "Got active transactions");
       }
-      await handleActiveTransactions(transactions);
     } catch (err) {
-      logger.error({ err }, "Error getting active txs");
+      logger.error({ err: jsonifyError(err) }, "Error getting active txs");
     }
+    await handleActiveTransactions(transactions);
   }, getLoopInterval());
 };
 
@@ -44,7 +45,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
   }
 };
 
-export const handleSingle = async (transaction: ActiveTransaction<any>) => {
+export const handleSingle = async (transaction: ActiveTransaction<any>): Promise<void> => {
   const method = "handleActiveTransactions";
   const methodId = getUuid();
   const { logger, txService, config } = getContext();

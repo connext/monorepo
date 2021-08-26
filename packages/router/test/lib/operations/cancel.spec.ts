@@ -3,19 +3,12 @@ import { expect, invariantDataMock, txReceiptMock, createRequestContext } from "
 
 import { cancelInputMock } from "../../utils";
 import { contractWriterMock } from "../../globalTestHook";
-import { cancel, senderCancelling } from "../../../src/lib/operations/cancel";
+import { cancel } from "../../../src/lib/operations/cancel";
 
 const requestContext = createRequestContext("TEST");
 
 describe("Cancel Sender Operation", () => {
   describe("#cancelSender", () => {
-    it("should not cancel if already cancelling", async () => {
-      senderCancelling.set(invariantDataMock.transactionId, true);
-      const receipt = await cancel(invariantDataMock, cancelInputMock, requestContext);
-      expect(receipt).to.be.undefined;
-      senderCancelling.set(invariantDataMock.transactionId, false);
-    });
-
     it("should error if invariant data validation fails", async () => {
       const _invariantDataMock = { ...invariantDataMock, user: "abc" };
       await expect(cancel(_invariantDataMock, cancelInputMock, requestContext)).to.eventually.be.rejectedWith(
@@ -28,14 +21,6 @@ describe("Cancel Sender Operation", () => {
       await expect(cancel(invariantDataMock, _cancelInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );
-    });
-
-    it("should release lock if contract fn errors", async () => {
-      (contractWriterMock.cancel as SinonStub).rejects("foo");
-      try {
-        await cancel(invariantDataMock, cancelInputMock, requestContext);
-      } catch (e) {}
-      expect(senderCancelling.get(invariantDataMock.transactionId)).to.be.undefined;
     });
 
     it("happy: should cancel for receiver chain", async () => {
