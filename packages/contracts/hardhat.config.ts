@@ -128,6 +128,11 @@ const config: HardhatUserConfig = {
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
     },
+    ftm: {
+      accounts: { mnemonic },
+      chainId: 250,
+      url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
+    },
   },
 };
 
