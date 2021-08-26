@@ -189,10 +189,10 @@ export class TransactionDispatch extends ChainRpcProvider {
       await delay(TransactionDispatch.MONITOR_POLL_PARITY);
       return;
     }
-    const tx: Transaction | undefined = this.buffer.get(indexedNonce);
+    const tx = this.buffer.get(indexedNonce);
     if (!tx) {
       // TODO: We need to verify that this is indeed a valid nonce gap.
-      
+
       // If it is, then we need to backfill the gap.
       await this.backfill(indexedNonce, undefined, "NOT_FOUND");
     } else {
@@ -261,7 +261,11 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (response.isErr()) {
         throw response.error;
       }
-      const receipt = await this.confirmTransaction(response.value, this.confirmationsRequired, transaction.timeUntilExpiry());
+      const receipt = await this.confirmTransaction(
+        response.value,
+        this.confirmationsRequired,
+        transaction.timeUntilExpiry(),
+      );
       if (receipt.isErr()) {
         throw receipt.error;
       }

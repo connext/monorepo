@@ -1,5 +1,7 @@
+import { mkAddress } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet } from "ethers";
+import { getAddress } from "ethers/lib/utils";
 import { okAsync } from "neverthrow";
 import pino from "pino";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
@@ -7,7 +9,10 @@ import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon
 import { ChainConfig, DEFAULT_CONFIG } from "../../src/config";
 import { TransactionDispatch } from "../../src/dispatch";
 import { TransactionBuffer } from "../../src/dispatch/buffer";
-import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE } from "../constants";
+import { ChainRpcProvider } from "../../src/dispatch/provider";
+import * as TransactionFns from "../../src/dispatch/transaction";
+import { Gas } from "../../src/types";
+import { TEST_FULL_TX, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "../constants";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "DispatchTest" });
 
@@ -15,18 +20,22 @@ const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "DispatchT
 const MONITOR_POLL_PARITY = 10;
 (TransactionDispatch as any).MONITOR_POLL_PARITY = MONITOR_POLL_PARITY;
 
+const ADDRESS = mkAddress("0xaaa");
+
 describe("Dispatch", () => {
   let signer: SinonStubbedInstance<Wallet>;
   let txDispatch: TransactionDispatch;
   let txBuffer: SinonStubbedInstance<TransactionBuffer>;
   let backfillStub = stub().resolves(undefined);
   let bufferPending: SinonStub;
+  let getAddressStub: SinonStub<any[], any>;
 
   beforeEach(async () => {
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
     signer.connect.returns(signer);
+    (signer as any).address = ADDRESS;
 
     const chainConfig: ChainConfig = {
       providers: [
@@ -43,7 +52,8 @@ describe("Dispatch", () => {
     txBuffer.getLastNonce.returns(TEST_TX_RESPONSE.nonce - 1);
     txDispatch = new TransactionDispatch(logger, signer, TEST_SENDER_CHAIN_ID, chainConfig, DEFAULT_CONFIG, false);
     (txDispatch as any).buffer = txBuffer;
-    (txDispatch as any).backfill = backfillStub;
+    getAddressStub = stub().resolves(okAsync(signer.address));
+    (txDispatch as any).getAddress = getAddressStub;
     // #createTransaction test below is dependent on this returning TEST_TX_RESPONSE.nonce.
     txDispatch.getTransactionCount = stub().returns(okAsync(TEST_TX_RESPONSE.nonce));
   });
@@ -64,12 +74,41 @@ describe("Dispatch", () => {
     });
   });
 
-  describe("#createTransaction", async () => {
+  describe("#createTransaction", () => {
+    it("should not create a transaction if dispatch is aborted", async () => {
+      const assertNotAborted = stub().throws(new Error("foo"));
+      (txDispatch as any).assertNotAborted = assertNotAborted;
+      await expect(txDispatch.createTransaction(TEST_TX)).to.be.rejectedWith("foo");
+    });
+
     it("should create a transaction", async () => {
+      const gasStub = createStubInstance(Gas);
+      const getGasStub = stub().resolves(gasStub);
+      (txDispatch as any).getGas = getGasStub;
+
+      const getNonceStub = stub().resolves(TEST_TX_RESPONSE.nonce);
+      (txDispatch as any).getNonce = getNonceStub;
+
+      const incrementNonceStub = stub().resolves();
+      (txDispatch as any).incrementNonce = incrementNonceStub;
+
+      const txStub = createStubInstance(TransactionFns.Transaction);
+      const createTxStub = stub(TransactionFns, "Transaction").returns(txStub);
+
       const tx = await txDispatch.createTransaction(TEST_TX);
-      expect(tx.nonce).to.equal(TEST_TX_RESPONSE.nonce);
-      expect((txDispatch as any).getNonce).to.have.been.calledOnce;
-      expect(txBuffer.insert).to.have.been.calledOnce;
+
+      expect(getGasStub).calledOnceWithExactly(TEST_TX);
+      expect(getNonceStub).calledOnceWithExactly();
+      expect(createTxStub).to.have.been.calledOnceWith(
+        (txDispatch as any).logger,
+        txDispatch,
+        TEST_TX,
+        TEST_TX_RESPONSE.nonce,
+        gasStub,
+      );
+      expect(txBuffer.insert).to.have.been.calledOnceWith(TEST_TX_RESPONSE.nonce, txStub);
+      expect(incrementNonceStub).calledOnceWithExactly();
+      expect(tx).to.deep.eq(txStub);
     });
   });
 
@@ -88,31 +127,60 @@ describe("Dispatch", () => {
     it("should throw if getTransactionCount fails", async () => {
       const testError = new Error("test");
       txBuffer.getLastNonce.returns(undefined);
-      txDispatch.getTransactionCount = stub().rejects();
+      txDispatch.getTransactionCount = stub().rejects(testError);
       await expect((txDispatch as any).getNonce()).to.be.rejectedWith(testError);
     });
   });
 
   describe("#monitor", async () => {
     it("should backfill tx if txDispatch.getTransactionCount === txBuffer.getLastNonce", async () => {
+      (txDispatch as any).backfill = backfillStub;
+      txBuffer.getLastNonce.returns(4);
       await txDispatch.monitor();
       expect(backfillStub).to.be.calledOnceWithExactly(TEST_TX_RESPONSE.nonce, undefined, "NOT_FOUND");
     });
   });
 
-  describe("#backfill", async () => {
+  describe.skip("#backfill", async () => {
+    let gasStub: SinonStubbedInstance<Gas>;
+    let getGasStub: SinonStub<any[], any>;
+    let txStub: SinonStubbedInstance<TransactionFns.Transaction>;
+    let sendTxStub: SinonStub<any[], any>;
+    let confirmTxStub: SinonStub<any[], any>;
+    beforeEach(async () => {
+      gasStub = createStubInstance(Gas);
+
+      getGasStub = stub().resolves(gasStub);
+      (txDispatch as any).getGas = getGasStub;
+
+      txStub = createStubInstance(TransactionFns.Transaction);
+      txStub.timeUntilExpiry.returns(100);
+      (txStub.responses as any) = [];
+      stub(TransactionFns, "Transaction").returns(txStub);
+
+      sendTxStub = stub().returns(okAsync(TEST_TX_RESPONSE));
+      (txDispatch as any).sendTransaction = sendTxStub;
+
+      confirmTxStub = stub().returns(okAsync(TEST_TX_RECEIPT));
+      (txDispatch as any).sendTransaction = sendTxStub;
+
+      (txDispatch as any).confirmationsRequired = 1;
+    });
+
     it("should backfill tx with max gas", async () => {
-      await (txDispatch as any).backfill(TEST_TX_RESPONSE.nonce, TEST_TX);
-      expect(txBuffer.insert).to.have.been.calledOnce;
+      await (txDispatch as any).backfill(TEST_TX_RESPONSE.nonce, txStub, "NOT_FOUND");
+      expect(gasStub.setToMax).to.be.calledOnceWithExactly();
+      expect(sendTxStub).to.be.calledOnceWithExactly(txStub);
+      expect(confirmTxStub).to.be.calledOnceWithExactly(TEST_TX_RESPONSE, 1, 100);
+
+      expect(txBuffer.insert).to.have.been.calledOnceWithExactly(TEST_TX_RESPONSE.nonce, txStub, 100);
     });
 
     it("should throw and abort if getAddress fails", async () => {
-
       expect((txDispatch as any).aborted).to.be.true;
     });
 
     it("should throw and abort if estimateGas fails", async () => {
-
       expect((txDispatch as any).aborted).to.be.true;
     });
 
@@ -131,12 +199,9 @@ describe("Dispatch", () => {
     });
 
     it("should backfill with fake tx if sendTransaction fails with AlreadyMined error", async () => {
-
       expect((txDispatch as any).aborted).to.be.false;
     });
   });
 
-  describe("#getGas", async () => {
-
-  });
+  describe("#getGas", async () => {});
 });
