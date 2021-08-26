@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.29
+
+- [router] Fix `undefined` handling of confirmations
+
 ## 0.0.28
 
 - [subgraph] Add default URLs
