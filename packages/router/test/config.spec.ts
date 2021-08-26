@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
 import * as ConfigHelperFns from "../src/config";
@@ -41,6 +41,58 @@ describe("Config", () => {
       }
 
       expect(error).to.be.undefined;
+    });
+
+    it("should error if transaction manager address is missing", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify({
+          ...configMock,
+          chainConfig: {
+            1337: {},
+            1338: {},
+          },
+        }),
+      });
+
+      let res;
+      let error;
+
+      try {
+        res = getEnvConfig(chainDataMock);
+      } catch (e) {
+        error = e;
+      }
+
+      console.log(error);
+      expect(error.message).to.include("No transactionManager address");
+    });
+
+    it("should error if validation fails", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify({
+          ...configMock,
+          chainConfig: {
+            1337: { transactionManagerAddress: mkAddress("0xaaa"), subgraph: "http://example.com" },
+            1338: { transactionManagerAddress: mkAddress("0xbbb"), subgraph: "http://example.com" },
+          },
+        }),
+      });
+
+      let res;
+      let error;
+
+      try {
+        res = getEnvConfig(chainDataMock);
+      } catch (e) {
+        error = e;
+      }
+
+      console.log(error);
+      expect(error.message).to.include("must have required property");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {
