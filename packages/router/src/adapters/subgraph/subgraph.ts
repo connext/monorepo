@@ -33,12 +33,50 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
 
       // create list of txIds for each receiving chain
       const receivingChains: Record<string, string[]> = {};
-      allSenderPrepared.router?.transactions.forEach(({ transactionId, receivingChainId }) => {
-        if (receivingChains[receivingChainId]) {
-          receivingChains[receivingChainId].push(transactionId);
-        } else {
-          receivingChains[receivingChainId] = [transactionId];
+      const toCancel: any[] = []; // i hate these types!!
+      allSenderPrepared.router?.transactions.forEach((senderTx) => {
+        const _sdk = sdks[Number(senderTx.receivingChainId)];
+        if (!_sdk) {
+          // if receiving SDK doesnt exist, cancel all the txs
+          logger.error(
+            { cId, transactionId: senderTx.transactionId },
+            "No contract reader available for receiver chain, marking sender tx for cancellation",
+          );
+          toCancel.push(senderTx);
         }
+        if (receivingChains[senderTx.receivingChainId]) {
+          receivingChains[senderTx.receivingChainId].push(senderTx.transactionId);
+        } else {
+          receivingChains[senderTx.receivingChainId] = [senderTx.transactionId];
+        }
+      });
+
+      const receiverNotConfigured = toCancel.map((senderTx) => {
+        return {
+          crosschainTx: {
+            invariant: {
+              receivingChainTxManagerAddress: senderTx.receivingChainTxManagerAddress,
+              user: senderTx.user.id,
+              router: senderTx.router.id,
+              sendingAssetId: senderTx.sendingAssetId,
+              sendingChainId: Number(senderTx.sendingChainId),
+              sendingChainFallback: senderTx.sendingChainFallback,
+              receivingChainId: Number(senderTx.receivingChainId),
+              receivingAssetId: senderTx.receivingAssetId,
+              receivingAddress: senderTx.receivingAddress,
+              callTo: senderTx.callTo,
+              callDataHash: senderTx.callDataHash,
+              transactionId: senderTx.transactionId,
+            },
+            sending: {
+              amount: senderTx.amount,
+              expiry: Number(senderTx.expiry),
+              preparedBlockNumber: Number(senderTx.preparedBlockNumber),
+            },
+          },
+          payload: {},
+          status: CrosschainTransactionStatus.ReceiverNotConfigured,
+        } as ActiveTransaction<"ReceiverNotConfigured">;
       });
 
       // get time to use for loop
@@ -179,7 +217,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
           return undefined;
         }) ?? [];
       const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction<any>[];
-      return filterUndefined;
+      return filterUndefined.concat(receiverNotConfigured);
     }),
   );
   const flattened = allChains.filter((x) => !!x).flat();
