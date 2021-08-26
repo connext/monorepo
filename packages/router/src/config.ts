@@ -190,17 +190,20 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
   };
 
-  const overrideRecommendedConfirmations = configFile.overrideRecommendedConfirmations;
-  if (!chainData && chainData!.size == 0 && !overrideRecommendedConfirmations) {
+  const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;
+  if (!chainData && chainData!.size == 0 && !overridechainRecommendedConfirmations) {
     throw new Error(
-      "Router configuration failed: no chain data provided. (To override, see `overrideRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
+      "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const recommendedDefaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 1;
+  const defaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 1;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
+    const chainRecommendedConfirmations = chainData
+      ? parseInt(chainData.get(chainId).confirmations) ?? defaultConfirmations
+      : defaultConfirmations;
     if (!chainConfig.transactionManagerAddress) {
       const res = getDeployedTransactionManagerContract(parseInt(chainId));
       if (!res) {
@@ -217,27 +220,31 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     if (!chainConfig.subgraph) {
       const subgraph = getDeployedSubgraphUri(Number(chainId));
       if (!subgraph) {
-        throw new Error(`No transactionManager address for chain ${chainId}`);
+        throw new Error(`No subgraph for chain ${chainId}`);
       }
       nxtpConfig.chainConfig[chainId].subgraph = subgraph;
     }
+
+    if (!chainConfig.confirmations) {
+      nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
+    }
+
     // Validate that confirmations is above acceptable/recommended minimum.
-    const confirmations = chainConfig.confirmations;
+    const confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
 
     // don't validate test chains confirmations
     if (["1337", "1338"].includes(chainId)) {
       return;
     }
 
-    const recommended = chainData?.get(chainId)?.confirmations ?? recommendedDefaultConfirmations;
-    if (confirmations < recommended) {
-      if (overrideRecommendedConfirmations) {
+    if (confirmations < chainRecommendedConfirmations) {
+      if (overridechainRecommendedConfirmations) {
         console.warn(
-          `Overriding recommended confirmations required (${recommended}) for chain ${chainId} with value ${confirmations}. Please note that this can cause issues with re-orgs and may result in a loss of funds. I hope you know what you're doing!`,
+          `Overriding recommended confirmations required (${chainRecommendedConfirmations}) for chain ${chainId} with value ${confirmations}. Please note that this can cause issues with re-orgs and may result in a loss of funds. I hope you know what you're doing!`,
         );
       } else {
         throw new Error(
-          `Value listed for required confirmations for chain ${chainId} is less than the recommended safe minimum. Minimum: ${recommended}; Configured value: ${confirmations}.`,
+          `Value listed for required confirmations for chain ${chainId} is less than the recommended safe minimum. Minimum: ${chainRecommendedConfirmations}; Configured value: ${confirmations}.`,
         );
       }
     }
