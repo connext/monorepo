@@ -32,12 +32,13 @@ export type NxtpErrorJson = {
  * Is also able to be hydrated from a json
  */
 export class NxtpError extends Error {
+  public readonly isNxtpError = true;
   static readonly reasons: { [key: string]: string };
 
   constructor(
     public readonly msg: Values<typeof NxtpError.reasons>,
     public readonly context: any = {},
-    public readonly type = "NxtpError",
+    public readonly type = NxtpError.name,
   ) {
     super(msg);
   }
@@ -52,6 +53,6 @@ export class NxtpError extends Error {
   }
 
   public static fromJson(json: NxtpErrorJson): NxtpError {
-    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? "NxtpError");
+    return new NxtpError(json.message, json.context ?? {}, json.type ?? (json as any).name ?? NxtpError.name);
   }
 }

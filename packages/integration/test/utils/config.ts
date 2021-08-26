@@ -77,7 +77,7 @@ export const getConfig = (useDefaultLocal = false): Config => {
       confirmations,
       providerUrls: providerUrls,
       provider: new providers.FallbackProvider(
-        providerUrls.map((url: string) => new providers.JsonRpcProvider(url)),
+        providerUrls.map((url: string) => new providers.JsonRpcProvider(url, parseInt(chainId))),
         1,
       ),
       ...rest,

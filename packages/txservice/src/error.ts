@@ -2,7 +2,7 @@ import { Values, NxtpError } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
-export class TransactionError extends NxtpError {
+export abstract class TransactionError extends NxtpError {
   /**
    * Generic class for all transaction-related errors. Usually appropriate for these
    * errors to occur throughout transaction lifecycle.
@@ -10,7 +10,24 @@ export class TransactionError extends NxtpError {
   static readonly type = TransactionError.name;
 }
 
+export class DispatchAborted extends TransactionError {
+  /**
+   * Thrown if a backfill transaction fails and other txs are attempted
+   */
+  static readonly type = DispatchAborted.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Failed to send backfill transaction, refusing to send any additional transactions",
+      context,
+      DispatchAborted.type,
+    );
+  }
+}
+
 export class RpcError extends TransactionError {
+  static readonly type = RpcError.name;
+
   /**
    * Indicates the RPC Providers are malfunctioning. If errors of this type persist,
    * ensure you have a sufficient number of backup providers configured.
@@ -20,10 +37,11 @@ export class RpcError extends TransactionError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ServerError: "An RPC server error occurred.",
+    ConnectionReset: "Connection was reset by peer.",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
-    super(reason);
+    super(reason, context, RpcError.type);
   }
 }
 
@@ -38,7 +56,7 @@ export class TransactionReadError extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof TransactionReverted.reasons>, public readonly context: any = {}) {
-    super(reason);
+    super(reason, context, TransactionReadError.type);
   }
 }
 
@@ -79,7 +97,7 @@ export class TransactionReverted extends TransactionError {
     public readonly receipt?: providers.TransactionReceipt,
     public readonly context: any = {},
   ) {
-    super(reason);
+    super(reason, context, TransactionReverted.type);
   }
 }
 
@@ -100,7 +118,7 @@ export class TransactionReplaced extends TransactionError {
     public readonly replacement: providers.TransactionResponse,
     public readonly context: any = {},
   ) {
-    super("Transaction replaced.");
+    super("Transaction replaced.", context, TransactionReplaced.type);
   }
 }
 
@@ -113,7 +131,7 @@ export class TimeoutError extends TransactionError {
   static readonly type = TimeoutError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Operation timed out.");
+    super("Operation timed out.", context, TimeoutError.type);
   }
 }
 
@@ -125,7 +143,7 @@ export class UnpredictableGasLimit extends TransactionError {
   static readonly type = UnpredictableGasLimit.name;
 
   constructor(public readonly context: any = {}) {
-    super("The gas estimate could not be determined.");
+    super("The gas estimate could not be determined.", context, UnpredictableGasLimit.type);
   }
 }
 
@@ -143,7 +161,7 @@ export class AlreadyMined extends TransactionError {
   };
 
   constructor(public readonly reason: Values<typeof AlreadyMined.reasons>, public readonly context: any = {}) {
-    super(reason, context);
+    super(reason, context, AlreadyMined.type);
   }
 }
 
@@ -159,7 +177,22 @@ export class ServerError extends TransactionError {
   static readonly type = ServerError.name;
 
   constructor(public readonly context: any = {}) {
-    super("Server error occurred");
+    super("Server error occurred", context, ServerError.type);
+  }
+}
+
+export class TransactionKilled extends TransactionError {
+  /**
+   * An error indicating that the transaction was killed by the monitor loop due to
+   * it taking too long, and blocking (potentially too many) transactions in the pending
+   * queue.
+   *
+   * It will be replaced with a backfill transaction at max gas.
+   */
+  static readonly type = TransactionKilled.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Transaction was killed by monitor loop.", context, TransactionKilled.type);
   }
 }
 
@@ -191,7 +224,7 @@ export class TransactionServiceFailure extends NxtpError {
     public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
     public readonly context: any = {},
   ) {
-    super(reason);
+    super(reason, context, TransactionServiceFailure.type);
   }
 }
 
@@ -201,7 +234,7 @@ export class TransactionServiceFailure extends NxtpError {
  * @returns NxtpError
  */
 export const parseError = (error: any): NxtpError => {
-  if (error instanceof NxtpError) {
+  if (error.isNxtpError) {
     // If the error has already been parsed into a native error, just return it.
     return error;
   }
@@ -230,15 +263,17 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   } else if (
     message.match(
-      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low/,
+      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
     )
   ) {
     return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
+  } else if (message.match(/ECONNRESET|ECONNREFUSED|failed to meet quorum/)) {
+    return new RpcError(RpcError.reasons.ConnectionReset, context);
   }
 
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
-      return new TransactionReplaced(error.receipt, error.replacment, context);
+      return new TransactionReplaced(error.receipt, error.replacement, context);
     case Logger.errors.INSUFFICIENT_FUNDS:
       return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
     case Logger.errors.CALL_EXCEPTION:

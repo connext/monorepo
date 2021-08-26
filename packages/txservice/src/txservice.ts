@@ -5,16 +5,8 @@ import { getUuid, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
-import { ChainRpcProvider } from "./provider";
-import { Transaction } from "./transaction";
-import {
-  AlreadyMined,
-  RpcError,
-  TimeoutError,
-  TransactionError,
-  TransactionReverted,
-  TransactionServiceFailure,
-} from "./error";
+import { AlreadyMined, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
+import { TransactionDispatch, TransactionInterface } from "./dispatch";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -60,7 +52,7 @@ export class TransactionService {
   };
 
   private config: TransactionServiceConfig;
-  private providers: Map<number, ChainRpcProvider> = new Map();
+  private providers: Map<number, TransactionDispatch> = new Map();
 
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
@@ -95,7 +87,8 @@ export class TransactionService {
         throw new TransactionServiceFailure(error);
       }
       const chainIdNumber = parseInt(chainId);
-      this.providers.set(chainIdNumber, new ChainRpcProvider(this.logger, signer, chainIdNumber, chain, this.config));
+      const provider = new TransactionDispatch(this.logger, signer, chainIdNumber, chain, this.config);
+      this.providers.set(chainIdNumber, provider);
     });
   }
 
@@ -119,44 +112,88 @@ export class TransactionService {
   public async sendTx(tx: WriteTransaction, requestContext: RequestContext): Promise<providers.TransactionReceipt> {
     const method = this.sendTx.name;
     const methodId = getUuid();
-    this.logger.info({ method, methodId, requestContext, tx }, "Method start");
+    this.logger.info(
+      {
+        method,
+        methodId,
+        requestContext,
+        tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
+      },
+      "Method start",
+    );
 
-    const transaction = await Transaction.create(this.logger, this.getProvider(tx.chainId), tx, this.config);
-    let submitFailed = false;
-
+    const transaction = await this.getProvider(tx.chainId).createTransaction(tx);
     try {
-      while (!transaction.didFinish()) {
-        // Submit step.
+      while (!transaction.didFinish) {
+        // Submit: send to chain.
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
-          // IFF this is the first attempt, throw.
-          // Otherwise, we should go ahead and get the receipt.
-          if (transaction.attempt <= 1) {
-            throw error;
-          } else if (error instanceof AlreadyMined) {
-            // If the error is an AlreadyMined error, we probably don't need to log a warning here.
-            this.logger.debug(
-              { method, methodId, requestContext, context: error.context },
-              "Tx was already mined, procceeding to confirmation step.",
-            );
+          this.logger.debug(
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction submit step: received ${error.type} error.`,
+          );
+          if (error.type === AlreadyMined.type) {
+            if (transaction.attempt === 1) {
+              // A transaction that's only been attempted once has an expired nonce. This means that TransactionMonitor
+              // assigned us a bunk (already used) nonce.
+
+              // TODO: In this event, we need to go back to the beginning and actually "recreate" the transaction
+              // itself now. Assuming our nonce tracker (TransactionMonitor) is effective, this should normally never occur...
+              // but there is at least 1 legit edge case: if the TransactionMonitor has just come online and is can only rely on
+              // the provider's TransactionCount to assign nonce - and the provider turns out to be incorrect (e.g. off by 1 or 2
+              // pending tx's not in its mempool yet for some reason).
+              // So we may want to replace this throw with a recreate.
+              throw error;
+            } else {
+              // Ignore this error, proceed to validation step.
+              this.logger.debug(
+                { method, methodId, requestContext, id: transaction.id },
+                "Continuing to confirmation step.",
+              );
+            }
           } else {
-            this.logger.warn({ method, methodId, requestContext, error }, "Tx submit failed for unexpected reason.");
+            throw error;
           }
-          // Save the submit error to indicate we've failed here; this should be the last execution
-          // of this loop. We won't throw the error below (it could be harmless, e.g. if tx is already
-          // mined, but we have logged it above.
-          submitFailed = true;
         }
 
-        // Confirm step.
+        // Validate: wait for 1 confirmation.
+        try {
+          await transaction.validate();
+        } catch (error) {
+          this.logger.debug(
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction validation step: received ${error.type} error.`,
+          );
+          if (error.type === TimeoutError.type) {
+            // Transaction timed out trying to validate. We should bump the tx and submit again.
+            this.logger.debug(
+              { method, methodId, requestContext, id: transaction.id },
+              "Bumping transaction gas price for resubmit.",
+            );
+            transaction.bumpGasPrice();
+            continue;
+          } else {
+            throw error;
+          }
+        }
+
+        // Confirm: get target # confirmations.
         try {
           await this.confirmTransaction(transaction, requestContext);
+          break;
         } catch (error) {
-          if (!submitFailed && error instanceof TimeoutError) {
-            // This will bump gas price and loop back around starting at the
-            // submit step.
-            transaction.bumpGasPrice();
+          this.logger.debug(
+            { method, methodId, requestContext, id: transaction.id, attempt: transaction.attempt, error },
+            `Transaction confirmation step: received ${error.type} error.`,
+          );
+          if (error.type === TimeoutError.type) {
+            // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
+            this.logger.warn(
+              { method, methodId, requestContext, id: transaction.id },
+              "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction.",
+            );
+            continue;
           } else {
             throw error;
           }
@@ -164,14 +201,7 @@ export class TransactionService {
       }
     } catch (error) {
       this.handleFail(error, transaction, requestContext);
-      // Check to see if we have a normal error here.
-      const acceptableErrors = [TransactionReverted, RpcError, TransactionServiceFailure];
-      if (acceptableErrors.some((e) => error instanceof e)) {
-        // If it is a normal error, we throw as is.
-        throw error;
-      }
-      // If we didn't get back a normal error, wrap it in a TransactionServiceFailure.
-      throw new TransactionServiceFailure(error.message, error);
+      throw error;
     }
 
     return transaction.receipt!;
@@ -336,7 +366,7 @@ export class TransactionService {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  private getProvider(chainId: number): ChainRpcProvider {
+  private getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new TransactionServiceFailure(
@@ -350,11 +380,11 @@ export class TransactionService {
    * Handle logging and event emitting on tx submit attempt.
    * @param response The transaction response received back from that attempt.
    */
-  private async submitTransaction(transaction: Transaction, context: RequestContext) {
+  private async submitTransaction(transaction: TransactionInterface, context: RequestContext) {
     const method = this.sendTx.name;
     this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Submitting tx...");
     const response = await transaction.submit();
-    const gas = response.gasPrice ?? transaction.data.gasPrice;
+    const gas = response.gasPrice ?? transaction.params.gasPrice;
     this.logger.info(
       {
         method,
@@ -363,7 +393,7 @@ export class TransactionService {
         attempt: transaction.attempt,
         hash: response.hash,
         gas: `${utils.formatUnits(gas, "gwei")} gwei`,
-        gasLimit: transaction.data.gasLimit.toString(),
+        gasLimit: transaction.params.gasLimit.toString(),
         nonce: response.nonce,
       },
       "Tx submitted.",
@@ -375,7 +405,7 @@ export class TransactionService {
    * Handle logging and event emitting on tx confirmation.
    * @param receipt The transaction receipt received back.
    */
-  private async confirmTransaction(transaction: Transaction, context: RequestContext) {
+  private async confirmTransaction(transaction: TransactionInterface, context: RequestContext) {
     const method = this.sendTx.name;
 
     this.logger.debug({ method, context, id: transaction.id, attempt: transaction.attempt }, "Confirming tx...");
@@ -403,7 +433,7 @@ export class TransactionService {
    * @param receipt The transaction receipt received back from reverted tx, if
    * applicable.
    */
-  private handleFail(error: TransactionError, transaction: Transaction, context: RequestContext) {
+  private handleFail(error: TransactionError, transaction: TransactionInterface, context: RequestContext) {
     const method = this.sendTx.name;
     const receipt = transaction.receipt;
     this.logger.error({ method, id: transaction.id, receipt, context, error }, "Tx failed.");

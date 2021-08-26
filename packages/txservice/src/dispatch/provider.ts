@@ -1,12 +1,12 @@
-import { ERC20Abi, NxtpError } from "@connext/nxtp-utils";
+import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
-import PriorityQueue from "p-queue";
 import { BaseLogger } from "pino";
 
-import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
 import {
+  DispatchAborted,
   parseError,
   RpcError,
   TransactionError,
@@ -14,8 +14,10 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
   UnpredictableGasLimit,
-} from "./error";
-import { FullTransaction, CachedGas, ReadTransaction } from "./types";
+} from "../error";
+import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
+
+import { TransactionInterface } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -36,18 +38,14 @@ export class ChainRpcProvider {
   private readonly _providers: providers.JsonRpcProvider[];
   private readonly provider: providers.FallbackProvider;
   private readonly signer: Signer;
-  private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private readonly quorum: number;
   private cachedGas?: CachedGas;
+  private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
+  protected aborted: Error | undefined = undefined;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
-
-  // The current nonce of the signer is tracked locally here. It will be used for comparison
-  // to the nonce we get back from the pending transaction count call to our providers.
-  // NOTE: Should not be accessed outside of the helper methods, getNonce and incrementNonce.
-  private _nonce = 0;
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -64,7 +62,7 @@ export class ChainRpcProvider {
    * configuration.
    */
   constructor(
-    private readonly logger: BaseLogger,
+    protected readonly logger: BaseLogger,
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
@@ -117,67 +115,20 @@ export class ChainRpcProvider {
 
   /**
    * Send the transaction request to the provider.
-   * @param tx The full transaction data for the request.
+   * @param tx The transaction used for the request.
    * @returns An object containing the response or error if an error occurred,
    * and a success boolean indicating whether the process did result in an error.
    */
-  public sendTransaction(tx: FullTransaction): ResultAsync<providers.TransactionResponse, TransactionError> {
+  public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
+    const { params } = tx;
     const transaction = {
-      ...tx,
-      value: BigNumber.from(tx.value || 0),
+      ...params,
+      value: BigNumber.from(params.value || 0),
     };
-
     return this.resultWrapper<providers.TransactionResponse>(async () => {
-      // Queue up the execution of the transaction.
-      const result = await this.queue.add(
-        async (): Promise<{ response: providers.TransactionResponse | Error; success: boolean }> => {
-          try {
-            // NOTE: This call must be serialized within the queue, as it is depenedent on pending transaction count.
-            transaction.nonce = transaction.nonce ?? (await this.getNonce());
-
-            // Send the transaction.
-            const response = await this.signer.sendTransaction(transaction);
-
-            // Check to see if ethers returned null or undefined for the response; if so, handle as error case.
-            if (response == null) {
-              throw new TransactionServiceFailure("Ethers returned a null or undefined transaction response.", {
-                transaction,
-                response,
-              });
-            }
-
-            // We increment the nonce here, as we know the transaction was sent (response is defined).
-            this.incrementNonce();
-            return { response, success: true };
-          } catch (e) {
-            return { response: e, success: false };
-          }
-        },
-      );
-      if (result.success) {
-        return result.response as providers.TransactionResponse;
-      } else {
-        throw result.response;
-      }
-    });
-  }
-
-  /**
-   * Execute a read transaction using the passed in transaction data, which includes
-   * the target contract which we are reading from.
-   * @param tx Minimal transaction data needed to read from chain.
-   * @returns A string of data read from chain.
-   * @throws ChainError.reasons.ContractReadFailure in the event of a failure
-   * to read from chain.
-   */
-  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(async () => {
-      try {
-        return await this.signer.call(tx);
-      } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
-      }
+      this.assertNotAborted();
+      return await this.signer.sendTransaction(transaction);
     });
   }
 
@@ -202,6 +153,77 @@ export class ChainRpcProvider {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
       return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
+    });
+  }
+
+  /**
+   * Execute a read transaction using the passed in transaction data, which includes
+   * the target contract which we are reading from.
+   * @param tx Minimal transaction data needed to read from chain.
+   * @returns A string of data read from chain.
+   * @throws ChainError.reasons.ContractReadFailure in the event of a failure
+   * to read from chain.
+   */
+  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
+    return this.resultWrapper<string>(async () => {
+      try {
+        return await this.signer.call(tx);
+      } catch (error) {
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+      }
+    });
+  }
+
+  /**
+   * Estimate gas cost for the specified transaction.
+   *
+   * @remarks
+   *
+   * Because estimateGas is almost always our "point of failure" - the point where its
+   * indicated by the provider that our tx would fail on chain - and ethers obscures the
+   * revert error code when it fails through its typical API, we had to implement our own
+   * estimateGas call through RPC directly.
+   *
+   * @param transaction The ethers TransactionRequest data in question.
+   *
+   * @returns A BigNumber representing the estimated gas value.
+   */
+  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
+    return this.resultWrapper<BigNumber>(async () => {
+      const errors: any[] = [];
+      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
+      for (const provider of this._providers) {
+        let result: string;
+        try {
+          // This call will prepare the transaction params for us (hexlify tx, etc).
+          // TODO: #147 Is there any reason prepare should be called for each iteration?
+          const args = provider.prepareRequest("estimateGas", { transaction });
+          result = await provider.send(args[0], args[1]);
+        } catch (error) {
+          const sanitizedError = parseError(error);
+          // If we get a TransactionReverted error, we can assume that the transaction will fail,
+          // and we ought to just throw here.
+          if (sanitizedError.type === TransactionReverted.type) {
+            throw sanitizedError;
+          } else {
+            errors.push(error);
+            continue;
+          }
+        }
+
+        try {
+          return BigNumber.from(result);
+        } catch (error) {
+          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
+            invalidEstimate: result,
+            error: error.message,
+          });
+        }
+      }
+      if (errors.every(e => e.type === RpcError.type)) {
+        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+      }
+      throw new UnpredictableGasLimit({ errors });
     });
   }
 
@@ -316,9 +338,22 @@ export class ChainRpcProvider {
   }
 
   /**
+   * Gets the signer's address.
+   *
+   * @returns A hash string address belonging to the signer.
+   */
+  public getAddress(): ResultAsync<string, TransactionError> {
+    return this.resultWrapper<string>(async () => {
+      return await this.signer.getAddress();
+    });
+  }
+
+  /**
    * Gets a transaction.
    *
-   * @returns A number representing the current blocktime.
+   * @param hash - the transaction hash to get the receipt for.
+   *
+   * @returns A TransactionReceipt instance.
    */
   public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
     return this.resultWrapper<providers.TransactionReceipt>(async () => {
@@ -328,70 +363,54 @@ export class ChainRpcProvider {
   }
 
   /**
-   * Estimate gas cost for the specified transaction.
+   * Gets the current pending transaction count.
    *
-   * @remarks
-   *
-   * Because estimateGas is almost always our "point of failure" - the point where its
-   * indicated by the provider that our tx would fail on chain - and ethers obscures the
-   * revert error code when it fails through its typical API, we had to implement our own
-   * estimateGas call through RPC directly.
-   *
-   * @param transaction The ethers TransactionRequest data in question.
-   *
-   * @returns A BigNumber representing the estimated gas value.
+   * @returns Number of transactions sent, including pending transactions.
    */
-  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
-      const errors: any[] = [];
-      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
-      for (const provider of this._providers) {
-        let result: string;
-        try {
-          // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: #147 Is there any reason prepare should be called for each iteration?
-          const args = provider.prepareRequest("estimateGas", { transaction });
-          result = await provider.send(args[0], args[1]);
-        } catch (error) {
-          const sanitizedError = parseError(error);
-          // If we get a TransactionReverted error, we can assume that the transaction will fail,
-          // and we ought to just throw here.
-          if (sanitizedError instanceof TransactionReverted) {
-            throw sanitizedError;
-          } else {
-            errors.push(error);
-            continue;
-          }
-        }
+  public getTransactionCount(): ResultAsync<number, TransactionError> {
+    // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
+    if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
+      return okAsync(this.cachedTransactionCount.value);
+    }
 
-        try {
-          return BigNumber.from(result);
-        } catch (error) {
-          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
-            invalidEstimate: result,
-            error: error.message,
-          });
-        }
-      }
-      throw new UnpredictableGasLimit({ errors });
+    return this.resultWrapper<number>(async () => {
+      const value = await this.signer.getTransactionCount("pending");
+      this.cachedTransactionCount = { value, timestamp: Date.now() };
+      return value;
     });
   }
 
   /// HELPERS
   /**
-   * The result wrapper used for executing multiple retries for RPC requests to providers.
+   * The result wrapper is used for wrapping and parsing errors, as well as ensuring that providers are ready
+   * before any call is made. Also used for executing multiple retries for RPC requests to providers.
    * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
    * or externally (for the provider's network).
    *
    * @param method The method callback to execute and wrap in retries.
+   * 
+   * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
   private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
-        // TODO: #148 Reimplement retry ability.
-        return method();
+        const errors = [];
+        while(errors.length < 5) {
+          try {
+            return method();
+          } catch (e) {
+            const error = parseError(e);
+            if (error.type === RpcError.type) {
+              errors.push(error);
+            } else {
+              throw error;
+            }
+          }
+        }
+        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
       }),
       (error) => {
+        // TODO: Possibly anti-pattern/redundant with retry wrapper.
         // Parse error into TransactionError, etc.
         return parseError(error);
       },
@@ -420,29 +439,14 @@ export class ChainRpcProvider {
   }
 
   /**
-   * Get the current nonce value for our signer.
+   * Check to make sure we have not aborted this chain provider. This assert
+   * should only be called within sendTransaction (or upon transaction create, etc).
    *
-   * @remarks
-   * Caller should still be prepared to get the incorrect nonce back. For instance,
-   * if the provider that just handled our sent tx has suddenly gone offline, this
-   * method may give the wrong nonce. This can be solved by making additional calls to
-   * submit the tx.
-   *
-   * @returns A number value for the current nonce.
-   *
-   * @throws RpcError if we fail to get transaction count from all providers.
+   * @throws DispatchAborted error if we have aborted.
    */
-  private async getNonce(): Promise<number> {
-    const pending = await this.signer.getTransactionCount("pending");
-    // Update nonce value to greatest of all nonce values retrieved.
-    this._nonce = Math.max(pending, this._nonce);
-    return this._nonce;
-  }
-
-  /**
-   * Increment the local nonce for our signer by 1.
-   */
-  private incrementNonce() {
-    this._nonce++;
+  protected assertNotAborted(): void {
+    if (this.aborted) {
+      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
+    }
   }
 }

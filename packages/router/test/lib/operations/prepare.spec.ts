@@ -14,7 +14,6 @@ import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { getOperations } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
-import { receiverPreparing } from "../../../src/lib/operations/prepare";
 
 const requestContext = createRequestContext("TEST");
 
@@ -42,7 +41,6 @@ describe("Prepare Receiver Operation", () => {
       await expect(prepare(_invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );
-      receiverPreparing.set(invariantDataMock.transactionId, false);
     });
 
     it("should error if prepare input validation fails", async () => {
@@ -50,14 +48,6 @@ describe("Prepare Receiver Operation", () => {
       await expect(prepare(invariantDataMock, _prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );
-      receiverPreparing.set(invariantDataMock.transactionId, false);
-    });
-
-    it("should not prepare if already preparing", async () => {
-      receiverPreparing.set(invariantDataMock.transactionId, true);
-      const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
-      expect(receipt).to.be.undefined;
-      receiverPreparing.set(invariantDataMock.transactionId, false);
     });
 
     it("should error if sig is not recovered", async () => {
@@ -93,14 +83,6 @@ describe("Prepare Receiver Operation", () => {
       await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Bid expiry",
       );
-    });
-
-    it("should release lock if contract fn errors", async () => {
-      (contractWriterMock.fulfill as SinonStub).rejects("foo");
-      try {
-        await prepare(invariantDataMock, prepareInputMock, requestContext);
-      } catch (e) {}
-      expect(receiverPreparing.get(invariantDataMock.transactionId)).to.be.undefined;
     });
 
     it("happy: should send prepare for receiving chain", async () => {

@@ -20,6 +20,7 @@ import {
   AuctionResponse,
   getRandomBytes32,
   jsonifyError,
+  NxtpError,
   NxtpErrorJson,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
@@ -32,6 +33,22 @@ import PriorityQueue from "p-queue";
 import { ChainConfig } from "./config";
 
 type AddressField = { address: string };
+
+class TransactionCancelled extends NxtpError {
+  static readonly type = TransactionCancelled.name;
+
+  static getMessage(wasRouter: boolean) {
+    return wasRouter ? `Router cancelled transfer` : `Transfer was cancelled`;
+  }
+
+  constructor(
+    public readonly wasRouter: boolean,
+    public readonly transactionId: string,
+    public readonly context: any = {},
+  ) {
+    super(TransactionCancelled.getMessage(wasRouter), { transactionId, ...context }, TransactionCancelled.type);
+  }
+}
 
 export const SdkAgentEvents = {
   ...NxtpSdkEvents,
@@ -181,7 +198,7 @@ export class SdkAgent {
         address: this.address,
         timestamp: Date.now(),
         error: jsonifyError(
-          new Error(`${data.caller === data.txData.router ? "Router" : data.caller} cancelled sender`),
+          new TransactionCancelled(data.caller === data.txData.router, data.txData.transactionId, { ...data }),
         ),
       });
     });

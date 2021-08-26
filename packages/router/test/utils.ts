@@ -79,8 +79,15 @@ export const cancelInputMock: CancelInput = {
   side: "sender",
 };
 
+export const sendingMock = variantDataMock;
+export const receivingMock = {
+  amount: "900000",
+  expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 2,
+  preparedBlockNumber: 1221,
+};
+
 export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> = {
-  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock },
+  crosschainTx: { sending: sendingMock, invariant: invariantDataMock },
   payload: {
     bidSignature: "0xdbc",
     encodedBid: "0xdef",
@@ -91,7 +98,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
 };
 
 export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
-  crosschainTx: { sending: variantDataMock, invariant: invariantDataMock, receiving: variantDataMock },
+  crosschainTx: { sending: sendingMock, invariant: invariantDataMock, receiving: receivingMock },
   payload: {
     callData: "0x",
     relayerFee: "100000",
