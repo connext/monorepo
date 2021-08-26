@@ -143,14 +143,14 @@ describe("Contract Reader Binding", () => {
     });
 
     it("should handle ReceiverCancelled", async () => {
-      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
         ...activeTransactionFulfillMock,
         crosschainTx: {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
         payload: undefined,
-        status: CrosschainTransactionStatus.SenderExpired,
+        status: CrosschainTransactionStatus.ReceiverCancelled,
       };
       await binding.handleSingle(senderExpiredNoReceiver);
 
