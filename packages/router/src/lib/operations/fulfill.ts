@@ -78,7 +78,7 @@ export const fulfill = async (
     throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
   }
 
-  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee.toString();
+  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
   if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
     throw new NotEnoughRelayerFee(fulfillChain, {
       method,

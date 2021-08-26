@@ -26,6 +26,7 @@ import { fetchJson } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
+const MIN_RELAYER_FEE = "0"; // relayerFee is in respective chain native asset unit
 
 dotenvConfig();
 
@@ -41,14 +42,8 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   if (!name) {
     return undefined;
   }
-
   const contract = record[name]?.contracts?.TransactionManager;
-
-  if (contract) {
-    return { address: contract.address, abi: contract.abi };
-  }
-
-  return undefined;
+  return { address: contract.address, abi: contract.abi };
 };
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
@@ -87,7 +82,7 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
-  safeRelayerFee: Type.Number({ minimum: 0 }),
+  safeRelayerFee: Type.String(),
 });
 
 export const TSwapPool = Type.Object({
@@ -215,6 +210,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     }
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
+    if (!chainConfig.safeRelayerFee) {
+      nxtpConfig.chainConfig[chainId].safeRelayerFee = MIN_RELAYER_FEE.toString();
     }
     if (!chainConfig.subgraph) {
       const subgraph = getDeployedSubgraphUri(Number(chainId));
