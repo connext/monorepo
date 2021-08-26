@@ -98,10 +98,15 @@ const config: HardhatUserConfig = {
       chainId: 97,
       url: "https://data-seed-prebsc-2-s1.binance.org:8545/",
     },
+    bsc: {
+      accounts: { mnemonic },
+      chainId: 56,
+      url: urlOverride || process.env.BSC_PROVIDER_URL || "http://localhost:8545",
+    },
     matic: {
       accounts: { mnemonic },
       chainId: 137,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.MATIC_PROVIDER_URL || "http://localhost:8545",
     },
     fuji: {
       accounts: { mnemonic },
@@ -122,6 +127,16 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
+    },
+    ftm: {
+      accounts: { mnemonic },
+      chainId: 250,
+      url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
+    },
+    xdai: {
+      accounts: { mnemonic },
+      chainId: 100,
+      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.xdaichain.com/",
     },
   },
 };
