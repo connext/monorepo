@@ -2,7 +2,14 @@
 
 ## Next Release
 
-- [contracts] Deploy to Avalanche Fuji, FTM, BSC, MATIC, XDAI
+## 0.0.27
+
+- [contracts] Deploy to FTM, BSC, MATIC, XDAI
+
+## 0.0.26
+
+- [contracts] Deploy to Avalanche Fuji
+- [txservice] Overhaul for blockade monitoring
 
 ## 0.0.25
 
