@@ -133,6 +133,11 @@ const config: HardhatUserConfig = {
       chainId: 250,
       url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
     },
+    xdai: {
+      accounts: { mnemonic },
+      chainId: 100,
+      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.xdaichain.com/",
+    },
   },
 };
 
