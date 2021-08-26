@@ -1,5 +1,5 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import pino from "pino";
 
 import { NxtpTxServiceEvents, TransactionService } from "../src/txservice";

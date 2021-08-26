@@ -1,42 +1,64 @@
 import { BigNumber } from "ethers";
-import { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 import pino from "pino";
 import { err, ok } from "neverthrow";
 
 import { TransactionDispatch } from "../../src/dispatch";
 import { Transaction } from "../../src/dispatch/transaction";
 import { DEFAULT_CONFIG } from "../../src/config";
-import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, DEFAULT_GAS_LIMIT } from "../constants";
+import { TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT, DEFAULT_GAS_LIMIT, TEST_FULL_TX, makeChaiReadable } from "../constants";
 import {
   AlreadyMined,
+  RpcError,
   TimeoutError,
+  TransactionKilled,
   TransactionReplaced,
   TransactionReverted,
   TransactionServiceFailure,
 } from "../../src/error";
 import { mkHash, expect } from "@connext/nxtp-utils";
+import { Gas } from "../../src/types";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "TransactionServiceTest" });
 
 let transaction: Transaction;
 let dispatch: SinonStubbedInstance<TransactionDispatch>;
+let gas: SinonStubbedInstance<Gas>;
+let gasPrice: BigNumber;
+let nonce: number;
 
 describe("Transaction", () => {
   beforeEach(async () => {
+    // These values would be set before the tx is created.
+    nonce = TEST_FULL_TX.nonce;
+    gasPrice = TEST_TX_RESPONSE.gasPrice;
+
+    // Stub dispatch.
     dispatch = createStubInstance(TransactionDispatch);
+
+    // These configured values are usually read by Transaction in some methods.
     (dispatch as any).confirmationTimeout = 60_000;
     (dispatch as any).confirmationsRequired = 1;
-    TEST_TX_RECEIPT.confirmations = 1;
+
     dispatch.estimateGas.resolves(ok(DEFAULT_GAS_LIMIT));
     dispatch.getGasPrice.resolves(ok(TEST_TX_RESPONSE.gasPrice));
     dispatch.sendTransaction.resolves(ok(TEST_TX_RESPONSE));
     dispatch.confirmTransaction.resolves(ok(TEST_TX_RECEIPT));
     (dispatch as any).config = DEFAULT_CONFIG;
 
-    transaction = await Transaction.create(logger, dispatch as unknown as TransactionDispatch, TEST_TX, {
-      ...DEFAULT_CONFIG,
-      maxNonceErrorCount: 10,
-    });
+    
+    gas = createStubInstance(Gas);
+    (gas as any).limit = DEFAULT_GAS_LIMIT;
+    Sinon.stub(gas, "price").get(() => TEST_TX_RESPONSE.gasPrice);
+    Sinon.stub(gas, "price").set((value: BigNumber) => { gasPrice = value });
+
+    transaction = new Transaction(
+      logger,
+      dispatch as unknown as TransactionDispatch,
+      TEST_TX,
+      nonce,
+      gas as unknown as Gas,
+    );
   });
 
   afterEach(() => {
@@ -58,6 +80,7 @@ describe("Transaction", () => {
   describe("didFinish", () => {
     it("should return true if transaction was finished", async () => {
       await transaction.submit();
+      await transaction.validate();
       await transaction.confirm();
       expect(transaction.didFinish).to.be.true;
     });
@@ -70,9 +93,10 @@ describe("Transaction", () => {
     it("should return false if transaction has receipt but not enough confirmations", async () => {
       const timeoutError = new TimeoutError();
       dispatch.confirmTransaction.rejects(timeoutError);
+
       await transaction.submit();
-      await expect(transaction.confirm()).to.be.rejectedWith(timeoutError);
-      expect(transaction.didFinish()).to.be.false;
+      await expect(transaction.validate()).to.be.rejectedWith(timeoutError);
+      expect(transaction.didFinish).to.be.false;
     });
   });
 
@@ -81,22 +105,13 @@ describe("Transaction", () => {
       const response = await transaction.submit();
       // Expect response to be correct.
 
-      expect(response).to.deep.eq(TEST_TX_RESPONSE);
+      expect(makeChaiReadable(response)).to.deep.eq(makeChaiReadable(TEST_TX_RESPONSE));
       // Ensure that we called the nested chain provider method.
       expect(dispatch.sendTransaction.callCount).eq(1);
       const sendTransactionCall = dispatch.sendTransaction.getCall(0);
       const targetTx = sendTransactionCall.args[0];
 
-      expect({
-        ...targetTx,
-        gasPrice: targetTx.params.gasPrice.toString(),
-        gasLimit: targetTx.params.gasLimit.toString(),
-      }).to.deep.eq({
-        ...TEST_TX,
-        gasPrice: TEST_TX_RESPONSE.gasPrice.toString(),
-        nonce: undefined,
-        gasLimit: DEFAULT_GAS_LIMIT.toString(),
-      });
+      expect(makeChaiReadable(targetTx.params)).to.deep.eq(makeChaiReadable(TEST_FULL_TX));
     });
 
     it("won't replace transaction without a higher gas price", async () => {
@@ -105,6 +120,24 @@ describe("Transaction", () => {
       expect(response).to.deep.eq(TEST_TX_RESPONSE);
 
       // Now we send off another tx to replace the last one. It should reject before sending.
+      await expect(transaction.submit()).to.be.rejectedWith(TransactionServiceFailure);
+    });
+
+    it("increments attempt, even if tx fails", async () => {
+      await transaction.submit();
+      expect(transaction.attempt).eq(1);
+
+      const testError = new RpcError(RpcError.reasons.ConnectionReset);
+      dispatch.sendTransaction.rejects(testError);
+      // Now we send off another tx to replace the last one. It should reject before sending.
+      await expect(transaction.submit()).to.be.rejectedWith(testError);
+      expect(transaction.attempt).eq(2);
+    });
+
+    it("throws if you try to submit after the tx already didFinish", async () => {
+      await transaction.submit();
+      await transaction.validate();
+      await transaction.confirm();
       await expect(transaction.submit()).to.be.rejectedWith(TransactionServiceFailure);
     });
 
@@ -134,15 +167,74 @@ describe("Transaction", () => {
   });
 
   describe("#validate", async () => {
-    it("happy: should return true if transaction is valid", async () => {
+    it("happy: confirmation on first loop", async () => {
       const response = await transaction.validate();
       expect(response).to.be.true;
     });
 
-    it("happy: should return false if transaction is invalid", async () => {
+    it("should throw if you have not submitted yet", async () => {
       const response = await transaction.validate();
       expect(response).to.be.false;
     });
+
+    it("escalates error if confirmation times out", async () => {
+      const timeoutError = new TimeoutError();
+      dispatch.confirmTransaction.resolves(err(timeoutError));
+      await transaction.submit();
+      await expect(transaction.confirm()).to.be.rejectedWith(timeoutError);
+    });
+
+    it("will confirm the mined transaction when multiple have been submitted", async () => {
+      // This test functioning is dependent on the confirmations required being set to 1!
+      // Just to be sure this test stays working, we set it to 1 again here.
+      (dispatch as any).confirmationsRequired = 1;
+      TEST_TX_RECEIPT.confirmations = 1;
+
+      // We'll send 8 tx's in total (meaning 7 are gas bumps), and the fifth will be the one that got mined.
+      // This is pretty unrealistic, but it's how we can be sure that transaction handles replacements correctly.
+      const sendCount = 8;
+      const minedTxIndex = 5;
+      const txs = new Array(sendCount).fill(0).map((_, i) => {
+        const tx = {
+          ...TEST_TX_RESPONSE,
+          hash: mkHash(),
+        };
+        dispatch.sendTransaction.onCall(i).resolves(ok(tx));
+        dispatch.confirmTransaction.onCall(i).resolves(err(new TimeoutError()));
+        return tx;
+      });
+
+      // The last confirm attempt in the stack should give us the replacement error, including the receipt for the mined tx.
+      dispatch.confirmTransaction.onCall(sendCount - 1).resolves(
+        err(
+          new TransactionReplaced(
+            {
+              ...TEST_TX_RECEIPT,
+              transactionHash: txs[minedTxIndex].hash,
+            },
+            txs[minedTxIndex],
+          ),
+        ),
+      );
+
+      // Simulate sending (and attempting to confirm) many transactions.
+      for (let i = 0; i < sendCount - 1; i++) {
+        await transaction.submit();
+        await expect(transaction.confirm()).to.be.rejectedWith(TimeoutError);
+        transaction.bumpGasPrice();
+      }
+
+      // The last transaction should be confirmed with the replacement receipt.
+      const receipt = await transaction.confirm();
+      // Just the compare the hashes, make sure the receipt is the correct one.
+      expect(receipt.transactionHash).to.deep.eq(txs[minedTxIndex].hash);
+      // Make sure the privately set (mined) response is the correct one.
+      expect(makeChaiReadable((transaction as any).response)).to.deep.eq(makeChaiReadable(txs[minedTxIndex]));
+    });
+
+    it.skip("handles event where transaction is replaced by unfamiliar transaction", async () => {});
+
+    it("will confirm the mined transaction when multiple have been submitted", async () => {});
   });
 
   describe("#confirm", async () => {
@@ -160,6 +252,15 @@ describe("Transaction", () => {
 
     it("throws if you have not submitted yet", async () => {
       await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
+    });
+
+    it("throws if you have not validated yet", async () => {
+      await transaction.submit();
+      await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
+
+      // Set validated to true (should fail, response is undefined).
+      // Set mined response (should fail, receipt is still undefined).
+      // Set receipt (this should work).
     });
 
     it("escalates error if confirmation times out", async () => {
@@ -195,48 +296,7 @@ describe("Transaction", () => {
       expect(dispatch.confirmTransaction.callCount).eq(2);
     });
 
-    it("handles case where transaction is replaced", async () => {
-      // This test functioning is dependent on the confirmations required being set to 1!
-      // Just to be sure this test stays working, we set it to 1 again here.
-      (dispatch as any).confirmationsRequired = 1;
-      TEST_TX_RECEIPT.confirmations = 1;
-
-      const sendCount = 10;
-      const minedTxIndex = 7;
-      const txs = new Array(sendCount).fill(0).map((_, i) => {
-        const tx = {
-          ...TEST_TX_RESPONSE,
-          hash: mkHash(),
-        };
-        dispatch.sendTransaction.onCall(i).resolves(ok(tx));
-        dispatch.confirmTransaction.onCall(i).resolves(err(new TimeoutError()));
-        return tx;
-      });
-
-      // The last confirm attempt in the stack should give us the replacement error, including the receipt for the mined tx.
-      dispatch.confirmTransaction.onCall(sendCount - 1).resolves(
-        err(
-          new TransactionReplaced(
-            {
-              ...TEST_TX_RECEIPT,
-              transactionHash: txs[minedTxIndex].hash,
-            },
-            txs[minedTxIndex],
-          ),
-        ),
-      );
-
-      // Simulate sending (and attempting to confirm) many transactions.
-      for (let i = 0; i < sendCount - 1; i++) {
-        await transaction.submit();
-        await expect(transaction.confirm()).to.be.rejectedWith(TimeoutError);
-        transaction.bumpGasPrice();
-      }
-
-      // The last transaction should be confirmed with the replacement receipt.
-      const receipt = await transaction.confirm();
-      // Just the compare the hashes, make sure the receipt is the correct one.
-      expect(receipt.transactionHash).to.deep.eq(txs[minedTxIndex].hash);
+    it("does not handle case where transaction is replaced", async () => {
     });
 
     it("if receipt status == 0, errors out immediately with appropriate error", async () => {
@@ -255,14 +315,14 @@ describe("Transaction", () => {
       expect(transaction.receipt.status).to.eq(0);
     });
 
-    it("will confirm the appropriate transaction when multiple have been submitted", async () => {});
+    
   });
 
   describe("#bumpGasPrice", async () => {
     it("happy: bumps by configured percentage", async () => {
-      const originalGasPrice = (transaction as any).gasPrice.get();
+      const originalGasPrice = transaction.params.gasPrice;
       transaction.bumpGasPrice();
-      expect((transaction as any).gasPrice.get().gt(originalGasPrice)).to.be.true;
+      expect(gas.price.gt(originalGasPrice)).to.be.true;
     });
 
     it("throws if it would bump above max gas price", async () => {
@@ -275,6 +335,20 @@ describe("Transaction", () => {
 
       // This should throw, as we are attempting to bump above the maximum.
       expect(() => transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxGasPriceReached);
+    });
+  });
+
+  describe("#kill", async () => {
+    it("happy: kills the transaction, preventing further submits", async () => {
+      transaction.kill();
+      expect(transaction.discontinued).to.be.true;
+      expect(await transaction.submit()).to.be.rejectedWith(TransactionKilled);
+    });
+
+    it("still allows transaction to confirm", async () => {
+      await transaction.submit();
+      transaction.kill();
+      // expect(await transaction.confirm()).to.deep.eq();
     });
   });
 });

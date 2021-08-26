@@ -66,6 +66,10 @@ export class Gas {
     this._maxGasPrice = max.gt(absoluteMax) ? absoluteMax : max;
   }
 
+  /**
+   * Sets the gas price to the pre-set maximum. This is typically used to fire off backfill transactions
+   * to ensure they'll go through quickly.
+   */
   public setToMax() {
     this._gasPrice = this._maxGasPrice.sub(10);
   }
