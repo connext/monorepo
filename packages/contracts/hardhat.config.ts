@@ -106,7 +106,7 @@ const config: HardhatUserConfig = {
     matic: {
       accounts: { mnemonic },
       chainId: 137,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.MATIC_PROVIDER_URL || "http://localhost:8545",
     },
     fuji: {
       accounts: { mnemonic },
