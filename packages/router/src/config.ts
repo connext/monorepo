@@ -42,14 +42,8 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   if (!name) {
     return undefined;
   }
-
   const contract = record[name]?.contracts?.TransactionManager;
-
-  if (contract) {
-    return { address: contract.address, abi: contract.abi };
-  }
-
-  return undefined;
+  return { address: contract.address, abi: contract.abi };
 };
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
