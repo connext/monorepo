@@ -1,5 +1,5 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography } from "antd";
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
+import { BigNumber, BigNumberish, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
@@ -15,6 +15,7 @@ type RouterProps = {
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
+  const [decimals, setDecimals] = useState<number>();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -42,21 +43,31 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     if (!signer || !txManager) {
       throw new Error("Needs signer");
     }
-    let value = liquidityToAdd;
+    let value: BigNumber;
+    let liquidityWei: BigNumber;
+    let _decimals: BigNumberish;
     if (assetId !== constants.AddressZero) {
       const token = new Contract(assetId, ERC20Abi, signer);
-      const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityToAdd);
+      _decimals = await token.decimals();
+      setDecimals(BigNumber.from(_decimals).toNumber());
+      liquidityWei = utils.parseUnits(liquidityToAdd, _decimals);
+      const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei);
       console.log("approve tx: ", tx);
       await tx.wait();
-      value = "0";
+      value = constants.Zero;
+    } else {
+      value = utils.parseEther(liquidityToAdd);
+      liquidityWei = value;
+      _decimals = 18;
     }
-    console.log("value: ", value);
-    const addLiquidity = await txManager.addLiquidityFor(liquidityToAdd, assetId, routerAddress, { value });
+    console.log("value: ", value.toString());
+    console.log("liquidityWei: ", liquidityWei.toString());
+    const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, { value });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
     const liquidity = await getLiquidity(form.getFieldValue("routerAddress"), form.getFieldValue("assetId"));
     form.setFieldsValue({
-      currentLiquidity: liquidity.toString(),
+      currentLiquidity: utils.formatUnits(liquidity, _decimals),
     });
     return liquidity;
   };
