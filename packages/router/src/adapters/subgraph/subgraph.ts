@@ -265,7 +265,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       return filterUndefined.concat(receiverNotConfigured);
     }),
   );
-  const flattened = allChains.filter((x) => !!x).flat();
+  const flattened = allChains.filter((x) => !!x).flat() as ActiveTransaction<any>[];
   return flattened;
 };
 
