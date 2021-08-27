@@ -1,5 +1,5 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography } from "antd";
-import { BigNumber, BigNumberish, constants, Contract, providers, Signer, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
@@ -12,10 +12,11 @@ type RouterProps = {
   chainData?: ChainData[];
 };
 
+const decimals: Record<string, number> = {};
+
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
-  const [decimals, setDecimals] = useState<number>();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -33,24 +34,36 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     init();
   }, [web3Provider, signer]);
 
+  const getDecimals = async (assetId: string): Promise<number> => {
+    if (decimals[assetId.toLowerCase()]) {
+      return decimals[assetId.toLowerCase()]!;
+    }
+    if (assetId === constants.AddressZero) {
+      decimals[assetId] = 18;
+      return 18;
+    }
+    const token = new Contract(assetId, ERC20Abi, signer);
+    const _decimals = await token.decimals();
+    decimals[assetId.toLowerCase()] = _decimals;
+    return _decimals;
+  };
+
   const addLiquidity = async (
     routerAddress: string,
     assetId: string,
     liquidityToAdd: string,
     infiniteApprove: boolean,
-  ): Promise<BigNumber> => {
+  ): Promise<string> => {
     console.log("Add liquidity: ", routerAddress, assetId, liquidityToAdd, infiniteApprove);
     if (!signer || !txManager) {
       throw new Error("Needs signer");
     }
     let value: BigNumber;
     let liquidityWei: BigNumber;
-    let _decimals: BigNumberish;
+    const decimals = await getDecimals(assetId);
     if (assetId !== constants.AddressZero) {
       const token = new Contract(assetId, ERC20Abi, signer);
-      _decimals = await token.decimals();
-      setDecimals(BigNumber.from(_decimals).toNumber());
-      liquidityWei = utils.parseUnits(liquidityToAdd, _decimals);
+      liquidityWei = utils.parseUnits(liquidityToAdd, decimals);
       const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei);
       console.log("approve tx: ", tx);
       await tx.wait();
@@ -58,7 +71,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     } else {
       value = utils.parseEther(liquidityToAdd);
       liquidityWei = value;
-      _decimals = 18;
     }
     console.log("value: ", value.toString());
     console.log("liquidityWei: ", liquidityWei.toString());
@@ -67,18 +79,19 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     await addLiquidity.wait();
     const liquidity = await getLiquidity(form.getFieldValue("routerAddress"), form.getFieldValue("assetId"));
     form.setFieldsValue({
-      currentLiquidity: utils.formatUnits(liquidity, _decimals),
+      currentLiquidity: liquidity,
     });
     return liquidity;
   };
 
-  const getLiquidity = async (routerAddress: string, assetId: string): Promise<BigNumber> => {
+  // Returns value in human readable units
+  const getLiquidity = async (routerAddress: string, assetId: string): Promise<string> => {
     if (!signer || !txManager) {
       throw new Error("Needs signer");
     }
     const liquidity = await txManager.routerBalances(routerAddress, assetId);
-    console.log("liquidity: ", liquidity.toString());
-    return liquidity;
+    console.log("liquidity: ", liquidity);
+    return utils.formatUnits(liquidity, await getDecimals(assetId));
   };
 
   return (
