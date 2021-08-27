@@ -52,7 +52,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
   const { prepare, cancel, fulfill } = getOperations();
 
   if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {
-    const requestContext = createRequestContext("ContractReader => SenderPrepared");
+    const requestContext = createRequestContext(
+      "ContractReader => SenderPrepared",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     const _transaction = transaction as ActiveTransaction<"SenderPrepared">;
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.sendingChainId];
     if (!chainConfig) {
@@ -135,7 +138,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
-    const requestContext = createRequestContext("ContractReader => ReceiverFulfilled");
+    const requestContext = createRequestContext(
+      "ContractReader => ReceiverFulfilled",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
     if (!chainConfig) {
@@ -190,7 +196,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
-    const requestContext = createRequestContext("ContractReader => ReceiverExpired");
+    const requestContext = createRequestContext(
+      "ContractReader => ReceiverExpired",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     const _transaction = transaction as ActiveTransaction<"ReceiverExpired">;
     try {
       handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
@@ -225,7 +234,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.SenderExpired) {
-    const requestContext = createRequestContext("ContractReader => SenderExpired");
+    const requestContext = createRequestContext(
+      "ContractReader => SenderExpired",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     const _transaction = transaction as ActiveTransaction<"SenderExpired">;
     try {
       handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
@@ -266,7 +278,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverCancelled) {
     const _transaction = transaction as ActiveTransaction<"ReceiverCancelled">;
     // if receiver is cancelled, cancel the sender as well
-    const requestContext = createRequestContext("ContractReader => ReceiverCancelled");
+    const requestContext = createRequestContext(
+      "ContractReader => ReceiverCancelled",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     try {
       handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info(
@@ -302,7 +317,10 @@ export const handleSingle = async (transaction: ActiveTransaction<any>): Promise
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverNotConfigured) {
     const _transaction = transaction as ActiveTransaction<"ReceiverNotConfigured">;
     // if receiver is not configured, cancel the sender
-    const requestContext = createRequestContext("ContractReader => ReceiverNotConfigured");
+    const requestContext = createRequestContext(
+      "ContractReader => ReceiverNotConfigured",
+      transaction.crosschainTx.invariant.transactionId,
+    );
     try {
       handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info(

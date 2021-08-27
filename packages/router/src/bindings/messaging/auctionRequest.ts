@@ -12,7 +12,7 @@ export const auctionRequestBinding = async (
 ) => {
   const { logger, messaging } = getContext();
   const { newAuction } = getOperations();
-  const requestContext = _requestContext ?? createRequestContext("auctionRequestBinding");
+  const requestContext = _requestContext ?? createRequestContext("auctionRequestBinding", data?.transactionId);
   if (err || !data) {
     logger.error({ requestContext, err, data }, "Error in auction request");
     return;
