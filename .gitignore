@@ -30,5 +30,3 @@ packages/router/chaindata.json
 
 packages/integration/ops/config/load/*config.json
 
-docker/integration/config.json
-
