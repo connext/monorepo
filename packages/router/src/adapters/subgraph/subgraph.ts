@@ -14,9 +14,16 @@ import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 
 import { getSdks } from ".";
 
+const synced: Record<number, boolean> = {};
+
+export const getSyncedStatus = (chainId: number) => {
+  return !!synced[chainId];
+};
+
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger } = getContext();
+  const { wallet, logger, txService } = getContext();
+
   const routerAddress = wallet.address;
 
   // get local context
@@ -24,6 +31,15 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
   const allChains = await Promise.all(
     Object.entries(sdks).map(async ([cId, sdk]) => {
       const chainId = parseInt(cId);
+
+      // check synced status
+      try {
+        const realBlockNumber = await txService.getBlockNumber(chainId);
+      } catch (e) {
+        logger.error(`Error getting block number for chain ${chainId}`);
+        throw e; // throw proper errro
+      }
+
       // get all sender prepared txs
       const allSenderPrepared = await sdk.GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),

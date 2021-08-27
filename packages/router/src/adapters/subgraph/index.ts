@@ -25,6 +25,7 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+  getSyncedStatus: (chainId: number) => boolean;
 };
 
 const sdks: Record<number, Sdk> = {};
@@ -47,5 +48,6 @@ export const subgraphContractReader = (): ContractReader => {
     getActiveTransactions,
     getTransactionForChain,
     getAssetBalance,
+    getSyncedStatus,
   };
 };
