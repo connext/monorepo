@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## 0.0.31
+
+- [router] Don't respond to bid if subgraphs are out of sync
+- [router] Use `transactionId` in request contexts
+- [test-ui] Use readable units for liquidity
+
 ## 0.0.30
 
 - [router] Fix fantom subgraph url
