@@ -6,7 +6,7 @@ import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractRea
 import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
-import { getActiveTransactions, getAssetBalance, getTransactionForChain } from "./subgraph";
+import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncedStatus } from "./subgraph";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
