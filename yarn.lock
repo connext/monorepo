@@ -22,8 +22,8 @@ __metadata:
   linkType: hard
 
 "@ant-design/icons@npm:^4.6.3":
-  version: 4.6.3
-  resolution: "@ant-design/icons@npm:4.6.3"
+  version: 4.6.4
+  resolution: "@ant-design/icons@npm:4.6.4"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/icons-svg": ^4.0.0
@@ -33,7 +33,7 @@ __metadata:
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: 3fe450dbf2972350b97b2f116d25e9d75e48c123f85c8bc059170c1f61dc2aac6e0d1417ea8e1e72b6dae1b6aaa1eab5b4a00f0a2f388551a6b7da1860de1cc5
+  checksum: 8bc2cbac17dcd1eb2296370ced7b8c66ba24e720809373ea50f06b00711bdc13e4bd6783d571ff0df7fd05f092bd96206c3dd5dee5f42f4a0fc2c6f2c864d00b
   languageName: node
   linkType: hard
 
@@ -4520,9 +4520,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 16.7.2
-  resolution: "@types/node@npm:16.7.2"
-  checksum: aef77c109e2fd93b5dc6ec0a57a0878aaaa58adf0e63d9618d67b116ad3f2a3eb2589a99deaf9fda4a0805068b2533e3d2cf8e8dc3572251c498ec3dc929a76c
+  version: 16.7.3
+  resolution: "@types/node@npm:16.7.3"
+  checksum: 615d65c40131c7b987d9728d42835a35873117bc5840090bca9d3665ef4a32fd11522681c5a5babc6e2ed1ba27b7d57eb268d0a8a2125e3a4e926bf5f992aa69
   languageName: node
   linkType: hard
 
@@ -24504,11 +24504,11 @@ resolve@^2.0.0-next.3:
   linkType: hard
 
 "sonic-boom@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "sonic-boom@npm:2.1.0"
+  version: 2.2.0
+  resolution: "sonic-boom@npm:2.2.0"
   dependencies:
     atomic-sleep: ^1.0.0
-  checksum: 79b19f951ab6ec77b5ae34b90ad7c280f86e813fa69fb0e8b330ec2aedd4021f823cf39cea562564762a02af1e4aa259907ea9c9dddbe1f050ec162a69ab748e
+  checksum: 7e851c09c4a8001c64bab86fb6b2e10a89619da2c3b0911365fd10175c2342bcb8ceb5eee64debe69e68dfb3fe9f20cc12a75306c65cd901e8ff7857f590897e
   languageName: node
   linkType: hard
 
