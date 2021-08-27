@@ -20,7 +20,8 @@ export const metaTxRequestBinding = async (
 ) => {
   const { messaging, logger, config } = getContext();
   const { fulfill } = getOperations();
-  const requestContext = _requestContext ?? createRequestContext("metaTxRequestBinding");
+  const requestContext =
+    _requestContext ?? createRequestContext("metaTxRequestBinding", data?.data?.txData?.transactionId);
   if (err || !data) {
     logger.error({ err, data, requestContext }, "Error in metatx request");
     return;
