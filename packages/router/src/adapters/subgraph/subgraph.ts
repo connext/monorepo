@@ -1,4 +1,10 @@
-import { getNtpTimeSeconds, getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import {
+  getNtpTimeSeconds,
+  getUuid,
+  InvariantTransactionData,
+  jsonifyError,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
@@ -15,6 +21,8 @@ import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 import { getSdks } from ".";
 
 const synced: Record<number, boolean> = {};
+
+const ALLOW_UNSYNCED = 10; // TODO: configurable?
 
 export const getSyncedStatus = (chainId: number) => {
   return !!synced[chainId];
@@ -33,11 +41,20 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       const chainId = parseInt(cId);
 
       // check synced status
+      synced[chainId] = true;
       try {
         const realBlockNumber = await txService.getBlockNumber(chainId);
-      } catch (e) {
-        logger.error(`Error getting block number for chain ${chainId}`);
-        throw e; // throw proper errro
+        const { _meta } = await sdk.GetBlockNumber();
+        const subgraphBlockNumber = _meta?.block.number ?? 0;
+        if (realBlockNumber - subgraphBlockNumber > ALLOW_UNSYNCED) {
+          logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
+          synced[chainId] = false;
+          return;
+        }
+      } catch (err) {
+        logger.error({ chainId, err: jsonifyError(err) }, `Error getting sync status for chain`);
+        synced[chainId] = false;
+        return;
       }
 
       // get all sender prepared txs
