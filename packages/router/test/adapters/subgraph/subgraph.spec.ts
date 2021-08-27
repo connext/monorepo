@@ -9,7 +9,8 @@ import {
   getTransactionForChain,
 } from "../../../src/adapters/subgraph/subgraph";
 import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
-import { routerAddrMock } from "../../utils";
+import { ctxMock } from "../../globalTestHook";
+import { configMock, routerAddrMock } from "../../utils";
 
 let sdks: Record<
   number,
@@ -18,6 +19,7 @@ let sdks: Record<
     GetTransactions: SinonStub;
     GetTransaction: SinonStub;
     GetAssetBalance: SinonStub;
+    GetBlockNumber: SinonStub;
   }
 >;
 
@@ -25,6 +27,7 @@ let getSdkStub: SinonStub;
 
 describe("Subgraph Adapter", () => {
   const chainId = 12345;
+  let config;
   afterEach(() => {
     restore();
     reset();
@@ -37,13 +40,32 @@ describe("Subgraph Adapter", () => {
         GetTransactions: stub().resolves({ transactions: [] }),
         GetTransaction: stub().resolves(undefined),
         GetAssetBalance: stub().resolves(constants.Zero),
+        GetBlockNumber: stub().resolves(10000),
       },
     };
 
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
+    config = {
+      ...configMock,
+      chainConfig: {
+        [chainId]: {
+          ...configMock.chainConfig[1337],
+        },
+      },
+    };
+    ctxMock.config = config;
   });
 
   describe("getActiveTransactions", () => {
+    it("should fail if theres no chain config for that chain", async () => {
+      const _sdks = {
+        [9876]: sdks[chainId],
+      };
+      getSdkStub.returns(_sdks as any);
+
+      await expect(getActiveTransactions()).to.be.rejectedWith("No chain config");
+    });
+
     it("should fail GetSenderTransactions fails", async () => {
       sdks[chainId].GetSenderTransactions.rejects(new Error("fail"));
 
