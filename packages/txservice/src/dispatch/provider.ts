@@ -220,7 +220,7 @@ export class ChainRpcProvider {
           });
         }
       }
-      if (errors.every(e => e.type === RpcError.type)) {
+      if (errors.every((e) => e.type === RpcError.type)) {
         throw new RpcError(RpcError.reasons.FailedToSend, { errors });
       }
       throw new UnpredictableGasLimit({ errors });
@@ -338,6 +338,18 @@ export class ChainRpcProvider {
   }
 
   /**
+   * Gets the current blocktime.
+   *
+   * @returns A number representing the current blocktime.
+   */
+  public getBlockNumber(): ResultAsync<number, TransactionError> {
+    return this.resultWrapper<number>(async () => {
+      const number = await this.provider.getBlockNumber();
+      return number;
+    });
+  }
+
+  /**
    * Gets the signer's address.
    *
    * @returns A hash string address belonging to the signer.
@@ -388,14 +400,14 @@ export class ChainRpcProvider {
    * or externally (for the provider's network).
    *
    * @param method The method callback to execute and wrap in retries.
-   * 
+   *
    * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
   private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
         const errors = [];
-        while(errors.length < 5) {
+        while (errors.length < 5) {
           try {
             return method();
           } catch (e) {

@@ -6,10 +6,12 @@ import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
 import {
   getActiveTransactions,
   getAssetBalance,
+  getSyncRecord,
   getTransactionForChain,
 } from "../../../src/adapters/subgraph/subgraph";
 import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
-import { routerAddrMock } from "../../utils";
+import { ctxMock, txServiceMock } from "../../globalTestHook";
+import { configMock, routerAddrMock } from "../../utils";
 
 let sdks: Record<
   number,
@@ -18,6 +20,7 @@ let sdks: Record<
     GetTransactions: SinonStub;
     GetTransaction: SinonStub;
     GetAssetBalance: SinonStub;
+    GetBlockNumber: SinonStub;
   }
 >;
 
@@ -25,6 +28,7 @@ let getSdkStub: SinonStub;
 
 describe("Subgraph Adapter", () => {
   const chainId = 12345;
+  let config;
   afterEach(() => {
     restore();
     reset();
@@ -37,13 +41,59 @@ describe("Subgraph Adapter", () => {
         GetTransactions: stub().resolves({ transactions: [] }),
         GetTransaction: stub().resolves(undefined),
         GetAssetBalance: stub().resolves(constants.Zero),
+        GetBlockNumber: stub().resolves({ _meta: { block: { number: 10000 } } }),
       },
     };
 
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
+    config = {
+      ...configMock,
+      chainConfig: {
+        [chainId]: {
+          ...configMock.chainConfig[1337],
+        },
+      },
+    };
+    ctxMock.config = config;
+  });
+
+  describe("getSyncRecord", () => {
+    it("should work", async () => {
+      expect(getSyncRecord(1337)).to.be.deep.eq({
+        synced: false,
+        syncedBlock: 0,
+        latestBlock: 0,
+      });
+    });
   });
 
   describe("getActiveTransactions", () => {
+    it("should fail if theres no chain config for that chain", async () => {
+      const _sdks = {
+        [9876]: sdks[chainId],
+      };
+      getSdkStub.returns(_sdks as any);
+
+      await expect(getActiveTransactions()).to.be.rejectedWith("No chain config");
+    });
+
+    it("should return an empty array if the chain is unsynced", async () => {
+      sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 1 } } });
+      txServiceMock.getBlockNumber.resolves(10000);
+      expect(await getActiveTransactions()).to.be.deep.eq([]);
+      expect(getSyncRecord(chainId)).to.be.deep.eq({ synced: false, syncedBlock: 1, latestBlock: 10000 });
+    });
+
+    it("should return an empty array if GetBlockNumber fails", async () => {
+      sdks[chainId].GetBlockNumber.rejects("fail");
+      expect(await getActiveTransactions()).to.be.deep.eq([]);
+    });
+
+    it("should return an empty array if txService.getBlockNumber fails", async () => {
+      txServiceMock.getBlockNumber.rejects("fail");
+      expect(await getActiveTransactions()).to.be.deep.eq([]);
+    });
+
     it("should fail GetSenderTransactions fails", async () => {
       sdks[chainId].GetSenderTransactions.rejects(new Error("fail"));
 

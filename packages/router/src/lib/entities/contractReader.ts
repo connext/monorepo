@@ -57,3 +57,5 @@ export type SingleChainTransaction = {
   signature?: string; // only there when fulfilled or cancelled
   relayerFee?: string; // only there when fulfilled or cancelled
 };
+
+export type SubgraphSyncRecord = { synced: boolean; latestBlock: number; syncedBlock: number };
