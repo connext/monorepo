@@ -1,12 +1,12 @@
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
+import { ActiveTransaction, SingleChainTransaction, SubgraphSyncRecord } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
 import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
-import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncedStatus } from "./subgraph";
+import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncRecord } from "./subgraph";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -25,7 +25,7 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-  getSyncedStatus: (chainId: number) => boolean;
+  getSyncRecord: (chainId: number) => SubgraphSyncRecord;
 };
 
 const sdks: Record<number, Sdk> = {};
@@ -48,6 +48,6 @@ export const subgraphContractReader = (): ContractReader => {
     getActiveTransactions,
     getTransactionForChain,
     getAssetBalance,
-    getSyncedStatus,
+    getSyncRecord,
   };
 };
