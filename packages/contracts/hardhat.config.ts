@@ -101,7 +101,7 @@ const config: HardhatUserConfig = {
     bsc: {
       accounts: { mnemonic },
       chainId: 56,
-      url: urlOverride || process.env.BSC_PROVIDER_URL || "http://localhost:8545",
+      url: urlOverride || process.env.BSC_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
     },
     matic: {
       accounts: { mnemonic },
