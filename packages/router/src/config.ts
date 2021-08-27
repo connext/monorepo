@@ -83,6 +83,7 @@ export const TChainConfig = Type.Object({
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
   safeRelayerFee: Type.String(),
+  subgraphSyncBuffer: Type.Number({ minimum: 10 }), // If subgraph is out of sync by this number, will not process actions
 });
 
 export const TSwapPool = Type.Object({
@@ -226,6 +227,10 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
 
     if (!chainConfig.confirmations) {
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
+    }
+
+    if (!chainConfig.subgraphSyncBuffer) {
+      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = chainRecommendedConfirmations * 3;
     }
 
     // Validate that confirmations is above acceptable/recommended minimum.

@@ -8,7 +8,7 @@ import {
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { ContractReaderNotAvailableForChain } from "../../lib/errors";
+import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
 import {
   ActiveTransaction,
   SingleChainTransaction,
@@ -23,8 +23,6 @@ import { getSdks } from ".";
 
 const synced: Record<number, SubgraphSyncRecord> = {};
 
-const ALLOW_UNSYNCED = 10; // TODO: configurable?
-
 export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
   const record = synced[chainId];
   return (
@@ -38,7 +36,7 @@ export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
 
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger, txService } = getContext();
+  const { wallet, logger, txService, config } = getContext();
 
   const routerAddress = wallet.address;
 
@@ -48,12 +46,18 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
     Object.entries(sdks).map(async ([cId, sdk]) => {
       const chainId = parseInt(cId);
 
+      const chainConfig = config.chainConfig[chainId];
+      if (!chainConfig) {
+        throw new NoChainConfig(chainId);
+      }
+      const allowUnsynced = chainConfig.subgraphSyncBuffer;
+
       // check synced status
       try {
         const realBlockNumber = await txService.getBlockNumber(chainId);
         const { _meta } = await sdk.GetBlockNumber();
         const subgraphBlockNumber = _meta?.block.number ?? 0;
-        if (realBlockNumber - subgraphBlockNumber > ALLOW_UNSYNCED) {
+        if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
           logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
           synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
           return;
