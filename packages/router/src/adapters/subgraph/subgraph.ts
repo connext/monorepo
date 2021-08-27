@@ -14,18 +14,26 @@ import {
   SingleChainTransaction,
   CrosschainTransactionStatus,
   CancelPayload,
+  SubgraphSyncRecord,
 } from "../../lib/entities";
 
 import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 
 import { getSdks } from ".";
 
-const synced: Record<number, boolean> = {};
+const synced: Record<number, SubgraphSyncRecord> = {};
 
 const ALLOW_UNSYNCED = 10; // TODO: configurable?
 
-export const getSyncedStatus = (chainId: number) => {
-  return !!synced[chainId];
+export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
+  const record = synced[chainId];
+  return (
+    record ?? {
+      synced: false,
+      syncedBlock: 0,
+      latestBlock: 0,
+    }
+  );
 };
 
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
@@ -41,19 +49,19 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       const chainId = parseInt(cId);
 
       // check synced status
-      synced[chainId] = true;
       try {
         const realBlockNumber = await txService.getBlockNumber(chainId);
         const { _meta } = await sdk.GetBlockNumber();
         const subgraphBlockNumber = _meta?.block.number ?? 0;
         if (realBlockNumber - subgraphBlockNumber > ALLOW_UNSYNCED) {
           logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
-          synced[chainId] = false;
+          synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
           return;
         }
+        synced[chainId] = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
       } catch (err) {
         logger.error({ chainId, err: jsonifyError(err) }, `Error getting sync status for chain`);
-        synced[chainId] = false;
+        synced[chainId] = { synced: false, latestBlock: 0, syncedBlock: 0 };
         return;
       }
 
