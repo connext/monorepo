@@ -1,5 +1,6 @@
 import { NxtpError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { SubgraphSyncRecord } from "../entities";
 
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
@@ -23,6 +24,15 @@ export class AuctionExpired extends NxtpError {
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
     super(`Providers not available for chainIds ${chainIds.join(",")}`, context, "ProvidersNotAvailable");
+  }
+}
+
+export class SubgraphNotSynced extends NxtpError {
+  static getMessage(chainId: number, record: SubgraphSyncRecord) {
+    return `Subgraph on ${chainId} not synced. Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`;
+  }
+  constructor(chainId: number, record: SubgraphSyncRecord, context: any = {}) {
+    super(SubgraphNotSynced.getMessage(chainId, record), context, SubgraphNotSynced.name);
   }
 }
 
