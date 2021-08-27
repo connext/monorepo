@@ -1,22 +1,43 @@
-import { getNtpTimeSeconds, getUuid, InvariantTransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import {
+  getNtpTimeSeconds,
+  getUuid,
+  InvariantTransactionData,
+  jsonifyError,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { ContractReaderNotAvailableForChain } from "../../lib/errors";
+import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
 import {
   ActiveTransaction,
   SingleChainTransaction,
   CrosschainTransactionStatus,
   CancelPayload,
+  SubgraphSyncRecord,
 } from "../../lib/entities";
 
 import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 
 import { getSdks } from ".";
 
+const synced: Record<number, SubgraphSyncRecord> = {};
+
+export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
+  const record = synced[chainId];
+  return (
+    record ?? {
+      synced: false,
+      syncedBlock: 0,
+      latestBlock: 0,
+    }
+  );
+};
+
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger } = getContext();
+  const { wallet, logger, txService, config } = getContext();
+
   const routerAddress = wallet.address;
 
   // get local context
@@ -24,6 +45,30 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
   const allChains = await Promise.all(
     Object.entries(sdks).map(async ([cId, sdk]) => {
       const chainId = parseInt(cId);
+
+      const chainConfig = config.chainConfig[chainId];
+      if (!chainConfig) {
+        throw new NoChainConfig(chainId);
+      }
+      const allowUnsynced = chainConfig.subgraphSyncBuffer;
+
+      // check synced status
+      try {
+        const realBlockNumber = await txService.getBlockNumber(chainId);
+        const { _meta } = await sdk.GetBlockNumber();
+        const subgraphBlockNumber = _meta?.block.number ?? 0;
+        if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
+          logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
+          synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
+          return;
+        }
+        synced[chainId] = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
+      } catch (err) {
+        logger.error({ chainId, err: jsonifyError(err) }, `Error getting sync status for chain`);
+        synced[chainId] = { synced: false, latestBlock: 0, syncedBlock: 0 };
+        return;
+      }
+
       // get all sender prepared txs
       const allSenderPrepared = await sdk.GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),
@@ -220,7 +265,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       return filterUndefined.concat(receiverNotConfigured);
     }),
   );
-  const flattened = allChains.filter((x) => !!x).flat();
+  const flattened = allChains.filter((x) => !!x).flat() as ActiveTransaction<any>[];
   return flattened;
 };
 

@@ -3,7 +3,7 @@ import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock } from "@connext
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import {
   routerAddrMock,
   activeTransactionPrepareMock,
@@ -41,6 +41,7 @@ export const mochaHooks = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
+      getSyncRecord: stub().returns({ synced: true, syncedBlock: 10000, latestBlock: 10000 }),
     };
 
     contractWriterMock = {

@@ -39,6 +39,8 @@
     "deploy:ropsten:prod": "yarn prepare:ropsten:prod && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-ropsten",
     "deploy:goerli:staging": "yarn prepare:goerli:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-goerli-staging",
     "deploy:rinkeby:staging": "yarn prepare:rinkeby:staging && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ connext/nxtp-rinkeby-staging",
+    "create-local-bsc": "graph create --node http://18.220.212.104:8020/ connext/nxtp-bsc",
+    "deploy:bsc:local": "yarn prepare:bsc:prod && graph deploy --node http://18.220.212.104:8020/ --ipfs http://18.220.212.104:5001/ connext/nxtp-bsc",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
     "remove-local-1337": "graph remove --node http://localhost:8020/ connext/nxtp",
     "deploy-local-1337": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp",
