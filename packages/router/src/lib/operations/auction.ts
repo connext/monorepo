@@ -199,6 +199,7 @@ export const newAuction = async (
     chainId: receivingChainId,
     assetId: receivingAssetId,
     expiresInSeconds: AUCTION_EXPIRY_BUFFER,
+    transactionId,
   });
 
   const [senderBalance, receiverBalance] = await Promise.all([

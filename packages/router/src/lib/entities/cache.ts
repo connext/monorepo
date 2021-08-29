@@ -5,14 +5,13 @@ export type StoreOutstandingLiquidityParams = {
   chainId: number;
   amount: BigNumber;
   expiresInSeconds: number;
+  transactionId: string;
 };
 
 export type GetOutstandingLiquidityParams = { assetId: string; chainId: number };
 
 export type RemoveOutstandingLiquidityParams = {
-  assetId: string;
-  chainId: number;
-  amount: string;
+  transactionId: string;
 };
 
 export type Cache = {
