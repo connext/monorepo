@@ -30,7 +30,7 @@ export const newAuction = async (
   const method = "newAuction";
   const methodId = getUuid();
 
-  const { logger, config, contractReader, txService, wallet } = getContext();
+  const { logger, config, contractReader, txService, wallet, cache } = getContext();
   logger.info({ method, methodId, requestContext, data }, "Method start");
 
   // Validate params
@@ -163,19 +163,43 @@ export const newAuction = async (
   // getting the swap rate from the receiver side config
   const amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
 
-  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info({ method, methodId, balance: balance.toString() }, "Got asset balance");
-  if (balance.lt(amountReceived)) {
+  let availableLiquidity = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.info(
+    { method, methodId, requestContext, balance: availableLiquidity.toString() },
+    "Got available liquidity from contract reader",
+  );
+
+  // get cached outstanding amount
+  const outstandingLiquidity = await cache.getOutstandingLiquidity({
+    assetId: receivingAssetId,
+    chainId: receivingChainId,
+  });
+  logger.info(
+    { method, methodId, requestContext, balance: outstandingLiquidity.toString() },
+    "Got available liquidity from contract reader",
+  );
+
+  availableLiquidity = availableLiquidity.sub(outstandingLiquidity);
+
+  if (availableLiquidity.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodId,
       method,
       requestContext,
-      balance: balance.toString(),
-      amount,
+      availableLiquidity: availableLiquidity.toString(),
+      amountReceived,
       receivingAssetId,
       receivingChainId,
     });
   }
+
+  const bidExpiry = getBidExpiry(currentTime);
+  await cache.storeOutstandingLiquidity({
+    amount: BigNumber.from(amountReceived),
+    chainId: receivingChainId,
+    assetId: receivingAssetId,
+    expiresInSeconds: AUCTION_EXPIRY_BUFFER,
+  });
 
   const [senderBalance, receiverBalance] = await Promise.all([
     txService.getBalance(sendingChainId, wallet.address),
@@ -200,7 +224,7 @@ export const newAuction = async (
   // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
-  const bidExpiry = getBidExpiry(currentTime);
+
   const bid: AuctionBid = {
     user,
     router: wallet.address,
