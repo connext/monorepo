@@ -4,11 +4,12 @@ import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino, { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
-import { contractWriter, ContractWriter } from "./adapters/contract";
+import { subgraphContractReader } from "./adapters/subgraph";
+import { contractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
+import { Cache, ContractReader, ContractWriter } from "./lib/entities";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -18,6 +19,7 @@ export type Context = {
   txService: TransactionService;
   contractReader: ContractReader;
   contractWriter: ContractWriter;
+  cache: Cache;
 };
 
 const context: Context = {} as any;
