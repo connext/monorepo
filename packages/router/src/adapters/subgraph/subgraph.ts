@@ -89,10 +89,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
         const { _meta } = await sdk.GetBlockNumber();
         const subgraphBlockNumber = _meta?.block.number ?? 0;
         if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
-          logger.error(
-            { realBlockNumber, subgraphBlockNumber, chainId },
-            "SUBGRAPH IS OUT OF SYNC, cancelling in progress txs",
-          );
+          logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
           synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
           return allSenderPrepared.router?.transactions.map((senderTx) => {
             return {
