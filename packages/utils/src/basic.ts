@@ -11,6 +11,7 @@ export type UrlString = string; // eg "<protocol>://<host>[:<port>]/<path>
 
 // String pattern types
 export const TAddress = Type.RegEx(/^0x[a-fA-F0-9]{40}$/);
+export const TBytes32 = Type.RegEx(/^0x[a-fA-F0-9]{64}$/);
 export const TIntegerString = Type.RegEx(/^([0-9])*$/);
 export const TUrl = Type.String({ format: "uri" });
 // Convenience types

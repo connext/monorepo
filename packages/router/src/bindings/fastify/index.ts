@@ -2,8 +2,15 @@ import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
 
 import { getContext } from "../../router";
+import { prepareCancel } from "./cancel";
 
-import { RemoveLiquidityRequest, RemoveLiquidityRequestSchema, RemoveLiquidityResponseSchema } from "./schema";
+import {
+  CancelSenderTransferRequest,
+  CancelSenderTransferRequestSchema,
+  RemoveLiquidityRequest,
+  RemoveLiquidityRequestSchema,
+  RemoveLiquidityResponseSchema,
+} from "./schema";
 
 export const bindFastify = () =>
   new Promise<void>((res) => {
@@ -21,22 +28,49 @@ export const bindFastify = () =>
       };
     });
 
-    server.get<{ Body: RemoveLiquidityRequest }>(
+    server.post<{ Body: RemoveLiquidityRequest }>(
       "/remove-liquidity",
       { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
-      async (req) => {
+      async (req, res) => {
         const requestContext = createRequestContext("/remove-liquidity");
+        const { adminToken, chainId, amount, assetId, recipientAddress } = req.body;
+        if (adminToken !== config.adminToken) {
+          return res.code(401).send("Unauthorized to perform this operation");
+        }
         try {
           const result = await contractWriter.removeLiquidity(
-            req.body.chainId,
-            req.body.amount,
-            req.body.assetId,
-            req.body.recipientAddress,
+            chainId,
+            amount,
+            assetId,
+            recipientAddress,
             requestContext,
           );
           return { transactionHash: result.transactionHash };
         } catch (err) {
-          return { err: jsonifyError(err) };
+          return res.code(400).send({ err: jsonifyError(err), requestContext });
+        }
+      },
+    );
+
+    server.post<{ Body: CancelSenderTransferRequest }>(
+      "/cancel-sender",
+      { schema: { body: CancelSenderTransferRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
+      async (req, res) => {
+        const requestContext = createRequestContext("/cancel-sender");
+        const { transactionId, adminToken, user, senderChainId } = req.body;
+        if (adminToken !== config.adminToken) {
+          return res.code(401).send("Unauthorized to perform this operation");
+        }
+        try {
+          const senderTx = await prepareCancel({ senderChainId, user, transactionId });
+          const result = await contractWriter.cancel(
+            senderTx.txData.sendingChainId,
+            { signature: senderTx.signature!, txData: senderTx.txData },
+            requestContext,
+          );
+          return { transactionHash: result.transactionHash };
+        } catch (err) {
+          return res.code(400).send({ err: jsonifyError(err), requestContext });
         }
       },
     );
