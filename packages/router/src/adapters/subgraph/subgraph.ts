@@ -1,7 +1,7 @@
 import {
+  CrosschainTransaction,
   getNtpTimeSeconds,
   getUuid,
-  InvariantTransactionData,
   jsonifyError,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
@@ -34,6 +34,30 @@ export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
   );
 };
 
+const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
+  return {
+    invariant: {
+      receivingChainTxManagerAddress: sdkSendingTransaction.receivingChainTxManagerAddress,
+      user: sdkSendingTransaction.user.id,
+      router: sdkSendingTransaction.router.id,
+      sendingAssetId: sdkSendingTransaction.sendingAssetId,
+      sendingChainId: Number(sdkSendingTransaction.sendingChainId),
+      sendingChainFallback: sdkSendingTransaction.sendingChainFallback,
+      receivingChainId: Number(sdkSendingTransaction.receivingChainId),
+      receivingAssetId: sdkSendingTransaction.receivingAssetId,
+      receivingAddress: sdkSendingTransaction.receivingAddress,
+      callTo: sdkSendingTransaction.callTo,
+      callDataHash: sdkSendingTransaction.callDataHash,
+      transactionId: sdkSendingTransaction.transactionId,
+    },
+    sending: {
+      amount: sdkSendingTransaction.amount,
+      expiry: Number(sdkSendingTransaction.expiry),
+      preparedBlockNumber: Number(sdkSendingTransaction.preparedBlockNumber),
+    },
+  };
+};
+
 export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]> => {
   // get global context
   const { wallet, logger, txService, config } = getContext();
@@ -52,15 +76,31 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       }
       const allowUnsynced = chainConfig.subgraphSyncBuffer;
 
+      // get all sender prepared txs
+      const allSenderPrepared = await sdk.GetSenderTransactions({
+        routerId: routerAddress.toLowerCase(),
+        sendingChainId: chainId,
+        status: SdkTransactionStatus.Prepared,
+      });
+
       // check synced status
       try {
         const realBlockNumber = await txService.getBlockNumber(chainId);
         const { _meta } = await sdk.GetBlockNumber();
         const subgraphBlockNumber = _meta?.block.number ?? 0;
         if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
-          logger.error({ realBlockNumber, subgraphBlockNumber, chainId }, "SUBGRAPH IS OUT OF SYNC");
+          logger.error(
+            { realBlockNumber, subgraphBlockNumber, chainId },
+            "SUBGRAPH IS OUT OF SYNC, cancelling in progress txs",
+          );
           synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-          return;
+          return allSenderPrepared.router?.transactions.map((senderTx) => {
+            return {
+              crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
+              payload: {},
+              status: CrosschainTransactionStatus.ReceiverNotConfigured,
+            } as ActiveTransaction<"ReceiverNotConfigured">;
+          });
         }
         synced[chainId] = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
       } catch (err) {
@@ -68,13 +108,6 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
         synced[chainId] = { synced: false, latestBlock: 0, syncedBlock: 0 };
         return;
       }
-
-      // get all sender prepared txs
-      const allSenderPrepared = await sdk.GetSenderTransactions({
-        routerId: routerAddress.toLowerCase(),
-        sendingChainId: chainId,
-        status: SdkTransactionStatus.Prepared,
-      });
 
       // create list of txIds for each receiving chain
       const receivingChains: Record<string, string[]> = {};
@@ -98,27 +131,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
 
       const receiverNotConfigured = toCancel.map((senderTx) => {
         return {
-          crosschainTx: {
-            invariant: {
-              receivingChainTxManagerAddress: senderTx.receivingChainTxManagerAddress,
-              user: senderTx.user.id,
-              router: senderTx.router.id,
-              sendingAssetId: senderTx.sendingAssetId,
-              sendingChainId: Number(senderTx.sendingChainId),
-              sendingChainFallback: senderTx.sendingChainFallback,
-              receivingChainId: Number(senderTx.receivingChainId),
-              receivingAssetId: senderTx.receivingAssetId,
-              receivingAddress: senderTx.receivingAddress,
-              callTo: senderTx.callTo,
-              callDataHash: senderTx.callDataHash,
-              transactionId: senderTx.transactionId,
-            },
-            sending: {
-              amount: senderTx.amount,
-              expiry: Number(senderTx.expiry),
-              preparedBlockNumber: Number(senderTx.preparedBlockNumber),
-            },
-          },
+          crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
           payload: {},
           status: CrosschainTransactionStatus.ReceiverNotConfigured,
         } as ActiveTransaction<"ReceiverNotConfigured">;
@@ -153,26 +166,7 @@ export const getActiveTransactions = async (): Promise<ActiveTransaction<any>[]>
       // if it is cancelled, call the handlerReceiverCancel handler
       const txs =
         allSenderPreparedTx.map((senderTx): ActiveTransaction<any> | undefined => {
-          const invariant: InvariantTransactionData = {
-            receivingChainTxManagerAddress: senderTx.receivingChainTxManagerAddress,
-            user: senderTx.user.id,
-            router: senderTx.router.id,
-            sendingAssetId: senderTx.sendingAssetId,
-            sendingChainId: Number(senderTx.sendingChainId),
-            sendingChainFallback: senderTx.sendingChainFallback,
-            receivingChainId: Number(senderTx.receivingChainId),
-            receivingAssetId: senderTx.receivingAssetId,
-            receivingAddress: senderTx.receivingAddress,
-            callTo: senderTx.callTo,
-            callDataHash: senderTx.callDataHash,
-            transactionId: senderTx.transactionId,
-          };
-
-          const sending: VariantTransactionData = {
-            amount: senderTx.amount,
-            expiry: Number(senderTx.expiry),
-            preparedBlockNumber: Number(senderTx.preparedBlockNumber),
-          };
+          const { invariant, sending } = sdkSenderTransactionToCrosschainTransaction(senderTx);
 
           const correspondingReceiverTx = correspondingReceiverTxs.find(
             (receiverTx) => senderTx.transactionId === receiverTx.transactionId,
