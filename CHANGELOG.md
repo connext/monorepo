@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Cancel sender transaction if subgraph is out of sync.
+
 ## 0.0.31
 
 - [router] Don't respond to bid if subgraphs are out of sync
