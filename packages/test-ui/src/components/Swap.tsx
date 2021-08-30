@@ -626,8 +626,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       <Select
                         onChange={(value) => (value ? setSelectedPool(swapConfig[parseInt(value?.toString())]) : "")}
                       >
-                        {swapConfig.map(({ name }) => (
-                          <Select.Option key={name} value={name}>
+                        {swapConfig.map(({ name }, index) => (
+                          <Select.Option key={name} value={index}>
                             {name}
                           </Select.Option>
                         ))}
