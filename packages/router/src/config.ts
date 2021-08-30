@@ -114,6 +114,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
+  redisUrl: Type.Optional(Type.String({ format: "uri", pattern: "^redis://[^:]+:[0-9]+$" })),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -189,6 +190,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
+    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
   };
 
   const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;

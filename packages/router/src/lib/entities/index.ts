@@ -16,6 +16,11 @@ export { FulfillInput, FulfillInputSchema } from "./fulfill";
 
 export { CancelInput, CancelInputSchema } from "./cancel";
 
-export { Cache, GetOutstandingLiquidityParams, StoreOutstandingLiquidityParams } from "./cache";
+export {
+  Cache,
+  GetOutstandingLiquidityParams,
+  StoreOutstandingLiquidityParams,
+  RemoveOutstandingLiquidityParams,
+} from "./cache";
 
 export { ContractWriter } from "./contractWriter";

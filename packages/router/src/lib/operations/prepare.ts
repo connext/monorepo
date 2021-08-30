@@ -35,7 +35,7 @@ export const prepare = async (
   const method = "prepare";
   const methodId = getUuid();
 
-  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, cache } = getContext();
   logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
 
   // Validate InvariantData schema
@@ -158,6 +158,13 @@ export const prepare = async (
     },
     requestContext,
   );
+
+  await cache.removeOutstandingLiquidity({
+    assetId: invariantData.receivingAssetId,
+    chainId: invariantData.receivingChainId,
+    transactionId: invariantData.transactionId,
+  });
+
   logger.info({ method, methodId, transactionId: invariantData.transactionId }, "Sent receiver prepare tx");
   return receipt;
 };

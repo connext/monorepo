@@ -12,6 +12,8 @@ export type GetOutstandingLiquidityParams = { assetId: string; chainId: number }
 
 export type RemoveOutstandingLiquidityParams = {
   transactionId: string;
+  assetId: string;
+  chainId: number;
 };
 
 export type Cache = {
