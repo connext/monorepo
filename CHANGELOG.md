@@ -3,6 +3,7 @@
 ## Next Release
 
 - [router] Cancel sender transaction if subgraph is out of sync.
+- [router] Add admin endpoint to cancel sender txs.
 
 ## 0.0.31
 
