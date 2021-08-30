@@ -1,6 +1,6 @@
 import { TransactionService } from "@connext/nxtp-txservice";
 import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock } from "@connext/nxtp-utils";
-import { Wallet, BigNumber } from "ethers";
+import { Wallet, BigNumber, constants } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -12,14 +12,14 @@ import {
   activeTransactionFulfillMock,
 } from "./utils";
 import { Context } from "../src/router";
-import { ContractReader } from "../src/adapters/subgraph";
-import { ContractWriter } from "../src/adapters/contract";
+import { Cache, ContractReader, ContractWriter } from "../src/lib/entities";
 import * as RouterFns from "../src/router";
 
 export let txServiceMock: SinonStubbedInstance<TransactionService>;
 export let messagingMock: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 export let contractReaderMock: ContractReader;
 export let contractWriterMock: ContractWriter;
+export let cacheMock: Cache;
 export let ctxMock: Context;
 
 export const mochaHooks = {
@@ -51,6 +51,12 @@ export const mochaHooks = {
       removeLiquidity: stub().resolves(txReceiptMock),
     };
 
+    cacheMock = {
+      getOutstandingLiquidity: stub().resolves(constants.Zero),
+      removeOutstandingLiquidity: stub().resolves(),
+      storeOutstandingLiquidity: stub().resolves(),
+    };
+
     ctxMock = {
       config: configMock,
       contractReader: contractReaderMock,
@@ -59,6 +65,7 @@ export const mochaHooks = {
       messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
       txService: txServiceMock as unknown as TransactionService,
       wallet: walletMock,
+      cache: cacheMock,
     };
 
     stub(RouterFns, "getContext").returns(ctxMock);
