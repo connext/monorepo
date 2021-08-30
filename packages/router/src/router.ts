@@ -4,12 +4,13 @@ import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 import pino, { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { subgraphContractReader } from "./adapters/subgraph";
-import { contractWriter } from "./adapters/contract";
+import { getSubgraphContractReader } from "./adapters/subgraph";
+import { getContractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
 import { Cache, ContractReader, ContractWriter } from "./lib/entities";
+import { getCache } from "./adapters/redisCache";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -59,13 +60,15 @@ export const makeRouter = async () => {
     });
 
     // adapters
-    context.contractReader = subgraphContractReader();
-    context.contractWriter = contractWriter();
+    context.cache = await getCache();
+    context.contractReader = await getSubgraphContractReader();
+    context.contractWriter = await getContractWriter();
 
     // bindings
     await bindContractReader();
     await bindMessaging();
     await bindFastify();
+
     logger.info("Router ready 🚀");
   } catch (e) {
     console.error("Error starting router :(", e);

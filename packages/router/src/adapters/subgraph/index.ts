@@ -16,7 +16,7 @@ export const getSdks = (): Record<number, Sdk> => {
   return sdks;
 };
 
-export const subgraphContractReader = (): ContractReader => {
+export const getSubgraphContractReader = async (): Promise<ContractReader> => {
   const { config } = getContext();
   Object.entries(config.chainConfig).forEach(([chainId, { subgraph }]) => {
     const client = new GraphQLClient(subgraph);
