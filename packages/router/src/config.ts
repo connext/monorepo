@@ -27,6 +27,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
 const MIN_RELAYER_FEE = "0"; // relayerFee is in respective chain native asset unit
+const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
 
@@ -232,7 +233,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     }
 
     if (!chainConfig.subgraphSyncBuffer) {
-      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
+      const syncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
+      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
+        syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min
     }
 
     // Validate that confirmations is above acceptable/recommended minimum.
