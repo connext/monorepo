@@ -43,7 +43,7 @@ const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const { AddressZero } = constants;
 const response = "connected";
 
-describe("NxtpSdk", () => {
+describe.only("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
@@ -86,6 +86,7 @@ describe("NxtpSdk", () => {
     signer = createStubInstance(Wallet);
     messaging = createStubInstance(UserNxtpNatsMessagingService);
     subgraph = createStubInstance(Subgraph);
+    subgraph.getSyncStatus.returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getDecimals").resolves(18);
@@ -531,7 +532,7 @@ describe("NxtpSdk", () => {
     });
 
     describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
+      it("unknown sendingChainId", async () => {
         const { auctionBid, bidSignature } = getMock({}, { sendingChainId: 1400 });
 
         await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
@@ -539,7 +540,7 @@ describe("NxtpSdk", () => {
         );
       });
 
-      it("unkown receivingChainId", async () => {
+      it("unknown receivingChainId", async () => {
         const { auctionBid, bidSignature } = getMock({}, { receivingChainId: 1400 });
 
         await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
@@ -551,14 +552,11 @@ describe("NxtpSdk", () => {
     it("should error if it has insufficient balance", async () => {
       const { auctionBid, bidSignature } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(0));
-      try {
-        await sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature });
-        expect("Should error").to.be.undefined;
-      } catch (e) {
-        expect(e.message).to.be.eq(
-          InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-        );
-      }
+      await expect(
+        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature }),
+      ).to.eventually.be.rejectedWith(
+        InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
+      );
     });
 
     it("should error if bidSignature undefined", async () => {

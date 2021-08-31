@@ -8,7 +8,6 @@ import {
   TransactionPreparedEvent,
   encrypt,
   AuctionResponse,
-  encodeAuctionBid,
   InvariantTransactionData,
   MetaTxResponse,
   jsonifyError,
@@ -27,10 +26,7 @@ import {
   delay,
   MetaTxTypes,
   CancelParams,
-  generateMessagingInbox,
-  getOnchainBalance,
-  recoverAuctionBid,
-  signFulfillTransactionPayload,
+  encodeAuctionBid,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
 
@@ -75,7 +71,17 @@ import {
   SubgraphSyncRecord,
   ActiveTransaction,
 } from "./types";
-import { getTimestampInSeconds, getExpiry, getMinExpiryBuffer, getMaxExpiryBuffer, getDecimals } from "./utils";
+import {
+  getTimestampInSeconds,
+  getExpiry,
+  getMinExpiryBuffer,
+  getMaxExpiryBuffer,
+  getDecimals,
+  generateMessagingInbox,
+  recoverAuctionBid,
+  getOnchainBalance,
+  signFulfillTransactionPayload,
+} from "./utils";
 import { Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;

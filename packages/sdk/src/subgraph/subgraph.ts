@@ -101,7 +101,7 @@ export class Subgraph {
       this.sdks[parseInt(chainId)] = getSdk(client);
       this.syncStatus[parseInt(chainId)] = {
         latestBlock: 0,
-        synced: false,
+        synced: true,
         syncedBlock: 0,
       };
     });
@@ -259,7 +259,12 @@ export class Subgraph {
         const { invariant, receiving } = record.crosschainTx;
         this.evts.ReceiverTransactionFulfilled.post({
           transactionHash: match.fulfillTranssactionHash,
-          txData: { ...invariant, ...receiving! },
+          txData: {
+            ...invariant,
+            amount: receiving!.amount,
+            expiry: receiving!.expiry,
+            preparedBlockNumber: receiving!.preparedBlockNumber,
+          },
           signature: match.signature,
           relayerFee: match.relayerFee,
           callData: match.callData,

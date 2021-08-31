@@ -386,7 +386,9 @@ export class InvalidTxStatus extends SubgraphError {
  */
 export class SubgraphsNotSynced extends SubgraphError {
   static getMessage(sendingSyncStatus: SubgraphSyncRecord, receivingSyncStatus: SubgraphSyncRecord) {
-    return `Subgraphs not synced! sendingSyncStatus: ${sendingSyncStatus}, receivingSyncStatus: ${receivingSyncStatus}`;
+    return `Subgraphs not synced! sendingSyncStatus: ${JSON.stringify(
+      sendingSyncStatus,
+    )}, receivingSyncStatus: ${JSON.stringify(receivingSyncStatus)}`;
   }
 
   constructor(
