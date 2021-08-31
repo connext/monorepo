@@ -35,7 +35,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<ActiveTransaction[]>([]);
   const [historicalTransferTableColumns, setHistoricalTransferTableColumns] = useState<HistoricalTransaction[]>([]);
-  const [selectedPool, setSelectedPool] = useState(swapConfig[0]);
+  const [selectedPoolIndex, setSelectedPoolIndex] = useState(0);
   const [userBalance, setUserBalance] = useState<BigNumber>();
 
   const [form] = Form.useForm();
@@ -190,7 +190,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
   const getUserBalance = async (chainId: number, _signer: Signer) => {
     const address = await _signer.getAddress();
-    const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[chainId];
+    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[chainId];
     console.log("sendingAssetId: ", sendingAssetId);
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
@@ -461,9 +461,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   ];
 
   const mintTokens = async () => {
-    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-      injectedProviderChainId!
-    ];
+    const testToken = swapConfig[form.getFieldValue("asset")]?.assets[injectedProviderChainId!];
     if (!testToken) {
       throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
     }
@@ -475,9 +473,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   };
 
   const addToMetamask = async () => {
-    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-      injectedProviderChainId!
-    ];
+    const testToken = swapConfig[form.getFieldValue("asset")]?.assets[injectedProviderChainId!];
     if (!testToken) {
       throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
     }
@@ -557,9 +553,9 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 console.log("changed: ", changed);
               }}
               initialValues={{
-                sendingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[0]), chainData),
-                receivingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[1]), chainData),
-                asset: selectedPool.name,
+                sendingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[0]), chainData),
+                receivingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[1]), chainData),
+                asset: selectedPoolIndex,
                 amount: "1",
               }}
             >
@@ -578,7 +574,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                           setUserBalance(_balance);
                         }}
                       >
-                        {Object.keys(selectedPool.assets).map((chainId) => (
+                        {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
                             {getChainName(parseInt(chainId), chainData)}
                           </Select.Option>
@@ -608,7 +604,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                   <Col span={16}>
                     <Form.Item name="receivingChain">
                       <Select>
-                        {Object.keys(selectedPool.assets).map((chainId) => (
+                        {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
                             {getChainName(parseInt(chainId), chainData)}
                           </Select.Option>
@@ -619,12 +615,14 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 </Row>
               </Form.Item>
 
-              <Form.Item label="Asset" name="asset">
+              <Form.Item label="Asset">
                 <Row gutter={16}>
                   <Col span={12}>
                     <Form.Item name="asset">
                       <Select
-                        onChange={(value) => (value ? setSelectedPool(swapConfig[parseInt(value?.toString())]) : "")}
+                        onChange={(value) => {
+                          value ? setSelectedPoolIndex(parseInt(value?.toString())) : 0;
+                        }}
                       >
                         {swapConfig.map(({ name }, index) => (
                           <Select.Option key={name} value={index}>
@@ -634,7 +632,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       </Select>
                     </Form.Item>
                   </Col>
-                  {form.getFieldValue("asset") === "TEST" && (
+                  {swapConfig[selectedPoolIndex].name === "TEST" && (
                     <>
                       <Col span={6}>
                         <Button block onClick={() => mintTokens()}>
@@ -689,11 +687,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       }
                       type="primary"
                       onClick={async () => {
-                        const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-                          form.getFieldValue("sendingChain")
-                        ];
-                        const receivingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))
-                          ?.assets[form.getFieldValue("receivingChain")];
+                        const sendingAssetId =
+                          swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("sendingChain")];
+                        const receivingAssetId =
+                          swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("receivingChain")];
                         if (!sendingAssetId || !receivingAssetId) {
                           throw new Error("Configuration doesn't support selected swap");
                         }
