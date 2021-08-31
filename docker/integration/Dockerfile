@@ -1,7 +1,9 @@
 FROM node:14-alpine3.11 as node
 
 # ----------------------------------------
-# Build the app.
+# Builds Docker container for nxtp-router package.
+# @dev configuraion located ./config.json (relative to this file)
+
 # ----------------------------------------
 
 FROM node as build
@@ -23,6 +25,7 @@ COPY yarn.lock /tmp/build/
 COPY package.json /tmp/build/
 COPY ${TEMP_DEPS_DIR} /tmp/build/
 
+
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
 RUN yarn install --immutable
@@ -32,6 +35,8 @@ COPY config config/
 COPY packages packages/
 COPY .eslintignore ./
 COPY .eslintrc.js ./
+
+
 
 # ----- Lint, test and build -----
 RUN yarn build:all
@@ -56,6 +61,9 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/bundle /home/node
+#copy config
+COPY docker/integration/config.json /home/node/integration/ops/config/load/
+
 
 # This user is created in the base image with uid and gid = 1000.
 USER node
@@ -65,4 +73,5 @@ WORKDIR /home/node/${SHORT_APP_DIR}
 
 EXPOSE 8001
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/load/routerCyclical.js"]
+
