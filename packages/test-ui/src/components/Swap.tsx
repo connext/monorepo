@@ -12,8 +12,7 @@ import {
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 
-import { chainConfig } from "../constants";
-import { swapConfig } from "../config";
+import { chainConfig, swapConfig } from "../constants";
 import { getBalance, getChainName, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
 import { chainProviders } from "../App";
 
