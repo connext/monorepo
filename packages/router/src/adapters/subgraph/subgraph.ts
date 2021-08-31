@@ -34,7 +34,7 @@ export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
   );
 };
 
-const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
+export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
   return {
     invariant: {
       receivingChainTxManagerAddress: sdkSendingTransaction.receivingChainTxManagerAddress,
