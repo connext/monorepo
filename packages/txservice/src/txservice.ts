@@ -61,7 +61,7 @@ export class TransactionService {
    * class is not recommended, and may cause issues with nonce being tracked improperly
    * due to the caching mechanisms used here.
    *
-   * @param logger The pino.BaseLogger used for logging.
+   * @param logger The Logger used for logging.
    * @param signer The Signer or Wallet instance, or private key, for signing transactions.
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.

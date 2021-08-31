@@ -50,7 +50,7 @@ export class ChainRpcProvider {
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
    *
-   * @param logger pino.BaseLogger used for logging.
+   * @param logger Logger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig Configuration for this specified chain, including the providers we'll

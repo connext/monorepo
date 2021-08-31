@@ -116,7 +116,7 @@ export class Transaction implements TransactionInterface {
   /**
    * A data structure used for management of the lifecycle of one on-chain transaction.
    *
-   * @param logger The pino.BaseLogger instance we use for logging.
+   * @param logger The Logger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
    * @param nonce Assigned nonce number for this transaction.
