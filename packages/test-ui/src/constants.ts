@@ -5,4 +5,3 @@ export const chainConfig: Record<
 
 // arrays of "swap pools"
 export type SwapConfig = { name: string; assets: { [chainId: number]: string } };
-export const swapConfig: SwapConfig[] = JSON.parse(process.env.REACT_APP_SWAP_CONFIG!);
