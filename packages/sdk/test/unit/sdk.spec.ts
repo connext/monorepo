@@ -12,19 +12,10 @@ import { providers, Wallet, constants, BigNumber } from "ethers";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
-import {
-  CrossChainParams,
-  NxtpSdk,
-  NxtpSdkEvents,
-  MAX_SLIPPAGE_TOLERANCE,
-  MIN_SLIPPAGE_TOLERANCE,
-  getMinExpiryBuffer,
-  getMaxExpiryBuffer,
-} from "../../src/sdk";
+import { NxtpSdk, MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
 
-import * as sdkUtils from "../../src/sdk";
-import { HistoricalTransactionStatus, Subgraph } from "../../src/subgraph";
-import { TransactionManager } from "../../src/transactionManager";
+import * as utils from "../../src/utils";
+import * as sdkIndex from "../../src/sdk";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
 import { Evt } from "evt";
 import {
@@ -42,6 +33,10 @@ import {
   UnknownAuctionError,
 } from "../../src/error";
 import { getAddress } from "ethers/lib/utils";
+import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
+import { Subgraph } from "../../src/subgraph/subgraph";
+import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
+import { TransactionManager } from "../../src/transactionManager/transactionManager";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -93,20 +88,20 @@ describe("NxtpSdk", () => {
     subgraph = createStubInstance(Subgraph);
     transactionManager = createStubInstance(TransactionManager);
 
-    stub(sdkUtils, "getDecimals").resolves(18);
+    stub(utils, "getDecimals").resolves(18);
 
-    stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+    stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
-    balanceStub = stub(sdkUtils, "getOnchainBalance");
+    balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
-    stub(sdkUtils, "createMessagingEvt").returns(messageEvt);
+    stub(sdkIndex, "createMessagingEvt").returns(messageEvt);
 
-    signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
-    recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
+    signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
+    recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
 
-    stub(sdkUtils, "AUCTION_TIMEOUT").value(1_000);
-    stub(sdkUtils, "generateMessagingInbox").returns("inbox");
+    stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
+    stub(utils, "generateMessagingInbox").returns("inbox");
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -721,7 +716,7 @@ describe("NxtpSdk", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
-      stub(sdkUtils, "META_TX_TIMEOUT").value(1_000);
+      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
       setTimeout(() => {
         messageEvt.post({
@@ -820,7 +815,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "",
               signature: "",
             },
             sendingChainId,
@@ -834,7 +828,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "",
               signature: EmptyCallDataHash,
             },
             sendingChainId,
@@ -849,7 +842,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "1",
               signature: "",
             },
             sendingChainId,
@@ -866,7 +858,6 @@ describe("NxtpSdk", () => {
         sdk.cancel(
           {
             txData: { ...transaction, ...record },
-            relayerFee: "1",
             signature: EmptyCallDataHash,
           },
           sendingChainId,
@@ -882,7 +873,6 @@ describe("NxtpSdk", () => {
       const res = await sdk.cancel(
         {
           txData: { ...transaction, ...record },
-          relayerFee: "1",
           signature: EmptyCallDataHash,
         },
         sendingChainId,

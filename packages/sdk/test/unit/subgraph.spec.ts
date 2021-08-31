@@ -1,23 +1,17 @@
 import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
 import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
-import { Wallet, BigNumber } from "ethers";
+import { Wallet, BigNumber, providers } from "ethers";
 import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
 
-import {
-  Subgraph,
-  convertTransactionToTxData,
-  ActiveTransaction,
-  createSubgraphEvts,
-  SubgraphEvents,
-  HistoricalTransactionStatus,
-} from "../../src/subgraph";
-import * as graphqlsdk from "../../src/graphqlsdk";
+import { ActiveTransaction, HistoricalTransactionStatus } from "../../src/types";
+import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
 import { InvalidTxStatus } from "../../src/error";
+import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -135,9 +129,11 @@ describe("Subgraph", () => {
   const chainConfig = {
     [sendingChainId]: {
       subgraph: "http://example.com",
+      provider: createStubInstance(providers.FallbackProvider),
     },
     [receivingChainId]: {
       subgraph: "http://example.com",
+      provider: createStubInstance(providers.FallbackProvider),
     },
   };
 
