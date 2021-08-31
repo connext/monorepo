@@ -1,32 +1,23 @@
-import { Signer } from "ethers";
+import { providers, Signer } from "ethers";
 import { BaseLogger } from "pino";
-import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
+import { InvalidTxStatus } from "../error";
 import {
-  NxtpSdkEvent,
-  ReceiverTransactionCancelledPayload,
-  ReceiverTransactionFulfilledPayload,
-  ReceiverTransactionPreparedPayload,
-  SenderTransactionCancelledPayload,
   SenderTransactionPreparedPayload,
-} from "./sdk";
+  SenderTransactionCancelledPayload,
+  ReceiverTransactionPreparedPayload,
+  ReceiverTransactionFulfilledPayload,
+  ReceiverTransactionCancelledPayload,
+  HistoricalTransaction,
+  HistoricalTransactionStatus,
+  ActiveTransaction,
+  SubgraphSyncRecord,
+} from "../types";
+
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
-import { InvalidTxStatus } from "./error";
-
-export const HistoricalTransactionStatus = {
-  FULFILLED: "FULFILLED",
-  CANCELLED: "CANCELLED",
-} as const;
-export type THistoricalTransactionStatus = typeof HistoricalTransactionStatus[keyof typeof HistoricalTransactionStatus];
-
-export type HistoricalTransaction = {
-  status: THistoricalTransactionStatus;
-  crosschainTx: CrosschainTransaction;
-  preparedTimestamp: number;
-  fulfilledTxHash?: string;
-};
 
 /**
  * Converts subgraph transactions to properly typed TransactionData
@@ -87,14 +78,7 @@ export const createSubgraphEvts = (): {
   };
 };
 
-export type ActiveTransaction = {
-  crosschainTx: CrosschainTransaction;
-  status: NxtpSdkEvent;
-  bidSignature: string;
-  encodedBid: string;
-  encryptedCallData: string;
-  preparedTimestamp: number;
-};
+const SUBGRAPH_SYNC_BUFFER = 50;
 
 /**
  * @classdesc Handles all user-facing subgraph queries
@@ -104,16 +88,22 @@ export class Subgraph {
   private evts = createSubgraphEvts();
   private activeTxs: Map<string, ActiveTransaction> = new Map();
   private pollingLoop: NodeJS.Timer | undefined;
+  private syncStatus: Record<number, SubgraphSyncRecord> = {};
 
   constructor(
     private readonly user: Signer,
-    private readonly chainConfig: Record<number, { subgraph: string }>,
+    private readonly chainConfig: Record<number, { subgraph: string; provider: providers.FallbackProvider }>,
     private readonly logger: BaseLogger,
     private readonly pollInterval = 10_000,
   ) {
     Object.entries(this.chainConfig).forEach(([chainId, { subgraph }]) => {
       const client = new GraphQLClient(subgraph);
       this.sdks[parseInt(chainId)] = getSdk(client);
+      this.syncStatus[parseInt(chainId)] = {
+        latestBlock: 0,
+        synced: false,
+        syncedBlock: 0,
+      };
     });
     this.startPolling();
   }
@@ -131,6 +121,17 @@ export class Subgraph {
         await this.getActiveTransactions();
       }, this.pollInterval);
     }
+  }
+
+  getSyncStatus(chainId: number): SubgraphSyncRecord {
+    const record = this.syncStatus[chainId];
+    return (
+      record ?? {
+        synced: false,
+        syncedBlock: 0,
+        latestBlock: 0,
+      }
+    );
   }
 
   /**
@@ -274,6 +275,18 @@ export class Subgraph {
         const user = (await this.user.getAddress()).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
+
+        // first update sync status
+        const { _meta } = await subgraph.GetBlockNumber();
+        const subgraphBlockNumber = _meta?.block.number ?? 0;
+        const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
+        this.syncStatus[chainId].latestBlock = rpcBlockNumber;
+        this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
+        if (rpcBlockNumber - subgraphBlockNumber > SUBGRAPH_SYNC_BUFFER) {
+          this.syncStatus[chainId].synced = false;
+        } else {
+          this.syncStatus[chainId].synced = true;
+        }
 
         // get all sender prepared
         const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({

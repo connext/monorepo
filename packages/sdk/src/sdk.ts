@@ -1,26 +1,17 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
+import { constants, providers, Signer, utils, BigNumber } from "ethers";
 import { Evt } from "evt";
 import {
   ajv,
   getRandomBytes32,
-  TIntegerString,
-  TAddress,
   UserNxtpNatsMessagingService,
   PrepareParams,
   TransactionPreparedEvent,
-  TransactionFulfilledEvent,
-  TransactionCancelledEvent,
-  TChainId,
   encrypt,
-  generateMessagingInbox as _generateMessagingInbox,
   AuctionResponse,
   encodeAuctionBid,
   InvariantTransactionData,
-  recoverAuctionBid as _recoverAuctionBid,
-  signFulfillTransactionPayload as _signFulfillTransactionPayload,
   MetaTxResponse,
   jsonifyError,
-  AuctionBid,
   isNode,
   NATS_AUTH_URL,
   NATS_CLUSTER_URL,
@@ -33,17 +24,17 @@ import {
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
   calculateExchangeWad,
-  ERC20Abi,
-  TransactionDataSchema,
   delay,
-  getOnchainBalance as _getOnchainBalance,
   MetaTxTypes,
-  getNtpTimeSeconds,
+  CancelParams,
+  generateMessagingInbox,
+  getOnchainBalance,
+  recoverAuctionBid,
+  signFulfillTransactionPayload,
 } from "@connext/nxtp-utils";
 import pino, { BaseLogger } from "pino";
-import { Type, Static } from "@sinclair/typebox";
 
-import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager";
+import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
 import {
   SubmitError,
   NoTransactionManager,
@@ -59,71 +50,33 @@ import {
   InvalidAmount,
   InvalidBidSignature,
   MetaTxTimeout,
+  SubgraphsNotSynced,
 } from "./error";
-import { Subgraph, SubgraphEvent, SubgraphEvents, ActiveTransaction, HistoricalTransaction } from "./subgraph";
-
-/**
- * Utility to convert the number of hours into seconds
- *
- * @param hours - Number of hours to convert
- * @returns Equivalent seconds
- */
-const hoursToSeconds = (hours: number) => hours * 60 * 60;
-
-/**
- * Utility to convert the number of days into seconds
- *
- * @param days - Number of days to convert
- * @returns Equivalent seconds
- */
-const daysToSeconds = (days: number) => hoursToSeconds(days * 24);
-
-/**
- * Gets the expiry to use for new transfers
- *
- * @param latestBlockTimestamp - Timestamp of the latest block on the sending chain (from `getTimestampInSeconds`)
- * @returns Default expiry of 3 days + 3 hours (in seconds)
- */
-export const getExpiry = (latestBlockTimestamp: number) => latestBlockTimestamp + daysToSeconds(3) + hoursToSeconds(3);
-
-/**
- * Gets the current timestamp. Uses the latest block.timestamp instead of a
- * local clock to avoid issues with time when router is validating
- *
- * @remarks User should use the timestamp on the chain they are preparing on (sending chain)
- *
- * @returns Timestamp on latest block in seconds
- */
-export const getTimestampInSeconds = async (): Promise<number> => {
-  return await getNtpTimeSeconds();
-};
-
-export const getOnchainBalance = (assetId: string, address: string, provider: providers.FallbackProvider) =>
-  _getOnchainBalance(assetId, address, provider);
-
-/**
- * Gets the minimum expiry buffer
- *
- * @returns Equivalent of 2days + 1 hour in seconds
- */
-export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); // 2 days + 1 hour
-
-/**
- * Gets the maximum expiry buffer
- *
- * @remarks This is *not* the same as the contract maximum of 30days
- *
- * @returns Equivalent of 4 days
- */
-export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
-
-export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
-  if (assetId === constants.AddressZero) {
-    return 18;
-  }
-  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
-  return decimals;
-};
+import {
+  NxtpSdkEvent,
+  NxtpSdkEventPayloads,
+  NxtpSdkEvents,
+  SenderTokenApprovalSubmittedPayload,
+  SenderTokenApprovalMinedPayload,
+  SenderTransactionPrepareSubmittedPayload,
+  SenderTransactionPreparedPayload,
+  SenderTransactionFulfilledPayload,
+  SenderTransactionCancelledPayload,
+  ReceiverPrepareSignedPayload,
+  ReceiverTransactionPreparedPayload,
+  ReceiverTransactionFulfilledPayload,
+  ReceiverTransactionCancelledPayload,
+  CrossChainParams,
+  CrossChainParamsSchema,
+  AuctionBidParamsSchema,
+  TransactionPrepareEventSchema,
+  CancelSchema,
+  HistoricalTransaction,
+  SubgraphSyncRecord,
+  ActiveTransaction,
+} from "./types";
+import { getTimestampInSeconds, getExpiry, getMinExpiryBuffer, getMaxExpiryBuffer, getDecimals } from "./utils";
+import { Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -133,123 +86,12 @@ export const META_TX_TIMEOUT = 300_000;
 
 declare const ethereum: any; // TODO: #141 what to do about node?
 
-export const CrossChainParamsSchema = Type.Object({
-  callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
-  sendingChainId: TChainId,
-  sendingAssetId: TAddress,
-  receivingChainId: TChainId,
-  receivingAssetId: TAddress,
-  callTo: Type.Optional(TAddress),
-  receivingAddress: TAddress,
-  amount: TIntegerString,
-  expiry: Type.Optional(Type.Number()),
-  transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
-  slippageTolerance: Type.Optional(Type.String()),
-  dryRun: Type.Optional(Type.Boolean()),
-  preferredRouter: Type.Optional(TAddress),
-});
-
-export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
-
-export const AuctionBidParamsSchema = Type.Object({
-  user: TAddress,
-  router: TAddress,
-  sendingChainId: TChainId,
-  sendingAssetId: TAddress,
-  amount: TIntegerString,
-  receivingChainId: TChainId,
-  receivingAssetId: TAddress,
-  amountReceived: TIntegerString,
-  receivingAddress: TAddress,
-  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  expiry: Type.Number(),
-  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
-  callTo: TAddress,
-  encryptedCallData: Type.String(),
-  sendingChainTxManagerAddress: TAddress,
-  receivingChainTxManagerAddress: TAddress,
-  bidExpiry: Type.Number(),
-});
-
-export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
-
-export const TransactionPrepareEventSchema = Type.Object({
-  txData: TransactionDataSchema,
-  encryptedCallData: Type.String(),
-  encodedBid: Type.String(),
-  bidSignature: Type.String(),
-});
-
-export type TransactionPrepareEventParams = Static<typeof TransactionPrepareEventSchema>;
-
-export const CancelSchema = Type.Object({
-  txData: TransactionDataSchema,
-  relayerFee: Type.String(),
-  signature: Type.String(),
-});
-
-export type CancelParams = Static<typeof CancelSchema>;
-
-export const NxtpSdkEvents = {
-  SenderTokenApprovalSubmitted: "SenderTokenApprovalSubmitted",
-  SenderTokenApprovalMined: "SenderTokenApprovalMined",
-  SenderTransactionPrepareSubmitted: "SenderTransactionPrepareSubmitted",
-  SenderTransactionPrepared: "SenderTransactionPrepared",
-  SenderTransactionFulfilled: "SenderTransactionFulfilled",
-  SenderTransactionCancelled: "SenderTransactionCancelled",
-  ReceiverPrepareSigned: "ReceiverPrepareSigned",
-  ReceiverTransactionPrepared: "ReceiverTransactionPrepared",
-  ReceiverTransactionFulfilled: "ReceiverTransactionFulfilled",
-  ReceiverTransactionCancelled: "ReceiverTransactionCancelled",
-} as const;
-export type NxtpSdkEvent = typeof NxtpSdkEvents[keyof typeof NxtpSdkEvents];
-
-export type SenderTokenApprovalSubmittedPayload = {
-  assetId: string;
-  chainId: number;
-  transactionResponse: providers.TransactionResponse;
+/**
+ * Used to make mocking easier
+ */
+export const createMessagingEvt = <T>() => {
+  return Evt.create<{ inbox: string; data?: T; err?: any }>();
 };
-
-export type SenderTokenApprovalMinedPayload = {
-  assetId: string;
-  chainId: number;
-  transactionReceipt: providers.TransactionReceipt;
-};
-
-export type SenderTransactionPrepareSubmittedPayload = {
-  prepareParams: PrepareParams;
-  transactionResponse: providers.TransactionResponse;
-};
-
-export type ReceiverPrepareSignedPayload = {
-  signature: string;
-  signer: string;
-  transactionId: string;
-};
-
-export type SdkEvent<T> = T & {
-  transactionHash: string;
-};
-
-export type SenderTransactionPreparedPayload = SdkEvent<TransactionPreparedEvent>;
-export type SenderTransactionFulfilledPayload = SdkEvent<TransactionFulfilledEvent>;
-export type SenderTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
-export type ReceiverTransactionPreparedPayload = SdkEvent<TransactionPreparedEvent>;
-export type ReceiverTransactionFulfilledPayload = SdkEvent<TransactionFulfilledEvent>;
-export type ReceiverTransactionCancelledPayload = SdkEvent<TransactionCancelledEvent>;
-
-export interface NxtpSdkEventPayloads {
-  [NxtpSdkEvents.SenderTokenApprovalSubmitted]: SenderTokenApprovalSubmittedPayload;
-  [NxtpSdkEvents.SenderTokenApprovalMined]: SenderTokenApprovalMinedPayload;
-  [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: SenderTransactionPrepareSubmittedPayload;
-  [NxtpSdkEvents.SenderTransactionPrepared]: SenderTransactionPreparedPayload;
-  [NxtpSdkEvents.SenderTransactionFulfilled]: SenderTransactionFulfilledPayload;
-  [NxtpSdkEvents.SenderTransactionCancelled]: SenderTransactionCancelledPayload;
-  [NxtpSdkEvents.ReceiverPrepareSigned]: ReceiverPrepareSignedPayload;
-  [NxtpSdkEvents.ReceiverTransactionPrepared]: ReceiverTransactionPreparedPayload;
-  [NxtpSdkEvents.ReceiverTransactionFulfilled]: ReceiverTransactionFulfilledPayload;
-  [NxtpSdkEvents.ReceiverTransactionCancelled]: ReceiverTransactionCancelledPayload;
-}
 
 /**
  * Helper to generate evt instances for all SDK events
@@ -269,52 +111,6 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
     [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload>(),
     [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload>(),
   };
-};
-
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- */
-export const signFulfillTransactionPayload = async (
-  transactionId: string,
-  relayerFee: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-  signer: Wallet | Signer,
-): Promise<string> => {
-  return await _signFulfillTransactionPayload(
-    transactionId,
-    relayerFee,
-    receivingChainId,
-    receivingChainTxManagerAddress,
-    signer,
-  );
-};
-
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- */
-export const generateMessagingInbox = (): string => {
-  return _generateMessagingInbox();
-};
-
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- * @param bid - Bid information that should've been signed
- * @param signature - Signature to recover signer of
- * @returns Recovered signer
- */
-export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
-  return _recoverAuctionBid(bid, signature);
-};
-
-/**
- * Used to make mocking easier
- */
-export const createMessagingEvt = <T>() => {
-  return Evt.create<{ inbox: string; data?: T; err?: any }>();
 };
 
 /**
@@ -389,6 +185,7 @@ export class NxtpSdk {
       number,
       {
         subgraph: string;
+        provider: providers.FallbackProvider;
       }
     > = {};
 
@@ -419,6 +216,7 @@ export class NxtpSdk {
         }
         subgraphConfig[chainId] = {
           subgraph,
+          provider,
         };
       },
     );
@@ -454,6 +252,22 @@ export class NxtpSdk {
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     return this.subgraph.getActiveTransactions();
+  }
+
+  /**
+   *
+   * @param chainId
+   * @returns
+   */
+  getSubgraphSyncStatus(chainId: number): SubgraphSyncRecord {
+    const record = this.subgraph.getSyncStatus(chainId);
+    return (
+      record ?? {
+        synced: false,
+        syncedBlock: 0,
+        latestBlock: 0,
+      }
+    );
   }
 
   /**
@@ -766,6 +580,12 @@ export class NxtpSdk {
     const method = "transfer";
     const methodId = getRandomBytes32();
     this.logger.info({ method, methodId, transferParams }, "Method started");
+
+    const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
+    const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
+    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
+      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, method, methodId });
+    }
 
     const { bid, bidSignature } = transferParams;
 
