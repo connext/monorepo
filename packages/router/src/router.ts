@@ -1,7 +1,6 @@
 import { logger, Wallet } from "ethers";
-import { RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, Logger, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
-import pino, { BaseLogger } from "pino";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
@@ -13,7 +12,7 @@ import { bindFastify } from "./bindings/fastify";
 export type Context = {
   config: NxtpRouterConfig;
   wallet: Wallet;
-  logger: BaseLogger;
+  logger: Logger;
   messaging: RouterNxtpNatsMessagingService;
   txService: TransactionService;
   contractReader: ContractReader;
@@ -29,15 +28,19 @@ export const getContext = (): Context => {
 };
 
 export const makeRouter = async () => {
+  const requestContext = createRequestContext("makeRouter");
+  const methodContext = createMethodContext(makeRouter.name);
   try {
     // set up external, config based services
     context.config = await getConfig();
     context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
-    context.logger = pino({
+    context.logger = new Logger({
       level: context.config.logLevel,
       name: context.wallet.address,
     });
-    context.logger.info({ config: { ...context.config, mnemonic: "......." } }, "Config generated");
+    context.logger.info("Config generated", requestContext, methodContext, {
+      config: { ...context.config, mnemonic: "......." },
+    });
     context.messaging = new RouterNxtpNatsMessagingService({
       signer: context.wallet,
       authUrl: context.config.authUrl,

@@ -1,6 +1,5 @@
 import { providers } from "ethers";
-import { BaseLogger } from "pino";
-import { delay, getUuid } from "@connext/nxtp-utils";
+import { createLoggingContext, delay, getUuid, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
@@ -124,22 +123,21 @@ export class Transaction implements TransactionInterface {
    * @param gas The Gas tracker instance, which will include price, limit, and maximum.
    */
   constructor(
-    private readonly logger: BaseLogger,
+    private readonly logger: Logger,
     private readonly provider: ChainRpcProvider,
     public readonly minTx: WriteTransaction,
     public readonly nonce: number,
     public readonly gas: Gas,
     public readonly isBackfill = false,
+    private readonly context: RequestContext,
   ) {
-    this.logger.debug(
-      {
-        id: this.id,
-        params: this.params,
-        createdAt: this.timestamp,
-        isBackfill,
-      },
-      "New transaction created.",
-    );
+    const { requestContext, methodContext } = createLoggingContext("Transaction.constructor", this.context);
+    this.logger.debug("New transaction created.", requestContext, methodContext, {
+      id: this.id,
+      params: this.params,
+      createdAt: this.timestamp,
+      isBackfill,
+    });
   }
 
   /// LIFECYCLE
@@ -357,20 +355,17 @@ export class Transaction implements TransactionInterface {
    * Bump the gas price for this tx up by the configured percentage.
    */
   public bumpGasPrice() {
+    const { requestContext, methodContext } = createLoggingContext(this.bumpGasPrice.name, this.context);
     const previousPrice = this.gas.price;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
     this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
-    this.logger.info(
-      {
-        method: this.bumpGasPrice.name,
-        id: this.id,
-        attempt: this.attempt,
-        previousGasPrice: previousPrice.toString(),
-        newGasPrice: this.gas.price.toString(),
-      },
-      "Bumping tx gas price for reattempt.",
-    );
+    this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+      id: this.id,
+      attempt: this.attempt,
+      previousGasPrice: previousPrice.toString(),
+      newGasPrice: this.gas.price.toString(),
+    });
   }
 
   /**
