@@ -60,13 +60,20 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     let value: BigNumber;
     let liquidityWei: BigNumber;
+    const signerAddress = await signer.getAddress();
     const decimals = await getDecimals(assetId);
     if (assetId !== constants.AddressZero) {
       const token = new Contract(assetId, ERC20Abi, signer);
       liquidityWei = utils.parseUnits(liquidityToAdd, decimals);
-      const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei);
-      console.log("approve tx: ", tx);
-      await tx.wait();
+      const allowance = await token.allowance(signerAddress, txManager.address);
+      console.log("allowance: ", allowance.toString());
+      if (allowance.lt(liquidityWei)) {
+        const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei);
+        console.log("approve tx: ", tx);
+        await tx.wait();
+      } else {
+        console.log("allowance is sufficient");
+      }
       value = constants.Zero;
     } else {
       value = utils.parseEther(liquidityToAdd);
@@ -174,7 +181,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
               <Input />
             </Form.Item>
 
-            <Form.Item label="Infinite Approval" name="infiniteApproval">
+            <Form.Item label="Infinite Approval" name="infiniteApproval" valuePropName="checked">
               <Checkbox></Checkbox>
             </Form.Item>
 
