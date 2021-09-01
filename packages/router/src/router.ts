@@ -55,9 +55,14 @@ export const makeRouter = async () => {
         providers: config.providers.map((url) => ({ url })),
       } as ChainConfig;
     });
-    context.txService = new TransactionService(context.logger.child({ module: "TransactionService" }), context.wallet, {
-      chains,
-    });
+    // TODO: txserviceconfig log level
+    context.txService = new TransactionService(
+      context.logger.child({ module: "TransactionService" }, context.config.logLevel),
+      context.wallet,
+      {
+        chains,
+      },
+    );
 
     // adapters
     context.contractReader = subgraphContractReader();
