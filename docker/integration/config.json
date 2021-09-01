@@ -15,7 +15,7 @@
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "average nuclear bomb address recall river mechanic captain famous run lemon mimic",
+  "mnemonic": "",
   "swapPools": [
     {
       "name": "TEST",
