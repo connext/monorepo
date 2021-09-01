@@ -64,8 +64,14 @@ export const createLoggingContext = <T extends string | undefined = undefined>(
   inherited?: RequestContext<T>,
   transactionId?: T,
 ) => {
+  if (transactionId && inherited) {
+    inherited = {
+      transactionId,
+      ...inherited,
+    };
+  }
   return {
     methodContext: createMethodContext(methodName),
-    requestContext: inherited ? { transactionId, ...inherited } : createRequestContext<T>(methodName, transactionId),
+    requestContext: inherited ?? createRequestContext<T>(methodName, transactionId),
   };
 };
