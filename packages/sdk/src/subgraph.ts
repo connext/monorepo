@@ -1,6 +1,12 @@
 import { Signer } from "ethers";
-import { BaseLogger } from "pino";
-import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  CrosschainTransaction,
+  Logger,
+  RequestContext,
+  TransactionData,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
@@ -108,7 +114,7 @@ export class Subgraph {
   constructor(
     private readonly user: Signer,
     private readonly chainConfig: Record<number, { subgraph: string }>,
-    private readonly logger: BaseLogger,
+    private readonly logger: Logger,
     private readonly pollInterval = 10_000,
   ) {
     Object.entries(this.chainConfig).forEach(([chainId, { subgraph }]) => {
@@ -140,9 +146,8 @@ export class Subgraph {
    *
    * @returns All active transactions for the instantiated user
    */
-  async getActiveTransactions(): Promise<ActiveTransaction[]> {
-    const methodName = "getActiveTransactions";
-    const methodId = getUuid();
+  async getActiveTransactions(_requestContext?: RequestContext): Promise<ActiveTransaction[]> {
+    const { requestContext, methodContext } = createLoggingContext(this.getActiveTransactions.name, _requestContext);
 
     // Step 1: handle any already listed as active transactions.
     // This is important to make sure the events are properly emitted
@@ -373,10 +378,10 @@ export class Subgraph {
                   status: SubgraphEvents.ReceiverTransactionPrepared,
                 };
                 if (!active) {
-                  this.logger.warn(
-                    { transactionId: invariant.transactionId, active: this.activeTxs.keys() },
-                    "Missing active sender tx",
-                  );
+                  this.logger.warn("Missing active sender tx", requestContext, methodContext, {
+                    transactionId: invariant.transactionId,
+                    active: this.activeTxs.keys(),
+                  });
                 }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -443,22 +448,19 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info(
-        {
-          methodName,
-          methodId,
-          active: all.length,
-        },
-        "Queried active txs",
-      );
-      this.logger.debug({ methodId, methodName, all }, "Queried active txs");
+      this.logger.info("Queried active txs", requestContext, methodContext, {
+        active: all.length,
+      });
+      this.logger.debug("Queried active txs", requestContext, methodContext, { all });
     }
     return all;
   }
 
-  async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
-    const methodName = "getHistoricalTransactions";
-    const methodId = getUuid();
+  async getHistoricalTransactions(_requestContext?: RequestContext): Promise<HistoricalTransaction[]> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.getHistoricalTransactions.name,
+      _requestContext,
+    );
 
     const fulfilledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
@@ -487,7 +489,7 @@ export class Subgraph {
           Object.entries(receiverPerChain).map(async ([chainId, receiverTxs]) => {
             const _sdk = this.sdks[parseInt(chainId)];
             if (!_sdk) {
-              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+              this.logger.warn("No SDK for chainId", requestContext, methodContext, { chainId });
               return undefined;
             }
 
@@ -500,9 +502,11 @@ export class Subgraph {
                 (tx) => tx.transactionId === receiverTx.transactionId,
               );
               if (!correspondingSenderTx) {
-                this.logger.error(
-                  { methodId, methodName, receiverTx },
+                this.logger.warn(
                   "No corresponding sender tx, this should never happen",
+                  requestContext,
+                  methodContext,
+                  { receiverTx },
                 );
                 return undefined;
               }

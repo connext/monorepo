@@ -1,4 +1,4 @@
-import { AuctionPayload, createRequestContext, NxtpErrorJson, RequestContext } from "@connext/nxtp-utils";
+import { AuctionPayload, createLoggingContext, NxtpErrorJson, RequestContext } from "@connext/nxtp-utils";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
@@ -8,18 +8,26 @@ export const auctionRequestBinding = async (
   inbox: string,
   data?: AuctionPayload,
   err?: NxtpErrorJson,
-  _requestContext?: RequestContext,
+  _requestContext?: RequestContext<string>,
 ) => {
   const { logger, messaging } = getContext();
   const { newAuction } = getOperations();
-  const requestContext = _requestContext ?? createRequestContext("auctionRequestBinding", data?.transactionId);
-  if (err || !data) {
-    logger.error({ requestContext, err, data }, "Error in auction request");
+  const { requestContext, methodContext } = createLoggingContext(
+    auctionRequestBinding.name,
+    _requestContext,
+    data?.transactionId,
+  );
+  if (err) {
+    logger.error("Error in auction request", requestContext, methodContext, err, { data });
+    return;
+  }
+  if (!data) {
+    logger.error("No data in auction request", requestContext, methodContext, err);
     return;
   }
   // On every new auction broadcast, route to the new auction handler
-  logger.info({ requestContext }, "Received auction request");
+  logger.info("Received auction request", requestContext, methodContext);
   const { bid, bidSignature } = await newAuction(data, requestContext);
   await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature });
-  logger.info({ requestContext, inbox }, "Handled auction request");
+  logger.info("Handled auction request");
 };

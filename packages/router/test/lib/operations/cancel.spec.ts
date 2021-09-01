@@ -1,11 +1,10 @@
-import { SinonStub } from "sinon";
-import { expect, invariantDataMock, txReceiptMock, createRequestContext } from "@connext/nxtp-utils";
+import { expect, invariantDataMock, txReceiptMock, createLoggingContext } from "@connext/nxtp-utils";
 
 import { cancelInputMock } from "../../utils";
 import { contractWriterMock } from "../../globalTestHook";
 import { cancel } from "../../../src/lib/operations/cancel";
 
-const requestContext = createRequestContext("TEST");
+const { requestContext } = createLoggingContext("TEST");
 
 describe("Cancel Sender Operation", () => {
   describe("#cancelSender", () => {

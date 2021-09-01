@@ -329,7 +329,7 @@ describe("Contract Reader Binding", () => {
       binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, prepare.status);
       await binding.handleActiveTransactions([prepare, fulfill]);
       expect(handleSingleStub).callCount(1);
-      expect(handleSingleStub).to.be.calledOnceWithExactly(fulfill);
+      expect(handleSingleStub).to.be.calledOnceWith(fulfill);
       binding.handlingTracker.clear();
     });
   });

@@ -1,4 +1,4 @@
-import { CancelParams, FulfillParams, getUuid, PrepareParams, RequestContext } from "@connext/nxtp-utils";
+import { CancelParams, createLoggingContext, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
 import { constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
@@ -38,11 +38,10 @@ export const prepare = async (
   prepareParams: PrepareParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "prepare ";
-  const methodId = getUuid();
+  const { methodContext } = createLoggingContext(prepare.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info({ method, methodId, requestContext, prepareParams }, "Method start");
+  logger.info("Method start", requestContext, methodContext, { prepareParams });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
@@ -74,11 +73,10 @@ export const fulfill = async (
   fulfillParams: FulfillParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "fulfill ";
-  const methodId = getUuid();
+  const { methodContext } = createLoggingContext(fulfill.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info({ method, methodId, fulfillParams }, "Method start");
+  logger.info("", requestContext, methodContext);
 
   const { txData, relayerFee, signature, callData } = fulfillParams;
 
@@ -103,11 +101,10 @@ export const cancel = async (
   cancelParams: CancelParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "cancel";
-  const methodId = getUuid();
+  const { methodContext } = createLoggingContext(cancel.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info({ method, methodId, cancelParams }, "Method start");
+  logger.info("Method start", requestContext, methodContext, { cancelParams });
 
   const { txData, signature } = cancelParams;
 
@@ -143,11 +140,11 @@ export const removeLiquidity = async (
   recipientAddress: string | undefined,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const method = "removeLiquidity";
-  const methodId = getUuid();
+  const { methodContext } = createLoggingContext(removeLiquidity.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info({ method, methodId, amount, assetId, recipientAddress }, "Method start");
+
+  logger.info("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
 
   if (!recipientAddress) {
     recipientAddress = wallet.address;

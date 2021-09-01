@@ -1,8 +1,7 @@
-import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
-import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
 import {
@@ -51,7 +50,7 @@ export class ChainRpcProvider {
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
    *
-   * @param logger pino.BaseLogger used for logging.
+   * @param logger Logger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig Configuration for this specified chain, including the providers we'll
@@ -62,7 +61,7 @@ export class ChainRpcProvider {
    * configuration.
    */
   constructor(
-    protected readonly logger: BaseLogger,
+    protected readonly logger: Logger,
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
@@ -75,13 +74,17 @@ export class ChainRpcProvider {
     // NOTE: This only applies to fallback provider case below.
     this.quorum = 1;
 
+    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
+
     // Register a provider for each url.
     // Make sure all providers are ready()
     const providerConfigs = chainConfig.providers;
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
-        this.logger.error({ config }, "Configuration was invalid for provider.");
+        this.logger.warn("Configuration was invalid for provider.", requestContext, methodContext, {
+          config,
+        });
       }
       return valid;
     });
@@ -231,10 +234,14 @@ export class ChainRpcProvider {
    * Get the current gas price for the chain for which this instance is servicing.
    * @returns The BigNumber value for the current gas price.
    */
-  public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
+  public getGasPrice(context: RequestContext): ResultAsync<BigNumber, TransactionError> {
+    const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
     const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
     if (hardcoded) {
-      this.logger.info({ chainId: this.chainId, hardcoded }, "Using hardcoded gas price for chain");
+      this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
+        chainId: this.chainId,
+        hardcoded,
+      });
       return okAsync(BigNumber.from(hardcoded));
     }
 
@@ -253,7 +260,7 @@ export class ChainRpcProvider {
           const { rapid } = gasNowResponse.data;
           gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
         } catch (e) {
-          this.logger.warn({ error: e }, "Gasnow failed, using provider");
+          this.logger.warn("Gasnow failed, using provider", requestContext, methodContext, { error: jsonifyError(e) });
         }
       }
 
@@ -262,8 +269,11 @@ export class ChainRpcProvider {
           gasPrice = await this.provider.getGasPrice();
         } catch (error) {
           this.logger.error(
-            { chainId: this.chainId, error },
             "getGasPrice failure, attempting to default to backup gas value.",
+            requestContext,
+            methodContext,
+            jsonifyError(error),
+            { chainId: this.chainId },
           );
           // Default to initial gas price, if available. Otherwise, throw.
           gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
