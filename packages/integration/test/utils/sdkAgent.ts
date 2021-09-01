@@ -20,13 +20,13 @@ import {
   AuctionResponse,
   getRandomBytes32,
   jsonifyError,
+  Logger,
   NxtpError,
   NxtpErrorJson,
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { providers, Signer } from "ethers";
-import { BaseLogger } from "pino";
 import { Evt, VoidCtx } from "evt";
 import PriorityQueue from "p-queue";
 
@@ -108,7 +108,7 @@ export class SdkAgent {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
     private readonly _signer: Signer,
-    private readonly logger: BaseLogger,
+    private readonly logger: Logger,
     private readonly sdk: NxtpSdk,
   ) {}
 
@@ -125,7 +125,7 @@ export class SdkAgent {
   static async connect(
     chainProviders: ChainConfig,
     signer: Signer,
-    logger: BaseLogger,
+    logger: Logger,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -170,7 +170,10 @@ export class SdkAgent {
         await this.sdk.fulfillTransfer(data);
       } catch (e) {
         error = jsonifyError(e);
-        this.logger.error({ transactionId: data.txData.transactionId, error }, "Fulfilling failed");
+        this.logger.error("Fulfilling failed", undefined, undefined, error, {
+          transactionId: data.txData.transactionId,
+          error,
+        });
         this.evts[SdkAgentEvents.UserCompletionFailed].post({
           error,
           params: data,
@@ -280,7 +283,11 @@ export class SdkAgent {
         // Transfer will auto-fulfill based on established listeners
       } catch (e) {
         const error = jsonifyError(e);
-        this.logger.error({ transactionId: bid.transactionId, error, auction }, "Preparing failed");
+        this.logger.error("Preparing failed", undefined, undefined, error, {
+          transactionId: bid.transactionId,
+          error,
+          auction,
+        });
         this.evts.InitiateFailed.post({ params: auction, address: this.address, error: error.message });
         this.evts.TransactionCompleted.post({
           transactionId: bid.transactionId,

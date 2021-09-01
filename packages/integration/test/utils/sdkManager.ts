@@ -1,6 +1,5 @@
 import { CrossChainParams } from "@connext/nxtp-sdk";
-import { delay, getRandomBytes32, NxtpErrorJson } from "@connext/nxtp-utils";
-import { BaseLogger } from "pino";
+import { delay, getRandomBytes32, NxtpErrorJson, Logger, jsonifyError } from "@connext/nxtp-utils";
 
 import { OnchainAccountManager } from "./accountManager";
 import { ChainConfig } from "./config";
@@ -35,14 +34,14 @@ export class SdkManager {
   private constructor(
     private readonly onchainMgmt: OnchainAccountManager,
     private readonly agents: SdkAgent[],
-    private readonly log: BaseLogger,
+    private readonly log: Logger,
   ) {}
 
   static async connect(
     chainConfig: ChainConfig,
     mnemonic: string,
     numberUsers: number,
-    log: BaseLogger,
+    log: Logger,
     natsUrl?: string,
     authUrl?: string,
   ): Promise<SdkManager> {
@@ -69,7 +68,7 @@ export class SdkManager {
       Array(numberUsers)
         .fill(0)
         .map((_, idx) => {
-          log.debug({ idx, address: onchain.wallets[idx].address }, "Wallet info");
+          log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
           return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
         }),
     );
@@ -127,7 +126,7 @@ export class SdkManager {
     try {
       await promise;
     } catch (e) {
-      this.log.error({ error: e.message, timeout }, "Did not get promise");
+      this.log.error("Did not get promise", undefined, undefined, jsonifyError(e), { timeout });
       throw new Error(`Transfer not completed within ${timeout / 1000}s`);
     }
 

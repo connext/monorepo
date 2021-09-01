@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { RequestContext } from "@connext/nxtp-utils";
+import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, Contract, utils } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { Zero } from "@ethersproject/constants";
@@ -49,7 +49,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
     config.chainConfig,
     config.mnemonic,
     Math.min(maxConcurrency, 100),
-    logger.child({ name: "OnchainAccountManager" }),
+    new Logger({ name: "OnchainAccountManager", level: config.logLevel ?? "info" }),
   );
   logger.info({ agents: maxConcurrency }, "Created manager");
 
@@ -63,7 +63,9 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
 
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
-  const txservice = new TransactionService(logger, manager.funder, { chains });
+  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "info" }), manager.funder, {
+    chains,
+  });
   logger.info("Creating Contract...");
   const testToken = new Contract(
     "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
