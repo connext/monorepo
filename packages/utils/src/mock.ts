@@ -17,7 +17,7 @@ import {
   CancelParams,
 } from "./index";
 
-export const txReceiptMock = ({
+export const txReceiptMock = {
   blockHash: "foo",
   blockNumber: 1,
   byzantium: true,
@@ -31,7 +31,7 @@ export const txReceiptMock = ({
   logs: [],
   logsBloom: "",
   transactionIndex: 1,
-} as unknown) as providers.TransactionReceipt;
+} as unknown as providers.TransactionReceipt;
 
 export const invariantDataMock: InvariantTransactionData = {
   receivingChainTxManagerAddress: mkAddress("0xbb"),
@@ -139,4 +139,4 @@ export const cancelParamsMock: CancelParams = {
   signature: mkSig("0xeee"),
 };
 
-export const sigMock = "0xabcdef";
+export const sigMock = "0xabcdef1c";

@@ -61,12 +61,7 @@ export const fulfill = async (
     "Sending fulfill tx",
   );
 
-  let fulfillChain: number;
-  if (side === "sender") {
-    fulfillChain = invariantData.sendingChainId;
-  } else {
-    fulfillChain = invariantData.receivingChainId;
-  }
+  const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
 
   if (!config.chainConfig[fulfillChain]) {
     throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
