@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider, Tooltip } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
@@ -14,18 +14,41 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const USDC_ADDRESS: Record<number, string> = {
-  56: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-  100: "0xD10Cc63531a514BBa7789682E487Add1f15A51E2",
-  137: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+const ASSETS: Record<number, { [asset: string]: string }> = {
+  56: {
+    usdc: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+    usdt: "0x55d398326f99059ff775485246999027b3197955",
+    dai: "0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3",
+  },
+  100: {
+    usdc: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+    usdt: "0x4ecaba5870353805a9f068101a40e0f32ed605c6",
+    dai: "0x0000000000000000000000000000000000000000",
+  },
+  137: {
+    usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    usdt: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+    dai: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+  },
+  250: {
+    usdc: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+    usdt: "0x049d68029688eabf473097a2fc38ef61633a3c7a",
+    dai: "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
+  },
+};
+
+type BalanceEntry = {
+  chain: string;
+  token: string;
+  assetId: string;
+  balance: string;
 };
 
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [routerAddress, setRouterAddress] = useState<string>();
-  const [observedAssetId, setAssetId] = useState<string>(constants.AddressZero);
-  const [liquidityTable, setLiquidityTable] = useState<Record<string, string>>();
+  const [balances, setBalances] = useState<BalanceEntry[]>();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -57,8 +80,8 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     return _decimals;
   };
 
-  const addLiquidity = async (liquidityToAdd: string, infiniteApprove: boolean): Promise<string> => {
-    console.log("Add liquidity: ", routerAddress, observedAssetId, liquidityToAdd, infiniteApprove);
+  const addLiquidity = async (assetId: string, liquidityToAdd: string, infiniteApprove: boolean): Promise<string> => {
+    console.log("Add liquidity: ", routerAddress, assetId, liquidityToAdd, infiniteApprove);
     if (!signer || !txManager) {
       throw new Error("Needs signer");
     } else if (!routerAddress) {
@@ -67,9 +90,9 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     let value: BigNumber;
     let liquidityWei: BigNumber;
     const signerAddress = await signer.getAddress();
-    const decimals = await getDecimals(observedAssetId);
-    if (observedAssetId !== constants.AddressZero) {
-      const token = new Contract(observedAssetId, ERC20Abi, signer);
+    const decimals = await getDecimals(assetId);
+    if (assetId !== constants.AddressZero) {
+      const token = new Contract(assetId, ERC20Abi, signer);
       liquidityWei = utils.parseUnits(liquidityToAdd, decimals);
       const allowance = await token.allowance(signerAddress, txManager.address);
       console.log("allowance: ", allowance.toString());
@@ -87,39 +110,67 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     console.log("value: ", value.toString());
     console.log("liquidityWei: ", liquidityWei.toString());
-    const addLiquidity = await txManager.addLiquidityFor(liquidityWei, observedAssetId, routerAddress, { value });
+    const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, { value });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
     const liquidity = await getLiquidity(form.getFieldValue("assetId"));
     return liquidity;
   };
 
-  // Refreshes the liquidity table with human readable values for each asset on current chain.
-  const refreshLiquidity = async (): Promise<void> => {
-    if (!injectedProviderChainId || !txManager) {
-      console.error("Needs signer", signer, txManager, injectedProviderChainId);
-      return;
-    }
+  // Refreshes the balances table with human readable values for each asset on current chain.
+  const refreshBalances = async (): Promise<void> => {
     if (!routerAddress || !(routerAddress.length === 42)) {
       return;
     }
 
-    // Temporarily using hardcoded USDC address for each chain as a backup for convenience.
-    const assetId = observedAssetId
-      ? observedAssetId
-      : injectedProviderChainId in USDC_ADDRESS
-      ? USDC_ADDRESS[injectedProviderChainId]
-      : "";
-    if (!assetId) {
-      console.log(`Not supporting chain ${injectedProviderChainId} for monitoring rn`);
-      return;
+    const liquidityTable: BalanceEntry[] = [];
+    for (const chain of Object.keys(ASSETS)) {
+      const chainId = Number(chain);
+      const data = chainData?.find((c) => c.chainId === chainId);
+      if (!data) {
+        continue;
+      }
+
+      console.log("Retrieving for", data.chain, "...");
+
+      const provider = new providers.StaticJsonRpcProvider(data.rpc[0]);
+      if (!provider) {
+        continue;
+      }
+      const _txManager = getDeployedTransactionManagerContract(chainId);
+      if (!_txManager) {
+        continue;
+      }
+      const txm = new Contract(_txManager.address, _txManager.abi, provider);
+      const assets = ASSETS[chainId];
+      for (const [name, assetId] of Object.entries(assets)) {
+        try {
+          // TODO: redundant code with getLiquidity and getDecimals
+          const liquidity = await txm.routerBalances(routerAddress, assetId);
+          const token = new Contract(assetId, ERC20Abi, provider);
+          const _decimals = decimals[assetId.toLowerCase()] ? decimals[assetId.toLowerCase()] : await token.decimals();
+          decimals[assetId.toLowerCase()] = _decimals;
+          const balance = utils.formatUnits(liquidity, _decimals);
+          liquidityTable.push({
+            chain: data.chain,
+            token: name,
+            assetId,
+            balance,
+          });
+        } catch (error) {
+          console.log("Error requesting router balance for asset:", name, assetId);
+          console.log(error);
+          liquidityTable.push({
+            chain: data.chain,
+            token: name,
+            assetId,
+            balance: "",
+          });
+        }
+      }
     }
 
-    const liquidity = await getLiquidity(assetId);
-    setLiquidityTable((prevLiquidity) => ({
-      ...prevLiquidity,
-      [assetId]: liquidity,
-    }));
+    setBalances(liquidityTable);
   };
 
   // Returns value in human readable units
@@ -168,7 +219,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           <Typography.Title level={4}>Router Balances</Typography.Title>
         </Col>
         <Col span={4}>
-          <Button type="primary" onClick={() => refreshLiquidity()}>
+          <Button type="primary" onClick={() => refreshBalances()}>
             Reload
           </Button>
         </Col>
@@ -181,27 +232,13 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             placeholder="0x..."
             onChange={(e) => {
               setRouterAddress(e.target.value);
-              refreshLiquidity();
+              refreshBalances();
             }}
             value={routerAddress}
           />
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col span={3} />
-        <Col span={16}>
-          <Input
-            addonBefore="Asset ID:"
-            onChange={(e) => setAssetId(e.target.value)}
-            value={observedAssetId}
-            suffix={
-              <Tooltip title="Leave blank to use default USDC for current chain.">
-                <div>(?)</div>
-              </Tooltip>
-            }
-          />
-        </Col>
-      </Row>
+
       <Row gutter={16}>
         <Col span={3} />
         <Col span={16}>
@@ -209,20 +246,32 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             pagination={false}
             columns={[
               {
+                title: "Chain",
+                dataIndex: "chain",
+                key: "chain",
+              },
+              {
                 title: "Asset",
+                dataIndex: "token",
+                key: "token",
+              },
+              {
+                title: "Asset ID",
                 dataIndex: "assetId",
                 key: "assetId",
               },
               {
-                title: "Liquidity",
-                dataIndex: "liquidity",
-                key: "liquidity",
+                title: "Balance",
+                dataIndex: "balance",
+                key: "balance",
               },
             ]}
-            dataSource={(liquidityTable ? Object.entries(liquidityTable) : []).map(([assetId, liquidity]) => ({
-              assetId,
-              liquidity,
-            }))}
+            dataSource={balances?.map((l, i) => ({ ...l, token: l.token.toUpperCase(), key: i }))}
+            footer={() => (
+              <div>
+                Total: {balances?.map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b) || "0"}
+              </div>
+            )}
           />
         </Col>
       </Row>
@@ -240,14 +289,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={({ liquidityToAdd, infiniteApproval }) => {
-              addLiquidity(liquidityToAdd, infiniteApproval);
+            onFinish={({ assetId, liquidityToAdd, infiniteApproval }) => {
+              addLiquidity(assetId, liquidityToAdd, infiniteApproval);
             }}
             onFieldsChange={() => {}}
-            initialValues={{
-              assetId: constants.AddressZero,
-            }}
           >
+            <Form.Item label="Asset ID" name="assetId">
+              <Input />
+            </Form.Item>
+
             <Form.Item label="Liquidity to Add" name="liquidityToAdd">
               <Input />
             </Form.Item>
