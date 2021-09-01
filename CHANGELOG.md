@@ -4,6 +4,7 @@
 
 - [router] Cancel sender transaction if subgraph is out of sync.
 - [router] Add admin endpoint to cancel sender txs.
+- [contracts] Arbitrum deployment.
 
 ## 0.0.31
 
