@@ -14,32 +14,11 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const ASSETS: Record<number, { [asset: string]: string }> = {
-  56: {
-    usdc: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-    usdt: "0x55d398326f99059ff775485246999027b3197955",
-    dai: "0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3",
-  },
-  100: {
-    usdc: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-    usdt: "0x4ecaba5870353805a9f068101a40e0f32ed605c6",
-    dai: "0x0000000000000000000000000000000000000000",
-  },
-  137: {
-    usdc: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    usdt: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-    dai: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
-  },
-  250: {
-    usdc: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
-    usdt: "0x049d68029688eabf473097a2fc38ef61633a3c7a",
-    dai: "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e",
-  },
-};
+const CHAINS = [56, 100, 137, 250];
 
 type BalanceEntry = {
   chain: string;
-  token: string;
+  symbol: string;
   assetId: string;
   balance: string;
 };
@@ -66,7 +45,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     init();
   }, [web3Provider, signer]);
 
-  const getDecimals = async (assetId: string): Promise<number> => {
+  const getDecimals = async (assetId: string, provider?: providers.StaticJsonRpcProvider): Promise<number> => {
     if (decimals[assetId.toLowerCase()]) {
       return decimals[assetId.toLowerCase()]!;
     }
@@ -74,7 +53,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       decimals[assetId] = 18;
       return 18;
     }
-    const token = new Contract(assetId, ERC20Abi, signer);
+    const token = provider ? new Contract(assetId, ERC20Abi, provider) : new Contract(assetId, ERC20Abi, signer);
     const _decimals = await token.decimals();
     decimals[assetId.toLowerCase()] = _decimals;
     return _decimals;
@@ -124,8 +103,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
 
     const liquidityTable: BalanceEntry[] = [];
-    for (const chain of Object.keys(ASSETS)) {
-      const chainId = Number(chain);
+    for (const chainId of CHAINS) {
       const data = chainData?.find((c) => c.chainId === chainId);
       if (!data) {
         continue;
@@ -142,18 +120,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
         continue;
       }
       const txm = new Contract(_txManager.address, _txManager.abi, provider);
-      const assets = ASSETS[chainId];
-      for (const [name, assetId] of Object.entries(assets)) {
+      const assets = data.assetId;
+      for (const [assetId, info] of Object.entries(assets)) {
         try {
           // TODO: redundant code with getLiquidity and getDecimals
           const liquidity = await txm.routerBalances(routerAddress, assetId);
-          const token = new Contract(assetId, ERC20Abi, provider);
-          const _decimals = decimals[assetId.toLowerCase()] ? decimals[assetId.toLowerCase()] : await token.decimals();
-          decimals[assetId.toLowerCase()] = _decimals;
-          const balance = utils.formatUnits(liquidity, _decimals);
+          const balance = utils.formatUnits(liquidity, await getDecimals(assetId, provider));
           liquidityTable.push({
             chain: data.chain,
-            token: name,
+            symbol: info.symbol,
             assetId,
             balance,
           });
@@ -162,7 +137,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           console.log(error);
           liquidityTable.push({
             chain: data.chain,
-            token: name,
+            symbol: info.symbol,
             assetId,
             balance: "",
           });
@@ -266,7 +241,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
                 key: "balance",
               },
             ]}
-            dataSource={balances?.map((l, i) => ({ ...l, token: l.token.toUpperCase(), key: i }))}
+            dataSource={balances?.map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
             footer={() => (
               <div>
                 Total: {balances?.map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b) || "0"}
