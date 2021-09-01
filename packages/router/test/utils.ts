@@ -1,4 +1,4 @@
-import { mkAddress, variantDataMock, invariantDataMock, mkBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, variantDataMock, invariantDataMock, mkBytes32, chainDataToMap } from "@connext/nxtp-utils";
 
 import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
@@ -118,16 +118,6 @@ export const singleChainTransactionMock: SingleChainTransaction = {
   encryptedCallData: "0xabc",
   status: SdkTransactionStatus.Fulfilled,
   txData: { ...invariantDataMock, ...variantDataMock },
-};
-
-const chainDataToMap = (data: any) => {
-  const chainData: Map<string, any> = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const chainId = item.chainId.toString();
-    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
-  }
-  return chainData;
 };
 
 export const chainDataMock = chainDataToMap([

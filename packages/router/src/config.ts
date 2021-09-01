@@ -6,6 +6,7 @@ import { utils } from "ethers";
 import {
   ajv,
   ChainData,
+  getChainData,
   getDeployedSubgraphUri,
   isNode,
   NATS_AUTH_URL,
@@ -22,7 +23,6 @@ import {
   TIntegerString,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
-import { fetchJson } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
@@ -45,36 +45,6 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   }
   const contract = record[name]?.contracts?.TransactionManager;
   return { address: contract.address, abi: contract.abi };
-};
-
-// Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
-export const chainDataToMap = (data: any): Map<string, ChainData> => {
-  const chainData: Map<string, ChainData> = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const chainId = item.chainId.toString();
-    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")) as ChainData);
-  }
-  return chainData;
-};
-
-const getChainData = async (): Promise<Map<string, ChainData> | undefined> => {
-  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
-  try {
-    const data = await fetchJson(url);
-    return chainDataToMap(data);
-  } catch (err) {
-    console.error(`Error occurred retrieving chain data from ${url}`, err);
-    // Check to see if we have the chain data cached locally.
-    if (fs.existsSync("./chaindata.json")) {
-      console.info("Using cached chain data.");
-      const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
-      return chainDataToMap(data);
-    }
-    // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
-    console.warn("Could not fetch chain data, and no cached chain data was available.");
-    return undefined;
-  }
 };
 
 export const TChainConfig = Type.Object({

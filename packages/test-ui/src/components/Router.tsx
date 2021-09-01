@@ -1,7 +1,7 @@
-import { Button, Checkbox, Col, Form, Input, Row, Typography } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
@@ -14,9 +14,20 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
+const CHAINS = [56, 100, 137, 250];
+
+type BalanceEntry = {
+  chain: string;
+  symbol: string;
+  assetId: string;
+  balance: string;
+};
+
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
+  const [routerAddress, setRouterAddress] = useState<string>();
+  const [balances, setBalances] = useState<BalanceEntry[]>();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -34,7 +45,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     init();
   }, [web3Provider, signer]);
 
-  const getDecimals = async (assetId: string): Promise<number> => {
+  const getDecimals = async (assetId: string, provider?: providers.StaticJsonRpcProvider): Promise<number> => {
     if (decimals[assetId.toLowerCase()]) {
       return decimals[assetId.toLowerCase()]!;
     }
@@ -42,21 +53,18 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       decimals[assetId] = 18;
       return 18;
     }
-    const token = new Contract(assetId, ERC20Abi, signer);
+    const token = provider ? new Contract(assetId, ERC20Abi, provider) : new Contract(assetId, ERC20Abi, signer);
     const _decimals = await token.decimals();
     decimals[assetId.toLowerCase()] = _decimals;
     return _decimals;
   };
 
-  const addLiquidity = async (
-    routerAddress: string,
-    assetId: string,
-    liquidityToAdd: string,
-    infiniteApprove: boolean,
-  ): Promise<string> => {
+  const addLiquidity = async (assetId: string, liquidityToAdd: string, infiniteApprove: boolean): Promise<string> => {
     console.log("Add liquidity: ", routerAddress, assetId, liquidityToAdd, infiniteApprove);
     if (!signer || !txManager) {
       throw new Error("Needs signer");
+    } else if (!routerAddress) {
+      throw new Error("Needs router address");
     }
     let value: BigNumber;
     let liquidityWei: BigNumber;
@@ -84,16 +92,65 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, { value });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
-    const liquidity = await getLiquidity(form.getFieldValue("routerAddress"), form.getFieldValue("assetId"));
-    form.setFieldsValue({
-      currentLiquidity: liquidity,
-    });
+    const liquidity = await getLiquidity(form.getFieldValue("assetId"));
     return liquidity;
   };
 
+  // Refreshes the balances table with human readable values for each asset on current chain.
+  const refreshBalances = async (): Promise<void> => {
+    if (!isValidAddress(routerAddress)) {
+      return;
+    }
+
+    const liquidityTable: BalanceEntry[] = [];
+    for (const chainId of CHAINS) {
+      const data = chainData?.find((c) => c.chainId === chainId);
+      if (!data) {
+        continue;
+      }
+
+      console.log("Retrieving for", data.chain, "...");
+
+      const provider = new providers.StaticJsonRpcProvider(data.rpc[0]);
+      if (!provider) {
+        continue;
+      }
+      const _txManager = getDeployedTransactionManagerContract(chainId);
+      if (!_txManager) {
+        continue;
+      }
+      const txm = new Contract(_txManager.address, _txManager.abi, provider);
+      const assets = data.assetId;
+      for (const [assetId, info] of Object.entries(assets)) {
+        try {
+          // TODO: redundant code with getLiquidity and getDecimals
+          const liquidity = await txm.routerBalances(routerAddress, assetId);
+          const balance = utils.formatUnits(liquidity, await getDecimals(assetId, provider));
+          liquidityTable.push({
+            chain: data.chain,
+            symbol: info.symbol,
+            assetId,
+            balance,
+          });
+        } catch (error) {
+          console.log("Error requesting router balance for asset:", name, assetId);
+          console.log(error);
+          liquidityTable.push({
+            chain: data.chain,
+            symbol: info.symbol,
+            assetId,
+            balance: "",
+          });
+        }
+      }
+    }
+
+    setBalances(liquidityTable);
+  };
+
   // Returns value in human readable units
-  const getLiquidity = async (routerAddress: string, assetId: string): Promise<string> => {
-    if (!signer || !txManager) {
+  const getLiquidity = async (assetId: string): Promise<string> => {
+    if (!txManager) {
       throw new Error("Needs signer");
     }
     const liquidity = await txManager.routerBalances(routerAddress, assetId);
@@ -125,9 +182,79 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={3}></Col>
+        <Col span={3} />
         <Col span={8}>
           <Typography.Title level={2}>Manage Liquidity</Typography.Title>
+        </Col>
+      </Row>
+      <Divider />
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={12}>
+          <Typography.Title level={4}>Router Balances</Typography.Title>
+        </Col>
+        <Col span={4}>
+          <Button type="primary" onClick={() => refreshBalances()}>
+            Reload
+          </Button>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={16}>
+          <Input
+            addonBefore="Router Address:"
+            placeholder="0x..."
+            onChange={(e) => {
+              setRouterAddress(e.target.value);
+              refreshBalances();
+            }}
+            value={routerAddress}
+          />
+        </Col>
+      </Row>
+
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={16}>
+          <Table
+            pagination={false}
+            columns={[
+              {
+                title: "Chain",
+                dataIndex: "chain",
+                key: "chain",
+              },
+              {
+                title: "Asset",
+                dataIndex: "token",
+                key: "token",
+              },
+              {
+                title: "Asset ID",
+                dataIndex: "assetId",
+                key: "assetId",
+              },
+              {
+                title: "Balance",
+                dataIndex: "balance",
+                key: "balance",
+              },
+            ]}
+            dataSource={balances?.map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
+            footer={() => (
+              <div>
+                Total: {balances?.map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b) || "0"}
+              </div>
+            )}
+          />
+        </Col>
+      </Row>
+      <Divider />
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={8}>
+          <Typography.Title level={4}>Add Liquidity</Typography.Title>
         </Col>
       </Row>
       <Row gutter={16}>
@@ -137,44 +264,13 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={({ routerAddress, assetId, liquidityToAdd, infiniteApproval }) => {
-              addLiquidity(routerAddress, assetId, liquidityToAdd, infiniteApproval);
+            onFinish={({ assetId, liquidityToAdd, infiniteApproval }) => {
+              addLiquidity(assetId, liquidityToAdd, infiniteApproval);
             }}
             onFieldsChange={() => {}}
-            initialValues={{
-              assetId: constants.AddressZero,
-            }}
           >
-            <Form.Item label="Router Address" name="routerAddress">
+            <Form.Item label="Asset ID" name="assetId">
               <Input />
-            </Form.Item>
-
-            <Form.Item label="Asset Id" name="assetId">
-              <Input />
-            </Form.Item>
-
-            <Form.Item label="Current Liquidity" name="currentLiquidity">
-              <Input
-                disabled
-                placeholder="..."
-                addonAfter={
-                  <Button
-                    disabled={!web3Provider || !signer || !txManager}
-                    type="primary"
-                    onClick={async () => {
-                      const liquidity = await getLiquidity(
-                        form.getFieldValue("routerAddress"),
-                        form.getFieldValue("assetId"),
-                      );
-                      form.setFieldsValue({
-                        currentLiquidity: liquidity.toString(),
-                      });
-                    }}
-                  >
-                    Get Current Liquidity
-                  </Button>
-                }
-              />
             </Form.Item>
 
             <Form.Item label="Liquidity to Add" name="liquidityToAdd">
