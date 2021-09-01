@@ -1,11 +1,4 @@
-import {
-  CancelParams,
-  createLoggingContext,
-  FulfillParams,
-  getUuid,
-  PrepareParams,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { CancelParams, createLoggingContext, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
 import { constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";

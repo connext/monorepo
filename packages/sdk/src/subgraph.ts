@@ -2,7 +2,6 @@ import { Signer } from "ethers";
 import {
   createLoggingContext,
   CrosschainTransaction,
-  getUuid,
   Logger,
   RequestContext,
   TransactionData,
@@ -458,9 +457,6 @@ export class Subgraph {
   }
 
   async getHistoricalTransactions(_requestContext?: RequestContext): Promise<HistoricalTransaction[]> {
-    const methodName = "getHistoricalTransactions";
-    const methodId = getUuid();
-
     const { requestContext, methodContext } = createLoggingContext(
       this.getHistoricalTransactions.name,
       _requestContext,
