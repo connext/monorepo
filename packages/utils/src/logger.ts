@@ -19,15 +19,33 @@ export class Logger {
   }
 
   debug(msg: string, requestContext?: RequestContext, methodContext?: MethodContext, ctx?: any): void {
-    this.print(this.forcedLevel ?? "debug", requestContext, methodContext, ctx, msg);
+    this.print(
+      this.forcedLevel ?? "debug",
+      requestContext,
+      methodContext,
+      this.forcedLevel ? { ...ctx, intendedLevel: "debug" } : ctx,
+      msg,
+    );
   }
 
   info(msg: string, requestContext?: RequestContext, methodContext?: MethodContext, ctx?: any): void {
-    this.print(this.forcedLevel ?? "info", requestContext, methodContext, ctx, msg);
+    this.print(
+      this.forcedLevel ?? "info",
+      requestContext,
+      methodContext,
+      this.forcedLevel ? { ...ctx, intendedLevel: "info" } : ctx,
+      msg,
+    );
   }
 
   warn(msg: string, requestContext?: RequestContext, methodContext?: MethodContext, ctx?: any): void {
-    this.print(this.forcedLevel ?? "warn", requestContext, methodContext, ctx, msg);
+    this.print(
+      this.forcedLevel ?? "warn",
+      requestContext,
+      methodContext,
+      this.forcedLevel ? { ...ctx, intendedLevel: "warn" } : ctx,
+      msg,
+    );
   }
 
   error(
@@ -37,7 +55,13 @@ export class Logger {
     error?: NxtpErrorJson,
     ctx?: any,
   ): void {
-    this.print(this.forcedLevel ?? "error", requestContext, methodContext, { error, ...ctx }, msg);
+    this.print(
+      this.forcedLevel ?? "error",
+      requestContext,
+      methodContext,
+      this.forcedLevel ? { ...ctx, error, intendedLevel: "error" } : { ...ctx, error },
+      msg,
+    );
   }
 
   private print(
