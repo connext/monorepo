@@ -5,11 +5,12 @@ import { BaseLogger } from "pino";
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
-const MINIMUM_FUNDING_MULTIPLE = 2;
-const USER_MIN_ETH = utils.parseEther("0.2");
-const USER_MIN_TOKEN = utils.parseEther("1000000");
-
 export class OnchainAccountManager {
+
+  // private readonly MINIMUM_FUNDING_MULTIPLE = 2;
+  // private readonly USER_MIN_ETH = utils.parseEther("0.2");
+  // private readonly USER_MIN_TOKEN = utils.parseEther("1000000");
+
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
 
@@ -24,6 +25,10 @@ export class OnchainAccountManager {
     mnemonic: string,
     public readonly num_users: number,
     private readonly log: BaseLogger,
+    private readonly MINIMUM_FUNDING_MULTIPLE = 2,
+    private readonly USER_MIN_ETH = utils.parseEther("0.2"),
+    private readonly USER_MIN_TOKEN = utils.parseEther("1000000")
+
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
@@ -64,14 +69,14 @@ export class OnchainAccountManager {
     }
 
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? USER_MIN_TOKEN : USER_MIN_ETH;
+    const floor = isToken ? this.USER_MIN_TOKEN : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info({ assetId, account, chainId }, "No need for top up");
       return initial;
     }
 
-    const toSend = floor.sub(initial).mul(MINIMUM_FUNDING_MULTIPLE);
+    const toSend = floor.sub(initial).mul(this.MINIMUM_FUNDING_MULTIPLE);
 
     if (!isToken) {
       // Check balance before sending

@@ -13,9 +13,9 @@
     }
   },
   "logLevel": "info",
-  "natsUrl": "nats://localhost:4222",
-  "authUrl": "http://localhost:5040",
-  "mnemonic": "shell shell shell shell shell shell shell shell shell shell shell",
+  "natsUrl": "nats://nats-test:4222",
+  "authUrl": "http://auth-test:5040",
+  "mnemonic": "",
   "swapPools": [
     {
       "name": "TEST",
@@ -26,5 +26,3 @@
     }
   ]
 }
-
-

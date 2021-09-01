@@ -26,7 +26,8 @@
     "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/router.docker-compose.yml down",
     "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
     "cyclical:router": "ts-node ./test/load/routerCyclical.ts",
-    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts"
+    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts",
+    "routermgmt": "ts-node ./test/load/routerManager.ts"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,6 +40,7 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "dockerode": "^3.3.0",
     "ethers": "^5.4.4",
     "evt": "^1.10.1",
     "pino": "^6.13.0",
@@ -48,6 +50,7 @@
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
     "@types/chai-subset": "^1.3.3",
+    "@types/dockerode": "^3.2.7",
     "@types/mocha": "^9.0.0",
     "@types/pino": "^6.3.11",
     "@types/sinon": "^10.0.2",
