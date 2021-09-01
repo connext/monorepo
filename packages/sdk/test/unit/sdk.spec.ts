@@ -43,7 +43,7 @@ const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
 const { AddressZero } = constants;
 const response = "connected";
 
-describe.only("NxtpSdk", () => {
+describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;

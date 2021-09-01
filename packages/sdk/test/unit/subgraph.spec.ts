@@ -112,7 +112,7 @@ const convertMockedToActiveTransaction = (
   };
 };
 
-describe("Subgraph", () => {
+describe.only("Subgraph", () => {
   let subgraph: Subgraph;
   let signer: SinonStubbedInstance<Wallet>;
   let sendingChainId: number = 1337;
@@ -123,17 +123,22 @@ describe("Subgraph", () => {
     GetReceiverTransactions: SinonStub;
     GetTransaction: SinonStub;
     GetTransactions: SinonStub;
+    GetBlockNumber: SinonStub;
   };
   let getSdkStub: SinonStub;
 
   const chainConfig = {
     [sendingChainId]: {
       subgraph: "http://example.com",
-      provider: createStubInstance(providers.FallbackProvider),
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
     [receivingChainId]: {
       subgraph: "http://example.com",
-      provider: createStubInstance(providers.FallbackProvider),
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
   };
 
@@ -181,12 +186,13 @@ describe("Subgraph", () => {
       GetReceiverTransactions: stub().resolves({ transactions: [] }),
       GetTransaction: stub().resolves({ transactions: [] }),
       GetTransactions: stub().resolves({ transactions: [] }),
+      GetBlockNumber: stub().resolves({ _meta: { block: { number: 1 } } }),
     };
 
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer, chainConfig, logger);
+    subgraph = new Subgraph(signer, chainConfig as any, logger);
   });
 
   afterEach(() => {
