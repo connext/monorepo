@@ -39,7 +39,7 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.4",
-    "hardhat": "^2.6.0",
+    "hardhat": "^2.6.2",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^11.1.2",
@@ -54,7 +54,7 @@
     "ajv": "^8.6.2",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
-    "hardhat-deploy": "^0.8.11",
+    "hardhat-deploy": "^0.9.0",
     "hardhat-gas-reporter": "^1.0.4",
     "typechain": "^5.1.2"
   },
