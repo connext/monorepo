@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
@@ -98,7 +98,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
   // Refreshes the balances table with human readable values for each asset on current chain.
   const refreshBalances = async (): Promise<void> => {
-    if (!routerAddress || !(routerAddress.length === 42)) {
+    if (!isValidAddress(routerAddress)) {
       return;
     }
 
