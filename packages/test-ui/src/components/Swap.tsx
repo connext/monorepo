@@ -2,13 +2,13 @@
 import { useEffect, useState, ReactElement } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
-import pino from "pino";
 import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
   ChainData,
   CrosschainTransaction,
   getRandomBytes32,
+  Logger,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
 
@@ -64,7 +64,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       const _sdk = new NxtpSdk(
         chainProviders,
         signer,
-        pino({ level: "info" }),
+        new Logger({ level: "info" }),
         (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
         process.env.REACT_APP_NATS_URL_OVERRIDE,
         process.env.REACT_APP_AUTH_URL_OVERRIDE,
@@ -378,10 +378,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
             <Button
               type="link"
               onClick={() =>
-                sdk?.cancel(
-                  { relayerFee: "0", signature: "0x", txData: sendingTxData },
-                  crosschainTx.invariant.sendingChainId,
-                )
+                sdk?.cancel({ signature: "0x", txData: sendingTxData }, crosschainTx.invariant.sendingChainId)
               }
             >
               Cancel
