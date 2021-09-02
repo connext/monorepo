@@ -1,9 +1,9 @@
 import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
 import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
-import { Wallet, BigNumber, providers } from "ethers";
-import pino from "pino";
+import { Wallet, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
+import { Logger } from "@connext/nxtp-utils";
 
 import { ActiveTransaction, HistoricalTransactionStatus } from "../../src/types";
 import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
@@ -13,7 +13,7 @@ import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
 import { InvalidTxStatus } from "../../src/error";
 import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): TransactionData => {
   const {
@@ -380,7 +380,10 @@ describe.only("Subgraph", () => {
       it("should post to receiver transaction fulfilled evt if the status is fulfilled", async () => {
         const transactionId = getRandomBytes32();
         const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
-        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
+        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending, {
+          ...subgraphSending,
+          amount: BigNumber.from(2),
+        });
         (subgraph as any).activeTxs.set(transactionId, active);
 
         sdkStub.GetTransactions.resolves({
