@@ -351,6 +351,12 @@ export class NxtpSdk {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.chainConfig));
     }
 
+    const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
+    const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
+    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
+      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { sendingChainId, receivingChainId });
+    }
+
     if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
