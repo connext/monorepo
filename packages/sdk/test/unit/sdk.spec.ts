@@ -6,10 +6,10 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
+  Logger,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
-import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { NxtpSdk, MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
@@ -38,7 +38,7 @@ import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
 const response = "connected";
