@@ -31,7 +31,7 @@
     "@sinclair/typebox": "^0.20.4",
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.1",
-    "ethers": "^5.4.4",
+    "ethers": "^5.4.6",
     "evt": "^1.10.1",
     "graphql": "^15.5.1",
     "graphql-request": "^3.5.0",
