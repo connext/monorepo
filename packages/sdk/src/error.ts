@@ -7,6 +7,7 @@ import {
   NxtpError,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
+import { SubgraphSyncRecord } from "./types";
 
 /**
  * @classdesc Represents errors having to do with config issues
@@ -373,6 +374,31 @@ export class InvalidTxStatus extends SubgraphError {
         transactionId,
         status,
         record,
+        ...context,
+      },
+      SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when subgraphs are not synced
+ */
+export class SubgraphsNotSynced extends SubgraphError {
+  static getMessage(sendingSyncStatus: SubgraphSyncRecord, receivingSyncStatus: SubgraphSyncRecord) {
+    return `Subgraphs not synced! sendingSyncStatus: ${JSON.stringify(
+      sendingSyncStatus,
+    )}, receivingSyncStatus: ${JSON.stringify(receivingSyncStatus)}`;
+  }
+
+  constructor(
+    public readonly sendingSyncStatus: SubgraphSyncRecord,
+    public readonly receivingSyncStatus: SubgraphSyncRecord,
+    public readonly context: any = {},
+  ) {
+    super(
+      SubgraphsNotSynced.getMessage(sendingSyncStatus, receivingSyncStatus),
+      {
         ...context,
       },
       SubgraphError.type,

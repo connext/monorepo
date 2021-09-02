@@ -33,7 +33,8 @@ function App(): ReactElement | null {
       return;
     }
     try {
-      await ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+      console.log("accounts: ", accounts);
       const provider = new providers.Web3Provider(ethereum);
       const _signer = provider.getSigner();
       const address = await _signer.getAddress();

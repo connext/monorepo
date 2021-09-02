@@ -15,7 +15,7 @@ import FulfillInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contra
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import { TransactionManager } from "../../src";
+import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { getOnchainBalance } from "./util";
 
 const { AddressZero } = constants;
@@ -160,7 +160,7 @@ export const prepareAndAssert = async (
   const expected = initialPreparerAmount.sub(record.amount);
   expect(finalPreparerAmount).to.be.eq(
     transaction.sendingAssetId === AddressZero && userSending
-      ? expected.sub(res.value.gasPrice!.mul(receipt.cumulativeGasUsed!))
+      ? expected.sub(res.gasPrice!.mul(receipt.cumulativeGasUsed!))
       : expected,
   );
 

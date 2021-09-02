@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Check subgraph sync status and block transfers if out of sync.
+
 ## 0.0.32
 
 - [router] Cancel sender transaction if subgraph is out of sync.

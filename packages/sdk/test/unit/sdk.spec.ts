@@ -6,25 +6,16 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
+  Logger,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
-import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
-import {
-  CrossChainParams,
-  NxtpSdk,
-  NxtpSdkEvents,
-  MAX_SLIPPAGE_TOLERANCE,
-  MIN_SLIPPAGE_TOLERANCE,
-  getMinExpiryBuffer,
-  getMaxExpiryBuffer,
-} from "../../src/sdk";
+import { NxtpSdk, MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
 
-import * as sdkUtils from "../../src/sdk";
-import { HistoricalTransactionStatus, Subgraph } from "../../src/subgraph";
-import { TransactionManager } from "../../src/transactionManager";
+import * as utils from "../../src/utils";
+import * as sdkIndex from "../../src/sdk";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
 import { Evt } from "evt";
 import {
@@ -38,12 +29,17 @@ import {
   MetaTxTimeout,
   NoSubgraph,
   NoTransactionManager,
+  SubgraphsNotSynced,
   SubmitError,
   UnknownAuctionError,
 } from "../../src/error";
 import { getAddress } from "ethers/lib/utils";
+import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
+import { Subgraph } from "../../src/subgraph/subgraph";
+import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
+import { TransactionManager } from "../../src/transactionManager/transactionManager";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
 const response = "connected";
@@ -91,22 +87,23 @@ describe("NxtpSdk", () => {
     signer = createStubInstance(Wallet);
     messaging = createStubInstance(UserNxtpNatsMessagingService);
     subgraph = createStubInstance(Subgraph);
+    subgraph.getSyncStatus.returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
     transactionManager = createStubInstance(TransactionManager);
 
-    stub(sdkUtils, "getDecimals").resolves(18);
+    stub(utils, "getDecimals").resolves(18);
 
-    stub(sdkUtils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+    stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
-    balanceStub = stub(sdkUtils, "getOnchainBalance");
+    balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
-    stub(sdkUtils, "createMessagingEvt").returns(messageEvt);
+    stub(sdkIndex, "createMessagingEvt").returns(messageEvt);
 
-    signFulfillTransactionPayloadMock = stub(sdkUtils, "signFulfillTransactionPayload");
-    recoverAuctionBidMock = stub(sdkUtils, "recoverAuctionBid");
+    signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
+    recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
 
-    stub(sdkUtils, "AUCTION_TIMEOUT").value(1_000);
-    stub(sdkUtils, "generateMessagingInbox").returns("inbox");
+    stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
+    stub(utils, "generateMessagingInbox").returns("inbox");
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -366,6 +363,18 @@ describe("NxtpSdk", () => {
       });
     });
 
+    it("should error if subgraph not synced", async () => {
+      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+      const { crossChainParams } = getMock();
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
+        SubgraphsNotSynced.getMessage(
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+        ),
+      );
+    });
+
     it("should error if slippageTolerance is lower than Min allowed", async () => {
       const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MIN_SLIPPAGE_TOLERANCE) - 1).toString() });
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
@@ -536,7 +545,7 @@ describe("NxtpSdk", () => {
     });
 
     describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
+      it("unknown sendingChainId", async () => {
         const { auctionBid, bidSignature } = getMock({}, { sendingChainId: 1400 });
 
         await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
@@ -544,7 +553,7 @@ describe("NxtpSdk", () => {
         );
       });
 
-      it("unkown receivingChainId", async () => {
+      it("unknown receivingChainId", async () => {
         const { auctionBid, bidSignature } = getMock({}, { receivingChainId: 1400 });
 
         await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
@@ -553,17 +562,26 @@ describe("NxtpSdk", () => {
       });
     });
 
+    it("should error if subgraph not synced", async () => {
+      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+      const { crossChainParams } = getMock();
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
+        SubgraphsNotSynced.getMessage(
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+        ),
+      );
+    });
+
     it("should error if it has insufficient balance", async () => {
       const { auctionBid, bidSignature } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(0));
-      try {
-        await sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature });
-        expect("Should error").to.be.undefined;
-      } catch (e) {
-        expect(e.message).to.be.eq(
-          InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-        );
-      }
+      await expect(
+        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature }),
+      ).to.eventually.be.rejectedWith(
+        InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
+      );
     });
 
     it("should error if bidSignature undefined", async () => {
@@ -721,7 +739,7 @@ describe("NxtpSdk", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
-      stub(sdkUtils, "META_TX_TIMEOUT").value(1_000);
+      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
       setTimeout(() => {
         messageEvt.post({

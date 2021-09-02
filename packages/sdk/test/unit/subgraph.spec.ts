@@ -2,24 +2,18 @@ import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-util
 import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
-import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
+import { Logger } from "@connext/nxtp-utils";
 
-import {
-  Subgraph,
-  convertTransactionToTxData,
-  ActiveTransaction,
-  createSubgraphEvts,
-  SubgraphEvents,
-  HistoricalTransactionStatus,
-} from "../../src/subgraph";
-import * as graphqlsdk from "../../src/graphqlsdk";
+import { ActiveTransaction, HistoricalTransactionStatus } from "../../src/types";
+import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
 import { InvalidTxStatus } from "../../src/error";
+import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): TransactionData => {
   const {
@@ -129,15 +123,22 @@ describe("Subgraph", () => {
     GetReceiverTransactions: SinonStub;
     GetTransaction: SinonStub;
     GetTransactions: SinonStub;
+    GetBlockNumber: SinonStub;
   };
   let getSdkStub: SinonStub;
 
   const chainConfig = {
     [sendingChainId]: {
       subgraph: "http://example.com",
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
     [receivingChainId]: {
       subgraph: "http://example.com",
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
   };
 
@@ -185,12 +186,13 @@ describe("Subgraph", () => {
       GetReceiverTransactions: stub().resolves({ transactions: [] }),
       GetTransaction: stub().resolves({ transactions: [] }),
       GetTransactions: stub().resolves({ transactions: [] }),
+      GetBlockNumber: stub().resolves({ _meta: { block: { number: 1 } } }),
     };
 
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer, chainConfig, logger);
+    subgraph = new Subgraph(signer, chainConfig as any, logger);
   });
 
   afterEach(() => {
@@ -378,7 +380,10 @@ describe("Subgraph", () => {
       it("should post to receiver transaction fulfilled evt if the status is fulfilled", async () => {
         const transactionId = getRandomBytes32();
         const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
-        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
+        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending, {
+          ...subgraphSending,
+          amount: BigNumber.from(2),
+        });
         (subgraph as any).activeTxs.set(transactionId, active);
 
         sdkStub.GetTransactions.resolves({

@@ -13,7 +13,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotConfigured } from "./error";
+import { ChainNotConfigured } from "../error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed

@@ -1,3 +1,4 @@
-export * from "./sdk";
-export * from "./subgraph";
-export { getDeployedTransactionManagerContract } from "./transactionManager";
+export { NxtpSdk } from "./sdk";
+export { getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
+export * from "./types";
+export { getMinExpiryBuffer } from "./utils";
