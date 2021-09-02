@@ -2,7 +2,10 @@
 
 ## Next Release
 
+## 0.0.33
+
 - [sdk] Check subgraph sync status and block transfers if out of sync.
+- [sdk] Make sync buffer configurable.
 
 ## 0.0.32
 
