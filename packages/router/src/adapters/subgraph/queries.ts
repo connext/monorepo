@@ -176,3 +176,13 @@ export const getAssetBalanceById = gql`
     }
   }
 `;
+
+export const getBlockNumber = gql`
+  query GetBlockNumber {
+    _meta {
+      block {
+        number
+      }
+    }
+  }
+`;

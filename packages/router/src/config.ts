@@ -83,6 +83,7 @@ export const TChainConfig = Type.Object({
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
   safeRelayerFee: Type.String(),
+  subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
 });
 
 export const TSwapPool = Type.Object({
@@ -196,7 +197,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const defaultConfirmations = chainData ? parseInt(chainData.get("1")?.confirmations) + 3 : 1;
+  const defaultConfirmations = chainData && chainData.has("1") ? parseInt(chainData.get("1").confirmations) + 3 : 4;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     // allow passed in address to override
@@ -226,6 +227,10 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
 
     if (!chainConfig.confirmations) {
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
+    }
+
+    if (!chainConfig.subgraphSyncBuffer) {
+      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
     }
 
     // Validate that confirmations is above acceptable/recommended minimum.

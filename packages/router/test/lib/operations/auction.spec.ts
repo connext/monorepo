@@ -6,8 +6,9 @@ import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
-import { txServiceMock } from "../../globalTestHook";
+import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { constants } from "ethers/lib/ethers";
+import { SubgraphNotSynced } from "../../../src/lib/errors/auction";
 
 const requestContext = createRequestContext("TEST");
 
@@ -60,6 +61,22 @@ describe("Auction Operation", () => {
     it("should error if no providers for receiving chain", async () => {
       await expect(newAuction({ ...auctionPayload, receivingChainId: 1234 }, requestContext)).to.be.rejectedWith(
         "Providers not available",
+      );
+    });
+
+    it("should error if sending subgraph is out of sync", async () => {
+      const record = { synced: false, latestBlock: 0, syncedBlock: 0 };
+      (contractReaderMock.getSyncRecord as SinonStub).onCall(0).returns(record);
+      await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
+        SubgraphNotSynced.getMessage(auctionPayload.receivingChainId, record),
+      );
+    });
+
+    it("should error if receiving subgraph is out of sync", async () => {
+      const record = { synced: false, latestBlock: 0, syncedBlock: 0 };
+      (contractReaderMock.getSyncRecord as SinonStub).onCall(1).returns(record);
+      await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
+        SubgraphNotSynced.getMessage(auctionPayload.sendingChainId, record),
       );
     });
 

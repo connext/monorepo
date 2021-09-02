@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, dataSource } from "@graphprotocol/graph-ts";
 
 import {
   TransactionManager,
@@ -76,9 +76,37 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     user.save();
   }
 
-  // instantiate contract to get the chainId
-  let contract = TransactionManager.bind(event.address);
-  let chainId = contract.getChainId();
+  // try to get chainId from the mapping
+  let network = dataSource.network();
+  let chainId: BigInt;
+  if (network == "ropsten") {
+    chainId = BigInt.fromI32(3);
+  } else if (network == "rinkeby") {
+    chainId = BigInt.fromI32(4);
+  } else if (network == "goerli") {
+    chainId = BigInt.fromI32(5);
+  } else if (network == "kovan") {
+    chainId = BigInt.fromI32(42);
+  } else if (network == "bsc") {
+    chainId = BigInt.fromI32(56);
+  } else if (network == "chapel") {
+    chainId = BigInt.fromI32(97);
+  } else if (network == "matic") {
+    chainId = BigInt.fromI32(137);
+  } else if (network == "fantom") {
+    chainId = BigInt.fromI32(250);
+  } else if (network == "mbase") {
+    chainId = BigInt.fromI32(1287);
+  } else if (network == "fuji") {
+    chainId = BigInt.fromI32(43113);
+  } else if (network == "mumbai") {
+    chainId = BigInt.fromI32(80001);
+  } else if (network == "arbitrum-rinkeby") {
+    chainId = BigInt.fromI32(421611);
+  } else {
+    // instantiate contract to get the chainId as a fallback
+    chainId = TransactionManager.bind(event.address).getChainId();
+  }
 
   // cannot use only transactionId because of multipath routing, this below combo will be unique for active txs
   let transactionId =

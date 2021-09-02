@@ -21,6 +21,7 @@ import {
   ParamsInvalid,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
+import { SubgraphNotSynced } from "../errors/auction";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -122,6 +123,27 @@ export const newAuction = async (
       requestContext,
       sendingChainId,
       receivingChainId,
+    });
+  }
+
+  // Make sure subgraphs are synced
+  const receivingSyncRecord = contractReader.getSyncRecord(receivingChainId);
+  if (!receivingSyncRecord.synced) {
+    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecord, {
+      methodId,
+      method,
+      requestContext,
+      transactionId,
+    });
+  }
+
+  const sendingSyncRecord = contractReader.getSyncRecord(sendingChainId);
+  if (!sendingSyncRecord.synced) {
+    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecord, {
+      methodId,
+      method,
+      requestContext,
+      transactionId,
     });
   }
 

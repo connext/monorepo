@@ -28,6 +28,7 @@ export const configMock: NxtpRouterConfig = {
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
       safeRelayerFee: "1000",
+      subgraphSyncBuffer: 10,
     },
     1338: {
       confirmations: 1,
@@ -36,6 +37,7 @@ export const configMock: NxtpRouterConfig = {
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
       safeRelayerFee: "1000",
+      subgraphSyncBuffer: 10,
     },
   },
   mnemonic: "hello world",

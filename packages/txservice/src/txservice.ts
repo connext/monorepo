@@ -275,6 +275,21 @@ export class TransactionService {
   }
 
   /**
+   * Gets the current block number
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current block
+   */
+  public async getBlockNumber(chainId: number): Promise<number> {
+    const result = await this.getProvider(chainId).getBlockNumber();
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
    * Gets a trsanction receipt by hash
    *
    * @param chainId - The ID of the chain for which this call is related.
