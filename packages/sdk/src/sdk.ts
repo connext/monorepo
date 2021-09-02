@@ -174,7 +174,7 @@ export class NxtpSdk {
       }
       this.messaging = new UserNxtpNatsMessagingService({
         signer,
-        logger: logger.child({ module: "UserNxtpNatsMessagingService" }),
+        logger: this.logger.child({ module: "UserNxtpNatsMessagingService" }),
         natsUrl: _natsUrl,
         authUrl: _authUrl,
       });
