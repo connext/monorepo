@@ -11,11 +11,12 @@ IFS=$'\n\t'
 # Set variable values.
 
 # @dev run from root nxtp directory w/
-# [sudo] bash docker/router/build-router.sh
+# [sudo] bash docker/router/build-integration.sh
 
-app_full_name=@connext/nxtp-router
-app_name=nxtp-router # remove scope like "@my-org/", if any.
-short_app_dir=router # i.e. packages/router to /router
+app_full_name=@connext/nxtp-integration
+app_name=nxtp-integration
+# remove scope like "@my-org/", if any.
+short_app_dir=integration # i.e. packages/router to /router
 
 if [ -z "$DOCKER_REPO" ]; then
   echo "DOCKER_REPO environment variable not set. Images will not be pulled or pushed."
@@ -53,11 +54,12 @@ echo "= Build the build stage image and push to registry"
 echo "====="
 docker build \
   --target build \
-  --cache-from "${BUILD_IMAGE}":latest \
+  --cache-from "${BUILD_IMAGE}":lattest \
   --tag "${BUILD_IMAGE}":latest \
+  --cache-from "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
   --build-arg APP_NAME="${app_full_name}" \
-  --file ./docker/router/Dockerfile \
+  --file ./docker/integration/Dockerfile \
   .
 
 if [ -n "$DOCKER_REPO" ]; then
@@ -94,13 +96,11 @@ echo "= Build the app image and push to registry"
 echo "====="
 
 docker build \
-    --cache-from "${app_image}":latest \
-    --cache-from "${BUILD_IMAGE}":latest \
     --tag "${app_image}":latest \
     --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
     --build-arg APP_NAME="${app_full_name}" \
     --build-arg SHORT_APP_DIR="${short_app_dir}" \
-    --file ./docker/router/Dockerfile \
+    --file ./docker/integration/Dockerfile \
     .
 
 # tag images
@@ -135,3 +135,4 @@ if [ -n "$DOCKER_REPO" ]; then
 else
   echo "DOCKER_REPO not configured, will not push"
 fi
+

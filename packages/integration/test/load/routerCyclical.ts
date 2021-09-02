@@ -1,4 +1,4 @@
-import { delay } from "@connext/nxtp-utils";
+import { delay, Logger } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 import pino from "pino";
 
@@ -22,7 +22,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     config.chainConfig,
     config.mnemonic,
     numberOfAgents,
-    log,
+    new Logger({ level: config.logLevel ?? "info" }),
     config.natsUrl,
     config.authUrl,
   );

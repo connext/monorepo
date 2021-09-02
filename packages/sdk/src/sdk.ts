@@ -25,10 +25,9 @@ import {
   calculateExchangeWad,
   delay,
   MetaTxTypes,
-  CancelParams,
-  encodeAuctionBid,
+  Logger,
+  createLoggingContext,
 } from "@connext/nxtp-utils";
-import pino, { BaseLogger } from "pino";
 
 import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
 import {
@@ -70,6 +69,7 @@ import {
   HistoricalTransaction,
   SubgraphSyncRecord,
   ActiveTransaction,
+  CancelParams,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -81,6 +81,7 @@ import {
   recoverAuctionBid,
   getOnchainBalance,
   signFulfillTransactionPayload,
+  encodeAuctionBid,
 } from "./utils";
 import { Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -143,7 +144,7 @@ export class NxtpSdk {
       };
     },
     private signer: Signer,
-    private readonly logger: BaseLogger = pino(),
+    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
     network: "testnet" | "mainnet" | "local" = "mainnet",
     natsUrl?: string,
     authUrl?: string,
@@ -229,7 +230,7 @@ export class NxtpSdk {
     this.transactionManager = new TransactionManager(
       this.signer,
       txManagerConfig,
-      this.logger.child({ module: "TransactionManager" }),
+      this.logger.child({ module: "TransactionManager" }, "debug"),
     );
     this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
   }
@@ -306,17 +307,26 @@ export class NxtpSdk {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
-    const method = "getTransferQuote";
-    const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, params }, "Method started");
+    const transactionId = params.transactionId ?? getRandomBytes32();
+    const { requestContext, methodContext } = createLoggingContext(
+      this.getTransferQuote.name,
+      undefined,
+      transactionId,
+    );
+
+    this.logger.info("Method started", requestContext, methodContext, { params });
 
     // Validate params schema
     const validate = ajv.compile(CrossChainParamsSchema);
     const valid = validate(params);
     if (!valid) {
-      const error = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid transfer params");
-      throw new InvalidParamStructure("getTransferQuote", "CrossChainParams", error, params);
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("getTransferQuote", "CrossChainParams", msg, params);
+      this.logger.error("Invalid transfer params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        params,
+      });
+      throw error;
     }
 
     const user = await this.signer.getAddress();
@@ -361,7 +371,6 @@ export class NxtpSdk {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
-    const transactionId = params.transactionId ?? getRandomBytes32();
     const callTo = params.callTo ?? constants.AddressZero;
     const callData = params.callData ?? "0x";
 
@@ -412,7 +421,9 @@ export class NxtpSdk {
       }
 
       if (preferredRouter) {
-        this.logger.warn({ method, methodId, preferredRouter }, "Waiting for preferred router");
+        this.logger.warn("Waiting for preferred router", requestContext, methodContext, {
+          preferredRouter,
+        });
         try {
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
@@ -434,7 +445,7 @@ export class NxtpSdk {
         .pipe((data) => !!data.data)
         .pipe((data) => {
           if (data.err) {
-            this.logger.warn({ inbox, err: data.err }, "Invalid bid received");
+            this.logger.warn("Invalid bid received", requestContext, methodContext, { inbox, err: data.err });
             return false;
           }
           return true;
@@ -466,10 +477,16 @@ export class NxtpSdk {
     };
     await this.messaging.publishAuctionRequest(payload, inbox);
 
-    this.logger.info({ method, methodId, inbox }, `Waiting up to ${AUCTION_TIMEOUT} ms for responses`);
+    this.logger.info(`Waiting up to ${AUCTION_TIMEOUT} ms for responses`, requestContext, methodContext, {
+      inbox,
+    });
     try {
       const auctionResponses = await auctionBidsPromise;
-      this.logger.info({ method, methodId, auctionResponses, transactionId, inbox }, "Auction closed");
+      this.logger.info("Auction closed", requestContext, methodContext, {
+        auctionResponses,
+        transactionId,
+        inbox,
+      });
       if (auctionResponses.length === 0) {
         throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
       }
@@ -480,7 +497,7 @@ export class NxtpSdk {
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
           if (signer !== data.bid.router) {
             const msg = "Invalid router signature on bid";
-            this.logger.error({ method, methodId, signer, router: data.bid.router }, msg);
+            this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
             return msg;
           }
 
@@ -493,15 +510,20 @@ export class NxtpSdk {
             );
             if (routerLiq.lt(data.bid.amountReceived)) {
               const msg = "Router's liquidity low";
-              this.logger.error(
-                { method, methodId, signer, receivingChainId, receivingAssetId, router: data.bid.router },
-                msg,
-              );
+              this.logger.warn(msg, requestContext, methodContext, {
+                signer,
+                receivingChainId,
+                receivingAssetId,
+                router: data.bid.router,
+              });
               return msg;
             }
           } catch (err) {
             const msg = "Error getting router liquidity";
-            this.logger.error({ method, methodId, sendingChainId, receivingChainId, err: jsonifyError(err) }, msg);
+            this.logger.error(msg, requestContext, methodContext, jsonifyError(err), {
+              sendingChainId,
+              receivingChainId,
+            });
             return msg;
           }
 
@@ -513,10 +535,11 @@ export class NxtpSdk {
 
           if (!sendingProvider || !receivingProvider) {
             const msg = "Provider not found";
-            this.logger.error(
-              { method, methodId, supported: Object.keys(this.chainConfig), sendingChainId, receivingChainId },
-              msg,
-            );
+            this.logger.warn(msg, requestContext, methodContext, {
+              supported: Object.keys(this.chainConfig),
+              sendingChainId,
+              receivingChainId,
+            });
             return msg;
           }
 
@@ -535,19 +558,14 @@ export class NxtpSdk {
           // safe calculation if the amountReceived is greater than 4 decimals
           if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
             const msg = "Invalid bid price: price impact is more than the slippage tolerance";
-            this.logger.error(
-              {
-                method,
-                methodId,
-                signer,
-                lowerBound: lowerBound,
-                bidAmount: data.bid.amount,
-                amountReceived: data.bid.amountReceived,
-                slippageTolerance: slippageTolerance,
-                router: data.bid.router,
-              },
-              msg,
-            );
+            this.logger.warn(msg, requestContext, methodContext, {
+              signer,
+              lowerBound: lowerBound,
+              bidAmount: data.bid.amount,
+              amountReceived: data.bid.amountReceived,
+              slippageTolerance: slippageTolerance,
+              router: data.bid.router,
+            });
             return msg;
           }
 
@@ -565,8 +583,10 @@ export class NxtpSdk {
       })[0];
       return chosen;
     } catch (e) {
-      this.logger.error({ method, methodId, err: jsonifyError(e), transactionId }, "Auction error");
-      throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { method, methodId, transactionId });
+      this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
+        transactionId,
+      });
+      throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
   }
 
@@ -583,14 +603,18 @@ export class NxtpSdk {
     transferParams: AuctionResponse,
     infiniteApprove = false,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
-    const method = "transfer";
-    const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, transferParams }, "Method started");
+    const { requestContext, methodContext } = createLoggingContext(
+      this.prepareTransfer.name,
+      undefined,
+      transferParams.bid.transactionId,
+    );
+
+    this.logger.info("Method started", requestContext, methodContext, { transferParams });
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
     if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, method, methodId });
+      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams });
     }
 
     const { bid, bidSignature } = transferParams;
@@ -599,11 +623,15 @@ export class NxtpSdk {
     const validate = ajv.compile(AuctionBidParamsSchema);
     const valid = validate(bid);
     if (!valid) {
-      const error = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ method, methodId, error: validate.errors, transferParams }, "Invalid transfer params");
-      throw new InvalidParamStructure("prepareTransfer", "AuctionResponse", error, transferParams, {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("prepareTransfer", "AuctionResponse", msg, transferParams, {
         transactionId: transferParams.bid.transactionId,
       });
+      this.logger.error("Invalid transfer params", requestContext, methodContext, jsonifyError(error), {
+        validationErrors: validate.errors,
+        transferParams,
+      });
+      throw error;
     }
 
     const {
@@ -646,17 +674,12 @@ export class NxtpSdk {
       throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
     }
 
-    this.logger.info(
-      {
-        method,
-        methodId,
-        amount,
-        expiry,
-        encodedBid,
-        bidSignature,
-      },
-      "Preparing tx!",
-    );
+    this.logger.info("Preparing tx!", requestContext, methodContext, {
+      amount,
+      expiry,
+      encodedBid,
+      bidSignature,
+    });
 
     if (sendingAssetId !== constants.AddressZero) {
       const approveTx = await this.transactionManager.approveTokensIfNeeded(
@@ -664,6 +687,7 @@ export class NxtpSdk {
         sendingAssetId,
         amount,
         infiniteApprove,
+        requestContext,
       );
 
       if (approveTx) {
@@ -688,10 +712,9 @@ export class NxtpSdk {
             },
           );
         }
-        this.logger.info(
-          { method, methodId, transactionId, transactionHash: approveReceipt.transactionHash },
-          "Mined approve tx",
-        );
+        this.logger.info("Mined approve tx", requestContext, methodContext, {
+          transactionHash: approveReceipt.transactionHash,
+        });
         this.evts.SenderTokenApprovalMined.post({
           assetId: sendingAssetId,
           chainId: sendingChainId,
@@ -723,7 +746,7 @@ export class NxtpSdk {
       amount,
       expiry,
     };
-    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params);
+    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params, requestContext);
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: params,
       transactionResponse: prepareResponse,
@@ -744,19 +767,26 @@ export class NxtpSdk {
     relayerFee = "0",
     useRelayers = true,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
-    const method = "finishTransfer";
-    const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, params, useRelayers }, "Method started");
+    const { requestContext, methodContext } = createLoggingContext(
+      this.fulfillTransfer.name,
+      undefined,
+      params.txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
 
     // Validate params schema
     const validate = ajv.compile(TransactionPrepareEventSchema);
     const valid = validate(params);
     if (!valid) {
-      const error = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ method, methodId, error: validate.errors, params }, "Invalid Params");
-      throw new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", error, params, {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
         transactionId: params.txData.transactionId,
       });
+      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        params,
+      });
+      throw error;
     }
 
     const { txData, encryptedCallData } = params;
@@ -771,7 +801,7 @@ export class NxtpSdk {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.chainConfig));
     }
 
-    this.logger.info({ method, methodId, transactionId: params.txData.transactionId }, "Generating fulfill signature");
+    this.logger.info("Generating fulfill signature", requestContext, methodContext);
     const signature = await signFulfillTransactionPayload(
       txData.transactionId,
       relayerFee,
@@ -780,9 +810,9 @@ export class NxtpSdk {
       this.signer,
     );
 
-    this.logger.info({ method, methodId, signature }, "Generated signature");
+    this.logger.info("Generated signature", requestContext, methodContext, { signature });
     this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
-    this.logger.info({ method, methodId, transactionId: txData.transactionId, relayerFee }, "Preparing fulfill tx");
+    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { relayerFee });
     let callData = "0x";
     if (txData.callDataHash !== utils.keccak256(callData)) {
       callData = await ethereum.request({
@@ -792,7 +822,7 @@ export class NxtpSdk {
     }
 
     if (useRelayers) {
-      this.logger.info({ method, methodId }, "Fulfilling using relayers");
+      this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
         await this.connectMessaging();
       }
@@ -823,21 +853,28 @@ export class NxtpSdk {
       try {
         const response = await metaTxProm;
         const metaTxRes = response.data;
-        this.logger.info({ method, methodId }, "Method complete");
+        this.logger.info("Method complete", requestContext, methodContext, {
+          txHash: metaTxRes?.transactionHash,
+          chainId: metaTxRes?.chainId,
+        });
         return { metaTxResponse: metaTxRes };
       } catch (e) {
         throw e.message.includes("Evt timeout") ? new MetaTxTimeout(txData.transactionId, META_TX_TIMEOUT, request) : e;
       }
     } else {
-      this.logger.info({ method, methodId }, "Fulfilling with user's signer");
-      const fulfillResponse = await this.transactionManager.fulfill(txData.receivingChainId, {
-        callData,
-        relayerFee,
-        signature,
-        txData,
-      });
+      this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
+      const fulfillResponse = await this.transactionManager.fulfill(
+        txData.receivingChainId,
+        {
+          callData,
+          relayerFee,
+          signature,
+          txData,
+        },
+        requestContext,
+      );
 
-      this.logger.info({ method, methodId }, "Method complete");
+      this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { fulfillResponse };
     }
   }
@@ -854,23 +891,30 @@ export class NxtpSdk {
    */
 
   public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
-    const method = this.cancel.name;
-    const methodId = getRandomBytes32();
-    this.logger.info({ method, methodId, chainId, cancelParams }, "Method started");
+    const { requestContext, methodContext } = createLoggingContext(
+      this.cancel.name,
+      undefined,
+      cancelParams.txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
     // Validate params schema
     const validate = ajv.compile(CancelSchema);
     const valid = validate(cancelParams);
     if (!valid) {
-      const error = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      this.logger.error({ method, methodId, error: validate.errors, cancelParams }, "Invalid Params");
-      throw new InvalidParamStructure("cancel", "CancelParams", error, cancelParams, {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("cancel", "CancelParams", msg, cancelParams, {
         transactionId: cancelParams.txData.transactionId,
       });
+      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        cancelParams,
+      });
+      throw error;
     }
 
-    const cancelResponse = await this.transactionManager.cancel(chainId, cancelParams);
-    this.logger.info({ method, methodId }, "Method complete");
+    const cancelResponse = await this.transactionManager.cancel(chainId, cancelParams, requestContext);
+    this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
     return cancelResponse;
   }
 

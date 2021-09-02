@@ -2,8 +2,8 @@ import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
 
 import { getContext } from "../../router";
-import { prepareCancel } from "./cancel";
 
+import { prepareCancel } from "./cancel";
 import {
   CancelSenderTransferRequest,
   CancelSenderTransferRequestSchema,

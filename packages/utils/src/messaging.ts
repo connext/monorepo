@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import pino, { BaseLogger } from "pino";
 import { INatsService, natsServiceFactory } from "ts-natsutil";
 import { Signer } from "ethers";
 import { Type, Static } from "@sinclair/typebox";
@@ -9,7 +8,8 @@ import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
 import { FulfillParams } from "./transactionManager";
-import { getUuid } from "./request";
+import { createLoggingContext, createRequestContext, getUuid, RequestContext } from "./request";
+import { Logger } from "./logger";
 
 export { AuthService } from "ts-natsutil";
 
@@ -54,7 +54,7 @@ export type MessagingConfig = {
   authUrl?: string;
   natsUrl?: string;
   bearerToken?: string;
-  logger?: BaseLogger;
+  logger?: Logger;
 };
 
 /**
@@ -83,7 +83,7 @@ export const getBearerToken = (authUrl: string, signer: Signer) => async (): Pro
  */
 export class NatsBasicMessagingService {
   private connection: INatsService | undefined;
-  private log: BaseLogger;
+  private log: Logger;
 
   private authUrl?: string;
   private bearerToken?: string;
@@ -91,7 +91,10 @@ export class NatsBasicMessagingService {
   protected signer: Signer;
 
   constructor(config: MessagingConfig) {
-    this.log = config.logger || pino();
+    this.log = config.logger || new Logger({ level: "info", name: NatsBasicMessagingService.name });
+
+    // create request and method context
+    const { requestContext, methodContext } = createLoggingContext("NatsBasicMessagingService.constructor");
 
     // default to live cluster
     if (!config.authUrl) {
@@ -105,7 +108,10 @@ export class NatsBasicMessagingService {
     this.authUrl = config.authUrl;
     this.natsUrl = config.natsUrl;
 
-    this.log.info({ natsUrl: this.natsUrl, authUrl: this.authUrl }, "Messaging config generated");
+    this.log.info("Messaging config generated", requestContext, methodContext, {
+      natsUrl: this.natsUrl,
+      authUrl: this.authUrl,
+    });
 
     if (config.bearerToken) {
       this.bearerToken = config.bearerToken;
@@ -140,7 +146,8 @@ export class NatsBasicMessagingService {
    *
    * @returns The bearer token used for auth
    */
-  async connect(bearerToken?: string): Promise<string> {
+  async connect(bearerToken?: string, _requestContext?: RequestContext): Promise<string> {
+    const { requestContext, methodContext } = createLoggingContext(this.connect.name, _requestContext);
     if (bearerToken) {
       this.bearerToken = bearerToken;
     } else if (!this.bearerToken) {
@@ -153,7 +160,7 @@ export class NatsBasicMessagingService {
         bearerToken: this.bearerToken,
         natsServers: [this.natsUrl],
       },
-      this.log.child({ module: "Messaging-Nats" }),
+      this.log.child({ module: "Messaging-Nats" }, "debug"),
     );
 
     let natsConnection;
@@ -164,7 +171,7 @@ export class NatsBasicMessagingService {
       throw e;
     }
     this.connection = service;
-    this.log.debug(`Connected!`);
+    this.log.debug(`Connected!`, requestContext, methodContext);
     if (typeof natsConnection.addEventListener === "function") {
       natsConnection.addEventListener("close", async () => {
         this.bearerToken = undefined;
@@ -193,10 +200,11 @@ export class NatsBasicMessagingService {
    * @param subject - Subject to publish message to
    * @param data - Data to be published
    */
-  public async publish(subject: string, data: any): Promise<void> {
+  public async publish<T = any>(subject: string, data: T, _requestContext?: RequestContext): Promise<void> {
+    const { requestContext, methodContext } = createLoggingContext(this.publish.name, _requestContext);
     this.assertConnected();
     const toPublish = safeJsonStringify(data);
-    this.log.debug({ subject, data }, `Publishing`);
+    this.log.debug(`Publishing`, requestContext, methodContext, { subject, data });
     await this.connection!.publish(subject, toPublish);
   }
 
@@ -208,11 +216,17 @@ export class NatsBasicMessagingService {
    * @param data - Data you include along with your request
    * @returns A response (if received before timeout)
    */
-  public async request<T = any, V = any>(subject: string, timeout: number, data: T): Promise<V> {
+  public async request<T = any, V = any>(
+    subject: string,
+    timeout: number,
+    data: T,
+    _requestContext?: RequestContext,
+  ): Promise<V> {
+    const { requestContext, methodContext } = createLoggingContext(this.request.name, _requestContext);
     this.assertConnected();
-    this.log.debug(`Requesting ${subject} with data: ${JSON.stringify(data)}`);
+    this.log.debug(`Requesting`, requestContext, methodContext, { subject, data });
     const response = await this.connection!.request(subject, timeout, JSON.stringify(data));
-    this.log.debug(`Request for ${subject} returned: ${JSON.stringify(response)}`);
+    this.log.debug(`Request returned`, requestContext, methodContext, { subject, response });
     return response;
   }
 
@@ -222,7 +236,12 @@ export class NatsBasicMessagingService {
    * @param subject - Unique subject to subscribe to
    * @param callback - Logic to invoke
    */
-  public async subscribe(subject: string, callback: (msg: any, err?: any) => void): Promise<void> {
+  public async subscribe(
+    subject: string,
+    callback: (msg: any, err?: any) => void,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const { requestContext, methodContext } = createLoggingContext(this.subscribe.name, _requestContext);
     this.assertConnected();
     await this.connection!.subscribe(subject, (msg: any, err?: any): void => {
       const parsedMsg = typeof msg === `string` ? JSON.parse(msg) : msg;
@@ -230,7 +249,7 @@ export class NatsBasicMessagingService {
       parsedMsg.data = parsedData;
       callback(msg, err);
     });
-    this.log.debug({ subject }, `Subscription created`);
+    this.log.debug("Subscription created", requestContext, methodContext, { subject });
   }
 
   /**
@@ -407,14 +426,16 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
     data?: T,
     responseInbox?: string,
     error?: NxtpErrorJson,
+    _requestContext?: RequestContext,
   ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.publishNxtpMessage.name);
     const payload: NxtpMessageEnvelope<T> = {
       responseInbox,
       data,
       version: MESSAGING_VERSION,
       error,
     };
-    await this.publish(subject, payload);
+    await this.publish(subject, payload, requestContext);
   }
 
   /**
@@ -423,22 +444,31 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
    * @param subject - Subject to register callback on
    * @param handler - Callback to be invoked
    */
-  protected async subscribeToNxtpMessage<T>(subject: string, handler: (data?: T, err?: any) => void): Promise<void> {
-    await this.subscribe(subject, (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
-      // TODO: #155 validate data structure
-      // there was an error, run callback with error
-      if (err) {
+  protected async subscribeToNxtpMessage<T>(
+    subject: string,
+    handler: (data?: T, err?: any) => void,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToNxtpMessage.name);
+    await this.subscribe(
+      subject,
+      (msg: { data: NxtpMessageEnvelope<T> }, err?: any) => {
+        // TODO: #155 validate data structure
+        // there was an error, run callback with error
+        if (err) {
+          return handler(msg?.data?.data, err);
+        }
+        if (!checkMessagingVersionValid(msg.data.version)) {
+          err = new MessagingError(MessagingError.reasons.VersionError, {
+            receivedVersion: msg.data.version,
+            ourVersion: MESSAGING_VERSION,
+          });
+          return handler(msg?.data?.data, err);
+        }
         return handler(msg?.data?.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-        return handler(msg?.data?.data, err);
-      }
-      return handler(msg?.data?.data, err);
-    });
+      },
+      requestContext,
+    );
   }
 
   /**
@@ -450,23 +480,29 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
   protected async subscribeToNxtpMessageWithInbox<T>(
     subject: string,
     handler: (from: string, inbox: string, data?: T, err?: NxtpErrorJson) => void,
+    _requestContext?: RequestContext,
   ): Promise<void> {
-    await this.subscribe(subject, (msg: { subject: string; data: NxtpMessageEnvelope<T> }, err?: any) => {
-      const from = msg.subject.split(".")[0];
-      // TODO: #155 validate data structure
-      // there was an error, run callback with error
-      if (err) {
-        return handler(from, "ERROR", msg?.data?.data, err);
-      }
-      if (!checkMessagingVersionValid(msg.data.version)) {
-        err = new MessagingError(MessagingError.reasons.VersionError, {
-          receivedVersion: msg.data.version,
-          ourVersion: MESSAGING_VERSION,
-        });
-        return handler(from, "ERROR", msg?.data?.data, err);
-      }
-      return handler(from, msg.data.responseInbox!, msg?.data?.data, err);
-    });
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToNxtpMessageWithInbox.name);
+    await this.subscribe(
+      subject,
+      (msg: { subject: string; data: NxtpMessageEnvelope<T> }, err?: any) => {
+        const from = msg.subject.split(".")[0];
+        // TODO: #155 validate data structure
+        // there was an error, run callback with error
+        if (err) {
+          return handler(from, "ERROR", msg?.data?.data, err);
+        }
+        if (!checkMessagingVersionValid(msg.data.version)) {
+          err = new MessagingError(MessagingError.reasons.VersionError, {
+            receivedVersion: msg.data.version,
+            ourVersion: MESSAGING_VERSION,
+          });
+          return handler(from, "ERROR", msg?.data?.data, err);
+        }
+        return handler(from, msg.data.responseInbox!, msg?.data?.data, err);
+      },
+      requestContext,
+    );
   }
 }
 
@@ -483,12 +519,15 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    */
   async subscribeToAuctionRequest(
     handler: (from: string, inbox: string, data?: AuctionPayload, err?: NxtpErrorJson) => void,
+    _requestContext?: RequestContext,
   ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToAuctionRequest.name);
     await this.subscribeToNxtpMessageWithInbox<AuctionPayload>(
       `*.*.${AUCTION_REQUEST_SUBJECT}`,
       (from: string, inbox: string, data?: AuctionPayload, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
+      requestContext,
     );
   }
 
@@ -499,9 +538,21 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param publishInbox - Unique inbox for the auction
    * @param data - Bid information
    */
-  async publishAuctionResponse(from: string, publishInbox: string, data: AuctionResponse): Promise<void> {
+  async publishAuctionResponse(
+    from: string,
+    publishInbox: string,
+    data: AuctionResponse,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.publishAuctionResponse.name);
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${from}.${signerAddress}.${AUCTION_RESPONSE_SUBJECT}`, data, publishInbox);
+    await this.publishNxtpMessage(
+      `${from}.${signerAddress}.${AUCTION_RESPONSE_SUBJECT}`,
+      data,
+      publishInbox,
+      undefined, // error
+      requestContext,
+    );
   }
 
   /**
@@ -511,12 +562,15 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
    */
   async subscribeToMetaTxRequest(
     handler: (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => void,
+    _requestContext?: RequestContext,
   ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToMetaTxRequest.name);
     await this.subscribeToNxtpMessageWithInbox(
       `*.*.${METATX_REQUEST_SUBJECT}`,
       (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
+      requestContext,
     );
   }
 
@@ -532,9 +586,17 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
     publishInbox: string,
     data?: MetaTxResponse,
     err?: NxtpErrorJson,
+    _requestContext?: RequestContext,
   ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.publishMetaTxResponse.name);
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${from}.${signerAddress}.${METATX_RESPONSE_SUBJECT}`, data, publishInbox, err);
+    await this.publishNxtpMessage(
+      `${from}.${signerAddress}.${METATX_RESPONSE_SUBJECT}`,
+      data,
+      publishInbox,
+      err,
+      requestContext,
+    );
   }
 }
 
@@ -551,12 +613,22 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @returns The inbox string to expect responses at
    *
    */
-  async publishAuctionRequest(data: AuctionPayload, inbox?: string): Promise<{ inbox: string }> {
+  async publishAuctionRequest(
+    data: AuctionPayload,
+    inbox?: string,
+    _requestContext?: RequestContext,
+  ): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${AUCTION_REQUEST_SUBJECT}`, data, inbox);
+    await this.publishNxtpMessage(
+      `${signerAddress}.${signerAddress}.${AUCTION_REQUEST_SUBJECT}`,
+      data,
+      inbox,
+      undefined, // error
+      _requestContext ?? createRequestContext(this.publishAuctionRequest.name),
+    );
     return { inbox };
   }
 
@@ -568,6 +640,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    */
   async subscribeToAuctionResponse(
     handler: (from: string, inbox: string, data?: AuctionResponse, err?: any) => void,
+    _requestContext?: RequestContext,
   ): Promise<void> {
     const signerAddress = await this.signer.getAddress();
     await this.subscribeToNxtpMessageWithInbox<AuctionResponse>(
@@ -575,6 +648,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       (from: string, inbox: string, data?: AuctionResponse, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
+      _requestContext ?? createRequestContext(this.subscribeToAuctionResponse.name),
     );
   }
 
@@ -585,12 +659,22 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
    * @returns The inbox that will receive responses
    */
-  async publishMetaTxRequest<T extends MetaTxType>(data: MetaTxPayload<T>, inbox?: string): Promise<{ inbox: string }> {
+  async publishMetaTxRequest<T extends MetaTxType>(
+    data: MetaTxPayload<T>,
+    inbox?: string,
+    _requestContext?: RequestContext,
+  ): Promise<{ inbox: string }> {
     if (!inbox) {
       inbox = generateMessagingInbox();
     }
     const signerAddress = await this.signer.getAddress();
-    await this.publishNxtpMessage(`${signerAddress}.${signerAddress}.${METATX_REQUEST_SUBJECT}`, data, inbox);
+    await this.publishNxtpMessage(
+      `${signerAddress}.${signerAddress}.${METATX_REQUEST_SUBJECT}`,
+      data,
+      inbox,
+      undefined, // error
+      _requestContext ?? createRequestContext(this.publishMetaTxRequest.name),
+    );
     return { inbox };
   }
 
@@ -602,6 +686,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
    */
   async subscribeToMetaTxResponse(
     handler: (from: string, inbox: string, data?: MetaTxResponse, err?: any) => void,
+    _requestContext?: RequestContext,
   ): Promise<void> {
     const signerAddress = await this.signer.getAddress();
     await this.subscribeToNxtpMessageWithInbox<MetaTxResponse>(
@@ -609,6 +694,7 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       (from: string, inbox: string, data?: MetaTxResponse, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
+      _requestContext ?? createRequestContext(this.publishMetaTxRequest.name),
     );
   }
 }

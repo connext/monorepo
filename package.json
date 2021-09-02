@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
@@ -44,5 +44,6 @@
   },
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
-  }
+  },
+  "packageManager": "yarn@2.4.2"
 }

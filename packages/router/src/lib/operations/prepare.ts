@@ -1,6 +1,6 @@
 import {
   ajv,
-  getUuid,
+  createLoggingContext,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
@@ -30,28 +30,21 @@ import {
 export const prepare = async (
   invariantData: InvariantTransactionData,
   input: PrepareInput,
-  requestContext: RequestContext,
+  _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const method = "prepare";
-  const methodId = getUuid();
+  const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
   const { logger, wallet, contractWriter, contractReader, txService } = getContext();
-  logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
+  logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
   if (!validInvariantData) {
-    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error(
-      { method, methodId, error: validateInvariantData.errors, invariantData },
-      "Invalid invariantData params",
-    );
+    const msg = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
-      requestContext,
+      paramsError: msg,
+      invariantData,
     });
   }
 
@@ -59,13 +52,10 @@ export const prepare = async (
   const validateInput = ajv.compile(PrepareInputSchema);
   const validInput = validateInput(input);
   if (!validInput) {
-    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
-      requestContext,
+      paramsError: msg,
+      input,
     });
   }
 
@@ -73,17 +63,17 @@ export const prepare = async (
 
   // Validate the prepare data
   const bid = decodeAuctionBid(encodedBid);
-  logger.info({ method, methodId, requestContext, bid }, "Decoded bid from event");
+  logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
   const recovered = recoverAuctionBid(bid, bidSignature);
   if (recovered !== wallet.address) {
     // cancellable error
-    throw new AuctionSignerInvalid(wallet.address, recovered, { method, methodId, requestContext });
+    throw new AuctionSignerInvalid(wallet.address, recovered, { methodContext, requestContext });
   }
 
   if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {
     // cancellable error
-    throw new SenderChainDataInvalid({ method, methodId, requestContext });
+    throw new SenderChainDataInvalid({ methodContext, requestContext });
   }
 
   const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
@@ -101,7 +91,7 @@ export const prepare = async (
   );
   if (routerBalance.lt(receiverAmount)) {
     // cancellable error
-    throw new NotEnoughLiquidity(invariantData.receivingChainId, { method, methodId, requestContext });
+    throw new NotEnoughLiquidity(invariantData.receivingChainId, { methodContext, requestContext });
   }
 
   // Handle the expiries.
@@ -114,8 +104,7 @@ export const prepare = async (
   if (!validBidExpiry(bid.expiry, currentTime)) {
     // cancellable error
     throw new BidExpiryInvalid(bid.bidExpiry, currentTime, {
-      method,
-      methodId,
+      methodContext,
       requestContext,
     });
   }
@@ -130,8 +119,7 @@ export const prepare = async (
   if (!validExpiryBuffer(receiverBuffer)) {
     // cancellable error
     throw new ExpiryInvalid(receiverExpiry, {
-      method,
-      methodId,
+      methodContext,
       requestContext,
       senderExpiry,
       senderBuffer,
@@ -139,12 +127,8 @@ export const prepare = async (
     });
   }
 
-  logger.info({ method, methodId, requestContext }, "Validated input");
-
-  logger.info(
-    { method, methodId, requestContext, transactionId: invariantData.transactionId },
-    "Sending receiver prepare tx",
-  );
+  logger.info("Validated input", requestContext, methodContext);
+  logger.info("Sending receiver prepare tx", requestContext, methodContext);
 
   const receipt = await contractWriter.prepare(
     invariantData.receivingChainId,
@@ -158,6 +142,6 @@ export const prepare = async (
     },
     requestContext,
   );
-  logger.info({ method, methodId, transactionId: invariantData.transactionId }, "Sent receiver prepare tx");
+  logger.info("Sent receiver prepare tx", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

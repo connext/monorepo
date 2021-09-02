@@ -75,8 +75,11 @@ describe("auctionRequestBinding", () => {
   it("should work", async () => {
     await auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext);
 
-    expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
-    expect(messagingMock.publishAuctionResponse.calledOnceWithExactly(from, inbox, { bid, bidSignature })).to.be.true;
+    expect(newAuctionStub).to.be.calledOnceWith(auctionPayload, {
+      ...requestContext,
+      transactionId: auctionPayload.transactionId,
+    });
+    expect(messagingMock.publishAuctionResponse).to.be.calledOnceWith(from, inbox, { bid, bidSignature });
   });
 
   it("should not proceed if there is an error", async () => {
@@ -102,6 +105,9 @@ describe("auctionRequestBinding", () => {
     await expect(auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext)).to.be.rejectedWith(
       "fail",
     );
-    expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
+    expect(newAuctionStub).to.be.calledOnceWith(auctionPayload, {
+      ...requestContext,
+      transactionId: auctionPayload.transactionId,
+    });
   });
 });

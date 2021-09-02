@@ -2,8 +2,14 @@
 
 ## Next Release
 
+## 0.0.32
+
 - [router] Cancel sender transaction if subgraph is out of sync.
 - [router] Add admin endpoint to cancel sender txs.
+- [utils,sdk,router,txservice] Add custom logger class.
+- [contracts] Arbitrum deployment.
+- [utils] Sanitize signatures.
+- [test-ui] Router liquidity table.
 
 ## 0.0.31
 

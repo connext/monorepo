@@ -1,7 +1,7 @@
 import { mkAddress } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
+import { createLoggingContext } from "@connext/nxtp-utils/src/request";
 import { Wallet } from "ethers";
-import { getAddress } from "ethers/lib/utils";
 import { okAsync } from "neverthrow";
 import pino from "pino";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
@@ -9,10 +9,9 @@ import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon
 import { ChainConfig, DEFAULT_CONFIG } from "../../src/config";
 import { TransactionDispatch } from "../../src/dispatch";
 import { TransactionBuffer } from "../../src/dispatch/buffer";
-import { ChainRpcProvider } from "../../src/dispatch/provider";
 import * as TransactionFns from "../../src/dispatch/transaction";
 import { Gas } from "../../src/types";
-import { TEST_FULL_TX, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "../constants";
+import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "../constants";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "DispatchTest" });
 
@@ -29,6 +28,8 @@ describe("Dispatch", () => {
   let backfillStub = stub().resolves(undefined);
   let bufferPending: SinonStub;
   let getAddressStub: SinonStub<any[], any>;
+
+  const { requestContext } = createLoggingContext("test");
 
   beforeEach(async () => {
     signer = createStubInstance(Wallet);
@@ -78,7 +79,7 @@ describe("Dispatch", () => {
     it("should not create a transaction if dispatch is aborted", async () => {
       const assertNotAborted = stub().throws(new Error("foo"));
       (txDispatch as any).assertNotAborted = assertNotAborted;
-      await expect(txDispatch.createTransaction(TEST_TX)).to.be.rejectedWith("foo");
+      await expect(txDispatch.createTransaction(TEST_TX, requestContext)).to.be.rejectedWith("foo");
     });
 
     it("should create a transaction", async () => {
@@ -95,10 +96,10 @@ describe("Dispatch", () => {
       const txStub = createStubInstance(TransactionFns.Transaction);
       const createTxStub = stub(TransactionFns, "Transaction").returns(txStub);
 
-      const tx = await txDispatch.createTransaction(TEST_TX);
+      const tx = await txDispatch.createTransaction(TEST_TX, requestContext);
 
-      expect(getGasStub).calledOnceWithExactly(TEST_TX);
-      expect(getNonceStub).calledOnceWithExactly();
+      expect(getGasStub).calledOnceWith(TEST_TX);
+      expect(getNonceStub).calledOnceWith();
       expect(createTxStub).to.have.been.calledOnceWith(
         (txDispatch as any).logger,
         txDispatch,
@@ -137,7 +138,7 @@ describe("Dispatch", () => {
       (txDispatch as any).backfill = backfillStub;
       txBuffer.getLastNonce.returns(4);
       await txDispatch.monitor();
-      expect(backfillStub).to.be.calledOnceWithExactly(TEST_TX_RESPONSE.nonce, undefined, "NOT_FOUND");
+      expect(backfillStub).to.be.calledOnceWith(TEST_TX_RESPONSE.nonce, undefined, "NOT_FOUND");
     });
   });
 
