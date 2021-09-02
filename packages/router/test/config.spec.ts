@@ -64,7 +64,6 @@ describe("Config", () => {
         error = e;
       }
 
-      console.log(error);
       expect(error.message).to.include("No transactionManager address");
     });
 
