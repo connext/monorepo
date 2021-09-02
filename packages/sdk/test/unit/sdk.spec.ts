@@ -29,6 +29,7 @@ import {
   MetaTxTimeout,
   NoSubgraph,
   NoTransactionManager,
+  SubgraphsNotSynced,
   SubmitError,
   UnknownAuctionError,
 } from "../../src/error";
@@ -362,6 +363,18 @@ describe("NxtpSdk", () => {
       });
     });
 
+    it("should error if subgraph not synced", async () => {
+      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+      const { crossChainParams } = getMock();
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
+        SubgraphsNotSynced.getMessage(
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+        ),
+      );
+    });
+
     it("should error if slippageTolerance is lower than Min allowed", async () => {
       const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MIN_SLIPPAGE_TOLERANCE) - 1).toString() });
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
@@ -547,6 +560,18 @@ describe("NxtpSdk", () => {
           ChainNotConfigured.getMessage(1400, supportedChains),
         );
       });
+    });
+
+    it("should error if subgraph not synced", async () => {
+      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+      const { crossChainParams } = getMock();
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
+        SubgraphsNotSynced.getMessage(
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+          { latestBlock: 0, synced: false, syncedBlock: 0 },
+        ),
+      );
     });
 
     it("should error if it has insufficient balance", async () => {
