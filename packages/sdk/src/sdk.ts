@@ -83,7 +83,7 @@ import {
   signFulfillTransactionPayload,
   encodeAuctionBid,
 } from "./utils";
-import { Subgraph, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -141,6 +141,7 @@ export class NxtpSdk {
         provider: providers.FallbackProvider;
         transactionManagerAddress?: string;
         subgraph?: string;
+        subgraphSyncBuffer?: number;
       };
     },
     private signer: Signer,
@@ -190,15 +191,15 @@ export class NxtpSdk {
 
     const subgraphConfig: Record<
       number,
-      {
-        subgraph: string;
-        provider: providers.FallbackProvider;
-      }
+      Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }
     > = {};
 
     // create configs for subclasses based on passed-in config
     Object.entries(this.chainConfig).forEach(
-      ([_chainId, { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph }]) => {
+      ([
+        _chainId,
+        { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph, subgraphSyncBuffer },
+      ]) => {
         const chainId = parseInt(_chainId);
         let transactionManagerAddress = _transactionManagerAddress;
         if (!transactionManagerAddress) {
@@ -224,6 +225,7 @@ export class NxtpSdk {
         subgraphConfig[chainId] = {
           subgraph,
           provider,
+          subgraphSyncBuffer,
         };
       },
     );

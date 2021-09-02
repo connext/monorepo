@@ -83,7 +83,13 @@ export const createSubgraphEvts = (): {
   };
 };
 
-const SUBGRAPH_SYNC_BUFFER = 50;
+const DEFAULT_SUBGRAPH_SYNC_BUFFER = 50;
+
+export type SubgraphChainConfig = {
+  subgraph: string;
+  provider: providers.FallbackProvider;
+  subgraphSyncBuffer: number;
+};
 
 /**
  * @classdesc Handles all user-facing subgraph queries
@@ -94,22 +100,32 @@ export class Subgraph {
   private activeTxs: Map<string, ActiveTransaction> = new Map();
   private pollingLoop: NodeJS.Timer | undefined;
   private syncStatus: Record<number, SubgraphSyncRecord> = {};
+  private chainConfig: Record<number, SubgraphChainConfig>;
 
   constructor(
     private readonly user: Signer,
-    private readonly chainConfig: Record<number, { subgraph: string; provider: providers.FallbackProvider }>,
+    _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly logger: Logger,
     private readonly pollInterval = 10_000,
   ) {
-    Object.entries(this.chainConfig).forEach(([chainId, { subgraph }]) => {
-      const client = new GraphQLClient(subgraph);
-      this.sdks[parseInt(chainId)] = getSdk(client);
-      this.syncStatus[parseInt(chainId)] = {
-        latestBlock: 0,
-        synced: true,
-        syncedBlock: 0,
-      };
-    });
+    this.chainConfig = {};
+    Object.entries(_chainConfig).forEach(
+      ([chainId, { subgraph, provider, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
+        const cId = parseInt(chainId);
+        const client = new GraphQLClient(subgraph);
+        this.sdks[cId] = getSdk(client);
+        this.syncStatus[cId] = {
+          latestBlock: 0,
+          synced: true,
+          syncedBlock: 0,
+        };
+        this.chainConfig[cId] = {
+          subgraph,
+          provider,
+          subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+        };
+      },
+    );
     this.startPolling();
   }
 
@@ -291,7 +307,7 @@ export class Subgraph {
         const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
         this.syncStatus[chainId].latestBlock = rpcBlockNumber;
         this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
-        if (rpcBlockNumber - subgraphBlockNumber > SUBGRAPH_SYNC_BUFFER) {
+        if (rpcBlockNumber - subgraphBlockNumber > this.chainConfig[chainId].subgraphSyncBuffer) {
           this.syncStatus[chainId].synced = false;
         } else {
           this.syncStatus[chainId].synced = true;
