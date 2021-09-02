@@ -6,6 +6,7 @@ import {
   ERC20Abi,
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
+  encodeAuctionBid as _encodeAuctionBid,
 } from "@connext/nxtp-utils";
 
 /**
@@ -86,3 +87,5 @@ export const recoverAuctionBid = _recoverAuctionBid;
 export const getTimestampInSeconds = getNtpTimeSeconds;
 
 export const getOnchainBalance = _getOnchainBalance;
+
+export const encodeAuctionBid = _encodeAuctionBid;
