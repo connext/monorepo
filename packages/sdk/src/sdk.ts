@@ -185,7 +185,6 @@ export type TransactionPrepareEventParams = Static<typeof TransactionPrepareEven
 
 export const CancelSchema = Type.Object({
   txData: TransactionDataSchema,
-  relayerFee: Type.String(),
   signature: Type.String(),
 });
 

@@ -820,7 +820,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "",
               signature: "",
             },
             sendingChainId,
@@ -834,7 +833,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "",
               signature: EmptyCallDataHash,
             },
             sendingChainId,
@@ -849,7 +847,6 @@ describe("NxtpSdk", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              relayerFee: "1",
               signature: "",
             },
             sendingChainId,
@@ -866,7 +863,6 @@ describe("NxtpSdk", () => {
         sdk.cancel(
           {
             txData: { ...transaction, ...record },
-            relayerFee: "1",
             signature: EmptyCallDataHash,
           },
           sendingChainId,
@@ -882,7 +878,6 @@ describe("NxtpSdk", () => {
       const res = await sdk.cancel(
         {
           txData: { ...transaction, ...record },
-          relayerFee: "1",
           signature: EmptyCallDataHash,
         },
         sendingChainId,
