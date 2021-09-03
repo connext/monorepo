@@ -1,4 +1,4 @@
-import { Signer, Wallet, utils, BigNumber } from "ethers";
+import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
@@ -48,7 +48,16 @@ export const signFulfillTransactionPayload = async (
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
-  return sanitizeSignature(await signer.signMessage(utils.arrayify(hash)));
+  // special case for trust wallet until we can get this released:
+  // https://github.com/ethers-io/ethers.js/pull/1542
+  let signature;
+  if (signer.provider && (signer.provider as any).isTrust) {
+    signature = await (signer.provider as providers.Web3Provider).send("eth_personalSign", [utils.arrayify(hash)]);
+  } else {
+    signature = await signer.signMessage(utils.arrayify(hash));
+  }
+
+  return sanitizeSignature(signature);
 };
 
 /**
