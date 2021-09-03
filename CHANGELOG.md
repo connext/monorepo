@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.35
+
+- [sdk] Fix Trust Wallet-specific signing.
+
 ## 0.0.34
 
 - [sdk] Fix Trust Wallet-specific signing.
