@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.34
+
+- [sdk] Fix Trust Wallet-specific signing.
+
 ## 0.0.33
 
 - [sdk] Check subgraph sync status and block transfers if out of sync.
