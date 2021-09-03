@@ -29,3 +29,4 @@ packages/router/*config.json
 packages/router/chaindata.json
 
 packages/integration/ops/config/load/*.json
+docker/integration/config.json

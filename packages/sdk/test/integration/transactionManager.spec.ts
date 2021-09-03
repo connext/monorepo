@@ -92,6 +92,7 @@ describe("Transaction Manager", function () {
     const counterFactory = await ethers.getContractFactory(CounterArtifact.abi, CounterArtifact.bytecode, wallet);
     const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
 
+
     transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManagerTypechain;
     transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
       receivingChainId,

@@ -25,17 +25,23 @@ export class OnchainAccountManager {
     mnemonic: string,
     public readonly num_users: number,
     private readonly log: BaseLogger,
-    private readonly MINIMUM_FUNDING_MULTIPLE = 2,
+    public readonly MINIMUM_FUNDING_MULTIPLE = 2,
     private readonly USER_MIN_ETH = utils.parseEther("0.2"),
-    private readonly USER_MIN_TOKEN = utils.parseEther("1000000")
-
+    private readonly USER_MIN_TOKEN = utils.parseEther("1000000"),
+    wallets?: Wallet[],
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
-    for (let i = 0; i < num_users; i++) {
-      const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
-      if (newWallet) {
-        this.wallets.push(newWallet);
-      }
+    if(wallets)
+      {
+        this.wallets = wallets;
+      }else
+      {
+        for (let i = 0; i < num_users; i++) {
+          const newWallet = Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${i + 1}`);
+          if (newWallet) {
+          this.wallets.push(newWallet);
+          }
+        }
     }
 
     // Create chain-by-chain funder queues
