@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.36
+
+- [sdk] Attempt fix BSC issue.
+
 ## 0.0.35
 
 - [sdk] Fix Trust Wallet-specific signing.
