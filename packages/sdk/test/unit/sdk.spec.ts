@@ -574,16 +574,6 @@ describe("NxtpSdk", () => {
       );
     });
 
-    it("should error if it has insufficient balance", async () => {
-      const { auctionBid, bidSignature } = getMock({}, {}, "");
-      balanceStub.resolves(BigNumber.from(0));
-      await expect(
-        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature }),
-      ).to.eventually.be.rejectedWith(
-        InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-      );
-    });
-
     it("should error if bidSignature undefined", async () => {
       const { auctionBid } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
