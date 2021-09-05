@@ -42,7 +42,6 @@ import {
   NoValidBids,
   UnknownAuctionError,
   ChainNotConfigured,
-  InvalidAmount,
   InvalidBidSignature,
   MetaTxTimeout,
   SubgraphsNotSynced,
@@ -79,7 +78,6 @@ import {
   getDecimals,
   generateMessagingInbox,
   recoverAuctionBid,
-  getOnchainBalance,
   signFulfillTransactionPayload,
   encodeAuctionBid,
 } from "./utils";
