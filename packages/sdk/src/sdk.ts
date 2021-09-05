@@ -668,7 +668,11 @@ export class NxtpSdk {
     }
 
     const signerAddr = await this.signer.getAddress();
-    const balance = await getOnchainBalance(sendingAssetId, signerAddr, this.chainConfig[sendingChainId].provider);
+    const balance = await getOnchainBalance(
+      sendingAssetId,
+      signerAddr,
+      this.signer.provider ?? this.chainConfig[sendingChainId].provider,
+    );
     if (balance.lt(amount)) {
       throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
     }
