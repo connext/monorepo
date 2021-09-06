@@ -1917,6 +1917,8 @@ __metadata:
     axios: ^0.21.1
     eslint: ^7.32.0
     ethers: ^5.4.6
+    graphql: ^15.5.3
+    graphql-request: ^3.5.0
     pino: ^6.13.0
     react: ^17.0.2
     react-dom: ^17.0.2
@@ -13445,6 +13447,13 @@ fsevents@~2.1.1:
   version: 15.5.1
   resolution: "graphql@npm:15.5.1"
   checksum: 509cdc2fc072e7cd1b5a25cf3fe13838d41892b035434f02419c209608f89e323f5234ca7e2bde77e9371e629339cbd8435f1dbc8c250910e4e9ac0babfa6c64
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^15.5.3":
+  version: 15.5.3
+  resolution: "graphql@npm:15.5.3"
+  checksum: 2538efd61b5e1317cfaba796685412aa45f97504002af823a0d0682f8a60f4698343f8ba2793c83c276c76a6b14d8301e58b9f8ad7b61191c380d48e274e6b4d
   languageName: node
   linkType: hard
 

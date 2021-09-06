@@ -1,8 +1,9 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, isValidAddress } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
+import { request, gql } from "graphql-request";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 
@@ -22,6 +23,17 @@ type BalanceEntry = {
   assetId: string;
   balance: string;
 };
+
+const getLiquidityQuery = gql`
+  query getLiquidity($router: ID!) {
+    router(id: $router) {
+      assetBalances {
+        amount
+        id
+      }
+    }
+  }
+`;
 
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
@@ -102,48 +114,43 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       return;
     }
 
-    const liquidityTable: BalanceEntry[] = [];
-    for (const chainId of CHAINS) {
-      const data = chainData?.find((c) => c.chainId === chainId);
-      if (!data) {
-        continue;
-      }
-
-      console.log("Retrieving for", data.chain, "...");
-
-      const provider = new providers.StaticJsonRpcProvider(data.rpc[0]);
-      if (!provider) {
-        continue;
-      }
-      const _txManager = getDeployedTransactionManagerContract(chainId);
-      if (!_txManager) {
-        continue;
-      }
-      const txm = new Contract(_txManager.address, _txManager.abi, provider);
-      const assets = data.assetId;
-      for (const [assetId, info] of Object.entries(assets)) {
-        try {
-          // TODO: redundant code with getLiquidity and getDecimals
-          const liquidity = await txm.routerBalances(routerAddress, assetId);
-          const balance = utils.formatUnits(liquidity, await getDecimals(assetId, provider));
-          liquidityTable.push({
-            chain: data.chain,
-            symbol: info.symbol,
-            assetId,
-            balance,
-          });
-        } catch (error) {
-          console.log("Error requesting router balance for asset:", name, assetId);
-          console.log(error);
-          liquidityTable.push({
-            chain: data.chain,
-            symbol: info.symbol,
-            assetId,
-            balance: "",
-          });
+    const entries = await Promise.all(
+      CHAINS.map(async (chainId) => {
+        const uri = getDeployedSubgraphUri(chainId);
+        if (!uri) {
+          console.error("Subgraph not available for chain: ", chainId);
+          return;
         }
-      }
-    }
+        const data = chainData?.find((c) => c.chainId === chainId);
+        if (!data) {
+          console.error("Chaindata not available for chain: ", chainId);
+          return;
+        }
+        const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress!.toLowerCase() });
+        const balanceEntries = liquidity?.router?.assetBalances.map(
+          ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
+            console.log("chainId: ", chainId);
+            console.log("id: ", id);
+            console.log("amount: ", amount);
+            const assetId = utils.getAddress(id.split("-")[0]);
+            const decimals = data.assetId[assetId]?.decimals;
+            if (!decimals) {
+              console.error(`No decimals for asset ${assetId} on chain ${chainId}`);
+              return;
+            }
+            return {
+              assetId,
+              balance: utils.formatUnits(amount, decimals),
+              chain: data.chain,
+              symbol: data.assetId[assetId]?.symbol || assetId,
+            };
+          },
+        );
+
+        return balanceEntries.filter((x: BalanceEntry | undefined) => !!x);
+      }),
+    );
+    const liquidityTable = entries.filter((x) => !!x).flat() as BalanceEntry[];
 
     setBalances(liquidityTable);
   };

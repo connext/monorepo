@@ -20,6 +20,7 @@ export type ChainData = {
     {
       symbol: string;
       mainnetEquivalent?: string;
+      decimals?: number;
     }
   >;
   rpc: string[];
