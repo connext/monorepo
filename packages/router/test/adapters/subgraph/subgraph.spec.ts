@@ -59,10 +59,12 @@ describe("Subgraph Adapter", () => {
 
   describe("getSyncRecord", () => {
     it("should work", async () => {
-      expect(getSyncRecord(1337)).to.be.deep.eq({
-        synced: false,
-        syncedBlock: 0,
-        latestBlock: 0,
+      sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
+      txServiceMock.getBlockNumber.resolves(10);
+      expect(await getSyncRecord(chainId)).to.be.deep.eq({
+        synced: true,
+        syncedBlock: 10,
+        latestBlock: 10,
       });
     });
   });
@@ -81,7 +83,7 @@ describe("Subgraph Adapter", () => {
       sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 1 } } });
       txServiceMock.getBlockNumber.resolves(10000);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(getSyncRecord(chainId)).to.be.deep.eq({ synced: false, syncedBlock: 1, latestBlock: 10000 });
+      expect(await getSyncRecord(chainId)).to.be.deep.eq({ synced: false, syncedBlock: 1, latestBlock: 10000 });
     });
 
     it("should return an empty array if GetBlockNumber fails", async () => {
