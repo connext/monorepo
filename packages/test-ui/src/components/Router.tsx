@@ -133,7 +133,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             console.log("id: ", id);
             console.log("amount: ", amount);
             const assetId = utils.getAddress(id.split("-")[0]);
-            const decimals = data.assetId[assetId]?.decimals;
+            const decimals = data.assetId[assetId.toLowerCase()]?.decimals;
             if (!decimals) {
               console.error(`No decimals for asset ${assetId} on chain ${chainId}`);
               return;
