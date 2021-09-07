@@ -112,7 +112,7 @@ export const handleSingle = async (
     } catch (err) {
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
-        logger.warn("Receiver transaction already prepared", requestContext, methodContext);
+        logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
@@ -137,6 +137,7 @@ export const handleSingle = async (
           if (safeJsonStringify(jsonifyError(cancelErr)).includes("#C:019")) {
             logger.warn("Already cancelled", requestContext, methodContext, {
               transaction: _transaction.crosschainTx.invariant.transactionId,
+              error: cancelJson,
             });
           } else {
             logger.error("Error cancelling receiver", requestContext, methodContext, cancelJson, {
@@ -190,7 +191,7 @@ export const handleSingle = async (
     } catch (err) {
       const jsonErr = jsonifyError(err);
       if (safeJsonStringify(jsonErr).includes("#F:019")) {
-        logger.warn("Sender already fulfilled", requestContext, methodContext);
+        logger.warn("Sender already fulfilled", requestContext, methodContext, { error: jsonErr });
       } else {
         logger.error("Error fulfilling sender", requestContext, methodContext, jsonErr, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
@@ -224,7 +225,7 @@ export const handleSingle = async (
     } catch (err) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
-        logger.warn("Already cancelled", requestContext, methodContext);
+        logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling receiver", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
@@ -256,7 +257,7 @@ export const handleSingle = async (
     } catch (err) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
-        logger.warn("Already cancelled", requestContext, methodContext);
+        logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
@@ -293,7 +294,7 @@ export const handleSingle = async (
     } catch (err) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
-        logger.warn("Already cancelled", requestContext, methodContext);
+        logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
@@ -326,7 +327,7 @@ export const handleSingle = async (
     } catch (err) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
-        logger.warn("Already cancelled", requestContext, methodContext);
+        logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
