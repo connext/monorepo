@@ -136,7 +136,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             const decimals =
               data.assetId[assetId]?.decimals ??
               data.assetId[assetId.toLowerCase()]?.decimals ??
-              data.assetId[assetId.toUpperCase()].decimals;
+              data.assetId[assetId.toUpperCase()]?.decimals;
             if (!decimals) {
               console.error(`No decimals for asset ${assetId} on chain ${chainId}`);
               return;
@@ -145,7 +145,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
               assetId,
               balance: utils.formatUnits(amount, decimals),
               chain: data.chain,
-              symbol: data.assetId[assetId]?.symbol || assetId,
+              symbol:
+                data.assetId[assetId]?.symbol ??
+                data.assetId[assetId.toLowerCase()]?.symbol ??
+                data.assetId[assetId.toUpperCase()]?.symbol ??
+                assetId,
             };
           },
         );
