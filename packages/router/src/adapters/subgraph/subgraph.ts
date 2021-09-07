@@ -124,7 +124,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
       // check synced status
       const record = await setSyncRecord(chainId, requestContext);
-      logger.info("Got sync record", requestContext, methodContext, { chainId, record });
+      logger.debug("Got sync record", requestContext, methodContext, { chainId, record });
       if (!record.synced) {
         return allSenderPrepared.router?.transactions.map((senderTx) => {
           return {
