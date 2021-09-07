@@ -23,7 +23,7 @@ export class AuctionExpired extends NxtpError {
 
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
-    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, "ProvidersNotAvailable");
+    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name);
   }
 }
 
