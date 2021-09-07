@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.37
+
+- [router] Retry getting subgraph sync status if not set by default
+
 ## 0.0.36
 
 - [sdk] Attempt fix BSC issue.
