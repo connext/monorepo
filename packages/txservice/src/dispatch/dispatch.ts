@@ -271,6 +271,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         nonce,
         blockadeId: blockade?.id,
         backfillTx: {
+          chainId: this.chainId,
           id: transaction.id,
           hash: response.value.hash,
           gasPrice: transaction.params.gasPrice.toString(),
@@ -315,6 +316,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       } else if (error.type === TransactionReplaced.type) {
         // The backfill was replaced by the original transaction, so we can just ignore it.
         this.logger.info("Backfill failed: Transaction replaced", requestContext, methodContext, {
+          chainId: this.chainId,
           nonce,
           originalTxId: blockade?.id,
           error,

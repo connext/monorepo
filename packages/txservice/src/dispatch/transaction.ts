@@ -17,6 +17,7 @@ const MAX_ATTEMPTS = 10;
 
 export interface TransactionInterface {
   id: string;
+  chainId: number;
   timestamp: number;
   params: FullTransaction;
   error: Error | undefined;
@@ -39,6 +40,7 @@ export interface TransactionInterface {
 export class Transaction implements TransactionInterface {
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
+  public readonly chainId: number;
   // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
   private response: providers.TransactionResponse | undefined = undefined;
   // Responses, in the order of attempts made for this tx.
@@ -140,6 +142,7 @@ export class Transaction implements TransactionInterface {
       createdAt: this.timestamp,
       isBackfill,
     });
+    this.chainId = this.provider.chainId;
   }
 
   /// LIFECYCLE
@@ -374,6 +377,7 @@ export class Transaction implements TransactionInterface {
     // TODO: Replace with actual config.
     this.gas.price = targetPrice.add(targetPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+      chainId: this.chainId,
       id: this.id,
       attempt: this.attempt,
       baselinePrice: baselinePrice.toString(),
