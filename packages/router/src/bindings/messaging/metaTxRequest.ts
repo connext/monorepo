@@ -37,7 +37,7 @@ export const metaTxRequestBinding = async (
 
   const chainConfig = config.chainConfig[chainId];
   if (!chainConfig) {
-    logger.warn("No config for chainId", requestContext, methodContext, { chainId });
+    logger.debug("No config for chainId", requestContext, methodContext, { chainId });
     return;
   }
 
