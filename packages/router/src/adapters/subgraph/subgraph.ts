@@ -32,7 +32,7 @@ export const getSyncRecord = async (chainId: number, _requestContext?: RequestCo
   return record ?? (await setSyncRecord(chainId, requestContext));
 };
 
-const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
+export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
   return {
     invariant: {
       receivingChainTxManagerAddress: sdkSendingTransaction.receivingChainTxManagerAddress,
