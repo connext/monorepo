@@ -376,6 +376,8 @@ export class Transaction implements TransactionInterface {
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
       id: this.id,
       attempt: this.attempt,
+      baselinePrice: baselinePrice.toString(),
+      targetPrice: targetPrice.toString(),
       previousGasPrice: previousPrice.toString(),
       newGasPrice: this.gas.price.toString(),
     });
