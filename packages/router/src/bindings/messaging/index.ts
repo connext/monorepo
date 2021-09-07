@@ -6,7 +6,13 @@ import { auctionRequestBinding } from "./auctionRequest";
 import { metaTxRequestBinding } from "./metaTxRequest";
 
 export const bindMessaging = async () => {
-  const { messaging, logger } = getContext();
+  const { messaging, logger, config } = getContext();
+
+  // check clean up mode
+  if (config.cleanUpMode) {
+    // if clean up mode then don't subscribe to events
+    return;
+  }
 
   // Setup Messaging Service events
 
