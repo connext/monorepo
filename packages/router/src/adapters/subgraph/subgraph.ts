@@ -25,15 +25,11 @@ import { getSdks } from ".";
 
 const synced: Record<number, SubgraphSyncRecord> = {};
 
-export const getSyncRecord = (chainId: number): SubgraphSyncRecord => {
+export const getSyncRecord = async (chainId: number, _requestContext?: RequestContext): Promise<SubgraphSyncRecord> => {
+  const { requestContext } = createLoggingContext(getSyncRecord.name, _requestContext);
+
   const record = synced[chainId];
-  return (
-    record ?? {
-      synced: false,
-      syncedBlock: 0,
-      latestBlock: 0,
-    }
-  );
+  return record ?? (await setSyncRecord(chainId, requestContext));
 };
 
 const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
@@ -60,9 +56,49 @@ const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any)
   };
 };
 
+const setSyncRecord = async (chainId: number, requestContext: RequestContext) => {
+  // get global context
+  const { logger, txService, config } = getContext();
+
+  const { methodContext } = createLoggingContext("setSyncRecord", requestContext);
+  try {
+    const sdks = getSdks();
+    const sdk = sdks[chainId];
+
+    const chainConfig = config.chainConfig[chainId];
+    if (!chainConfig || !sdk) {
+      throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
+    }
+    const allowUnsynced = chainConfig.subgraphSyncBuffer;
+
+    logger.info("Getting sync record", requestContext, methodContext, { chainId });
+    const realBlockNumber = await txService.getBlockNumber(chainId);
+    const { _meta } = await sdk.GetBlockNumber();
+    const subgraphBlockNumber = _meta?.block.number ?? 0;
+    let record: SubgraphSyncRecord;
+    if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
+      logger.warn("SUBGRAPH IS OUT OF SYNC", requestContext, methodContext, {
+        realBlockNumber,
+        subgraphBlockNumber,
+        chainId,
+      });
+      record = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
+    } else {
+      record = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
+    }
+    synced[chainId] = record;
+    return record;
+  } catch (e) {
+    logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(e), {
+      chainId,
+    });
+    return { synced: false, latestBlock: 0, syncedBlock: 0 };
+  }
+};
+
 export const getActiveTransactions = async (_requestContext?: RequestContext): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger, txService, config } = getContext();
+  const { wallet, logger, config } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
 
@@ -78,7 +114,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       if (!chainConfig) {
         throw new NoChainConfig(chainId);
       }
-      const allowUnsynced = chainConfig.subgraphSyncBuffer;
 
       // get all sender prepared txs
       const allSenderPrepared = await sdk.GetSenderTransactions({
@@ -88,32 +123,16 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       });
 
       // check synced status
-      try {
-        const realBlockNumber = await txService.getBlockNumber(chainId);
-        const { _meta } = await sdk.GetBlockNumber();
-        const subgraphBlockNumber = _meta?.block.number ?? 0;
-        if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
-          logger.warn("SUBGRAPH IS OUT OF SYNC", requestContext, methodContext, {
-            realBlockNumber,
-            subgraphBlockNumber,
-            chainId,
-          });
-          synced[chainId] = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-          return allSenderPrepared.router?.transactions.map((senderTx) => {
-            return {
-              crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
-              payload: {},
-              status: CrosschainTransactionStatus.ReceiverNotConfigured,
-            } as ActiveTransaction<"ReceiverNotConfigured">;
-          });
-        }
-        synced[chainId] = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-      } catch (err) {
-        logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(err), {
-          chainId,
+      const record = await setSyncRecord(chainId, requestContext);
+      logger.info("Got sync record", requestContext, methodContext, { chainId, record });
+      if (!record.synced) {
+        return allSenderPrepared.router?.transactions.map((senderTx) => {
+          return {
+            crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
+            payload: {},
+            status: CrosschainTransactionStatus.ReceiverNotConfigured,
+          } as ActiveTransaction<"ReceiverNotConfigured">;
         });
-        synced[chainId] = { synced: false, latestBlock: 0, syncedBlock: 0 };
-        return;
       }
 
       // create list of txIds for each receiving chain
