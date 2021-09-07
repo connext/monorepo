@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { providers, BigNumber } from "ethers";
 import { createLoggingContext, delay, getUuid, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
