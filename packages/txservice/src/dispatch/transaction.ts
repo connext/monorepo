@@ -367,7 +367,8 @@ export class Transaction implements TransactionInterface {
     }
     const previousPrice = this.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
-    const baselinePrice = await this.provider.getGasPrice(requestContext);
+    const result = await this.provider.getGasPrice(requestContext);
+    const baselinePrice = result.isOk() ? result.value : BigNumber.from(0);
     const targetPrice = baselinePrice.gt(previousPrice) ? baselinePrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.

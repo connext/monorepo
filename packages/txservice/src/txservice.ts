@@ -168,7 +168,7 @@ export class TransactionService {
             this.logger.debug(`Bumping transaction gas price for resubmit.`, requestContext, methodContext, {
               id: transaction.id,
             });
-            transaction.bumpGasPrice();
+            await transaction.bumpGasPrice();
             continue;
           } else {
             throw error;
