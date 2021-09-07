@@ -57,16 +57,19 @@ export const fulfill = async (
     throw new NoChainConfig(fulfillChain, { methodContext, requestContext, invariantData, input });
   }
 
-  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
-  if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
-    throw new NotEnoughRelayerFee(fulfillChain, {
-      methodContext,
-      requestContext,
-      relayerFee: input.relayerFee,
-      relayerFeeLowerBound: relayerFeeLowerBound,
-      invariantData,
-      input,
-    });
+  // Only check for relayer fee at receiving side
+  if (fulfillChain === invariantData.receivingChainId) {
+    const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
+    if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
+      throw new NotEnoughRelayerFee(fulfillChain, {
+        methodContext,
+        requestContext,
+        relayerFee: input.relayerFee,
+        relayerFeeLowerBound: relayerFeeLowerBound,
+        invariantData,
+        input,
+      });
+    }
   }
 
   const receipt = await contractWriter.fulfill(
