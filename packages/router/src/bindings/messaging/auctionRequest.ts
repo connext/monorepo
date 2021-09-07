@@ -1,4 +1,11 @@
-import { AuctionPayload, createLoggingContext, jsonifyError, NxtpErrorJson, RequestContext } from "@connext/nxtp-utils";
+import {
+  AuctionPayload,
+  createLoggingContext,
+  jsonifyError,
+  NxtpError,
+  NxtpErrorJson,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import { ProvidersNotAvailable } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
@@ -20,7 +27,10 @@ export const auctionRequestBinding = async (
   );
   if (err) {
     if (err.type === ProvidersNotAvailable.name) {
-      logger.debug("No provider configured", requestContext, methodContext, { data, err: jsonifyError(err) });
+      logger.debug("No provider configured", requestContext, methodContext, {
+        data,
+        err: jsonifyError(err as NxtpError),
+      });
     } else {
       logger.error("Error in auction request", requestContext, methodContext, err, { data });
     }
