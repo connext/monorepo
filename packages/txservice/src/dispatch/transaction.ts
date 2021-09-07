@@ -13,6 +13,8 @@ import {
 
 import { ChainRpcProvider } from "./provider";
 
+const MAX_ATTEMPTS = 10;
+
 export interface TransactionInterface {
   id: string;
   timestamp: number;
@@ -354,12 +356,22 @@ export class Transaction implements TransactionInterface {
   /**
    * Bump the gas price for this tx up by the configured percentage.
    */
-  public bumpGasPrice() {
+  public async bumpGasPrice() {
     const { requestContext, methodContext } = createLoggingContext(this.bumpGasPrice.name, this.context);
+    if (this.attempt >= MAX_ATTEMPTS) {
+      // TODO: Log more info?
+      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
+        gasPrice: this.gas.price.toString(),
+        attempts: this.attempt,
+      });
+    }
     const previousPrice = this.gas.price;
+    // Get the current gas baseline price, in case it's changed drastically in the last block.
+    const baselinePrice = await this.provider.getGasPrice(requestContext);
+    const targetPrice = baselinePrice.gt(previousPrice) ? baselinePrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
-    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
+    this.gas.price = targetPrice.add(targetPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
       id: this.id,
       attempt: this.attempt,
