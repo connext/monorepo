@@ -28,7 +28,7 @@ export type CachedGas = {
 export type CachedTransactionCount = {
   value: number;
   timestamp: number;
-}
+};
 
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
@@ -61,7 +61,7 @@ export class Gas {
     // This means, using the default config (at the time of writing this) we'll be able to execute about
     // 10 gas bumps before hitting the ceiling.
     // TODO: Use the config to set this value.
-    const absoluteMax = utils.parseUnits("2000", "gwei");
+    const absoluteMax = utils.parseUnits("5000", "gwei");
     const max = baseValue.mul(5).div(2);
     this._maxGasPrice = max.gt(absoluteMax) ? absoluteMax : max;
   }
