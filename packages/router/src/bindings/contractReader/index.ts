@@ -114,7 +114,9 @@ export const handleSingle = async (
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext);
       } else {
-        logger.error("Error preparing receiver", requestContext, methodContext, json);
+        logger.error("Error preparing receiver", requestContext, methodContext, json, {
+          chainId: transaction.crosschainTx.invariant.receivingChainId,
+        });
       }
       if (err.cancellable === true) {
         logger.warn("Cancellable validation error, cancelling", requestContext, methodContext);
@@ -137,7 +139,9 @@ export const handleSingle = async (
               transaction: _transaction.crosschainTx.invariant.transactionId,
             });
           } else {
-            logger.error("Error cancelling receiver", requestContext, methodContext, cancelJson);
+            logger.error("Error cancelling receiver", requestContext, methodContext, cancelJson, {
+              chainId: transaction.crosschainTx.invariant.sendingChainId,
+            });
           }
         }
       }
@@ -188,7 +192,9 @@ export const handleSingle = async (
       if (safeJsonStringify(jsonErr).includes("#F:019")) {
         logger.warn("Sender already fulfilled", requestContext, methodContext);
       } else {
-        logger.error("Error fulfilling sender", requestContext, methodContext, jsonErr);
+        logger.error("Error fulfilling sender", requestContext, methodContext, jsonErr, {
+          chainId: transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -220,7 +226,9 @@ export const handleSingle = async (
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext);
       } else {
-        logger.error("Error cancelling receiver", requestContext, methodContext, errJson);
+        logger.error("Error cancelling receiver", requestContext, methodContext, errJson, {
+          chainId: transaction.crosschainTx.invariant.receivingChainId,
+        });
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -250,7 +258,9 @@ export const handleSingle = async (
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext);
       } else {
-        logger.error("Error cancelling sender", requestContext, methodContext, errJson);
+        logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
+          chainId: transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -285,7 +295,9 @@ export const handleSingle = async (
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext);
       } else {
-        logger.error("Error cancelling sender", requestContext, methodContext, errJson);
+        logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
+          chainId: transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
@@ -316,7 +328,9 @@ export const handleSingle = async (
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext);
       } else {
-        logger.error("Error cancelling sender", requestContext, methodContext, errJson);
+        logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
+          chainId: transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
