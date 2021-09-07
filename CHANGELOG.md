@@ -1,4 +1,4 @@
-# Vector Changelog
+# NXTP Changelog
 
 ## Next Release
 
