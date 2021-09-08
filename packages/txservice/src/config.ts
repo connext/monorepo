@@ -71,7 +71,7 @@ export const ChainConfigSchema = Type.Object({
   // Gas station URL, if any, to retrieve current gas price from. If gas station is down or otherwise fails,
   // we'll use the RPC provider's gas as a backup.
   // Gas station should return a "rapid" gas price within the response.data. See ethereum gasnow API as example.
-  gasStation: Type.Optional(Type.String()),
+  gasStations: Type.Array(Type.String()),
 
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
