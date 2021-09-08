@@ -219,7 +219,8 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
           if (!receiving) {
             // if not synced, cancel
-            if (!synced) {
+            const receiverSynced = getSyncRecord(invariant.receivingChainId);
+            if (!receiverSynced) {
               return {
                 crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
                 payload: {},

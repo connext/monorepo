@@ -87,9 +87,9 @@ export const handleSingle = async (
       _transaction.crosschainTx.invariant.sendingChainId,
       _transaction.payload.senderPreparedHash,
     );
-    if (senderReceipt.confirmations < chainConfig.confirmations) {
+    if ((senderReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
-        txConfirmations: senderReceipt.confirmations,
+        txConfirmations: senderReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
         txHash: _transaction.payload.senderPreparedHash,
@@ -160,11 +160,11 @@ export const handleSingle = async (
       _transaction.crosschainTx.invariant.receivingChainId,
       _transaction.payload.receiverFulfilledHash,
     );
-    if (receiverReceipt.confirmations < chainConfig.confirmations) {
+    if ((receiverReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
         txHash: _transaction.payload.receiverFulfilledHash,
-        txConfirmations: receiverReceipt.confirmations,
+        txConfirmations: receiverReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
       });
       return;
