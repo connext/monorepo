@@ -277,7 +277,6 @@ export class ChainRpcProvider {
       if (gasStations.length > 0 && gasPrice === undefined) {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
-          error: jsonifyError(e),
         });
       }
 
