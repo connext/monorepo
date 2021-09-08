@@ -86,6 +86,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   cleanUpMode: Type.Boolean(),
+  diagnosticMode: Type.Boolean(),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -162,6 +163,7 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
+    diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
 
   const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;
