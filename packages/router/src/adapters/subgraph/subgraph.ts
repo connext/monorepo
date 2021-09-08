@@ -71,7 +71,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
     }
     const allowUnsynced = chainConfig.subgraphSyncBuffer;
 
-    logger.info("Getting sync record", requestContext, methodContext, { chainId });
+    logger.debug("Getting sync record", requestContext, methodContext, { chainId });
     const realBlockNumber = await txService.getBlockNumber(chainId);
     const { _meta } = await sdk.GetBlockNumber();
     const subgraphBlockNumber = _meta?.block.number ?? 0;
@@ -125,15 +125,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       // check synced status
       const record = await setSyncRecord(chainId, requestContext);
       logger.debug("Got sync record", requestContext, methodContext, { chainId, record });
-      if (!record.synced) {
-        return allSenderPrepared.router?.transactions.map((senderTx) => {
-          return {
-            crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
-            payload: {},
-            status: CrosschainTransactionStatus.ReceiverNotConfigured,
-          } as ActiveTransaction<"ReceiverNotConfigured">;
-        });
-      }
 
       // create list of txIds for each receiving chain
       const receivingChains: Record<string, string[]> = {};
@@ -227,6 +218,14 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
           }
 
           if (!receiving) {
+            // if not synced, cancel
+            if (!synced) {
+              return {
+                crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
+                payload: {},
+                status: CrosschainTransactionStatus.ReceiverNotConfigured,
+              } as ActiveTransaction<"ReceiverNotConfigured">;
+            }
             // sender prepared
             return {
               crosschainTx: {
@@ -292,7 +291,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       return filterUndefined.concat(receiverNotConfigured);
     }),
   );
-  const flattened = allChains.filter((x) => !!x).flat() as ActiveTransaction<any>[];
+  const flattened = allChains.filter((x) => !!x).flat();
   return flattened;
 };
 
