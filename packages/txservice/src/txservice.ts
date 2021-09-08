@@ -168,7 +168,7 @@ export class TransactionService {
             this.logger.debug(`Bumping transaction gas price for resubmit.`, requestContext, methodContext, {
               id: transaction.id,
             });
-            transaction.bumpGasPrice();
+            await transaction.bumpGasPrice();
             continue;
           } else {
             throw error;
@@ -405,6 +405,7 @@ export class TransactionService {
     const response = await transaction.submit();
     const gas = response.gasPrice ?? transaction.params.gasPrice;
     this.logger.info(`Tx submitted.`, requestContext, methodContext, {
+      chainId: transaction.chainId,
       id: transaction.id,
       attempt: transaction.attempt,
       hash: response.hash,
@@ -428,6 +429,7 @@ export class TransactionService {
     });
     const receipt = await transaction.confirm();
     this.logger.info(`Tx mined.`, requestContext, methodContext, {
+      chainId: transaction.chainId,
       id: transaction.id,
       attempt: transaction.attempt,
       receipt: {
