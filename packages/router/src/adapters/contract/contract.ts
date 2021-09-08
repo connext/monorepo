@@ -126,11 +126,8 @@ export const prepare = async (
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
-  try {
-    await prepareSanitationCheck(chainId, nxtpContractAddress, txData);
-  } catch (e) {
-    throw e;
-  }
+
+  await prepareSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
     txData,
@@ -167,11 +164,7 @@ export const fulfill = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  try {
-    await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
-  } catch (e) {
-    throw e;
-  }
+  await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
 
@@ -200,31 +193,8 @@ export const cancel = async (
   const { txData, signature } = cancelParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
-  const iface = getTxManagerInterface();
 
-  const invariantDigest = getInvariantTransactionDigest(txData);
-  const expectedVariantTransactionDigest = getVariantTransactionDigest({
-    amount: txData.amount,
-    expiry: txData.expiry,
-    preparedBlockNumber: txData.preparedBlockNumber,
-  });
-  const encodeVariantTransactionData = iface.encodeFunctionData("variantTransactionData", [invariantDigest]);
-
-  const variantTransactionDigest = await txService.readTx({
-    chainId,
-    to: nxtpContractAddress,
-    data: encodeVariantTransactionData,
-  });
-
-  // transaction should be prepared before cancel
-  if (!variantTransactionDigest) {
-    throw new Error("Transaction isn't prepared yet");
-  }
-
-  // transaction is already fulfilled
-  if (expectedVariantTransactionDigest !== variantTransactionDigest) {
-    throw new Error("Transaction is already fulfilled or canceled");
-  }
+  await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, signature]);
 
