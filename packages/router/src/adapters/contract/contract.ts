@@ -1,5 +1,15 @@
-import { CancelParams, createLoggingContext, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
-import { constants, providers } from "ethers/lib/ethers";
+import {
+  CancelParams,
+  createLoggingContext,
+  FulfillParams,
+  PrepareParams,
+  RequestContext,
+  getInvariantTransactionDigest,
+  getVariantTransactionDigest,
+  InvariantTransactionData,
+  TransactionData,
+} from "@connext/nxtp-utils";
+import { constants, providers, Contract } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -18,6 +28,76 @@ export const getContractAddress = (chainId: number): string => {
 export const getTxManagerInterface = () =>
   new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
+export const prepareSanitationCheck = async (
+  chainId: number,
+  nxtpContractAddress: string,
+  invariantTransactionData: InvariantTransactionData,
+) => {
+  const { txService } = getContext();
+
+  const invariantDigest = getInvariantTransactionDigest(invariantTransactionData);
+  const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
+    invariantDigest,
+  ]);
+
+  const variantTransactionDigest = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeVariantTransactionData,
+  });
+
+  // variantTransactionDigest exist then transaction is already prepared
+  if (variantTransactionDigest) {
+    throw new Error("Transaction is already prepared");
+  }
+};
+
+export const cancelAndFullfillSanitationCheck = async (
+  chainId: number,
+  nxtpContractAddress: string,
+  transactionData: TransactionData,
+) => {
+  const { txService } = getContext();
+
+  const invariantDigest = getInvariantTransactionDigest({
+    receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
+    user: transactionData.user,
+    router: transactionData.router,
+    sendingAssetId: transactionData.sendingAssetId,
+    receivingAssetId: transactionData.receivingAssetId,
+    sendingChainFallback: transactionData.sendingChainFallback,
+    callTo: transactionData.callTo,
+    receivingAddress: transactionData.receivingAddress,
+    sendingChainId: transactionData.sendingChainId,
+    receivingChainId: transactionData.receivingChainId,
+    callDataHash: transactionData.callDataHash,
+    transactionId: transactionData.transactionId,
+  });
+  const expectedVariantDigest = getVariantTransactionDigest({
+    amount: transactionData.amount,
+    expiry: transactionData.expiry,
+    preparedBlockNumber: transactionData.preparedBlockNumber,
+  });
+  const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
+    invariantDigest,
+  ]);
+
+  const variantTransactionDigest = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeVariantTransactionData,
+  });
+
+  // transaction should be prepared before fulfill
+  if (!variantTransactionDigest) {
+    throw new Error("Transaction isn't prepared yet");
+  }
+
+  // transaction is already fulfilled
+  if (expectedVariantDigest !== variantTransactionDigest) {
+    throw new Error("Transaction is already fulfilled or canceled");
+  }
+};
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
  *
@@ -40,12 +120,17 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepare.name);
 
-  const { logger, txService, wallet } = getContext();
+  const { logger, txService, wallet, config } = getContext();
   logger.info("Method start", requestContext, methodContext, { prepareParams });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
+  try {
+    await prepareSanitationCheck(chainId, nxtpContractAddress, txData);
+  } catch (e) {
+    throw e;
+  }
 
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
     txData,
@@ -82,6 +167,12 @@ export const fulfill = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
+  try {
+    await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
+  } catch (e) {
+    throw e;
+  }
+
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
 
   return await txService.sendTx(
@@ -109,6 +200,31 @@ export const cancel = async (
   const { txData, signature } = cancelParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
+  const iface = getTxManagerInterface();
+
+  const invariantDigest = getInvariantTransactionDigest(txData);
+  const expectedVariantTransactionDigest = getVariantTransactionDigest({
+    amount: txData.amount,
+    expiry: txData.expiry,
+    preparedBlockNumber: txData.preparedBlockNumber,
+  });
+  const encodeVariantTransactionData = iface.encodeFunctionData("variantTransactionData", [invariantDigest]);
+
+  const variantTransactionDigest = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeVariantTransactionData,
+  });
+
+  // transaction should be prepared before cancel
+  if (!variantTransactionDigest) {
+    throw new Error("Transaction isn't prepared yet");
+  }
+
+  // transaction is already fulfilled
+  if (expectedVariantTransactionDigest !== variantTransactionDigest) {
+    throw new Error("Transaction is already fulfilled or canceled");
+  }
 
   const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, signature]);
 
