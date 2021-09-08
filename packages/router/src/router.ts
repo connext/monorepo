@@ -69,8 +69,10 @@ export const makeRouter = async () => {
     context.contractWriter = contractWriter();
 
     // bindings
-    await bindContractReader();
-    await bindMessaging();
+    if (!context.config.diagnosticMode) {
+      await bindContractReader();
+      await bindMessaging();
+    }
     await bindFastify();
     logger.info("Router ready 🚀");
   } catch (e) {

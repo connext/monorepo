@@ -4,6 +4,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const AdminSchema = Type.Object({
   adminToken: Type.String(),
 });
+export type AdminRequest = Static<typeof AdminSchema>;
 
 export const RemoveLiquidityRequestSchema = Type.Intersect([
   AdminSchema,

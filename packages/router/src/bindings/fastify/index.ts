@@ -2,9 +2,12 @@ import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
 
 import { getContext } from "../../router";
+import { handleActiveTransactions } from "../contractReader";
 
 import { prepareCancel } from "./cancel";
 import {
+  AdminRequest,
+  AdminSchema,
   CancelSenderTransferRequest,
   CancelSenderTransferRequestSchema,
   RemoveLiquidityRequest,
@@ -14,7 +17,7 @@ import {
 
 export const bindFastify = () =>
   new Promise<void>((res) => {
-    const { wallet, contractWriter, config, logger } = getContext();
+    const { wallet, contractWriter, config, logger, contractReader } = getContext();
 
     const server = fastify();
 
@@ -69,6 +72,25 @@ export const bindFastify = () =>
             requestContext,
           );
           return { transactionHash: result.transactionHash };
+        } catch (err) {
+          return res.code(400).send({ err: jsonifyError(err), requestContext });
+        }
+      },
+    );
+
+    server.post<{ Body: AdminRequest }>(
+      "/process-active-transactions",
+      { schema: { body: AdminSchema } },
+      async (req, res) => {
+        const requestContext = createRequestContext("/process-active-transactions");
+        const { adminToken } = req.body;
+        if (adminToken !== config.adminToken) {
+          return res.code(401).send("Unauthorized to perform this operation");
+        }
+        try {
+          const activeTxs = await contractReader.getActiveTransactions();
+          await handleActiveTransactions(activeTxs);
+          return res.code(200).send();
         } catch (err) {
           return res.code(400).send({ err: jsonifyError(err), requestContext });
         }
