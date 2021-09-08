@@ -1,4 +1,4 @@
-import { providers, BigNumber } from "ethers";
+import { providers, BigNumber, utils } from "ethers";
 import { createLoggingContext, delay, getUuid, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
@@ -31,7 +31,7 @@ export interface TransactionInterface {
   submit(): Promise<providers.TransactionResponse>;
   validate(): Promise<void>;
   confirm(): Promise<providers.TransactionReceipt>;
-  bumpGasPrice(): void;
+  bumpGasPrice(): Promise<void>;
 }
 
 /**
@@ -364,26 +364,28 @@ export class Transaction implements TransactionInterface {
     if (this.attempt >= MAX_ATTEMPTS) {
       // TODO: Log more info?
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
-        gasPrice: this.gas.price.toString(),
+        gasPrice: `${utils.formatUnits(this.gas.price, "wei")} wei`,
         attempts: this.attempt,
       });
     }
     const previousPrice = this.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
     const result = await this.provider.getGasPrice(requestContext);
-    const baselinePrice = result.isOk() ? result.value : BigNumber.from(0);
-    const targetPrice = baselinePrice.gt(previousPrice) ? baselinePrice : previousPrice;
+    const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
+    const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
-    this.gas.price = targetPrice.add(targetPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
+    this.gas.price = determinedBaseline
+      .add(determinedBaseline.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100))
+      .add(1);
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
       chainId: this.chainId,
       id: this.id,
       attempt: this.attempt,
-      baselinePrice: baselinePrice.toString(),
-      targetPrice: targetPrice.toString(),
-      previousGasPrice: previousPrice.toString(),
-      newGasPrice: this.gas.price.toString(),
+      updatedPrice: `${utils.formatUnits(updatedPrice, "wei")} wei`,
+      previousPrice: `${utils.formatUnits(previousPrice, "wei")} wei`,
+      determinedBaseline: `${utils.formatUnits(determinedBaseline, "wei")} wei`,
+      newGasPrice: `${utils.formatUnits(this.gas.price, "wei")} wei`,
     });
   }
 

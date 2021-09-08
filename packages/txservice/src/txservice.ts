@@ -118,7 +118,10 @@ export class TransactionService {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
 
-    const transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
+    const newTx = () => this.getProvider(tx.chainId).createTransaction(tx, requestContext);
+
+    let transaction = await newTx();
+    let nonceExpired = 0;
     try {
       while (!transaction.didFinish) {
         // Submit: send to chain.
@@ -132,16 +135,26 @@ export class TransactionService {
           });
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
-              // A transaction that's only been attempted once has an expired nonce. This means that TransactionMonitor
-              // assigned us a bunk (already used) nonce.
-
-              // TODO: In this event, we need to go back to the beginning and actually "recreate" the transaction
-              // itself now. Assuming our nonce tracker (TransactionMonitor) is effective, this should normally never occur...
-              // but there is at least 1 legit edge case: if the TransactionMonitor has just come online and is can only rely on
-              // the provider's TransactionCount to assign nonce - and the provider turns out to be incorrect (e.g. off by 1 or 2
-              // pending tx's not in its mempool yet for some reason).
-              // So we may want to replace this throw with a recreate.
-              throw error;
+              if (nonceExpired > 1000) {
+                // Nonce expired emergency stop: we should never encounter this expired nonce situation this many times.
+                this.logger.warn(`Nonce expired encountered > MAX (1000)`, requestContext, methodContext, {
+                  id: transaction.id,
+                  attempt: transaction.attempt,
+                  nonceExpired,
+                  error: jsonifyError(error),
+                });
+                throw error;
+              }
+              // A transaction that's only been attempted once has an expired nonce. This means that dispatch
+              // assigned us an already-used nonce.
+              nonceExpired++;
+              // In this event, we need to go back to the beginning and actually "recreate" the transaction
+              // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
+              // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
+              // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
+              // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
+              transaction = await newTx();
+              continue;
             } else {
               // Ignore this error, proceed to validation step.
               this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
@@ -165,9 +178,6 @@ export class TransactionService {
           );
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to validate. We should bump the tx and submit again.
-            this.logger.debug(`Bumping transaction gas price for resubmit.`, requestContext, methodContext, {
-              id: transaction.id,
-            });
             await transaction.bumpGasPrice();
             continue;
           } else {
