@@ -135,8 +135,8 @@ export class TransactionService {
           });
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
-              // Something is not working right - we should never encounter this expired nonce situation this many times.
               if (nonceExpired > 1000) {
+                // Nonce expired emergency stop: we should never encounter this expired nonce situation this many times.
                 this.logger.warn(`Nonce expired encountered > MAX (1000)`, requestContext, methodContext, {
                   id: transaction.id,
                   attempt: transaction.attempt,
