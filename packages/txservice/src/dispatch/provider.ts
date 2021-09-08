@@ -254,14 +254,30 @@ export class ChainRpcProvider {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
-      if (this.chainId === 1) {
+      const gasStations = this.chainConfig.gasStations;
+      for (let i = 0; i < gasStations.length; i++) {
+        const uri = gasStations[i];
+        let response: any;
         try {
-          const gasNowResponse = await axios.get(`https://www.gasnow.org/api/v3/gas/price`);
-          const { rapid } = gasNowResponse.data;
-          gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
+          response = await axios.get(uri);
+          const { rapid } = response.data;
+          if (rapid !== undefined) {
+            gasPrice = BigNumber.from(rapid);
+            break;
+          }
         } catch (e) {
-          this.logger.warn("Gasnow failed, using provider", requestContext, methodContext, { error: jsonifyError(e) });
+          this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
+            uri,
+            response,
+            error: jsonifyError(e),
+          });
         }
+      }
+
+      if (gasStations.length > 0 && gasPrice === undefined) {
+        this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
+          gasStations,
+        });
       }
 
       if (!gasPrice) {

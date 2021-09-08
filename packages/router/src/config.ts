@@ -53,6 +53,7 @@ export const TChainConfig = Type.Object({
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),
+  gasStations: Type.Array(Type.String()),
   safeRelayerFee: Type.String(),
   subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
 });
@@ -96,7 +97,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRouterConfig => {
+export const getEnvConfig = (crossChainData: Map<string, any> | undefined): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -167,18 +168,24 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
   };
 
   const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;
-  if (!chainData && chainData!.size == 0 && !overridechainRecommendedConfirmations) {
+  if (!crossChainData && crossChainData!.size == 0 && !overridechainRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const defaultConfirmations = chainData && chainData.has("1") ? parseInt(chainData.get("1").confirmations) + 3 : 4;
+  const defaultConfirmations =
+    crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
+    const chainRecommendedConfirmations =
+      crossChainData && crossChainData.has(chainId)
+        ? parseInt(crossChainData.get(chainId).confirmations)
+        : defaultConfirmations;
+    const chainRecommendedGasStations =
+      crossChainData && crossChainData.has(chainId) ? crossChainData.get(chainId).gasStations ?? [] : [];
+
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    const chainRecommendedConfirmations =
-      chainData && chainData.has(chainId) ? parseInt(chainData.get(chainId).confirmations) : defaultConfirmations;
     if (!chainConfig.transactionManagerAddress) {
       const res = getDeployedTransactionManagerContract(parseInt(chainId));
       if (!res) {
@@ -186,12 +193,15 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
       }
       nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
     }
+
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
+
     if (!chainConfig.safeRelayerFee) {
       nxtpConfig.chainConfig[chainId].safeRelayerFee = MIN_RELAYER_FEE.toString();
     }
+
     if (!chainConfig.subgraph) {
       const subgraph = getDeployedSubgraphUri(Number(chainId));
       if (!subgraph) {
@@ -209,6 +219,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
       nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
         syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min
     }
+
+    const addedStations = nxtpConfig.chainConfig[chainId].gasStations ?? [];
+    nxtpConfig.chainConfig[chainId].gasStations = addedStations.concat(chainRecommendedGasStations);
 
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;

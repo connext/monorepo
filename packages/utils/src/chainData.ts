@@ -26,6 +26,7 @@ export type ChainData = {
   rpc: string[];
   faucets: string[];
   infoURL: string;
+  gasStations: string[];
   explorers: {
     name: string;
     url: string;

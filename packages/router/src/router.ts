@@ -53,6 +53,7 @@ export const makeRouter = async () => {
       chains[chainId] = {
         confirmations: config.confirmations,
         providers: config.providers.map((url) => ({ url })),
+        gasStations: config.gasStations,
       } as ChainConfig;
     });
     // TODO: txserviceconfig log level
