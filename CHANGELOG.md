@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [router] Add onchain checks before sending txs
+- [router] Fix subgraph status determinations
+
 ## 0.0.37
 
 - [router] Retry getting subgraph sync status if not set by default
