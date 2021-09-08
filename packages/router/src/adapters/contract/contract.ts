@@ -49,7 +49,7 @@ export const prepareSanitationCheck = async (
   });
 
   // variantTransactionDigest exist then transaction is already prepared
-  if (variantTransactionDigest || variantTransactionDigest !== AddressZero) {
+  if (variantTransactionDigest !== AddressZero) {
     logger.error(`FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`);
     throw new Error("Transaction is already prepared");
   }
