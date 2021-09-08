@@ -9,7 +9,7 @@ import {
   InvariantTransactionData,
   TransactionData,
 } from "@connext/nxtp-utils";
-import { constants, providers, Contract } from "ethers/lib/ethers";
+import { constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -33,7 +33,7 @@ export const prepareSanitationCheck = async (
   nxtpContractAddress: string,
   invariantTransactionData: InvariantTransactionData,
 ) => {
-  const { txService } = getContext();
+  const { txService, logger } = getContext();
 
   const invariantDigest = getInvariantTransactionDigest(invariantTransactionData);
   const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
@@ -48,6 +48,7 @@ export const prepareSanitationCheck = async (
 
   // variantTransactionDigest exist then transaction is already prepared
   if (variantTransactionDigest) {
+    logger.error("FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT");
     throw new Error("Transaction is already prepared");
   }
 };
@@ -57,7 +58,7 @@ export const cancelAndFullfillSanitationCheck = async (
   nxtpContractAddress: string,
   transactionData: TransactionData,
 ) => {
-  const { txService } = getContext();
+  const { txService, logger } = getContext();
 
   const invariantDigest = getInvariantTransactionDigest({
     receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
@@ -90,11 +91,17 @@ export const cancelAndFullfillSanitationCheck = async (
 
   // transaction should be prepared before fulfill
   if (!variantTransactionDigest) {
+    logger.error(
+      "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction isn't prepared yet",
+    );
     throw new Error("Transaction isn't prepared yet");
   }
 
   // transaction is already fulfilled
   if (expectedVariantDigest !== variantTransactionDigest) {
+    logger.error(
+      "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction is already fulfilled or canceled",
+    );
     throw new Error("Transaction is already fulfilled or canceled");
   }
 };
@@ -120,7 +127,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepare.name);
 
-  const { logger, txService, wallet, config } = getContext();
+  const { logger, txService, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext, { prepareParams });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
