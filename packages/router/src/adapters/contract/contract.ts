@@ -165,7 +165,7 @@ export const fulfill = async (
   const { methodContext } = createLoggingContext(fulfill.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info("", requestContext, methodContext);
+  logger.info("Method start", requestContext, methodContext);
 
   const { txData, relayerFee, signature, callData } = fulfillParams;
 
