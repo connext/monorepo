@@ -31,7 +31,7 @@ export interface TransactionInterface {
   submit(): Promise<providers.TransactionResponse>;
   validate(): Promise<void>;
   confirm(): Promise<providers.TransactionReceipt>;
-  bumpGasPrice(): void;
+  bumpGasPrice(): Promise<void>;
 }
 
 /**
