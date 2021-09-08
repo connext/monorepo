@@ -304,6 +304,11 @@ export const handleSingle = async (
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverNotConfigured) {
+    // TODO: What about config changes here? Is that a concern?
+    // I.e. router adds + removes a chain. They have prepared on
+    // both sides before removing. This would cancel the sender side
+    // automatically, without checking against the receiving
+    // prepared-ness
     const _transaction = transaction as ActiveTransaction<"ReceiverNotConfigured">;
     // if receiver is not configured, cancel the sender
     const requestContext = createRequestContext(
@@ -335,6 +340,65 @@ export const handleSingle = async (
       }
     } finally {
       handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
+    }
+  } else if (transaction.status === CrosschainTransactionStatus.Unsynced) {
+    // TODO: what to do with unsynced transactions :thinking:
+    // OPTION A:
+    // - ignore transaction until subgraph is synced
+
+    // OPTION B:
+    // - if sender && receiver chain are unsynced, do nothing
+    // - if receiver chain is unsynced:
+    //    - sender tx is prepared, receiver tx does not exist: check chain &&
+    //      cancel tx
+    //    - sender tx is prepared, receiver tx prepared: nothing
+    //    - sender tx is prepared, receiver tx cancelled: cancel sender
+    //    - sender tx is prepared, receiver tx fulfilled: fulfill sender
+    //    - sender tx is cancelled, receiver tx should be cancelled
+    //    - sender tx is fulfilled, shouldnt appear
+    // - if sender chain is unsynced:
+    //    - receiver tx does not exist, cancel tx
+    //    - receiver tx is prepared, do nothing
+    //    - receiver tx is fulfilled, check chain && fulfill sender
+    //    - receiver tx is cancelled, check chain && cancel sender
+    // NOTE: must check chain on sender side to avoid duplicate tx sends
+    // or incorrectly advancing state
+
+    //
+    const { senderChain, receiverChain } = (transaction as ActiveTransaction<"Unsynced">).payload;
+    logger.info("Transaction subgraphs unsynced", requestContext, methodContext, {
+      sendingSync: senderChain,
+      receivingSync: receiverChain,
+    });
+
+    if (!senderChain.synced && !receiverChain.synced) {
+      // TODO: could check chain here, how important is that?
+      logger.warn("Both transaction subgraphs unsynced, doing nothing", requestContext, methodContext);
+      return;
+    }
+
+    if (senderChain.synced) {
+      // Receiver chain is unsynced
+      // Get receiving chain hash
+      // TODO: ^^ should happen in poller? will *slam* providers if subgraph is
+      // down
+      // If hash is empty, cancel sender tx
+      // If hash is prepared, do nothing
+      // If hash is or completed (cancelled/fulfilled), copy action to sender tx
+      // NOTE: no difference in variant hash from cancelled or fulfilled,
+      // have to determine the proper action to take from the presence of a
+      // fulfill or cancel hash on the sender side subgraph.
+    }
+
+    if (receiverChain.synced) {
+      // Sending chain is unsynced
+      // Get receiving chain hash + sending chain hash
+      // TODO: ^^ should happen in poller? will *slam* providers if subgraph is
+      // down
+      // If sender tx is completed, mirror the action to the receiver chain
+      // NOTE: no difference in variant hash from cancelled or fulfilled,
+      // have to determine the proper action to take from the presence of a
+      // fulfill or cancel hash on the sender side subgraph.
     }
   }
 };
