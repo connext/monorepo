@@ -71,7 +71,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
     }
     const allowUnsynced = chainConfig.subgraphSyncBuffer;
 
-    logger.info("Getting sync record", requestContext, methodContext, { chainId });
+    logger.debug("Getting sync record", requestContext, methodContext, { chainId });
     const realBlockNumber = await txService.getBlockNumber(chainId);
     const { _meta } = await sdk.GetBlockNumber();
     const subgraphBlockNumber = _meta?.block.number ?? 0;
