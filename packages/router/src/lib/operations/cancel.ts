@@ -8,8 +8,9 @@ import {
 import { providers } from "ethers";
 
 import { getContext } from "../../router";
-import { ParamsInvalid } from "../errors";
+import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
+import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
 export const cancel = async (
   invariantData: InvariantTransactionData,
@@ -18,7 +19,7 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter } = getContext();
+  const { logger, contractWriter, contractReader } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -52,6 +53,18 @@ export const cancel = async (
   let cancelChain: number;
   if (side === "sender") {
     cancelChain = invariantData.sendingChainId;
+    const existing = await contractReader.getTransactionForChain(
+      invariantData.transactionId,
+      invariantData.user,
+      invariantData.receivingChainId,
+    );
+    if (existing && existing.status !== TransactionStatus.Cancelled) {
+      throw new ReceiverTxExists(invariantData.transactionId, invariantData.receivingChainId, {
+        requestContext,
+        methodContext,
+        existing,
+      });
+    }
   } else {
     cancelChain = invariantData.receivingChainId;
   }

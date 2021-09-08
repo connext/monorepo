@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { providers, BigNumber } from "ethers";
 import { createLoggingContext, delay, getUuid, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
@@ -13,8 +13,11 @@ import {
 
 import { ChainRpcProvider } from "./provider";
 
+const MAX_ATTEMPTS = 10;
+
 export interface TransactionInterface {
   id: string;
+  chainId: number;
   timestamp: number;
   params: FullTransaction;
   error: Error | undefined;
@@ -37,6 +40,7 @@ export interface TransactionInterface {
 export class Transaction implements TransactionInterface {
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
+  public readonly chainId: number;
   // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
   private response: providers.TransactionResponse | undefined = undefined;
   // Responses, in the order of attempts made for this tx.
@@ -138,6 +142,7 @@ export class Transaction implements TransactionInterface {
       createdAt: this.timestamp,
       isBackfill,
     });
+    this.chainId = this.provider.chainId;
   }
 
   /// LIFECYCLE
@@ -354,15 +359,29 @@ export class Transaction implements TransactionInterface {
   /**
    * Bump the gas price for this tx up by the configured percentage.
    */
-  public bumpGasPrice() {
+  public async bumpGasPrice() {
     const { requestContext, methodContext } = createLoggingContext(this.bumpGasPrice.name, this.context);
+    if (this.attempt >= MAX_ATTEMPTS) {
+      // TODO: Log more info?
+      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
+        gasPrice: this.gas.price.toString(),
+        attempts: this.attempt,
+      });
+    }
     const previousPrice = this.gas.price;
+    // Get the current gas baseline price, in case it's changed drastically in the last block.
+    const result = await this.provider.getGasPrice(requestContext);
+    const baselinePrice = result.isOk() ? result.value : BigNumber.from(0);
+    const targetPrice = baselinePrice.gt(previousPrice) ? baselinePrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
-    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
+    this.gas.price = targetPrice.add(targetPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+      chainId: this.chainId,
       id: this.id,
       attempt: this.attempt,
+      baselinePrice: baselinePrice.toString(),
+      targetPrice: targetPrice.toString(),
       previousGasPrice: previousPrice.toString(),
       newGasPrice: this.gas.price.toString(),
     });

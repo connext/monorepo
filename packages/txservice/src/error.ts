@@ -216,7 +216,7 @@ export class TransactionServiceFailure extends NxtpError {
      * accepted by the chain (0 confirmations, and chain did not revert). Typically indicates on RPC
      * failure but could imply a failure in TransactionService to submit correctly to chain.
      */
-    MaxGasPriceReached: "Gas price went over configured limit.",
+    MaxAttemptsReached: "Gas price went over configured limit.",
     GasEstimateInvalid: "The gas estimate returned was an invalid value.",
   };
 
