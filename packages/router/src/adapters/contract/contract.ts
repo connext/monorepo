@@ -16,6 +16,8 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 
 import { getContext } from "../../router";
 
+const { AddressZero } = constants;
+
 export const getContractAddress = (chainId: number): string => {
   const { config } = getContext();
   const nxtpContractAddress = config.chainConfig[chainId]?.transactionManagerAddress;
@@ -47,8 +49,8 @@ export const prepareSanitationCheck = async (
   });
 
   // variantTransactionDigest exist then transaction is already prepared
-  if (variantTransactionDigest) {
-    logger.error("FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT");
+  if (variantTransactionDigest || variantTransactionDigest !== AddressZero) {
+    logger.error(`FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`);
     throw new Error("Transaction is already prepared");
   }
 };
@@ -90,7 +92,7 @@ export const cancelAndFullfillSanitationCheck = async (
   });
 
   // transaction should be prepared before fulfill
-  if (!variantTransactionDigest) {
+  if (variantTransactionDigest === AddressZero) {
     logger.error(
       "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction isn't prepared yet",
     );
