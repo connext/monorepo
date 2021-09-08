@@ -167,9 +167,6 @@ export class TransactionService {
           );
           if (error.type === TimeoutError.type) {
             // Transaction timed out trying to validate. We should bump the tx and submit again.
-            this.logger.debug(`Bumping transaction gas price for resubmit.`, requestContext, methodContext, {
-              id: transaction.id,
-            });
             await transaction.bumpGasPrice();
             continue;
           } else {
