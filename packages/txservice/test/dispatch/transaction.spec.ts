@@ -167,7 +167,7 @@ describe.skip("Transaction", () => {
       // Simulate confirmation, for test reliability.
       dispatch.confirmTransaction.resolves(err(new TimeoutError()));
       await expect(transaction.confirm()).to.be.rejectedWith(TimeoutError);
-      transaction.bumpGasPrice();
+      await transaction.bumpGasPrice();
 
       // Now we should get the nonce expired error.
       await expect(transaction.submit()).to.be.rejectedWith(nonceExpiredError);
@@ -229,7 +229,7 @@ describe.skip("Transaction", () => {
       for (let i = 0; i < sendCount - 1; i++) {
         await transaction.submit();
         await expect(transaction.confirm()).to.be.rejectedWith(TimeoutError);
-        transaction.bumpGasPrice();
+        await transaction.bumpGasPrice();
       }
 
       // The last transaction should be confirmed with the replacement receipt.
@@ -326,11 +326,12 @@ describe.skip("Transaction", () => {
   describe("#bumpGasPrice", async () => {
     it("happy: bumps by configured percentage", async () => {
       const originalGasPrice = transaction.params.gasPrice;
-      transaction.bumpGasPrice();
+      await transaction.bumpGasPrice();
       expect(gas.price.gt(originalGasPrice)).to.be.true;
     });
 
-    it("throws if it would bump above max gas price", async () => {
+    // TODO:Should instead rely on max attempts here.
+    it.skip("throws if it would bump above max gas price", async () => {
       // Make it so the gas price will return exactly == the maximum (which is acceptable).
       (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasMaximum);
 
@@ -339,7 +340,7 @@ describe.skip("Transaction", () => {
       expect(response).to.deep.eq(TEST_TX_RESPONSE);
 
       // This should throw, as we are attempting to bump above the maximum.
-      expect(() => transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxGasPriceReached);
+      expect(await transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxAttemptsReached);
     });
   });
 

@@ -1,7 +1,5 @@
 import { BigNumber, BigNumberish, utils } from "ethers";
 
-import { TransactionServiceFailure } from "./error";
-
 export type ReadTransaction = {
   chainId: number;
   to: string;
@@ -51,7 +49,6 @@ export class Gas {
    * @param value - Gas price to set
    */
   public set price(value: BigNumber) {
-    this.validate(value);
     this._gasPrice = value;
   }
 
@@ -72,22 +69,5 @@ export class Gas {
    */
   public setToMax() {
     this._gasPrice = this._maxGasPrice.sub(10);
-  }
-
-  /**
-   * Check to see if the gas price provided is past the max. If so, throw.
-   *
-   * @param value Gas price to validate.
-   *
-   * @throws TransactionServiceFailure with reason MaxGasPriceReached if we exceed the limit.
-   */
-  private validate(value: BigNumber) {
-    if (value.gt(this._maxGasPrice)) {
-      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxGasPriceReached, {
-        gasPrice: `${utils.formatUnits(value, "gwei")} gwei`,
-        gasLimit: `${utils.formatUnits(this.limit, "gwei")} gwei`,
-        max: `${utils.formatUnits(this._maxGasPrice, "gwei")} gwei`,
-      });
-    }
   }
 }
