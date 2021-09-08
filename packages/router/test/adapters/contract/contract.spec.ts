@@ -25,7 +25,9 @@ describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
-    stub(ContractFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    stub(ContractFns, "prepareSanitationCheck").resolves();
+    stub(ContractFns, "cancelAndFullfillSanitationCheck").resolves();
+    stub(ContractFns, "getTxManagerInterface").returns((interfaceMock as unknown) as TransactionManagerInterface);
   });
 
   describe("#getContractAddress", () => {
@@ -40,7 +42,7 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       const res = await prepare(chainId, prepareParamsMock, requestContext);
-      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("prepare", [
+      expect(interfaceMock.encodeFunctionData).calledOnceWith("prepare", [
         prepareParamsMock.txData,
         prepareParamsMock.amount,
         prepareParamsMock.expiry,
@@ -57,7 +59,7 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       const res = await fulfill(chainId, fulfillParamsMock, requestContext);
-      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("fulfill", [
+      expect(interfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
         fulfillParamsMock.txData,
         fulfillParamsMock.relayerFee,
         fulfillParamsMock.signature,
@@ -72,7 +74,7 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       const res = await cancel(chainId, cancelParamsMock, requestContext);
-      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("cancel", [
+      expect(interfaceMock.encodeFunctionData).calledOnceWith("cancel", [
         cancelParamsMock.txData,
         cancelParamsMock.signature,
       ]);
