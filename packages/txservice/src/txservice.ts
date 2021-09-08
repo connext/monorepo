@@ -118,7 +118,7 @@ export class TransactionService {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
 
-    const newTx = async () => await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
+    const newTx = () => this.getProvider(tx.chainId).createTransaction(tx, requestContext);
 
     let transaction = await newTx();
     try {
