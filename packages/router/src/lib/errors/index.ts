@@ -18,3 +18,5 @@ export {
 } from "./prepare";
 
 export { NoChainConfig, NotEnoughRelayerFee } from "./fulfill";
+
+export { ReceiverTxExists } from "./cancel";
