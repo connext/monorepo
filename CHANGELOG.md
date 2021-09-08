@@ -4,6 +4,7 @@
 
 - [router] Add onchain checks before sending txs
 - [router] Fix subgraph status determinations
+- [router] Fix bug where receipt could be undefined
 
 ## 0.0.37
 
