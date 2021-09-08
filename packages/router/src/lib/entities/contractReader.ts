@@ -9,6 +9,7 @@ export const CrosschainTransactionStatus = {
   ReceiverFulfilled: "ReceiverFulfilled",
   ReceiverCancelled: "ReceiverCancelled",
   ReceiverExpired: "ReceiverExpired",
+  Unsynced: "Unsynced", // TODO: should this be sender v. receiver?
 } as const;
 
 export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[keyof typeof CrosschainTransactionStatus];
@@ -40,6 +41,10 @@ export type CrosschainTransactionPayload = {
     receiverCancelledHash: string;
   };
   [CrosschainTransactionStatus.ReceiverExpired]: Record<string, never>;
+  [CrosschainTransactionStatus.Unsynced]: {
+    senderChain: SubgraphSyncRecord;
+    receiverChain: SubgraphSyncRecord;
+  };
 };
 
 export type ActiveTransaction<T extends TCrosschainTransactionStatus> = {
