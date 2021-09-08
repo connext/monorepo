@@ -22,6 +22,7 @@ const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
 const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
+  250: "750000000000", // FTM test: should remove
 };
 
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
