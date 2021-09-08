@@ -121,6 +121,7 @@ export class TransactionService {
     const newTx = () => this.getProvider(tx.chainId).createTransaction(tx, requestContext);
 
     let transaction = await newTx();
+    let nonceExpired = 0;
     try {
       while (!transaction.didFinish) {
         // Submit: send to chain.
@@ -134,9 +135,19 @@ export class TransactionService {
           });
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
+              // Something is not working right - we should never encounter this expired nonce situation this many times.
+              if (nonceExpired > 1000) {
+                this.logger.warn(`Nonce expired encountered > MAX (1000)`, requestContext, methodContext, {
+                  id: transaction.id,
+                  attempt: transaction.attempt,
+                  nonceExpired,
+                  error: jsonifyError(error),
+                });
+                throw error;
+              }
               // A transaction that's only been attempted once has an expired nonce. This means that dispatch
               // assigned us an already-used nonce.
-
+              nonceExpired++;
               // In this event, we need to go back to the beginning and actually "recreate" the transaction
               // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
               // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
