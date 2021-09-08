@@ -231,6 +231,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     let addedToBuffer = false;
     try {
       this.logger.warn(`Transaction requires backfill: ${reason}`, requestContext, methodContext, {
+        chainId: this.chainId,
         nonce,
         id: blockade?.id,
         timestamp: blockade?.timestamp,
