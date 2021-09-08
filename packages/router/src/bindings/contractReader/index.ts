@@ -49,11 +49,14 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
-    if (handlingTracker.get(transaction.crosschainTx.invariant.transactionId) === transaction.status) {
+    if (handlingTracker.has(transaction.crosschainTx.invariant.transactionId)) {
       logger.info("Already handling transaction", requestContext, methodContext);
       continue;
     }
-    handleSingle(transaction, requestContext);
+    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, transaction.status);
+    handleSingle(transaction, requestContext).finally(() =>
+      handlingTracker.delete(transaction.crosschainTx.invariant.transactionId),
+    );
     await delay(750); // delay here to not flood the provider
   }
 };
@@ -95,7 +98,6 @@ export const handleSingle = async (
     }
     const preparePayload: PreparePayload = _transaction.payload;
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Preparing receiver", requestContext, methodContext);
       const receipt = await prepare(
         _transaction.crosschainTx.invariant,
@@ -146,8 +148,6 @@ export const handleSingle = async (
           }
         }
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
     const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;
@@ -172,7 +172,6 @@ export const handleSingle = async (
 
     const fulfillPayload: FulfillPayload = _transaction.payload;
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Fulfilling sender", requestContext, methodContext);
       const receipt = await fulfill(
         _transaction.crosschainTx.invariant,
@@ -197,8 +196,6 @@ export const handleSingle = async (
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
     const requestContext = createRequestContext(
@@ -207,7 +204,6 @@ export const handleSingle = async (
     );
     const _transaction = transaction as ActiveTransaction<"ReceiverExpired">;
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Cancelling expired receiver", requestContext, methodContext);
       const receipt = await cancel(
         _transaction.crosschainTx.invariant,
@@ -231,8 +227,6 @@ export const handleSingle = async (
           chainId: transaction.crosschainTx.invariant.receivingChainId,
         });
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.SenderExpired) {
     const requestContext = createRequestContext(
@@ -241,7 +235,6 @@ export const handleSingle = async (
     );
     const _transaction = transaction as ActiveTransaction<"SenderExpired">;
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Cancelling expired sender", requestContext, methodContext);
       const receipt = await cancel(
         _transaction.crosschainTx.invariant,
@@ -263,8 +256,6 @@ export const handleSingle = async (
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
 
     // If sender is cancelled, receiver should already be expired. If we do
@@ -278,7 +269,6 @@ export const handleSingle = async (
       transaction.crosschainTx.invariant.transactionId,
     );
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext);
       const receipt = await cancel(
         _transaction.crosschainTx.invariant,
@@ -300,8 +290,6 @@ export const handleSingle = async (
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverNotConfigured) {
     const _transaction = transaction as ActiveTransaction<"ReceiverNotConfigured">;
@@ -311,7 +299,6 @@ export const handleSingle = async (
       transaction.crosschainTx.invariant.transactionId,
     );
     try {
-      handlingTracker.set(_transaction.crosschainTx.invariant.transactionId, _transaction.status);
       logger.info("Cancelling sender because receiver is not configured", requestContext, methodContext);
       const receipt = await cancel(
         _transaction.crosschainTx.invariant,
@@ -333,8 +320,6 @@ export const handleSingle = async (
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
       }
-    } finally {
-      handlingTracker.delete(_transaction.crosschainTx.invariant.transactionId);
     }
   }
 };
