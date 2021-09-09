@@ -1,6 +1,6 @@
 import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import axios from "axios";
-import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
+import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
@@ -19,6 +19,8 @@ import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
 import { TransactionInterface } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
+
+const BLOCK_BUFFER = 20;
 
 const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
@@ -43,6 +45,10 @@ export class ChainRpcProvider {
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
   protected aborted: Error | undefined = undefined;
+
+  private trailingBlocks: (Omit<providers.Block, "transactions"> & {
+    transactions: providers.TransactionResponse[];
+  })[] = [];
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -283,7 +289,25 @@ export class ChainRpcProvider {
 
       if (!gasPrice) {
         try {
-          gasPrice = await this.provider.getGasPrice();
+          // Refresh trailing blocks
+          await this.getTrailingBlocks();
+
+          // Get rapid (avg of top quartile) price
+          const rapidGas =
+            this.trailingBlocks
+              .map((b) => {
+                const sorted = b.transactions
+                  .map((t) => t.gasPrice)
+                  .filter((p) => !!p)
+                  .map((p) => parseFloat(utils.formatUnits(p!, "gwei")))
+                  .sort((a, b) => a - b);
+                const topQuartile = sorted.slice(Math.floor(sorted.length / 4) * 3);
+                const avg = topQuartile.reduce((prev, curr) => prev + curr, 0) / topQuartile.length;
+                return avg;
+              })
+              .reduce((prev, curr) => prev + curr) / this.trailingBlocks.length;
+
+          gasPrice = utils.parseUnits(rapidGas.toString(), "gwei");
         } catch (error) {
           this.logger.error(
             "getGasPrice failure, attempting to default to backup gas value.",
@@ -486,6 +510,31 @@ export class ChainRpcProvider {
   protected assertNotAborted(): void {
     if (this.aborted) {
       throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
+    }
+  }
+
+  private async getTrailingBlocks() {
+    const storedNumber = this.trailingBlocks.length;
+
+    const latest = await this.provider.getBlockNumber();
+
+    // Get blocks to append
+    const numbers = Array(BLOCK_BUFFER - storedNumber)
+      .fill(0)
+      .map((_n, idx) => latest - idx);
+
+    const blocks = (await Promise.all(numbers.map((n) => this.provider.getBlockWithTransactions(n)))).filter(
+      (x) => !!x,
+    );
+
+    // Append new blocks
+    blocks.forEach((b) => this.trailingBlocks.push(b));
+
+    // Remove old blocks
+    let excess = this.trailingBlocks.length - BLOCK_BUFFER;
+    while (excess > 0) {
+      this.trailingBlocks.shift();
+      excess -= 1;
     }
   }
 }
