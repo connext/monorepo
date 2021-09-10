@@ -523,6 +523,8 @@ export class NxtpSdk {
                 receivingChainId,
                 receivingAssetId,
                 router: data.bid.router,
+                routerLiq: routerLiq.toString(),
+                amountReceived: data.bid.amountReceived,
               });
               return msg;
             }

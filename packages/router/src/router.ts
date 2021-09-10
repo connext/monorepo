@@ -72,6 +72,8 @@ export const makeRouter = async () => {
     // bindings
     if (!context.config.diagnosticMode) {
       await bindContractReader();
+    }
+    if (!context.config.cleanUpMode) {
       await bindMessaging();
     }
     await bindFastify();
