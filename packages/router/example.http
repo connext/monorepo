@@ -18,3 +18,11 @@ Content-Type: application/json
   "assetId": "{{assetId}}",
   "amount": "{{amount}}" 
 }
+
+### PROCESS ACTIVE TXS
+POST {{routerUrl}}/process-active-transactions
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah"
+}
