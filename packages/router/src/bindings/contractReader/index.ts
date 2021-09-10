@@ -32,7 +32,10 @@ export const bindContractReader = async () => {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
         logger.info("Got active transactions", requestContext, methodContext, { transactions: transactions.length });
-        logger.debug("Got active transactions", requestContext, methodContext, { transactions: transactions });
+        logger.debug("Got active transactions", requestContext, methodContext, {
+          transactions: transactions,
+          handlingTracker: [...handlingTracker],
+        });
       }
     } catch (err) {
       logger.error("Error getting active txs", requestContext, methodContext, jsonifyError(err));
