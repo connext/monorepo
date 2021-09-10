@@ -72,7 +72,13 @@ export const makeRouter = async () => {
     // bindings
     if (!context.config.diagnosticMode) {
       await bindContractReader();
+    } else {
+      logger.warn("Running router in diagnostic mode");
+    }
+    if (!context.config.cleanUpMode) {
       await bindMessaging();
+    } else {
+      logger.warn("Running router in cleanup mode");
     }
     await bindFastify();
     logger.info("Router ready 🚀");

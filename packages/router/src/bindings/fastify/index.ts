@@ -89,8 +89,9 @@ export const bindFastify = () =>
         }
         try {
           const activeTxs = await contractReader.getActiveTransactions();
+          logger.info("Got active txs", requestContext, undefined, { activeTxs });
           await handleActiveTransactions(activeTxs);
-          return res.code(200).send();
+          return res.code(200).send(activeTxs);
         } catch (err) {
           return res.code(400).send({ err: jsonifyError(err), requestContext });
         }
