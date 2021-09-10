@@ -119,9 +119,10 @@ export class ChainRpcProvider {
 
   /**
    * Send the transaction request to the provider.
+   *
    * @param tx The transaction used for the request.
-   * @returns An object containing the response or error if an error occurred,
-   * and a success boolean indicating whether the process did result in an error.
+   *
+   * @returns The ethers TransactionResponse.
    */
   public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
@@ -146,13 +147,12 @@ export class ChainRpcProvider {
    * @param timeout Optional timeout parameter to override the configured parameter.
    *
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
-   *
    */
   public confirmTransaction(
     response: providers.TransactionResponse,
     confirmations?: number,
     timeout?: number,
-  ): ResultAsync<providers.TransactionReceipt, TransactionError> {
+  ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
     return this.resultWrapper<providers.TransactionReceipt>(() => {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
