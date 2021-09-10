@@ -138,6 +138,7 @@ export class Transaction implements TransactionInterface {
     const { requestContext, methodContext } = createLoggingContext("Transaction.constructor", this.context);
     this.logger.debug("New transaction created.", requestContext, methodContext, {
       id: this.id,
+      chainId: this.provider.chainId,
       params: this.params,
       createdAt: this.timestamp,
       isBackfill,
@@ -258,26 +259,26 @@ export class Transaction implements TransactionInterface {
         throw _error;
       }
     } else {
-      this.receipt = result.value;
-      this._validated = true;
+      const receipt = result.value;
       // Sanity checks.
-      if (this.receipt == null) {
-        // Receipt is undefined or null. This normally should never occur.
+      if (receipt == null) {
+        // Receipt is undefined or null. This should never occur; timeout should occur before this does,
+        // as a null receipt indicates 0 confirmations.
         throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
           method,
-          receipt: this.receipt,
+          receipt,
           hash: this.response.hash,
           id: this.id,
         });
-      } else if (this.receipt.status === 0) {
+      } else if (receipt.status === 0) {
         // This should never occur. We should always get a TransactionReverted error in this event.
         throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
           method,
-          receipt: this.receipt,
+          receipt,
           hash: this.response.hash,
           id: this.id,
         });
-      } else if (this.receipt.confirmations < 1) {
+      } else if (receipt.confirmations < 1) {
         // Again, should never occur.
         throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!", {
           method,
@@ -286,6 +287,9 @@ export class Transaction implements TransactionInterface {
           id: this.id,
         });
       }
+      // Set our local receipt and flag the tx as validated.
+      this.receipt = receipt;
+      this._validated = true;
     }
   }
 
@@ -350,7 +354,18 @@ export class Transaction implements TransactionInterface {
           id: this.id,
         });
       }
-      this.receipt = result.value;
+      const receipt = result.value;
+      if (receipt === null) {
+        // Should never occur.
+        throw new TransactionServiceFailure("Transaction receipt was null.", {
+          method,
+          badReceipt: receipt,
+          validationReceipt: this.receipt,
+          hash: response.hash,
+          id: this.id,
+        });
+      }
+      this.receipt = receipt;
     }
 
     return this.receipt;
@@ -364,7 +379,7 @@ export class Transaction implements TransactionInterface {
     if (this.attempt >= MAX_ATTEMPTS) {
       // TODO: Log more info?
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
-        gasPrice: `${utils.formatUnits(this.gas.price, "wei")} wei`,
+        gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
         attempts: this.attempt,
       });
     }
@@ -382,10 +397,9 @@ export class Transaction implements TransactionInterface {
       chainId: this.chainId,
       id: this.id,
       attempt: this.attempt,
-      updatedPrice: `${utils.formatUnits(updatedPrice, "wei")} wei`,
-      previousPrice: `${utils.formatUnits(previousPrice, "wei")} wei`,
-      determinedBaseline: `${utils.formatUnits(determinedBaseline, "wei")} wei`,
-      newGasPrice: `${utils.formatUnits(this.gas.price, "wei")} wei`,
+      latestAvgPrice: `${utils.formatUnits(updatedPrice, "gwei")} gwei`,
+      previousPrice: `${utils.formatUnits(previousPrice, "gwei")} gwei`,
+      newGasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
     });
   }
 

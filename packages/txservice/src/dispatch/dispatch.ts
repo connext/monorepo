@@ -124,14 +124,13 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns A number value for the current nonce.
    */
   private async getNonce(): Promise<number> {
-    const buffer = (this.buffer.getLastNonce() ?? -1) + 1;
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
     const pending = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
-    this._nonce = Math.max(this._nonce, pending, buffer);
+    this._nonce = Math.max(this._nonce, pending);
     return this._nonce;
   }
 
