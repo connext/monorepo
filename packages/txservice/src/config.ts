@@ -132,7 +132,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
   // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
-  defaultConfirmationTimeout: 30_000,
+  defaultConfirmationTimeout: 90_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
 

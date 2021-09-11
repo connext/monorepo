@@ -66,7 +66,6 @@ export const metaTxRequestBinding = async (
   }
 
   logger.info("Handling fulfill request", requestContext, methodContext);
-  logger.info("Fulfilling tx", requestContext, methodContext);
   const tx = await fulfill(
     {
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,

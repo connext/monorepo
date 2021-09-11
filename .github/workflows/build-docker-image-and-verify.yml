@@ -85,9 +85,13 @@ jobs:
       - name: Test Integration
         run: yarn test:integration
 
-      - name: Print logs
+      - name: Print router logs
         if: failure()
         run: docker container ls && docker container logs --tail 250 router-test
+
+      - name: Print graph logs
+        if: failure()
+        run: docker container ls && docker container logs --tail 250 graph-node-1337-test && docker container logs --tail 250 graph-node-1338-test
 
       - name: Lint
         run: yarn lint:all --max-warnings 0
