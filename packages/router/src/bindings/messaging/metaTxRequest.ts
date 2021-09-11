@@ -10,6 +10,7 @@ import { getAddress } from "ethers/lib/utils";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
+import { feesCollected } from "../metrics";
 
 export const metaTxRequestBinding = async (
   from: string,
@@ -94,6 +95,12 @@ export const metaTxRequestBinding = async (
   );
   if (tx) {
     await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
+    // Increment collected fees on relayer fee
+    feesCollected.inc({
+      assetId: txData.receivingAssetId,
+      chainId: txData.receivingChainId,
+      amount: relayerFee,
+    });
   }
   logger.info("Handled fulfill request", requestContext, methodContext);
 };
