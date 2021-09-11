@@ -25,11 +25,11 @@ export const onchainLiquidity = new Gauge({
   },
 });
 
-// Track volume from receiver side
-export const forwardedTransferVolume = new Counter({
+// Track volume from sender side (before fees)
+export const totalTransferredVolume = new Counter({
   name: "router_transfer_volume",
   help: "router_transfer_volume_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "amount"] as const,
 });
 
 //////////////////////////
@@ -65,21 +65,14 @@ export const failedAuction = new Counter({
 export const attemptedTransfer = new Counter({
   name: "router_transfer_attempt",
   help: "router_transfer_attempt_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
 });
 
-// Track successful transfers
-export const successfulTransfer = new Counter({
+// Track completed transfers
+export const completedTransfer = new Counter({
   name: "router_transfer_successful",
   help: "router_transfer_successful_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-// Track failing forwards
-export const failedTransfer = new Counter({
-  name: "router_transfer_failed",
-  help: "router_transfer_failed_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
 });
 
 //////////////////////////
@@ -88,7 +81,7 @@ export const failedTransfer = new Counter({
 export const feesCollected = new Counter({
   name: "router_fees",
   help: "router_fees_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "amount"] as const,
 });
 
 // Track gas consumed

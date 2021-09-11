@@ -7,6 +7,8 @@ import {
   safeJsonStringify,
 } from "@connext/nxtp-utils";
 
+import { BigNumber } from "@ethersproject/bignumber";
+
 import { getContext } from "../../router";
 import {
   ActiveTransaction,
@@ -18,6 +20,9 @@ import {
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import {
+  attemptedTransfer,
+  completedTransfer,
+  feesCollected,
   receiverCancelled,
   receiverExpired,
   receiverFailedCancel,
@@ -30,6 +35,7 @@ import {
   senderFailedExpired,
   senderFailedFulfill,
   senderFulfilled,
+  totalTransferredVolume,
 } from "../metrics";
 
 const LOOP_INTERVAL = 15_000;
@@ -182,6 +188,12 @@ export const handleSingle = async (
       assetId: _transaction.crosschainTx.invariant.receivingAssetId,
       chainId: _transaction.crosschainTx.invariant.receivingChainId,
     });
+    attemptedTransfer.inc({
+      sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+      receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+    });
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
     const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
@@ -237,6 +249,25 @@ export const handleSingle = async (
     senderFulfilled.inc({
       assetId: _transaction.crosschainTx.invariant.sendingAssetId,
       chainId: _transaction.crosschainTx.invariant.sendingChainId,
+    });
+    completedTransfer.inc({
+      sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+      receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+    });
+    totalTransferredVolume.inc({
+      assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      chainId: _transaction.crosschainTx.invariant.receivingChainId,
+      amount: _transaction.crosschainTx.sending.amount,
+    });
+    // Add difference between sending and receiving amount
+    feesCollected.inc({
+      assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      chainId: _transaction.crosschainTx.invariant.receivingChainId,
+      amount: BigNumber.from(_transaction.crosschainTx.sending.amount)
+        .sub(_transaction.crosschainTx.receiving!.amount)
+        .toString(),
     });
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
     const requestContext = createRequestContext(
