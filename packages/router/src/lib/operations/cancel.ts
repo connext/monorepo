@@ -1,6 +1,7 @@
 import {
   ajv,
   createLoggingContext,
+  getNtpTimeSeconds,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
@@ -58,11 +59,13 @@ export const cancel = async (
       invariantData.user,
       invariantData.receivingChainId,
     );
-    if (existing && existing.status !== TransactionStatus.Cancelled) {
+    const currentTime = await getNtpTimeSeconds();
+    if (existing && existing.status !== TransactionStatus.Cancelled && currentTime < existing?.txData.expiry) {
       throw new ReceiverTxExists(invariantData.transactionId, invariantData.receivingChainId, {
         requestContext,
         methodContext,
         existing,
+        currentTime,
       });
     }
   } else {
