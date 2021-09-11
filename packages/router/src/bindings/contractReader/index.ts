@@ -17,6 +17,20 @@ import {
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
+import {
+  receiverCancelled,
+  receiverExpired,
+  receiverFailedCancel,
+  receiverFailedExpired,
+  receiverFailedPrepare,
+  receiverPrepared,
+  senderCancelled,
+  senderExpired,
+  senderFailedCancel,
+  senderFailedExpired,
+  senderFailedFulfill,
+  senderFulfilled,
+} from "../metrics";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -122,6 +136,10 @@ export const handleSingle = async (
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
         });
+        receiverFailedPrepare.inc({
+          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        });
       }
       if (err.cancellable === true) {
         logger.warn("Cancellable validation error, cancelling", requestContext, methodContext);
@@ -145,13 +163,25 @@ export const handleSingle = async (
               error: cancelJson,
             });
           } else {
-            logger.error("Error cancelling receiver", requestContext, methodContext, cancelJson, {
+            logger.error("Error cancelling sender", requestContext, methodContext, cancelJson, {
               chainId: transaction.crosschainTx.invariant.sendingChainId,
+            });
+            senderFailedCancel.inc({
+              assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+              chainId: _transaction.crosschainTx.invariant.sendingChainId,
             });
           }
         }
+        senderCancelled.inc({
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     }
+    receiverPrepared.inc({
+      assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      chainId: _transaction.crosschainTx.invariant.receivingChainId,
+    });
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
     const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
@@ -198,8 +228,16 @@ export const handleSingle = async (
         logger.error("Error fulfilling sender", requestContext, methodContext, jsonErr, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
+        senderFailedFulfill.inc({
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     }
+    senderFulfilled.inc({
+      assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      chainId: _transaction.crosschainTx.invariant.sendingChainId,
+    });
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverExpired) {
     const requestContext = createRequestContext(
       "ContractReader => ReceiverExpired",
@@ -229,8 +267,16 @@ export const handleSingle = async (
         logger.error("Error cancelling receiver", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
         });
+        receiverFailedExpired.inc({
+          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        });
       }
     }
+    receiverExpired.inc({
+      assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+      chainId: _transaction.crosschainTx.invariant.receivingChainId,
+    });
   } else if (transaction.status === CrosschainTransactionStatus.SenderExpired) {
     const requestContext = createRequestContext(
       "ContractReader => SenderExpired",
@@ -258,9 +304,16 @@ export const handleSingle = async (
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
+        senderFailedExpired.inc({
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     }
-
+    senderExpired.inc({
+      assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      chainId: _transaction.crosschainTx.invariant.sendingChainId,
+    });
     // If sender is cancelled, receiver should already be expired. If we do
     // not cancel here that is *ok* because it would have been caught earlier
     // when we cancel the receiving chain side (via enforcement)
@@ -292,8 +345,16 @@ export const handleSingle = async (
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
+        senderFailedCancel.inc({
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     }
+    senderCancelled.inc({
+      assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      chainId: _transaction.crosschainTx.invariant.sendingChainId,
+    });
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverNotConfigured) {
     const _transaction = transaction as ActiveTransaction<"ReceiverNotConfigured">;
     // if receiver is not configured, cancel the sender
@@ -322,7 +383,15 @@ export const handleSingle = async (
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
         });
+        senderFailedCancel.inc({
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        });
       }
     }
+    senderCancelled.inc({
+      assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+      chainId: _transaction.crosschainTx.invariant.sendingChainId,
+    });
   }
 };

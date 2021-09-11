@@ -107,98 +107,125 @@ export const roi = new Gauge({
 //////////////////////////
 ///// Low Level
 
+// TODO how can we track these w/ subgraph loop? Need uniques
+
 export const senderPrepared = new Counter({
   name: "sender_prepared",
   help: "sender_prepared_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverPrepared = new Counter({
   name: "receiver_prepared",
   help: "receiver_prepared_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderFulfilled = new Counter({
   name: "sender_fulfilled",
   help: "sender_fulfilled_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverFulfilled = new Counter({
   name: "receiver_fulfilled",
   help: "receiver_fulfilled_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderCancelled = new Counter({
   name: "sender_cancelled",
   help: "sender_cancelled_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverCancelled = new Counter({
   name: "receiver_cancelled",
   help: "receiver_cancelled_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderExpired = new Counter({
   name: "sender_expired",
   help: "sender_expired_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverExpired = new Counter({
   name: "receiver_expired",
   help: "receiver_expired_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderFailedPrepare = new Counter({
   name: "sender_failed_prepare",
   help: "sender_failed_prepare_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverFailedPrepare = new Counter({
   name: "receiver_failed_prepare",
   help: "receiver_failed_prepare_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderFailedFulfill = new Counter({
   name: "sender_failed_fulfill",
   help: "sender_failed_fulfill_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverFailedFulfill = new Counter({
   name: "receiver_failed_fulfill",
   help: "receiver_failed_fulfill_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const senderFailedCancel = new Counter({
   name: "sender_failed_cancel",
   help: "sender_failed_cancel_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverFailedCancel = new Counter({
   name: "receiver_failed_cancel",
   help: "receiver_failed_cancel_help",
-  labelNames: ["txHash", "amount"] as const,
+  labelNames: ["assetId", "chainId"] as const,
 });
 
-// export const senderFailedExpired = new Counter({
-//   name: "sender_expired",
-//   help: "sender_expired_help",
-//   labelNames: ["txHash", "amount"] as const,
-// });
+export const senderFailedExpired = new Counter({
+  name: "sender_expired",
+  help: "sender_expired_help",
+  labelNames: ["assetId", "chainId"] as const,
+});
 
-// export const receiverFailedExpired = new Counter({
-//   name: "receiver_expired",
-//   help: "receiver_expired_help",
-//   labelNames: ["txHash", "amount"] as const,
-// });
+export const receiverFailedExpired = new Counter({
+  name: "receiver_expired",
+  help: "receiver_expired_help",
+  labelNames: ["assetId", "chainId"] as const,
+});
+
+/////////////////////////////////////
+///////////// Notes
+
+/*
+
+  What do we want to track?
+  1. Liquidity for a given router at current time and over last X time
+    a. Filtered by asset + chain
+  2. Transfer volume over last X time
+    a. Filtered by asset
+  3. Transfer attempt
+  4. Successful transfers end to end
+  5. Auction requests
+  6. Responded auction bids
+  7. Won auction bids
+  8. Number of active transactions at a given time
+  9. Claimable tx funds at a given time
+  10. Expired transactions?
+  11. Fees collected
+  12. Gas paid
+  13. Onchain tx attempt
+  14. Onchain tx fail
+
+*/
