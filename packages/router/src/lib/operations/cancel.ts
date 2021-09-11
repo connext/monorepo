@@ -1,6 +1,6 @@
 import {
   ajv,
-  getUuid,
+  createLoggingContext,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
@@ -8,32 +8,28 @@ import {
 import { providers } from "ethers";
 
 import { getContext } from "../../router";
-import { ParamsInvalid } from "../errors";
+import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
+import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
 export const cancel = async (
   invariantData: InvariantTransactionData,
   input: CancelInput,
-  requestContext: RequestContext,
+  _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const method = "cancel";
-  const methodId = getUuid();
+  const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter } = getContext();
-  logger.info({ method, methodId, requestContext, invariantData, input }, "Method start");
+  const { logger, contractWriter, contractReader } = getContext();
+  logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
   if (!validInvariantData) {
     const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error(
-      { method, methodId, error: validateInvariantData.errors, invariantData },
-      "Invalid invariantData params",
-    );
     throw new ParamsInvalid({
-      method,
-      methodId,
+      methodContext,
+      invariantData,
       paramsError: error,
       requestContext,
     });
@@ -44,12 +40,11 @@ export const cancel = async (
   const validInput = validateInput(input);
   if (!validInput) {
     const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
     throw new ParamsInvalid({
-      method,
-      methodId,
+      input,
       paramsError: error,
       requestContext,
+      methodContext,
     });
   }
 
@@ -58,15 +53,24 @@ export const cancel = async (
   let cancelChain: number;
   if (side === "sender") {
     cancelChain = invariantData.sendingChainId;
+    const existing = await contractReader.getTransactionForChain(
+      invariantData.transactionId,
+      invariantData.user,
+      invariantData.receivingChainId,
+    );
+    if (existing && existing.status !== TransactionStatus.Cancelled) {
+      throw new ReceiverTxExists(invariantData.transactionId, invariantData.receivingChainId, {
+        requestContext,
+        methodContext,
+        existing,
+      });
+    }
   } else {
     cancelChain = invariantData.receivingChainId;
   }
 
   // Send to tx service
-  logger.info(
-    { method, methodId, requestContext, transactionId: invariantData.transactionId, side },
-    "Sending cancel tx",
-  );
+  logger.info("Sending cancel tx", requestContext, methodContext, { side });
 
   const receipt = await contractWriter.cancel(
     cancelChain,
@@ -76,6 +80,6 @@ export const cancel = async (
     },
     requestContext,
   );
-  logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
+  logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

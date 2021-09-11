@@ -1,6 +1,46 @@
-# Vector Changelog
+# NXTP Changelog
 
 ## Next Release
+
+- [router] Add onchain checks before sending txs
+- [router] Fix subgraph status determinations
+- [router] Fix bug where receipt could be undefined
+
+## 0.0.37
+
+- [router] Retry getting subgraph sync status if not set by default
+
+## 0.0.36
+
+- [sdk] Attempt fix BSC issue.
+
+## 0.0.35
+
+- [sdk] Fix Trust Wallet-specific signing.
+
+## 0.0.34
+
+- [sdk] Fix Trust Wallet-specific signing.
+
+## 0.0.33
+
+- [sdk] Check subgraph sync status and block transfers if out of sync.
+- [sdk] Make sync buffer configurable.
+
+## 0.0.32
+
+- [router] Cancel sender transaction if subgraph is out of sync.
+- [router] Add admin endpoint to cancel sender txs.
+- [utils,sdk,router,txservice] Add custom logger class.
+- [contracts] Arbitrum deployment.
+- [utils] Sanitize signatures.
+- [test-ui] Router liquidity table.
+
+## 0.0.31
+
+- [router] Don't respond to bid if subgraphs are out of sync
+- [router] Use `transactionId` in request contexts
+- [test-ui] Use readable units for liquidity
 
 ## 0.0.30
 

@@ -1,6 +1,5 @@
-import { providers } from "ethers";
-import { BaseLogger } from "pino";
-import { delay, getUuid } from "@connext/nxtp-utils";
+import { providers, BigNumber, utils } from "ethers";
+import { createLoggingContext, delay, getUuid, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { DEFAULT_CONFIG } from "../config";
 import { FullTransaction, Gas, WriteTransaction } from "../types";
@@ -14,8 +13,11 @@ import {
 
 import { ChainRpcProvider } from "./provider";
 
+const MAX_ATTEMPTS = 10;
+
 export interface TransactionInterface {
   id: string;
+  chainId: number;
   timestamp: number;
   params: FullTransaction;
   error: Error | undefined;
@@ -29,7 +31,7 @@ export interface TransactionInterface {
   submit(): Promise<providers.TransactionResponse>;
   validate(): Promise<void>;
   confirm(): Promise<providers.TransactionReceipt>;
-  bumpGasPrice(): void;
+  bumpGasPrice(): Promise<void>;
 }
 
 /**
@@ -38,6 +40,7 @@ export interface TransactionInterface {
 export class Transaction implements TransactionInterface {
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
+  public readonly chainId: number;
   // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
   private response: providers.TransactionResponse | undefined = undefined;
   // Responses, in the order of attempts made for this tx.
@@ -117,29 +120,30 @@ export class Transaction implements TransactionInterface {
   /**
    * A data structure used for management of the lifecycle of one on-chain transaction.
    *
-   * @param logger The pino.BaseLogger instance we use for logging.
+   * @param logger The Logger instance we use for logging.
    * @param provider The ChainRpcProvider instance we use for interfacing with the chain.
    * @param minTx The minimum transaction data required to send a transaction.
    * @param nonce Assigned nonce number for this transaction.
    * @param gas The Gas tracker instance, which will include price, limit, and maximum.
    */
   constructor(
-    private readonly logger: BaseLogger,
+    private readonly logger: Logger,
     private readonly provider: ChainRpcProvider,
     public readonly minTx: WriteTransaction,
     public readonly nonce: number,
     public readonly gas: Gas,
     public readonly isBackfill = false,
+    private readonly context: RequestContext,
   ) {
-    this.logger.debug(
-      {
-        id: this.id,
-        params: this.params,
-        createdAt: this.timestamp,
-        isBackfill,
-      },
-      "New transaction created.",
-    );
+    const { requestContext, methodContext } = createLoggingContext("Transaction.constructor", this.context);
+    this.logger.debug("New transaction created.", requestContext, methodContext, {
+      id: this.id,
+      chainId: this.provider.chainId,
+      params: this.params,
+      createdAt: this.timestamp,
+      isBackfill,
+    });
+    this.chainId = this.provider.chainId;
   }
 
   /// LIFECYCLE
@@ -255,26 +259,26 @@ export class Transaction implements TransactionInterface {
         throw _error;
       }
     } else {
-      this.receipt = result.value;
-      this._validated = true;
+      const receipt = result.value;
       // Sanity checks.
-      if (this.receipt == null) {
-        // Receipt is undefined or null. This normally should never occur.
+      if (receipt == null) {
+        // Receipt is undefined or null. This should never occur; timeout should occur before this does,
+        // as a null receipt indicates 0 confirmations.
         throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
           method,
-          receipt: this.receipt,
+          receipt,
           hash: this.response.hash,
           id: this.id,
         });
-      } else if (this.receipt.status === 0) {
+      } else if (receipt.status === 0) {
         // This should never occur. We should always get a TransactionReverted error in this event.
         throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
           method,
-          receipt: this.receipt,
+          receipt,
           hash: this.response.hash,
           id: this.id,
         });
-      } else if (this.receipt.confirmations < 1) {
+      } else if (receipt.confirmations < 1) {
         // Again, should never occur.
         throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!", {
           method,
@@ -283,6 +287,9 @@ export class Transaction implements TransactionInterface {
           id: this.id,
         });
       }
+      // Set our local receipt and flag the tx as validated.
+      this.receipt = receipt;
+      this._validated = true;
     }
   }
 
@@ -347,7 +354,18 @@ export class Transaction implements TransactionInterface {
           id: this.id,
         });
       }
-      this.receipt = result.value;
+      const receipt = result.value;
+      if (receipt === null) {
+        // Should never occur.
+        throw new TransactionServiceFailure("Transaction receipt was null.", {
+          method,
+          badReceipt: receipt,
+          validationReceipt: this.receipt,
+          hash: response.hash,
+          id: this.id,
+        });
+      }
+      this.receipt = receipt;
     }
 
     return this.receipt;
@@ -356,21 +374,33 @@ export class Transaction implements TransactionInterface {
   /**
    * Bump the gas price for this tx up by the configured percentage.
    */
-  public bumpGasPrice() {
+  public async bumpGasPrice() {
+    const { requestContext, methodContext } = createLoggingContext(this.bumpGasPrice.name, this.context);
+    if (this.attempt >= MAX_ATTEMPTS) {
+      // TODO: Log more info?
+      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
+        gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
+        attempts: this.attempt,
+      });
+    }
     const previousPrice = this.gas.price;
+    // Get the current gas baseline price, in case it's changed drastically in the last block.
+    const result = await this.provider.getGasPrice(requestContext);
+    const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
+    const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     // TODO: Replace with actual config.
-    this.gas.price = previousPrice.add(previousPrice.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100)).add(1);
-    this.logger.info(
-      {
-        method: this.bumpGasPrice.name,
-        id: this.id,
-        attempt: this.attempt,
-        previousGasPrice: previousPrice.toString(),
-        newGasPrice: this.gas.price.toString(),
-      },
-      "Bumping tx gas price for reattempt.",
-    );
+    this.gas.price = determinedBaseline
+      .add(determinedBaseline.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100))
+      .add(1);
+    this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+      chainId: this.chainId,
+      id: this.id,
+      attempt: this.attempt,
+      latestAvgPrice: `${utils.formatUnits(updatedPrice, "gwei")} gwei`,
+      previousPrice: `${utils.formatUnits(previousPrice, "gwei")} gwei`,
+      newGasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
+    });
   }
 
   /**

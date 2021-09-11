@@ -15,6 +15,7 @@ import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
 import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
+import "./src/tasks/proposeTransferOwnership";
 
 dotEnvConfig();
 
@@ -112,7 +113,7 @@ const config: HardhatUserConfig = {
     matic: {
       accounts: { mnemonic },
       chainId: 137,
-      url: urlOverride || process.env.MATIC_PROVIDER_URL || "http://localhost:8545",
+      url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://matic-mainnet.chainstacklabs.com",
     },
     ftm: {
       accounts: { mnemonic },
@@ -123,6 +124,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
+    "arbitrum-one": {
+      accounts: { mnemonic },
+      chainId: 42161,
+      url: "https://arb1.arbitrum.io/rpc",
     },
     fuji: {
       accounts: { mnemonic },

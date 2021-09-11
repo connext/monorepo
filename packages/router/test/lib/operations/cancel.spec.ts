@@ -1,11 +1,11 @@
-import { SinonStub } from "sinon";
-import { expect, invariantDataMock, txReceiptMock, createRequestContext } from "@connext/nxtp-utils";
+import { expect, invariantDataMock, txReceiptMock, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
 
 import { cancelInputMock } from "../../utils";
-import { contractWriterMock } from "../../globalTestHook";
+import { contractReaderMock, contractWriterMock } from "../../globalTestHook";
 import { cancel } from "../../../src/lib/operations/cancel";
+import { SinonStub } from "sinon";
 
-const requestContext = createRequestContext("TEST");
+const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0xabc"));
 
 describe("Cancel Sender Operation", () => {
   describe("#cancelSender", () => {
@@ -44,6 +44,7 @@ describe("Cancel Sender Operation", () => {
     });
 
     it("happy: should cancel for sender chain", async () => {
+      (contractReaderMock.getTransactionForChain as SinonStub).resolves(undefined);
       const receipt = await cancel(invariantDataMock, cancelInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);

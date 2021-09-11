@@ -58,27 +58,24 @@ describe("metaTxRequestBinding", () => {
     const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
 
     expect(fulfillStub.callCount).to.be.eq(1);
-    expect(
-      fulfillStub.calledOnceWithExactly(
-        invariant,
-        {
-          amount,
-          expiry,
-          preparedBlockNumber,
-          signature: data.data.signature,
-          relayerFee: data.data.relayerFee,
-          callData: data.data.callData,
-          side: "receiver",
-        },
-        requestContext,
-      ),
-    ).to.be.true;
-    expect(
-      messagingMock.publishMetaTxResponse.calledOnceWithExactly(from, inbox, {
-        chainId: data.chainId,
-        transactionHash: txReceiptMock.transactionHash,
-      }),
-    ).to.be.true;
+    expect(fulfillStub).to.be.calledOnceWith(
+      invariant,
+      {
+        amount,
+        expiry,
+        preparedBlockNumber,
+        signature: data.data.signature,
+        relayerFee: data.data.relayerFee,
+        callData: data.data.callData,
+        side: "receiver",
+      },
+      { ...requestContext, transactionId: data.data.txData.transactionId },
+    );
+
+    expect(messagingMock.publishMetaTxResponse).calledOnceWith(from, inbox, {
+      chainId: data.chainId,
+      transactionHash: txReceiptMock.transactionHash,
+    });
   });
 
   it("shouldnt publish if there is no tx response", async () => {
@@ -89,21 +86,19 @@ describe("metaTxRequestBinding", () => {
     const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
 
     expect(fulfillStub.callCount).to.be.eq(1);
-    expect(
-      fulfillStub.calledOnceWithExactly(
-        invariant,
-        {
-          amount,
-          expiry,
-          preparedBlockNumber,
-          signature: data.data.signature,
-          relayerFee: data.data.relayerFee,
-          callData: data.data.callData,
-          side: "receiver",
-        },
-        requestContext,
-      ),
-    ).to.be.true;
+    expect(fulfillStub).to.be.calledOnceWithExactly(
+      invariant,
+      {
+        amount,
+        expiry,
+        preparedBlockNumber,
+        signature: data.data.signature,
+        relayerFee: data.data.relayerFee,
+        callData: data.data.callData,
+        side: "receiver",
+      },
+      { ...requestContext, transactionId: data.data.txData.transactionId },
+    );
     expect(messagingMock.publishMetaTxResponse.callCount).to.be.eq(0);
   });
 

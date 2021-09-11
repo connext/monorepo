@@ -1,5 +1,5 @@
 import {
-  createRequestContext,
+  createLoggingContext,
   MetaTxFulfillPayload,
   MetaTxPayload,
   MetaTxTypes,
@@ -20,47 +20,52 @@ export const metaTxRequestBinding = async (
 ) => {
   const { messaging, logger, config } = getContext();
   const { fulfill } = getOperations();
-  const requestContext = _requestContext ?? createRequestContext("metaTxRequestBinding");
+  const { requestContext, methodContext } = createLoggingContext(
+    metaTxRequestBinding.name,
+    _requestContext,
+    data?.data?.txData.transactionId,
+  );
   if (err || !data) {
-    logger.error({ err, data, requestContext }, "Error in metatx request");
+    logger.error("Error in metatx request", requestContext, methodContext, err, { data });
     return;
   }
 
   // On every metatx request (i.e. user wants router to fulfill for them)
   // route to metatx handler
-  logger.info({ data, requestContext }, "Got metatx");
+  logger.info("Got metatx", requestContext, methodContext, { data });
   const { chainId } = data;
 
   const chainConfig = config.chainConfig[chainId];
   if (!chainConfig) {
-    logger.error({ requestContext, chainId }, "No config for chainId");
+    logger.debug("No config for chainId", requestContext, methodContext, { chainId });
     return;
   }
 
   if (data.type !== MetaTxTypes.Fulfill) {
-    logger.warn({ requestContext, chainConfig, type: data.type }, "Unhandled metatx type");
+    logger.warn("Unhandled metatx type", requestContext, methodContext, { chainConfig, type: data.type });
     return;
   }
 
   if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
-    logger.error(
-      { requestContext, to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
+    logger.warn(
       "Provided transactionManagerAddress does not map to our configured transactionManagerAddress",
+      requestContext,
+      methodContext,
+      { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
     );
     return;
   }
 
   const { txData, callData, relayerFee, signature }: MetaTxFulfillPayload = data.data;
   if (chainId !== txData.receivingChainId) {
-    logger.error(
-      { requestContext, chainId, receivingChainId: txData.receivingChainId },
-      "Request not sent for receiving chain",
-    );
+    logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
+      chainId,
+      receivingChainId: txData.receivingChainId,
+    });
     return;
   }
 
-  logger.info({ requestContext }, "Handling fulfill request");
-  logger.info({ requestContext }, "Fulfilling tx");
+  logger.info("Handling fulfill request", requestContext, methodContext);
   const tx = await fulfill(
     {
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
@@ -85,10 +90,10 @@ export const metaTxRequestBinding = async (
       callData,
       side: "receiver",
     },
-    requestContext,
+    { ...requestContext, transactionId: txData.transactionId },
   );
   if (tx) {
     await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
   }
-  logger.info({ requestContext }, "Handled fulfill request");
+  logger.info("Handled fulfill request", requestContext, methodContext);
 };

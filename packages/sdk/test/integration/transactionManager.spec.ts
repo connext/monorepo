@@ -22,7 +22,10 @@ import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/
 
 import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
-import { TransactionManager, getDeployedTransactionManagerContract } from "../../src/transactionManager";
+import {
+  TransactionManager,
+  getDeployedTransactionManagerContract,
+} from "../../src/transactionManager/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 
 const { AddressZero } = constants;

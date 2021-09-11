@@ -1,12 +1,19 @@
 import { BigNumber, constants, Contract, providers, Signer } from "ethers";
-import { BaseLogger } from "pino";
-import { PrepareParams, CancelParams, FulfillParams, getUuid, isNode } from "@connext/nxtp-utils";
+import {
+  PrepareParams,
+  CancelParams,
+  FulfillParams,
+  isNode,
+  Logger,
+  RequestContext,
+  createLoggingContext,
+} from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotConfigured } from "./error";
+import { ChainNotConfigured } from "../error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -43,7 +50,7 @@ export class TransactionManager {
         transactionManagerAddress: string;
       };
     },
-    private readonly logger: BaseLogger,
+    private readonly logger: Logger,
   ) {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress }]) => {
@@ -95,11 +102,18 @@ export class TransactionManager {
    * @param prepareParams.bidSignature - The signature on the winning bid
    * @returns If successful, returns the `TransactionResponse` from the signer once the transaction has been submitted, not mined. If the function errors, will return a TransacionManagerError
    */
-  async prepare(chainId: number, prepareParams: PrepareParams): Promise<providers.TransactionResponse> {
-    const method = "Contract::prepare";
-    const methodId = getUuid();
+  async prepare(
+    chainId: number,
+    prepareParams: PrepareParams,
+    _requestContext?: RequestContext<string>,
+  ): Promise<providers.TransactionResponse> {
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.prepare",
+      _requestContext,
+      prepareParams.txData.transactionId,
+    );
 
-    this.logger.info({ method, methodId, prepareParams }, "Method start");
+    this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
     if (!transactionManager || !provider) {
@@ -135,7 +149,9 @@ export class TransactionManager {
         from: await this.signer.getAddress(),
       },
     );
-    this.logger.info({ txHash: tx.hash, method, methodId }, "Prepare transaction submitted");
+    this.logger.info("Prepare transaction submitted", requestContext, methodContext, {
+      txHash: tx.hash,
+    });
     return tx;
   }
 
@@ -152,11 +168,18 @@ export class TransactionManager {
    * @remarks
    * Can be the sender chain if the transfer has expired, or the receiver chain before the expiry
    */
-  async cancel(chainId: number, cancelParams: CancelParams): Promise<providers.TransactionResponse> {
-    const method = "Contract::cancel";
-    const methodId = getUuid();
+  async cancel(
+    chainId: number,
+    cancelParams: CancelParams,
+    _requestContext?: RequestContext<string>,
+  ): Promise<providers.TransactionResponse> {
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.cancel",
+      _requestContext,
+      cancelParams.txData.transactionId,
+    );
 
-    this.logger.info({ method, methodId, cancelParams }, "Method start");
+    this.logger.info("Method start", requestContext, methodContext, { cancelParams });
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
     if (!transactionManager || !provider) {
@@ -167,7 +190,9 @@ export class TransactionManager {
     const signer = this.getConnectedSigner(provider);
     const tx = await transactionManager.connect(signer).cancel(txData, signature, { from: this.signer.getAddress() });
 
-    this.logger.info({ txHash: tx.hash, method, methodId }, "Cancel transaction submitted");
+    this.logger.info("Cancel transaction submitted", requestContext, methodContext, {
+      txHash: tx.hash,
+    });
     return tx;
   }
 
@@ -186,11 +211,18 @@ export class TransactionManager {
    * @remarks
    * User cannot be assumed to have gas on the receiving chain, so may use a relayer rather than submit the transaction themselves.
    */
-  async fulfill(chainId: number, fulfillParams: FulfillParams): Promise<providers.TransactionResponse> {
-    const method = "Contract::fulfill";
-    const methodId = getUuid();
+  async fulfill(
+    chainId: number,
+    fulfillParams: FulfillParams,
+    _requestContext?: RequestContext<string>,
+  ): Promise<providers.TransactionResponse> {
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.fulfill",
+      _requestContext,
+      fulfillParams.txData.transactionId,
+    );
 
-    this.logger.info({ method, methodId, fulfillParams }, "Method start");
+    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
     if (!transactionManager || !provider) {
@@ -203,7 +235,7 @@ export class TransactionManager {
       from: this.signer.getAddress(),
     });
 
-    this.logger.info({ txHash: tx.hash, method, methodId }, "Fulfill transaction submitted");
+    this.logger.info("Fulfill transaction submitted", requestContext, methodContext, { txHash: tx.hash });
     return tx;
   }
 
@@ -222,11 +254,14 @@ export class TransactionManager {
     assetId: string,
     amount: string,
     infiniteApprove = false,
+    _requestContext?: RequestContext,
   ): Promise<providers.TransactionResponse | undefined> {
-    const method = "Contract::approveTokensIfNeeded";
-    const methodId = getUuid();
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.approveTokensIfNeeded",
+      _requestContext,
+    );
 
-    this.logger.info({ method, methodId, chainId, assetId, amount }, "Method start");
+    this.logger.info("Method start", requestContext, methodContext, { chainId, assetId, amount });
 
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
     if (!transactionManager || !provider) {
@@ -238,13 +273,16 @@ export class TransactionManager {
     const erc20 = new Contract(assetId, ERC20.abi, signer) as IERC20Minimal;
 
     const approved = await erc20.allowance(signerAddress, transactionManager.address);
-    this.logger.info({ method, methodId, approved: approved.toString() }, "Got approved tokens");
+    this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
     if (approved.lt(amount)) {
       const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
-      this.logger.info({ txHash: tx.hash, method, methodId }, "Approve transaction submitted");
+      this.logger.info("Approve transaction submitted", requestContext, methodContext, { txHash: tx.hash });
       return tx;
     } else {
-      this.logger.info({ method, methodId, approved: approved.toString(), amount }, "Allowance sufficient");
+      this.logger.info("Allowance sufficient", requestContext, methodContext, {
+        approved: approved.toString(),
+        amount,
+      });
       return undefined;
     }
   }

@@ -1,8 +1,7 @@
-import { ERC20Abi, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
-import { BaseLogger } from "pino";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
 import {
@@ -23,6 +22,7 @@ const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
 const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
+  250: "750000000000", // FTM test: should remove
 };
 
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
@@ -51,7 +51,7 @@ export class ChainRpcProvider {
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
    *
-   * @param logger pino.BaseLogger used for logging.
+   * @param logger Logger used for logging.
    * @param signer Signer instance or private key used for signing transactions.
    * @param chainId The ID of the chain for which this class's providers will be servicing.
    * @param chainConfig Configuration for this specified chain, including the providers we'll
@@ -62,7 +62,7 @@ export class ChainRpcProvider {
    * configuration.
    */
   constructor(
-    protected readonly logger: BaseLogger,
+    protected readonly logger: Logger,
     signer: string | Signer,
     public readonly chainId: number,
     private readonly chainConfig: ChainConfig,
@@ -75,13 +75,17 @@ export class ChainRpcProvider {
     // NOTE: This only applies to fallback provider case below.
     this.quorum = 1;
 
+    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
+
     // Register a provider for each url.
     // Make sure all providers are ready()
     const providerConfigs = chainConfig.providers;
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
-        this.logger.error({ config }, "Configuration was invalid for provider.");
+        this.logger.warn("Configuration was invalid for provider.", requestContext, methodContext, {
+          config,
+        });
       }
       return valid;
     });
@@ -115,9 +119,10 @@ export class ChainRpcProvider {
 
   /**
    * Send the transaction request to the provider.
+   *
    * @param tx The transaction used for the request.
-   * @returns An object containing the response or error if an error occurred,
-   * and a success boolean indicating whether the process did result in an error.
+   *
+   * @returns The ethers TransactionResponse.
    */
   public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
@@ -142,13 +147,12 @@ export class ChainRpcProvider {
    * @param timeout Optional timeout parameter to override the configured parameter.
    *
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
-   *
    */
   public confirmTransaction(
     response: providers.TransactionResponse,
     confirmations?: number,
     timeout?: number,
-  ): ResultAsync<providers.TransactionReceipt, TransactionError> {
+  ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
     return this.resultWrapper<providers.TransactionReceipt>(() => {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
@@ -231,10 +235,14 @@ export class ChainRpcProvider {
    * Get the current gas price for the chain for which this instance is servicing.
    * @returns The BigNumber value for the current gas price.
    */
-  public getGasPrice(): ResultAsync<BigNumber, TransactionError> {
+  public getGasPrice(context: RequestContext): ResultAsync<BigNumber, TransactionError> {
+    const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
     const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
     if (hardcoded) {
-      this.logger.info({ chainId: this.chainId, hardcoded }, "Using hardcoded gas price for chain");
+      this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
+        chainId: this.chainId,
+        hardcoded,
+      });
       return okAsync(BigNumber.from(hardcoded));
     }
 
@@ -247,14 +255,30 @@ export class ChainRpcProvider {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
-      if (this.chainId === 1) {
+      const gasStations = this.chainConfig.gasStations;
+      for (let i = 0; i < gasStations.length; i++) {
+        const uri = gasStations[i];
+        let response: any;
         try {
-          const gasNowResponse = await axios.get(`https://www.gasnow.org/api/v3/gas/price`);
-          const { rapid } = gasNowResponse.data;
-          gasPrice = typeof rapid !== "undefined" ? BigNumber.from(rapid) : undefined;
+          response = await axios.get(uri);
+          const { rapid } = response.data;
+          if (rapid !== undefined) {
+            gasPrice = BigNumber.from(rapid);
+            break;
+          }
         } catch (e) {
-          this.logger.warn({ error: e }, "Gasnow failed, using provider");
+          this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
+            uri,
+            response,
+            error: jsonifyError(e),
+          });
         }
+      }
+
+      if (gasStations.length > 0 && gasPrice === undefined) {
+        this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
+          gasStations,
+        });
       }
 
       if (!gasPrice) {
@@ -262,8 +286,11 @@ export class ChainRpcProvider {
           gasPrice = await this.provider.getGasPrice();
         } catch (error) {
           this.logger.error(
-            { chainId: this.chainId, error },
             "getGasPrice failure, attempting to default to backup gas value.",
+            requestContext,
+            methodContext,
+            jsonifyError(error),
+            { chainId: this.chainId },
           );
           // Default to initial gas price, if available. Otherwise, throw.
           gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);

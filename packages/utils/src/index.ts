@@ -6,6 +6,7 @@ export * from "./util";
 export * from "./encode";
 export * from "./error";
 export * from "./expect";
+export * from "./logger";
 export * from "./mock";
 export * from "./math";
 export * from "./crypto";

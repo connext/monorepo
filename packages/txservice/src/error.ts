@@ -212,11 +212,11 @@ export class TransactionServiceFailure extends NxtpError {
      */
     NotEnoughConfirmations: "Never reached the required amount of confirmations. Did a reorg occur?",
     /**
-     * MaxGasPriceReached: Indicates that the transaction bumped gas endlessly, and was never
+     * MaxAttemptsReached: Indicates that the transaction bumped gas endlessly, and was never
      * accepted by the chain (0 confirmations, and chain did not revert). Typically indicates on RPC
      * failure but could imply a failure in TransactionService to submit correctly to chain.
      */
-    MaxGasPriceReached: "Gas price went over configured limit.",
+    MaxAttemptsReached: "Reached maximum attempts.",
     GasEstimateInvalid: "The gas estimate returned was an invalid value.",
   };
 

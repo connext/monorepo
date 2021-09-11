@@ -68,6 +68,10 @@ export const ChainConfigSchema = Type.Object({
   // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
   // in the event that a gas station is malfunctioning.
   defaultInitialGas: Type.Optional(TIntegerString),
+  // Gas station URL, if any, to retrieve current gas price from. If gas station is down or otherwise fails,
+  // we'll use the RPC provider's gas as a backup.
+  // Gas station should return a "rapid" gas price within the response.data. See ethereum gasnow API as example.
+  gasStations: Type.Array(Type.String()),
 
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
@@ -128,7 +132,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
   // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
-  defaultConfirmationTimeout: 30_000,
+  defaultConfirmationTimeout: 90_000,
   confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
 

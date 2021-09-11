@@ -1,6 +1,6 @@
 import {
   ajv,
-  getUuid,
+  createLoggingContext,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
@@ -14,28 +14,23 @@ import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 export const fulfill = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
-  requestContext: RequestContext,
+  _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const method = "fulfill";
-  const methodId = getUuid();
+  const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
   const { logger, contractWriter, config } = getContext();
-  logger.info({ method, methodId, requestContext, invariantData, input }, "Method start");
+  logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
   if (!validInvariantData) {
-    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error(
-      { method, methodId, error: validateInvariantData.errors, invariantData },
-      "Invalid invariantData params",
-    );
+    const msg = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
+      methodContext,
       requestContext,
+      paramsError: msg,
+      invariantData,
     });
   }
 
@@ -43,44 +38,38 @@ export const fulfill = async (
   const validateInput = ajv.compile(FulfillInputSchema);
   const validInput = validateInput(input);
   if (!validInput) {
-    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
+      methodContext,
       requestContext,
+      paramsError: msg,
     });
   }
 
   const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
 
   // Send to tx service
-  logger.info(
-    { method, methodId, requestContext, transactionId: invariantData.transactionId, signature, side },
-    "Sending fulfill tx",
-  );
+  logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
 
-  let fulfillChain: number;
-  if (side === "sender") {
-    fulfillChain = invariantData.sendingChainId;
-  } else {
-    fulfillChain = invariantData.receivingChainId;
-  }
+  const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
 
   if (!config.chainConfig[fulfillChain]) {
-    throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
+    throw new NoChainConfig(fulfillChain, { methodContext, requestContext, invariantData, input });
   }
 
-  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
-  if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
-    throw new NotEnoughRelayerFee(fulfillChain, {
-      method,
-      methodId,
-      requestContext,
-      relayerFee: input.relayerFee,
-      relayerFeeLowerBound: relayerFeeLowerBound,
-    });
+  // Only check for relayer fee at receiving side
+  if (fulfillChain === invariantData.receivingChainId) {
+    const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
+    if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
+      throw new NotEnoughRelayerFee(fulfillChain, {
+        methodContext,
+        requestContext,
+        relayerFee: input.relayerFee,
+        relayerFeeLowerBound: relayerFeeLowerBound,
+        invariantData,
+        input,
+      });
+    }
   }
 
   const receipt = await contractWriter.fulfill(
@@ -93,6 +82,6 @@ export const fulfill = async (
     },
     requestContext,
   );
-  logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
+  logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

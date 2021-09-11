@@ -1,3 +1,4 @@
+import { RequestContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
@@ -25,7 +26,7 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-  getSyncRecord: (chainId: number) => SubgraphSyncRecord;
+  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord>;
 };
 
 const sdks: Record<number, Sdk> = {};

@@ -1,32 +1,28 @@
-import { Signer } from "ethers";
-import { BaseLogger } from "pino";
-import { CrosschainTransaction, getUuid, TransactionData, VariantTransactionData } from "@connext/nxtp-utils";
+import { providers, Signer } from "ethers";
+import {
+  createLoggingContext,
+  Logger,
+  RequestContext,
+  TransactionData,
+  VariantTransactionData,
+} from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
+import { InvalidTxStatus } from "../error";
 import {
-  NxtpSdkEvent,
-  ReceiverTransactionCancelledPayload,
-  ReceiverTransactionFulfilledPayload,
-  ReceiverTransactionPreparedPayload,
-  SenderTransactionCancelledPayload,
   SenderTransactionPreparedPayload,
-} from "./sdk";
+  SenderTransactionCancelledPayload,
+  ReceiverTransactionPreparedPayload,
+  ReceiverTransactionFulfilledPayload,
+  ReceiverTransactionCancelledPayload,
+  HistoricalTransaction,
+  HistoricalTransactionStatus,
+  ActiveTransaction,
+  SubgraphSyncRecord,
+} from "../types";
+
 import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
-import { InvalidTxStatus } from "./error";
-
-export const HistoricalTransactionStatus = {
-  FULFILLED: "FULFILLED",
-  CANCELLED: "CANCELLED",
-} as const;
-export type THistoricalTransactionStatus = typeof HistoricalTransactionStatus[keyof typeof HistoricalTransactionStatus];
-
-export type HistoricalTransaction = {
-  status: THistoricalTransactionStatus;
-  crosschainTx: CrosschainTransaction;
-  preparedTimestamp: number;
-  fulfilledTxHash?: string;
-};
 
 /**
  * Converts subgraph transactions to properly typed TransactionData
@@ -87,13 +83,12 @@ export const createSubgraphEvts = (): {
   };
 };
 
-export type ActiveTransaction = {
-  crosschainTx: CrosschainTransaction;
-  status: NxtpSdkEvent;
-  bidSignature: string;
-  encodedBid: string;
-  encryptedCallData: string;
-  preparedTimestamp: number;
+const DEFAULT_SUBGRAPH_SYNC_BUFFER = 50;
+
+export type SubgraphChainConfig = {
+  subgraph: string;
+  provider: providers.FallbackProvider;
+  subgraphSyncBuffer: number;
 };
 
 /**
@@ -104,17 +99,33 @@ export class Subgraph {
   private evts = createSubgraphEvts();
   private activeTxs: Map<string, ActiveTransaction> = new Map();
   private pollingLoop: NodeJS.Timer | undefined;
+  private syncStatus: Record<number, SubgraphSyncRecord> = {};
+  private chainConfig: Record<number, SubgraphChainConfig>;
 
   constructor(
     private readonly user: Signer,
-    private readonly chainConfig: Record<number, { subgraph: string }>,
-    private readonly logger: BaseLogger,
+    _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
+    private readonly logger: Logger,
     private readonly pollInterval = 10_000,
   ) {
-    Object.entries(this.chainConfig).forEach(([chainId, { subgraph }]) => {
-      const client = new GraphQLClient(subgraph);
-      this.sdks[parseInt(chainId)] = getSdk(client);
-    });
+    this.chainConfig = {};
+    Object.entries(_chainConfig).forEach(
+      ([chainId, { subgraph, provider, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
+        const cId = parseInt(chainId);
+        const client = new GraphQLClient(subgraph);
+        this.sdks[cId] = getSdk(client);
+        this.syncStatus[cId] = {
+          latestBlock: 0,
+          synced: true,
+          syncedBlock: 0,
+        };
+        this.chainConfig[cId] = {
+          subgraph,
+          provider,
+          subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+        };
+      },
+    );
     this.startPolling();
   }
 
@@ -133,6 +144,17 @@ export class Subgraph {
     }
   }
 
+  getSyncStatus(chainId: number): SubgraphSyncRecord {
+    const record = this.syncStatus[chainId];
+    return (
+      record ?? {
+        synced: false,
+        syncedBlock: 0,
+        latestBlock: 0,
+      }
+    );
+  }
+
   /**
    * Gets the transactions that the user may need to take action on, or is waiting for the router to take action on. Specifically,
    * transactions that have been prepared on the sending chain, but have yet to be fulfilled on the receiving chain, or have yet
@@ -140,9 +162,8 @@ export class Subgraph {
    *
    * @returns All active transactions for the instantiated user
    */
-  async getActiveTransactions(): Promise<ActiveTransaction[]> {
-    const methodName = "getActiveTransactions";
-    const methodId = getUuid();
+  async getActiveTransactions(_requestContext?: RequestContext): Promise<ActiveTransaction[]> {
+    const { requestContext, methodContext } = createLoggingContext(this.getActiveTransactions.name, _requestContext);
 
     // Step 1: handle any already listed as active transactions.
     // This is important to make sure the events are properly emitted
@@ -258,7 +279,12 @@ export class Subgraph {
         const { invariant, receiving } = record.crosschainTx;
         this.evts.ReceiverTransactionFulfilled.post({
           transactionHash: match.fulfillTranssactionHash,
-          txData: { ...invariant, ...receiving! },
+          txData: {
+            ...invariant,
+            amount: receiving!.amount,
+            expiry: receiving!.expiry,
+            preparedBlockNumber: receiving!.preparedBlockNumber,
+          },
           signature: match.signature,
           relayerFee: match.relayerFee,
           callData: match.callData,
@@ -274,6 +300,18 @@ export class Subgraph {
         const user = (await this.user.getAddress()).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
+
+        // first update sync status
+        const { _meta } = await subgraph.GetBlockNumber();
+        const subgraphBlockNumber = _meta?.block.number ?? 0;
+        const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
+        this.syncStatus[chainId].latestBlock = rpcBlockNumber;
+        this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
+        if (rpcBlockNumber - subgraphBlockNumber > this.chainConfig[chainId].subgraphSyncBuffer) {
+          this.syncStatus[chainId].synced = false;
+        } else {
+          this.syncStatus[chainId].synced = true;
+        }
 
         // get all sender prepared
         const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({
@@ -373,10 +411,10 @@ export class Subgraph {
                   status: SubgraphEvents.ReceiverTransactionPrepared,
                 };
                 if (!active) {
-                  this.logger.warn(
-                    { transactionId: invariant.transactionId, active: this.activeTxs.keys() },
-                    "Missing active sender tx",
-                  );
+                  this.logger.warn("Missing active sender tx", requestContext, methodContext, {
+                    transactionId: invariant.transactionId,
+                    active: this.activeTxs.keys(),
+                  });
                 }
                 // if receiver is prepared, its a receiver prepared
                 // if we are not tracking it or the status changed post an event
@@ -443,22 +481,19 @@ export class Subgraph {
 
     const all = txs.flat();
     if (all.length > 0) {
-      this.logger.info(
-        {
-          methodName,
-          methodId,
-          active: all.length,
-        },
-        "Queried active txs",
-      );
-      this.logger.debug({ methodId, methodName, all }, "Queried active txs");
+      this.logger.info("Queried active txs", requestContext, methodContext, {
+        active: all.length,
+      });
+      this.logger.debug("Queried active txs", requestContext, methodContext, { all });
     }
     return all;
   }
 
-  async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
-    const methodName = "getHistoricalTransactions";
-    const methodId = getUuid();
+  async getHistoricalTransactions(_requestContext?: RequestContext): Promise<HistoricalTransaction[]> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.getHistoricalTransactions.name,
+      _requestContext,
+    );
 
     const fulfilledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
@@ -487,7 +522,7 @@ export class Subgraph {
           Object.entries(receiverPerChain).map(async ([chainId, receiverTxs]) => {
             const _sdk = this.sdks[parseInt(chainId)];
             if (!_sdk) {
-              this.logger.error({ methodId, methodName, chainId }, "No SDK for chainId");
+              this.logger.warn("No SDK for chainId", requestContext, methodContext, { chainId });
               return undefined;
             }
 
@@ -500,9 +535,11 @@ export class Subgraph {
                 (tx) => tx.transactionId === receiverTx.transactionId,
               );
               if (!correspondingSenderTx) {
-                this.logger.error(
-                  { methodId, methodName, receiverTx },
+                this.logger.warn(
                   "No corresponding sender tx, this should never happen",
+                  requestContext,
+                  methodContext,
+                  { receiverTx },
                 );
                 return undefined;
               }

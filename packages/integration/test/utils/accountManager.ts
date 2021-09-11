@@ -1,6 +1,6 @@
+import { Logger } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils, Wallet } from "ethers";
 import PriorityQueue from "p-queue";
-import { BaseLogger } from "pino";
 
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
@@ -24,11 +24,13 @@ export class OnchainAccountManager {
     public readonly chainProviders: ChainConfig,
     mnemonic: string,
     public readonly num_users: number,
-    private readonly log: BaseLogger,
+    private readonly log: Logger,
     public readonly MINIMUM_FUNDING_MULTIPLE = 2,
     private readonly USER_MIN_ETH = utils.parseEther("0.2"),
     private readonly USER_MIN_TOKEN = utils.parseEther("1000000"),
     wallets?: Wallet[],
+
+
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     if(wallets)
@@ -78,7 +80,7 @@ export class OnchainAccountManager {
     const floor = isToken ? this.USER_MIN_TOKEN : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
-      this.log.info({ assetId, account, chainId }, "No need for top up");
+      this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
       return initial;
     }
 
@@ -98,7 +100,12 @@ export class OnchainAccountManager {
 
     // send gift
     const response = await funderQueue.add(async () => {
-      this.log.debug({ assetId, to: account, from: this.funder.address, value: toSend.toString() }, "Sending gift");
+      this.log.debug("Sending gift", undefined, undefined, {
+        assetId,
+        to: account,
+        from: this.funder.address,
+        value: toSend.toString(),
+      });
       const response = await sendGift(
         assetId,
         toSend.toString(),
@@ -110,9 +117,9 @@ export class OnchainAccountManager {
       return response;
     });
 
-    this.log.info({ assetId, account, txHash: response.hash }, "Submitted top up");
+    this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
     const receipt = await response.wait();
-    this.log.info({ assetId, account, txHash: receipt.transactionHash }, "Topped up account");
+    this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
     // confirm balance
     const final = await provider.getBalance(account);
 

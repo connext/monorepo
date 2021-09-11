@@ -8,7 +8,9 @@ import {
   getAssetBalance,
   getSyncRecord,
   getTransactionForChain,
+  sdkSenderTransactionToCrosschainTransaction,
 } from "../../../src/adapters/subgraph/subgraph";
+import { CrosschainTransactionStatus } from "../../../src/lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 import { configMock, routerAddrMock } from "../../utils";
@@ -27,7 +29,7 @@ let sdks: Record<
 let getSdkStub: SinonStub;
 
 describe("Subgraph Adapter", () => {
-  const chainId = 12345;
+  const chainId = 1337;
   let config;
   afterEach(() => {
     restore();
@@ -48,21 +50,18 @@ describe("Subgraph Adapter", () => {
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
     config = {
       ...configMock,
-      chainConfig: {
-        [chainId]: {
-          ...configMock.chainConfig[1337],
-        },
-      },
     };
     ctxMock.config = config;
   });
 
   describe("getSyncRecord", () => {
     it("should work", async () => {
-      expect(getSyncRecord(1337)).to.be.deep.eq({
-        synced: false,
-        syncedBlock: 0,
-        latestBlock: 0,
+      sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
+      txServiceMock.getBlockNumber.resolves(10);
+      expect(await getSyncRecord(chainId)).to.be.deep.eq({
+        synced: true,
+        syncedBlock: 10,
+        latestBlock: 10,
       });
     });
   });
@@ -81,7 +80,7 @@ describe("Subgraph Adapter", () => {
       sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 1 } } });
       txServiceMock.getBlockNumber.resolves(10000);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(getSyncRecord(chainId)).to.be.deep.eq({ synced: false, syncedBlock: 1, latestBlock: 10000 });
+      expect(await getSyncRecord(chainId)).to.be.deep.eq({ synced: false, syncedBlock: 1, latestBlock: 10000 });
     });
 
     it("should return an empty array if GetBlockNumber fails", async () => {
@@ -110,6 +109,55 @@ describe("Subgraph Adapter", () => {
       sdks[chainId].GetTransactions.rejects(new Error("fail"));
 
       await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+
+      expect(
+        sdks[chainId].GetSenderTransactions.calledOnceWithExactly({
+          routerId: routerAddrMock,
+          sendingChainId: chainId,
+          status: TransactionStatus.Prepared,
+        }),
+      ).to.be.true;
+    });
+
+    it("should work if subgraph is out of sync ", async () => {
+      txServiceMock.getBlockNumber.resolves(100);
+      sdks[chainId].GetBlockNumber.resolves({ _meta: { block: { number: 50 } } });
+
+      sdks[chainId].GetSenderTransactions.resolves({
+        router: {
+          transactions: [transactionSubgraphMock],
+        },
+      });
+
+      const res = await getActiveTransactions();
+      const { invariant, sending } = sdkSenderTransactionToCrosschainTransaction(transactionSubgraphMock);
+
+      expect(res[0].crosschainTx.invariant).to.include(invariant);
+      expect(res[0].crosschainTx.sending).to.include(sending);
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverNotConfigured);
+
+      expect(
+        sdks[chainId].GetSenderTransactions.calledOnceWithExactly({
+          routerId: routerAddrMock,
+          sendingChainId: chainId,
+          status: TransactionStatus.Prepared,
+        }),
+      ).to.be.true;
+    });
+
+    it("should work if status ReceiverNotConfigured ", async () => {
+      sdks[chainId].GetSenderTransactions.resolves({
+        router: {
+          transactions: [transactionSubgraphMock],
+        },
+      });
+
+      const res = await getActiveTransactions();
+      const { invariant, sending } = sdkSenderTransactionToCrosschainTransaction(transactionSubgraphMock);
+
+      expect(res[0].crosschainTx.invariant).to.include(invariant);
+      expect(res[0].crosschainTx.sending).to.include(sending);
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverNotConfigured);
 
       expect(
         sdks[chainId].GetSenderTransactions.calledOnceWithExactly({
