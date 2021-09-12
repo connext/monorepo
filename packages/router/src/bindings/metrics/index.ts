@@ -35,23 +35,23 @@ export const totalTransferredVolume = new Counter({
 //////////////////////////
 ///// Auctions
 
+export const receivedAuction = new Counter({
+  name: "router_auction_received",
+  help: "router_auction_received_help",
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+});
+
 export const attemptedAuction = new Counter({
   name: "router_auction_attempt",
   help: "router_auction_attempt_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
 });
 
-export const successfulAuction = new Counter({
-  name: "router_auction_successful",
-  help: "router_auction_successful_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const failedAuction = new Counter({
-  name: "router_auction_failed",
-  help: "router_auction_failed_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
+// export const successfulAuction = new Counter({
+//   name: "router_auction_successful",
+//   help: "router_auction_successful_help",
+//   labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+// });
 
 // export const successfulAuctionRatio = new Gauge({
 //   name: "router_auction_chance",

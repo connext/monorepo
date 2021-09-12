@@ -10,6 +10,7 @@ import {
 import { ProvidersNotAvailable } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
+import { attemptedAuction } from "../metrics";
 
 export const auctionRequestBinding = async (
   from: string,
@@ -44,5 +45,11 @@ export const auctionRequestBinding = async (
   logger.info("Received auction request", requestContext, methodContext);
   const { bid, bidSignature } = await newAuction(data, requestContext);
   await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature });
+  attemptedAuction.inc({
+    sendingAssetId: bid.sendingAssetId,
+    receivingAssetId: bid.receivingAssetId,
+    sendingChainId: bid.sendingChainId,
+    receivingChainId: bid.receivingChainId,
+  });
   logger.info("Handled auction request");
 };
