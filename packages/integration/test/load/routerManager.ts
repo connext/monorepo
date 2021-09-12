@@ -4,12 +4,13 @@
 
 import { readFileSync } from "fs";
 
-import { ethers, Contract, logger, Wallet, BigNumber, providers } from "ethers";
+import { ethers, Contract, Wallet, BigNumber, providers } from "ethers";
 import {Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import pino from "pino";
+import {Logger} from '@connext/nxtp-utils';
 
 import { OnchainAccountManager } from "../utils/accountManager";
 import { getConfig, ChainConfig } from "../utils/config";
@@ -70,7 +71,7 @@ export class RouterManager {
     this.routerMnemonics.forEach((rm) => {
       this.routerWallets.push(ethers.Wallet.fromMnemonic(rm));
     });
-
+    this.logger = new Logger({name:"router manager"});
     this.routerAccountMgmt = new OnchainAccountManager(
       chainProviders,
       this.funderMnemonic,
