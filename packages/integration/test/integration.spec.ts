@@ -3,7 +3,7 @@ import { constants, Contract, providers, utils, Wallet, BigNumber } from "ethers
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { AuctionResponse, jsonifyError, expect } from "@connext/nxtp-utils";
+import { AuctionResponse, jsonifyError, expect, Logger } from "@connext/nxtp-utils";
 
 const { AddressZero } = constants;
 
@@ -30,12 +30,16 @@ const RECEIVING_CHAIN = 1338;
 
 const chainProviders = {
   [SENDING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545", SENDING_CHAIN)]),
+    provider: new providers.FallbackProvider([
+      new providers.StaticJsonRpcProvider("http://localhost:8545", SENDING_CHAIN),
+    ]),
     transactionManagerAddress: txManagerAddressSending,
     subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
   },
   [RECEIVING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546", RECEIVING_CHAIN)]),
+    provider: new providers.FallbackProvider([
+      new providers.StaticJsonRpcProvider("http://localhost:8546", RECEIVING_CHAIN),
+    ]),
     transactionManagerAddress: txManagerAddressReceiving,
     subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
   },
@@ -276,7 +280,7 @@ describe("Integration", () => {
     userSdk = new NxtpSdk(
       chainProviders,
       userWallet,
-      pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
+      new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
       "local",
     );
   });

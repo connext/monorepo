@@ -54,6 +54,7 @@ export const makeRouter = async () => {
         confirmations: config.confirmations,
         providers: config.providers.map((url) => ({ url })),
         gasStations: config.gasStations,
+        defaultInitialGas: config.defaultInitialGas,
       } as ChainConfig;
     });
     // TODO: txserviceconfig log level

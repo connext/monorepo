@@ -15,7 +15,9 @@ export const chainProviders: Record<
 > = {};
 Object.entries(chainConfig).forEach(([chainId, { provider, subgraph, transactionManagerAddress }]) => {
   chainProviders[parseInt(chainId)] = {
-    provider: new providers.FallbackProvider(provider.map((p) => new providers.JsonRpcProvider(p, parseInt(chainId)))),
+    provider: new providers.FallbackProvider(
+      provider.map((p) => new providers.StaticJsonRpcProvider(p, parseInt(chainId))),
+    ),
     subgraph,
     transactionManagerAddress,
   };
