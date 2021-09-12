@@ -637,4 +637,72 @@ export class TransactionDispatch extends ChainRpcProvider {
       // this.paused = error;
     }
   }
+
+  // TODO: Reimplement event emitters : should instead use callbacks from txservice parent.
+  // /**
+  //  * Handle logging and event emitting on tx submit attempt.
+  //  * @param response The transaction response received back from that attempt.
+  //  */
+  // private async submitTransaction(transaction: TransactionInterface, context: RequestContext) {
+  //   const { requestContext, methodContext } = createLoggingContext(this.submitTransaction.name, context);
+  //   this.logger.debug(`Submitting tx`, requestContext, methodContext, {
+  //     id: transaction.id,
+  //     attempt: transaction.attempt,
+  //   });
+  //   const response = await transaction.submit();
+  //   const gas = response.gasPrice ?? transaction.params.gasPrice;
+  //   this.logger.info(`Tx submitted.`, requestContext, methodContext, {
+  //     chainId: transaction.chainId,
+  //     id: transaction.id,
+  //     attempt: transaction.attempt,
+  //     hash: response.hash,
+  //     gas: `${utils.formatUnits(gas, "gwei")} gwei`,
+  //     gasLimit: transaction.params.gasLimit.toString(),
+  //     nonce: response.nonce,
+  //   });
+  //   this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
+  // }
+
+  // /**
+  //  * Handle logging and event emitting on tx confirmation.
+  //  * @param receipt The transaction receipt received back.
+  //  */
+  // private async confirmTransaction(transaction: TransactionInterface, context: RequestContext) {
+  //   const { requestContext, methodContext } = createLoggingContext(this.confirmTransaction.name, context);
+
+  //   this.logger.debug(`Confirming tx...`, requestContext, methodContext, {
+  //     id: transaction.id,
+  //     attempt: transaction.attempt,
+  //   });
+  //   const receipt = await transaction.confirm();
+  //   this.logger.info(`Tx mined.`, requestContext, methodContext, {
+  //     chainId: transaction.chainId,
+  //     id: transaction.id,
+  //     attempt: transaction.attempt,
+  //     receipt: {
+  //       gasUsed: receipt.gasUsed.toString(),
+  //       transactionHash: receipt.transactionHash,
+  //       blockHash: receipt.blockHash,
+  //     },
+  //   });
+  //   this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
+  // }
+
+  // /**
+  //  * Handle logging and event emitting on tx failure.
+  //  * @param error The TransactionError that occurred during the transaction lifecycle.
+  //  * @param receipt The transaction receipt received back from reverted tx, if
+  //  * applicable.
+  //  */
+  // private handleFail(error: TransactionError, transaction: TransactionInterface, context: RequestContext) {
+  //   const { requestContext, methodContext } = createLoggingContext(this.handleFail.name, context);
+  //   const receipt = transaction.receipt;
+  //   this.logger.error("Tx failed.", requestContext, methodContext, jsonifyError(error), {
+  //     id: transaction.id,
+  //     receipt,
+  //     context,
+  //     error,
+  //   });
+  //   this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
+  // }
 }

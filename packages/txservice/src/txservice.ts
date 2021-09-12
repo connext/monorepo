@@ -1,11 +1,11 @@
-import { Signer, providers, BigNumber, utils } from "ethers";
+import { Signer, providers, BigNumber } from "ethers";
 import { Evt } from "evt";
-import { createLoggingContext, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
-import { AlreadyMined, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
-import { TransactionDispatch, TransactionInterface } from "./dispatch";
+import { TransactionError, TransactionServiceFailure } from "./error";
+import { TransactionDispatch } from "./dispatch";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -122,124 +122,6 @@ export class TransactionService {
       throw TypeError("Transactions batch cannot be empty.");
     }
     return await this.getProvider(txs[0].chainId).send(txs, context);
-  }
-
-  /**
-   * Send specified transaction on specified chain and wait for the configured number of confirmations.
-   * Will emit events throughout its lifecycle.
-   *
-   * @param txs - Txs to send
-   * @param tx.chainId - Chain to send transaction on
-   * @param tx.to - Address to send tx to
-   * @param tx.value - Value to send tx with
-   * @param tx.data - Calldata to execute
-   * @param tx.from - (optional) Account to send tx from
-   *
-   * @returns TransactionReceipt once the tx is mined if the transaction was successful.
-   *
-   * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
-   * something went wrong within TransactionService process.
-   * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
-   */
-  public async sendTx(tx: WriteTransaction, _requestContext: RequestContext): Promise<providers.TransactionReceipt> {
-    const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, _requestContext);
-    this.logger.debug("Method start", requestContext, methodContext, {
-      tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
-    });
-
-    const newTx = () => this.getProvider(tx.chainId).createTransaction(tx, requestContext);
-
-    let transaction = await newTx();
-    let nonceExpired = 0;
-    try {
-      while (!transaction.didFinish) {
-        // Submit: send to chain.
-        try {
-          await this.submitTransaction(transaction, requestContext);
-        } catch (error) {
-          if (error.type === AlreadyMined.type) {
-            if (transaction.attempt === 1) {
-              if (nonceExpired > 1000) {
-                // Nonce expired emergency stop: we should never encounter this expired nonce situation this many times.
-                this.logger.warn(`Nonce expired encountered > MAX (1000)`, requestContext, methodContext, {
-                  id: transaction.id,
-                  attempt: transaction.attempt,
-                  nonceExpired,
-                  error: jsonifyError(error),
-                });
-                throw error;
-              }
-              // A transaction that's only been attempted once has an expired nonce. This means that dispatch
-              // assigned us an already-used nonce.
-              nonceExpired++;
-              // In this event, we need to go back to the beginning and actually "recreate" the transaction
-              // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
-              // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
-              // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
-              // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
-              transaction = await newTx();
-              continue;
-            } else {
-              // Ignore this error, proceed to validation step.
-              this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
-                id: transaction.id,
-              });
-            }
-          } else {
-            throw error;
-          }
-        }
-
-        // Validate: wait for 1 confirmation.
-        try {
-          await transaction.validate();
-        } catch (error) {
-          this.logger.debug(
-            `Transaction validation step: received ${error.type} error.`,
-            requestContext,
-            methodContext,
-            { id: transaction.id, attempt: transaction.attempt, error: jsonifyError(error) },
-          );
-          if (error.type === TimeoutError.type) {
-            // Transaction timed out trying to validate. We should bump the tx and submit again.
-            await transaction.bumpGasPrice();
-            continue;
-          } else {
-            throw error;
-          }
-        }
-
-        // Confirm: get target # confirmations.
-        try {
-          await this.confirmTransaction(transaction, requestContext);
-          break;
-        } catch (error) {
-          this.logger.debug(
-            `Transaction confirmation step: received ${error.type} error`,
-            requestContext,
-            methodContext,
-            { id: transaction.id, attempt: transaction.attempt, error: jsonifyError(error) },
-          );
-          if (error.type === TimeoutError.type) {
-            // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
-            this.logger.warn(
-              "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction.",
-              requestContext,
-              methodContext,
-              { id: transaction.id },
-            );
-            continue;
-          } else {
-            throw error;
-          }
-        }
-      }
-    } catch (error) {
-      this.handleFail(error, transaction, requestContext);
-      throw error;
-    }
-
-    return transaction.receipt!;
   }
 
   /**
@@ -424,72 +306,5 @@ export class TransactionService {
       );
     }
     return this.providers.get(chainId)!;
-  }
-
-  /**
-   * Handle logging and event emitting on tx submit attempt.
-   * @param response The transaction response received back from that attempt.
-   */
-  private async submitTransaction(transaction: TransactionInterface, context: RequestContext) {
-    const { requestContext, methodContext } = createLoggingContext(this.submitTransaction.name, context);
-    this.logger.debug(`Submitting tx`, requestContext, methodContext, {
-      id: transaction.id,
-      attempt: transaction.attempt,
-    });
-    const response = await transaction.submit();
-    const gas = response.gasPrice ?? transaction.params.gasPrice;
-    this.logger.info(`Tx submitted.`, requestContext, methodContext, {
-      chainId: transaction.chainId,
-      id: transaction.id,
-      attempt: transaction.attempt,
-      hash: response.hash,
-      gas: `${utils.formatUnits(gas, "gwei")} gwei`,
-      gasLimit: transaction.params.gasLimit.toString(),
-      nonce: response.nonce,
-    });
-    this.evts[NxtpTxServiceEvents.TransactionAttemptSubmitted].post({ response });
-  }
-
-  /**
-   * Handle logging and event emitting on tx confirmation.
-   * @param receipt The transaction receipt received back.
-   */
-  private async confirmTransaction(transaction: TransactionInterface, context: RequestContext) {
-    const { requestContext, methodContext } = createLoggingContext(this.confirmTransaction.name, context);
-
-    this.logger.debug(`Confirming tx...`, requestContext, methodContext, {
-      id: transaction.id,
-      attempt: transaction.attempt,
-    });
-    const receipt = await transaction.confirm();
-    this.logger.info(`Tx mined.`, requestContext, methodContext, {
-      chainId: transaction.chainId,
-      id: transaction.id,
-      attempt: transaction.attempt,
-      receipt: {
-        gasUsed: receipt.gasUsed.toString(),
-        transactionHash: receipt.transactionHash,
-        blockHash: receipt.blockHash,
-      },
-    });
-    this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt });
-  }
-
-  /**
-   * Handle logging and event emitting on tx failure.
-   * @param error The TransactionError that occurred during the transaction lifecycle.
-   * @param receipt The transaction receipt received back from reverted tx, if
-   * applicable.
-   */
-  private handleFail(error: TransactionError, transaction: TransactionInterface, context: RequestContext) {
-    const { requestContext, methodContext } = createLoggingContext(this.handleFail.name, context);
-    const receipt = transaction.receipt;
-    this.logger.error("Tx failed.", requestContext, methodContext, jsonifyError(error), {
-      id: transaction.id,
-      receipt,
-      context,
-      error,
-    });
-    this.evts[NxtpTxServiceEvents.TransactionFailed].post({ error, receipt });
   }
 }

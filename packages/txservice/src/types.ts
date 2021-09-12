@@ -1,7 +1,5 @@
 import { BigNumber, BigNumberish, utils } from "ethers";
 
-import { TransactionServiceFailure } from "./error";
-
 export type ReadTransaction = {
   chainId: number;
   to: string;
