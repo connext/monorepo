@@ -55,7 +55,7 @@ export class SdkManager {
     // TODO: this will be slow af
     for (const chain of Object.keys(chainConfig)) {
       // Gift eth
-      // await onchain.updateBalances(parseInt(chain));
+      await onchain.updateBalances(parseInt(chain));
     }
     // await Promise.all(
     //   Object.keys(chainConfig)
@@ -66,7 +66,7 @@ export class SdkManager {
     // Create sdk agents
     let agents:SdkAgent[] = [];
 
-    // if(!manageAgentsManually) {
+
       agents = await Promise.all(
           Array(numberUsers)
               .fill(0)
@@ -75,15 +75,8 @@ export class SdkManager {
                 return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
               }),
       );
-    // }
-    // else {
-    //   agents = await Promise.all(
-    //       Array(1).fill(0).map(() => {
-    //         return SdkAgent.connect(onchain.chainProviders, onchain.wallets[0], log, natsUrl, authUrl)
-    //       }));
-    // }
-      //create an agent with the base mnemonic account + 1
 
+    //create an agent with the base mnemonic account + 1
     const manager = new SdkManager(onchain, agents,  log.child({ name: "SdkManager" }));
 
     // Setup manager listeners

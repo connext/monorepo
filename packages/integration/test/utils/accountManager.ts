@@ -6,15 +6,8 @@ import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
 
-const MINIMUM_FUNDING_MULTIPLE = 2;
-const USER_MIN_ETH = utils.parseEther("0.005");
-const USER_MIN_TOKEN = utils.parseEther("0.0000001");
-
 export class OnchainAccountManager {
 
-  // private readonly MINIMUM_FUNDING_MULTIPLE = 2;
-  // private readonly USER_MIN_ETH = utils.parseEther("0.2");
-  // private readonly USER_MIN_TOKEN = utils.parseEther("1000000");
 
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
@@ -30,9 +23,10 @@ export class OnchainAccountManager {
     mnemonic: string,
     public readonly num_users: number,
     private readonly log: Logger,
-    public readonly MINIMUM_FUNDING_MULTIPLE = 2,
-    private readonly USER_MIN_ETH = utils.parseEther("0.2"),
-    private readonly USER_MIN_TOKEN = utils.parseEther("1000000"),
+    public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 11,
+    public readonly  MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
+    private readonly USER_MIN_ETH = utils.parseEther("0.09"),
+    private readonly USER_MIN_TOKEN = utils.parseEther("0.2"),
     wallets?: Wallet[],
 
 
@@ -89,7 +83,7 @@ export class OnchainAccountManager {
       return initial;
     }
 
-    const toSend = floor.sub(initial).mul(this.MINIMUM_FUNDING_MULTIPLE);
+    const toSend = isToken ? floor.sub(initial).mul(this.MINIMUM_TOKEN_FUNDING_MULTIPLE) : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE)
 
     if (!isToken) {
       // Check balance before sending
