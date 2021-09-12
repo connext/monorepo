@@ -83,7 +83,7 @@ export class OnchainAccountManager {
       return initial;
     }
 
-    const toSend = isToken ? floor.sub(initial).mul(this.MINIMUM_TOKEN_FUNDING_MULTIPLE) : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE)
+    const toSend = isToken ? this.MINIMUM_TOKEN_FUNDING_MULTIPLE : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE)
 
     if (!isToken) {
       // Check balance before sending
