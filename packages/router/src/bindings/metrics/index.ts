@@ -88,7 +88,7 @@ export const feesCollected = new Counter({
 export const gasConsumed = new Counter({
   name: "router_gas_consumed",
   help: "router_gas_consumed_help",
-  labelNames: ["reason", "chainId"] as const,
+  labelNames: ["reason", "chainId", "amount"] as const,
 });
 
 export const roi = new Gauge({
