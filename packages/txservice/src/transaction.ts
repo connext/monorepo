@@ -1,7 +1,7 @@
 import { providers } from "ethers";
 import { RequestContext } from "@connext/nxtp-utils";
 
-import { FullTransaction, Gas, WriteTransaction } from "../types";
+import { FullTransaction, Gas, WriteTransaction } from "./types";
 
 type TransactionConfig = {
   confirmationTimeout: number;

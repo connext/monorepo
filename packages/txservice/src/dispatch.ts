@@ -2,16 +2,15 @@ import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
 import { createLoggingContext, delay, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 
-import { Gas, WriteTransaction } from "../types";
+import { Gas, WriteTransaction } from "./types";
 import {
   AlreadyMined,
   TransactionReplaced,
   TransactionReverted,
   TimeoutError,
   TransactionServiceFailure,
-} from "../error";
-import { ChainConfig, TransactionServiceConfig } from "../config";
-
+} from "./error";
+import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
 

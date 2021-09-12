@@ -3,7 +3,7 @@ import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import {
   DispatchAborted,
   parseError,
@@ -13,8 +13,8 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
   UnpredictableGasLimit,
-} from "../error";
-import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
+} from "./error";
+import { CachedGas, CachedTransactionCount, ReadTransaction } from "./types";
 
 import { Transaction } from "./transaction";
 
