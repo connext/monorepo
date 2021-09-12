@@ -22,7 +22,7 @@ const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
 const HARDCODED_GAS_PRICE: Record<number, string> = {
   69: "15000000", // optimism
-  250: "750000000000", // FTM test: should remove
+  // 250: "750000000000", // FTM test: should remove
 };
 
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
@@ -237,14 +237,14 @@ export class ChainRpcProvider {
    */
   public getGasPrice(context: RequestContext): ResultAsync<BigNumber, TransactionError> {
     const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
-    // const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
-    // if (hardcoded) {
-    //   this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
-    //     chainId: this.chainId,
-    //     hardcoded,
-    //   });
-    //   return okAsync(BigNumber.from(hardcoded));
-    // }
+    const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
+    if (hardcoded) {
+      this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
+        chainId: this.chainId,
+        hardcoded,
+      });
+      return okAsync(BigNumber.from(hardcoded));
+    }
 
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
     if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
