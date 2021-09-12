@@ -1,27 +1,44 @@
 {
   "adminToken": "blahblah",
   "chainConfig": {
-    "4": {
-      "providers": ["https://rinkeby.infura.io/v3/eb53f642653046398d8209cf87fd18fa"],
+    "1337": {
+      "providers": ["http://172.17.0.1:8545"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+      "subgraph": "http://172.17.0.1:8010/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+      "safeRelayerFee": "100"
     },
-    "5": {
-      "providers": ["https://goerli.infura.io/v3/eb53f642653046398d8209cf87fd18fa"],
+    "1338": {
+      "providers": ["http://172.17.0.1:8546"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+      "subgraph": "http://172.17.0.1:9010/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+      "safeRelayerFee": "100"
     }
   },
   "logLevel": "info",
+<<<<<<< HEAD
   "natsUrl": "nats://nats-test:4222",
   "authUrl": "http://auth-test:5040",
   "mnemonic": "",
+=======
+  "natsUrl": "nats://172.17.0.1:4222",
+  "authUrl": "http://172.17.0.1:5040",
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+>>>>>>> main
   "swapPools": [
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
-        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
+        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+      ]
+    },
+    {
+      "name": "NATIVE",
+      "assets": [
+        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
+        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
       ]
     }
   ]

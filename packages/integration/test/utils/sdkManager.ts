@@ -44,6 +44,7 @@ export class SdkManager {
     log: Logger,
     natsUrl?: string,
     authUrl?: string,
+    manageAgentsManually = true,
   ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
     const onchain = new OnchainAccountManager(
@@ -55,7 +56,7 @@ export class SdkManager {
     // TODO: this will be slow af
     for (const chain of Object.keys(chainConfig)) {
       // Gift eth
-      await onchain.updateBalances(parseInt(chain));
+      // await onchain.updateBalances(parseInt(chain));
     }
     // await Promise.all(
     //   Object.keys(chainConfig)
@@ -64,17 +65,26 @@ export class SdkManager {
     // );
 
     // Create sdk agents
-    const agents = await Promise.all(
-      Array(numberUsers)
-        .fill(0)
-        .map((_, idx) => {
-          log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
-          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
-        }),
-    );
+    let agents:SdkAgent[] = [];
 
-    // Create manager
-    const manager = new SdkManager(onchain, agents, log.child({ name: "SdkManager" }));
+    if(!manageAgentsManually) {
+      agents = await Promise.all(
+          Array(numberUsers)
+              .fill(0)
+              .map((_, idx) => {
+                log.debug("Wallet info", undefined, undefined, {idx, address: onchain.wallets[idx].address});
+                return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
+              }),
+      );
+    }else {
+      agents = await Promise.all(
+          Array(1).fill(0).map(() => {
+            return SdkAgent.connect(onchain.chainProviders, onchain.wallets[0], log, natsUrl, authUrl)
+          }));
+    }
+      //create an agent with the base mnemonic account + 1
+
+    const manager = new SdkManager(onchain, agents,  log.child({ name: "SdkManager" }));
 
     // Setup manager listeners
     manager.setupTransferListeners();

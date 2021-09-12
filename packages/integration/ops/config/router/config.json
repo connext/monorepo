@@ -4,12 +4,16 @@
     "4": {
       "providers": ["https://rinkeby.infura.io/v3/eb53f642653046398d8209cf87fd18fa"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+
     },
     "5": {
       "providers": ["https://goerli.infura.io/v3/eb53f642653046398d8209cf87fd18fa"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+      "subgraph": "http://172.17.0.1:9010/subgraphs/name/connext/nxtp",
+      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+
     }
   },
   "logLevel": "info",
