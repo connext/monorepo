@@ -37,6 +37,6 @@ export const sendGift = async (
   const tx =
     assetId === constants.AddressZero
       ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value), nonce, gasPrice: utils.formatEther("500000000000") })
-      : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value), { nonce, gasPrice:utils.formatEther("500000000000") });
+      : await new Contract(assetId, TestTokenABI, funder).transfer(recipient, BigNumber.from(value), { nonce, gasPrice:utils.formatEther("500000000000") });
   return tx;
 };
