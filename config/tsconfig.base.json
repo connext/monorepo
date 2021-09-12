@@ -26,7 +26,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "useUnknownInCatchVariables": true,
 
     // We want to be as strict as we can...
     "forceConsistentCasingInFileNames": true,
