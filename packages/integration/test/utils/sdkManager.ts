@@ -44,7 +44,6 @@ export class SdkManager {
     log: Logger,
     natsUrl?: string,
     authUrl?: string,
-    manageAgentsManually = true,
   ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
     const onchain = new OnchainAccountManager(
@@ -67,7 +66,7 @@ export class SdkManager {
     // Create sdk agents
     let agents:SdkAgent[] = [];
 
-    if(!manageAgentsManually) {
+    // if(!manageAgentsManually) {
       agents = await Promise.all(
           Array(numberUsers)
               .fill(0)
@@ -76,12 +75,13 @@ export class SdkManager {
                 return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
               }),
       );
-    }else {
-      agents = await Promise.all(
-          Array(1).fill(0).map(() => {
-            return SdkAgent.connect(onchain.chainProviders, onchain.wallets[0], log, natsUrl, authUrl)
-          }));
-    }
+    // }
+    // else {
+    //   agents = await Promise.all(
+    //       Array(1).fill(0).map(() => {
+    //         return SdkAgent.connect(onchain.chainProviders, onchain.wallets[0], log, natsUrl, authUrl)
+    //       }));
+    // }
       //create an agent with the base mnemonic account + 1
 
     const manager = new SdkManager(onchain, agents,  log.child({ name: "SdkManager" }));
