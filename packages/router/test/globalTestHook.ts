@@ -1,5 +1,5 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, getChainData } from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import pino from "pino";
@@ -23,7 +23,7 @@ export let contractWriterMock: ContractWriter;
 export let ctxMock: Context;
 
 export const mochaHooks = {
-  beforeEach() {
+  async beforeEach() {
     const walletMock = createStubInstance(Wallet);
     (walletMock as any).address = routerAddrMock; // need to do this differently bc the function doesnt exist on the interface
     walletMock.signMessage.resolves(sigMock);
@@ -56,8 +56,9 @@ export const mochaHooks = {
       contractReader: contractReaderMock,
       contractWriter: contractWriterMock,
       logger: pino({ name: "ctxMock", level: process.env.LOG_LEVEL || "silent" }),
-      messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
-      txService: txServiceMock as unknown as TransactionService,
+      chainData: await getChainData(),
+      messaging: (messagingMock as unknown) as RouterNxtpNatsMessagingService,
+      txService: (txServiceMock as unknown) as TransactionService,
       wallet: walletMock,
     };
 
