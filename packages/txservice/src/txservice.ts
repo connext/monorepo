@@ -99,7 +99,36 @@ export class TransactionService {
    * Send specified transaction on specified chain and wait for the configured number of confirmations.
    * Will emit events throughout its lifecycle.
    *
-   * @param tx - Tx to send
+   * @param txs - Txs to send
+   * @param tx.chainId - Chain to send transaction on
+   * @param tx.to - Address to send tx to
+   * @param tx.value - Value to send tx with
+   * @param tx.data - Calldata to execute
+   * @param tx.from - (optional) Account to send tx from
+   *
+   * @returns TransactionReceipt once the tx is mined if the transaction was successful.
+   *
+   * @throws TransactionError with one of the reasons specified in ValidSendErrors. If another error occurs,
+   * something went wrong within TransactionService process.
+   * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
+   */
+  public async sendTxBatch(txs: WriteTransaction[], context: RequestContext): Promise<providers.TransactionReceipt[]> {
+    // TODO: buffer -> batch
+    // const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, _requestContext);
+    // this.logger.debug("Method start", requestContext, methodContext, {
+    // tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
+    // });
+    if (txs.length === 0) {
+      throw TypeError("Transactions batch cannot be empty.");
+    }
+    return await this.getProvider(txs[0].chainId).send(txs, context);
+  }
+
+  /**
+   * Send specified transaction on specified chain and wait for the configured number of confirmations.
+   * Will emit events throughout its lifecycle.
+   *
+   * @param txs - Txs to send
    * @param tx.chainId - Chain to send transaction on
    * @param tx.to - Address to send tx to
    * @param tx.value - Value to send tx with
@@ -128,11 +157,6 @@ export class TransactionService {
         try {
           await this.submitTransaction(transaction, requestContext);
         } catch (error) {
-          this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
-            id: transaction.id,
-            attempt: transaction.attempt,
-            error: jsonifyError(error),
-          });
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
               if (nonceExpired > 1000) {
