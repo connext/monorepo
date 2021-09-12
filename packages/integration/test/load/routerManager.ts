@@ -58,7 +58,6 @@ export class RouterManager {
   constructor(funder_mnemonic: string, num_routers = 3, public readonly chainProviders: ChainConfig, dockerSock?: string) {
     this.config = getConfig();
 
-    this.logger = pino({ level: this.config.logLevel ?? "info" });
     this.num_routers = num_routers;
     this.funderMnemonic = funder_mnemonic;
     this.containerManager = new ContainerManager(dockerSock || undefined);
