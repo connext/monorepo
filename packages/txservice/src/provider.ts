@@ -15,7 +15,6 @@ import {
   UnpredictableGasLimit,
 } from "./error";
 import { CachedGas, CachedTransactionCount, ReadTransaction } from "./types";
-
 import { Transaction } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
