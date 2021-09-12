@@ -1,6 +1,6 @@
 import { Signer, providers, BigNumber, utils } from "ethers";
 import { Evt } from "evt";
-import { createLoggingContext, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, Logger, RequestContext, getChainData } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
@@ -262,6 +262,15 @@ export class TransactionService {
    * @returns number representing the decimals of the asset
    */
   public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+    const chainData = await getChainData();
+
+    if (chainData) {
+      const decimal = chainData.get(String(chainId))?.assetId[assetId]?.decimals;
+      if (decimal) {
+        return decimal;
+      }
+    }
+
     const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
     if (result.isErr()) {
       throw result.error;
