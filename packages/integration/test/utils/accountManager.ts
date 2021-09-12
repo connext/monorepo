@@ -25,7 +25,7 @@ export class OnchainAccountManager {
     private readonly log: Logger,
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 11,
     public readonly  MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
-    private readonly USER_MIN_ETH = utils.parseEther("0.09"),
+    private readonly USER_MIN_ETH = utils.parseEther("0.1"),
     private readonly USER_MIN_TOKEN = utils.parseEther("0.2"),
     wallets?: Wallet[],
 
@@ -83,7 +83,7 @@ export class OnchainAccountManager {
       return initial;
     }
 
-    const toSend = isToken ? this.MINIMUM_TOKEN_FUNDING_MULTIPLE : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE)
+    const toSend = isToken ? floor.mul(this.MINIMUM_TOKEN_FUNDING_MULTIPLE) : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE);
 
     if (!isToken) {
       // Check balance before sending
