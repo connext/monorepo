@@ -29,7 +29,7 @@ export const newAuction = async (
 ): Promise<{ bid: AuctionBid; bidSignature?: string }> => {
   const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
 
-  const { logger, config, contractReader, txService, wallet } = getContext();
+  const { logger, config, contractReader, txService, wallet, chainData } = getContext();
   logger.info("Method context", requestContext, methodContext, { data });
 
   // Validate params
@@ -98,10 +98,15 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const [inputDecimals, outputDecimals] = await Promise.all([
-    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
-    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
-  ]);
+  let inputDecimals = chainData.get(sendingChainId.toString())?.assetId[sendingAssetId]?.decimals;
+  if (!inputDecimals) {
+    inputDecimals = await txService.getDecimalsForAsset(sendingChainId, sendingAssetId);
+  }
+
+  let outputDecimals = chainData.get(receivingChainId.toString())?.assetId[receivingAssetId]?.decimals;
+  if (!outputDecimals) {
+    outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
+  }
   logger.info("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
