@@ -687,6 +687,7 @@ export type GetReceiverTransactionsQueryVariables = Exact<{
   routerId: Scalars['ID'];
   receivingChainId: Scalars['BigInt'];
   status?: Maybe<TransactionStatus>;
+  expiry_lt?: Maybe<Scalars['BigInt']>;
 }>;
 
 
@@ -763,7 +764,7 @@ export const GetSenderTransactionsDocument = gql`
 }
     `;
 export const GetReceiverTransactionsDocument = gql`
-    query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
+    query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus, $expiry_lt: BigInt) {
   router(id: $routerId) {
     transactions(
       where: {status: $status, receivingChainId: $receivingChainId}
