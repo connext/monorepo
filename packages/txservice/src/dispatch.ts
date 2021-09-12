@@ -106,79 +106,80 @@ export class TransactionDispatch extends ChainRpcProvider {
       }
     }
 
-    // IN DISPATCH QUEUE
-    while (!batch.every((tx) => tx.didFinish)) {
-      // To prevent CPU hogging by while loop and stagger provider calls:
-      // TODO: Is this needed?
-      delay(100);
+    return await this.batchQueue.add(async (): Promise<providers.TransactionReceipt[]> => {
+      while (!batch.every((tx) => tx.didFinish)) {
+        // To prevent CPU hogging by while loop and stagger provider calls:
+        // TODO: Is this needed?
+        delay(100);
 
-      for (let i = 0; i < batch.length; i++) {
-        const transaction = batch[i];
-        if (transaction.discontinued) {
-          continue;
+        for (let i = 0; i < batch.length; i++) {
+          const transaction = batch[i];
+          if (transaction.discontinued) {
+            continue;
+          }
+          try {
+            this.submit(transaction);
+          } catch (error) {
+            this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
+              hashes: transaction.hashes,
+              attempt: transaction.attempt,
+              error: jsonifyError(error),
+            });
+            if (error.type === AlreadyMined.type) {
+              if (transaction.responses.length > 0) {
+                // Ignore this error, proceed to validation step.
+                this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
+                  hashes: transaction.hashes,
+                  attempt: transaction.attempt,
+                });
+              } else {
+                // A transaction that's only been attempted once has an expired nonce. This means that we assigned
+                // an already-used nonce.
+                // TODO: In this event, we would need to go back to the beginning and actually "recreate" the transaction
+                // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
+                // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
+                // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
+                // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
+
+                // For now, treat as a fail. This tx will have to be handled in next subgraph loop.
+                this.fail(transaction);
+              }
+            }
+          }
         }
-        try {
-          this.submit(transaction);
-        } catch (error) {
-          this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
-            hashes: transaction.hashes,
-            attempt: transaction.attempt,
-            error: jsonifyError(error),
-          });
-          if (error.type === AlreadyMined.type) {
-            if (transaction.responses.length > 0) {
-              // Ignore this error, proceed to validation step.
-              this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
-                hashes: transaction.hashes,
-                attempt: transaction.attempt,
-              });
-            } else {
-              // A transaction that's only been attempted once has an expired nonce. This means that we assigned
-              // an already-used nonce.
-              // TODO: In this event, we would need to go back to the beginning and actually "recreate" the transaction
-              // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
-              // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
-              // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
-              // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
 
-              // For now, treat as a fail. This tx will have to be handled in next subgraph loop.
-              this.fail(transaction);
+        for (let i = 0; i < batch.length; i++) {
+          const transaction = batch[i];
+          if (transaction.discontinued) {
+            continue;
+          }
+          try {
+            this.confirm(transaction);
+          } catch (error) {
+            if (error.type === TimeoutError.type) {
+              if (transaction.receipt && transaction.receipt.confirmations > 1) {
+                // Transaction timed out trying to validate. We should bump the tx and submit again.
+                // TODO: Check to see if we are at max gas or max attempts! If so, log as critical error, then stall indefinitely (until mined)
+                await this.bump(transaction);
+              } else {
+                // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
+                this.logger.warn(
+                  "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction.",
+                  requestContext,
+                  methodContext,
+                  { hashes: transaction.hashes, attempt: transaction.attempt },
+                );
+              }
+              // Break from this confirm loop. We should go back to resubmit.
+              break;
+            } else {
+              throw error;
             }
           }
         }
       }
-
-      for (let i = 0; i < batch.length; i++) {
-        const transaction = batch[i];
-        if (transaction.discontinued) {
-          continue;
-        }
-        try {
-          this.confirm(transaction);
-        } catch (error) {
-          if (error.type === TimeoutError.type) {
-            if (transaction.receipt && transaction.receipt.confirmations > 1) {
-              // Transaction timed out trying to validate. We should bump the tx and submit again.
-              // TODO: Check to see if we are at max gas or max attempts! If so, log as critical error, then stall indefinitely (until mined)
-              await this.bump(transaction);
-            } else {
-              // Transaction timed out trying to confirm. This implies a re-org has happened. We should attempt to resubmit.
-              this.logger.warn(
-                "Transaction timed out waiting for target confirmations. A possible re-org has occurred; resubmitting transaction.",
-                requestContext,
-                methodContext,
-                { hashes: transaction.hashes, attempt: transaction.attempt },
-              );
-            }
-            // Break from this confirm loop. We should go back to resubmit.
-            break;
-          } else {
-            throw error;
-          }
-        }
-      }
-    }
-    return batch.map((tx) => tx.receipt!);
+      return batch.map((tx) => tx.receipt!);
+    });
   }
 
   /**
@@ -271,7 +272,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
     }
 
-    // Check to make sure we haven't been killed by monitor loop.
+    // Check to make sure this tx hasn't been killed.
     if (transaction.discontinued) {
       throw new TransactionServiceFailure("Tried to resubmit discontinued transaction.", { method });
     }
