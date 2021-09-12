@@ -22,12 +22,19 @@ import {
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { SubgraphNotSynced } from "../errors/auction";
+import { receivedAuction } from "../../bindings/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,
   _requestContext: RequestContext<string>,
 ): Promise<{ bid: AuctionBid; bidSignature?: string }> => {
   const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
+  receivedAuction.inc({
+    sendingAssetId: data.sendingAssetId,
+    receivingAssetId: data.receivingAssetId,
+    sendingChainId: data.receivingChainId,
+    receivingChainId: data.receivingChainId,
+  });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
   logger.info("Method context", requestContext, methodContext, { data });

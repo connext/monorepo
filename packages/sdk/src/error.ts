@@ -7,6 +7,7 @@ import {
   NxtpError,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
+
 import { SubgraphSyncRecord } from "./types";
 
 /**
