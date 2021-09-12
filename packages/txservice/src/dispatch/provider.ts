@@ -20,11 +20,6 @@ import { TransactionInterface } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
-const HARDCODED_GAS_PRICE: Record<number, string> = {
-  69: "15000000", // optimism
-  250: "750000000000", // FTM test: should remove
-};
-
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
 
@@ -237,7 +232,7 @@ export class ChainRpcProvider {
    */
   public getGasPrice(context: RequestContext): ResultAsync<BigNumber, TransactionError> {
     const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
-    const hardcoded = HARDCODED_GAS_PRICE[this.chainId];
+    const hardcoded = this.chainConfig.defaultInitialGas;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
         chainId: this.chainId,

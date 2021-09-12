@@ -26,8 +26,6 @@ export class TransactionDispatch extends ChainRpcProvider {
 
   // TODO: Make poll parity (in ms) configurable
   private static MONITOR_POLL_PARITY = 5_000;
-  // How many attempts until we consider a blocking tx as taking too long.
-  private static TOO_MANY_ATTEMPTS = 5;
 
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
@@ -203,7 +201,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (tx.expired) {
         await tx.kill();
         await this.backfill(indexedNonce, tx, "EXPIRED", context);
-      } else if (tx.attempt > TransactionDispatch.TOO_MANY_ATTEMPTS) {
+      } else if (tx.attempt > Transaction.MAX_ATTEMPTS) {
         // This will mark a transaction for death, but it does get 1 hail mary; the transaction
         // can still attempt to confirm whatever's currently been submitted.
         // TODO: Alternatively, we could give this tx a hail mary by allowing it to submit at max gas BEFORE
