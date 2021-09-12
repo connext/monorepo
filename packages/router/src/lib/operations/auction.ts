@@ -22,7 +22,7 @@ import {
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { SubgraphNotSynced } from "../errors/auction";
-import { attemptedAuction, receivedAuction } from "../../bindings/metrics";
+import { receivedAuction } from "../../bindings/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,

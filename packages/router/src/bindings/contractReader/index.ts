@@ -6,8 +6,7 @@ import {
   RequestContextWithTransactionId,
   safeJsonStringify,
 } from "@connext/nxtp-utils";
-
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
 import {
@@ -24,9 +23,7 @@ import {
   completedTransfer,
   feesCollected,
   gasConsumed,
-  receiverCancelled,
   receiverExpired,
-  receiverFailedCancel,
   receiverFailedExpired,
   receiverFailedPrepare,
   receiverPrepared,

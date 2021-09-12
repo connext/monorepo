@@ -1,9 +1,6 @@
 // TODO: need to keep last block height? contractReader has done it already.
 // TODO: export transactions with timestamps to Prometheus
-import { BigNumber, constants, Contract, providers, Signer } from "ethers";
-import { Counter, Gauge } from "prom-client";
-import { collectDefaultMetrics } from "prom-client";
-import { getContext } from "../../router";
+import { Counter, Gauge, collectDefaultMetrics } from "prom-client";
 
 collectDefaultMetrics({ prefix: "router_" });
 
