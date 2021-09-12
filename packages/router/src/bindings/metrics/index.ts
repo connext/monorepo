@@ -187,14 +187,14 @@ export const receiverFailedCancel = new Counter({
 });
 
 export const senderFailedExpired = new Counter({
-  name: "sender_expired",
-  help: "sender_expired_help",
+  name: "sender_failed_expired",
+  help: "sender_failed_expired_help",
   labelNames: ["assetId", "chainId"] as const,
 });
 
 export const receiverFailedExpired = new Counter({
-  name: "receiver_expired",
-  help: "receiver_expired_help",
+  name: "receiver_failed_expired",
+  help: "receiver_failed_expired_help",
   labelNames: ["assetId", "chainId"] as const,
 });
 
