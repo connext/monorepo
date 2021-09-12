@@ -16,7 +16,7 @@ import {
 } from "../error";
 import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
 
-import { TransactionInterface } from "./transaction";
+import { Transaction } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -37,7 +37,7 @@ export class ChainRpcProvider {
   private cachedGas?: CachedGas;
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
-  protected aborted: Error | undefined = undefined;
+  protected paused: Error | undefined = undefined;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -60,8 +60,8 @@ export class ChainRpcProvider {
     protected readonly logger: Logger,
     signer: string | Signer,
     public readonly chainId: number,
-    private readonly chainConfig: ChainConfig,
-    private readonly config: TransactionServiceConfig,
+    protected readonly chainConfig: ChainConfig,
+    protected readonly config: TransactionServiceConfig,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
@@ -119,7 +119,7 @@ export class ChainRpcProvider {
    *
    * @returns The ethers TransactionResponse.
    */
-  public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
+  protected sendTransaction(tx: Transaction): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
     const { params } = tx;
     const transaction = {
@@ -479,8 +479,8 @@ export class ChainRpcProvider {
    * @throws DispatchAborted error if we have aborted.
    */
   protected assertNotAborted(): void {
-    if (this.aborted) {
-      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
+    if (this.paused) {
+      throw new DispatchAborted({ backfillError: jsonifyError(this.paused) });
     }
   }
 }

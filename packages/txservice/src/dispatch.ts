@@ -1,16 +1,8 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import {
-  createLoggingContext,
-  delay,
-  jsonifyError,
-  Logger,
-  mkAddress,
-  NxtpError,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, delay, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 
-import { Gas, WriteTransaction, TransactionBuffer } from "../types";
+import { Gas, WriteTransaction } from "../types";
 import {
   AlreadyMined,
   TransactionReplaced,
@@ -28,10 +20,10 @@ import { Transaction } from "./transaction";
  *
  */
 export class TransactionDispatch extends ChainRpcProvider {
+  // This queue is used for serializing batches of transactions.
+  private readonly batchQueue = new PriorityQueue({ concurrency: 1 });
   // This queue is used for creation of Transactions - specifically, for assigning nonce.
-  private readonly queue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
-  // Buffer for monitoring transactions locally. Enables us to perform lookback and ensure all of them get through.
-  private readonly buffer: TransactionBuffer = new TransactionBuffer();
+  private readonly nonceAssignmentQueue = new PriorityQueue({ concurrency: 1 });
 
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
@@ -151,7 +143,7 @@ export class TransactionDispatch extends ChainRpcProvider {
               // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
 
               // For now, treat as a fail. This tx will have to be handled in next subgraph loop.
-              this.fail(transaction, error);
+              this.fail(transaction);
             }
           }
         }
@@ -208,23 +200,24 @@ export class TransactionDispatch extends ChainRpcProvider {
     // instances where the provider malfunctions.
     const gas = await this.getGas(minTx, context);
     // Queue up the transaction with these values.
-    const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
-      try {
-        // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
-        const nonce = await this.getNonce();
-        // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
-        const transaction = new Transaction(context, minTx, nonce, gas, {
-          confirmationTimeout: this.confirmationTimeout,
-          confirmationsRequired: this.confirmationsRequired,
-        });
-        this.buffer.insert(nonce, transaction);
-        // NOTE: We should only ever increment nonce here.
-        this._nonce++;
-        return { value: transaction, success: true };
-      } catch (e) {
-        return { value: e, success: false };
-      }
-    });
+    const result = await this.nonceAssignmentQueue.add(
+      async (): Promise<{ value: Transaction | Error; success: boolean }> => {
+        try {
+          // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
+          const nonce = await this.getNonce();
+          // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
+          const transaction = new Transaction(context, minTx, nonce, gas, {
+            confirmationTimeout: this.confirmationTimeout,
+            confirmationsRequired: this.confirmationsRequired,
+          });
+          // NOTE: We should only ever increment nonce here.
+          this._nonce++;
+          return { value: transaction, success: true };
+        } catch (e) {
+          return { value: e, success: false };
+        }
+      },
+    );
     if (result.success) {
       return result.value as Transaction;
     } else {
@@ -312,6 +305,8 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Add this response to our local response history.
     const response = result.value;
     transaction.responses.push(response);
+
+    // TODO: emit 'tx sent' event
   }
 
   /**
@@ -506,6 +501,8 @@ export class TransactionDispatch extends ChainRpcProvider {
       });
     }
     transaction.receipt = receipt;
+
+    // TODO: emit 'tx mined' event
   }
 
   /**
@@ -526,9 +523,8 @@ export class TransactionDispatch extends ChainRpcProvider {
     const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
     const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
-    // TODO: Replace with actual config.
     transaction.gas.price = determinedBaseline
-      .add(determinedBaseline.mul(DEFAULT_CONFIG.gasReplacementBumpPercent).div(100))
+      .add(determinedBaseline.mul(this.config.gasReplacementBumpPercent).div(100))
       .add(1);
     this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
       chainId: this.chainId,
@@ -544,7 +540,8 @@ export class TransactionDispatch extends ChainRpcProvider {
   }
 
   private async fail(transaction: Transaction) {
-    // TODO: Get error from transaction.error
+    // TODO: Get error from transaction.error, log it, emit it.
+    transaction.discontinued = true;
   }
 
   /// HELPERS
@@ -561,12 +558,10 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
     const { requestContext, methodContext } = createLoggingContext(this.backfill.name, context);
 
-    let addedToBuffer = false;
     try {
       this.logger.warn(`Transaction requires backfill: ${reason}`, requestContext, methodContext, {
         chainId: this.chainId,
         nonce,
-        id: blockade?.id,
         timestamp: blockade?.timestamp,
         blockade: blockade?.params,
         hashes: blockade?.responses.map((r) => r.hash),
@@ -586,7 +581,10 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Set gas to maximum.
       gas.setToMax();
       // Create transaction, and forcefully overwrite the stale one (blockade) in the buffer.
-      const transaction = new Transaction(this.logger, this, minTx, nonce, gas, true, requestContext);
+      const transaction = new Transaction(requestContext, minTx, nonce, gas, {
+        confirmationsRequired: this.confirmationsRequired,
+        confirmationTimeout: this.confirmationTimeout,
+      });
       const response = await this.sendTransaction(transaction);
       if (response.isErr()) {
         throw response.error;
@@ -599,14 +597,10 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (receipt.isErr()) {
         throw receipt.error;
       }
-      this.buffer.insert(nonce, transaction, true);
-      addedToBuffer = true;
       this.logger.info("Backfill completed successfully", requestContext, methodContext, {
+        chainId: this.chainId,
         nonce,
-        blockadeId: blockade?.id,
         backfillTx: {
-          chainId: this.chainId,
-          id: transaction.id,
           hash: response.value.hash,
           gasPrice: transaction.params.gasPrice.toString(),
           gasLimit: transaction.params.gasLimit.toString(),
@@ -619,40 +613,16 @@ export class TransactionDispatch extends ChainRpcProvider {
         // We can assume that the transaction was sent using the signer outside of dispatch,
         // and as a result, we didn't have it stored in the buffer.
         this.logger.warn("Backfill failed: Transaction already mined", requestContext, methodContext, {
+          chainId: this.chainId,
           nonce,
-          backfilledTxId: blockade?.id,
           error,
         });
-        if (!addedToBuffer) {
-          // Fill the gap with a fake transaction. This tx will be labeled with .isBackfill = true,
-          // and get removed as soon as the buffer trims up to its nonce.
-          this.buffer.insert(
-            nonce,
-            new Transaction(
-              this.logger,
-              this,
-              {
-                chainId: this.chainId,
-                value: BigNumber.from(0),
-                data: "0x",
-                to: mkAddress(),
-              },
-              nonce,
-              new Gas(BigNumber.from(1), BigNumber.from(24001)),
-              true,
-              requestContext,
-            ),
-            // overwrite
-            true,
-          );
-        }
         return;
       } else if (error.type === TransactionReplaced.type) {
         // The backfill was replaced by the original transaction, so we can just ignore it.
         this.logger.info("Backfill failed: Transaction replaced", requestContext, methodContext, {
           chainId: this.chainId,
           nonce,
-          originalTxId: blockade?.id,
           error,
           replacement: error.replacement?.hash,
           receipt: error.receipt?.hash,
@@ -662,11 +632,10 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Backfill failed, we should shut the system down.
       this.logger.error(`Backfill failed: ${error.type}`, requestContext, methodContext, jsonifyError(error), {
         nonce,
-        backfilledTxId: blockade?.id,
       });
-      // Raise the abort flag.
+      // Raise the pause flag.
       // TODO / DEBUG: Temporarily disabled for debugging.
-      // this.aborted = error;
+      // this.paused = error;
     }
   }
 }
