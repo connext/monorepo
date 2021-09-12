@@ -50,6 +50,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
+  defaultInitialGas: Type.Optional(TIntegerString),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
   minGas: Type.String(),

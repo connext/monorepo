@@ -38,7 +38,8 @@ export const bindContractReader = async () => {
         });
       }
     } catch (err) {
-      logger.error("Error getting active txs", requestContext, methodContext, jsonifyError(err));
+      logger.error("Error getting active txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
+      return;
     }
     await handleActiveTransactions(transactions);
   }, getLoopInterval());

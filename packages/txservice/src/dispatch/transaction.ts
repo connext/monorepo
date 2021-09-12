@@ -13,8 +13,6 @@ import {
 
 import { ChainRpcProvider } from "./provider";
 
-const MAX_ATTEMPTS = 10;
-
 export interface TransactionInterface {
   id: string;
   chainId: number;
@@ -38,6 +36,10 @@ export interface TransactionInterface {
  * @classdesc Handles the sending of a single transaction and making it easier to monitor the execution/rebroadcast
  */
 export class Transaction implements TransactionInterface {
+  // TODO: Temp solution - will be replaced by batching solution.
+  // How many attempts until we consider a blocking tx as taking too long.
+  public static MAX_ATTEMPTS = 99999;
+
   // We use a unique ID to internally track a transaction through logs.
   public id: string = getUuid();
   public readonly chainId: number;
@@ -376,7 +378,7 @@ export class Transaction implements TransactionInterface {
    */
   public async bumpGasPrice() {
     const { requestContext, methodContext } = createLoggingContext(this.bumpGasPrice.name, this.context);
-    if (this.attempt >= MAX_ATTEMPTS) {
+    if (this.attempt >= Transaction.MAX_ATTEMPTS) {
       // TODO: Log more info?
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
         gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
