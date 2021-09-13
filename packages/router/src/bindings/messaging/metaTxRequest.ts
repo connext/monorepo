@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   MetaTxFulfillPayload,
   MetaTxPayload,
+  MetaTxType,
   MetaTxTypes,
   NxtpErrorJson,
   RequestContext,
@@ -11,6 +12,8 @@ import { getAddress } from "ethers/lib/utils";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 import { feesCollected } from "../metrics";
+
+export const handlingTracker: Map<string, MetaTxType> = new Map();
 
 export const metaTxRequestBinding = async (
   from: string,
@@ -66,41 +69,54 @@ export const metaTxRequestBinding = async (
     return;
   }
 
-  logger.info("Handling fulfill request", requestContext, methodContext);
-  const tx = await fulfill(
-    {
-      receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-      user: txData.user,
-      router: txData.router,
-      sendingChainId: txData.sendingChainId,
-      sendingAssetId: txData.sendingAssetId,
-      sendingChainFallback: txData.sendingChainFallback,
-      receivingChainId: txData.receivingChainId,
-      receivingAssetId: txData.receivingAssetId,
-      receivingAddress: txData.receivingAddress,
-      callDataHash: txData.callDataHash,
-      callTo: txData.callTo,
-      transactionId: txData.transactionId,
-    },
-    {
-      amount: txData.amount,
-      expiry: txData.expiry,
-      preparedBlockNumber: txData.preparedBlockNumber,
-      signature,
-      relayerFee,
-      callData,
-      side: "receiver",
-    },
-    { ...requestContext, transactionId: txData.transactionId },
-  );
-  if (tx) {
-    await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
-    // Increment collected fees on relayer fee
-    feesCollected.inc({
-      assetId: txData.receivingAssetId,
-      chainId: txData.receivingChainId,
-      amount: relayerFee,
+  const record = handlingTracker.get(txData.transactionId);
+  if (record && record === data.type) {
+    logger.info("Handling metatx request for tx", requestContext, methodContext, {
+      type: data.type,
     });
+    return;
   }
-  logger.info("Handled fulfill request", requestContext, methodContext);
+  handlingTracker.set(txData.transactionId, data.type);
+
+  logger.info("Handling fulfill request", requestContext, methodContext);
+  try {
+    const tx = await fulfill(
+      {
+        receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
+        user: txData.user,
+        router: txData.router,
+        sendingChainId: txData.sendingChainId,
+        sendingAssetId: txData.sendingAssetId,
+        sendingChainFallback: txData.sendingChainFallback,
+        receivingChainId: txData.receivingChainId,
+        receivingAssetId: txData.receivingAssetId,
+        receivingAddress: txData.receivingAddress,
+        callDataHash: txData.callDataHash,
+        callTo: txData.callTo,
+        transactionId: txData.transactionId,
+      },
+      {
+        amount: txData.amount,
+        expiry: txData.expiry,
+        preparedBlockNumber: txData.preparedBlockNumber,
+        signature,
+        relayerFee,
+        callData,
+        side: "receiver",
+      },
+      { ...requestContext, transactionId: txData.transactionId },
+    );
+    if (tx) {
+      await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
+      // Increment collected fees on relayer fee
+      feesCollected.inc({
+        assetId: txData.receivingAssetId,
+        chainId: txData.receivingChainId,
+        amount: relayerFee,
+      });
+    }
+    logger.info("Handled fulfill request", requestContext, methodContext);
+  } finally {
+    handlingTracker.delete(txData.transactionId);
+  }
 };
