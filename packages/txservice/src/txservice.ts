@@ -135,9 +135,10 @@ export class TransactionService {
 
     // TODO: Temporary solution for serializing submits. Real solution will be present in batch send restructure.
     let iteration = 0;
+    let transaction: TransactionInterface | undefined;
     try {
       // This will create and submit a transaction.
-      const transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
+      transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
       while (!transaction.didFinish) {
         iteration++;
         // Submit: send to chain. We only do this if we've looped back around to resubmit.
@@ -210,7 +211,9 @@ export class TransactionService {
         }
       }
     } catch (error) {
-      this.handleFail(error, transaction, requestContext);
+      if (transaction) {
+        this.handleFail(error, transaction, requestContext);
+      }
       throw error;
     }
 
