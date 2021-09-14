@@ -20,20 +20,9 @@ import { TransactionInterface } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
-<<<<<<< Updated upstream
-
 // TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
 // implement a lookback, etc.
-=======
-<<<<<<< Updated upstream
 const GAS_LIMIT_MIN = BigNumber.from(150_000);
-=======
-// TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
-// implement a lookback, etc.
->>>>>>> Stashed changes
-
-const GAS_LIMIT_MIN = BigNumber.from(150_000);
->>>>>>> Stashed changes
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
@@ -223,7 +212,8 @@ export class ChainRpcProvider {
         }
 
         try {
-          return BigNumber.from(result);
+          const gasLimit = BigNumber.from(result);
+          return gasLimit.gt(GAS_LIMIT_MIN) ? gasLimit : GAS_LIMIT_MIN;
         } catch (error) {
           throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
             invalidEstimate: result,

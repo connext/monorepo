@@ -30,6 +30,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   // Get transfer config
   const sendingChainId = parseInt(Object.keys(config.chainConfig)[0]);
   const receivingChainId = parseInt(Object.keys(config.chainConfig)[1]);
+  log.info({ sendingChainId, receivingChainId }, "Chose chains");
   const swap = config.swapPools.find((swap) => {
     // Must have sending and receiving chain
     const chains = swap.assets.map((a) => a.chainId);
@@ -80,4 +81,4 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   process.exit(0);
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "10"), parseInt(process.env.DURATION ?? "15"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "5"), parseInt(process.env.DURATION ?? "20"));

@@ -9,7 +9,7 @@ import { writeStatsToFile } from "../utils/reporting";
 // Time to wait before giving up on tx completion
 const TIMEOUT = 15 * 60 * 1000; // 15m in ms
 // Amount to send in each tx (in wei)
-const AMOUNT_PER_TRANSFER = "100000";
+const AMOUNT_PER_TRANSFER = "10";
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 

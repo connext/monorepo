@@ -1,9 +1,17 @@
 import { BigNumber, Signer } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, jsonifyError, Logger, mkAddress, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  createMethodContext,
+  delay,
+  jsonifyError,
+  Logger,
+  mkAddress,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
-import { AlreadyMined, TransactionReplaced, TransactionReverted } from "../error";
+import { BadNonce, TransactionReplaced, TransactionReverted } from "../error";
 import { ChainConfig, TransactionServiceConfig } from "../config";
 
 import { ChainRpcProvider } from "./provider";
@@ -91,10 +99,43 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Queue up the transaction with these values.
     const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
-        // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
-        const nonce = await this.getNonce();
-        // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
-        const transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
+        // NOTE: This call must be here, serialized within the queue, as it is dependent on local transaction count.
+        let nonce = await this.getNonce(context);
+        let transaction: Transaction | undefined;
+        while (!transaction || (!!transaction && !transaction.didSubmit)) {
+          // Create a new transaction instance to track lifecycle. We will be submitting in below.
+          transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
+          try {
+            // Some chains (such as arbitrum) require serialized submit.
+            // NOTE: This may reduce load by doing so, but it's unfavorable to spam the mempool by sending initial txs out of sync anyway.
+            await transaction.submit();
+          } catch (error) {
+            if (error.type === BadNonce.type) {
+              if (
+                error.reason === BadNonce.reasons.NonceExpired ||
+                error.reason === BadNonce.reasons.ReplacementUnderpriced
+              ) {
+                // A transaction that's only been attempted once has an expired / already-used nonce.
+                this.incrementNonce();
+                nonce = await this.getNonce(context);
+                continue;
+              } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
+                // All we know in this block is that the nonce is "incorrect"; we don't know if it's too high or too low.
+                // To be safe, rewind nonce back to current mined transaction count. This entire loop will have to
+                // delay sending this transaction until we can guarantee all gaps have been filled.
+                const result = await this.getTransactionCount();
+                if (result.isErr()) {
+                  // If this occurs, likely rpc failure.
+                  throw result.error;
+                }
+                nonce = result.value;
+                continue;
+              }
+            }
+            throw error;
+          }
+        }
+        // Increment nonce here before submitting (in case submit fails).
         this.buffer.insert(nonce, transaction);
         this.incrementNonce();
         return { value: transaction, success: true };
@@ -121,14 +162,18 @@ export class TransactionDispatch extends ChainRpcProvider {
    *
    * @returns A number value for the current nonce.
    */
-  private async getNonce(): Promise<number> {
+  private async getNonce(context: RequestContext): Promise<number> {
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
-    const pending = result.value;
+    const minedTransactionCount = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
-    this._nonce = Math.max(this._nonce, pending);
+    this.logger.debug("Assigning nonce to transaction", context, createMethodContext(this.getNonce.name), {
+      minedTransactionCount,
+      localNonce: this._nonce,
+    });
+    this._nonce = Math.max(this._nonce, minedTransactionCount);
     return this._nonce;
   }
 
@@ -279,7 +324,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         },
       });
     } catch (error) {
-      if (error.type === AlreadyMined.type) {
+      if (error.type === BadNonce.type) {
         // We can assume that the transaction was sent using the signer outside of dispatch,
         // and as a result, we didn't have it stored in the buffer.
         this.logger.warn("Backfill failed: Transaction already mined", requestContext, methodContext, {

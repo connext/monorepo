@@ -1,6 +1,6 @@
-@routerUrl = http://localhost:8080
+@routerUrl = http://localhost:8000
 
-@chainId = 4
+@chainId = 100
 @assetId = 0x0000000000000000000000000000000000000000
 
 # 1 ETH
@@ -14,9 +14,11 @@ POST {{routerUrl}}/remove-liquidity
 Content-Type: application/json
 
 {
-  "chainId": 5,
+  "adminToken": "unspanktheunbanked",
+  "chainId": "{{chainId}}",
   "assetId": "{{assetId}}",
-  "amount": "{{amount}}" 
+  "amount": "{{amount}}",
+  "recipientAddress": "0x5A9e792143bf2708b4765C144451dCa54f559a19"
 }
 
 ### PROCESS ACTIVE TXS
