@@ -6,6 +6,7 @@
 - [router] Fix subgraph status determinations
 - [router] Fix bug where receipt could be undefined
 - [router] Add tracker for in-progress metatxs
+- [router] Hardcode gas limit
 
 ## 0.0.37
 
