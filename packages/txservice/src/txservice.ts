@@ -6,7 +6,6 @@ import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CON
 import { ReadTransaction, WriteTransaction } from "./types";
 import { BadNonce, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionDispatch, TransactionInterface } from "./dispatch";
-import { should } from "chai";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
