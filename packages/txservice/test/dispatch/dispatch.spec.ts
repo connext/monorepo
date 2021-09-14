@@ -96,9 +96,6 @@ describe("Dispatch", () => {
       const getNonceStub = stub().resolves(TEST_TX_RESPONSE.nonce);
       (txDispatch as any).getNonce = getNonceStub;
 
-      const incrementNonceStub = stub().resolves();
-      (txDispatch as any).incrementNonce = incrementNonceStub;
-
       const txStub = createStubInstance(TransactionFns.Transaction);
       const createTxStub = stub(TransactionFns, "Transaction").returns(txStub);
       stub(txStub, "didSubmit").get(() => didSubmit);
@@ -119,7 +116,6 @@ describe("Dispatch", () => {
         gasStub,
       );
       expect(txBuffer.insert).to.have.been.calledOnceWith(TEST_TX_RESPONSE.nonce, txStub);
-      expect(incrementNonceStub).calledOnceWithExactly();
       expect(tx).to.deep.eq(txStub);
     });
   });
