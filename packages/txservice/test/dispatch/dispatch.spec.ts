@@ -30,10 +30,13 @@ describe("Dispatch", () => {
   let backfillStub = stub().resolves(undefined);
   let bufferPending: SinonStub;
   let getAddressStub: SinonStub<any[], any>;
+  let didSubmit = false;
 
   const { requestContext } = createLoggingContext("test");
 
   beforeEach(async () => {
+    didSubmit = false;
+
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
@@ -98,6 +101,11 @@ describe("Dispatch", () => {
 
       const txStub = createStubInstance(TransactionFns.Transaction);
       const createTxStub = stub(TransactionFns, "Transaction").returns(txStub);
+      stub(txStub, "didSubmit").get(() => didSubmit);
+      txStub.submit.callsFake(async () => {
+        didSubmit = true;
+        return TEST_TX_RESPONSE;
+      });
 
       const tx = await txDispatch.createTransaction(TEST_TX, requestContext);
 
