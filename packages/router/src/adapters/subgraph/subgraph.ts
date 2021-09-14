@@ -119,7 +119,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         routerId: routerAddress.toLowerCase(),
         receivingChainId: chainId,
         status: SdkTransactionStatus.Prepared,
-        expiry_lt: Date.now() / 1000,
+        expiry_lt: Math.floor(Date.now() / 1000),
       });
 
       // get all sender prepared txs
