@@ -126,9 +126,9 @@ export class TransactionDispatch extends ChainRpcProvider {
                 nonce = await this.getNonce(context);
                 continue;
               } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
-                // Rewind nonce back to current mined transaction count.
-                // This entire loop will have to delay sending this transaction until we guarantee all gaps
-                // have been filled.
+                // All we know in this block is that the nonce is "incorrect"; we don't know if it's too high or too low.
+                // To be safe, rewind nonce back to current mined transaction count. This entire loop will have to
+                // delay sending this transaction until we can guarantee all gaps have been filled.
                 const result = await this.getTransactionCount();
                 if (result.isErr()) {
                   // If this occurs, likely rpc failure.
