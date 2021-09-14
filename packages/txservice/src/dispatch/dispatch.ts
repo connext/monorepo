@@ -115,13 +115,7 @@ export class TransactionDispatch extends ChainRpcProvider {
                 error.reason === BadNonce.reasons.NonceExpired ||
                 error.reason === BadNonce.reasons.ReplacementUnderpriced
               ) {
-                // A transaction that's only been attempted once has an expired nonce. This means that we
-                // assigned an already-used nonce.
-                // In this event, we need to go back to the beginning and actually "recreate" the transaction
-                // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
-                // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
-                // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
-                // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
+                // A transaction that's only been attempted once has an expired / already-used nonce.
                 this.incrementNonce();
                 nonce = await this.getNonce(context);
                 continue;
