@@ -122,6 +122,11 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         expiry_lt: Math.floor(Date.now() / 1000),
       });
 
+      logger.debug("Got receiver expired", requestContext, methodContext, {
+        chainId,
+        allReceiverExpired: jsonifyError(allReceiverExpired as any),
+      });
+
       // get all sender prepared txs
       const allSenderPrepared = await sdk.GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),
