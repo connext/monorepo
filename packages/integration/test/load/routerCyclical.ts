@@ -43,8 +43,13 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const { assetId: receivingAssetId } = swap.assets.find((a) => a.chainId === receivingChainId)!;
 
   // Fund agents with tokens on sending + receiving chain
+<<<<<<< Updated upstream
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
   await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
+=======
+//  await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
+//  await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
+>>>>>>> Stashed changes
 
   // Begin transfers
   log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
@@ -55,7 +60,15 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     sendingChainId,
     receivingAssetId,
     receivingChainId,
+<<<<<<< Updated upstream
     amount: utils.parseEther("0.0000000001").toString(),
+=======
+<<<<<<< Updated upstream
+    amount: utils.parseEther("0.0000001").toString(),
+=======
+    amount: "10",
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
   });
 
   await new Promise((resolve) => {

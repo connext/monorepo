@@ -23,13 +23,25 @@ export class OnchainAccountManager {
     mnemonic: string,
     public readonly num_users: number,
     private readonly log: Logger,
+<<<<<<< Updated upstream
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 11,
     public readonly  MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.1"),
+=======
+<<<<<<< Updated upstream
+=======
+    public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
+    public readonly  MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
+    private readonly USER_MIN_ETH = utils.parseEther("0.02"),
+>>>>>>> Stashed changes
     private readonly USER_MIN_TOKEN = utils.parseEther("0.2"),
     wallets?: Wallet[],
 
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     if(wallets)
