@@ -1,6 +1,14 @@
 import { BigNumber, Signer } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, jsonifyError, Logger, mkAddress, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  createMethodContext,
+  delay,
+  jsonifyError,
+  Logger,
+  mkAddress,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "../types";
 import { AlreadyMined, TransactionReplaced, TransactionReverted } from "../error";
@@ -92,7 +100,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
         // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
-        const nonce = await this.getNonce();
+        const nonce = await this.getNonce(context);
         // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
         const transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
         this.buffer.insert(nonce, transaction);
@@ -121,13 +129,17 @@ export class TransactionDispatch extends ChainRpcProvider {
    *
    * @returns A number value for the current nonce.
    */
-  private async getNonce(): Promise<number> {
+  private async getNonce(context: RequestContext): Promise<number> {
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
     const pending = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
+    this.logger.debug("Assigning nonce to transaction", context, createMethodContext(this.getNonce.name), {
+      pendingNonce: pending,
+      localNonce: this._nonce,
+    });
     this._nonce = Math.max(this._nonce, pending);
     return this._nonce;
   }
