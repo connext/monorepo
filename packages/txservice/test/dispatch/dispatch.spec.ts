@@ -1,9 +1,8 @@
-import { mkAddress } from "@connext/nxtp-utils";
+import { Logger, mkAddress } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { createLoggingContext } from "@connext/nxtp-utils/src/request";
 import { Wallet } from "ethers";
 import { okAsync } from "neverthrow";
-import pino from "pino";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { ChainConfig, DEFAULT_CONFIG } from "../../src/config";
@@ -13,7 +12,10 @@ import * as TransactionFns from "../../src/dispatch/transaction";
 import { Gas } from "../../src/types";
 import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "../constants";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent", name: "DispatchTest" });
+const logger = new Logger({
+  level: process.env.LOG_LEVEL ?? "silent",
+  name: "DispatchTest",
+});
 
 // Set to 10ms to keep tests speedy.
 const MONITOR_POLL_PARITY = 10;
@@ -28,10 +30,13 @@ describe("Dispatch", () => {
   let backfillStub = stub().resolves(undefined);
   let bufferPending: SinonStub;
   let getAddressStub: SinonStub<any[], any>;
+  let didSubmit = false;
 
   const { requestContext } = createLoggingContext("test");
 
   beforeEach(async () => {
+    didSubmit = false;
+
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
@@ -46,6 +51,7 @@ describe("Dispatch", () => {
       ],
       confirmations: 1,
       confirmationTimeout: 10_000,
+      gasStations: [],
     };
 
     txBuffer = createStubInstance(TransactionBuffer);
@@ -95,6 +101,11 @@ describe("Dispatch", () => {
 
       const txStub = createStubInstance(TransactionFns.Transaction);
       const createTxStub = stub(TransactionFns, "Transaction").returns(txStub);
+      stub(txStub, "didSubmit").get(() => didSubmit);
+      txStub.submit.callsFake(async () => {
+        didSubmit = true;
+        return TEST_TX_RESPONSE;
+      });
 
       const tx = await txDispatch.createTransaction(TEST_TX, requestContext);
 

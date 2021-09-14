@@ -6,6 +6,7 @@ import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CON
 import { ReadTransaction, WriteTransaction } from "./types";
 import { BadNonce, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionDispatch, TransactionInterface } from "./dispatch";
+import { should } from "chai";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -132,29 +133,36 @@ export class TransactionService {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
 
-    const transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
+    // TODO: Temporary solution for serializing submits. Real solution will be present in batch send restructure.
+    let iteration = 0;
+    let transaction: TransactionInterface | undefined;
     try {
+      // This will create and submit a transaction.
+      transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
       while (!transaction.didFinish) {
-        // Submit: send to chain.
-        try {
-          await this.submitTransaction(transaction, requestContext);
-        } catch (error) {
-          this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
-            id: transaction.id,
-            attempt: transaction.attempt,
-            error: jsonifyError(error),
-          });
-          if (error.type === BadNonce.type) {
-            if (transaction.attempt === 1) {
-              throw error;
+        iteration++;
+        // Submit: send to chain. We only do this if we've looped back around to resubmit.
+        if (iteration > 1) {
+          try {
+            await this.submitTransaction(transaction, requestContext);
+          } catch (error) {
+            this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
+              id: transaction.id,
+              attempt: transaction.attempt,
+              error: jsonifyError(error),
+            });
+            if (error.type === BadNonce.type) {
+              if (transaction.attempt === 1) {
+                throw error;
+              } else {
+                // Ignore this error, proceed to validation step.
+                this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
+                  id: transaction.id,
+                });
+              }
             } else {
-              // Ignore this error, proceed to validation step.
-              this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
-                id: transaction.id,
-              });
+              throw error;
             }
-          } else {
-            throw error;
           }
         }
 
@@ -203,7 +211,9 @@ export class TransactionService {
         }
       }
     } catch (error) {
-      this.handleFail(error, transaction, requestContext);
+      if (transaction) {
+        this.handleFail(error, transaction, requestContext);
+      }
       throw error;
     }
 
