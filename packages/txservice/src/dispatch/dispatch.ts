@@ -102,7 +102,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         // NOTE: This call must be here, serialized within the queue, as it is dependent on local transaction count.
         let nonce = await this.getNonce(context);
         let transaction: Transaction | undefined;
-        while (!transaction || !transaction.didSubmit) {
+        while (!transaction || (!!transaction && !transaction.didSubmit)) {
           // Create a new transaction instance to track lifecycle. We will be submitting in below.
           transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
           try {
