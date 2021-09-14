@@ -5,19 +5,16 @@
 import { readFileSync } from "fs";
 
 import { ethers, Contract, Wallet, BigNumber, providers } from "ethers";
-import {Interface } from "ethers/lib/utils";
+import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-
-import pino from "pino";
-import {Logger} from '@connext/nxtp-utils';
+import { Logger } from "@connext/nxtp-utils";
 
 import { OnchainAccountManager } from "../utils/accountManager";
 import { getConfig, ChainConfig } from "../utils/config";
 import { TestTokenABI } from "../utils/chain";
 
 import { ContainerManager } from "./containerManager";
-
 
 //instantiates the routers via docker run/ ENV variables
 export class RouterManager {
@@ -44,18 +41,22 @@ export class RouterManager {
     return nxtpContractAddress;
   };
 
-  getChainProvider = (chainId: number): providers.Provider =>{
+  getChainProvider = (chainId: number): providers.Provider => {
     const providerUrl = this.config.chainConfig[chainId]?.providerUrls[0];
     if (!providerUrl) {
       throw new Error(`No provider exists for chain ${chainId}`);
     }
     return new ethers.providers.StaticJsonRpcProvider(providerUrl);
-
-  }
+  };
 
   getTxManagerInterface = () => new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
-  constructor(funder_mnemonic: string, num_routers = 3, public readonly chainProviders: ChainConfig, dockerSock?: string) {
+  constructor(
+    funder_mnemonic: string,
+    num_routers = 3,
+    public readonly chainProviders: ChainConfig,
+    dockerSock?: string,
+  ) {
     this.config = getConfig();
 
     this.num_routers = num_routers;
@@ -70,28 +71,28 @@ export class RouterManager {
     this.routerMnemonics.forEach((rm) => {
       this.routerWallets.push(ethers.Wallet.fromMnemonic(rm));
     });
-    this.logger = new Logger({name:"router manager"});
+    this.logger = new Logger({ name: "router manager" });
     this.routerAccountMgmt = new OnchainAccountManager(
       chainProviders,
       this.funderMnemonic,
       num_routers,
       this.logger,
       1,
+      undefined,
       ethers.utils.parseEther("0.1"),
       ethers.utils.parseEther("100000"),
       this.routerWallets,
     );
   }
 
-  startAllRouters(){
+  startAllRouters() {
     let port = 8080;
     for (let i = 0; i < this.num_routers; i++) {
       this.containerManager.runRouterContainer(this.routerMnemonics[i], port, i);
       port++;
     }
-    
   }
-  
+
   async addRouter(newRouterAddress: string, chainId: number) {
     const p = this.getChainProvider(chainId);
     const w = ethers.Wallet.fromMnemonic(this.routerAdminMnemonic).connect(p);
@@ -130,7 +131,7 @@ export class RouterManager {
 
     const nxtpAddress = this.getContractAddress(chainId);
     const tcontract = new Contract(assetId, TestTokenABI, w);
-    
+
     let approvedAmount = await tcontract.allowance(w.address, nxtpAddress);
     const appbn = BigNumber.from(approvedAmount);
 
@@ -145,7 +146,7 @@ export class RouterManager {
     const p = this.getChainProvider(chainId);
     const w = ethers.Wallet.fromMnemonic(wallet._mnemonic().phrase).connect(p);
     const nxtpAddress = this.getContractAddress(chainId);
-  
+
     const txContract = new Contract(
       nxtpAddress,
       new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"],
@@ -164,7 +165,6 @@ export class RouterManager {
   async initRoutersOnChain() {
     // TODO: this will be slow af
     for (const chain of Object.keys(this.config?.chainConfig)) {
-
       const sendingChainId = parseInt(Object.keys(this.config.chainConfig)[0]);
       const receivingChainId = parseInt(Object.keys(this.config.chainConfig)[1]);
 
@@ -200,7 +200,7 @@ export class RouterManager {
         (await this.checkRouterApproved(raddress, parseInt(chain)))
           ? console.log("router already approved")
           : await this.addRouter(raddress, parseInt(chain));
-            console.log("adding router");
+        console.log("adding router");
       }
       console.log("adding liquidity");
       const swapph = swap.assets.find((a) => a.chainId === parseInt(chain)!);
@@ -223,11 +223,7 @@ async function main() {
   const config = getConfig();
   //insert funder mnemonic
   const funderMnemonic = JSON.parse(readFileSync("./ops/config/load/funder.json", "utf8"))[0];
-  const rm = new RouterManager(
-    funderMnemonic,
-    3,
-    config.chainConfig,
-  );
+  const rm = new RouterManager(funderMnemonic, 3, config.chainConfig);
 
   await rm.initRoutersOnChain();
   rm.startAllRouters();

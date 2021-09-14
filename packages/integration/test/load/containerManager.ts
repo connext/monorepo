@@ -2,8 +2,7 @@ import Docker from "dockerode";
 
 export class ContainerManager {
   public readonly dn: Docker;
-  public readonly containers: [];
-
+  public readonly containers: any[] = [];
 
   constructor(dockerSock?: string) {
     //setup docker agent
@@ -11,8 +10,7 @@ export class ContainerManager {
     this.dn = new Docker({ socketPath: "/var/run/docker.sock" });
   }
 
-  runRouterContainer(routerMnemonic: string, port:number, routerIndex: number) {
-    
+  runRouterContainer(routerMnemonic: string, port: number, routerIndex: number) {
     this.dn.createContainer(
       {
         Image: "nxtp-router",
@@ -42,13 +40,12 @@ export class ContainerManager {
       port++;
   }
 
-  async removeAllRouters(num_routers:number){
+  async removeAllRouters(num_routers: number) {
     for (let i = 0; i < num_routers; i++) {
       const routerContainer = this.dn.getContainer(`router-${i}`);
       await routerContainer?.remove({
         force: true,
       });
     }
-
   }
 }
