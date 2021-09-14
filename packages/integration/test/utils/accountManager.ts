@@ -5,9 +5,9 @@ import PriorityQueue from "p-queue";
 import { getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
-const MINIMUM_FUNDING_MULTIPLE = 2;
-const USER_MIN_ETH = utils.parseEther("0.2");
-const USER_MIN_TOKEN = utils.parseEther("1000000");
+// const MINIMUM_FUNDING_MULTIPLE = 2;
+// const USER_MIN_ETH = utils.parseEther("0.2");
+// const USER_MIN_TOKEN = utils.parseEther("1000000");
 
 export class OnchainAccountManager {
   public readonly wallets: Wallet[] = [];
@@ -24,6 +24,10 @@ export class OnchainAccountManager {
     mnemonic: string,
     public readonly num_users: number,
     private readonly log: Logger,
+    public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
+    public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
+    private readonly USER_MIN_ETH = utils.parseEther("0.001"),
+    private readonly USER_MIN_TOKEN = utils.parseEther("0.2"),
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
@@ -64,14 +68,16 @@ export class OnchainAccountManager {
     }
 
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? USER_MIN_TOKEN : USER_MIN_ETH;
+    const floor = isToken ? this.USER_MIN_TOKEN : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
       return initial;
     }
 
-    const toSend = floor.sub(initial).mul(MINIMUM_FUNDING_MULTIPLE);
+    const toSend = isToken
+      ? floor.mul(this.MINIMUM_TOKEN_FUNDING_MULTIPLE)
+      : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE);
 
     if (!isToken) {
       // Check balance before sending
