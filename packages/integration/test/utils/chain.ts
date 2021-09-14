@@ -1,4 +1,4 @@
-import { providers, BigNumber, Contract, constants, Wallet, utils} from "ethers";
+import { providers, BigNumber, Contract, constants, Wallet } from "ethers";
 
 export const TestTokenABI = [
   // Read-Only Functions
@@ -37,14 +37,6 @@ export const sendGift = async (
   const tx =
     assetId === constants.AddressZero
       ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value), nonce })
-<<<<<<< Updated upstream
-      : await new Contract(assetId, TestTokenABI, funder).transfer(recipient, BigNumber.from(value), { nonce, gasPrice:BigNumber.from("500000000000") });
-=======
-<<<<<<< Updated upstream
-      : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value), { nonce });
-=======
       : await new Contract(assetId, TestTokenABI, funder).transfer(recipient, BigNumber.from(value), { nonce });
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   return tx;
 };
