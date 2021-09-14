@@ -15,6 +15,7 @@ import { contractWriter, ContractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
+import { bindMetrics } from "./bindings/metrics";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -95,6 +96,7 @@ export const makeRouter = async () => {
       logger.warn("Running router in cleanup mode");
     }
     await bindFastify();
+    await bindMetrics();
     logger.info("Router ready 🚀");
   } catch (e) {
     console.error("Error starting router :(", e);
