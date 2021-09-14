@@ -125,9 +125,8 @@ export class TransactionDispatch extends ChainRpcProvider {
                 error.reason === BadNonce.reasons.NonceExpired ||
                 error.reason === BadNonce.reasons.ReplacementUnderpriced
               ) {
-                // A transaction that's only been attempted once has an expired / already-used nonce.
-                this.incrementNonce();
-                nonce = await this.getNonce(context);
+                // We have an expired / already-used nonce - increment to next number and retry.
+                nonce++;
                 continue;
               } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
                 // All we know in this block is that the nonce is "incorrect"; we don't know if it's too high or too low.
@@ -152,7 +151,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
         // Increment nonce here before submitting (in case submit fails).
         this.buffer.insert(nonce, transaction);
-        this.incrementNonce();
+        this._nonce = nonce + 1;
         return { value: transaction, success: true };
       } catch (e) {
         return { value: e, success: false };
@@ -190,13 +189,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     });
     this._nonce = Math.max(this._nonce, minedTransactionCount);
     return this._nonce;
-  }
-
-  /**
-   * Increments the nonce by one. Should ONLY ever be called within the serialized queue.
-   */
-  private incrementNonce() {
-    this._nonce++;
   }
 
   /**
