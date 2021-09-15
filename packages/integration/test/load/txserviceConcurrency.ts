@@ -12,7 +12,7 @@ import { TestTokenABI } from "../utils/chain";
 import { writeStatsToFile } from "../utils/reporting";
 
 // The amount for each transaction in wei.
-const AMOUNT_PER_TX = BigNumber.from("100000");
+const AMOUNT_PER_TX = BigNumber.from("1");
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 
@@ -36,7 +36,12 @@ type TransactionInfo = {
  * 2. Then run:
  *        yarn workspace @connext/nxtp-integration concurrency:txservice
  */
-const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localChain = false): Promise<void> => {
+const txserviceConcurrencyTest = async (
+  maxConcurrency: number,
+  step = 1,
+  localChain = false,
+  tokenAddress = "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
+): Promise<void> => {
   let concurrency: number;
   const config = getConfig(localChain);
   const logger: pino.Logger = pino({ level: config.logLevel ?? "info" });
@@ -67,11 +72,7 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
     chains,
   });
   logger.info("Creating Contract...");
-  const testToken = new Contract(
-    "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
-    TestTokenABI,
-    config.chainConfig[chainId].provider,
-  );
+  const testToken = new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider);
 
   /// MARK - VALIDATE FUNDS.
   // Make sure the funder has enough funding for this test.
@@ -200,4 +201,6 @@ const txserviceConcurrencyTest = async (maxConcurrency: number, step = 1, localC
 txserviceConcurrencyTest(
   parseInt(process.env.CONCURRENCY_MAX ?? "1000"),
   parseInt(process.env.CONCURRENCY_STEP ?? "100"),
+  undefined,
+  process.env.TOKEN_ADDRESS,
 );
