@@ -168,7 +168,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
 
-  const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;
+  const overridechainRecommendedConfirmations =
+    process.env.NXTP_OVERRIDE_CHAIN_RECOMMENDED_CONFIRMATIONS ||
+    configJson.overridechainRecommendedConfirmations ||
+    configFile.overridechainRecommendedConfirmations ||
+    false;
   if (!crossChainData && crossChainData!.size == 0 && !overridechainRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",

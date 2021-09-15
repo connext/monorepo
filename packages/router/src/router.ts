@@ -1,5 +1,12 @@
 import { logger, Wallet } from "ethers";
-import { createMethodContext, createRequestContext, Logger, RouterNxtpNatsMessagingService } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  createMethodContext,
+  createRequestContext,
+  getChainData,
+  Logger,
+  RouterNxtpNatsMessagingService,
+} from "@connext/nxtp-utils";
 import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
@@ -8,6 +15,7 @@ import { contractWriter, ContractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
+import { bindMetrics } from "./bindings/metrics";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -17,6 +25,7 @@ export type Context = {
   txService: TransactionService;
   contractReader: ContractReader;
   contractWriter: ContractWriter;
+  chainData: Map<string, ChainData>;
 };
 
 const context: Context = {} as any;
@@ -32,6 +41,11 @@ export const makeRouter = async () => {
   const methodContext = createMethodContext(makeRouter.name);
   try {
     // set up external, config based services
+    const chainData = await getChainData();
+    if (!chainData) {
+      throw new Error("Could not get chain data");
+    }
+    context.chainData = chainData;
     context.config = await getConfig();
     context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
     context.logger = new Logger({
@@ -82,6 +96,7 @@ export const makeRouter = async () => {
       logger.warn("Running router in cleanup mode");
     }
     await bindFastify();
+    await bindMetrics();
     logger.info("Router ready 🚀");
   } catch (e) {
     console.error("Error starting router :(", e);

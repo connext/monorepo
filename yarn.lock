@@ -1755,7 +1755,7 @@ __metadata:
     ethereum-waffle: ^3.4.0
     ethers: ^5.4.6
     hardhat: ^2.6.2
-    hardhat-deploy: ^0.9.0
+    hardhat-deploy: ^0.9.1
     hardhat-gas-reporter: ^1.0.4
     rimraf: ^3.0.2
     sinclair: ^0.2.0
@@ -1840,6 +1840,7 @@ __metadata:
     nyc: ^15.1.0
     pino: ^6.13.0
     pino-pretty: ^5.1.3
+    prom-client: 13.2.0
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^11.1.2
@@ -7292,6 +7293,13 @@ __metadata:
   dependencies:
     file-uri-to-path: 1.0.0
   checksum: bd623dec58f126eb0c30f04a20da7080f06cdd5af26bf5a91615e70055fbba66c4cec5c88b156e8181c1d822f2392034a40a9121ef3ebc25638dc2163332b12d
+  languageName: node
+  linkType: hard
+
+"bintrees@npm:1.0.1":
+  version: 1.0.1
+  resolution: "bintrees@npm:1.0.1"
+  checksum: e78592a05f6fb0635ef23a7763e8d7a0a1f060efeb0523308484cfc2e36f2bbe0517f397b6a1dfd4fc09e83c874990dafd5fef451b1c43b51763ec9d3aa1f272
   languageName: node
   linkType: hard
 
@@ -13523,9 +13531,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "hardhat-deploy@npm:0.9.0"
+"hardhat-deploy@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "hardhat-deploy@npm:0.9.1"
   dependencies:
     "@ethersproject/abi": ^5.4.0
     "@ethersproject/abstract-signer": ^5.4.1
@@ -13551,7 +13559,7 @@ fsevents@~2.1.1:
   peerDependencies:
     "@ethersproject/hardware-wallets": ^5.0.14
     hardhat: ^2.0.0
-  checksum: a7fb74c3e918f3c3a48c7cf907208e477c997d940fab3b2e263bf09bc55ad95ed1f987be2388f7f7d656cc4e5d19927fb2e1d2e2b3105dccf941dd668500b0d5
+  checksum: ae2bfc9c5eddc29e94389f20494ffaa2c56866bf74985b115db7b5f686851abf169fdf35adb4a0f2e5ebc0736817ea171bc0eec46a2c34c26b4c9149f0745d79
   languageName: node
   linkType: hard
 
@@ -21431,6 +21439,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"prom-client@npm:13.2.0":
+  version: 13.2.0
+  resolution: "prom-client@npm:13.2.0"
+  dependencies:
+    tdigest: ^0.1.1
+  checksum: ff49ae36338d770be74aa2a565107fdc278e4986b0acaabaab6f2ae3714462a15917a2d4994ac9449f78e99a04bf3864715dd3a4592ad71232b8fa2716ebe451
+  languageName: node
+  linkType: hard
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
@@ -25560,6 +25577,15 @@ resolve@^2.0.0-next.3:
     mkdirp: ^1.0.3
     yallist: ^4.0.0
   checksum: dfc35416b38945ad5d068fe6e9aa145cae93241f8ad680929a516a34b37a2f513ca25bbbea698451eb8983f27ce6f0ade0407f9329c0cc7c5a06f3e2e97ece29
+  languageName: node
+  linkType: hard
+
+"tdigest@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "tdigest@npm:0.1.1"
+  dependencies:
+    bintrees: 1.0.1
+  checksum: 467e2ecd00437339ba55dc41bb89a2ce84f6a0fd36fea49d872e72a12eba56490e00fa7f9f140333c0d3ff2bce83ab315d3b7edfb6ea794cc251458bd1ede520
   languageName: node
   linkType: hard
 

@@ -15,7 +15,7 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const CHAINS = [56, 100, 137, 250];
+const CHAINS = [56, 100, 137, 250, 42161];
 
 type BalanceEntry = {
   chain: string;
@@ -127,7 +127,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           return;
         }
         const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress!.toLowerCase() });
-        const balanceEntries = liquidity?.router?.assetBalances.map(
+        const balanceEntries = (liquidity?.router?.assetBalances ?? []).map(
           ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
             console.log("chainId: ", chainId);
             console.log("id: ", id);

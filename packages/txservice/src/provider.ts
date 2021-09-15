@@ -19,8 +19,7 @@ import { Transaction } from "./transaction";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
-// TODO: #145 Manage the security of our transactions in the event of a reorg. Possibly raise quorum value,
-// implement a lookback, etc.
+const GAS_LIMIT_MIN = BigNumber.from(150_000);
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
@@ -210,7 +209,8 @@ export class ChainRpcProvider {
         }
 
         try {
-          return BigNumber.from(result);
+          const gasLimit = BigNumber.from(result);
+          return gasLimit.gt(GAS_LIMIT_MIN) ? gasLimit : GAS_LIMIT_MIN;
         } catch (error) {
           throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
             invalidEstimate: result,
@@ -249,7 +249,7 @@ export class ChainRpcProvider {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
-      const gasStations = this.chainConfig.gasStations;
+      const gasStations = this.chainConfig.gasStations ?? [];
       for (let i = 0; i < gasStations.length; i++) {
         const uri = gasStations[i];
         let response: any;

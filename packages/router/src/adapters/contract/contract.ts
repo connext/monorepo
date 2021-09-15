@@ -8,6 +8,7 @@ import {
   getVariantTransactionDigest,
   InvariantTransactionData,
   TransactionData,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import { constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
@@ -34,8 +35,15 @@ export const prepareSanitationCheck = async (
   chainId: number,
   nxtpContractAddress: string,
   invariantTransactionData: InvariantTransactionData,
+  _requestContext?: RequestContext<string>,
 ) => {
   const { txService, logger } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(
+    cancelAndFullfillSanitationCheck.name,
+    _requestContext,
+    invariantTransactionData.transactionId,
+  );
 
   const invariantDigest = getInvariantTransactionDigest(invariantTransactionData);
   const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
@@ -50,8 +58,15 @@ export const prepareSanitationCheck = async (
 
   // variantTransactionDigest exist then transaction is already prepared
   if (variantTransactionDigest !== HashZero) {
-    logger.error(`FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`);
-    throw new Error("Transaction is already prepared");
+    const error = new Error("Transaction is already prepared");
+    logger.error(
+      `FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      requestContext,
+      methodContext,
+      jsonifyError(error),
+      { invariantData: invariantTransactionData, chainId },
+    );
+    throw error;
   }
 };
 
@@ -59,8 +74,15 @@ export const cancelAndFullfillSanitationCheck = async (
   chainId: number,
   nxtpContractAddress: string,
   transactionData: TransactionData,
+  _requestContext?: RequestContext<string>,
 ) => {
   const { txService, logger } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(
+    cancelAndFullfillSanitationCheck.name,
+    _requestContext,
+    transactionData.transactionId,
+  );
 
   const invariantDigest = getInvariantTransactionDigest({
     receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
@@ -91,21 +113,53 @@ export const cancelAndFullfillSanitationCheck = async (
     data: encodeVariantTransactionData,
   });
 
+  if (expectedVariantDigest === variantTransactionDigest) {
+    // All is good, no issues
+    return;
+  }
+
   // transaction should be prepared before fulfill
   if (variantTransactionDigest === HashZero) {
+    const error = new Error("Transaction isn't prepared yet");
     logger.error(
       "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction isn't prepared yet",
+      requestContext,
+      methodContext,
+      jsonifyError(error),
+      { transactionData, chainId },
     );
-    throw new Error("Transaction isn't prepared yet");
+    throw error;
   }
 
   // transaction is already fulfilled
-  if (expectedVariantDigest !== variantTransactionDigest) {
+  // get expected fulfilled/cancelled variant hash
+  const fulfilledVariant = getVariantTransactionDigest({
+    amount: transactionData.amount,
+    expiry: transactionData.expiry,
+    preparedBlockNumber: 0,
+  });
+
+  if (variantTransactionDigest === fulfilledVariant) {
+    const error = new Error("Transaction is already fulfilled or canceled");
     logger.error(
-      "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction is already fulfilled or canceled",
+      `FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: ${error.message}`,
+      requestContext,
+      methodContext,
+      jsonifyError(error),
+      { transactionData, chainId },
     );
-    throw new Error("Transaction is already fulfilled or canceled");
+    throw error;
   }
+
+  const error = new Error("Transaction has unexpected variant hash");
+  logger.error(
+    `FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: ${error.message}`,
+    requestContext,
+    methodContext,
+    jsonifyError(error),
+    { transactionData, chainId, expectedVariantDigest, fulfilledVariant },
+  );
+  throw error;
 };
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.

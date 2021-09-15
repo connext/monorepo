@@ -36,7 +36,6 @@ export class RpcError extends TransactionError {
     OutOfSync: "All providers for this chain fell out of sync with the chain.",
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
-    ServerError: "An RPC server error occurred.",
     ConnectionReset: "Connection was reset by peer.",
   };
 
@@ -147,21 +146,22 @@ export class UnpredictableGasLimit extends TransactionError {
   }
 }
 
-export class AlreadyMined extends TransactionError {
+export class BadNonce extends TransactionError {
   /**
    * An error indicating that we got a "nonce expired"-like message back from
    * ethers while conducting sendTransaction.
    */
-  static readonly type = AlreadyMined.name;
+  static readonly type = BadNonce.name;
 
   static readonly reasons = {
     NonceExpired: "Nonce for this transaction is already expired.",
     ReplacementUnderpriced:
       "Gas for replacement tx was insufficient (must be greater than previous transaction's gas).",
+    NonceIncorrect: "Transaction doesn't have the correct nonce",
   };
 
-  constructor(public readonly reason: Values<typeof AlreadyMined.reasons>, public readonly context: any = {}) {
-    super(reason, context, AlreadyMined.type);
+  constructor(public readonly reason: Values<typeof BadNonce.reasons>, public readonly context: any = {}) {
+    super(reason, context, BadNonce.type);
   }
 }
 
@@ -263,10 +263,12 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   } else if (
     message.match(
-      /tx doesn't have the correct nonce|another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
+      /another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
     )
   ) {
-    return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
+    return new BadNonce(BadNonce.reasons.NonceExpired, context);
+  } else if (message.match(/tx doesn't have the correct nonce|invalid transaction nonce/)) {
+    return new BadNonce(BadNonce.reasons.NonceIncorrect, context);
   } else if (message.match(/ECONNRESET|ECONNREFUSED|failed to meet quorum/)) {
     return new RpcError(RpcError.reasons.ConnectionReset, context);
   }
@@ -279,9 +281,9 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.CALL_EXCEPTION:
       return new TransactionReverted(TransactionReverted.reasons.CallException, error.receipt, context);
     case Logger.errors.NONCE_EXPIRED:
-      return new AlreadyMined(AlreadyMined.reasons.NonceExpired, context);
+      return new BadNonce(BadNonce.reasons.NonceExpired, context);
     case Logger.errors.REPLACEMENT_UNDERPRICED:
-      return new AlreadyMined(AlreadyMined.reasons.ReplacementUnderpriced, context);
+      return new BadNonce(BadNonce.reasons.ReplacementUnderpriced, context);
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
       return new UnpredictableGasLimit(context);
     case Logger.errors.TIMEOUT:

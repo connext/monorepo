@@ -1,5 +1,6 @@
 import { NxtpError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+
 import { SubgraphSyncRecord } from "../entities";
 
 export class NotEnoughLiquidity extends NxtpError {

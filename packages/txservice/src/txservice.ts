@@ -1,6 +1,6 @@
 import { Signer, providers, BigNumber } from "ethers";
 import { Evt } from "evt";
-import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
@@ -42,6 +42,9 @@ export class TransactionService {
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
+  private static instance?: TransactionService;
+
+  private readonly logger: Logger;
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
@@ -66,12 +69,21 @@ export class TransactionService {
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
    */
-  constructor(private readonly logger: Logger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
+  constructor(logger: Logger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
     const { requestContext, methodContext } = createLoggingContext("TransactionService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
+    if (TransactionService.instance) {
+      const msg = "CRITICAL: TransactionService.constructor was called twice! Please report this incident.";
+      const error = new NxtpError(msg);
+      logger.error(msg, requestContext, methodContext, error, {
+        instance: TransactionService.instance.toString(),
+      });
+      throw error;
+    }
 
+    this.logger = logger;
     // Set up the config.
     this.config = Object.assign(DEFAULT_CONFIG, config);
     validateTransactionServiceConfig(this.config);
@@ -93,6 +105,8 @@ export class TransactionService {
       const provider = new TransactionDispatch(this.logger, signer, chainIdNumber, chain, this.config);
       this.providers.set(chainIdNumber, provider);
     });
+    // Set the singleton instance.
+    TransactionService.instance = this;
   }
 
   /**

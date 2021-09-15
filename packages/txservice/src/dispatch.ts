@@ -1,15 +1,16 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  createMethodContext,
+  delay,
+  jsonifyError,
+  Logger,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction } from "./types";
-import {
-  AlreadyMined,
-  TransactionReplaced,
-  TransactionReverted,
-  TimeoutError,
-  TransactionServiceFailure,
-} from "./error";
+import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 import { Transaction } from "./transaction";
@@ -57,6 +58,8 @@ export class TransactionDispatch extends ChainRpcProvider {
    * Get the current nonce value. Should ONLY ever be called within a serialized
    * queue.
    *
+   * @param context - Request context object used for logging.
+   *
    * @remarks
    * Caller should still be prepared to get the incorrect nonce back. For instance,
    * if the provider that just handled our sent tx has suddenly gone offline, this
@@ -65,18 +68,112 @@ export class TransactionDispatch extends ChainRpcProvider {
    *
    * @returns A number value for the current nonce.
    */
-  private async getNonce(): Promise<number> {
+  private async getNonce(context: RequestContext): Promise<number> {
     const result = await this.getTransactionCount();
     if (result.isErr()) {
       throw result.error;
     }
-    const pending = result.value;
+    const minedTransactionCount = result.value;
     // Set to whichever value is higher. This should almost always be our local nonce.
-    this._nonce = Math.max(this._nonce, pending);
+    this.logger.debug("Current nonce", context, createMethodContext(this.getNonce.name), {
+      chainId: this.chainId,
+      minedTransactionCount,
+      localNonce: this._nonce,
+    });
+    this._nonce = Math.max(this._nonce, minedTransactionCount);
     return this._nonce;
   }
 
   /// LIFECYCLE
+  /**
+   * This will create a transaction with an assigned nonce as well as estimated gas / set gas price.
+   * We use this structure to essentially enforce all created transactions are saved locally in the buffer for
+   * continue monitoring, thus enabling us to further ensure they all go through.
+   *
+   * @param minTx - Minimum transaction params needed to form a transaction for sending.
+   * @param context - Request context object used for logging.
+   *
+   * @returns Transaction instance with populated params, ready for submit.
+   */
+  private async create(minTx: WriteTransaction, context: RequestContext): Promise<Transaction> {
+    const methodContext = createMethodContext(this.create.name);
+    // Make sure we haven't aborted dispatch.
+    this.assertNotAborted();
+    // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
+    // that, if we get past this method, we can safely assume that the transaction will go through on submit, saving for
+    // instances where the provider malfunctions.
+    const gas = await this.getGas(minTx, context);
+    // Queue up the transaction with these values.
+    const result = await this.nonceAssignmentQueue.add(
+      async (): Promise<{ value: Transaction | Error; success: boolean }> => {
+        try {
+          // NOTE: This call must be here, serialized within the queue, as it is dependent on local transaction count.
+          let nonce = await this.getNonce(context);
+          let transaction: Transaction | undefined;
+          while (!transaction || !transaction.didSubmit) {
+            // Create a new transaction instance to track lifecycle. We will be submitting below.
+            transaction = new Transaction(context, minTx, nonce, gas, {
+              confirmationTimeout: this.confirmationTimeout,
+              confirmationsRequired: this.confirmationsRequired,
+            });
+            try {
+              // NOTE: Some chains (such as arbitrum) require serialized submit (i.e. will throw if we send with nonce
+              // out of order). This may reduce load by doing so, but it's unfavorable to overload the mempool with
+              // out-of-sync txs anyway.
+              this.logger.debug("Sending initial submit for transaction...", context, methodContext, {
+                chainId: this.chainId,
+                nonce,
+              });
+              await this.submit(transaction);
+            } catch (error) {
+              if (error.type === BadNonce.type) {
+                this.logger.debug("Bad nonce on initial submit.", context, methodContext, {
+                  chainId: this.chainId,
+                  nonce,
+                  reason: error.reason,
+                });
+                if (
+                  error.reason === BadNonce.reasons.NonceExpired ||
+                  error.reason === BadNonce.reasons.ReplacementUnderpriced
+                ) {
+                  // We have an expired / already-used nonce - increment to next nonce and retry.
+                  nonce++;
+                  continue;
+                } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
+                  // All we know in this block is that the nonce is "incorrect"; we don't know if it's too high or too low.
+                  // To be safe, rewind nonce back to current mined transaction count. This entire loop will have to
+                  // keep trying this
+                  const result = await this.getTransactionCount();
+                  if (result.isErr()) {
+                    // If this occurs, likely rpc failure.
+                    throw result.error;
+                  }
+                  nonce = result.value;
+                  continue;
+                }
+              }
+              this.logger.warn("Fatal error on initial submit.", context, methodContext, {
+                chainId: this.chainId,
+                nonce,
+                error,
+              });
+              throw error;
+            }
+          }
+          this._nonce = nonce + 1;
+          return { value: transaction, success: true };
+        } catch (e) {
+          return { value: e, success: false };
+        }
+      },
+    );
+    if (result.success) {
+      return result.value as Transaction;
+    } else {
+      throw result.value;
+    }
+  }
+
   /**
    *
    * @param minTxs -
@@ -125,7 +222,7 @@ export class TransactionDispatch extends ChainRpcProvider {
               attempt: transaction.attempt,
               error: jsonifyError(error),
             });
-            if (error.type === AlreadyMined.type) {
+            if (error.type === BadNonce.type) {
               if (transaction.responses.length > 0) {
                 // Ignore this error, proceed to validation step.
                 this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
@@ -180,49 +277,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       }
       return batch.map((tx) => tx.receipt!);
     });
-  }
-
-  /**
-   * This will create a transaction with an assigned nonce as well as estimated gas / set gas price.
-   * We use this structure to essentially enforce all created transactions are saved locally in the buffer for
-   * continue monitoring, thus enabling us to further ensure they all go through.
-   *
-   * @param minTx - Minimum transaction params needed to form a transaction for sending.
-   * @param context -
-   *
-   * @returns Transaction instance with populated params, ready for submit.
-   */
-  private async create(minTx: WriteTransaction, context: RequestContext): Promise<Transaction> {
-    // Make sure we haven't aborted dispatch.
-    this.assertNotAborted();
-    // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
-    // that, if we get past this method, we can safely assume that the transaction will go through on submit, saving for
-    // instances where the provider malfunctions.
-    const gas = await this.getGas(minTx, context);
-    // Queue up the transaction with these values.
-    const result = await this.nonceAssignmentQueue.add(
-      async (): Promise<{ value: Transaction | Error; success: boolean }> => {
-        try {
-          // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
-          const nonce = await this.getNonce();
-          // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
-          const transaction = new Transaction(context, minTx, nonce, gas, {
-            confirmationTimeout: this.confirmationTimeout,
-            confirmationsRequired: this.confirmationsRequired,
-          });
-          // NOTE: We should only ever increment nonce here.
-          this._nonce++;
-          return { value: transaction, success: true };
-        } catch (e) {
-          return { value: e, success: false };
-        }
-      },
-    );
-    if (result.success) {
-      return result.value as Transaction;
-    } else {
-      throw result.value;
-    }
   }
 
   /**
@@ -609,7 +663,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         },
       });
     } catch (error) {
-      if (error.type === AlreadyMined.type) {
+      if (error.type === BadNonce.type) {
         // We can assume that the transaction was sent using the signer outside of dispatch,
         // and as a result, we didn't have it stored in the buffer.
         this.logger.warn("Backfill failed: Transaction already mined", requestContext, methodContext, {
