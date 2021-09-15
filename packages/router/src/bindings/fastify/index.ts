@@ -1,5 +1,6 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
+import { register } from "prom-client";
 
 import { getContext } from "../../router";
 import { handleActiveTransactions } from "../contractReader";
@@ -29,6 +30,11 @@ export const bindFastify = () =>
       return {
         signerAddress: wallet.address,
       };
+    });
+
+    server.get("/metrics", async (request, response) => {
+      const res = await register.metrics();
+      return response.status(200).send(res);
     });
 
     server.post<{ Body: RemoveLiquidityRequest }>(
