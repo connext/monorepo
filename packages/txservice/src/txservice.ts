@@ -4,7 +4,7 @@ import { createLoggingContext, jsonifyError, Logger, NxtpError, RequestContext }
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
-import { AlreadyMined, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
+import { BadNonce, TimeoutError, TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionDispatch, TransactionInterface } from "./dispatch";
 
 export type TxServiceSubmittedEvent = {
@@ -132,51 +132,36 @@ export class TransactionService {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
 
-    const newTx = () => this.getProvider(tx.chainId).createTransaction(tx, requestContext);
-
-    let transaction = await newTx();
-    let nonceExpired = 0;
+    // TODO: Temporary solution for serializing submits. Real solution will be present in batch send restructure.
+    let iteration = 0;
+    let transaction: TransactionInterface | undefined;
     try {
+      // This will create and submit a transaction.
+      transaction = await this.getProvider(tx.chainId).createTransaction(tx, requestContext);
       while (!transaction.didFinish) {
-        // Submit: send to chain.
-        try {
-          await this.submitTransaction(transaction, requestContext);
-        } catch (error) {
-          this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
-            id: transaction.id,
-            attempt: transaction.attempt,
-            error: jsonifyError(error),
-          });
-          if (error.type === AlreadyMined.type) {
-            if (transaction.attempt === 1) {
-              if (nonceExpired > 1000) {
-                // Nonce expired emergency stop: we should never encounter this expired nonce situation this many times.
-                this.logger.warn(`Nonce expired encountered > MAX (1000)`, requestContext, methodContext, {
-                  id: transaction.id,
-                  attempt: transaction.attempt,
-                  nonceExpired,
-                  error: jsonifyError(error),
-                });
+        iteration++;
+        // Submit: send to chain. We only do this if we've looped back around to resubmit.
+        if (iteration > 1) {
+          try {
+            await this.submitTransaction(transaction, requestContext);
+          } catch (error) {
+            this.logger.debug(`Transaction submit step: received ${error.type} error.`, requestContext, methodContext, {
+              id: transaction.id,
+              attempt: transaction.attempt,
+              error: jsonifyError(error),
+            });
+            if (error.type === BadNonce.type) {
+              if (transaction.attempt === 1) {
                 throw error;
+              } else {
+                // Ignore this error, proceed to validation step.
+                this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
+                  id: transaction.id,
+                });
               }
-              // A transaction that's only been attempted once has an expired nonce. This means that dispatch
-              // assigned us an already-used nonce.
-              nonceExpired++;
-              // In this event, we need to go back to the beginning and actually "recreate" the transaction
-              // itself now. Assuming our nonce tracker (dispatch) is effective, this should normally never occur...
-              // but there is at least 1 legit edge case: if the dispatch has just come online, it can only rely on
-              // the provider's tx count (getTransactionCount) to assign nonce - and the provider turns out to be
-              // incorrect (e.g. off by 1 or 2 pending tx's not in its mempool yet for some reason).
-              transaction = await newTx();
-              continue;
             } else {
-              // Ignore this error, proceed to validation step.
-              this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
-                id: transaction.id,
-              });
+              throw error;
             }
-          } else {
-            throw error;
           }
         }
 
@@ -225,7 +210,9 @@ export class TransactionService {
         }
       }
     } catch (error) {
-      this.handleFail(error, transaction, requestContext);
+      if (transaction) {
+        this.handleFail(error, transaction, requestContext);
+      }
       throw error;
     }
 
