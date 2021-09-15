@@ -250,7 +250,7 @@ export class ChainRpcProvider {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
-      const gasStations = this.chainConfig.gasStations;
+      const gasStations = this.chainConfig.gasStations ?? [];
       for (let i = 0; i < gasStations.length; i++) {
         const uri = gasStations[i];
         let response: any;
