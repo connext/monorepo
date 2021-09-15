@@ -2,17 +2,17 @@ import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
 import { Logger, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, Contract, utils } from "ethers";
+import { BigNumber, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { Zero } from "@ethersproject/constants";
 
 import { getConfig } from "../utils/config";
-import { OnchainAccountManager } from "../utils/accountManager";
 import { TestTokenABI } from "../utils/chain";
 import { writeStatsToFile } from "../utils/reporting";
 
 // The amount for each transaction in wei.
 const AMOUNT_PER_TX = BigNumber.from("1");
+const ETH_MIN = utils.parseEther("0.002"); // will exit if below this value of eth on wallet
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 
@@ -46,33 +46,40 @@ const txserviceConcurrencyTest = async (
   const config = getConfig(localChain);
   const logger: pino.Logger = pino({ level: config.logLevel ?? "info" });
   // For these tests, unless we are running on local, we should default to rinkeby.
-  const chainId = localChain ? parseInt(Object.keys(config.chainConfig)[0]) : 4;
+  const chainId = parseInt(Object.keys(config.chainConfig)[0] ?? "4");
+
+  logger.info("Creating Contract...", { tokenAddress, chainId });
+  const token = new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider);
 
   /// MARK - SETUP MANAGER.
-  logger.info({ agents: maxConcurrency }, "Creating manager. This may take a bit...");
-  const manager = new OnchainAccountManager(
-    config.chainConfig,
-    config.mnemonic,
-    Math.min(maxConcurrency, 100),
-    new Logger({ name: "OnchainAccountManager", level: config.logLevel ?? "info" }),
-  );
-  logger.info({ agents: maxConcurrency }, "Created manager");
+  const wallet = Wallet.fromMnemonic(config.mnemonic).connect(config.chainConfig[chainId].provider);
+  logger.info({ agents: maxConcurrency, chainId, wallet: wallet.address }, "Created wallet.");
+
+  // Get default recipient
+  const recipient = Wallet.fromMnemonic(config.mnemonic, `m/44'/60'/0'/0/${1}`);
+  logger.info({ recipient: recipient.address }, "Created recipient.");
 
   const chains: { [chainId: string]: ChainConfig } = {};
   Object.entries(config.chainConfig).forEach(([chainId, config]) => {
+    const urls = config.providerUrls.map((url) => ({ url }));
     chains[chainId] = {
       confirmations: config.confirmations,
-      providers: config.providerUrls.map((url) => ({ url })),
+      providers: urls,
     } as ChainConfig;
   });
 
+  // Exit early if there are insufficient funds
+  const balance = await wallet.getBalance();
+  if (balance.lt(ETH_MIN)) {
+    logger.warn("Insufficient eth balance", { min: utils.formatEther(ETH_MIN), balance: utils.formatEther(balance) });
+    process.exit(1);
+  }
+
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
-  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "info" }), manager.funder, {
+  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "info" }), wallet, {
     chains,
   });
-  logger.info("Creating Contract...");
-  const testToken = new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider);
 
   /// MARK - VALIDATE FUNDS.
   // Make sure the funder has enough funding for this test.
@@ -85,7 +92,7 @@ const txserviceConcurrencyTest = async (
     { totalNumberOfTransactions, totalCost: utils.formatUnits(totalCost, "ether") },
     "Total number of transactions to send.",
   );
-  const funderBalance = await testToken.balanceOf(manager.funder.address);
+  const funderBalance = await token.balanceOf(wallet.address);
   if (funderBalance.lt(totalCost)) {
     throw new Error(
       `Funder does not have enough funds. Needs ${utils.formatUnits(
@@ -113,17 +120,16 @@ const txserviceConcurrencyTest = async (
       .fill(0)
       .map((_: any, i: number) => {
         const task = async () => {
-          const agent = manager.getRandomWallet();
           const txInfo: TransactionInfo = {
             start: Date.now(),
           };
           try {
-            const data = testToken.interface.encodeFunctionData("transfer", [agent.address, AMOUNT_PER_TX]);
+            const data = token.interface.encodeFunctionData("transfer", [recipient.address, AMOUNT_PER_TX]);
             await txservice.sendTx(
               {
                 chainId,
-                to: testToken.address,
-                from: manager.funder.address,
+                to: token.address,
+                from: wallet.address,
                 data: data,
                 value: Zero,
               } as WriteTransaction,
@@ -199,8 +205,8 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "1000"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "100"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "100"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "10"),
   undefined,
   process.env.TOKEN_ADDRESS,
 );
