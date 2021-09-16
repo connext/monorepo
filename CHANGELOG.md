@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.40
+
 - [sdk] Fix xDai issue.
 
 ## 0.0.39
