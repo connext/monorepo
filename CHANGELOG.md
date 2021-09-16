@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Fix xDai issue.
+
 ## 0.0.39
 
 - [txservice] Serialize tx submission
