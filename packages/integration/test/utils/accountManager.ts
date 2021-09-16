@@ -23,7 +23,7 @@ export class OnchainAccountManager {
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
     public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.001"),
-    private readonly USER_MIN_TOKEN = utils.parseEther("0.02"),
+    private readonly USER_MIN_TOKEN = utils.parseEther("0.002"),
     wallets?: Wallet[],
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
