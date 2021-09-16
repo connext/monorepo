@@ -15,6 +15,8 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { ChainNotConfigured } from "../error";
 
+const HARDCODED_GAS_LIMIT = 250_000;
+
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
  *
@@ -146,7 +148,8 @@ export class TransactionManager {
       bidSignature,
       {
         value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
-        from: await this.signer.getAddress(),
+        from: this.signer.getAddress(),
+        gasLimit: HARDCODED_GAS_LIMIT,
       },
     );
     this.logger.info("Prepare transaction submitted", requestContext, methodContext, {
@@ -188,7 +191,9 @@ export class TransactionManager {
 
     const { txData, signature } = cancelParams;
     const signer = this.getConnectedSigner(provider);
-    const tx = await transactionManager.connect(signer).cancel(txData, signature, { from: this.signer.getAddress() });
+    const tx = await transactionManager
+      .connect(signer)
+      .cancel(txData, signature, { from: this.signer.getAddress(), gasLimit: HARDCODED_GAS_LIMIT });
 
     this.logger.info("Cancel transaction submitted", requestContext, methodContext, {
       txHash: tx.hash,
@@ -233,6 +238,7 @@ export class TransactionManager {
     const signer = this.getConnectedSigner(provider);
     const tx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature, callData, {
       from: this.signer.getAddress(),
+      gasLimit: HARDCODED_GAS_LIMIT,
     });
 
     this.logger.info("Fulfill transaction submitted", requestContext, methodContext, { txHash: tx.hash });
@@ -275,7 +281,10 @@ export class TransactionManager {
     const approved = await erc20.allowance(signerAddress, transactionManager.address);
     this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
     if (approved.lt(amount)) {
-      const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount);
+      const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount, {
+        from: this.signer.getAddress(),
+        gasLimit: HARDCODED_GAS_LIMIT,
+      });
       this.logger.info("Approve transaction submitted", requestContext, methodContext, { txHash: tx.hash });
       return tx;
     } else {

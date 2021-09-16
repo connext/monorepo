@@ -244,7 +244,7 @@ describe("Transaction Manager", function () {
         };
 
         await expect(userTransactionManager.prepare(transaction.sendingChainId, prepareParams)).to.be.rejectedWith(
-          "cannot estimate gas",
+          "Exception while processing transaction",
         );
       });
 
@@ -317,7 +317,7 @@ describe("Transaction Manager", function () {
         };
 
         await expect(userTransactionManager.cancel(transaction.sendingChainId, cancelParams)).to.be.rejectedWith(
-          "cannot estimate gas",
+          "Exception while processing transaction",
         );
       });
 
@@ -414,7 +414,7 @@ describe("Transaction Manager", function () {
         };
 
         await expect(routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams)).to.be.rejectedWith(
-          "cannot estimate gas",
+          "Exception while processing transaction",
         );
       });
 
