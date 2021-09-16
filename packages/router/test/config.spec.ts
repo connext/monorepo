@@ -80,7 +80,6 @@ describe("Config", () => {
         }),
       });
 
-      let res;
       let error;
 
       try {
@@ -89,7 +88,6 @@ describe("Config", () => {
         error = e;
       }
 
-      console.log(error);
       expect(error.message).to.include("must have required property");
     });
 
