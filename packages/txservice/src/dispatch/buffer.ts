@@ -15,8 +15,8 @@ export class TransactionBuffer {
   public pending(): Transaction[] {
     // Use this opportunity to trim previous finished transactions.
     return this.trim()
-      .map(nonce => this.get(nonce) ?? null)
-      .filter(tx => tx != null) as Transaction[];
+      .map((nonce) => this.get(nonce) ?? null)
+      .filter((tx) => tx != null) as Transaction[];
   }
 
   public insert(nonce: number, transaction: Transaction, overwrite = false) {
@@ -43,7 +43,8 @@ export class TransactionBuffer {
   }
 
   public getLastNonce(): number | undefined {
-    return Math.max(...Array.from(this.buffer.keys()));
+    const keys = Array.from(this.buffer.keys());
+    return keys.length > 0 ? Math.max(...keys) : undefined;
   }
 
   private orderedKeys() {
@@ -76,7 +77,7 @@ export class TransactionBuffer {
       }
     }
     // We want to trim everything below the highest finished nonce's index.
-    keys.splice(0, highestIndex).forEach(nonce => this.buffer.delete(nonce));
+    keys.splice(0, highestIndex).forEach((nonce) => this.buffer.delete(nonce));
     // Return remaining keys.
     return keys;
   }

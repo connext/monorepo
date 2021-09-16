@@ -101,57 +101,27 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
         // NOTE: This call must be here, serialized within the queue, as it is dependent on local transaction count.
-        let nonce = await this.getNonce(context);
-        let transaction: Transaction | undefined;
-        while (!transaction || !transaction.didSubmit) {
-          // Create a new transaction instance to track lifecycle. We will be submitting in below.
-          transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
-          try {
-            // Some chains (such as arbitrum) require serialized submit.
-            // NOTE: This may reduce load by doing so, but it's unfavorable to spam the mempool by sending initial txs out of sync anyway.
-            this.logger.debug("Sending initial submit for transaction...", context, methodContext, {
-              chainId: this.chainId,
-              nonce,
-            });
-            await transaction.submit();
-          } catch (error) {
-            if (error.type === BadNonce.type) {
-              this.logger.debug("Bad nonce on initial submit.", context, methodContext, {
-                chainId: this.chainId,
-                nonce,
-                reason: error.reason,
-              });
-              if (
-                error.reason === BadNonce.reasons.NonceExpired ||
-                error.reason === BadNonce.reasons.ReplacementUnderpriced
-              ) {
-                // We have an expired / already-used nonce - increment to next number and retry.
-                nonce++;
-                continue;
-              } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
-                // All we know in this block is that the nonce is "incorrect"; we don't know if it's too high or too low.
-                // To be safe, rewind nonce back to current mined transaction count. This entire loop will have to
-                // delay sending this transaction until we can guarantee all gaps have been filled.
-                const result = await this.getTransactionCount();
-                if (result.isErr()) {
-                  // If this occurs, likely rpc failure.
-                  throw result.error;
-                }
-                nonce = result.value;
-                continue;
-              }
-            }
-            this.logger.warn("Fatal error on initial submit.", context, methodContext, {
-              chainId: this.chainId,
-              nonce,
-              error,
-            });
-            throw error;
-          }
+        const nonce = await this.getNonce(context);
+        // Create a new transaction instance to track lifecycle. We will be submitting below.
+        const transaction = new Transaction(this.logger, this, minTx, nonce, gas, undefined, context);
+        try {
+          // Some chains (such as arbitrum) require serialized submit.
+          // NOTE: This may reduce load by doing so, but it's unfavorable to spam the mempool by sending initial txs out of sync anyway.
+          this.logger.debug("Sending initial submit for transaction...", context, methodContext, {
+            chainId: this.chainId,
+            nonce,
+          });
+          await transaction.submit();
+          this.buffer.insert(nonce, transaction);
+          this._nonce = nonce + 1;
+        } catch (error) {
+          this.logger.warn("Fatal error on initial submit.", context, methodContext, {
+            chainId: this.chainId,
+            nonce,
+            error,
+          });
+          throw error;
         }
-        // Increment nonce here before submitting (in case submit fails).
-        this.buffer.insert(nonce, transaction);
-        this._nonce = nonce + 1;
         return { value: transaction, success: true };
       } catch (e) {
         return { value: e, success: false };
@@ -186,6 +156,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     this.logger.debug("Assigning nonce to transaction", context, createMethodContext(this.getNonce.name), {
       minedTransactionCount,
       localNonce: this._nonce,
+      bufferNonce: this.buffer.getLastNonce(),
     });
     this._nonce = Math.max(this._nonce, minedTransactionCount);
     return this._nonce;
