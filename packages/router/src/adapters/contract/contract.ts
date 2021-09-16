@@ -201,16 +201,20 @@ export const prepare = async (
     bidSignature,
   ]);
 
-  return await txService.sendTx(
-    {
-      to: nxtpContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return (
+    await txService.sendTxBatch(
+      [
+        {
+          to: nxtpContractAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: wallet.address,
+        },
+      ],
+      requestContext,
+    )
+  )[0];
 };
 
 export const fulfill = async (
@@ -231,16 +235,20 @@ export const fulfill = async (
 
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
 
-  return await txService.sendTx(
-    {
-      to: nxtpContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return (
+    await txService.sendTxBatch(
+      [
+        {
+          to: nxtpContractAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: wallet.address,
+        },
+      ],
+      requestContext,
+    )
+  )[0];
 };
 
 export const cancel = async (
@@ -261,16 +269,20 @@ export const cancel = async (
 
   const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, signature]);
 
-  return await txService.sendTx(
-    {
-      to: nxtpContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return (
+    await txService.sendTxBatch(
+      [
+        {
+          to: nxtpContractAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: wallet.address,
+        },
+      ],
+      requestContext,
+    )
+  )[0];
 };
 
 /**
@@ -306,14 +318,18 @@ export const removeLiquidity = async (
     assetId,
     recipientAddress,
   ]);
-  return await txService.sendTx(
-    {
-      to: nxtpContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return (
+    await txService.sendTxBatch(
+      [
+        {
+          to: nxtpContractAddress,
+          data: encodedData,
+          value: constants.Zero,
+          chainId,
+          from: wallet.address,
+        },
+      ],
+      requestContext,
+    )
+  )[0];
 };

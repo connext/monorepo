@@ -77,9 +77,13 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
-  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "info" }), wallet, {
-    chains,
-  });
+  const txservice = new TransactionService(
+    new Logger({ level: config.logLevel ?? "info" }),
+    {
+      chains,
+    },
+    wallet,
+  );
 
   /// MARK - VALIDATE FUNDS.
   // Make sure the funder has enough funding for this test.
@@ -125,14 +129,16 @@ const txserviceConcurrencyTest = async (
           };
           try {
             const data = token.interface.encodeFunctionData("transfer", [recipient.address, AMOUNT_PER_TX]);
-            await txservice.sendTx(
-              {
-                chainId,
-                to: token.address,
-                from: wallet.address,
-                data: data,
-                value: Zero,
-              } as WriteTransaction,
+            await txservice.sendTxBatch(
+              [
+                {
+                  chainId,
+                  to: token.address,
+                  from: wallet.address,
+                  data: data,
+                  value: Zero,
+                } as WriteTransaction,
+              ],
               {
                 id: `C${concurrency}:U${i + 1}`,
                 origin: "concurrencyTest",
