@@ -31,7 +31,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   private _nonce = 0;
 
   /**
-   * Centralized transaction monitoring class. Extends ChainRpcProvider, thus exposing all provider methods
+   * Transaction lifecycle management class. Extends ChainRpcProvider, thus exposing all provider methods
    * through this class.
    *
    * @param logger Logger used for logging.
@@ -46,12 +46,12 @@ export class TransactionDispatch extends ChainRpcProvider {
    */
   constructor(
     logger: Logger,
-    signer: string | Signer,
     public readonly chainId: number,
     chainConfig: ChainConfig,
     config: TransactionServiceConfig,
+    signer: string | Signer,
   ) {
-    super(logger, signer, chainId, chainConfig, config);
+    super(logger, chainId, chainConfig, config, signer);
   }
 
   /**

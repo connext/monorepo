@@ -2,10 +2,11 @@ import { Signer, providers, BigNumber } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
+import { TransactionServiceConfig, ChainConfig } from "./config";
 import { ReadTransaction, WriteTransaction } from "./types";
 import { TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionDispatch } from "./dispatch";
+import { ChainReader } from "./chainreader";
 
 export type TxServiceSubmittedEvent = {
   response: providers.TransactionResponse;
@@ -36,15 +37,13 @@ export interface NxtpTxServiceEventPayloads {
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
-export class TransactionService {
+export class ChainService extends ChainReader {
   // TODO: #152 Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
-  private static instance?: TransactionService;
-
-  private readonly logger: Logger;
+  private static instance?: ChainService;
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
@@ -52,9 +51,6 @@ export class TransactionService {
     [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
     [NxtpTxServiceEvents.TransactionFailed]: Evt.create<TxServiceFailedEvent>(),
   };
-
-  private config: TransactionServiceConfig;
-  private providers: Map<number, TransactionDispatch> = new Map();
 
   /**
    * A singleton-like interface for handling all logic related to conducting on-chain transactions.
@@ -69,44 +65,22 @@ export class TransactionService {
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
    */
-  constructor(logger: Logger, signer: string | Signer, config: Partial<TransactionServiceConfig>) {
+  constructor(logger: Logger, config: Partial<TransactionServiceConfig>, signer: string | Signer) {
+    super(logger, config, signer);
     const { requestContext, methodContext } = createLoggingContext("TransactionService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
-    if (TransactionService.instance) {
+    if (ChainService.instance) {
       const msg = "CRITICAL: TransactionService.constructor was called twice! Please report this incident.";
       const error = new NxtpError(msg);
       logger.error(msg, requestContext, methodContext, error, {
-        instance: TransactionService.instance.toString(),
+        instance: ChainService.instance.toString(),
       });
       throw error;
     }
-
-    this.logger = logger;
-    // Set up the config.
-    this.config = Object.assign(DEFAULT_CONFIG, config);
-    validateTransactionServiceConfig(this.config);
-    // For each chain ID / provider, map out all the utils needed for each chain.
-    const chains = this.config.chains;
-    Object.keys(chains).forEach((chainId) => {
-      // Get this chain's config.
-      const chain: ChainConfig = chains[chainId];
-      // Ensure at least one provider is configured.
-      if (chain.providers.length === 0) {
-        const error = new TransactionServiceFailure(`Provider configurations not found for chainID: ${chainId}`);
-        this.logger.error("Failed to create transaction service", requestContext, methodContext, error.toJson(), {
-          chainId,
-          providers,
-        });
-        throw error;
-      }
-      const chainIdNumber = parseInt(chainId);
-      const provider = new TransactionDispatch(this.logger, signer, chainIdNumber, chain, this.config);
-      this.providers.set(chainIdNumber, provider);
-    });
     // Set the singleton instance.
-    TransactionService.instance = this;
+    ChainService.instance = this;
   }
 
   /**
@@ -312,13 +286,41 @@ export class TransactionService {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  private getProvider(chainId: number): TransactionDispatch {
+  protected getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new TransactionServiceFailure(
         `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
       );
     }
-    return this.providers.get(chainId)!;
+    return this.providers.get(chainId)! as TransactionDispatch;
+  }
+
+  // TODO: Use a generic type in ChainReader.setupProviders for this method such that we don't have to overload it here.
+  /**
+   * Populate the provider mapping using chain configurations.
+   * @param context - The request context object used for logging.
+   * @param signer - The signer that will be used for onchain operations.
+   */
+  protected setupProviders(context: RequestContext, signer: string | Signer) {
+    const { methodContext } = createLoggingContext(this.setupProviders.name, context);
+    // For each chain ID / provider, map out all the utils needed for each chain.
+    const chains = this.config.chains;
+    Object.keys(chains).forEach((chainId) => {
+      // Get this chain's config.
+      const chain: ChainConfig = chains[chainId];
+      // Ensure at least one provider is configured.
+      if (chain.providers.length === 0) {
+        const error = new TransactionServiceFailure(`Provider configurations not found for chainID: ${chainId}`);
+        this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
+          chainId,
+          providers,
+        });
+        throw error;
+      }
+      const chainIdNumber = parseInt(chainId);
+      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer);
+      this.providers.set(chainIdNumber, provider);
+    });
   }
 }

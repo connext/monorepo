@@ -30,7 +30,7 @@ export class ChainRpcProvider {
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private readonly _providers: providers.JsonRpcProvider[];
   private readonly provider: providers.FallbackProvider;
-  private readonly signer: Signer;
+  private readonly signer?: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;
   private cachedTransactionCount?: CachedTransactionCount;
@@ -39,6 +39,10 @@ export class ChainRpcProvider {
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
+
+  public get isReadOnly(): boolean {
+    return !!this.signer;
+  }
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -56,10 +60,10 @@ export class ChainRpcProvider {
    */
   constructor(
     protected readonly logger: Logger,
-    signer: string | Signer,
     public readonly chainId: number,
     protected readonly chainConfig: ChainConfig,
     protected readonly config: TransactionServiceConfig,
+    signer?: string | Signer,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
@@ -106,8 +110,11 @@ export class ChainRpcProvider {
       );
     }
 
-    // TODO: #146 We may ought to do this instantiation in the txservice constructor.
-    this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+    if (signer) {
+      this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+    } else {
+      this.signer = undefined;
+    }
   }
 
   /**
@@ -124,9 +131,9 @@ export class ChainRpcProvider {
       ...params,
       value: BigNumber.from(params.value || 0),
     };
-    return this.resultWrapper<providers.TransactionResponse>(async () => {
+    return this.resultWrapper<providers.TransactionResponse>(true, async () => {
       this.assertNotAborted();
-      return await this.signer.sendTransaction(transaction);
+      return await this.signer!.sendTransaction(transaction);
     });
   }
 
@@ -146,7 +153,7 @@ export class ChainRpcProvider {
     confirmations?: number,
     timeout?: number,
   ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(() => {
+    return this.resultWrapper<providers.TransactionReceipt>(true, () => {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
       return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
@@ -162,9 +169,9 @@ export class ChainRpcProvider {
    * to read from chain.
    */
   public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(async () => {
+    return this.resultWrapper<string>(true, async () => {
       try {
-        return await this.signer.call(tx);
+        return await this.signer!.call(tx);
       } catch (error) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
@@ -186,7 +193,7 @@ export class ChainRpcProvider {
    * @returns A BigNumber representing the estimated gas value.
    */
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       const errors: any[] = [];
       // TODO: #147 If quorum > 1, we should make this call to multiple providers.
       for (const provider of this._providers) {
@@ -245,7 +252,7 @@ export class ChainRpcProvider {
       return okAsync(this.cachedGas.price);
     }
 
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
@@ -316,7 +323,7 @@ export class ChainRpcProvider {
    * specified address.
    */
   public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       return await this.provider.getBalance(address);
     });
   }
@@ -329,7 +336,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current decimals.
    */
   public getDecimalsForAsset(assetId: string): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       if (this.cachedDecimals[assetId]) {
         return this.cachedDecimals[assetId];
       }
@@ -352,7 +359,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current blocktime.
    */
   public getBlockTime(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       const block = await this.provider.getBlock("latest");
       return block.timestamp;
     });
@@ -364,7 +371,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current blocktime.
    */
   public getBlockNumber(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       const number = await this.provider.getBlockNumber();
       return number;
     });
@@ -376,8 +383,8 @@ export class ChainRpcProvider {
    * @returns A hash string address belonging to the signer.
    */
   public getAddress(): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(async () => {
-      return await this.signer.getAddress();
+    return this.resultWrapper<string>(true, async () => {
+      return await this.signer!.getAddress();
     });
   }
 
@@ -389,7 +396,7 @@ export class ChainRpcProvider {
    * @returns A TransactionReceipt instance.
    */
   public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(async () => {
+    return this.resultWrapper<providers.TransactionReceipt>(false, async () => {
       const receipt = await this.provider.getTransactionReceipt(hash);
       return receipt;
     });
@@ -406,8 +413,8 @@ export class ChainRpcProvider {
       return okAsync(this.cachedTransactionCount.value);
     }
 
-    return this.resultWrapper<number>(async () => {
-      const value = await this.signer.getTransactionCount("pending");
+    return this.resultWrapper<number>(true, async () => {
+      const value = await this.signer!.getTransactionCount("pending");
       this.cachedTransactionCount = { value, timestamp: Date.now() };
       return value;
     });
@@ -424,9 +431,12 @@ export class ChainRpcProvider {
    *
    * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
-  private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
+  private resultWrapper<T>(needsSigner: boolean, method: () => Promise<T>): ResultAsync<T, NxtpError> {
     return ResultAsync.fromPromise(
       this.isReady().then(() => {
+        if (needsSigner && this.isReadOnly) {
+          throw new NxtpError("Method requires signer, and no signer was provided.");
+        }
         const errors = [];
         while (errors.length < 5) {
           try {
