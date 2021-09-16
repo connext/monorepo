@@ -152,7 +152,6 @@ export class TransactionManager {
         gasLimit: HARDCODED_GAS_LIMIT,
       },
     );
-    console.log("tx: ", tx);
     this.logger.info("Prepare transaction submitted", requestContext, methodContext, {
       txHash: tx.hash,
     });
