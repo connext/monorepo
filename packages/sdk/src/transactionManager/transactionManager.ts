@@ -125,7 +125,6 @@ export class TransactionManager {
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
     const signer = this.getConnectedSigner(provider);
-    console.log("signer: ", signer);
 
     const tx = await transactionManager.connect(signer).prepare(
       {
