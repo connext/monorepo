@@ -30,16 +30,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(configMock),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
 
     it("should error if transaction manager address is missing", () => {
@@ -55,16 +46,7 @@ describe("Config", () => {
         }),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error.message).to.include("No transactionManager address");
+      expect(() => getEnvConfig(chainDataMock)).throw("No transactionManager address");
     });
 
     it("should error if validation fails", () => {
@@ -80,15 +62,7 @@ describe("Config", () => {
         }),
       });
 
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error.message).to.include("must have required property");
+      expect(() => getEnvConfig(chainDataMock)).throw("must have required property");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {
@@ -116,16 +90,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(configMock),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
 
     it("should getEnvConfig", () => {
@@ -140,16 +105,7 @@ describe("Config", () => {
         NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
   });
 
