@@ -2,11 +2,11 @@
 // TODO: export transactions with timestamps to Prometheus
 import { Counter, Gauge, collectDefaultMetrics } from "prom-client";
 
-collectDefaultMetrics({ prefix: "router_" });
-
 // import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 
-export const bindMetrics = async () => {};
+export const bindMetrics = async () => {
+  collectDefaultMetrics({ prefix: "router_" });
+};
 
 //////////////////////////
 ///// High Level Metrics
@@ -194,28 +194,3 @@ export const receiverFailedExpired = new Counter({
   help: "receiver_failed_expired_help",
   labelNames: ["assetId", "chainId"] as const,
 });
-
-/////////////////////////////////////
-///////////// Notes
-
-/*
-
-  What do we want to track?
-  1. Liquidity for a given router at current time and over last X time
-    a. Filtered by asset + chain
-  2. Transfer volume over last X time
-    a. Filtered by asset
-  3. Transfer attempt
-  4. Successful transfers end to end
-  5. Auction requests
-  6. Responded auction bids
-  7. Won auction bids
-  8. Number of active transactions at a given time
-  9. Claimable tx funds at a given time
-  10. Expired transactions?
-  11. Fees collected
-  12. Gas paid
-  13. Onchain tx attempt
-  14. Onchain tx fail
-
-*/

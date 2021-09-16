@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.39
+
+- [txservice] Serialize tx submission
+
 ## 0.0.38
 
 - [sdk] Fix Arbitrum subgraph URL
