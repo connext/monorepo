@@ -1,5 +1,7 @@
+import { getDecimals } from "@connext/nxtp-sdk/src/utils";
 import { Logger } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils, Wallet } from "ethers";
+import { parseUnits } from "ethers/lib/utils";
 import PriorityQueue from "p-queue";
 
 import { getOnchainBalance, sendGift } from "./chain";
@@ -23,7 +25,7 @@ export class OnchainAccountManager {
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
     public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.001"),
-    private readonly USER_MIN_TOKEN = utils.parseEther("0.002"),
+    private readonly USER_MIN_TOKEN = "0.002", // decimals vary between chains
     wallets?: Wallet[],
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
@@ -69,7 +71,8 @@ export class OnchainAccountManager {
     }
 
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? this.USER_MIN_TOKEN : this.USER_MIN_ETH;
+    const decimals = await getDecimals(assetId, provider);
+    const floor = isToken ? parseUnits(this.USER_MIN_TOKEN, decimals) : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
