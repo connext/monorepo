@@ -222,7 +222,9 @@ export class SdkAgent {
    * New transfers will go in the opposite direction of the received transaction to keep balance roughly equal
    *
    */
-  public establishCyclicalTransfers() {
+  public establishCyclicalTransfers(
+    initialParams: Omit<CrossChainParams, "receivingAddress" | "expiry" | "transactionId">,
+  ) {
     if (this.cyclicalContext) {
       return;
     }
@@ -241,16 +243,19 @@ export class SdkAgent {
       });
     });
 
-    // On each SenderTransactionCancelled (i.e. router cancels), create a
-    // new transfer that reattempts the cancelled transaction
-    this.evts.SenderTransactionCancelled.attach(this.cyclicalContext, async (data) => {
-      const { amount, sendingAssetId, sendingChainId, receivingChainId, receivingAssetId } = data.txData;
+    // On all failures, reattempt
+    this.evts.TransactionCompleted.attach(this.cyclicalContext, async (data) => {
+      if (!data.error) {
+        // Will be handled once receiver fulfilled
+        return;
+      }
+
       await this.initiateCrosschainTransfer({
-        amount,
-        sendingChainId,
-        sendingAssetId,
-        receivingChainId,
-        receivingAssetId,
+        amount: initialParams.amount,
+        sendingChainId: initialParams.sendingChainId,
+        sendingAssetId: initialParams.sendingAssetId,
+        receivingChainId: initialParams.receivingChainId,
+        receivingAssetId: initialParams.receivingAssetId,
       });
     });
   }

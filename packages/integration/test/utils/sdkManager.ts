@@ -64,20 +64,19 @@ export class SdkManager {
     // );
 
     // Create sdk agents
-    let agents:SdkAgent[] = [];
+    let agents: SdkAgent[] = [];
 
-
-      agents = await Promise.all(
-          Array(numberUsers)
-              .fill(0)
-              .map((_, idx) => {
-                log.debug("Wallet info", undefined, undefined, {idx, address: onchain.wallets[idx].address});
-                return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
-              }),
-      );
+    agents = await Promise.all(
+      Array(numberUsers)
+        .fill(0)
+        .map((_, idx) => {
+          log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
+          return SdkAgent.connect(onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
+        }),
+    );
 
     //create an agent with the base mnemonic account + 1
-    const manager = new SdkManager(onchain, agents,  log.child({ name: "SdkManager" }));
+    const manager = new SdkManager(onchain, agents, log.child({ name: "SdkManager" }));
 
     // Setup manager listeners
     manager.setupTransferListeners();
@@ -176,7 +175,7 @@ export class SdkManager {
     // NOTE; we initiate all transactions serially because this isnt
     // a concurrency test. But we don't wait for them to complete
     for (const agent of this.agents) {
-      agent.establishCyclicalTransfers();
+      agent.establishCyclicalTransfers(initialParams);
 
       const transactionId = getRandomBytes32();
       this.transactionInfo[transactionId] = { start: Date.now() };
