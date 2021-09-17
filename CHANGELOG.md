@@ -3,6 +3,7 @@
 ## Next Release
 
 - [sdk] Estimate gas on SDK transactions.
+- [router] Serialize tx submission.
 
 ## 0.0.40
 
