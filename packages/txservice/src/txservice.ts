@@ -151,14 +151,10 @@ export class TransactionService {
               error: jsonifyError(error),
             });
             if (error.type === BadNonce.type) {
-              if (transaction.attempt === 1) {
-                throw error;
-              } else {
-                // Ignore this error, proceed to validation step.
-                this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
-                  id: transaction.id,
-                });
-              }
+              // This error indicates that the transaction at this nonce has already been mined. We should proceed to confirm.
+              this.logger.debug("Continuing to confirmation step.", requestContext, methodContext, {
+                id: transaction.id,
+              });
             } else {
               throw error;
             }
