@@ -8,14 +8,13 @@ import {
   RequestContext,
   createLoggingContext,
 } from "@connext/nxtp-utils";
+import { parseError } from "@connext/nxtp-txservice";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { ChainNotConfigured } from "../error";
-
-const HARDCODED_GAS_LIMIT = 250_000;
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -126,32 +125,44 @@ export class TransactionManager {
 
     const signer = this.getConnectedSigner(provider);
 
-    const tx = await transactionManager.connect(signer).prepare(
-      {
-        receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-        user: txData.user,
-        router: txData.router,
-        sendingAssetId: txData.sendingAssetId,
-        receivingAssetId: txData.receivingAssetId,
-        sendingChainFallback: txData.sendingChainFallback,
-        callTo: txData.callTo,
-        receivingAddress: txData.receivingAddress,
-        sendingChainId: txData.sendingChainId,
-        receivingChainId: txData.receivingChainId,
-        callDataHash: txData.callDataHash,
-        transactionId: txData.transactionId,
-      },
-      amount,
-      expiry,
-      encryptedCallData,
-      encodedBid,
-      bidSignature,
-      {
-        value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
-        from: this.signer.getAddress(),
-        gasLimit: HARDCODED_GAS_LIMIT,
-      },
-    );
+    const invariant = {
+      receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
+      user: txData.user,
+      router: txData.router,
+      sendingAssetId: txData.sendingAssetId,
+      receivingAssetId: txData.receivingAssetId,
+      sendingChainFallback: txData.sendingChainFallback,
+      callTo: txData.callTo,
+      receivingAddress: txData.receivingAddress,
+      sendingChainId: txData.sendingChainId,
+      receivingChainId: txData.receivingChainId,
+      callDataHash: txData.callDataHash,
+      transactionId: txData.transactionId,
+    };
+
+    const connected = transactionManager.connect(signer);
+
+    // estimate gas
+    let gasLimit;
+    try {
+      gasLimit = await connected.estimateGas.prepare(
+        invariant,
+        amount,
+        expiry,
+        encryptedCallData,
+        encodedBid,
+        bidSignature,
+      );
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    const tx = await connected.prepare(invariant, amount, expiry, encryptedCallData, encodedBid, bidSignature, {
+      value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
+      from: this.signer.getAddress(),
+      gasLimit: gasLimit.mul(2),
+    });
     this.logger.info("Prepare transaction submitted", requestContext, methodContext, {
       txHash: tx.hash,
     });
@@ -191,9 +202,23 @@ export class TransactionManager {
 
     const { txData, signature } = cancelParams;
     const signer = this.getConnectedSigner(provider);
+
+    const connected = transactionManager.connect(signer);
+
+    // estimate gas
+    let gasLimit;
+    try {
+      gasLimit = await connected.estimateGas.cancel(txData, signature, {
+        from: this.signer.getAddress(),
+      });
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
     const tx = await transactionManager
       .connect(signer)
-      .cancel(txData, signature, { from: this.signer.getAddress(), gasLimit: HARDCODED_GAS_LIMIT });
+      .cancel(txData, signature, { from: this.signer.getAddress(), gasLimit: gasLimit.mul(2) });
 
     this.logger.info("Cancel transaction submitted", requestContext, methodContext, {
       txHash: tx.hash,
@@ -236,9 +261,23 @@ export class TransactionManager {
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
     const signer = this.getConnectedSigner(provider);
-    const tx = await transactionManager.connect(signer).fulfill(txData, relayerFee, signature, callData, {
+
+    const connected = transactionManager.connect(signer);
+
+    // estimate gas
+    let gasLimit;
+    try {
+      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData, {
+        from: this.signer.getAddress(),
+      });
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    const tx = await connected.fulfill(txData, relayerFee, signature, callData, {
       from: this.signer.getAddress(),
-      gasLimit: HARDCODED_GAS_LIMIT,
+      gasLimit: gasLimit.mul(2),
     });
 
     this.logger.info("Fulfill transaction submitted", requestContext, methodContext, { txHash: tx.hash });
@@ -281,9 +320,24 @@ export class TransactionManager {
     const approved = await erc20.allowance(signerAddress, transactionManager.address);
     this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
     if (approved.lt(amount)) {
+      // estimate gas
+      let gasLimit;
+      try {
+        gasLimit = await erc20.estimateGas.approve(
+          transactionManager.address,
+          infiniteApprove ? constants.MaxUint256 : amount,
+          {
+            from: this.signer.getAddress(),
+          },
+        );
+      } catch (e) {
+        const sanitized = parseError(e);
+        throw sanitized;
+      }
+
       const tx = await erc20.approve(transactionManager.address, infiniteApprove ? constants.MaxUint256 : amount, {
         from: this.signer.getAddress(),
-        gasLimit: HARDCODED_GAS_LIMIT,
+        gasLimit: gasLimit.mul(2),
       });
       this.logger.info("Approve transaction submitted", requestContext, methodContext, { txHash: tx.hash });
       return tx;
