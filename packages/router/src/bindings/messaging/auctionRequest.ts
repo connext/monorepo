@@ -8,9 +8,10 @@ import {
 } from "@connext/nxtp-utils";
 
 import { ProvidersNotAvailable } from "../../lib/errors";
+import { getNtpTimeSeconds } from "../../lib/helpers";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
-import { attemptedAuction } from "../metrics";
+import { attemptedAuction, AUCTION_REQUEST_LIMIT, lastAuctionMap } from "../metrics";
 
 export const auctionRequestBinding = async (
   from: string,
@@ -41,9 +42,19 @@ export const auctionRequestBinding = async (
     logger.error("No data in auction request", requestContext, methodContext, err);
     return;
   }
+
   // On every new auction broadcast, route to the new auction handler
   logger.info("Received auction request", requestContext, methodContext);
   const { bid, bidSignature } = await newAuction(data, requestContext);
+
+  // check if new auction happens in 5s or not
+  const lastAttemptTime = lastAuctionMap.get(`${bid.user}-${bid.router}`) as number;
+  const currentTime = await getNtpTimeSeconds();
+  if (lastAttemptTime && lastAttemptTime + AUCTION_REQUEST_LIMIT > currentTime) {
+    return;
+  }
+  lastAuctionMap.set(`${bid.user}-${bid.router}`, currentTime);
+
   await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature });
   attemptedAuction.inc({
     sendingAssetId: bid.sendingAssetId,

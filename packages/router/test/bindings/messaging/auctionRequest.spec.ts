@@ -82,25 +82,53 @@ describe("auctionRequestBinding", () => {
     expect(messagingMock.publishAuctionResponse).to.be.calledOnceWith(from, inbox, { bid, bidSignature });
   });
 
+  it("should work if new auction happens in longer than 5s", async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
+    await auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext);
+
+    expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(1);
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 4000);
+    });
+    await auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext);
+
+    expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(1);
+  });
+
   it("should not proceed if there is an error", async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
     await auctionRequestBinding(from, inbox, auctionPayload, err);
     expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(0);
     expect(newAuctionStub.callCount).to.be.eq(0);
   });
 
   it("should not proceed if there is no data", async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
     await auctionRequestBinding(inbox, undefined);
     expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(0);
     expect(newAuctionStub.callCount).to.be.eq(0);
   });
 
   it("should throw if newAuction fails", async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
     newAuctionStub.rejects(new Error("fail"));
     await expect(auctionRequestBinding(from, inbox, auctionPayload)).to.be.rejectedWith("fail");
     expect(messagingMock.publishAuctionResponse.callCount).to.be.eq(0);
   });
 
   it("should throw if messaging.publishAuctionResponse fails", async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
     messagingMock.publishAuctionResponse.rejects(new Error("fail"));
     await expect(auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext)).to.be.rejectedWith(
       "fail",
