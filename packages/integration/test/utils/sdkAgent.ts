@@ -139,6 +139,7 @@ export class SdkAgent {
       signer,
       logger.child({ name: "Sdk" }),
       "local",
+      undefined,
       natsUrl,
       authUrl,
       messaging,

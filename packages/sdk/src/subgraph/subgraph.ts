@@ -106,6 +106,7 @@ export class Subgraph {
     private readonly user: Signer,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly logger: Logger,
+    skipPolling = false,
     private readonly pollInterval = 10_000,
   ) {
     this.chainConfig = {};
@@ -126,7 +127,9 @@ export class Subgraph {
         };
       },
     );
-    this.startPolling();
+    if (!skipPolling) {
+      this.startPolling();
+    }
   }
 
   public stopPolling(): void {
@@ -139,7 +142,12 @@ export class Subgraph {
   public startPolling(): void {
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
-        await this.getActiveTransactions();
+        const { methodContext, requestContext } = createLoggingContext("pollingLoop");
+        try {
+          await this.getActiveTransactions();
+        } catch (err) {
+          this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
+        }
       }, this.pollInterval);
     }
   }

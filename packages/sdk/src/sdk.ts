@@ -147,6 +147,7 @@ export class NxtpSdk {
     private signer: Signer,
     private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
     network: "testnet" | "mainnet" | "local" = "mainnet",
+    skipPolling = false,
     natsUrl?: string,
     authUrl?: string,
     messaging?: UserNxtpNatsMessagingService,
@@ -234,7 +235,7 @@ export class NxtpSdk {
       txManagerConfig,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }));
+    this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
