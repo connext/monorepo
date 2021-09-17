@@ -97,6 +97,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(250);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
+  } else if (network == "arbitrum-one") {
+    chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
     chainId = BigInt.fromI32(43113);
   } else if (network == "mumbai") {

@@ -88,7 +88,9 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       const allowance = await token.allowance(signerAddress, txManager.address);
       console.log("allowance: ", allowance.toString());
       if (allowance.lt(liquidityWei)) {
-        const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei);
+        const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei, {
+          gasLimit: 250_000,
+        });
         console.log("approve tx: ", tx);
         await tx.wait();
       } else {
@@ -101,7 +103,10 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     console.log("value: ", value.toString());
     console.log("liquidityWei: ", liquidityWei.toString());
-    const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, { value });
+    const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, {
+      value,
+      gasLimit: 250_000,
+    });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
     const liquidity = await getLiquidity(form.getFieldValue("assetId"));

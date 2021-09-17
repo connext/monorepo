@@ -2,6 +2,12 @@
 
 ## Next Release
 
+- [sdk] Estimate gas on SDK transactions.
+
+## 0.0.40
+
+- [sdk] Fix xDai issue.
+
 ## 0.0.39
 
 - [txservice] Serialize tx submission
