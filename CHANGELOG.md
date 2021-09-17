@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Estimate gas on SDK transactions.
+
 ## 0.0.40
 
 - [sdk] Fix xDai issue.
