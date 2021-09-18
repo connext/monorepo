@@ -100,13 +100,13 @@ export class ChainService extends ChainReader {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-   public async sendTx(tx: WriteTransaction, _requestContext: RequestContext): Promise<providers.TransactionReceipt> {
-    const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, _requestContext);
+   public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
+    const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
     const chainId = tx.chainId;
-    return await this.getProvider(chainId).send(txs, context);
+    return await this.getProvider(chainId).send(tx, context);
   }
 
   /// LISTENER METHODS
