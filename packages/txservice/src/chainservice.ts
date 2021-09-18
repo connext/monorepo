@@ -1,9 +1,9 @@
-import { Signer, providers, BigNumber } from "ethers";
+import { Signer, providers } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, ChainConfig } from "./config";
-import { ReadTransaction, WriteTransaction } from "./types";
+import { WriteTransaction } from "./types";
 import { TransactionError, TransactionServiceFailure } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
@@ -114,103 +114,6 @@ export class ChainService extends ChainReader {
       txs: txs.map((tx) => ({ from: tx.from?.substring(0, 9), to: tx.to?.substring(0, 9) })),
     });
     return await this.getProvider(chainId).send(txs, context);
-  }
-
-  /**
-   * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
-   *
-   * @param tx - ReadTransaction to create contract call
-   * @param tx.chainId - Chain to read transaction on
-   * @param tx.to - Address to execute read on
-   * @param tx.data - Calldata to send
-   *
-   * @returns Encoded hexdata representing result of the read from the chain.
-   */
-  public async readTx(tx: ReadTransaction): Promise<string> {
-    const result = await this.getProvider(tx.chainId).readTransaction(tx);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the native asset balance for an address
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @param address - The hexadecimal string address whose balance we are getting.
-   * @returns BigNumber representing the current value held by the wallet at the
-   * specified address.
-   */
-  public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).getBalance(address);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the decimals for an asset by chainId
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @param assetId - The hexadecimal string address whose decimals we are getting.
-   * @returns number representing the decimals of the asset
-   */
-  public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
-    const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the current blocktime
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @returns number representing the current blocktime
-   */
-  public async getBlockTime(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockTime();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the current block number
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @returns number representing the current block
-   */
-  public async getBlockNumber(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockNumber();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets a trsanction receipt by hash
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @returns number representing the current blocktime
-   */
-  public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
-    const result = await this.getProvider(chainId).getTransactionReceipt(hash);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
   }
 
   /// LISTENER METHODS
