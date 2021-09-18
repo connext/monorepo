@@ -2,7 +2,6 @@ import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
 import {
   createLoggingContext,
-  createMethodContext,
   delay,
   jsonifyError,
   Logger,
@@ -26,7 +25,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   static MAX_INFLIGHT_TRANSACTIONS = 64;
   // Buffer of in-flight transactions waiting to get 1 confirmation.
   private inflightBuffer: Transaction[] = [];
-  private miningInterval: NodeJS.Timeout;
+  private mineInterval: NodeJS.Timeout;
 
   // TODO: Cap this buffer as well. # of inflight txs max * # of confirmations needed seems reasonable as a max # of waiting-for-x-confirmations queue length
   // Buffer of mined transactions waiting for X confirmations.
@@ -66,13 +65,12 @@ export class TransactionDispatch extends ChainRpcProvider {
     signer: string | Signer,
   ) {
     super(logger, chainId, chainConfig, config, signer);
-    this.mineLoop();
-    this.confirmLoop();
+    this.mineInterval = this.mineLoop();
+    this.confirmInterval = this.confirmLoop();
   }
 
-  
-  private async mineLoop(): Promise<void> {
-    this.miningInterval = setInterval(async () => {
+  private mineLoop(): NodeJS.Timeout {
+    return setInterval(async () => {
       if (this.inflightBuffer.length > 0) {
         const transaction = this.inflightBuffer[0];
         try {
@@ -97,8 +95,8 @@ export class TransactionDispatch extends ChainRpcProvider {
     }, 5_000);
   }
 
-  private async confirmLoop(): Promise<void> {
-    this.confirmInterval = setInterval(async () => {
+  private confirmLoop(): NodeJS.Timeout {
+    return setInterval(async () => {
       if (this.minedBuffer.length > 0) {
         const transaction = this.minedBuffer[0];
         try {
