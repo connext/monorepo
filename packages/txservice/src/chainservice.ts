@@ -101,15 +101,19 @@ export class ChainService extends ChainReader {
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
   public async sendTxBatch(txs: WriteTransaction[], context: RequestContext): Promise<providers.TransactionReceipt[]> {
-    // TODO: buffer -> batch
-    // const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, _requestContext);
-    // this.logger.debug("Method start", requestContext, methodContext, {
-    // tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
-    // });
     if (txs.length === 0) {
-      throw TypeError("Transactions batch cannot be empty.");
+      throw new TypeError("Transactions batch cannot be empty.");
     }
-    return await this.getProvider(txs[0].chainId).send(txs, context);
+    const { requestContext, methodContext } = createLoggingContext(this.sendTxBatch.name, context);
+    const chainId = txs[0].chainId;
+    if (txs.some((tx) => tx.chainId !== chainId)) {
+      throw new TypeError("All transactions must be on the same chain.");
+    }
+    this.logger.debug("Method start", requestContext, methodContext, {
+      chainId,
+      txs: txs.map((tx) => ({ from: tx.from?.substring(0, 9), to: tx.to?.substring(0, 9) })),
+    });
+    return await this.getProvider(chainId).send(txs, context);
   }
 
   /**
