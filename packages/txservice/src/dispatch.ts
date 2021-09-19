@@ -25,12 +25,10 @@ export class TransactionDispatch extends ChainRpcProvider {
   static MAX_INFLIGHT_TRANSACTIONS = 64;
   // Buffer of in-flight transactions waiting to get 1 confirmation.
   private inflightBuffer: Transaction[] = [];
-  private mineInterval: NodeJS.Timeout;
 
   // TODO: Cap this buffer as well. # of inflight txs max * # of confirmations needed seems reasonable as a max # of waiting-for-x-confirmations queue length
   // Buffer of mined transactions waiting for X confirmations.
   private minedBuffer: Transaction[] = [];
-  private confirmInterval: NodeJS.Timeout;
   
   private readonly submitQueue = new PriorityQueue({ concurrency: 1 });
 
