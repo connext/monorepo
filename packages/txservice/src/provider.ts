@@ -40,7 +40,7 @@ export class ChainRpcProvider {
   public readonly confirmationTimeout: number;
 
   public get isReadOnly(): boolean {
-    return !!this.signer;
+    return !this.signer;
   }
 
   /**

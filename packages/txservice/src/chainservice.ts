@@ -67,12 +67,12 @@ export class ChainService extends ChainReader {
    */
   constructor(logger: Logger, config: Partial<TransactionServiceConfig>, signer: string | Signer) {
     super(logger, config, signer);
-    const { requestContext, methodContext } = createLoggingContext("TransactionService.constructor");
+    const { requestContext, methodContext } = createLoggingContext("ChainService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
     if (ChainService.instance) {
-      const msg = "CRITICAL: TransactionService.constructor was called twice! Please report this incident.";
+      const msg = "CRITICAL: ChainService.constructor was called twice! Please report this incident.";
       const error = new NxtpError(msg);
       logger.error(msg, requestContext, methodContext, error, {
         instance: ChainService.instance.toString(),
