@@ -7,7 +7,7 @@ import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, Trans
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
-type DispatchCallbacks = {
+export type DispatchCallbacks = {
   onSubmit: (transaction: Transaction) => void;
   onMined: (transaction: Transaction) => void;
   onConfirm: (transaction: Transaction) => void;
