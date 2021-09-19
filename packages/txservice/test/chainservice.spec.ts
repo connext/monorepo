@@ -7,13 +7,11 @@ import {
   makeChaiReadable,
   TEST_SENDER_CHAIN_ID,
   TEST_TX,
-  TEST_FULL_TX,
   TEST_TX_RESPONSE,
   TEST_TX_RECEIPT,
 } from "./constants";
-import { BadNonce, RpcError, TimeoutError, TransactionReverted, TransactionServiceFailure } from "../src/error";
-import { getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
-import { err, ok } from "neverthrow";
+import { TransactionReverted, TransactionServiceFailure } from "../src/error";
+import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
 import { Gas, Transaction } from "../src/types";
 
@@ -31,6 +29,13 @@ let context: RequestContext = {
 };
 let dispatchCallbacks: DispatchCallbacks;
 let transaction: Transaction;
+const chains = {
+  [TEST_SENDER_CHAIN_ID.toString()]: {
+    providers: [{ url: "https://-------------" }],
+    confirmations: 1,
+    gasStations: [],
+  },
+};
 
 /// In these tests, we are testing the outer shell of chainservice - the interface, not the core functionality.
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
@@ -48,14 +53,6 @@ describe("ChainService", () => {
       { confirmationTimeout: 1, confirmationsRequired: 1 },
       "1",
     );
-
-    const chains = {
-      [TEST_SENDER_CHAIN_ID.toString()]: {
-        providers: [{ url: "https://-------------" }],
-        confirmations: 1,
-        gasStations: [],
-      },
-    };
 
     (ChainService as any).instance = undefined;
     chainService = new ChainService(logger, { chains }, signer);
@@ -78,6 +75,14 @@ describe("ChainService", () => {
   afterEach(() => {
     restore();
     reset();
+  });
+
+  describe("#constructor", () => {
+    it("will not instantiate twice", () => {
+      expect(() => {
+        new ChainService(logger, {}, signer);
+      }).to.throw(NxtpError);
+    });
   });
 
   describe("#sendTx", () => {
@@ -181,6 +186,36 @@ describe("ChainService", () => {
       // Call count should remain the same.
       expect(spy.callCount).to.equal(1);
     });
+
+    it("should detach all listeners if no event specified", async () => {
+      const onSubmitSpy = Sinon.spy();
+      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, onSubmitSpy);
+
+      const onMinedSpy = Sinon.spy();
+      chainService.attach(NxtpTxServiceEvents.TransactionMined, onMinedSpy);
+
+      // Events should be triggered for this round.
+      dispatchCallbacks.onSubmit(transaction);
+      expect(onSubmitSpy.callCount).to.equal(1);
+
+      dispatchCallbacks.onMined(transaction);
+      expect(onMinedSpy.callCount).to.equal(1);
+
+      // Events should NOT be triggered for this round.
+      chainService.detach();
+
+      dispatchCallbacks.onSubmit(transaction);
+      dispatchCallbacks.onSubmit(transaction);
+      dispatchCallbacks.onSubmit(transaction);
+
+      dispatchCallbacks.onMined(transaction);
+      dispatchCallbacks.onMined(transaction);
+      dispatchCallbacks.onMined(transaction);
+
+      // Call count should remain the same.
+      expect(onSubmitSpy.callCount).to.equal(1);
+      expect(onMinedSpy.callCount).to.equal(1);
+    });
   });
 
   describe("#waitFor", () => {
@@ -203,6 +238,30 @@ describe("ChainService", () => {
       await expect(chainService.waitFor(NxtpTxServiceEvents.TransactionSubmitted, 10)).to.be.rejectedWith(
         EvtError.Timeout,
       );
+    });
+  });
+
+  describe("#getProvider", () => {
+    it("errors if cannot get provider", async () => {
+      // Replacing this method with the original fn not working.
+      (chainService as any).getProvider.restore();
+      await expect(chainService.sendTx({ ...TEST_TX, chainId: 9999 }, context)).to.be.rejectedWith(
+        TransactionServiceFailure,
+      );
+    });
+  });
+
+  describe("#setupProviders", () => {
+    it("throws if not a single provider config is provided for a chainId", async () => {
+      (chainService as any).config.chains =  {
+        [TEST_SENDER_CHAIN_ID.toString()]: {
+          // Providers list here should never be empty.
+          providers: [],
+          confirmations: 1,
+          gasStations: [],
+        },
+      };
+      expect(() => (chainService as any).setupProviders(context, signer)).to.throw(TransactionServiceFailure);
     });
   });
 });

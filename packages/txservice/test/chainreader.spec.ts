@@ -64,6 +64,12 @@ describe("ChainReader", () => {
       expect(provider.readTransaction.callCount).to.equal(1);
       expect(provider.readTransaction.args[0][0]).to.deep.eq(TEST_READ_TX);
     });
+
+    it("should throw if provider fails", async () => {
+      provider.readTransaction.resolves(err(new RpcError("fail")));
+
+      await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
+    });
   });
 
   describe("#getBalance", () => {
@@ -168,6 +174,20 @@ describe("ChainReader", () => {
       // Replacing this method with the original fn not working.
       (chainReader as any).getProvider.restore();
       await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(TransactionServiceFailure);
+    });
+  });
+
+  describe("#setupProviders", () => {
+    it("throws if not a single provider config is provided for a chainId", async () => {
+      (chainReader as any).config.chains =  {
+        [TEST_SENDER_CHAIN_ID.toString()]: {
+          // Providers list here should never be empty.
+          providers: [],
+          confirmations: 1,
+          gasStations: [],
+        },
+      };
+      expect(() => (chainReader as any).setupProviders(context, signer)).to.throw(TransactionServiceFailure);
     });
   });
 });
