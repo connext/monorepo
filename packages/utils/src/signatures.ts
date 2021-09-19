@@ -52,8 +52,8 @@ export const signFulfillTransactionPayload = async (
   // https://github.com/ethers-io/ethers.js/pull/1542
   let signature;
   if (signer.provider && signer.provider instanceof providers.Web3Provider) {
-    console.log("********* signer.provider: ", signer.provider);
-    signature = await signer.provider.send("personal_sign", [utils.arrayify(hash)]);
+    const signerAddress = await signer.getAddress();
+    signature = await signer.provider.send("personal_sign", [utils.arrayify(hash), signerAddress]);
   } else {
     signature = await signer.signMessage(utils.arrayify(hash));
   }
