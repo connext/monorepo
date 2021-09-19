@@ -2,6 +2,9 @@
 
 ## Next Release
 
+## 0.0.41
+
+- [sdk] Attempt fix on trust wallet again.
 - [sdk] Estimate gas on SDK transactions.
 - [router] Serialize tx submission.
 
