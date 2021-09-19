@@ -65,50 +65,48 @@ export class TransactionDispatch extends ChainRpcProvider {
     signer: string | Signer,
   ) {
     super(logger, chainId, chainConfig, config, signer);
-    this.mineInterval = this.mineLoop();
-    this.confirmInterval = this.confirmLoop();
+    this.mineLoop();
+    this.confirmLoop();
   }
 
-  private mineLoop(): NodeJS.Timeout {
-    return setInterval(async () => {
-      if (this.inflightBuffer.length > 0) {
-        const transaction = this.inflightBuffer[0];
-        try {
-          // Will check for 1 confirmation.
-          this.mine(transaction);
-          this.inflightBuffer.shift();
-        } catch (error) {
-          if (error.type === TimeoutError.type) {
-            if (transaction.receipt && transaction.receipt.confirmations > 1) {
-              // Transaction timed out trying to validate. We should bump the tx and submit again.
-              // TODO: Check to see if we are at max gas or max attempts! If so, log as critical error, then stall indefinitely (until mined)
-              await this.bump(transaction);
-              // Resubmit
-              await this.submit(transaction);
-            }
-          } else {
-            transaction.error = error;
-            this.fail(transaction);
+  private async mineLoop() {
+    if (this.inflightBuffer.length > 0) {
+      const transaction = this.inflightBuffer[0];
+      try {
+        // Will check for 1 confirmation.
+        this.mine(transaction);
+        this.inflightBuffer.shift();
+      } catch (error) {
+        if (error.type === TimeoutError.type) {
+          if (transaction.receipt && transaction.receipt.confirmations > 1) {
+            // Transaction timed out trying to validate. We should bump the tx and submit again.
+            // TODO: Check to see if we are at max gas or max attempts! If so, log as critical error, then stall indefinitely (until mined)
+            await this.bump(transaction);
+            // Resubmit
+            await this.submit(transaction);
           }
-        }
-      }
-    }, 5_000);
-  }
-
-  private confirmLoop(): NodeJS.Timeout {
-    return setInterval(async () => {
-      if (this.minedBuffer.length > 0) {
-        const transaction = this.minedBuffer[0];
-        try {
-          // Checks to make sure we hit the target number of confirmations.
-          this.confirm(transaction);
-          this.minedBuffer.shift();
-        } catch (error) {
+        } else {
           transaction.error = error;
           this.fail(transaction);
         }
       }
-    }, 5_000);
+    }
+    setTimeout(() => this.mineLoop(), 5_000);
+  }
+
+  private async confirmLoop() {
+    if (this.minedBuffer.length > 0) {
+      const transaction = this.minedBuffer[0];
+      try {
+        // Checks to make sure we hit the target number of confirmations.
+        await this.confirm(transaction);
+        this.minedBuffer.shift();
+      } catch (error) {
+        transaction.error = error;
+        await this.fail(transaction);
+      }
+    }
+    setTimeout(() => this.confirmLoop(), 5_000);
   }
 
   /// LIFECYCLE
