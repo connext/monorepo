@@ -10,6 +10,21 @@ export abstract class TransactionError extends NxtpError {
   static readonly type = TransactionError.name;
 }
 
+export class MaxBufferLengthError extends TransactionError {
+  /**
+   * Thrown if a backfill transaction fails and other txs are attempted
+   */
+  static readonly type = MaxBufferLengthError.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Inflight transaction buffer is full.",
+      context,
+      MaxBufferLengthError.type,
+    );
+  }
+}
+
 export class DispatchAborted extends TransactionError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted

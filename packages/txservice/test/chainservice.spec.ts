@@ -3,13 +3,7 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from 
 
 import { NxtpTxServiceEvents, ChainService } from "../src/chainservice";
 import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
-import {
-  makeChaiReadable,
-  TEST_SENDER_CHAIN_ID,
-  TEST_TX,
-  TEST_TX_RESPONSE,
-  TEST_TX_RECEIPT,
-} from "./constants";
+import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
 import { TransactionReverted, TransactionServiceFailure } from "../src/error";
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
@@ -43,7 +37,7 @@ describe("ChainService", () => {
   beforeEach(() => {
     dispatch = createStubInstance(TransactionDispatch);
     signer = createStubInstance(Wallet);
-    signer.connect.resolves(true);
+    // signer.connect.resolves(true);
     // This data structure is used to pass info back through the event callbacks.
     transaction = new Transaction(
       context,
@@ -253,7 +247,7 @@ describe("ChainService", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainService as any).config.chains =  {
+      (chainService as any).config.chains = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],

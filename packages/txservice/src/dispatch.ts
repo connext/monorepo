@@ -3,7 +3,7 @@ import PriorityQueue from "p-queue";
 import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { Gas, WriteTransaction, Transaction } from "./types";
-import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
+import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure, MaxBufferLengthError } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -19,6 +19,8 @@ export type DispatchCallbacks = {
  *
  */
 export class TransactionDispatch extends ChainRpcProvider {
+  private loopsRunning = false;
+
   // Based on default per account rate limiting on geth.
   // TODO: Make this a configurable value, since the dev may be able to implement or may be using a custom geth node.
   static MAX_INFLIGHT_TRANSACTIONS = 64;
@@ -34,7 +36,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
   // NOTE: Should not be accessed outside of the helper methods, getNonce and incrementNonce.
-  private _nonce = 0;
+  private nonce = 0;
 
   /**
    * Transaction lifecycle management class. Extends ChainRpcProvider, thus exposing all provider methods
@@ -57,10 +59,20 @@ export class TransactionDispatch extends ChainRpcProvider {
     config: TransactionServiceConfig,
     signer: string | Signer,
     private readonly callbacks: DispatchCallbacks,
+    startLoops = true,
   ) {
     super(logger, chainId, chainConfig, config, signer);
-    this.mineLoop();
-    this.confirmLoop();
+    if (startLoops) {
+      this.startLoops();
+    }
+  }
+
+  public startLoops() {
+    if (!this.loopsRunning) {
+      this.loopsRunning = true;
+      this.mineLoop();
+      this.confirmLoop();
+    }
   }
 
   private async mineLoop() {
@@ -82,6 +94,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         } else {
           transaction.error = error;
           this.fail(transaction);
+          this.inflightBuffer.shift();
         }
       }
     }
@@ -98,6 +111,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       } catch (error) {
         transaction.error = error;
         await this.fail(transaction);
+        this.minedBuffer.shift();
       }
     }
     setTimeout(() => this.confirmLoop(), 5_000);
@@ -123,8 +137,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
         if (this.inflightBuffer.length >= TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS) {
-          // TODO: MaxBufferLengthError!
-          throw new Error("Too many inflight transactions");
+          throw new MaxBufferLengthError();
         }
 
         // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
@@ -140,7 +153,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         const minedTransactionCount = result.value;
 
         // Set to whichever value is higher. This should almost always be our local nonce.
-        let nonce = Math.max(this._nonce, minedTransactionCount);
+        let nonce = Math.max(this.nonce, minedTransactionCount);
 
         // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
         // go through on the first try.
@@ -149,12 +162,15 @@ export class TransactionDispatch extends ChainRpcProvider {
           chainId: this.chainId,
           currentNonce: {
             minedTransactionCount,
-            localNonce: this._nonce,
+            localNonce: this.nonce,
             assignedNonce: nonce,
           },
         });
         // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
         let iterations = 0;
+        // Need to keep a flag for this, as we continually get vague "nonce incorrect errors", and once we reset the nonce, we only want
+        // to increment and retry from there.
+        let nonceWasReset = false;
         while (iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 && (!transaction || !transaction.didSubmit)) {
           iterations++;
           // Create a new transaction instance to track lifecycle. We will be submitting below.
@@ -168,7 +184,8 @@ export class TransactionDispatch extends ChainRpcProvider {
             if (error.type === BadNonce.type) {
               if (
                 error.reason === BadNonce.reasons.NonceExpired ||
-                error.reason === BadNonce.reasons.ReplacementUnderpriced
+                error.reason === BadNonce.reasons.ReplacementUnderpriced ||
+                nonceWasReset
               ) {
                 // Currently only two possibilities are known to (potentially) cause this to happen:
                 // 1. Signer used outside of this class to send tx (should never happen).
@@ -180,6 +197,7 @@ export class TransactionDispatch extends ChainRpcProvider {
                 // It's unknown whether nonce was too low or too high. For safety, reset the nonce to the current mined tx count.
                 // It should bump up in this loop until it hits the right number.
                 nonce = minedTransactionCount;
+                nonceWasReset = true;
                 continue;
               }
             }
@@ -188,12 +206,12 @@ export class TransactionDispatch extends ChainRpcProvider {
           }
         }
         if (!transaction) {
-          throw new Error("Transaction never submitted");
+          throw new TransactionServiceFailure("Transaction never submitted: exceeded maximum iterations in initial submit loop.");
         }
         // Push submitted transaction to inflight buffer.
         this.inflightBuffer.push(transaction);
         // Increment the successful nonce, and assign our local nonce to that value.
-        this._nonce = nonce + 1;
+        this.nonce = nonce + 1;
         return { value: transaction, success: true };
       } catch (error) {
         return { value: error, success: false };

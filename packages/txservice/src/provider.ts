@@ -117,6 +117,9 @@ export class ChainRpcProvider {
 
   /**
    * Send the transaction request to the provider.
+   * 
+   * @remarks This method is set to access protected since it should really only be used by the inheriting class,
+   * TransactionDispatch, as of the time of writing this.
    *
    * @param tx The transaction used for the request.
    *
