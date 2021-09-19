@@ -13,8 +13,7 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
-import { CachedGas, CachedTransactionCount, ReadTransaction } from "./types";
-import { Transaction } from "./transaction";
+import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 

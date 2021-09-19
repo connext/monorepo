@@ -3,11 +3,10 @@ import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, ChainConfig } from "./config";
-import { WriteTransaction } from "./types";
+import { WriteTransaction, Transaction } from "./types";
 import { TransactionServiceFailure } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
-import { Transaction } from "./transaction";
 
 export type TxServiceSubmittedEvent = {
   responses: providers.TransactionResponse[];
