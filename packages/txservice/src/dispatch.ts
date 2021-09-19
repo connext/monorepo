@@ -205,7 +205,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const transaction = result.value as Transaction;
     // Wait for transaction to be picked up by the mine and confirm loops and closed out.
     while (!transaction.didFinish && !transaction.discontinued) {
-      delay(10_000);
+      await delay(10_000);
     }
 
     if (transaction.error) {
