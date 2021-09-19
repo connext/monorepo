@@ -7,6 +7,8 @@ import {
   TEST_SENDER_CHAIN_ID,
   TEST_TX,
   TEST_READ_TX,
+  TEST_TX_RECEIPT,
+  makeChaiReadable,
 } from "./constants";
 import {  RpcError, TransactionServiceFailure } from "../src/error";
 import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
@@ -28,7 +30,6 @@ let context: RequestContext = {
 /// In these tests, we are testing the outer shell of txservice - the interface, not the core functionality.
 /// For core functionality tests, see transaction.spec.ts and provider.spec.ts.
 describe("ChainReader", () => {
-
   beforeEach(() => {
     provider = createStubInstance(ChainRpcProvider);
     signer = createStubInstance(Wallet);
@@ -58,7 +59,7 @@ describe("ChainReader", () => {
     reset();
   });
 
-  describe("readTx", () => {
+  describe("#readTx", () => {
     it("happy: returns exactly what it reads", async () => {
       const fakeData = getRandomBytes32();
       provider.readTransaction.resolves(ok(fakeData));
@@ -71,17 +72,7 @@ describe("ChainReader", () => {
     });
   });
 
-  describe("getProvider", () => {
-    it("errors if cannot get provider", async () => {
-      // Replacing this method with the original fn not working.
-      (chainReader as any).getProvider.restore();
-      await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(
-        TransactionServiceFailure,
-      );
-    });
-  });
-
-  describe("getBalance", () => {
+  describe("#getBalance", () => {
     it("happy", async () => {
       const testBalance = utils.parseUnits("42", "ether");
       const testAddress = getRandomAddress();
@@ -101,7 +92,7 @@ describe("ChainReader", () => {
     });
   });
 
-  describe("getDecimalsForAsset", () => {
+  describe("#getDecimalsForAsset", () => {
     it("happy", async () => {
       const decimals = 18;
       const assetId = mkAddress("0xaaa");
@@ -115,13 +106,13 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBalance.resolves(err(new RpcError("fail")));
+      provider.getDecimalsForAsset.resolves(err(new RpcError("fail")));
 
-      await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+      await expect(chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
     });
   });
 
-  describe("getBlockTime", () => {
+  describe("#getBlockTime", () => {
     it("happy", async () => {
       const time = Math.floor(Date.now() / 1000);
       provider.getBlockTime.resolves(ok(time));
@@ -136,6 +127,51 @@ describe("ChainReader", () => {
       provider.getBlockTime.resolves(err(new RpcError("fail")));
 
       await expect(chainReader.getBlockTime(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getBlockNumber", () => {
+    it("happy", async () => {
+      const testBlockNumber = 42;
+      provider.getBlockNumber.resolves(ok(testBlockNumber));
+
+      const blockNumber = await chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID);
+
+      expect(blockNumber).to.be.eq(testBlockNumber);
+      expect(provider.getBlockNumber.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getBlockNumber.resolves(err(new RpcError("fail")));
+
+      await expect(chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getTransactionReceipt", () => {
+    it("happy", async () => {
+      provider.getTransactionReceipt.resolves(ok(TEST_TX_RECEIPT));
+
+      const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash);
+
+      expect(makeChaiReadable(receipt)).to.be.eq(makeChaiReadable(TEST_TX_RECEIPT));
+      expect(provider.getBlockNumber.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getTransactionReceipt.resolves(err(new RpcError("fail")));
+
+      await expect(chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash)).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getProvider", () => {
+    it("errors if cannot get provider", async () => {
+      // Replacing this method with the original fn not working.
+      (chainReader as any).getProvider.restore();
+      await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(
+        TransactionServiceFailure,
+      );
     });
   });
 });
