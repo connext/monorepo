@@ -4,12 +4,17 @@ import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connex
 
 import { TransactionServiceConfig, ChainConfig } from "./config";
 import { WriteTransaction } from "./types";
-import { TransactionError, TransactionServiceFailure } from "./error";
+import { TransactionServiceFailure } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
+import { Transaction } from "./transaction";
 
 export type TxServiceSubmittedEvent = {
-  response: providers.TransactionResponse;
+  responses: providers.TransactionResponse[];
+};
+
+export type TxServiceMinedEvent = {
+  receipt: providers.TransactionReceipt;
 };
 
 export type TxServiceConfirmedEvent = {
@@ -17,19 +22,21 @@ export type TxServiceConfirmedEvent = {
 };
 
 export type TxServiceFailedEvent = {
-  error: TransactionError;
+  error: Error;
   receipt?: providers.TransactionReceipt;
 };
 
 export const NxtpTxServiceEvents = {
-  TransactionAttemptSubmitted: "TransactionAttemptSubmitted",
+  TransactionSubmitted: "TransactionSubmitted",
+  TransactionMined: "TransactionMined",
   TransactionConfirmed: "TransactionConfirmed",
   TransactionFailed: "TransactionFailed",
 } as const;
 export type NxtpTxServiceEvent = typeof NxtpTxServiceEvents[keyof typeof NxtpTxServiceEvents];
 
 export interface NxtpTxServiceEventPayloads {
-  [NxtpTxServiceEvents.TransactionAttemptSubmitted]: TxServiceSubmittedEvent;
+  [NxtpTxServiceEvents.TransactionSubmitted]: TxServiceSubmittedEvent;
+  [NxtpTxServiceEvents.TransactionMined]: TxServiceMinedEvent;
   [NxtpTxServiceEvents.TransactionConfirmed]: TxServiceConfirmedEvent;
   [NxtpTxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
 }
@@ -47,7 +54,8 @@ export class ChainService extends ChainReader {
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
-    [NxtpTxServiceEvents.TransactionAttemptSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
+    [NxtpTxServiceEvents.TransactionSubmitted]: Evt.create<TxServiceSubmittedEvent>(),
+    [NxtpTxServiceEvents.TransactionMined]: Evt.create<TxServiceMinedEvent>(),
     [NxtpTxServiceEvents.TransactionConfirmed]: Evt.create<TxServiceConfirmedEvent>(),
     [NxtpTxServiceEvents.TransactionFailed]: Evt.create<TxServiceFailedEvent>(),
   };
@@ -100,7 +108,7 @@ export class ChainService extends ChainReader {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-   public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
     const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
@@ -219,7 +227,19 @@ export class ChainService extends ChainReader {
         throw error;
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer);
+      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer, {
+        onSubmit: (transaction: Transaction) =>
+          this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
+        onMined: (transaction: Transaction) =>
+          this.evts[NxtpTxServiceEvents.TransactionMined].post({ receipt: transaction.receipt! }),
+        onConfirm: (transaction: Transaction) =>
+          this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt: transaction.receipt! }),
+        onFail: (transaction: Transaction) =>
+          this.evts[NxtpTxServiceEvents.TransactionFailed].post({
+            error: transaction.error!,
+            receipt: transaction.receipt,
+          }),
+      });
       this.providers.set(chainIdNumber, provider);
     });
   }

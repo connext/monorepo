@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { providers, utils } from "ethers";
 import { RequestContext } from "@connext/nxtp-utils";
 
 import { FullTransaction, Gas, WriteTransaction } from "./types";
@@ -7,6 +7,20 @@ type TransactionConfig = {
   confirmationTimeout: number;
   confirmationsRequired: number;
 };
+
+type LoggableTransactionData = {
+  txsId: string;
+  nonce: number;
+  hash: string;
+  attempt: number;
+  gasPrice: string;
+  gasLimit: string;
+  discontinued: boolean;
+  error: any;
+  confirmations: number,
+  didSubmit: boolean,
+  didFinish: boolean,
+}
 
 /**
  * @classdesc A data structure for storing invariant params and managing state related to a single transaction.
@@ -53,13 +67,6 @@ export class Transaction {
     return this.responses.map((tx) => tx.hash);
   }
 
-  // Whether this transaction has been validated (received at least 1 confirmation).
-  // This flag will be flipped once validate() is called and validation is successful.
-  private _validated = false;
-  public get validated(): boolean {
-    return this._validated;
-  }
-
   /**
    * Specifies whether the transaction has been submitted.
    * @returns boolean indicating whether the transaction is submitted.
@@ -89,6 +96,22 @@ export class Transaction {
     };
   }
 
+  public get loggable(): LoggableTransactionData {
+    return {
+      txsId: this.uuid,
+      nonce: this.nonce,
+      attempt: this.attempt,
+      hash: this.hash ?? "none",
+      gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
+      gasLimit: `${utils.formatUnits(this.gas.limit, "gwei")} gwei`,
+      discontinued: this.discontinued,
+      error: this.error,
+      confirmations: this.receipt ? this.receipt.confirmations : 0,
+      didSubmit: this.didSubmit,
+      didFinish: this.didFinish,
+    };
+  }
+
   /**
    * A data structure used for management of the lifecycle of one on-chain transaction.
    *
@@ -96,7 +119,8 @@ export class Transaction {
    * @param minTx - The minimum transaction data required to send a transaction.
    * @param nonce - Assigned nonce number for this transaction.
    * @param gas - The Gas tracker instance, which will include price, limit, and maximum.
-   * @param config - Tr
+   * @param config - Transaction configuration.
+   * @param uuid - A unique ID for this transaction.
    */
   constructor(
     public readonly context: RequestContext,
@@ -104,5 +128,6 @@ export class Transaction {
     public readonly nonce: number,
     public readonly gas: Gas,
     private readonly config: TransactionConfig,
+    public readonly uuid: string,
   ) {}
 }
