@@ -51,8 +51,9 @@ export const signFulfillTransactionPayload = async (
   // special case for trust wallet until we can get this released:
   // https://github.com/ethers-io/ethers.js/pull/1542
   let signature;
-  if (signer.provider && (signer.provider as any).isTrust) {
-    signature = await (signer.provider as providers.Web3Provider).send("personal_sign", [utils.arrayify(hash)]);
+  if (signer.provider && signer.provider instanceof providers.Web3Provider) {
+    console.log("********* signer.provider: ", signer.provider);
+    signature = await signer.provider.send("personal_sign", [utils.arrayify(hash)]);
   } else {
     signature = await signer.signMessage(utils.arrayify(hash));
   }
