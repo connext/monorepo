@@ -105,7 +105,6 @@ export class TransactionDispatch extends ChainRpcProvider {
   }
 
   /// LIFECYCLE
-
   /**
    *
    * @param minTx - Minimum transaction params needed to form a transaction.

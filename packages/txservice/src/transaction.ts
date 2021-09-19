@@ -103,7 +103,7 @@ export class Transaction {
       attempt: this.attempt,
       hash: this.hash ?? "none",
       gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
-      gasLimit: `${utils.formatUnits(this.gas.limit, "gwei")} gwei`,
+      gasLimit: this.gas.limit.toString(),
       discontinued: this.discontinued,
       error: this.error,
       confirmations: this.receipt ? this.receipt.confirmations : 0,
