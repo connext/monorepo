@@ -427,8 +427,8 @@ export class TransactionDispatch extends ChainRpcProvider {
    * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
    * wait an extended period for the desired number of confirmations. If no further confirmations appear
    * (which is extremely unlikely), we throw a TransactionServiceFailure.NotEnoughConfirmations.
-   *
-   * @returns A TransactionReceipt (or undefined if it did not confirm).
+   * 
+   * @param transaction - 
    */
   private async confirm(transaction: Transaction) {
     const method = this.confirm.name;
