@@ -57,6 +57,7 @@ describe("ChainService", () => {
       },
     };
 
+    (ChainService as any).instance = undefined;
     chainService = new ChainService(logger, { chains }, signer);
 
     // NOTE: Chain service SHOULD instantiate a provider for this chain and SHOULD pass VALID callbacks
@@ -126,7 +127,7 @@ describe("ChainService", () => {
       const totalCallNumber = 6;
       const filteredCallThreshold = 3;
       const spy = Sinon.spy();
-      chainService.attachOnce(NxtpTxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
+      chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, spy, (data): boolean => {
         return data.responses.length > filteredCallThreshold;
       });
 
@@ -136,7 +137,7 @@ describe("ChainService", () => {
         dispatchCallbacks.onSubmit(transaction);
       }
 
-      expect(spy.callCount).to.equal(totalCallNumber - filteredCallThreshold);
+      expect(spy.callCount).to.be.eq(totalCallNumber - filteredCallThreshold);
     });
   });
 

@@ -150,8 +150,8 @@ describe("ChainReader", () => {
 
       const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash);
 
-      expect(makeChaiReadable(receipt)).to.be.eq(makeChaiReadable(TEST_TX_RECEIPT));
-      expect(provider.getBlockNumber.callCount).to.equal(1);
+      expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
+      expect(provider.getTransactionReceipt.callCount).to.be.eq(1);
     });
 
     it("should throw if provider fails", async () => {
