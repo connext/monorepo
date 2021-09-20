@@ -99,6 +99,9 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Queue up the transaction with these values.
     const result = await this.queue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
+        if (this.buffer.length >= 64) {
+          throw new Error("Buffer is full");
+        }
         // NOTE: This call must be here, serialized within the queue, as it is dependent on current pending transaction count.
         const nonce = await this.getNonce(context);
         // Create a new transaction instance to track lifecycle. We will NOT be submitting here.
