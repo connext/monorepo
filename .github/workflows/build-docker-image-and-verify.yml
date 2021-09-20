@@ -13,9 +13,11 @@ on:
   push:
     branches:
       - main
+      - stable-router
   pull_request:
     branches:
       - main
+      - stable-router
   create:
     tag:
       - "v*"
