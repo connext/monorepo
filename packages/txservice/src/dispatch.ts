@@ -99,13 +99,13 @@ export class TransactionDispatch extends ChainRpcProvider {
               // TODO: Better solution for bumping for all transactions / gas management (caching? moving avg? etc).
               // Bump all the other transactions in the buffer as well, since they will likely also have to be bumped to get through.
               for (const tx of this.inflightBuffer.slice(1)) {
-                // If something fails here (e.g. if submit gets reverted, etc), we'll throw, but the error will be attached to the transaction,
-                // and we'll shift it out of the buffer as soon as mineloop reaches it.
+                // If something fails here (e.g. if submit gets reverted, etc), the error will be attached to the transaction
+                // and we'll shift it out of the buffer as soon as this mineloop reaches it.
                 try {
                   await this.bump(tx);
                   await this.submit(tx);
                 } catch (error) {
-                  this.logger.debug("encountered error attempting to ");
+                  tx.error = error;
                 }
               }
             }
