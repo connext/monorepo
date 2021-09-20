@@ -76,43 +76,69 @@ export class TransactionDispatch extends ChainRpcProvider {
   }
 
   private async mineLoop() {
-    if (this.inflightBuffer.length > 0) {
-      const transaction = this.inflightBuffer[0];
-      try {
-        // Will check for 1 confirmation.
-        this.mine(transaction);
-        this.inflightBuffer.shift();
-      } catch (error) {
-        if (error.type === TimeoutError.type) {
-          if (transaction.receipt && transaction.receipt.confirmations > 1) {
-            // Transaction timed out trying to validate. We should bump the tx and submit again.
-            // TODO: Check to see if we are at max gas or max attempts! If so, log as critical error, then stall indefinitely (until mined)
-            await this.bump(transaction);
-            // Resubmit
-            await this.submit(transaction);
+    const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
+    try {
+      if (this.inflightBuffer.length > 0) {
+        const transaction = this.inflightBuffer[0];
+        try {
+          if (transaction.error) {
+            // This will cause us to fail the transaction properly below, and remove it from the buffer.
+            throw transaction.error;
           }
-        } else {
-          transaction.error = error;
-          this.fail(transaction);
+          // Try to wait for transaction to be mined (1 confirmation), then remove it from the buffer.
+          this.mine(transaction);
           this.inflightBuffer.shift();
+        } catch (error) {
+          if (error.type === TimeoutError.type) {
+            if (transaction.receipt && transaction.receipt.confirmations > 1) {
+              // Transaction timed out trying to validate. We should bump the tx and submit again.
+              await this.bump(transaction);
+              // Resubmit
+              await this.submit(transaction);
+
+              // TODO: Better solution for bumping for all transactions / gas management (caching? moving avg? etc).
+              // Bump all the other transactions in the buffer as well, since they will likely also have to be bumped to get through.
+              for (const tx of this.inflightBuffer.slice(1)) {
+                // If something fails here (e.g. if submit gets reverted, etc), we'll throw, but the error will be attached to the transaction,
+                // and we'll shift it out of the buffer as soon as mineloop reaches it.
+                try {
+                  await this.bump(tx);
+                  await this.submit(tx);
+                } catch (error) {
+                  this.logger.debug("encountered error attempting to ");
+                }
+              }
+            }
+          } else {
+            transaction.error = transaction.error ?? error;
+            this.fail(transaction);
+            this.inflightBuffer.shift();
+          }
         }
       }
+    } catch (error) {
+      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error));
     }
     setTimeout(() => this.mineLoop(), 5_000);
   }
 
   private async confirmLoop() {
-    if (this.minedBuffer.length > 0) {
-      const transaction = this.minedBuffer[0];
-      try {
-        // Checks to make sure we hit the target number of confirmations.
-        await this.confirm(transaction);
-        this.minedBuffer.shift();
-      } catch (error) {
-        transaction.error = error;
-        await this.fail(transaction);
-        this.minedBuffer.shift();
+    const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
+    try {
+      if (this.minedBuffer.length > 0) {
+        const transaction = this.minedBuffer[0];
+        try {
+          // Checks to make sure we hit the target number of confirmations.
+          await this.confirm(transaction);
+          this.minedBuffer.shift();
+        } catch (error) {
+          transaction.error = error;
+          await this.fail(transaction);
+          this.minedBuffer.shift();
+        }
       }
+    } catch (error) {
+      this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error));
     }
     setTimeout(() => this.confirmLoop(), 5_000);
   }
@@ -184,6 +210,8 @@ export class TransactionDispatch extends ChainRpcProvider {
             if (error.type === BadNonce.type) {
               if (
                 error.reason === BadNonce.reasons.NonceExpired ||
+                // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
+                // Or should we treat the nonce as expired?
                 error.reason === BadNonce.reasons.ReplacementUnderpriced ||
                 nonceWasReset
               ) {
@@ -193,7 +221,7 @@ export class TransactionDispatch extends ChainRpcProvider {
                 nonce = nonce + 1;
                 // TODO: Alternatively, we could retrieve the minedTransactionCount again and set the nonce to Math.max(minedTransactionCount, nonce + 1)
                 continue;
-              } else {
+              } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
                 // It's unknown whether nonce was too low or too high. For safety, reset the nonce to the current mined tx count.
                 // It should bump up in this loop until it hits the right number.
                 nonce = minedTransactionCount;
@@ -472,11 +500,12 @@ export class TransactionDispatch extends ChainRpcProvider {
   public async bump(transaction: Transaction) {
     const { requestContext, methodContext } = createLoggingContext(this.bump.name, transaction.context);
     if (transaction.attempt >= Transaction.MAX_ATTEMPTS) {
-      // TODO: Log more info?
-      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
+      const error = new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
         gasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
         transaction: transaction.loggable,
       });
+      transaction.error = error;
+      throw error;
     }
     const previousPrice = transaction.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
