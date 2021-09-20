@@ -1,4 +1,4 @@
-import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
+import { Signer, Wallet, utils, BigNumber } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
