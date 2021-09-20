@@ -13,9 +13,11 @@ on:
   push:
     branches:
       - main
+      - stable-router
   pull_request:
     branches:
       - main
+      - stable-router
   create:
     tag:
       - "v*"
@@ -38,7 +40,7 @@ jobs:
 
       - name: Build and push docker image to GitHub repo
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           chmod +x ./docker/build-router.sh
           ./docker/build-router.sh
 
@@ -78,7 +80,7 @@ jobs:
       - name: Get Docker image
         run: |
           yarn workspace @connext/nxtp-router build
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/connext/nxtp-router:latest
           docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
 

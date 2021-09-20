@@ -36,6 +36,7 @@ import {
   totalTransferredVolume,
 } from "../metrics";
 
+// Will *not* wait for async functions to complete
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
