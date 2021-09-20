@@ -33,6 +33,7 @@ const sign = async (hash: string, signer: Wallet | Signer, recover: (sig: string
   // special case for trust wallet until we can get this released:
   // https://github.com/ethers-io/ethers.js/pull/1542
   const signature = sanitizeSignature(await signer.signMessage(msg));
+  console.log("signature: ", signature);
 
   // Get address
   const addr = await signer.getAddress();
@@ -43,15 +44,20 @@ const sign = async (hash: string, signer: Wallet | Signer, recover: (sig: string
     return signature;
   }
 
-  if (!signer.provider || !(signer.provider instanceof providers.Web3Provider)) {
-    // Signature will *not* be recovered correctly from the contracts
-    // here, and theres not an alternative to send an RPC request.
-    // Try to add prefix explicitly to the msg
-    return sanitizeSignature(await signer.signMessage(utils.hashMessage(msg)));
-  }
+  // Signature will *not* be recovered correctly from the contracts
+  // Try to add prefix explicitly to the msg
+  return sanitizeSignature(await signer.signMessage(utils.hashMessage(msg)));
 
-  // Send an RPC request
-  return sanitizeSignature(await signer.provider.send("personal_sign", [msg, addr]));
+  // TODO: this is weird, but seeing UI issues with this code below
+  // if (!signer.provider || !(typeof (signer.provider as providers.Web3Provider).send === "function")) {
+  //   // Signature will *not* be recovered correctly from the contracts
+  //   // here, and theres not an alternative to send an RPC request.
+  //   // Try to add prefix explicitly to the msg
+  //   return sanitizeSignature(await signer.signMessage(utils.hashMessage(msg)));
+  // }
+
+  // // Send an RPC request
+  // return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
 };
 
 /**
