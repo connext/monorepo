@@ -256,9 +256,12 @@ export class ChainRpcProvider {
         let response: any;
         try {
           response = await axios.get(uri);
-          const { rapid } = response.data;
+          const { rapid, fast } = response.data;
           if (rapid !== undefined) {
             gasPrice = BigNumber.from(rapid);
+            break;
+          } else if (fast !== undefined) {
+            gasPrice = BigNumber.from(fast);
             break;
           }
         } catch (e) {
