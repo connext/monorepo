@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## 0.0.42
+## 0.0.43
 
 - [sdk] Attempt fix on trust wallet again.
 
