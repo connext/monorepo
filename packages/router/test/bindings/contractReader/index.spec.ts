@@ -353,11 +353,11 @@ describe("Contract Reader Binding", () => {
     });
 
     it("should error if contract reader active transactions fails", async () => {
-      (contractReaderMock.getActiveTransactions as SinonStub).resolves(new Error("fails"))
+      (contractReaderMock.getActiveTransactions as SinonStub).throws(new Error("fails"))
       await binding.bindContractReader();
       await delay(interval + 10);
       expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
-      expect(handleActiveTransactionsStub.callCount).to.be.eq(1);
+      expect(handleActiveTransactionsStub.callCount).to.be.eq(0);
     });
 
     it("should work", async () => {
