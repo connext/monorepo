@@ -352,12 +352,19 @@ describe("Contract Reader Binding", () => {
       reset();
     });
 
+    it("should error if contract reader active transactions fails", async () => {
+      (contractReaderMock.getActiveTransactions as SinonStub).resolves(new Error("fails"))
+      await binding.bindContractReader();
+      await delay(interval + 10);
+      expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
+      expect(handleActiveTransactionsStub.callCount).to.be.eq(1);
+    });
+
     it("should work", async () => {
       await binding.bindContractReader();
       await delay(interval + 10);
       expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
       expect(handleActiveTransactionsStub.callCount).to.be.eq(1);
-      // done();
     });
   });
 });
