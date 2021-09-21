@@ -80,8 +80,8 @@ export class TransactionDispatch extends ChainRpcProvider {
       this.loopsRunning = true;
 
       // use interval promise to make sure loop iterations don't overlap
-      interval(async () => await this.mineLoop(), 5_000);
-      interval(async () => await this.confirmLoop(), 5_000);
+      interval(async () => await this.mineLoop(), 2_000);
+      interval(async () => await this.confirmLoop(), 2_000);
     }
   }
 
@@ -97,6 +97,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           }
           // Try to wait for transaction to be mined (1 confirmation), then remove it from the buffer.
           await this.mine(transaction);
+          this.minedBuffer.push(transaction);
           this.inflightBuffer.shift();
         } catch (error) {
           if (error.type === TimeoutError.type) {
