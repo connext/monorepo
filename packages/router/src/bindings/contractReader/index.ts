@@ -42,7 +42,7 @@ export const getLoopInterval = () => LOOP_INTERVAL;
 export const handlingTracker: Map<string, Tracker> = new Map();
 
 export const bindContractReader = async () => {
-  const { contractReader, logger } = getContext();
+  const { contractReader, logger, config } = getContext();
   const { requestContext, methodContext } = createLoggingContext("bindContractReader");
   setInterval(async () => {
     let transactions: ActiveTransaction<any>[] = [];
@@ -59,6 +59,18 @@ export const bindContractReader = async () => {
       logger.error("Error getting active txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
       return;
     }
+
+    // subgraph buffer
+    // remove records only iff transaction handled mined block is synced with respective chain subgraph
+    Object.entries(config.chainConfig).forEach(async ([chainId]) => {
+      const record = await contractReader.getSyncRecord(Number(chainId));
+      handlingTracker.forEach((value, key) => {
+        if (value.chainId === Number(chainId) && value.blockNumber != 0 && value.blockNumber <= record.syncedBlock) {
+          handlingTracker.delete(key);
+        }
+      });
+    });
+
     await handleActiveTransactions(transactions);
   }, getLoopInterval());
 };
@@ -75,10 +87,30 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       logger.debug("Already handling transaction", requestContext, methodContext);
       continue;
     }
-    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, transaction.status);
-    handleSingle(transaction, requestContext).finally(() =>
-      handlingTracker.delete(transaction.crosschainTx.invariant.transactionId),
-    );
+
+    let chainId: number;
+    if (
+      transaction.status === CrosschainTransactionStatus.SenderPrepared ||
+      transaction.status === CrosschainTransactionStatus.SenderExpired
+    ) {
+      chainId = transaction.crosschainTx.invariant.receivingChainId;
+    } else {
+      chainId = transaction.crosschainTx.invariant.sendingChainId;
+    }
+
+    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+      blockNumber: 0,
+      chainId,
+    });
+    const res = await handleSingle(transaction, requestContext);
+    if (res) {
+      handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+        blockNumber: res.blockNumber,
+        chainId,
+      });
+    } else {
+      handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
+    }
     await delay(750); // delay here to not flood the provider
   }
 };
@@ -95,6 +127,7 @@ export const handleSingle = async (
   const { logger, txService, config } = getContext();
   const { prepare, cancel, fulfill } = getOperations();
 
+  let receipt: providers.TransactionReceipt | undefined;
   if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {
     const _transaction = transaction as ActiveTransaction<"SenderPrepared">;
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.sendingChainId];
@@ -105,23 +138,23 @@ export const handleSingle = async (
         requestContext,
       });
     }
-    const senderReceipt = await txService.getTransactionReceipt(
+    const senderPerpareReceipt = await txService.getTransactionReceipt(
       _transaction.crosschainTx.invariant.sendingChainId,
       _transaction.payload.senderPreparedHash,
     );
-    if ((senderReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+    if ((senderPerpareReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
-        txConfirmations: senderReceipt?.confirmations ?? 0,
+        txConfirmations: senderPerpareReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
         txHash: _transaction.payload.senderPreparedHash,
       });
-      return senderReceipt;
+      return;
     }
     const preparePayload: PreparePayload = _transaction.payload;
     try {
       logger.info("Preparing receiver", requestContext, methodContext);
-      const receipt = await prepare(
+      receipt = await prepare(
         _transaction.crosschainTx.invariant,
         {
           senderExpiry: _transaction.crosschainTx.sending.expiry,
@@ -210,15 +243,15 @@ export const handleSingle = async (
       // this should not happen, this should get checked before this point
       throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
     }
-    const receiverReceipt = await txService.getTransactionReceipt(
+    const receiverPrepareReceipt = await txService.getTransactionReceipt(
       _transaction.crosschainTx.invariant.receivingChainId,
       _transaction.payload.receiverFulfilledHash,
     );
-    if ((receiverReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+    if ((receiverPrepareReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
         txHash: _transaction.payload.receiverFulfilledHash,
-        txConfirmations: receiverReceipt?.confirmations ?? 0,
+        txConfirmations: receiverPrepareReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
       });
       return;
@@ -227,7 +260,7 @@ export const handleSingle = async (
     const fulfillPayload: FulfillPayload = _transaction.payload;
     try {
       logger.info("Fulfilling sender", requestContext, methodContext);
-      const receipt = await fulfill(
+      receipt = await fulfill(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.sending.amount,
@@ -291,7 +324,7 @@ export const handleSingle = async (
     const _transaction = transaction as ActiveTransaction<"ReceiverExpired">;
     try {
       logger.info("Cancelling expired receiver", requestContext, methodContext);
-      const receipt = await cancel(
+      receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.receiving!.amount,
@@ -335,7 +368,7 @@ export const handleSingle = async (
     const _transaction = transaction as ActiveTransaction<"SenderExpired">;
     try {
       logger.info("Cancelling expired sender", requestContext, methodContext);
-      const receipt = await cancel(
+      receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.sending.amount,
@@ -381,7 +414,7 @@ export const handleSingle = async (
     );
     try {
       logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext);
-      const receipt = await cancel(
+      receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.sending.amount,
@@ -424,7 +457,7 @@ export const handleSingle = async (
     );
     try {
       logger.info("Cancelling sender because receiver is not configured", requestContext, methodContext);
-      const receipt = await cancel(
+      receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.sending.amount,
@@ -459,4 +492,5 @@ export const handleSingle = async (
       }
     }
   }
+  return receipt;
 };
