@@ -452,7 +452,6 @@ export class ChainRpcProvider {
   ): ResultAsync<T, NxtpError> {
     const RPC_TIMEOUT = 60_000;
     return ResultAsync.fromPromise(
-      // this.isReady().then(async () => await method()),
       this.isReady().then(async () => {
         if (needsSigner && this.isReadOnly) {
           throw new NxtpError("Method requires signer, and no signer was provided.");
@@ -490,7 +489,6 @@ export class ChainRpcProvider {
         return result;
       }),
       (error) => {
-        // TODO: Possibly anti-pattern/redundant with retry wrapper.
         // Parse error into TransactionError, etc.
         return parseError(error);
       },
@@ -503,7 +501,6 @@ export class ChainRpcProvider {
    */
   private async isReady(): Promise<boolean> {
     const method = this.isReady.name;
-    // TODO: #149 Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.
