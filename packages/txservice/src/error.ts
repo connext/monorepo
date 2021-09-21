@@ -17,11 +17,7 @@ export class MaxBufferLengthError extends TransactionError {
   static readonly type = MaxBufferLengthError.name;
 
   constructor(public readonly context: any = {}) {
-    super(
-      "Inflight transaction buffer is full.",
-      context,
-      MaxBufferLengthError.type,
-    );
+    super("Inflight transaction buffer is full.", context, MaxBufferLengthError.type);
   }
 }
 
@@ -52,6 +48,7 @@ export class RpcError extends TransactionError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ConnectionReset: "Connection was reset by peer.",
+    Timeout: "Request timed out",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
