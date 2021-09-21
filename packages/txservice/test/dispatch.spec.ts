@@ -418,6 +418,7 @@ describe("TransactionDispatch", () => {
     let confirmTransaction: SinonStub;
     beforeEach(() => {
       confirmTransaction = stub(txDispatch, "confirmTransaction");
+      confirmTransaction.returns(okAsync(txReceiptMock));
       fakeTransactionState.didSubmit = true;
     });
 
@@ -449,6 +450,55 @@ describe("TransactionDispatch", () => {
 
       await (txDispatch as any).mine(transaction);
       expect(transaction).to.deep.eq({ ...preTx, minedResponse: replacement, receipt: txReceiptMock });
+    });
+
+    it("throws if confirmTransaction errors with TransactionReverted", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      const error = new TransactionReverted("test", txReceiptMock);
+      confirmTransaction.returns(errAsync(error));
+
+      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(error);
+    });
+
+    it("throws if confirmTransaction does not return receipt", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync(null));
+
+      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
+        "Unable to obtain receipt: ethers responded with null",
+      );
+    });
+
+    it("throws if confirmTransaction receipt status == 0", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
+
+      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
+        "Transaction was reverted but TransactionReverted error was not thrown",
+      );
+    });
+
+    it("throws if confirmTransaction confirmations < 1", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync({ ...txReceiptMock, confirmations: 0 }));
+
+      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
+        "Receipt did not have any confirmations, should have timed out",
+      );
+    });
+
+    it("happy: mines tx with response", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      const preTx = { ...transaction };
+      await (txDispatch as any).mine(transaction);
+      expect(transaction).to.deep.eq({ ...preTx, receipt: txReceiptMock });
+    });
+
+    it.only("happy: mines tx with mined response", async () => {
+      transaction.minedResponse = TEST_TX_RESPONSE;
+      const preTx = { ...transaction };
+      await (txDispatch as any).mine(transaction);
+      expect(transaction).to.deep.eq({ ...preTx, receipt: txReceiptMock });
     });
   });
 
