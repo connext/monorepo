@@ -313,6 +313,10 @@ export class TransactionDispatch extends ChainRpcProvider {
   private async submit(transaction: Transaction) {
     const method = this.submit.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
+    this.logger.debug("Method start", requestContext, methodContext, {
+      chainId: this.chainId,
+      txsId: transaction.uuid,
+    });
 
     // Check to make sure we haven't already mined this transaction.
     if (transaction.didFinish) {
@@ -364,6 +368,10 @@ export class TransactionDispatch extends ChainRpcProvider {
   private async mine(transaction: Transaction) {
     const method = this.mine.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
+    this.logger.debug("Method start", requestContext, methodContext, {
+      chainId: this.chainId,
+      txsId: transaction.uuid,
+    });
 
     // Ensure we've submitted at least 1 tx.
     if (!transaction.didSubmit) {
@@ -477,6 +485,10 @@ export class TransactionDispatch extends ChainRpcProvider {
   private async confirm(transaction: Transaction) {
     const method = this.confirm.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
+    this.logger.debug("Method start", requestContext, methodContext, {
+      chainId: this.chainId,
+      txsId: transaction.uuid,
+    });
 
     if (!transaction.minedResponse) {
       throw new TransactionServiceFailure(
