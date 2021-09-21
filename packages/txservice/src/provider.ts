@@ -458,6 +458,7 @@ export class ChainRpcProvider {
         }
         const errors = [];
         let result: T | undefined;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const _ of Array(5).fill(0)) {
           try {
             const _result = await Promise.race(
@@ -476,7 +477,8 @@ export class ChainRpcProvider {
             break;
           } catch (e) {
             const error = parseError(e);
-            if (error.type === RpcError.type) {
+            // NOTE: If it's an rpc timeout error, we want to go ahead and throw.
+            if (error.type === RpcError.type && (error as RpcError).reason != RpcError.reasons.Timeout) {
               errors.push(error);
             } else {
               throw error;
