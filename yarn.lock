@@ -1951,6 +1951,7 @@ __metadata:
     eslint: ^7.32.0
     ethers: ^5.4.6
     evt: ^1.10.1
+    interval-promise: ^1.4.0
     mocha: ^9.0.3
     neverthrow: ^4.2.2
     nyc: ^15.1.0
@@ -14498,6 +14499,13 @@ fsevents@~2.1.1:
   version: 1.4.0
   resolution: "interpret@npm:1.4.0"
   checksum: f15725d76206525546f559030ddc967db025c6db904eb8798a70ec3c07e42c5537c5cbc73a15eafd4ae5cdabad35601abf8878261c03dcc8217747e8037575fe
+  languageName: node
+  linkType: hard
+
+"interval-promise@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "interval-promise@npm:1.4.0"
+  checksum: 0e5052145c9a0d5ee65b796036257d28392d3ed307e4172cd43ba217a32e8bbd5e22529174909f73e334eb7510b780fd0e6c13b03b48d130d48322aa64cb3780
   languageName: node
   linkType: hard
 

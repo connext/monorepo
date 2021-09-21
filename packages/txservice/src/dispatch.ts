@@ -1,9 +1,17 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
 import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction } from "./types";
-import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure, MaxBufferLengthError } from "./error";
+import {
+  BadNonce,
+  TransactionReplaced,
+  TransactionReverted,
+  TimeoutError,
+  TransactionServiceFailure,
+  MaxBufferLengthError,
+} from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -70,8 +78,10 @@ export class TransactionDispatch extends ChainRpcProvider {
   public startLoops() {
     if (!this.loopsRunning) {
       this.loopsRunning = true;
-      this.mineLoop();
-      this.confirmLoop();
+
+      // use interval promise to make sure loop iterations don't overlap
+      interval(async () => await this.mineLoop(), 5_000);
+      interval(async () => await this.confirmLoop(), 5_000);
     }
   }
 
@@ -86,11 +96,15 @@ export class TransactionDispatch extends ChainRpcProvider {
             throw transaction.error;
           }
           // Try to wait for transaction to be mined (1 confirmation), then remove it from the buffer.
-          this.mine(transaction);
+          await this.mine(transaction);
           this.inflightBuffer.shift();
         } catch (error) {
           if (error.type === TimeoutError.type) {
-            if (transaction.receipt && transaction.receipt.confirmations > 1) {
+            // changed logic from this:
+            // if (transaction.receipt && transaction.receipt.confirmations > 1) {
+            // seems like it should check for lack of receipt before bumping. no receipt means it didnt get enough gas
+            // if there is a receipt we should not bump, instead we should just loop around and check again
+            if (!transaction.receipt) {
               // Transaction timed out trying to validate. We should bump the tx and submit again.
               await this.bump(transaction);
               // Resubmit
@@ -119,7 +133,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     } catch (error) {
       this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error));
     }
-    setTimeout(() => this.mineLoop(), 5_000);
   }
 
   private async confirmLoop() {
@@ -140,7 +153,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     } catch (error) {
       this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error));
     }
-    setTimeout(() => this.confirmLoop(), 5_000);
   }
 
   /// LIFECYCLE
@@ -197,13 +209,23 @@ export class TransactionDispatch extends ChainRpcProvider {
         // Need to keep a flag for this, as we continually get vague "nonce incorrect errors", and once we reset the nonce, we only want
         // to increment and retry from there.
         let nonceWasReset = false;
-        while (iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 && (!transaction || !transaction.didSubmit)) {
+        while (
+          iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
+          (!transaction || !transaction.didSubmit)
+        ) {
           iterations++;
           // Create a new transaction instance to track lifecycle. We will be submitting below.
-          transaction = new Transaction(requestContext, minTx, nonce, gas, {
-            confirmationTimeout: this.confirmationTimeout,
-            confirmationsRequired: this.confirmationsRequired,
-          }, txsId);
+          transaction = new Transaction(
+            requestContext,
+            minTx,
+            nonce,
+            gas,
+            {
+              confirmationTimeout: this.confirmationTimeout,
+              confirmationsRequired: this.confirmationsRequired,
+            },
+            txsId,
+          );
           try {
             await this.submit(transaction);
           } catch (error) {
@@ -234,7 +256,9 @@ export class TransactionDispatch extends ChainRpcProvider {
           }
         }
         if (!transaction) {
-          throw new TransactionServiceFailure("Transaction never submitted: exceeded maximum iterations in initial submit loop.");
+          throw new TransactionServiceFailure(
+            "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+          );
         }
         // Push submitted transaction to inflight buffer.
         this.inflightBuffer.push(transaction);
@@ -312,6 +336,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     transaction.responses.push(response);
 
     this.callbacks.onSubmit(transaction);
+
     this.logger.info(`Tx submitted.`, requestContext, methodContext, {
       chainId: this.chainId,
       transaction: transaction.loggable,
@@ -529,10 +554,16 @@ export class TransactionDispatch extends ChainRpcProvider {
     const { requestContext, methodContext } = createLoggingContext(this.fail.name, transaction.context);
     transaction.discontinued = true;
     this.callbacks.onFail(transaction);
-    this.logger.error("Tx failed.", requestContext, methodContext, jsonifyError(transaction.error ?? new Error("No transaction error was present.")), {
-      chainId: this.chainId,
-      transaction: transaction.loggable,
-    });
+    this.logger.error(
+      "Tx failed.",
+      requestContext,
+      methodContext,
+      jsonifyError(transaction.error ?? new Error("No transaction error was present.")),
+      {
+        chainId: this.chainId,
+        transaction: transaction.loggable,
+      },
+    );
   }
 
   /// HELPERS
