@@ -146,6 +146,7 @@ export class TransactionService {
             id: transaction.id,
             attempt: transaction.attempt,
             error: jsonifyError(error),
+            responses: transaction.responses.map((r) => r.hash),
           });
           if (error.type === AlreadyMined.type) {
             if (transaction.attempt === 1) {
@@ -425,6 +426,7 @@ export class TransactionService {
     this.logger.debug(`Submitting tx`, requestContext, methodContext, {
       id: transaction.id,
       attempt: transaction.attempt,
+      nonce: transaction.params.nonce,
     });
     const response = await transaction.submit();
     const gas = response.gasPrice ?? transaction.params.gasPrice;
