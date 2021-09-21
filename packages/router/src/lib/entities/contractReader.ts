@@ -14,8 +14,8 @@ export const CrosschainTransactionStatus = {
 export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[keyof typeof CrosschainTransactionStatus];
 
 export type Tracker = {
-  blockNumber: string;
-  status: TCrosschainTransactionStatus;
+  chainId: number;
+  blockNumber: number;
 };
 
 export type PreparePayload = {
