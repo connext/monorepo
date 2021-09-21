@@ -65,7 +65,7 @@ export const bindContractReader = async () => {
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
       const record = await contractReader.getSyncRecord(Number(chainId));
       handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != 0 && value.blockNumber <= record.syncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= record.syncedBlock) {
           handlingTracker.delete(key);
         }
       });
@@ -99,7 +99,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
     }
 
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-      blockNumber: 0,
+      blockNumber: -1,
       chainId,
     });
     const res = await handleSingle(transaction, requestContext);
