@@ -138,13 +138,13 @@ export const handleSingle = async (
         requestContext,
       });
     }
-    const senderPerpareReceipt = await txService.getTransactionReceipt(
+    const senderPrepareReceipt = await txService.getTransactionReceipt(
       _transaction.crosschainTx.invariant.sendingChainId,
       _transaction.payload.senderPreparedHash,
     );
-    if ((senderPerpareReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+    if ((senderPrepareReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
-        txConfirmations: senderPerpareReceipt?.confirmations ?? 0,
+        txConfirmations: senderPrepareReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
         txHash: _transaction.payload.senderPreparedHash,
