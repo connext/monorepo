@@ -1,4 +1,12 @@
-import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  delay,
+  ERC20Abi,
+  jsonifyError,
+  Logger,
+  NxtpError,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -115,7 +123,7 @@ export class ChainRpcProvider {
 
   /**
    * Send the transaction request to the provider.
-   * 
+   *
    * @remarks This method is set to access protected since it should really only be used by the inheriting class,
    * TransactionDispatch, as of the time of writing this.
    *
@@ -266,7 +274,7 @@ export class ChainRpcProvider {
             break;
           } else if (fast !== undefined) {
             gasPrice = BigNumber.from(fast);
-            break; 
+            break;
           } else {
             this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
               uri,
@@ -438,15 +446,29 @@ export class ChainRpcProvider {
    * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
   private resultWrapper<T>(needsSigner: boolean, method: () => Promise<T>): ResultAsync<T, NxtpError> {
+    const RPC_TIMEOUT = 60_000;
     return ResultAsync.fromPromise(
-      this.isReady().then(() => {
+      // this.isReady().then(async () => await method()),
+      this.isReady().then(async () => {
         if (needsSigner && this.isReadOnly) {
           throw new NxtpError("Method requires signer, and no signer was provided.");
         }
         const errors = [];
-        while (errors.length < 5) {
+        let result: T | undefined;
+        for (const _ of Array(5).fill(0)) {
           try {
-            return method();
+            const _result = await Promise.race([
+              method(),
+              new Promise(async (resolve) => {
+                await delay(RPC_TIMEOUT);
+                return resolve(RpcError.reasons.Timeout);
+              }),
+            ]);
+            if (_result === RpcError.reasons.Timeout) {
+              throw new RpcError(RpcError.reasons.Timeout);
+            }
+            result = _result as T;
+            break;
           } catch (e) {
             const error = parseError(e);
             if (error.type === RpcError.type) {
@@ -456,7 +478,10 @@ export class ChainRpcProvider {
             }
           }
         }
-        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+        if (!result) {
+          throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+        }
+        return result;
       }),
       (error) => {
         // TODO: Possibly anti-pattern/redundant with retry wrapper.
