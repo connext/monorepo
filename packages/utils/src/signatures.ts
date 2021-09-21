@@ -82,6 +82,9 @@ export const signFulfillTransactionPayload = async (
 
   const addr = await signer.getAddress();
   const msg = utils.arrayify(hash);
+
+  // brute force through provider if available
+  // attempt to fix trust wallet issue
   if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
     return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
   }
