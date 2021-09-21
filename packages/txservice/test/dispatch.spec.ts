@@ -441,7 +441,7 @@ describe("TransactionDispatch", () => {
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionReplaced);
     });
 
-    it.only("happy: confirms if transaction is replaced", async () => {
+    it("happy: confirms if transaction is replaced", async () => {
       const replacement = { ...TEST_TX_RESPONSE, nonce: TEST_TX_RESPONSE.nonce + 1 };
       transaction.responses = [TEST_TX_RESPONSE];
       const preTx = { ...transaction };
