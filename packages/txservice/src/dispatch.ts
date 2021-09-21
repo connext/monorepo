@@ -104,23 +104,21 @@ export class TransactionDispatch extends ChainRpcProvider {
             // if (transaction.receipt && transaction.receipt.confirmations > 1) {
             // seems like it should check for lack of receipt before bumping. no receipt means it didnt get enough gas
             // if there is a receipt we should not bump, instead we should just loop around and check again
-            if (!transaction.receipt) {
-              // Transaction timed out trying to validate. We should bump the tx and submit again.
-              await this.bump(transaction);
-              // Resubmit
-              await this.submit(transaction);
+            // Transaction timed out trying to validate. We should bump the tx and submit again.
+            await this.bump(transaction);
+            // Resubmit
+            await this.submit(transaction);
 
-              // TODO: Better solution for bumping for all transactions / gas management (caching? moving avg? etc).
-              // Bump all the other transactions in the buffer as well, since they will likely also have to be bumped to get through.
-              for (const tx of this.inflightBuffer.slice(1)) {
-                // If something fails here (e.g. if submit gets reverted, etc), the error will be attached to the transaction
-                // and we'll shift it out of the buffer as soon as this mineloop reaches it.
-                try {
-                  await this.bump(tx);
-                  await this.submit(tx);
-                } catch (error) {
-                  tx.error = error;
-                }
+            // TODO: Better solution for bumping for all transactions / gas management (caching? moving avg? etc).
+            // Bump all the other transactions in the buffer as well, since they will likely also have to be bumped to get through.
+            for (const tx of this.inflightBuffer.slice(1)) {
+              // If something fails here (e.g. if submit gets reverted, etc), the error will be attached to the transaction
+              // and we'll shift it out of the buffer as soon as this mineloop reaches it.
+              try {
+                await this.bump(tx);
+                await this.submit(tx);
+              } catch (error) {
+                tx.error = error;
               }
             }
           } else {
