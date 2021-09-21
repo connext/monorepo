@@ -393,11 +393,10 @@ export class TransactionDispatch extends ChainRpcProvider {
       const { error: _error } = result;
       if (_error.type === TransactionReplaced.type) {
         const error = _error as TransactionReplaced;
-        // TODO: #150 Should we handle error.reason?:
         // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         transaction.receipt = error.receipt;
-        // error.replacement - the replacement transaction (a TransactionResponse)
+        // Sanity check.
         if (!error.replacement) {
           throw new TransactionServiceFailure(
             "Transaction was replaced, but no replacement transaction was returned.",
@@ -413,6 +412,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           transaction.error = error;
           throw error;
         }
+        // error.replacement - the replacement transaction (a TransactionResponse)
         transaction.minedResponse = error.replacement;
       } else if (_error.type === TransactionReverted.type) {
         const error = _error as TransactionReverted;
@@ -488,7 +488,7 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     if (!transaction.minedResponse) {
       throw new TransactionServiceFailure(
-        "Tried to confirm but tansaction was not validated; no minedResponse was found.",
+        "Tried to confirm but tansaction did not complete 'mine' step; no minedResponse was found.",
         {
           method,
           chainId: this.chainId,
@@ -501,8 +501,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Here we wait for the target confirmations.
     // TODO: Ensure we are comfortable with how this timeout period is calculated.
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
-    const response = transaction.minedResponse;
-    const confirmResult = await this.confirmTransaction(response, this.confirmationsRequired, timeout);
+    const confirmResult = await this.confirmTransaction(transaction.minedResponse, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
       transaction.error = confirmResult.error;
       if (confirmResult.error.type === TimeoutError.type) {
@@ -515,7 +514,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         chainId: this.chainId,
         receipt: transaction.receipt,
         error: transaction.error,
-        hash: response.hash,
+        hash: transaction.minedResponse.hash,
         transaction: transaction.loggable,
       });
     }
@@ -527,7 +526,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         chainId: this.chainId,
         badReceipt: receipt,
         minedReceipt: transaction.receipt,
-        hash: response.hash,
+        hash: transaction.minedResponse.hash,
         transaction: transaction.loggable,
       });
     }
