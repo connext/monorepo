@@ -6,7 +6,7 @@ import {
   RequestContextWithTransactionId,
   safeJsonStringify,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, providers } from "ethers";
 
 import { getContext } from "../../router";
 import {
@@ -14,7 +14,7 @@ import {
   CrosschainTransactionStatus,
   FulfillPayload,
   PreparePayload,
-  TCrosschainTransactionStatus,
+  Tracker,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
@@ -39,7 +39,7 @@ import {
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
-export const handlingTracker: Map<string, TCrosschainTransactionStatus> = new Map();
+export const handlingTracker: Map<string, Tracker> = new Map();
 
 export const bindContractReader = async () => {
   const { contractReader, logger } = getContext();
@@ -72,7 +72,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       transaction.crosschainTx.invariant.transactionId,
     );
     if (handlingTracker.has(transaction.crosschainTx.invariant.transactionId)) {
-      logger.info("Already handling transaction", requestContext, methodContext);
+      logger.debug("Already handling transaction", requestContext, methodContext);
       continue;
     }
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, transaction.status);
@@ -86,7 +86,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
 export const handleSingle = async (
   transaction: ActiveTransaction<any>,
   _requestContext: RequestContextWithTransactionId,
-): Promise<void> => {
+): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(
     handleSingle.name,
     _requestContext,
@@ -116,7 +116,7 @@ export const handleSingle = async (
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
         txHash: _transaction.payload.senderPreparedHash,
       });
-      return;
+      return senderReceipt;
     }
     const preparePayload: PreparePayload = _transaction.payload;
     try {
