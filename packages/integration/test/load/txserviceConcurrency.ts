@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { delay, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
@@ -18,7 +18,7 @@ const SAMPLE_DATA = hexlify(randomBytes(1000));
 
 // The amount for each transaction in wei.
 const AMOUNT_PER_TX = BigNumber.from("1");
-const ETH_MIN = utils.parseEther("2"); // will exit if below this value of eth on wallet
+const ETH_MIN = utils.parseEther("0.2"); // will exit if below this value of eth on wallet
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 
@@ -135,6 +135,47 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - TEST LOOP.
   logger.info("Beginning concurrency test.", { search: "****** FROM TEST ****" });
+  let active = false;
+  let periodicCount = 0;
+  let serialFailed = 0;
+  setInterval(async () => {
+    if (active) {
+      return;
+    }
+    active = true;
+    periodicCount++;
+    try {
+      const receipt = await Promise.race([
+        txservice.sendTx(
+          {
+            chainId,
+            to: recipient.address,
+            from: wallet.address,
+            data: SAMPLE_DATA,
+            value: One,
+          } as WriteTransaction,
+          {
+            id: `periodic:${periodicCount}`,
+            origin: "concurrencyTest",
+          } as RequestContext,
+        ),
+        delay(280_000),
+      ]);
+      if (!receipt) {
+        throw new Error("Periodic tx timed out");
+      }
+      serialFailed = 0;
+      logger.info({ periodicCount }, "Sent periodic transaction");
+    } catch (e) {
+      serialFailed++;
+      logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
+      if (serialFailed > 5) {
+        logger.error("Failed to send last 5 periodic txs");
+        process.exit(1);
+      }
+    }
+    active = false;
+  }, 45_000);
   const stats: any[] = [];
   let loopNumber = 1;
   for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
@@ -235,8 +276,8 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "20"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "1"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "200"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "20"),
   undefined,
   process.env.TOKEN_ADDRESS,
 );
