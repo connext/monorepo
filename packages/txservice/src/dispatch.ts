@@ -384,11 +384,11 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
     // we'll get back the replacement's receipt from confirmTransaction.
-    const response = transaction.minedResponse ?? transaction.responses[0];
+    transaction.minedResponse = transaction.minedResponse ?? transaction.responses[0];
 
     // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
     // it will throw a TransactionTimeout error.
-    const result = await this.confirmTransaction(response, 1);
+    const result = await this.confirmTransaction(transaction.minedResponse, 1);
     if (result.isErr()) {
       const { error: _error } = result;
       if (_error.type === TransactionReplaced.type) {
