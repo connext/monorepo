@@ -102,51 +102,46 @@ export class TransactionDispatch extends ChainRpcProvider {
       this.loopsRunning = true;
 
       // use interval promise to make sure loop iterations don't overlap
-      interval(async () => await this.mineLoop(), 2_000);
-      interval(async () => await this.confirmLoop(), 2_000);
+      interval(async () => await this.mineLoop(), 5_000);
+      interval(async () => await this.confirmLoop(), 5_000);
     }
   }
 
   private async mineLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
     try {
-      if (this.inflightBuffer.length > 0) {
-        const transaction = this.inflightBuffer[0];
-        try {
-          if (transaction.error) {
-            // This will cause us to fail the transaction properly below, and remove it from the buffer.
-            throw transaction.error;
-          }
-          // Try to wait for transaction to be mined (1 confirmation), then remove it from the buffer.
-          await this.mine(transaction);
-          this.minedBuffer.push(transaction);
-          this.inflightBuffer.shift();
-        } catch (error) {
-          if (error.type === TimeoutError.type) {
-            // Transaction timed out trying to validate. We should bump the tx and submit again.
-            await this.bump(transaction);
-            // Resubmit
-            await this.submit(transaction);
-
-            // TODO: Better solution for bumping for all transactions / gas management (caching? moving avg? etc).
-            // Bump all the other transactions in the buffer as well, since they will likely also have to be bumped to get through.
-            for (const tx of this.inflightBuffer.slice(1)) {
-              // If something fails here (e.g. if submit gets reverted, etc), the error will be attached to the transaction
-              // and we'll shift it out of the buffer as soon as this mineloop reaches it.
+      this.logInflightBuffer(requestContext, methodContext);
+      while (this.inflightBuffer.length > 0) {
+        // Shift the first transaction from the buffer and get it mined.
+        const transaction = this.inflightBuffer.shift()!;
+        while (!transaction.didMine && !transaction.error) {
+          try {
+            await this.mine(transaction);
+            this.minedBuffer.push(transaction);
+          } catch (error) {
+            if (error.type === TimeoutError.type) {
               try {
-                await this.bump(tx);
-                await this.submit(tx);
+                // Transaction timed out trying to validate. We should bump the tx and submit again.
+                await this.bump(transaction);
+                // Resubmit
+                await this.submit(transaction);
               } catch (error) {
-                tx.error = error;
+                if (error.type === BadNonce.type) {
+                  // Transaction was already mined. It should exit on the next loop.
+                  continue;
+                } else {
+                  throw error;
+                }
               }
+            } else {
+              transaction.error = transaction.error ?? error;
             }
-          } else {
-            transaction.error = transaction.error ?? error;
-            this.fail(transaction);
-            this.inflightBuffer.shift();
+          }
+          // If any errors occurred, fail that transaction and move on.
+          if (transaction.error) {
+            await this.fail(transaction);
           }
         }
-        this.logInflightBuffer(requestContext, methodContext);
       }
     } catch (error) {
       this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error));
@@ -156,18 +151,16 @@ export class TransactionDispatch extends ChainRpcProvider {
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
     try {
-      if (this.minedBuffer.length > 0) {
-        const transaction = this.minedBuffer[0];
+      this.logMinedBuffer(requestContext, methodContext);
+      while (this.minedBuffer.length > 0) {
+        const transaction = this.minedBuffer.shift()!;
         try {
           // Checks to make sure we hit the target number of confirmations.
           await this.confirm(transaction);
-          this.minedBuffer.shift();
         } catch (error) {
           transaction.error = error;
           await this.fail(transaction);
-          this.minedBuffer.shift();
         }
-        this.logMinedBuffer(requestContext, methodContext);
       }
     } catch (error) {
       this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error));
@@ -361,12 +354,11 @@ export class TransactionDispatch extends ChainRpcProvider {
     const response = result.value;
     transaction.responses.push(response);
 
-    this.callbacks.onSubmit(transaction);
-
     this.logger.info(`Tx submitted.`, requestContext, methodContext, {
       chainId: this.chainId,
       transaction: transaction.loggable,
     });
+    this.callbacks.onSubmit(transaction);
   }
 
   private async mine(transaction: Transaction) {
@@ -461,11 +453,11 @@ export class TransactionDispatch extends ChainRpcProvider {
       transaction.receipt = receipt;
     }
 
-    this.callbacks.onMined(transaction);
     this.logger.info(`Tx mined.`, requestContext, methodContext, {
       chainId: this.chainId,
       transaction: transaction.loggable,
     });
+    this.callbacks.onMined(transaction);
   }
 
   /**
@@ -532,7 +524,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
     transaction.receipt = receipt;
 
-    this.callbacks.onConfirm(transaction);
     this.logger.info(`Tx confirmed.`, requestContext, methodContext, {
       chainId: this.chainId,
       receipt: {
@@ -542,6 +533,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       },
       transaction: transaction.loggable,
     });
+    this.callbacks.onConfirm(transaction);
   }
 
   /**
@@ -577,8 +569,6 @@ export class TransactionDispatch extends ChainRpcProvider {
 
   private async fail(transaction: Transaction) {
     const { requestContext, methodContext } = createLoggingContext(this.fail.name, transaction.context);
-    transaction.discontinued = true;
-    this.callbacks.onFail(transaction);
     this.logger.error(
       "Tx failed.",
       requestContext,
@@ -589,6 +579,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         transaction: transaction.loggable,
       },
     );
+    this.callbacks.onFail(transaction);
   }
 
   /// HELPERS

@@ -179,6 +179,14 @@ export class Transaction {
   }
 
   /**
+   * Specifies whether the transaction has been mined.
+   * @returns boolean indicating whether the transaction is mined.
+   */
+   public get didMine(): boolean {
+    return !!this.receipt && this.receipt.confirmations > 0;
+  }
+
+  /**
    * Specifies whether the transaction has been completed - meaning that it's been
    * mined and has received the target number of confirmations.
    * @returns boolean indicating whether the transaction is completed.
