@@ -163,7 +163,7 @@ export class ChainRpcProvider {
       // The only way to access the functionality internal to ethers for handling replacement tx.
       // See issue: https://github.com/ethers-io/ethers.js/issues/1775
       return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
-    });
+    }, false);
   }
 
   /**
@@ -445,7 +445,11 @@ export class ChainRpcProvider {
    *
    * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
-  private resultWrapper<T>(needsSigner: boolean, method: () => Promise<T>): ResultAsync<T, NxtpError> {
+  private resultWrapper<T>(
+    needsSigner: boolean,
+    method: () => Promise<T>,
+    rpcCanTimeout = true,
+  ): ResultAsync<T, NxtpError> {
     const RPC_TIMEOUT = 60_000;
     return ResultAsync.fromPromise(
       // this.isReady().then(async () => await method()),
@@ -457,17 +461,19 @@ export class ChainRpcProvider {
         let result: T | undefined;
         for (const _ of Array(5).fill(0)) {
           try {
-            const _result = await Promise.race([
-              method(),
-              new Promise(async (resolve) => {
-                await delay(RPC_TIMEOUT);
-                return resolve(RpcError.reasons.Timeout);
-              }),
-            ]);
-            if (_result === RpcError.reasons.Timeout) {
-              throw new RpcError(RpcError.reasons.Timeout);
-            }
-            result = _result as T;
+            const _result = await Promise.race(
+              [method()].concat(
+                rpcCanTimeout
+                  ? [
+                      new Promise(async (_res, reject) => {
+                        await delay(RPC_TIMEOUT);
+                        reject(new RpcError(RpcError.reasons.Timeout));
+                      }),
+                    ]
+                  : [],
+              ),
+            );
+            result = _result;
             break;
           } catch (e) {
             const error = parseError(e);
