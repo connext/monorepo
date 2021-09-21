@@ -1,4 +1,4 @@
-import { Signer, Wallet, utils, BigNumber } from "ethers";
+import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
@@ -80,15 +80,21 @@ export const signFulfillTransactionPayload = async (
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
-  return sign(hash, signer, (signature) =>
-    recoverFulfilledTransactionPayload(
-      transactionId,
-      relayerFee,
-      receivingChainId,
-      receivingChainTxManagerAddress,
-      signature,
-    ),
-  );
+  const addr = await signer.getAddress();
+  const msg = utils.arrayify(hash);
+
+  // brute force through provider if available
+  // attempt to fix trust wallet issue
+  if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
+    console.log("Provider available, using it to sign");
+    try {
+      return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
+    } catch (err) {
+      console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
+    }
+  }
+
+  return sanitizeSignature(await signer.signMessage(msg));
 };
 
 /**
