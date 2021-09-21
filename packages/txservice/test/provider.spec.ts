@@ -1,7 +1,7 @@
 import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 
-import { Transaction } from "../src/types";
+import { Gas, Transaction } from "../src/types";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import {
@@ -12,9 +12,10 @@ import {
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
   DEFAULT_GAS_LIMIT,
+  TEST_TX,
 } from "./constants";
-import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError } from "@connext/nxtp-utils";
-import { DispatchAborted, RpcError, TransactionReadError, TransactionServiceFailure } from "../src/error";
+import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import { DispatchAborted, RpcError, TransactionReadError, TransactionReverted, TransactionServiceFailure } from "../src/error";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -24,7 +25,11 @@ const logger = new Logger({
 let signer: SinonStubbedInstance<Wallet>;
 let chainProvider: ChainRpcProvider;
 let coreProvider: SinonStubbedInstance<providers.FallbackProvider>;
-let transaction: SinonStubbedInstance<Transaction>;
+let transaction: Transaction;
+let context: RequestContext = {
+  id: "",
+  origin: "",
+};
 
 describe("ChainRpcProvider", () => {
   beforeEach(async () => {
@@ -32,9 +37,6 @@ describe("ChainRpcProvider", () => {
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);
     signer.getTransactionCount.resolves(TEST_TX_RESPONSE.nonce);
     signer.connect.returns(signer);
-
-    transaction = createStubInstance(Transaction);
-    Sinon.stub(transaction, "params").get(() => TEST_FULL_TX);
 
     const chainId = TEST_SENDER_CHAIN_ID;
     const chainConfig: ChainConfig = {
@@ -55,6 +57,15 @@ describe("ChainRpcProvider", () => {
     coreProvider = createStubInstance(providers.FallbackProvider);
     (chainProvider as any).provider = coreProvider;
     Sinon.stub(coreProvider, "ready").get(() => true);
+
+    context.id = getRandomBytes32();
+    context.origin = "TransactionDispatchTest";
+
+    transaction = new Transaction(context, TEST_TX, TEST_TX_RESPONSE.nonce, new Gas(BigNumber.from(1), BigNumber.from(1)), {
+      confirmationTimeout: 1,
+      confirmationsRequired: 1,
+    }, "test_tx_uuid");
+    Sinon.stub(transaction, "params").get(() => TEST_FULL_TX);
   });
 
   afterEach(() => {
@@ -163,35 +174,43 @@ describe("ChainRpcProvider", () => {
   });
 
   describe("#estimateGas", () => {
-    it("should return the gas estimate", async () => {
-      const rawCommand = "estimateGas";
-      const rpcCommand = `eth_${rawCommand}`;
-      const testGasLimit = DEFAULT_GAS_LIMIT;
-      const testTx = {
-        chainId: TEST_SENDER_CHAIN_ID,
-        to: getRandomAddress(),
-        from: getRandomAddress(),
-        data: getRandomBytes32(),
-        value: utils.parseUnits("1", "ether"),
-      };
-      const hexlifiedTx = {
-        chainId: utils.hexlify(TEST_SENDER_CHAIN_ID),
-        to: utils.hexlify(testTx.to),
-        from: utils.hexlify(testTx.from),
-        data: utils.hexlify(testTx.data),
-        value: utils.hexlify(testTx.value),
-      };
+    const rawCommand = "estimateGas";
+    const rpcCommand = `eth_${rawCommand}`;
+    const testGasLimit = DEFAULT_GAS_LIMIT.toString();
+    const testTx = {
+      chainId: TEST_SENDER_CHAIN_ID,
+      to: getRandomAddress(),
+      from: getRandomAddress(),
+      data: getRandomBytes32(),
+      value: utils.parseUnits("1", "ether"),
+    };
+    const hexlifiedTx = {
+      chainId: utils.hexlify(TEST_SENDER_CHAIN_ID),
+      to: utils.hexlify(testTx.to),
+      from: utils.hexlify(testTx.from),
+      data: utils.hexlify(testTx.data),
+      value: utils.hexlify(testTx.value),
+    };
+    let goodRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
+    let badRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
+  
+    beforeEach(() => {
       const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       // Overwrite the _providers core providers. We're going to have one "bad" provider
       // that rejects/fails, and one good one that will resolve.
-      const badRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
-      const goodRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
-      (chainProvider as any)._providers = [badRpcProvider, goodRpcProvider];
+      badRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
+      goodRpcProvider = createStubInstance(providers.StaticJsonRpcProvider);
       badRpcProvider.prepareRequest.returns(prepareResult);
       goodRpcProvider.prepareRequest.returns(prepareResult);
       badRpcProvider.send.rejects(new Error("test error"));
       goodRpcProvider.send.resolves(testGasLimit);
+    });
 
+    it("happy: should return the gas estimate", async () => {
+      // Testing with bad and good rpc providers.
+      (chainProvider as any)._providers = [badRpcProvider, goodRpcProvider];
+
+      const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       const result = await chainProvider.estimateGas(testTx);
 
       // First, make sure we get the correct value back.
@@ -225,6 +244,34 @@ describe("ChainRpcProvider", () => {
       args = goodRpcProvider.send.getCall(0).args;
       expect([args[0], makeChaiReadable(args[1])]).to.deep.eq(prepareResultReadable);
     });
+
+    it("should handle invalid value for gas estimate", async () => {
+      // Good rpc provider - but will return an invalid value.
+      (chainProvider as any)._providers = [goodRpcProvider];
+
+      goodRpcProvider.send.resolves("thisisnotanumber");
+
+      const result = await chainProvider.estimateGas(testTx);
+      expect(result.isErr() && result.error.isNxtpError && result.error.message === TransactionServiceFailure.reasons.GasEstimateInvalid).to.be.true;
+    });
+
+    it("should error with RpcError if all providers have RpcError", async () => {
+      (chainProvider as any)._providers = [badRpcProvider, badRpcProvider, badRpcProvider, badRpcProvider];
+      badRpcProvider.send.rejects(new RpcError("test error"));
+
+      const result = await chainProvider.estimateGas(testTx);
+      expect(result.isErr() && result.error.isNxtpError && result.error.type === RpcError.type).to.be.true;
+    });
+
+    it("should short circuit and throw transaction reverted right away", async () => {
+      // Should never reach the "good rpc providers" - we ALWAYS short circuit and throw TransactionReverted error immediately.
+      (chainProvider as any)._providers = [badRpcProvider, goodRpcProvider, goodRpcProvider, goodRpcProvider];
+      badRpcProvider.send.rejects(new TransactionReverted("test error"));
+
+      const result = await chainProvider.estimateGas(testTx);
+      expect(result.isErr() && result.error.isNxtpError && result.error.type === TransactionReverted.type).to.be.true;
+      expect(goodRpcProvider.send.callCount).to.equal(0);
+    });
   });
 
   describe("#getGasPrice", () => {
@@ -243,6 +290,16 @@ describe("ChainRpcProvider", () => {
       expect(result.isOk() ? result.value.toString() : null).to.be.eq(expectedGas);
     });
 
+    it("should accept hardcoded values from config", async () => {
+      const expectedGas = "197";
+      (chainProvider as any).chainConfig.defaultInitialGas = expectedGas;
+      const result = await (chainProvider as any).getGasPrice();
+      expect(coreProvider.getGasPrice.callCount).to.equal(0);
+      expect(result.isOk()).to.be.true;
+      expect(result.isOk() ? result.value.toString() : null).to.be.eq(expectedGas);
+    });
+
+    // TODO: Should eventually cache per block.
     it("should use cached gas price if calls < 3 seconds apart", async () => {
       const testGasPrice = utils.parseUnits("80", "gwei") as BigNumber;
       const expectedGas = testGasPrice
@@ -323,6 +380,19 @@ describe("ChainRpcProvider", () => {
       expect(result.isOk() && result.value === blockTime).to.be.true;
       expect(coreProvider.getBlock.callCount).to.equal(1);
       expect(coreProvider.getBlock.getCall(0).args[0]).to.deep.eq("latest");
+    });
+  });
+
+  describe("#getBlockNumber", () => {
+    it("happy: should return the block number", async () => {
+      const blockNumber = 13;
+      coreProvider.getBlockNumber.resolves(blockNumber);
+
+      const result = await chainProvider.getBlockNumber();
+
+      expect(result.isOk()).to.be.true;
+      expect(result.isOk() && result.value === blockNumber).to.be.true;
+      expect(coreProvider.getBlockNumber.callCount).to.equal(1);
     });
   });
 

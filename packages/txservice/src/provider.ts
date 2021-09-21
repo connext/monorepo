@@ -17,8 +17,6 @@ import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from 
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
-const GAS_LIMIT_MIN = BigNumber.from(150_000);
-
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
  * the responses.
@@ -216,8 +214,7 @@ export class ChainRpcProvider {
         }
 
         try {
-          const gasLimit = BigNumber.from(result);
-          return gasLimit.gt(GAS_LIMIT_MIN) ? gasLimit : GAS_LIMIT_MIN;
+          return BigNumber.from(result);
         } catch (error) {
           throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
             invalidEstimate: result,
@@ -248,7 +245,8 @@ export class ChainRpcProvider {
     }
 
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
+    // TODO: This should cache per block, not every 3 seconds!
+    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
       return okAsync(this.cachedGas.price);
     }
 
