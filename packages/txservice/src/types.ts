@@ -29,6 +29,39 @@ export type CachedTransactionCount = {
   timestamp: number;
 };
 
+/// Events
+export type TxServiceSubmittedEvent = {
+  responses: providers.TransactionResponse[];
+};
+
+export type TxServiceMinedEvent = {
+  receipt: providers.TransactionReceipt;
+};
+
+export type TxServiceConfirmedEvent = {
+  receipt: providers.TransactionReceipt;
+};
+
+export type TxServiceFailedEvent = {
+  error: Error;
+  receipt?: providers.TransactionReceipt;
+};
+
+export const NxtpTxServiceEvents = {
+  TransactionSubmitted: "TransactionSubmitted",
+  TransactionMined: "TransactionMined",
+  TransactionConfirmed: "TransactionConfirmed",
+  TransactionFailed: "TransactionFailed",
+} as const;
+export type NxtpTxServiceEvent = typeof NxtpTxServiceEvents[keyof typeof NxtpTxServiceEvents];
+
+export interface NxtpTxServiceEventPayloads {
+  [NxtpTxServiceEvents.TransactionSubmitted]: TxServiceSubmittedEvent;
+  [NxtpTxServiceEvents.TransactionMined]: TxServiceMinedEvent;
+  [NxtpTxServiceEvents.TransactionConfirmed]: TxServiceConfirmedEvent;
+  [NxtpTxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
+}
+
 /**
  * @classdesc Handles getting gas prices and enforcing maximums for transactions
  */
@@ -87,10 +120,10 @@ type LoggableTransactionData = {
   gasLimit: string;
   discontinued: boolean;
   error: any;
-  confirmations: number,
-  didSubmit: boolean,
-  didFinish: boolean,
-}
+  confirmations: number;
+  didSubmit: boolean;
+  didFinish: boolean;
+};
 
 /**
  * @classdesc A data structure for storing invariant params and managing state related to a single transaction.

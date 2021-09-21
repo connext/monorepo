@@ -3,42 +3,20 @@ import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, ChainConfig } from "./config";
-import { WriteTransaction, Transaction } from "./types";
+import {
+  WriteTransaction,
+  Transaction,
+  NxtpTxServiceEventPayloads,
+  NxtpTxServiceEvent,
+  NxtpTxServiceEvents,
+  TxServiceConfirmedEvent,
+  TxServiceFailedEvent,
+  TxServiceMinedEvent,
+  TxServiceSubmittedEvent,
+} from "./types";
 import { TransactionServiceFailure } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
-
-export type TxServiceSubmittedEvent = {
-  responses: providers.TransactionResponse[];
-};
-
-export type TxServiceMinedEvent = {
-  receipt: providers.TransactionReceipt;
-};
-
-export type TxServiceConfirmedEvent = {
-  receipt: providers.TransactionReceipt;
-};
-
-export type TxServiceFailedEvent = {
-  error: Error;
-  receipt?: providers.TransactionReceipt;
-};
-
-export const NxtpTxServiceEvents = {
-  TransactionSubmitted: "TransactionSubmitted",
-  TransactionMined: "TransactionMined",
-  TransactionConfirmed: "TransactionConfirmed",
-  TransactionFailed: "TransactionFailed",
-} as const;
-export type NxtpTxServiceEvent = typeof NxtpTxServiceEvents[keyof typeof NxtpTxServiceEvents];
-
-export interface NxtpTxServiceEventPayloads {
-  [NxtpTxServiceEvents.TransactionSubmitted]: TxServiceSubmittedEvent;
-  [NxtpTxServiceEvents.TransactionMined]: TxServiceMinedEvent;
-  [NxtpTxServiceEvents.TransactionConfirmed]: TxServiceConfirmedEvent;
-  [NxtpTxServiceEvents.TransactionFailed]: TxServiceFailedEvent;
-}
 
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
