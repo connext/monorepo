@@ -1,4 +1,4 @@
-import { Signer, Wallet, utils, BigNumber } from "ethers";
+import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
 import { splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
@@ -80,15 +80,13 @@ export const signFulfillTransactionPayload = async (
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
-  return sign(hash, signer, (signature) =>
-    recoverFulfilledTransactionPayload(
-      transactionId,
-      relayerFee,
-      receivingChainId,
-      receivingChainTxManagerAddress,
-      signature,
-    ),
-  );
+  const addr = await signer.getAddress();
+  const msg = utils.arrayify(hash);
+  if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
+    return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
+  }
+
+  return sanitizeSignature(await signer.signMessage(msg));
 };
 
 /**
