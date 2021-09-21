@@ -295,8 +295,8 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     const transaction = result.value as Transaction;
     // Wait for transaction to be picked up by the mine and confirm loops and closed out.
-    while (!transaction.didFinish && !transaction.discontinued) {
-      await delay(10_000);
+    while (!transaction.didFinish && !transaction.error && !transaction.discontinued) {
+      await delay(1_000);
     }
 
     if (transaction.error) {
@@ -350,7 +350,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.sendTransaction(transaction);
     // If we end up with an error, it should be thrown here.
     if (result.isErr()) {
-      transaction.error = result.error;
       throw result.error;
     }
 
