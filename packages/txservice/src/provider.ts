@@ -260,10 +260,18 @@ export class ChainRpcProvider {
         let response: any;
         try {
           response = await axios.get(uri);
-          const { rapid } = response.data;
+          const { rapid, fast } = response.data;
           if (rapid !== undefined) {
             gasPrice = BigNumber.from(rapid);
             break;
+          } else if (fast !== undefined) {
+            gasPrice = BigNumber.from(fast);
+            break; 
+          } else {
+            this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
+              uri,
+              response,
+            });
           }
         } catch (e) {
           this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
