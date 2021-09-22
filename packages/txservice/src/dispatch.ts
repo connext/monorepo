@@ -75,9 +75,22 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
-  private logInflightBuffer(requestContext: RequestContext, methodContext: MethodContext) {
+  private lastLoggedInflightBufferEmpty = false;
+  private logInflightBuffer() {
+    const { requestContext, methodContext } = createLoggingContext(this.logInflightBuffer.name);
     const buffer = this.inflightBuffer;
     const bufferLength = buffer.length;
+
+    // Prevent us from logging an empty buffer twice in a row.
+    if (bufferLength === 0) {
+      if (this.lastLoggedInflightBufferEmpty) {
+        return;
+      }
+      this.lastLoggedInflightBufferEmpty = true;
+    } else {
+      this.lastLoggedInflightBufferEmpty = false;
+    }
+
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
     this.logger.debug(
       `(x${bufferLength}) INFLIGHT BUFFER : ${bufferString}`,
@@ -86,9 +99,22 @@ export class TransactionDispatch extends ChainRpcProvider {
     );
   }
 
-  private logMinedBuffer(requestContext: RequestContext, methodContext: MethodContext) {
+  private lastLoggedMinedBufferEmpty = false;
+  private logMinedBuffer() {
+    const { requestContext, methodContext } = createLoggingContext(this.logMinedBuffer.name);
     const buffer = this.minedBuffer;
     const bufferLength = buffer.length;
+
+    // Prevent us from logging an empty buffer twice in a row.
+    if (bufferLength === 0) {
+      if (this.lastLoggedMinedBufferEmpty) {
+        return;
+      }
+      this.lastLoggedMinedBufferEmpty = true;
+    } else {
+      this.lastLoggedMinedBufferEmpty = false;
+    }
+
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
     this.logger.debug(
       `(x${bufferLength}) MINED BUFFER : ${bufferString}`,
@@ -102,15 +128,20 @@ export class TransactionDispatch extends ChainRpcProvider {
       this.loopsRunning = true;
 
       // use interval promise to make sure loop iterations don't overlap
-      interval(async () => await this.mineLoop(), 5_000);
-      interval(async () => await this.confirmLoop(), 5_000);
+      interval(async () => await this.mineLoop(), 2_000);
+      interval(async () => await this.confirmLoop(), 2_000);
+
+      // TODO: remove. This is just a monitor loop for debugging.
+      interval(async () => {
+        this.logInflightBuffer();
+        this.logMinedBuffer();
+      }, 5_000);
     }
   }
 
   private async mineLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
     try {
-      this.logInflightBuffer(requestContext, methodContext);
       while (this.inflightBuffer.length > 0) {
         // Shift the first transaction from the buffer and get it mined.
         const transaction = this.inflightBuffer.shift()!;
@@ -151,7 +182,6 @@ export class TransactionDispatch extends ChainRpcProvider {
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
     try {
-      this.logMinedBuffer(requestContext, methodContext);
       while (this.minedBuffer.length > 0) {
         const transaction = this.minedBuffer.shift()!;
         try {
@@ -280,7 +310,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
         // Push submitted transaction to inflight buffer.
         this.inflightBuffer.push(transaction);
-        this.logInflightBuffer(requestContext, methodContext);
         // Increment the successful nonce, and assign our local nonce to that value.
         this.nonce = nonce + 1;
         return { value: transaction, success: true };
