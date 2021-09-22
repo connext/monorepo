@@ -461,7 +461,7 @@ export class ChainRpcProvider {
           throw new NxtpError("Method requires signer, and no signer was provided.");
         }
         const errors = [];
-        let result: T | undefined;
+        let result: T | undefined = undefined;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         for (const _ of Array(5).fill(0)) {
           try {
@@ -489,7 +489,7 @@ export class ChainRpcProvider {
             }
           }
         }
-        if (!result) {
+        if (result === undefined) {
           throw new RpcError(RpcError.reasons.FailedToSend, { errors });
         }
         return result;
