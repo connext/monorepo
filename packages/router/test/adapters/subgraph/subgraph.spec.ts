@@ -18,6 +18,7 @@ import { configMock, routerAddrMock } from "../../utils";
 let sdks: Record<
   number,
   {
+    GetReceiverTransactions: SinonStub;
     GetSenderTransactions: SinonStub;
     GetTransactions: SinonStub;
     GetTransaction: SinonStub;
@@ -39,6 +40,7 @@ describe("Subgraph Adapter", () => {
   beforeEach(() => {
     sdks = {
       [chainId]: {
+        GetReceiverTransactions: stub().resolves({ router: { transactions: [] } }),
         GetSenderTransactions: stub().resolves({ router: { transactions: [] } }),
         GetTransactions: stub().resolves({ transactions: [] }),
         GetTransaction: stub().resolves(undefined),
