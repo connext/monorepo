@@ -28,6 +28,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 const MIN_GAS = utils.parseEther("0.1");
 const MIN_RELAYER_FEE = "0"; // relayerFee is in respective chain native asset unit
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+export const AUCTION_REQUEST_LIMIT = 5;
 
 dotenvConfig();
 

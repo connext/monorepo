@@ -23,7 +23,8 @@ import {
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
-import { AUCTION_REQUEST_LIMIT, AUCTION_REQUEST_MAP } from "../helpers/auction";
+import { AUCTION_REQUEST_MAP } from "../helpers/auction";
+import { AUCTION_REQUEST_LIMIT } from "../../config";
 
 export const newAuction = async (
   data: AuctionPayload,
