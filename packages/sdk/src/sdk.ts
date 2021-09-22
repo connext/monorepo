@@ -805,7 +805,7 @@ export class NxtpSdk {
       try {
         callData = await ethereumRequest("eth_decrypt", [encryptedCallData, txData.user]);
       } catch (e) {
-        throw e;
+        throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
 
