@@ -44,9 +44,6 @@ export const attemptedAuction = new Counter({
   labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
 });
 
-export const AUCTION_REQUEST_LIMIT = 5;
-export const lastAuctionMap = new Map();
-
 // export const successfulAuction = new Counter({
 //   name: "router_auction_successful",
 //   help: "router_auction_successful_help",

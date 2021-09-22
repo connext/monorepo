@@ -21,8 +21,9 @@ import {
   ParamsInvalid,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
+import { AUCTION_REQUEST_LIMIT, AUCTION_REQUEST_MAP } from "../helpers/auction";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -90,8 +91,21 @@ export const newAuction = async (
     });
   }
 
-  // Validate expiry is valid (greater than current time plus a buffer).
   const currentTime = await getNtpTimeSeconds();
+  // Validate request limit
+  const lastAttemptTime = AUCTION_REQUEST_MAP.get(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+  ) as number;
+  if (lastAttemptTime && lastAttemptTime + AUCTION_REQUEST_LIMIT > currentTime) {
+    throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
+      methodContext,
+      requestContext,
+      lastAttemptTime,
+      currentTime,
+      minimalPeriod: AUCTION_REQUEST_LIMIT,
+    });
+  }
+  // Validate expiry is valid (greater than current time plus a buffer).
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodContext,
@@ -229,5 +243,10 @@ export const newAuction = async (
 
   const bidSignature = await signAuctionBid(bid, wallet);
   logger.info("Method complete", requestContext, methodContext, { bidSignature });
+
+  AUCTION_REQUEST_MAP.set(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+    currentTime,
+  );
   return { bid, bidSignature: dryRun ? undefined : bidSignature };
 };
