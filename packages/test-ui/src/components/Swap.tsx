@@ -66,6 +66,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         signer,
         new Logger({ level: "info" }),
         (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
+        undefined,
         process.env.REACT_APP_NATS_URL_OVERRIDE,
         process.env.REACT_APP_AUTH_URL_OVERRIDE,
       );
