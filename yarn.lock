@@ -1972,6 +1972,7 @@ __metadata:
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
+    "@types/eth-sig-util": ^2.1.1
     "@types/mocha": ^9.0.0
     "@types/pino": ^6.3.11
     "@types/sinon": ^10.0.2
@@ -1983,8 +1984,8 @@ __metadata:
     chai: 4.3.4
     chai-as-promised: 7.1.1
     chai-subset: ^1.6.0
-    eccrypto-js: 5.4.0
     eslint: ^7.32.0
+    eth-sig-util: ^2.5.3
     ethers: ^5.4.6
     hyperid: ^2.3.1
     mocha: ^9.0.3
@@ -4374,6 +4375,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/eth-sig-util@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@types/eth-sig-util@npm:2.1.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 4aa788fa11b73a6dec105a6e14b811e978104a74d33618dafee1b7f0c0e724d88c7ed9302c1c45cbc53bdd3e7a3ce520eaa824568035cefc26a712e6d51e4442
+  languageName: node
+  linkType: hard
+
 "@types/express-serve-static-core@npm:^4.17.9":
   version: 4.17.24
   resolution: "@types/express-serve-static-core@npm:4.17.24"
@@ -5451,7 +5461,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aes-js@npm:3.1.2, aes-js@npm:^3.1.1":
+"aes-js@npm:^3.1.1":
   version: 3.1.2
   resolution: "aes-js@npm:3.1.2"
   checksum: ab4633f4054e3d32d69af61bb941e47e188629c7e038d898600f3bd55674739c043b0811225fe4b58c00224f9a027a432f65e5c88681d2e49cbaa5d51f6ea941
@@ -7373,13 +7383,6 @@ __metadata:
   version: 4.11.6
   resolution: "bn.js@npm:4.11.6"
   checksum: b5c82ef93f28a2a118d41e4e333b673a515a53c622ccf4985c87cc39d1982c80511989ec871ba2b1335a9ec56f1e8407c32203443c05348879b6597e286085c9
-  languageName: node
-  linkType: hard
-
-"bn.js@npm:4.11.8":
-  version: 4.11.8
-  resolution: "bn.js@npm:4.11.8"
-  checksum: c1c20812fc35367c13d5d4387b88b6b1f60dd685006d928fe7710d2b4c95ace661b7c4e400f484e189874481a813965ca32f12e9cbb31c3ced465d96fab5bcd8
   languageName: node
   linkType: hard
 
@@ -10303,21 +10306,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eccrypto-js@npm:5.4.0":
-  version: 5.4.0
-  resolution: "eccrypto-js@npm:5.4.0"
-  dependencies:
-    aes-js: 3.1.2
-    enc-utils: 2.1.0
-    hash.js: 1.1.7
-    js-sha3: 0.8.0
-    pbkdf2: ^3.0.17
-    randombytes: 2.1.0
-    secp256k1: 3.8.0
-  checksum: 7b942f166ce3d470645f0e533886f732d985fa4f4761c0193290f6db5d1ec233a0a34b52944a817b5c32263683c168e6950c87a96523f5d4a7f141417ab5983c
-  languageName: node
-  linkType: hard
-
 "ecdsa-sig-formatter@npm:1.0.11":
   version: 1.0.11
   resolution: "ecdsa-sig-formatter@npm:1.0.11"
@@ -10409,17 +10397,6 @@ __metadata:
   version: 3.0.0
   resolution: "emojis-list@npm:3.0.0"
   checksum: a79126b55bc86ee8fd938235a6adf9d457c05fb5bb934e8608b7d35c878d9d1e312a67759244f5c3fba0810b508eb5617e5e6ad6886496ebcfa6832d1c8de3c4
-  languageName: node
-  linkType: hard
-
-"enc-utils@npm:2.1.0":
-  version: 2.1.0
-  resolution: "enc-utils@npm:2.1.0"
-  dependencies:
-    bn.js: 4.11.8
-    is-typedarray: 1.0.0
-    typedarray-to-buffer: 3.1.5
-  checksum: 71383f6faf907bbb78d734a40664bde55da529a6487d0c951deacc6255ca0a470fde9a43465aa7a0c04e368ecb3cedc287b307928c67d2437573ae8eb961c692
   languageName: node
   linkType: hard
 
@@ -11317,7 +11294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eth-sig-util@npm:^2.5.2":
+"eth-sig-util@npm:^2.5.2, eth-sig-util@npm:^2.5.3":
   version: 2.5.4
   resolution: "eth-sig-util@npm:2.5.4"
   dependencies:
@@ -15352,7 +15329,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-typedarray@npm:1.0.0, is-typedarray@npm:^1.0.0, is-typedarray@npm:~1.0.0":
+"is-typedarray@npm:^1.0.0, is-typedarray@npm:~1.0.0":
   version: 1.0.0
   resolution: "is-typedarray@npm:1.0.0"
   checksum: 4e21156e7360a5916eded35c5938adf6278299a8055640864eebb251e4351cd605beccddf9af27477e19f753d453412fe0c21379bb54b55cfdf5add263076959
@@ -21892,7 +21869,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"randombytes@npm:2.1.0, randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.0.6, randombytes@npm:^2.1.0":
+"randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.0.6, randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
   dependencies:
@@ -23868,7 +23845,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"secp256k1@npm:3.8.0, secp256k1@npm:^3.0.1, secp256k1@npm:^3.6.2":
+"secp256k1@npm:^3.0.1, secp256k1@npm:^3.6.2":
   version: 3.8.0
   resolution: "secp256k1@npm:3.8.0"
   dependencies:
@@ -26433,7 +26410,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"typedarray-to-buffer@npm:3.1.5, typedarray-to-buffer@npm:^3.1.5":
+"typedarray-to-buffer@npm:^3.1.5":
   version: 3.1.5
   resolution: "typedarray-to-buffer@npm:3.1.5"
   dependencies:
