@@ -1,8 +1,8 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, Contract, utils, Wallet } from "ethers";
+import { delay, getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { BigNumber, constants, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
 import { hexlify, randomBytes } from "ethers/lib/utils";
@@ -46,16 +46,13 @@ const txserviceConcurrencyTest = async (
   maxConcurrency: number,
   step = 1,
   localChain = false,
-  tokenAddress = "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
+  tokenAddress: string = constants.AddressZero,
 ): Promise<void> => {
   let concurrency: number;
   const config = getConfig(localChain);
   const logger: pino.Logger = pino({ level: config.logLevel ?? "debug" });
   // For these tests, unless we are running on local, we should default to rinkeby.
   const chainId = parseInt(Object.keys(config.chainConfig)[0] ?? "4");
-
-  logger.info("Creating Contract...", { tokenAddress, chainId });
-  const token = new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider);
 
   /// MARK - SETUP MANAGER.
   const wallet = Wallet.fromMnemonic(config.mnemonic).connect(config.chainConfig[chainId].provider);
@@ -103,27 +100,31 @@ const txserviceConcurrencyTest = async (
     totalNumberOfTransactions += concurrency;
   }
   const totalCost = BigNumber.from(totalNumberOfTransactions).mul(AMOUNT_PER_TX);
-  const decimals = await token.decimals();
+  const decimals =
+    tokenAddress === constants.AddressZero
+      ? 18
+      : await new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider).decimals();
   logger.info(
     { totalNumberOfTransactions, totalCost: utils.formatUnits(totalCost, decimals) },
     "Total number of transactions to send.",
   );
-  // const funderBalance = await token.balanceOf(wallet.address);
+  const funderBalance = await getOnchainBalance(tokenAddress, wallet.address, config.chainConfig[chainId].provider);
 
-  // if (funderBalance.lt(totalCost)) {
-  //   throw new Error(
-  //     `Funder does not have enough funds. Needs ${utils.formatUnits(
-  //       totalCost,
-  //       decimals,
-  //     )} but only has ${utils.formatUnits(funderBalance, decimals)}`,
-  //   );
-  // } else {
-  //   logger.info(
-  //     { balance: utils.formatUnits(funderBalance, decimals), needed: utils.formatUnits(totalCost, decimals) },
-  //     "Funder has enough funds",
-  //   );
-  // }
+  if (funderBalance.lt(totalCost)) {
+    throw new Error(
+      `Funder does not have enough funds. Needs ${utils.formatUnits(
+        totalCost,
+        decimals,
+      )} but only has ${utils.formatUnits(funderBalance, decimals)}`,
+    );
+  } else {
+    logger.info(
+      { balance: utils.formatUnits(funderBalance, decimals), needed: utils.formatUnits(totalCost, decimals) },
+      "Funder has enough funds",
+    );
+  }
 
+  /// MARK - SETUP EVENTS
   txservice.attach(NxtpTxServiceEvents.TransactionSubmitted, (data) => {
     logger.info("Got tx submitted event.", {
       hashes: data.responses.map((r) => r.hash),
@@ -139,49 +140,76 @@ const txserviceConcurrencyTest = async (
     });
   });
 
+  /// MARK - create task helper
+  const sendTx = async (requestContext: RequestContext) => {
+    const txInfo: TransactionInfo = {
+      start: Date.now(),
+    };
+
+    const data =
+      tokenAddress === constants.AddressZero
+        ? SAMPLE_DATA
+        : new Contract(tokenAddress, TestTokenABI, config.chainConfig[chainId].provider).interface.encodeFunctionData(
+            "transfer",
+            [recipient.address, AMOUNT_PER_TX],
+          );
+    try {
+      await txservice.sendTx(
+        {
+          chainId,
+          to: tokenAddress === constants.AddressZero ? recipient.address : tokenAddress,
+          from: wallet.address,
+          data,
+          value: One,
+        } as WriteTransaction,
+        requestContext,
+      );
+    } catch (e) {
+      txInfo.error = e;
+      logger.error("Failed", { error: jsonifyError(e) });
+    } finally {
+      txInfo.end = Date.now();
+    }
+    return txInfo;
+  };
+
   /// MARK - TEST LOOP.
   logger.info("Beginning concurrency test.");
-  // let active = false;
-  // let periodicCount = 0;
-  // let serialFailed = 0;
-  // setInterval(async () => {
-  //   if (active) {
-  //     return;
-  //   }
-  //   active = true;
-  //   periodicCount++;
-  //   try {
-  //     const receipt = await Promise.race([
-  //       txservice.sendTx(
-  //         {
-  //           chainId,
-  //           to: recipient.address,
-  //           from: wallet.address,
-  //           data: SAMPLE_DATA,
-  //           value: One,
-  //         } as WriteTransaction,
-  //         {
-  //           id: `periodic:${periodicCount}`,
-  //           origin: "concurrencyTest",
-  //         } as RequestContext,
-  //       ),
-  //       delay(280_000),
-  //     ]);
-  //     if (!receipt) {
-  //       throw new Error("Periodic tx timed out");
-  //     }
-  //     serialFailed = 0;
-  //     logger.info({ periodicCount }, "Sent periodic transaction");
-  //   } catch (e) {
-  //     serialFailed++;
-  //     logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
-  //     if (serialFailed > 5) {
-  //       logger.error("Failed to send last 5 periodic txs");
-  //       process.exit(1);
-  //     }
-  //   }
-  //   active = false;
-  // }, 45_000);
+  let active = false;
+  let periodicCount = 0;
+  let serialFailed = 0;
+  setInterval(async () => {
+    if (active) {
+      return;
+    }
+    active = true;
+    periodicCount++;
+    try {
+      const txInfo = await Promise.race([
+        sendTx({
+          id: `periodic:${periodicCount}`,
+          origin: "concurrencyTest",
+        }),
+        delay(280_000),
+      ]);
+      if (!txInfo) {
+        throw new Error("Periodic tx timed out");
+      }
+      if (txInfo.error) {
+        throw txInfo.error;
+      }
+      serialFailed = 0;
+      logger.info({ periodicCount, txInfo }, "Sent periodic transaction");
+    } catch (e) {
+      serialFailed++;
+      logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
+      if (serialFailed > 5) {
+        logger.error("Failed to send last 5 periodic txs");
+        process.exit(1);
+      }
+    }
+    active = false;
+  }, 45_000);
   const stats: any[] = [];
   let loopNumber = 1;
   for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
@@ -194,41 +222,11 @@ const txserviceConcurrencyTest = async (
       .fill(0)
       .map((_: any, i: number) => {
         const task = async () => {
-          const txInfo: TransactionInfo = {
-            start: Date.now(),
-          };
-          try {
-            // const data = token.interface.encodeFunctionData("transfer", [recipient.address, AMOUNT_PER_TX]);
-            await txservice.sendTx(
-              {
-                chainId,
-                to: recipient.address,
-                from: wallet.address,
-                data: SAMPLE_DATA,
-                value: One,
-              } as WriteTransaction,
-              {
-                id: `C${concurrency}:U${i + 1}`,
-                origin: "concurrencyTest",
-              } as RequestContext,
-            );
-            // TODO: Confirm after sending tx that balance reflects new amount?
-            // If we want to do this, we need to use the txservice readTx method.
-            // Also note that this will tack on extra time to the test, if we do so.
-            // const balance = await getOnchainBalance(
-            //   assetId,
-            //   agent.address,
-            //   config.chainConfig[chainId].provider,
-            // );
-            // if (balance.lt(amount)) {
-            //   throw new Error(`Agent has insufficient funds of ${assetId}`);
-            // }
-          } catch (e) {
-            txInfo.error = e;
-            logger.error("Failed", { error: jsonifyError(e) });
-          } finally {
-            txInfo.end = Date.now();
-          }
+          const txInfo = await sendTx({
+            id: `C${concurrency}:U${i + 1}`,
+            origin: "concurrencyTest",
+          });
+
           return txInfo;
         };
         return task;
