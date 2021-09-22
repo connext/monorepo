@@ -135,14 +135,9 @@ export class SdkAgent {
 
     // Create sdk
     const sdk = new NxtpSdk(
-      chainProviders,
-      signer,
+      { chainConfig: chainProviders, signer, natsUrl, authUrl, messaging },
       logger.child({ name: "Sdk" }),
       "local",
-      undefined,
-      natsUrl,
-      authUrl,
-      messaging,
     );
     await sdk.connectMessaging();
     const agent = new SdkAgent(address, chainProviders, signer, logger, sdk);

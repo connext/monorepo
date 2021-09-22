@@ -112,7 +112,10 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
+    sdk = new NxtpSdk(
+      { chainConfig, signer, natsUrl: "http://example.com", authUrl: "http://example.com", messaging: undefined },
+      logger,
+    );
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
