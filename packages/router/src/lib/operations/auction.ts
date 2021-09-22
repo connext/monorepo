@@ -24,7 +24,6 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { AUCTION_REQUEST_LIMIT } from "../../config";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -93,17 +92,18 @@ export const newAuction = async (
   }
 
   const currentTime = await getNtpTimeSeconds();
+  console.log("config = ", config);
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
   ) as number;
-  if (lastAttemptTime && lastAttemptTime + AUCTION_REQUEST_LIMIT > currentTime) {
+  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime) {
     throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
       methodContext,
       requestContext,
       lastAttemptTime,
       currentTime,
-      minimalPeriod: AUCTION_REQUEST_LIMIT,
+      minimalPeriod: config.requestLimit,
     });
   }
   // Validate expiry is valid (greater than current time plus a buffer).
