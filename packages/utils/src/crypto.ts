@@ -1,5 +1,6 @@
 import { encrypt as libEncrypt } from "eth-sig-util";
 
+declare const ethereum: any;
 // /**
 //  * Encrypts some message with the provided public key
 //  *
@@ -12,16 +13,9 @@ export const encrypt = async (message: string, publicKey: string) => {
   return "0x" + buf.toString("hex");
 };
 
-export type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] | object }) => Promise<any>;
-};
-export const ethereumRequest = async (
-  ethereumProvider: EthereumProvider,
-  method: string,
-  params: string[],
-): Promise<any> => {
+export const ethereumRequest = async (method: string, params: string[]): Promise<any> => {
   // If ethereum.request() exists, the provider is probably EIP-1193 compliant.
-  return await ethereumProvider.request({
+  return await ethereum.request({
     method,
     params,
   });
