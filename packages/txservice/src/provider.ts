@@ -8,7 +8,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import axios from "axios";
-import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
+import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
@@ -268,29 +268,37 @@ export class ChainRpcProvider {
         let response: any;
         try {
           response = await axios.get(uri);
+
           const { rapid, fast } = response.data;
-          if (rapid !== undefined) {
-            gasPrice = BigNumber.from(rapid);
+          this.logger.debug("Gas station response", requestContext, methodContext, {
+            uri,
+            data: response.data,
+            fast,
+            rapid,
+          });
+          
+          if (rapid) {
+            gasPrice = BigNumber.from(rapid.toString());
             break;
-          } else if (fast !== undefined) {
-            gasPrice = BigNumber.from(fast);
+          } else if (fast) {
+            gasPrice = utils.parseUnits(fast.toString(), "gwei");
             break;
           } else {
             this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
               uri,
-              response,
+              data: response.data,
             });
           }
         } catch (e) {
           this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
             uri,
-            response,
+            data: response.data,
             error: jsonifyError(e),
           });
         }
       }
 
-      if (gasStations.length > 0 && gasPrice === undefined) {
+      if (gasStations.length > 0 && !gasPrice) {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
         });

@@ -1,6 +1,6 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, getUuid, jsonifyError, Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction } from "./types";
@@ -10,7 +10,6 @@ import {
   TransactionReverted,
   TimeoutError,
   TransactionServiceFailure,
-  MaxBufferLengthError,
 } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
@@ -75,21 +74,10 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
-  private lastLoggedInflightBufferEmpty = false;
   private logInflightBuffer() {
     const { requestContext, methodContext } = createLoggingContext(this.logInflightBuffer.name);
     const buffer = this.inflightBuffer;
     const bufferLength = buffer.length;
-
-    // Prevent us from logging an empty buffer twice in a row.
-    if (bufferLength === 0) {
-      if (this.lastLoggedInflightBufferEmpty) {
-        return;
-      }
-      this.lastLoggedInflightBufferEmpty = true;
-    } else {
-      this.lastLoggedInflightBufferEmpty = false;
-    }
 
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
     this.logger.debug(
@@ -99,21 +87,10 @@ export class TransactionDispatch extends ChainRpcProvider {
     );
   }
 
-  private lastLoggedMinedBufferEmpty = false;
   private logMinedBuffer() {
     const { requestContext, methodContext } = createLoggingContext(this.logMinedBuffer.name);
     const buffer = this.minedBuffer;
     const bufferLength = buffer.length;
-
-    // Prevent us from logging an empty buffer twice in a row.
-    if (bufferLength === 0) {
-      if (this.lastLoggedMinedBufferEmpty) {
-        return;
-      }
-      this.lastLoggedMinedBufferEmpty = true;
-    } else {
-      this.lastLoggedMinedBufferEmpty = false;
-    }
 
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
     this.logger.debug(
@@ -216,8 +193,9 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
-        if (this.inflightBuffer.length >= TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS) {
-          throw new MaxBufferLengthError();
+        // Wait until there's room in the buffer.
+        while (this.inflightBuffer.length >= TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS) {
+          await delay(1_000);
         }
 
         // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means

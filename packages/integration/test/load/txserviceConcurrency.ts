@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { delay, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
@@ -50,7 +50,7 @@ const txserviceConcurrencyTest = async (
 ): Promise<void> => {
   let concurrency: number;
   const config = getConfig(localChain);
-  const logger: pino.Logger = pino({ level: config.logLevel ?? "info" });
+  const logger: pino.Logger = pino({ level: config.logLevel ?? "debug" });
   // For these tests, unless we are running on local, we should default to rinkeby.
   const chainId = parseInt(Object.keys(config.chainConfig)[0] ?? "4");
 
@@ -71,7 +71,11 @@ const txserviceConcurrencyTest = async (
     chains[chainId] = {
       confirmations: config.confirmations,
       providers: urls,
-      gasStations: [],
+      gasStations: config.gasStations
+        ? typeof config.gasStations === "string"
+          ? [config.gasStations]
+          : config.gasStations
+        : [],
     } as ChainConfig;
   });
 
@@ -85,7 +89,7 @@ const txserviceConcurrencyTest = async (
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
   const txservice = new TransactionService(
-    new Logger({ level: config.logLevel ?? "info" }),
+    new Logger({ level: config.logLevel ?? "debug" }),
     {
       chains,
     },
@@ -137,47 +141,47 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - TEST LOOP.
   logger.info("Beginning concurrency test.");
-  let active = false;
-  let periodicCount = 0;
-  let serialFailed = 0;
-  setInterval(async () => {
-    if (active) {
-      return;
-    }
-    active = true;
-    periodicCount++;
-    try {
-      const receipt = await Promise.race([
-        txservice.sendTx(
-          {
-            chainId,
-            to: recipient.address,
-            from: wallet.address,
-            data: SAMPLE_DATA,
-            value: One,
-          } as WriteTransaction,
-          {
-            id: `periodic:${periodicCount}`,
-            origin: "concurrencyTest",
-          } as RequestContext,
-        ),
-        delay(280_000),
-      ]);
-      if (!receipt) {
-        throw new Error("Periodic tx timed out");
-      }
-      serialFailed = 0;
-      logger.info({ periodicCount }, "Sent periodic transaction");
-    } catch (e) {
-      serialFailed++;
-      logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
-      if (serialFailed > 5) {
-        logger.error("Failed to send last 5 periodic txs");
-        process.exit(1);
-      }
-    }
-    active = false;
-  }, 45_000);
+  // let active = false;
+  // let periodicCount = 0;
+  // let serialFailed = 0;
+  // setInterval(async () => {
+  //   if (active) {
+  //     return;
+  //   }
+  //   active = true;
+  //   periodicCount++;
+  //   try {
+  //     const receipt = await Promise.race([
+  //       txservice.sendTx(
+  //         {
+  //           chainId,
+  //           to: recipient.address,
+  //           from: wallet.address,
+  //           data: SAMPLE_DATA,
+  //           value: One,
+  //         } as WriteTransaction,
+  //         {
+  //           id: `periodic:${periodicCount}`,
+  //           origin: "concurrencyTest",
+  //         } as RequestContext,
+  //       ),
+  //       delay(280_000),
+  //     ]);
+  //     if (!receipt) {
+  //       throw new Error("Periodic tx timed out");
+  //     }
+  //     serialFailed = 0;
+  //     logger.info({ periodicCount }, "Sent periodic transaction");
+  //   } catch (e) {
+  //     serialFailed++;
+  //     logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
+  //     if (serialFailed > 5) {
+  //       logger.error("Failed to send last 5 periodic txs");
+  //       process.exit(1);
+  //     }
+  //   }
+  //   active = false;
+  // }, 45_000);
   const stats: any[] = [];
   let loopNumber = 1;
   for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
@@ -277,8 +281,8 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "200"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "20"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "1"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "1"),
   undefined,
   process.env.TOKEN_ADDRESS,
 );
