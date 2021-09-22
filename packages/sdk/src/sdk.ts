@@ -6,7 +6,6 @@ import {
   UserNxtpNatsMessagingService,
   PrepareParams,
   TransactionPreparedEvent,
-  encrypt,
   AuctionResponse,
   InvariantTransactionData,
   MetaTxResponse,
@@ -82,6 +81,8 @@ import {
   getOnchainBalance,
   signFulfillTransactionPayload,
   encodeAuctionBid,
+  ethereumRequest,
+  encrypt,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -90,8 +91,6 @@ export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
-
-declare const ethereum: any; // TODO: #141 what to do about node?
 
 /**
  * Used to make mocking easier
@@ -353,6 +352,9 @@ export class NxtpSdk {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.chainConfig));
     }
 
+    const { provider: sendingProvider } = this.chainConfig[sendingChainId];
+    const { provider: receivingProvider } = this.chainConfig[receivingChainId];
+
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
     if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
@@ -385,23 +387,10 @@ export class NxtpSdk {
     let encryptedCallData = "0x";
     const callDataHash = utils.keccak256(callData);
     if (callData !== "0x") {
-      let encryptionPublicKey;
-
       try {
-        encryptionPublicKey = await ethereum.request({
-          method: "eth_getEncryptionPublicKey",
-          params: [user], // you must have access to the specified account
-        });
-      } catch (error) {
-        let encryptionError = "Error getting public key";
-        if (error.code === 4001) {
-          // EIP-1193 userRejectedRequest error
-          encryptionError = "User rejected public key request";
-        }
-        throw new EncryptionError(encryptionError, jsonifyError(error));
-      }
-
-      try {
+        const encryptionPublicKey = await ethereumRequest(this.signer.provider as any, "eth_getEncryptionPublicKey", [
+          user,
+        ]);
         encryptedCallData = await encrypt(callData, encryptionPublicKey);
       } catch (e) {
         throw new EncryptionError("public key encryption failed", jsonifyError(e));
@@ -539,20 +528,6 @@ export class NxtpSdk {
 
           // check if the price changes unfovorably by more than the slippage tolerance(percentage).
           const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-
-          const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
-          const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
-
-          if (!sendingProvider || !receivingProvider) {
-            const msg = "Provider not found";
-            this.logger.warn(msg, requestContext, methodContext, {
-              supported: Object.keys(this.chainConfig),
-              sendingChainId,
-              receivingChainId,
-            });
-            return msg;
-          }
-
           const [inputDecimals, outputDecimals] = await Promise.all([
             getDecimals(sendingAssetId, sendingProvider),
             getDecimals(receivingAssetId, receivingProvider),
@@ -829,10 +804,11 @@ export class NxtpSdk {
     this.logger.info("Preparing fulfill tx", requestContext, methodContext, { relayerFee });
     let callData = "0x";
     if (txData.callDataHash !== utils.keccak256(callData)) {
-      callData = await ethereum.request({
-        method: "eth_decrypt",
-        params: [encryptedCallData, txData.user],
-      });
+      try {
+        callData = await ethereumRequest(this.signer.provider as any, "eth_decrypt", [encryptedCallData, txData.user]);
+      } catch (e) {
+        throw e;
+      }
     }
 
     if (useRelayers) {
