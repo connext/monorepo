@@ -278,16 +278,14 @@ describe("Integration", () => {
     }
 
     userSdk = new NxtpSdk(
-      {
-        chainConfig: chainProviders,
-        signer: userWallet,
-      },
+      chainProviders,
+      userWallet,
       new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
       "local",
     );
   });
 
-  it("should send ERC20 tokens", async function () {
+  it.only("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
     const sendingAssetId = erc20Address;
