@@ -287,7 +287,7 @@ describe("Integration", () => {
     );
   });
 
-  it("should send ERC20 tokens", async function () {
+  it.only("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
     const sendingAssetId = erc20Address;
