@@ -2,6 +2,15 @@
 
 ## Next Release
 
+## 0.0.46
+
+- [sdk] Fix calldata encryption.
+- [sdk] Subgraph buffer.
+- [sdk] Fix dryRun.
+- [sdk] Add Subgraph loop errors handling.
+- [sdk] Change NxtpSDK constructor params.
+- [router] Attempt to resolve expired receiver prepare transactions.
+
 ## 0.0.45
 
 - [sdk] Attempt fix on trust wallet again.
