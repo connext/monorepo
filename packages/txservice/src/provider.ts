@@ -156,14 +156,18 @@ export class ChainRpcProvider {
    */
   public confirmTransaction(
     response: providers.TransactionResponse,
-    confirmations?: number,
-    timeout?: number,
+    confirmations: number = this.confirmationsRequired,
+    timeout: number = this.confirmationTimeout,
   ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(true, () => {
-      // The only way to access the functionality internal to ethers for handling replacement tx.
-      // See issue: https://github.com/ethers-io/ethers.js/issues/1775
-      return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
-    }, false);
+    return this.resultWrapper<providers.TransactionReceipt>(
+      true,
+      () => {
+        // The only way to access the functionality internal to ethers for handling replacement tx.
+        // See issue: https://github.com/ethers-io/ethers.js/issues/1775
+        return (response as any).wait(confirmations, timeout);
+      },
+      false,
+    );
   }
 
   /**
