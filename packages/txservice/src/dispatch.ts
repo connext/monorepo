@@ -4,13 +4,7 @@ import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestCont
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction } from "./types";
-import {
-  BadNonce,
-  TransactionReplaced,
-  TransactionReverted,
-  TimeoutError,
-  TransactionServiceFailure,
-} from "./error";
+import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
