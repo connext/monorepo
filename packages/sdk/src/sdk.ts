@@ -388,9 +388,7 @@ export class NxtpSdk {
     const callDataHash = utils.keccak256(callData);
     if (callData !== "0x") {
       try {
-        const encryptionPublicKey = await ethereumRequest(this.signer.provider as any, "eth_getEncryptionPublicKey", [
-          user,
-        ]);
+        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
         encryptedCallData = await encrypt(callData, encryptionPublicKey);
       } catch (e) {
         throw new EncryptionError("public key encryption failed", jsonifyError(e));
@@ -805,7 +803,7 @@ export class NxtpSdk {
     let callData = "0x";
     if (txData.callDataHash !== utils.keccak256(callData)) {
       try {
-        callData = await ethereumRequest(this.signer.provider as any, "eth_decrypt", [encryptedCallData, txData.user]);
+        callData = await ethereumRequest("eth_decrypt", [encryptedCallData, txData.user]);
       } catch (e) {
         throw e;
       }
