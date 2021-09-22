@@ -268,15 +268,7 @@ export class ChainRpcProvider {
         let response: any;
         try {
           response = await axios.get(uri);
-
           const { rapid, fast } = response.data;
-          this.logger.debug("Gas station response", requestContext, methodContext, {
-            uri,
-            data: response.data,
-            fast,
-            rapid,
-          });
-          
           if (rapid) {
             gasPrice = BigNumber.from(rapid.toString());
             break;
