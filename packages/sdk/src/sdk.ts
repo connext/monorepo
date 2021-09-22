@@ -498,6 +498,9 @@ export class NxtpSdk {
       if (auctionResponses.length === 0) {
         throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
       }
+      if (dryRun) {
+        return auctionResponses[0];
+      }
       const filtered: (AuctionResponse | string)[] = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
           // validate bid
