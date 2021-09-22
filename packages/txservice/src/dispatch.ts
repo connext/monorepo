@@ -1,6 +1,14 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, getUuid, jsonifyError, Logger, MethodContext, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  delay,
+  getUuid,
+  jsonifyError,
+  Logger,
+  MethodContext,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction } from "./types";
@@ -79,22 +87,14 @@ export class TransactionDispatch extends ChainRpcProvider {
     const buffer = this.inflightBuffer;
     const bufferLength = buffer.length;
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
-    this.logger.debug(
-      `(x${bufferLength}) INFLIGHT BUFFER : ${bufferString}`,
-      requestContext,
-      methodContext,
-    );
+    this.logger.debug(`(x${bufferLength}) INFLIGHT BUFFER : ${bufferString}`, requestContext, methodContext);
   }
 
   private logMinedBuffer(requestContext: RequestContext, methodContext: MethodContext) {
     const buffer = this.minedBuffer;
     const bufferLength = buffer.length;
     const bufferString = buffer.map((tx) => tx.nonce).join(", ");
-    this.logger.debug(
-      `(x${bufferLength}) MINED BUFFER : ${bufferString}`,
-      requestContext,
-      methodContext,
-    );
+    this.logger.debug(`(x${bufferLength}) MINED BUFFER : ${bufferString}`, requestContext, methodContext);
   }
 
   public startLoops() {
