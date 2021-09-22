@@ -136,22 +136,25 @@ export class NxtpSdk {
   private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
   constructor(
-    private readonly chainConfig: {
-      [chainId: number]: {
-        provider: providers.FallbackProvider;
-        transactionManagerAddress?: string;
-        subgraph?: string;
-        subgraphSyncBuffer?: number;
+    private readonly config: {
+      chainConfig: {
+        [chainId: number]: {
+          provider: providers.FallbackProvider;
+          transactionManagerAddress?: string;
+          subgraph?: string;
+          subgraphSyncBuffer?: number;
+        };
       };
+      signer: Signer;
+      natsUrl?: string;
+      authUrl?: string;
+      messaging?: UserNxtpNatsMessagingService;
     },
-    private signer: Signer,
     private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
     network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
-    natsUrl?: string,
-    authUrl?: string,
-    messaging?: UserNxtpNatsMessagingService,
+    skipPolling: boolean = false,
   ) {
+    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
     if (messaging) {
       this.messaging = messaging;
     } else {
@@ -196,7 +199,7 @@ export class NxtpSdk {
     > = {};
 
     // create configs for subclasses based on passed-in config
-    Object.entries(this.chainConfig).forEach(
+    Object.entries(chainConfig).forEach(
       ([
         _chainId,
         { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph, subgraphSyncBuffer },
@@ -231,11 +234,11 @@ export class NxtpSdk {
       },
     );
     this.transactionManager = new TransactionManager(
-      this.signer,
+      signer,
       txManagerConfig,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(this.signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -332,7 +335,7 @@ export class NxtpSdk {
       throw error;
     }
 
-    const user = await this.signer.getAddress();
+    const user = await this.config.signer.getAddress();
 
     const {
       sendingAssetId,
@@ -346,12 +349,12 @@ export class NxtpSdk {
       dryRun,
       preferredRouter: _preferredRouter,
     } = params;
-    if (!this.chainConfig[sendingChainId]) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[sendingChainId]) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.chainConfig[receivingChainId]) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[receivingChainId]) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
@@ -541,13 +544,13 @@ export class NxtpSdk {
           // check if the price changes unfovorably by more than the slippage tolerance(percentage).
           const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
 
-          const { provider: sendingProvider } = this.chainConfig[sendingChainId] ?? {};
-          const { provider: receivingProvider } = this.chainConfig[receivingChainId] ?? {};
+          const { provider: sendingProvider } = this.config.chainConfig[sendingChainId] ?? {};
+          const { provider: receivingProvider } = this.config.chainConfig[receivingChainId] ?? {};
 
           if (!sendingProvider || !receivingProvider) {
             const msg = "Provider not found";
             this.logger.warn(msg, requestContext, methodContext, {
-              supported: Object.keys(this.chainConfig),
+              supported: Object.keys(this.config.chainConfig),
               sendingChainId,
               receivingChainId,
             });
@@ -662,19 +665,19 @@ export class NxtpSdk {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
-    if (!this.chainConfig[sendingChainId]) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[sendingChainId]) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.chainConfig[receivingChainId]) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[receivingChainId]) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    const signerAddr = await this.signer.getAddress();
+    const signerAddr = await this.config.signer.getAddress();
     const balance = await getOnchainBalance(
       sendingAssetId,
       signerAddr,
-      this.signer.provider ?? this.chainConfig[sendingChainId].provider,
+      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
     );
     if (balance.lt(amount)) {
       throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
@@ -806,14 +809,14 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    const signerAddress = await this.signer.getAddress();
+    const signerAddress = await this.config.signer.getAddress();
 
-    if (!this.chainConfig[txData.sendingChainId]) {
-      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.chainConfig[txData.receivingChainId]) {
-      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.chainConfig));
+    if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
     this.logger.info("Generating fulfill signature", requestContext, methodContext);
@@ -822,7 +825,7 @@ export class NxtpSdk {
       relayerFee,
       txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
-      this.signer,
+      this.config.signer,
     );
 
     this.logger.info("Generated signature", requestContext, methodContext, { signature });
@@ -939,7 +942,7 @@ export class NxtpSdk {
    * @param signer - Signer to change to
    */
   public changeInjectedSigner(signer: Signer) {
-    this.signer = signer;
+    this.config.signer = signer;
   }
 
   /**
