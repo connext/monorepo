@@ -175,6 +175,7 @@ export const newAuction = async (
       requestContext,
       balance: balance.toString(),
       amount,
+      amountReceived,
       receivingAssetId,
       receivingChainId,
     });
