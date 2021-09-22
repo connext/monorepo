@@ -221,12 +221,14 @@ describe("NxtpSdk", () => {
       let error;
       try {
         const instance = new NxtpSdk(
-          _chainConfig,
-          signer,
+          {
+            chainConfig: _chainConfig,
+            signer,
+            natsUrl: "http://example.com",
+            authUrl: "http://example.com",
+            messaging: undefined,
+          },
           logger,
-          undefined,
-          "http://example.com",
-          "http://example.com",
         );
       } catch (e) {
         error = e;
@@ -247,12 +249,14 @@ describe("NxtpSdk", () => {
       let error;
       try {
         const instance = new NxtpSdk(
-          _chainConfig,
-          signer,
+          {
+            chainConfig: _chainConfig,
+            signer,
+            natsUrl: "http://example.com",
+            authUrl: "http://example.com",
+            messaging: undefined,
+          },
           logger,
-          undefined,
-          "http://example.com",
-          "http://example.com",
         );
       } catch (e) {
         error = e;
@@ -272,7 +276,16 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
+      const instance = new NxtpSdk(
+        {
+          chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
+        },
+        logger,
+      );
     });
   });
 
