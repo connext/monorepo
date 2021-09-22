@@ -134,7 +134,7 @@ export class TransactionDispatch extends ChainRpcProvider {
                 }
               }
             } else {
-              transaction.error = transaction.error ?? error;
+              transaction.error = error;
             }
           }
           // If any errors occurred, fail that transaction and move on.
@@ -408,7 +408,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
         // Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
         if (!transaction.responses.map((response) => response.hash).includes(error.replacement.hash)) {
-          transaction.error = error;
           throw error;
         }
         // error.replacement - the replacement transaction (a TransactionResponse)
@@ -418,10 +417,8 @@ export class TransactionDispatch extends ChainRpcProvider {
         // NOTE: This is the official receipt with status of 0, so it's safe to say the
         // transaction was in fact reverted and we should throw here.
         transaction.receipt = error.receipt;
-        transaction.error = error;
         throw error;
       } else {
-        transaction.error = _error;
         throw _error;
       }
     } else {
@@ -506,7 +503,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
     const confirmResult = await this.confirmTransaction(transaction.minedResponse, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
-      transaction.error = confirmResult.error;
       if (confirmResult.error.type === TimeoutError.type) {
         // This implies a re-org occurred.
         throw confirmResult.error;
@@ -557,7 +553,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         gasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
         transaction: transaction.loggable,
       });
-      transaction.error = error;
       throw error;
     }
     const previousPrice = transaction.gas.price;
