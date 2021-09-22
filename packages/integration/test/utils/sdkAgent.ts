@@ -18,6 +18,7 @@ import {
 } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
+  createLoggingContext,
   getRandomBytes32,
   jsonifyError,
   Logger,
@@ -26,6 +27,9 @@ import {
   TransactionPreparedEvent,
   UserNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
+
+
+
 import { providers, Signer } from "ethers";
 import { Evt, VoidCtx } from "evt";
 import PriorityQueue from "p-queue";
@@ -96,11 +100,14 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
  * @classdesc Manages a single agent assocuated with a single sdk instance. This class does not throw errors, instead emits them as events
  */
 export class SdkAgent {
+
   private cyclicalContext: VoidCtx | undefined;
 
   private queue = new PriorityQueue({ concurrency: 1 });
 
   private readonly evts: { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } = createEvts();
+
+  private readonly logger: Logger = new Logger({ name: "sdkAgent", level: "debug" });
 
   private constructor(
     public readonly address: string,
@@ -108,7 +115,6 @@ export class SdkAgent {
       [chainId: number]: { provider: providers.FallbackProvider };
     },
     private readonly _signer: Signer,
-    private readonly logger: Logger,
     private readonly sdk: NxtpSdk,
   ) {}
 
@@ -263,6 +269,7 @@ export class SdkAgent {
   public async initiateCrosschainTransfer(
     params: Omit<CrossChainParams, "receivingAddress" | "expiry"> & { receivingAddress?: string },
   ): Promise<void> {
+    this.logger.info("SDK Crosschain XFR Starting (adding to queue)", undefined, undefined, { params });
     return this.queue.add(async () => {
       const minExpiry = getMinExpiryBuffer(); // 36h in seconds
       const buffer = 5 * 60; // 5 min buffer
@@ -273,17 +280,37 @@ export class SdkAgent {
         transactionId: getRandomBytes32(),
         ...params,
       };
+      const { requestContext, methodContext } = createLoggingContext(
+          this.initiateCrosschainTransfer.name,
+          undefined,
+          bid.transactionId,
+      );
+
       let auction: AuctionResponse | undefined = undefined;
+      let auction_attempts = 0;
+      //todo move this out to a config file
+      const MAX_AUCTION_ATTEMPTS = 3;
+
       try {
         // 1. Run the auction
-        auction = await this.sdk.getTransferQuote(bid);
+        while(!auction && auction_attempts < MAX_AUCTION_ATTEMPTS){
+          auction_attempts++;
+          auction = await this.sdk.getTransferQuote(bid);
+          this.logger.debug(`Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`, requestContext, methodContext, {auction:auction, txid:bid.transactionId});
+        }
         // 2. Start the transfer
-        await this.sdk.prepareTransfer(auction, true);
-
+        if(auction) {
+          const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
+          this.logger.debug(`Preparing Transfer`, requestContext, methodContext, {txfr_info:prepareTxfr, txid:bid.transactionId});
+        }
+        else{
+          this.logger.debug(`Couldn't get an auction response`, requestContext, methodContext, {txid:bid.transactionId});
+          process.exit(1);
+        }
         // Transfer will auto-fulfill based on established listeners
       } catch (e) {
         const error = jsonifyError(e);
-        this.logger.error("Preparing failed", undefined, undefined, error, {
+        this.logger.error("Preparing failed", requestContext, methodContext, error, {
           transactionId: bid.transactionId,
           error,
           auction,
@@ -295,7 +322,7 @@ export class SdkAgent {
           timestamp: Date.now(),
           error: jsonifyError(e),
         });
-        // process.exit(1);
+        process.exit(1);
       }
     });
   }
