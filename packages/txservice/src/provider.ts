@@ -421,18 +421,22 @@ export class ChainRpcProvider {
   }
 
   /**
-   * Gets the current pending transaction count.
+   * Gets the current transaction count.
+   * 
+   * @param blockTag - the block tag to get the transaction count for. Use "latest" mined-only transactions.
+   * Use "pending" for transactions that have not been mined yet, but will (supposedly) be mined in the pending
+   * block (essentially, transactions included in the mempool, but this behavior is not consistent).
    *
-   * @returns Number of transactions sent, including pending transactions.
+   * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
    */
-  public getTransactionCount(): ResultAsync<number, TransactionError> {
+  public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
     // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
     if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
       return okAsync(this.cachedTransactionCount.value);
     }
 
     return this.resultWrapper<number>(true, async () => {
-      const value = await this.signer!.getTransactionCount("pending");
+      const value = await this.signer!.getTransactionCount(blockTag);
       this.cachedTransactionCount = { value, timestamp: Date.now() };
       return value;
     });

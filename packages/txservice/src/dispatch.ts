@@ -190,14 +190,22 @@ export class TransactionDispatch extends ChainRpcProvider {
         const gas = await this.getGas(minTx, requestContext);
 
         // Retrieve the current mined transaction count and our local nonce.
-        const result = await this.getTransactionCount();
-        if (result.isErr()) {
-          throw result.error;
+        const pendingResult = await this.getTransactionCount("pending");
+        if (pendingResult.isErr()) {
+          throw pendingResult.error;
         }
-        const minedTransactionCount = result.value;
+        const transactionCount = pendingResult.value;
 
-        // Set to whichever value is higher. This should almost always be our local nonce.
-        let nonce = Math.max(this.nonce, minedTransactionCount);
+        // TODO: This is here for debugging purposes. Either add caching per block to alleviate provider calls, or
+        // move this to NonceIncorrect catch block in the submit loop below.
+        const latestResult = await this.getTransactionCount("pending");
+        if (latestResult.isErr()) {
+          throw latestResult.error;
+        }
+        const minedTransactionCount = latestResult.value;
+
+        // Set to whichever value is higher. This should almost always be our local nonce (and definitely should not be mined transaction count).
+        let nonce = Math.max(this.nonce, transactionCount, minedTransactionCount);
 
         // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
         // go through on the first try.
@@ -206,7 +214,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         let iterations = 0;
         // Need to keep a flag for this, as we continually get vague "nonce incorrect errors", and once we reset the nonce, we only want
         // to increment and retry from there.
-        let nonceWasReset = false;
+        const nonceWasReset = false;
         let lastErrorReceived: Error | undefined = undefined;
         while (
           iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
@@ -232,6 +240,7 @@ export class TransactionDispatch extends ChainRpcProvider {
             attemptNumber: iterations,
             lastErrorReceived,
             currentNonce: {
+              transactionCount,
               minedTransactionCount,
               localNonce: this.nonce,
               assignedNonce: nonce,
@@ -253,13 +262,14 @@ export class TransactionDispatch extends ChainRpcProvider {
                 // 1. Signer used outside of this class to send tx (should never happen).
                 // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
                 nonce = nonce + 1;
-                // TODO: Alternatively, we could retrieve the minedTransactionCount again and set the nonce to Math.max(minedTransactionCount, nonce + 1)
+                // TODO: Alternatively, we could retrieve the transactionCount again and set the nonce to Math.max(transactionCount, nonce + 1)
                 continue;
               } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
-                // It's unknown whether nonce was too low or too high. For safety, reset the nonce to the current mined tx count.
+                // It's unknown whether nonce was too low or too high. For safety, reset the nonce to the current MINED tx count.
                 // It should bump up in this loop until it hits the right number.
-                nonce = minedTransactionCount;
-                nonceWasReset = true;
+                // TODO: Temporarily disabling this - it will result in us resubmitting at the same nonce multiple times if this occurs.
+                // nonce = minedTransactionCount;
+                // nonceWasReset = true;
                 continue;
               }
             }
@@ -267,7 +277,7 @@ export class TransactionDispatch extends ChainRpcProvider {
             throw error;
           }
         }
-        if (!transaction) {
+        if (!transaction || transaction.responses.length === 0) {
           throw new TransactionServiceFailure(
             "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
           );
