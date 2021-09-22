@@ -43,6 +43,41 @@ describe("getReceiverAmount", () => {
       expect(e.message).to.be.eq(err.message);
     }
   });
+
+  it("should handle correctly differing decimals values", async () => {
+    const log = {
+      level: 30,
+      time: 1632267516696,
+      pid: 1,
+      hostname: "a3de1b285fe8",
+      name: "0x29A519e21d6A97cdB82270b69c98bAc6426CDCf9",
+      requestContext: {
+        transactionId: "0x99bc34bb664f0e0f0717353e3b0f90772728027f2963c4b729e34e4f931e02a8",
+        id: "YMnaC4VOQJGMisuKXozFPQ/465301",
+        origin: "subscribeToAuctionRequest",
+      },
+      methodContext: { id: "YMnaC4VOQJGMisuKXozFPQ/465303", name: "newAuction" },
+      data: {
+        user: "0xE2B6F88dcC3c95f1b0C0682Eaa2EFa03E1F2D6f7",
+        sendingChainId: 137,
+        sendingAssetId: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        amount: "1000000000000000000",
+        receivingChainId: 56,
+        receivingAssetId: "0x55d398326f99059fF775485246999027B3197955",
+        receivingAddress: "0xE2B6F88dcC3c95f1b0C0682Eaa2EFa03E1F2D6f7",
+        callTo: "0x0000000000000000000000000000000000000000",
+        callDataHash: "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        encryptedCallData: "0x",
+        expiry: 1632526714,
+        transactionId: "0x99bc34bb664f0e0f0717353e3b0f90772728027f2963c4b729e34e4f931e02a8",
+        dryRun: false,
+      },
+      msg: "Method context",
+    };
+
+    const amountReceived = await getReceiverAmount(log.data.amount, 6, 18);
+    expect(amountReceived).to.be.eq("999500000000000000");
+  });
 });
 
 describe("getReceiverExpiryBuffer", () => {

@@ -4,6 +4,8 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeWad,
   getRateFromPercentage,
+  fromWad,
+  toWad,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -60,14 +62,14 @@ export const getReceiverAmount = async (
   }
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
+  const amountAfterSwapRate = calculateExchangeWad(toWad(amount, inputDecimals), inputDecimals, swapRate, outputDecimals);
 
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);
 
   // TODO:  gas fee reimbursement
-  return receivingAmount.toString();
+  return fromWad(receivingAmount, outputDecimals).toString();
 };
 
 /**

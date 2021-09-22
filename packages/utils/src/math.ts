@@ -74,6 +74,10 @@ export const calculateExchangeAmount = (inputAmount: string, swapRate: string, p
   return outputAmount;
 };
 
+// 100 * 0.95
+// 100 000 * 095
+// 
+
 /**
  * Calculates the exchanged amount from the given inputs.
  *
