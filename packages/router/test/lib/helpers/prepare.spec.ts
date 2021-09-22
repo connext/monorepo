@@ -7,7 +7,7 @@ import {
   validExpiryBuffer,
 } from "../../../src/lib/helpers";
 
-describe("validExpiryBuffer", () => {
+describe("#validExpiryBuffer", () => {
   it("should work", () => {
     const valid = 3600 * 24 + 300;
     expect(validExpiryBuffer(valid)).to.be.true;
@@ -20,7 +20,7 @@ describe("validExpiryBuffer", () => {
   });
 });
 
-describe("validBidExpiry", () => {
+describe("#validBidExpiry", () => {
   it("should work", () => {
     expect(validBidExpiry(100, 200)).to.be.false;
     expect(validBidExpiry(200, 100)).to.be.true;
@@ -28,7 +28,7 @@ describe("validBidExpiry", () => {
   });
 });
 
-describe("getReceiverAmount", () => {
+describe("#getReceiverAmount", () => {
   it("should work", async () => {
     const result = await getReceiverAmount("10000", 1, 1);
     expect(result).to.be.eq((10000 * 0.9995).toString());
@@ -80,7 +80,7 @@ describe("getReceiverAmount", () => {
   });
 });
 
-describe("getReceiverExpiryBuffer", () => {
+describe("#getReceiverExpiryBuffer", () => {
   it("should work", () => {
     const buffer = Date.now();
     const decrement = 3600 * 24;
