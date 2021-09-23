@@ -155,7 +155,7 @@ export class ChainRpcProvider {
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
    */
   public confirmTransaction(
-    response: providers.TransactionResponse,
+    transaction: Transaction,
     confirmations: number = this.confirmationsRequired,
     timeout: number = this.confirmationTimeout,
   ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
@@ -164,7 +164,7 @@ export class ChainRpcProvider {
       () => {
         // The only way to access the functionality internal to ethers for handling replacement tx.
         // See issue: https://github.com/ethers-io/ethers.js/issues/1775
-        return (response as any).wait(confirmations, timeout);
+        return Promise.race(transaction.responses.map((response) => (response as any).wait(confirmations, timeout)));
       },
       false,
     );
@@ -422,7 +422,7 @@ export class ChainRpcProvider {
 
   /**
    * Gets the current transaction count.
-   * 
+   *
    * @param blockTag - the block tag to get the transaction count for. Use "latest" mined-only transactions.
    * Use "pending" for transactions that have not been mined yet, but will (supposedly) be mined in the pending
    * block (essentially, transactions included in the mempool, but this behavior is not consistent).

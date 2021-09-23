@@ -412,16 +412,21 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
     // it will throw a TransactionTimeout error.
-    const result = await this.confirmTransaction(transaction.minedResponse, 1);
+    const result = await this.confirmTransaction(transaction, 1);
     if (result.isErr()) {
       const { error: _error } = result;
       if (_error.type === TransactionReplaced.type) {
         const error = _error as TransactionReplaced;
-        this.logger.debug("Received TransactionReplaced error - but this may be expected behavior.", requestContext, methodContext, {
-          chainId: this.chainId,
-          error,
-          transaction: transaction.loggable,
-        });
+        this.logger.debug(
+          "Received TransactionReplaced error - but this may be expected behavior.",
+          requestContext,
+          methodContext,
+          {
+            chainId: this.chainId,
+            error,
+            transaction: transaction.loggable,
+          },
+        );
         // Sanity check.
         if (!error.replacement || !error.receipt) {
           throw new TransactionServiceFailure(
@@ -437,7 +442,10 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
 
         // Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
-        if (transaction.responses.length < 2 || !transaction.responses.map((response) => response.hash).includes(error.replacement.hash)) {
+        if (
+          transaction.responses.length < 2 ||
+          !transaction.responses.map((response) => response.hash).includes(error.replacement.hash)
+        ) {
           throw error;
         }
 
@@ -534,7 +542,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Here we wait for the target confirmations.
     // TODO: Ensure we are comfortable with how this timeout period is calculated.
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
-    const confirmResult = await this.confirmTransaction(transaction.minedResponse, this.confirmationsRequired, timeout);
+    const confirmResult = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
       if (confirmResult.error.type === TimeoutError.type) {
         // This implies a re-org occurred.
