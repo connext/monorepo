@@ -406,10 +406,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       });
     }
 
-    // Now we attempt to confirm the first response among our attempts. If it fails due to replacement,
-    // we'll get back the replacement's receipt from confirmTransaction.
-    transaction.minedResponse = transaction.responses[0];
-
     // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
     // it will throw a TransactionTimeout error.
     const result = await this.confirmTransaction(transaction, 1);
@@ -451,8 +447,6 @@ export class TransactionDispatch extends ChainRpcProvider {
 
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         transaction.receipt = error.receipt;
-        // error.replacement - the replacement transaction (a TransactionResponse)
-        transaction.minedResponse = error.replacement;
       } else if (_error.type === TransactionReverted.type) {
         const error = _error as TransactionReverted;
         // NOTE: This is the official receipt with status of 0, so it's safe to say the
@@ -472,7 +466,6 @@ export class TransactionDispatch extends ChainRpcProvider {
           method,
           chainId: this.chainId,
           receipt,
-          hash: transaction.minedResponse?.hash,
           transaction: transaction.loggable,
         });
       } else if (receipt.status === 0) {
@@ -481,7 +474,6 @@ export class TransactionDispatch extends ChainRpcProvider {
           method,
           chainId: this.chainId,
           receipt,
-          hash: transaction.minedResponse?.hash,
           transaction: transaction.loggable,
         });
       } else if (receipt.confirmations < 1) {
@@ -490,7 +482,6 @@ export class TransactionDispatch extends ChainRpcProvider {
           method,
           chainId: this.chainId,
           receipt: transaction.receipt,
-          hash: transaction.minedResponse?.hash,
           transaction: transaction.loggable,
         });
       }
@@ -527,13 +518,13 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId: transaction.uuid,
     });
 
-    if (!transaction.minedResponse) {
+    if (!transaction.receipt) {
       throw new TransactionServiceFailure(
-        "Tried to confirm but tansaction did not complete 'mine' step; no minedResponse was found.",
+        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
         {
           method,
           chainId: this.chainId,
-          minedResponse: transaction.minedResponse,
+          receipt: transaction.receipt,
           transaction: transaction.loggable,
         },
       );
@@ -554,7 +545,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         chainId: this.chainId,
         receipt: transaction.receipt,
         error: transaction.error,
-        hash: transaction.minedResponse.hash,
         transaction: transaction.loggable,
       });
     }
@@ -566,7 +556,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         chainId: this.chainId,
         badReceipt: receipt,
         minedReceipt: transaction.receipt,
-        hash: transaction.minedResponse.hash,
         transaction: transaction.loggable,
       });
     }

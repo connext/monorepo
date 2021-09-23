@@ -114,8 +114,7 @@ type TransactionConfig = {
 type LoggableTransactionData = {
   txsId: string;
   nonce: number;
-  hash: string;
-  responses: providers.TransactionResponse[];
+  hashes: string[];
   attempt: number;
   gasPrice: string;
   gasLimit: string;
@@ -136,9 +135,6 @@ export class Transaction {
 
   // Responses, in the order of attempts made for this tx.
   public responses: providers.TransactionResponse[] = [];
-
-  // Response that was accepted on-chain (this reference will be used in the event that replacements are made).
-  public minedResponse: providers.TransactionResponse | undefined = undefined;
 
   // Receipt that we received for the on-chain transaction that was mined with
   // the desired number of confirmations.
@@ -211,8 +207,7 @@ export class Transaction {
       txsId: this.uuid,
       nonce: this.nonce,
       attempt: this.attempt,
-      hash: this.hash ?? "none",
-      responses: this.responses,
+      hashes: this.hashes,
       gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
       gasLimit: this.gas.limit.toString(),
       discontinued: this.discontinued,

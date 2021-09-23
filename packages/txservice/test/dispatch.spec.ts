@@ -495,13 +495,6 @@ describe("TransactionDispatch", () => {
       await (txDispatch as any).mine(transaction);
       expect(transaction).to.deep.eq({ ...preTx, receipt: txReceiptMock });
     });
-
-    it("happy: mines tx with mined response", async () => {
-      transaction.minedResponse = TEST_TX_RESPONSE;
-      const preTx = { ...transaction };
-      await (txDispatch as any).mine(transaction);
-      expect(transaction).to.deep.eq({ ...preTx, receipt: txReceiptMock });
-    });
   });
 
   // describe("#confirm", () => {
