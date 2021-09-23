@@ -165,7 +165,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
-    requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 5,
+    requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 2,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };

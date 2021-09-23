@@ -54,7 +54,7 @@ export const configMock: NxtpRouterConfig = {
   ],
   host: "0.0.0.0",
   port: 8080,
-  requestLimit: 5,
+  requestLimit: 2,
 };
 
 export const prepareInputMock: PrepareInput = {
