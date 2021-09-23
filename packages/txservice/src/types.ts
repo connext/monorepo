@@ -244,7 +244,6 @@ export class Transaction {
  * @classdesc A data structure for managing the lifecycle of a (continuously rotating) batch of transactions.
  */
 export class TransactionBuffer extends Array<Transaction> {
-
   public get isFull(): boolean {
     return this.maxLength ? this.length >= this.maxLength : false;
   }
@@ -260,7 +259,7 @@ export class TransactionBuffer extends Array<Transaction> {
 
   /**
    * A data structure used for management of the lifecycle of on-chain transactions.
-   * 
+   *
    * @param logger - Logger instance.
    * @param maxLength - The configured maximum number of transactions to hold in buffer. Leave undefined to disable.
    * @param id - Identification info to distinguish which buffer this is when logging.
@@ -280,11 +279,15 @@ export class TransactionBuffer extends Array<Transaction> {
 
   public push(tx: Transaction): number {
     const lastNonce = this.lastNonce;
-    if (lastNonce && tx.nonce <= lastNonce) {
-      this.log("A nonce was pushed out of order! How could this have happened?! D:", {
-        tx: tx.loggable,
-        lastNonce,
-      });
+    if (lastNonce && tx.nonce < lastNonce) {
+      this.log(
+        "A nonce was pushed out of order. Please report this incident",
+        {
+          tx: tx.loggable,
+          lastNonce,
+        },
+        true,
+      );
     }
 
     if (this.isFull) {
@@ -303,13 +306,19 @@ export class TransactionBuffer extends Array<Transaction> {
     return tx;
   }
 
-  private log(message?: string, context: any = {}) {
-    this.logger.debug(message ? `${this.id.name}: ${message}` : this.id.name, undefined, undefined, {
+  private log(message?: string, context: any = {}, error = false) {
+    const ctx = {
       chainId: this.id.chainId,
       length: this.length,
       maxLength: this.maxLength ?? "N/A",
       buffer: this.nonces,
       ...context,
-    });
+    };
+    const msg = message ? `${this.id.name} BUFFER: ${message}` : `${this.id.name} BUFFER`;
+    if (error) {
+      this.logger.error(msg, undefined, undefined, ctx);
+    } else {
+      this.logger.debug(msg, undefined, undefined, ctx);
+    }
   }
 }

@@ -101,31 +101,31 @@ export class TransactionDispatch extends ChainRpcProvider {
         // NOTE: By shifting from the buffer, we effectively increase the ACTUAL inflight buffer cap by 1, which ought to be negligible.
         transaction = this.inflightBuffer.shift()!;
         let receivedBadNonce = false;
+        let shouldResubmit = false;
         while (!transaction.didMine && !transaction.error) {
           try {
+            if (shouldResubmit) {
+              // Transaction timed out trying to validate. We should bump the tx and submit again.
+              await this.bump(transaction);
+              // Resubmit
+              await this.submit(transaction);
+            }
             await this.mine(transaction);
             this.minedBuffer.push(transaction);
+            break;
           } catch (error) {
             this.logger.debug("Received error waiting for transaction to be mined:", requestContext, methodContext, {
               chainId: this.chainId,
               txsId: transaction.uuid,
               error,
-            });
+            });   
             if (error.type === TimeoutError.type && !receivedBadNonce) {
-              try {
-                // Transaction timed out trying to validate. We should bump the tx and submit again.
-                await this.bump(transaction);
-                // Resubmit
-                await this.submit(transaction);
-              } catch (error) {
-                if (error.type === BadNonce.type) {
-                  // If we timeout in the next loop, then we know the transaction was replaced by a foreign (unknown) transaction,
-                  // so we'll want to fail the tx with whatever error we get.
-                  receivedBadNonce = true;
-                } else {
-                  throw error;
-                }
-              }
+              shouldResubmit = true;
+            } else if (error.type === BadNonce.type) {
+              // If we timeout in the next mine attempt, then we know the transaction was replaced by a foreign (unknown) transaction,
+              // so we'll want to fail the tx with whatever error we get.
+              receivedBadNonce = true;
+              shouldResubmit = false;
             } else {
               transaction.error = error;
             }
@@ -156,6 +156,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         try {
           // Checks to make sure we hit the target number of confirmations.
           await this.confirm(transaction);
+          break;
         } catch (error) {
           this.logger.debug("Received error waiting for transaction to be confirmed:", requestContext, methodContext, {
             chainId: this.chainId,
@@ -193,7 +194,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
       try {
         // Wait until there's room in the buffer.
-        while (this.inflightBuffer.length >= TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS) {
+        while (this.inflightBuffer.isFull) {
           await delay(1_000);
         }
 

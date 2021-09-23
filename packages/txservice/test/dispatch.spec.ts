@@ -45,6 +45,15 @@ let bump: SinonStub<any[], Promise<void>>;
 let fail: SinonStub<any[], Promise<void>>;
 
 const stubDispatchMethods = (methods?: SinonStub[]): void => {
+  getGas = stub().callsFake(() => {
+    return new Gas(BigNumber.from(1), BigNumber.from(1));
+  });
+  getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
+  submit = stub().resolves();
+  mine = stub().resolves();
+  confirm = stub().resolves();
+  bump = stub().resolves();
+  fail = stub().resolves();
   const methodsToStub = methods ?? [getGas, getTransactionCount, submit, mine, confirm, bump, fail];
   (txDispatch as any).getGas = getGas;
   (txDispatch as any).getTransactionCount = getTransactionCount;
@@ -72,16 +81,6 @@ describe("TransactionDispatch", () => {
       didFinish: false,
       discontinued: false,
     };
-
-    getGas = stub().callsFake(() => {
-      return new Gas(BigNumber.from(1), BigNumber.from(1));
-    });
-    getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
-    submit = stub().resolves();
-    mine = stub().resolves();
-    confirm = stub().resolves();
-    bump = stub().resolves();
-    fail = stub().resolves();
 
     dispatchCallbacks = {
       onSubmit: Sinon.spy(),
@@ -147,10 +146,16 @@ describe("TransactionDispatch", () => {
     reset();
   });
 
-  describe.only("#mineLoop", () => {
-    let stubTx: any;
+  describe("#mineLoop", () => {
+    let stubTx: Transaction;
     beforeEach(() => {
-      stubTx = {};
+      stubTx = new Transaction(context, {
+        ...TEST_TX,
+        data: getRandomBytes32(),
+      }, TEST_TX_RESPONSE.nonce, new Gas(BigNumber.from(1), BigNumber.from(1)), {
+        confirmationTimeout: 1,
+        confirmationsRequired: 1,
+      }, "1");
       stubDispatchMethods();
       (txDispatch as any).inflightBuffer = [stubTx];
     });
@@ -162,15 +167,15 @@ describe("TransactionDispatch", () => {
     });
 
     it("should bump if times out during confirming", async () => {
-      bump = spy((transaction) => {
-        return { ...transaction, didMine: true };
-      }) as any;
-      mine.rejects(new TimeoutError());
+      mine.onCall(0).rejects(new TimeoutError());
+      mine.onCall(1).resolves();
       await (txDispatch as any).mineLoop();
-      expect(mine).to.have.been.calledOnceWithExactly(stubTx);
+      expect(mine.callCount).to.eq(2);
+      expect(makeChaiReadable(mine.getCall(0).args[0])).to.deep.eq(makeChaiReadable(stubTx));
+      expect(makeChaiReadable(mine.getCall(1).args[0])).to.deep.eq(makeChaiReadable(stubTx));
       expect(bump).to.have.been.calledOnceWithExactly(stubTx);
       expect(submit).to.have.been.calledOnceWithExactly(stubTx);
-      expect((txDispatch as any).inflightBuffer).to.deep.eq([stubTx]);
+      expect((txDispatch as any).minedBuffer.length).to.eq(1);
     });
 
     it("should bump all txs in the buffer", async () => {
@@ -178,45 +183,60 @@ describe("TransactionDispatch", () => {
       const stubTx2 = { ...stubTx, data: "0xb" };
       const stubTx3 = { ...stubTx, data: "0xc" };
       (txDispatch as any).inflightBuffer = [stubTx1, stubTx2, stubTx3];
-      mine.rejects(new TimeoutError());
+      mine.onCall(0).rejects(new TimeoutError());
+      mine.onCall(1).resolves();
+      mine.onCall(2).rejects(new TimeoutError());
+      mine.onCall(3).resolves();
+      mine.onCall(4).rejects(new TimeoutError());
+      mine.onCall(5).resolves();
       await (txDispatch as any).mineLoop();
-      expect(mine).to.have.been.calledWithExactly(stubTx1);
 
-      expect(bump).to.have.been.calledWithExactly(stubTx1);
-      expect(submit).to.have.been.calledWithExactly(stubTx1);
-      expect(bump).to.have.been.calledWithExactly(stubTx2);
-      expect(submit).to.have.been.calledWithExactly(stubTx2);
-      expect(bump).to.have.been.calledWithExactly(stubTx3);
-      expect(submit).to.have.been.calledWithExactly(stubTx3);
+      const readableStubTx1 = makeChaiReadable(stubTx1);
+      const readableStubTx2 = makeChaiReadable(stubTx2);
+      const readableStubTx3 = makeChaiReadable(stubTx3);
 
-      expect((txDispatch as any).inflightBuffer).to.deep.eq([stubTx1, stubTx2, stubTx3]);
+      expect(mine.callCount).to.eq(6);
+      expect(mine).to.have.been.calledWithExactly(readableStubTx1);
+      expect(mine).to.have.been.calledWithExactly(readableStubTx2);
+      expect(mine).to.have.been.calledWithExactly(readableStubTx3);
+
+      expect(bump).to.have.been.calledWithExactly(readableStubTx1);
+      expect(submit).to.have.been.calledWithExactly(readableStubTx1);
+      expect(bump).to.have.been.calledWithExactly(readableStubTx2);
+      expect(submit).to.have.been.calledWithExactly(readableStubTx2);
+      expect(bump).to.have.been.calledWithExactly(readableStubTx3);
+      expect(submit).to.have.been.calledWithExactly(readableStubTx3);
+
+      expect((txDispatch as any).minedBuffer.length).to.deep.eq(3);
     });
 
-    it("should assign errors when bumping txs", async () => {
+    it("should assign errors on tx resubmit", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
-      const stubTx2 = { ...stubTx, data: "0xb" };
-      (txDispatch as any).inflightBuffer = [stubTx1, stubTx2];
+      (txDispatch as any).inflightBuffer = [stubTx1];
       mine.rejects(new TimeoutError());
-      const error = new Error("test error");
-      submit.onSecondCall().rejects(error);
+      const error = new Error("test");
+      submit.rejects(error);
       await (txDispatch as any).mineLoop();
-      expect(mine).to.have.been.calledWithExactly(stubTx1);
 
-      expect(bump).to.have.been.calledWithExactly(stubTx1);
-      expect(submit).to.have.been.calledWithExactly(stubTx1);
-      expect(bump).to.have.been.calledWithExactly(stubTx2);
-      expect(submit).to.have.been.calledWithExactly(stubTx2);
-
-      stubTx2.error = error;
-
-      expect((txDispatch as any).inflightBuffer).to.deep.eq([stubTx1, stubTx2]);
+      const readableStubTx = makeChaiReadable(stubTx1);
+      expect(mine).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(bump).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(submit).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(stubTx1.error).to.eq(error);
+      expect(fail).to.have.been.calledOnceWithExactly(readableStubTx);
+      // Should have taken tx out of the buffer, but not added to minedBuffer.
+      expect((txDispatch as any).inflightBuffer).to.deep.eq([]);
+      expect((txDispatch as any).minedBuffer).to.deep.eq([]);
     });
 
     it("should catch top level error", async () => {
-      stubTx.error = new TransactionServiceFailure("test error");
-      fail.rejects(new Error("test error"));
+      const mineError = new Error("test mine error");
+      mine.rejects(mineError)
+      fail.rejects(new Error("test fail error"));
       await expect((txDispatch as any).mineLoop()).to.not.be.rejected;
-      expect(fail).to.have.been.calledOnceWithExactly(stubTx);
+      expect(mine.callCount).to.eq(1);
+      expect(fail.callCount).to.eq(1);
+      expect(fail.getCall(0).args[0].error).to.deep.eq(mineError);
     });
 
     it("should mine a tx and remove it from the buffer", async () => {
@@ -244,7 +264,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should catch top level error", async () => {
-      const error = new Error("test error");
+      const error = new Error("test");
       confirm.rejects(error);
       fail.rejects(error);
       await expect((txDispatch as any).confirmLoop()).to.not.be.rejected;
