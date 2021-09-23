@@ -204,31 +204,20 @@ export class TransactionDispatch extends ChainRpcProvider {
         const gas = await this.getGas(minTx, requestContext);
 
         // Retrieve the current mined transaction count and our local nonce.
-        const pendingResult = await this.getTransactionCount("pending");
-        if (pendingResult.isErr()) {
-          throw pendingResult.error;
+        const result = await this.getTransactionCount("pending");
+        if (result.isErr()) {
+          throw result.error;
         }
-        const transactionCount = pendingResult.value;
+        let transactionCount = result.value;
 
-        // TODO: This is here for debugging purposes. Either add caching per block to alleviate provider calls, or
-        // move this to NonceIncorrect catch block in the submit loop below.
-        const latestResult = await this.getTransactionCount("latest");
-        if (latestResult.isErr()) {
-          throw latestResult.error;
-        }
-        const minedTransactionCount = latestResult.value;
-
-        // Set to whichever value is higher. This should almost always be our local nonce (and definitely should not be mined transaction count).
-        let nonce = Math.max(this.nonce, transactionCount, minedTransactionCount);
+        // Set to whichever value is higher. This should almost always be our local nonce.
+        let nonce = Math.max(this.nonce, transactionCount);
 
         // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
         // go through on the first try.
         let transaction: Transaction | undefined = undefined;
         // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
         let iterations = 0;
-        // Need to keep a flag for this, as we continually get vague "nonce incorrect errors", and once we reset the nonce, we only want
-        // to increment and retry from there.
-        const nonceWasReset = false;
         let lastErrorReceived: Error | undefined = undefined;
         while (
           iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
@@ -256,7 +245,6 @@ export class TransactionDispatch extends ChainRpcProvider {
             txsId,
             currentNonce: {
               transactionCount,
-              minedTransactionCount,
               localNonce: this.nonce,
               assignedNonce: nonce,
             },
@@ -270,8 +258,7 @@ export class TransactionDispatch extends ChainRpcProvider {
                 error.reason === BadNonce.reasons.NonceExpired ||
                 // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
                 // Or should we treat the nonce as expired?
-                error.reason === BadNonce.reasons.ReplacementUnderpriced ||
-                nonceWasReset
+                error.reason === BadNonce.reasons.ReplacementUnderpriced
               ) {
                 // Currently only two possibilities are known to (potentially) cause this to happen:
                 // 1. Signer used outside of this class to send tx (should never happen).
@@ -280,11 +267,15 @@ export class TransactionDispatch extends ChainRpcProvider {
                 // TODO: Alternatively, we could retrieve the transactionCount again and set the nonce to Math.max(transactionCount, nonce + 1)
                 continue;
               } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
-                // It's unknown whether nonce was too low or too high. For safety, reset the nonce to the current MINED tx count.
-                // It should bump up in this loop until it hits the right number.
-                // TODO: Temporarily disabling this - it will result in us resubmitting at the same nonce multiple times if this occurs.
-                // nonce = minedTransactionCount;
-                // nonceWasReset = true;
+                // It's unknown whether nonce was too low or too high. For safety, we're going to set the nonce to the latest transaction count
+                // and retry (continually). Eventually the transaction count will catch up to / converge on the correct number.
+                // NOTE: This occasionally happens because a provider falls behind in terms of the current mempool and hasn't registered a tx yet.
+                const result = await this.getTransactionCount("latest");
+                if (result.isErr()) {
+                  throw result.error;
+                }
+                transactionCount = result.value;
+                nonce = result.value;
                 continue;
               }
             }
