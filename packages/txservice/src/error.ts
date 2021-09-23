@@ -287,7 +287,12 @@ export const parseError = (error: any): NxtpError => {
 
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
-      return new TransactionReplaced(error.receipt, error.replacement, context);
+      return new TransactionReplaced(error.receipt, error.replacement, {
+        ...context,
+        hash: error.hash,
+        reason: error.reason,
+        cancelled: error.cancelled,
+      });
     case Logger.errors.INSUFFICIENT_FUNDS:
       return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
     case Logger.errors.CALL_EXCEPTION:

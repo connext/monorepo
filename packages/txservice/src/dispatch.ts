@@ -417,24 +417,32 @@ export class TransactionDispatch extends ChainRpcProvider {
       const { error: _error } = result;
       if (_error.type === TransactionReplaced.type) {
         const error = _error as TransactionReplaced;
-        // error.reason - a string reason; one of "repriced", "cancelled" or "replaced"
-        // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
-        transaction.receipt = error.receipt;
+        this.logger.debug("Received TransactionReplaced error - but this may be expected behavior.", requestContext, methodContext, {
+          chainId: this.chainId,
+          error,
+          transaction: transaction.loggable,
+        });
         // Sanity check.
-        if (!error.replacement) {
+        if (!error.replacement || !error.receipt) {
           throw new TransactionServiceFailure(
-            "Transaction was replaced, but no replacement transaction was returned.",
+            "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
             {
               method,
               chainId: this.chainId,
+              replacement: error.replacement,
+              receipt: error.receipt,
               transaction: transaction.loggable,
             },
           );
         }
+
         // Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
-        if (!transaction.responses.map((response) => response.hash).includes(error.replacement.hash)) {
+        if (transaction.responses.length < 2 || !transaction.responses.map((response) => response.hash).includes(error.replacement.hash)) {
           throw error;
         }
+
+        // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
+        transaction.receipt = error.receipt;
         // error.replacement - the replacement transaction (a TransactionResponse)
         transaction.minedResponse = error.replacement;
       } else if (_error.type === TransactionReverted.type) {
