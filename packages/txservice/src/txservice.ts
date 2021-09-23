@@ -1,4 +1,4 @@
-import { Signer, providers, BigNumber, utils } from "ethers";
+import { Signer, providers, BigNumber, utils, constants } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
@@ -234,6 +234,11 @@ export class TransactionService {
     }
   }
 
+  public async getGasForTx(tx: WriteTransaction, requestContext: RequestContext): Promise<BigNumber> {
+    const result = await this.getProvider(tx.chainId).getGas(tx, requestContext);
+    return result.price.mul(result.limit);
+  }
+
   /**
    * Gets the native asset balance for an address
    *
@@ -305,6 +310,23 @@ export class TransactionService {
    */
   public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
     const result = await this.getProvider(chainId).getTransactionReceipt(hash);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
+   * Gets the token price from price oracle
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @param oracleAddress - The hexadecimal string address of price oracle.
+   * @param assetId - The asset address that we're going to get for.
+   * @returns BigNumber representing the current price.
+   */
+  public async getTokenPrice(chainId: number, oracle: string, assetId: string): Promise<BigNumber> {
+    const result = await this.getProvider(chainId).getTokenPrice(oracle, assetId);
     if (result.isErr()) {
       throw result.error;
     } else {

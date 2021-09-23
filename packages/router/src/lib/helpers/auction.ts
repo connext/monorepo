@@ -8,3 +8,5 @@ export const AUCTION_EXPIRY_BUFFER = 5 * 60;
  * @returns Expiry time of a given bid in s
  */
 export const getBidExpiry = (currentTime: number) => currentTime + 60 * 5;
+
+export const ETHEREUM_CHAIN_ID = 1;

@@ -1,4 +1,12 @@
-import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  ERC20Abi,
+  jsonifyError,
+  Logger,
+  NxtpError,
+  PriceOracleAbi,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -411,6 +419,20 @@ export class ChainRpcProvider {
       const value = await this.signer.getTransactionCount("pending");
       this.cachedTransactionCount = { value, timestamp: Date.now() };
       return value;
+    });
+  }
+
+  /**
+   * Gets asset price from price oracle
+   *
+   * @param oracle The price oracle address.
+   * @param assetId The token address that we're going to get for.
+   * @returns BigNumber representing the current price.
+   */
+  public getTokenPrice(oralce: string, assetId: string): ResultAsync<BigNumber, TransactionError> {
+    return this.resultWrapper<BigNumber>(async () => {
+      const priceInUsd = await new Contract(oralce, PriceOracleAbi, this.provider).getTokenPrice(assetId);
+      return priceInUsd;
     });
   }
 

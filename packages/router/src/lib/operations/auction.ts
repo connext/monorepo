@@ -23,6 +23,7 @@ import {
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -165,7 +166,19 @@ export const newAuction = async (
   }
 
   // getting the swap rate from the receiver side config
-  const amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  let amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+
+  // (TODO in what other scenarios would auction fail here? We should make sure
+  // that router does not bid unless it is *sure* it's doing ok)
+  // If you can support the transfer:
+  // Next, prepare bid
+  // - TODO: Get price from AMM
+  // - TODO: Get fee rate
+  // estimate gas for contract
+  // amountReceived = amountReceived.sub(gasFee)
+  const amountReceivedInBigNum = BigNumber.from(amountReceived);
+  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(data, outputDecimals, requestContext);
+  amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.info("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
@@ -195,14 +208,6 @@ export const newAuction = async (
     });
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
-  // (TODO in what other scenarios would auction fail here? We should make sure
-  // that router does not bid unless it is *sure* it's doing ok)
-  // If you can support the transfer:
-  // Next, prepare bid
-  // - TODO: Get price from AMM
-  // - TODO: Get fee rate
-  // estimate gas for contract
-  // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
   const bidExpiry = getBidExpiry(currentTime);

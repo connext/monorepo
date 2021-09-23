@@ -367,7 +367,7 @@ export class TransactionDispatch extends ChainRpcProvider {
    *
    * @throws TransactionReverted if gas estimate fails.
    */
-  private async getGas(transaction: WriteTransaction, context?: RequestContext): Promise<Gas> {
+  public async getGas(transaction: WriteTransaction, context?: RequestContext): Promise<Gas> {
     const { requestContext, methodContext } = createLoggingContext(this.getGas.name, context);
     // Get gas estimate.
     let gasLimit: BigNumber;

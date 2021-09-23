@@ -28,6 +28,15 @@ export const getContractAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
+export const getOracleContractAddress = (chainId: number): string => {
+  const { config } = getContext();
+  const oracleContractAddress = config.chainConfig[chainId]?.priceOracleAddress;
+  if (!oracleContractAddress) {
+    throw new Error(`No price oracle contract exists for chain ${chainId}`);
+  }
+  return oracleContractAddress;
+};
+
 export const getTxManagerInterface = () =>
   new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
