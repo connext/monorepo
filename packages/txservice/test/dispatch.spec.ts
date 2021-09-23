@@ -149,13 +149,20 @@ describe("TransactionDispatch", () => {
   describe("#mineLoop", () => {
     let stubTx: Transaction;
     beforeEach(() => {
-      stubTx = new Transaction(context, {
-        ...TEST_TX,
-        data: getRandomBytes32(),
-      }, TEST_TX_RESPONSE.nonce, new Gas(BigNumber.from(1), BigNumber.from(1)), {
-        confirmationTimeout: 1,
-        confirmationsRequired: 1,
-      }, "1");
+      stubTx = new Transaction(
+        context,
+        {
+          ...TEST_TX,
+          data: getRandomBytes32(),
+        },
+        TEST_TX_RESPONSE.nonce,
+        new Gas(BigNumber.from(1), BigNumber.from(1)),
+        {
+          confirmationTimeout: 1,
+          confirmationsRequired: 1,
+        },
+        "1",
+      );
       stubDispatchMethods();
       (txDispatch as any).inflightBuffer = [stubTx];
     });
@@ -231,7 +238,7 @@ describe("TransactionDispatch", () => {
 
     it("should catch top level error", async () => {
       const mineError = new Error("test mine error");
-      mine.rejects(mineError)
+      mine.rejects(mineError);
       fail.rejects(new Error("test fail error"));
       await expect((txDispatch as any).mineLoop()).to.not.be.rejected;
       expect(mine.callCount).to.eq(1);
@@ -577,26 +584,27 @@ describe("TransactionDispatch", () => {
   //   });
   // });
 
-  // describe("#bump", () => {
-  //   it("happy: bumps by configured percentage", async () => {
-  //     const originalGasPrice = transaction.params.gasPrice;
-  //     await transaction.bumpGasPrice();
-  //     expect(gas.price.gt(originalGasPrice)).to.be.true;
-  //   });
+  describe("#bump", () => {
+    it("should throw if reached MAX_ATTEMPTS", async () => {
+      transaction.attempt = Transaction.MAX_ATTEMPTS;
+      await expect(txDispatch.bump(transaction)).to.be.rejectedWith(
+        TransactionServiceFailure.reasons.MaxAttemptsReached,
+      );
+    });
 
-  //   // TODO:Should instead rely on max attempts here.
-  //   it.skip("throws if it would bump above max gas price", async () => {
-  //     // Make it so the gas price will return exactly == the maximum (which is acceptable).
-  //     (transaction as any).gasPrice._gasPrice = BigNumber.from(DEFAULT_CONFIG.gasMaximum);
+    it("should fail if getGasPrice fails", async () => {
+      txDispatch.getGasPrice = (_rc: RequestContext) => Promise.reject(new Error("fail")) as any;
+      await expect(txDispatch.bump(transaction)).to.be.rejectedWith("fail");
+    });
 
-  //     // First call should go through fine.
-  //     const response = await transaction.submit();
-  //     expect(response).to.deep.eq(TEST_TX_RESPONSE);
-
-  //     // This should throw, as we are attempting to bump above the maximum.
-  //     expect(await transaction.bumpGasPrice()).to.throw(TransactionServiceFailure.reasons.MaxAttemptsReached);
-  //   });
-  // });
+    it("happy: should bump updated price", async () => {});
+    it("happy: should bump previous price if previous price > updated price", async () => {});
+    // it("happy: bumps by configured percentage", async () => {
+    //   const originalGasPrice = transaction.params.gasPrice;
+    //   await transaction.bumpGasPrice();
+    //   expect(gas.price.gt(originalGasPrice)).to.be.true;
+    // });
+  });
 
   // describe("#fail", () => {
   //   it("happy: kills the transaction, preventing further submits", async () => {
