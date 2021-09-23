@@ -115,6 +115,7 @@ type LoggableTransactionData = {
   txsId: string;
   nonce: number;
   hash: string;
+  responses: providers.TransactionResponse[];
   attempt: number;
   gasPrice: string;
   gasLimit: string;
@@ -213,6 +214,7 @@ export class Transaction {
       nonce: this.nonce,
       attempt: this.attempt,
       hash: this.hash ?? "none",
+      responses: this.responses,
       gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
       gasLimit: this.gas.limit.toString(),
       discontinued: this.discontinued,

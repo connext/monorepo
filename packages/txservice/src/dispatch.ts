@@ -73,7 +73,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const buffer = this.inflightBuffer;
     const bufferLength = buffer.length;
 
-    const bufferString = buffer.map((tx) => tx.nonce).join(", ");
+    const bufferString = buffer.map((tx) => tx.nonce).join(",");
     this.logger.debug(`(x${bufferLength}) INFLIGHT BUFFER : ${bufferString}`, requestContext, methodContext);
   }
 
@@ -82,7 +82,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const buffer = this.minedBuffer;
     const bufferLength = buffer.length;
 
-    const bufferString = buffer.map((tx) => tx.nonce).join(", ");
+    const bufferString = buffer.map((tx) => tx.nonce).join(",");
     this.logger.debug(`(x${bufferLength}) MINED BUFFER : ${bufferString}`, requestContext, methodContext);
   }
 
@@ -108,12 +108,18 @@ export class TransactionDispatch extends ChainRpcProvider {
       while (this.inflightBuffer.length > 0) {
         // Shift the first transaction from the buffer and get it mined.
         const transaction = this.inflightBuffer.shift()!;
+        let receivedBadNonce = false;
         while (!transaction.didMine && !transaction.error) {
           try {
             await this.mine(transaction);
             this.minedBuffer.push(transaction);
           } catch (error) {
-            if (error.type === TimeoutError.type) {
+            this.logger.debug("Received error waiting for transaction to be mined:", requestContext, methodContext, {
+              chainId: this.chainId,
+              txsId: transaction.uuid,
+              error,
+            });
+            if (error.type === TimeoutError.type && !receivedBadNonce) {
               try {
                 // Transaction timed out trying to validate. We should bump the tx and submit again.
                 await this.bump(transaction);
@@ -121,8 +127,9 @@ export class TransactionDispatch extends ChainRpcProvider {
                 await this.submit(transaction);
               } catch (error) {
                 if (error.type === BadNonce.type) {
-                  // Transaction was already mined. It should exit on the next loop.
-                  continue;
+                  // If we timeout in the next loop, then we know the transaction was replaced by a foreign (unknown) transaction,
+                  // so we'll want to fail the tx with whatever error we get.
+                  receivedBadNonce = true;
                 } else {
                   throw error;
                 }
@@ -151,6 +158,11 @@ export class TransactionDispatch extends ChainRpcProvider {
           // Checks to make sure we hit the target number of confirmations.
           await this.confirm(transaction);
         } catch (error) {
+          this.logger.debug("Received error waiting for transaction to be confirmed:", requestContext, methodContext, {
+            chainId: this.chainId,
+            txsId: transaction.uuid,
+            error,
+          });
           transaction.error = error;
           await this.fail(transaction);
         }
@@ -198,7 +210,7 @@ export class TransactionDispatch extends ChainRpcProvider {
 
         // TODO: This is here for debugging purposes. Either add caching per block to alleviate provider calls, or
         // move this to NonceIncorrect catch block in the submit loop below.
-        const latestResult = await this.getTransactionCount("pending");
+        const latestResult = await this.getTransactionCount("latest");
         if (latestResult.isErr()) {
           throw latestResult.error;
         }
@@ -239,6 +251,7 @@ export class TransactionDispatch extends ChainRpcProvider {
             multipleAttempts: iterations > 1,
             attemptNumber: iterations,
             lastErrorReceived,
+            txsId,
             currentNonce: {
               transactionCount,
               minedTransactionCount,
