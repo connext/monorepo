@@ -158,10 +158,8 @@ export class Transaction {
   public attempt = 0;
 
   public get hash(): string | undefined {
-    return this.receipt
-      ? this.receipt.transactionHash
-      : this.minedResponse
-      ? this.minedResponse.hash
+    return this.didMine
+      ? this.receipt!.transactionHash
       : this.responses.length > 0
       ? this.responses[this.responses.length - 1].hash
       : undefined;
@@ -183,7 +181,7 @@ export class Transaction {
    * Specifies whether the transaction has been mined.
    * @returns boolean indicating whether the transaction is mined.
    */
-   public get didMine(): boolean {
+  public get didMine(): boolean {
     return !!this.receipt && this.receipt.confirmations > 0;
   }
 
