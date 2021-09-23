@@ -90,7 +90,7 @@ export class TransactionDispatch extends ChainRpcProvider {
 
   /**
    * Check for mined transactions in the inflight buffer; if any are present it will wait for 1 confirmation
-   * and then push the transaction to the mined buffer.
+   * and then push the transaction to the mined buffer for each one in FIFO order.
    */
   private async mineLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
@@ -143,6 +143,10 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
+  /**
+   * Check for mined transactions in the mined buffer; if any are present it will wait for the target confirmations for each
+   * one in FIFO order.
+   */
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
     let transaction: Transaction | undefined = undefined;
