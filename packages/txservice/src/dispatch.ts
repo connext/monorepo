@@ -371,6 +371,15 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Add this response to our local response history.
     const response = result.value;
+    if (transaction.hashes.includes(response.hash)) {
+      // Duplicate response? This should never happen.
+      throw new TransactionServiceFailure("Received a transaction response with a duplicate hash!", {
+        method,
+        chainId: this.chainId,
+        response,
+        transaction: transaction.loggable,
+      });
+    }
     transaction.responses.push(response);
 
     this.logger.info(`Tx submitted.`, requestContext, methodContext, {
