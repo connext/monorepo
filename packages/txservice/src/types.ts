@@ -1,5 +1,7 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, providers, utils } from "ethers";
+
+import { MaxBufferLengthError } from "./error";
 
 export type ReadTransaction = {
   chainId: number;
@@ -236,4 +238,78 @@ export class Transaction {
     private readonly config: TransactionConfig,
     public readonly uuid: string,
   ) {}
+}
+
+/**
+ * @classdesc A data structure for managing the lifecycle of a (continuously rotating) batch of transactions.
+ */
+export class TransactionBuffer extends Array<Transaction> {
+
+  public get isFull(): boolean {
+    return this.maxLength ? this.length >= this.maxLength : false;
+  }
+
+  public get nonces(): number[] {
+    return this.map((tx) => tx.nonce);
+  }
+
+  private get lastNonce(): number | undefined {
+    const nonces = this.nonces;
+    return nonces.length > 0 ? nonces[nonces.length - 1] : undefined;
+  }
+
+  /**
+   * A data structure used for management of the lifecycle of on-chain transactions.
+   * 
+   * @param logger - Logger instance.
+   * @param maxLength - The configured maximum number of transactions to hold in buffer. Leave undefined to disable.
+   * @param id - Identification info to distinguish which buffer this is when logging.
+   * @param id.name - A string name denomination.
+   * @param id.chainId - A chain ID number denomination.
+   */
+  constructor(
+    private readonly logger: Logger,
+    public readonly maxLength: number | undefined,
+    public readonly id: {
+      name: string;
+      chainId: number;
+    },
+  ) {
+    super();
+  }
+
+  public push(tx: Transaction): number {
+    const lastNonce = this.lastNonce;
+    if (lastNonce && tx.nonce <= lastNonce) {
+      this.log("A nonce was pushed out of order! How could this have happened?! D:", {
+        tx: tx.loggable,
+        lastNonce,
+      });
+    }
+
+    if (this.isFull) {
+      throw new MaxBufferLengthError({
+        maxLength: this.maxLength,
+      });
+    }
+    const index = super.push(tx);
+    this.log();
+    return index;
+  }
+
+  public shift(): Transaction | undefined {
+    const tx = super.shift();
+    this.log();
+    return tx;
+  }
+
+  private log(message?: string, context: any = {}) {
+    this.logger.debug(message ? `${this.id.name}: ${message}` : this.id.name, undefined, undefined, {
+      chainId: this.id.chainId,
+      length: this.length,
+      maxLength: this.maxLength ?? "N/A",
+      buffer: this.nonces,
+      ...context,
+    });
+  }
 }

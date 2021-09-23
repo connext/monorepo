@@ -161,7 +161,7 @@ describe("TransactionDispatch", () => {
       expect(fail).callCount(0);
     });
 
-    it.only("should bump if times out during confirming", async () => {
+    it("should bump if times out during confirming", async () => {
       bump = spy((transaction) => {
         return { ...transaction, didMine: true };
       }) as any;

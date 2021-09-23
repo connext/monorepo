@@ -3,7 +3,7 @@ import PriorityQueue from "p-queue";
 import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { Gas, WriteTransaction, Transaction } from "./types";
+import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
 import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
@@ -26,11 +26,11 @@ export class TransactionDispatch extends ChainRpcProvider {
   // TODO: Make this a configurable value, since the dev may be able to implement or may be using a custom geth node.
   static MAX_INFLIGHT_TRANSACTIONS = 64;
   // Buffer of in-flight transactions waiting to get 1 confirmation.
-  private inflightBuffer: Transaction[] = [];
+  private inflightBuffer: TransactionBuffer;
 
   // TODO: Cap this buffer as well. # of inflight txs max * # of confirmations needed seems reasonable as a max # of waiting-for-x-confirmations queue length
   // Buffer of mined transactions waiting for X confirmations.
-  private minedBuffer: Transaction[] = [];
+  private minedBuffer: TransactionBuffer;
 
   private readonly submitQueue = new PriorityQueue({ concurrency: 1 });
 
@@ -63,51 +63,43 @@ export class TransactionDispatch extends ChainRpcProvider {
     startLoops = true,
   ) {
     super(logger, chainId, chainConfig, config, signer);
+    this.inflightBuffer = new TransactionBuffer(logger, TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS, {
+      name: "INFLIGHT",
+      chainId: this.chainId,
+    });
+    this.minedBuffer = new TransactionBuffer(logger, undefined, {
+      name: "MINED",
+      chainId: this.chainId,
+    });
     if (startLoops) {
       this.startLoops();
     }
   }
 
-  private logInflightBuffer() {
-    const { requestContext, methodContext } = createLoggingContext(this.logInflightBuffer.name);
-    const buffer = this.inflightBuffer;
-    const bufferLength = buffer.length;
-
-    const bufferString = buffer.map((tx) => tx.nonce).join(",");
-    this.logger.debug(`(x${bufferLength}) INFLIGHT BUFFER : ${bufferString}`, requestContext, methodContext);
-  }
-
-  private logMinedBuffer() {
-    const { requestContext, methodContext } = createLoggingContext(this.logMinedBuffer.name);
-    const buffer = this.minedBuffer;
-    const bufferLength = buffer.length;
-
-    const bufferString = buffer.map((tx) => tx.nonce).join(",");
-    this.logger.debug(`(x${bufferLength}) MINED BUFFER : ${bufferString}`, requestContext, methodContext);
-  }
-
+  /**
+   * Start background loops for mining and confirming transactions.
+   */
   public startLoops() {
     if (!this.loopsRunning) {
       this.loopsRunning = true;
-
-      // use interval promise to make sure loop iterations don't overlap
+      // Use interval promise to make sure loop iterations don't overlap.
       interval(async () => await this.mineLoop(), 2_000);
       interval(async () => await this.confirmLoop(), 2_000);
-
-      // TODO: remove. This is just a monitor loop for debugging.
-      interval(async () => {
-        this.logInflightBuffer();
-        this.logMinedBuffer();
-      }, 5_000);
     }
   }
 
+  /**
+   * Check for mined transactions in the inflight buffer; if any are present it will wait for 1 confirmation
+   * and then push the transaction to the mined buffer.
+   */
   private async mineLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
+    let transaction: Transaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
         // Shift the first transaction from the buffer and get it mined.
-        const transaction = this.inflightBuffer.shift()!;
+        // NOTE: By shifting from the buffer, we effectively increase the ACTUAL inflight buffer cap by 1, which ought to be negligible.
+        transaction = this.inflightBuffer.shift()!;
         let receivedBadNonce = false;
         while (!transaction.didMine && !transaction.error) {
           try {
@@ -145,15 +137,18 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
       }
     } catch (error) {
-      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error));
+      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error), {
+        handlingTransaction: transaction ? transaction.loggable : undefined,
+      });
     }
   }
 
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
+    let transaction: Transaction | undefined = undefined;
     try {
       while (this.minedBuffer.length > 0) {
-        const transaction = this.minedBuffer.shift()!;
+        transaction = this.minedBuffer.shift()!;
         try {
           // Checks to make sure we hit the target number of confirmations.
           await this.confirm(transaction);
@@ -168,7 +163,9 @@ export class TransactionDispatch extends ChainRpcProvider {
         }
       }
     } catch (error) {
-      this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error));
+      this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error), {
+        handlingTransaction: transaction ? transaction.loggable : undefined,
+      });
     }
   }
 
