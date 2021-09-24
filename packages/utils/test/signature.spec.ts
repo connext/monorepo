@@ -62,7 +62,7 @@ describe("signFulfillTransactionPayload / recoverFulfillTransactionPayload", () 
     const [method, args] = provider.send.getCall(0).args;
     expect(provider.send.callCount).to.be.eq(1);
     expect(method).to.be.eq("personal_sign");
-    expect(args[0].toString()).to.be.eq(msg.toString());
+    expect(args[0].toString()).to.be.eq(hexlify(msg));
     expect(args[1]).to.be.eq(signer.address);
   });
 });
