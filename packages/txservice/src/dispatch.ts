@@ -118,7 +118,7 @@ export class TransactionDispatch extends ChainRpcProvider {
               chainId: this.chainId,
               txsId: transaction.uuid,
               error,
-            });   
+            });
             if (error.type === TimeoutError.type && !receivedBadNonce) {
               shouldResubmit = true;
             } else if (error.type === BadNonce.type) {
