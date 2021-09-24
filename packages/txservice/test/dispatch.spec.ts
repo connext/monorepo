@@ -630,13 +630,17 @@ describe("TransactionDispatch", () => {
     });
   });
 
-  // describe("#fail", () => {
-  //   it("happy: kills the transaction, preventing further submits", async () => {
-  //     transaction.kill();
-  //     expect(transaction.discontinued).to.be.true;
-  //     expect(await transaction.submit()).to.be.rejectedWith(TransactionKilled);
-  //   });
-  // });
+  describe("#fail", () => {
+    it("happy: should execute the fail callback", async () => {
+      let called = false;
+      (txDispatch as any).callbacks.onFail = () => {
+        called = true;
+      };
+
+      await (txDispatch as any).fail(transaction);
+      expect(called).to.be.true;
+    });
+  });
 
   describe("#getGas", () => {});
 });
