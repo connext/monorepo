@@ -7,6 +7,8 @@ import {
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
   encodeAuctionBid as _encodeAuctionBid,
+  ethereumRequest as _ethereumRequest,
+  encrypt as _encrypt,
 } from "@connext/nxtp-utils";
 
 /**
@@ -89,3 +91,7 @@ export const getTimestampInSeconds = getNtpTimeSeconds;
 export const getOnchainBalance = _getOnchainBalance;
 
 export const encodeAuctionBid = _encodeAuctionBid;
+
+export const ethereumRequest = _ethereumRequest;
+
+export const encrypt = _encrypt;

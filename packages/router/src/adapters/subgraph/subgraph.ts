@@ -115,6 +115,18 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         throw new NoChainConfig(chainId);
       }
 
+      const allReceiverExpired = await sdk.GetReceiverTransactions({
+        routerId: routerAddress.toLowerCase(),
+        receivingChainId: chainId,
+        status: SdkTransactionStatus.Prepared,
+        expiry_lt: Math.floor(Date.now() / 1000),
+      });
+
+      logger.debug("Got receiver expired", requestContext, methodContext, {
+        chainId,
+        allReceiverExpired: jsonifyError(allReceiverExpired as any),
+      });
+
       // get all sender prepared txs
       const allSenderPrepared = await sdk.GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),
@@ -183,6 +195,14 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         }),
       );
       const correspondingReceiverTxs = queries.flat();
+
+      allReceiverExpired.router?.transactions.forEach((receiverTx) => {
+        const tx = correspondingReceiverTxs.find((tx) => tx.transactionId === receiverTx.transactionId);
+        if (tx) {
+          return;
+        }
+        correspondingReceiverTxs.push(receiverTx);
+      });
 
       // foreach sender prepared check if corresponding receiver exists
       // if it does not, call the handleSenderPrepare handler

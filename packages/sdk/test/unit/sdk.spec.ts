@@ -33,7 +33,7 @@ import {
   SubmitError,
   UnknownAuctionError,
 } from "../../src/error";
-import { getAddress } from "ethers/lib/utils";
+import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
 import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
@@ -54,6 +54,8 @@ describe("NxtpSdk", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
+  let ethereumRequestMock: SinonStub;
+  let encryptMock: SinonStub;
   let balanceStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
@@ -91,7 +93,6 @@ describe("NxtpSdk", () => {
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getDecimals").resolves(18);
-
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
     balanceStub = stub(utils, "getOnchainBalance");
@@ -100,6 +101,8 @@ describe("NxtpSdk", () => {
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
+    ethereumRequestMock = stub(utils, "ethereumRequest");
+    encryptMock = stub(utils, "encrypt");
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
@@ -112,7 +115,10 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
+    sdk = new NxtpSdk(
+      { chainConfig, signer, natsUrl: "http://example.com", authUrl: "http://example.com", messaging: undefined },
+      logger,
+    );
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
@@ -215,12 +221,14 @@ describe("NxtpSdk", () => {
       let error;
       try {
         const instance = new NxtpSdk(
-          _chainConfig,
-          signer,
+          {
+            chainConfig: _chainConfig,
+            signer,
+            natsUrl: "http://example.com",
+            authUrl: "http://example.com",
+            messaging: undefined,
+          },
           logger,
-          undefined,
-          "http://example.com",
-          "http://example.com",
         );
       } catch (e) {
         error = e;
@@ -241,12 +249,14 @@ describe("NxtpSdk", () => {
       let error;
       try {
         const instance = new NxtpSdk(
-          _chainConfig,
-          signer,
+          {
+            chainConfig: _chainConfig,
+            signer,
+            natsUrl: "http://example.com",
+            authUrl: "http://example.com",
+            messaging: undefined,
+          },
           logger,
-          undefined,
-          "http://example.com",
-          "http://example.com",
         );
       } catch (e) {
         error = e;
@@ -266,7 +276,16 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(chainConfig, signer, logger, undefined, "http://example.com", "http://example.com");
+      const instance = new NxtpSdk(
+        {
+          chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
+        },
+        logger,
+      );
     });
   });
 
@@ -409,12 +428,23 @@ describe("NxtpSdk", () => {
       const callData = getRandomBytes32();
       const { crossChainParams } = getMock({ callData });
 
+      ethereumRequestMock.throws(new Error("fails"));
+
       await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("Error getting public key"),
+        EncryptionError.getMessage("public key encryption failed"),
       );
     });
 
-    it.skip("should fail if encrypt fails", async () => {});
+    it("should fail if encrypt fails", async () => {
+      const callData = getRandomBytes32();
+      const { crossChainParams } = getMock({ callData });
+
+      encryptMock.throws(new Error("fails"));
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
+        EncryptionError.getMessage("public key encryption failed"),
+      );
+    });
 
     it("should not include improperly signed bids", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
@@ -504,6 +534,25 @@ describe("NxtpSdk", () => {
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.eq(bidSignature);
+    });
+
+    it("happy: should get a transfer quote with callData", async () => {
+      const callData = getRandomBytes32();
+      const randomHash = keccak256(getRandomBytes32());
+      const { crossChainParams, auctionBid, bidSignature } = getMock({ callData });
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+      ethereumRequestMock.resolves(randomHash);
+      encryptMock.resolves(randomHash);
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+      }, 100);
+
+      const res = await sdk.getTransferQuote(crossChainParams);
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
