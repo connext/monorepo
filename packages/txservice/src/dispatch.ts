@@ -556,6 +556,15 @@ export class TransactionDispatch extends ChainRpcProvider {
         minedReceipt: transaction.receipt,
         transaction: transaction.loggable,
       });
+    } else if (receipt.status === 0) {
+      // This should never occur. We should always get a TransactionReverted error in this event : and that error should
+      // have been thrown in the mine() method.
+      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
+        method,
+        chainId: this.chainId,
+        receipt,
+        transaction: transaction.loggable,
+      });
     }
     transaction.receipt = receipt;
 

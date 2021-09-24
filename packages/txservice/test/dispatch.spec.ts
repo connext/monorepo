@@ -555,7 +555,7 @@ describe("TransactionDispatch", () => {
 
     it("happy", async () => {
       await (txDispatch as any).confirm(transaction);
-      expect(confirmTransaction).to.be.calledOnceWithExactly(makeChaiReadable(transaction));
+      expect(makeChaiReadable(confirmTransaction.getCall(0).args[0])).to.be.deep.eq(makeChaiReadable(transaction));
       // Check to make sure we overwrote transaction receipt.
       expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(makeChaiReadable({
         ...txReceiptMock,
@@ -565,20 +565,24 @@ describe("TransactionDispatch", () => {
 
     it("throws if you have not submitted yet", async () => {
       fakeTransactionState.didSubmit = false;
-      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction mine was called, but no transaction has been sent."
+      );
     });
 
     it("throws if the transaction has no receipt (from mining step)", async () => {
       transaction.receipt = undefined;
-      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found."
+      );
     });
 
     it("throws if confirmTransaction does not return receipt", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
       confirmTransaction.returns(okAsync(null));
 
-      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
-        "Unable to obtain receipt: ethers responded with null",
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction receipt was null",
       );
     });
 
@@ -593,7 +597,8 @@ describe("TransactionDispatch", () => {
 
     it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
       const timeoutError = new TimeoutError("test");
-      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+      confirmTransaction.returns(errAsync(timeoutError));
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure.reasons.NotEnoughConfirmations);
     });
   });
 
