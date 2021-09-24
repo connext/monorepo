@@ -1,5 +1,6 @@
 import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
+import axios from "axios";
 import { BigNumber, providers, Wallet } from "ethers";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import Sinon, { createStubInstance, reset, restore, SinonSpy, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
@@ -597,13 +598,21 @@ describe("TransactionDispatch", () => {
       await expect(txDispatch.bump(transaction)).to.be.rejectedWith("fail");
     });
 
-    it("happy: should bump updated price", async () => {});
-    it("happy: should bump previous price if previous price > updated price", async () => {});
-    // it("happy: bumps by configured percentage", async () => {
-    //   const originalGasPrice = transaction.params.gasPrice;
-    //   await transaction.bumpGasPrice();
-    //   expect(gas.price.gt(originalGasPrice)).to.be.true;
-    // });
+    it("happy: should bump updated price", async () => {
+      const initial = BigNumber.from(10);
+      (transaction as any).gas.price = BigNumber.from(5);
+      txDispatch.getGasPrice = (_rc: RequestContext) => okAsync(initial);
+      await txDispatch.bump(transaction);
+      expect(transaction.gas.price.toNumber()).to.be.eq(13);
+    });
+
+    it("happy: should bump previous price if previous price > updated price", async () => {
+      const initial = BigNumber.from(10);
+      (transaction as any).gas.price = initial;
+      txDispatch.getGasPrice = (_rc: RequestContext) => okAsync(BigNumber.from(5));
+      await txDispatch.bump(transaction);
+      expect(transaction.gas.price.toNumber()).to.be.eq(13);
+    });
   });
 
   // describe("#fail", () => {
