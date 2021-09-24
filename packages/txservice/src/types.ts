@@ -306,16 +306,16 @@ export class TransactionBuffer extends Array<Transaction> {
     return tx;
   }
 
-  private log(message?: string, context: any = {}, error = false) {
+  private log(message?: string, context: any = {}, isError = false) {
     const ctx = {
       chainId: this.id.chainId,
-      length: this.length,
+      bufferLength: this.length,
       maxLength: this.maxLength ?? "N/A",
       buffer: this.nonces,
       ...context,
     };
     const msg = message ? `${this.id.name} BUFFER: ${message}` : `${this.id.name} BUFFER`;
-    if (error) {
+    if (isError) {
       this.logger.error(msg, undefined, undefined, ctx);
     } else {
       this.logger.debug(msg, undefined, undefined, ctx);

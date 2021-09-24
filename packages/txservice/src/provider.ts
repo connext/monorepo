@@ -26,13 +26,38 @@ import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
 /**
+ * @classdesc An extension of StaticJsonRpcProvider that intercepts all send() calls to log RPC calls made to
+ * providers for debugging purposes.
+ */
+class DebugProvider extends StaticJsonRpcProvider {
+  private readonly connectionInfo: utils.ConnectionInfo;
+  constructor(
+    private readonly debugLogger: Logger,
+    _connectionInfo: utils.ConnectionInfo | string,
+    public readonly chainId: number,
+  ) {
+    super(_connectionInfo, chainId);
+    this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
+  }
+
+  public send(method: string, params: Array<any>): Promise<any> {
+    this.debugLogger.debug(`RPC_CALL`, undefined, undefined, {
+      chainId: this.chainId,
+      url: this.connectionInfo.url,
+      method,
+    });
+    return super.send(method, params);
+  }
+}
+
+/**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
  * the responses.
  */
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
-  private readonly _providers: providers.JsonRpcProvider[];
+  private readonly _providers: providers.StaticJsonRpcProvider[];
   private readonly provider: providers.FallbackProvider;
   private readonly signer?: Signer;
   private readonly quorum: number;
@@ -92,7 +117,8 @@ export class ChainRpcProvider {
     });
     if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
-        provider: new StaticJsonRpcProvider(
+        provider: new DebugProvider(
+          this.logger,
           {
             url: config.url,
             user: config.user,
