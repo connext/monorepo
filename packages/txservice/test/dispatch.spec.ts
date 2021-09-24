@@ -540,65 +540,62 @@ describe("TransactionDispatch", () => {
     });
   });
 
-  // describe("#confirm", () => {
-  //   it("happy", async () => {
-  //     await transaction.submit();
-  //     const receipt = await transaction.confirm();
-  //     // Expect receipt to be correct.
-  //     expect(receipt).to.deep.eq(TEST_TX_RECEIPT);
-  //     // Ensure confirmTransaction was called.
-  //     expect(dispatch.confirmTransaction.callCount).eq(1);
-  //     const confirmTransaction = dispatch.confirmTransaction.getCall(0);
-  //     // Ensure we pass the correct response.
-  //     expect(confirmTransaction.args[0]).to.deep.eq(TEST_TX_RESPONSE);
-  //   });
+  describe("#confirm", () => {
+    let confirmTransaction: SinonStub;
+    const testNumOfConfirmations = 10;
+    beforeEach(() => {
+      confirmTransaction = stub(txDispatch, "confirmTransaction");
+      confirmTransaction.returns(okAsync({
+        ...txReceiptMock,
+        confirmations: testNumOfConfirmations,
+      }));
+      fakeTransactionState.didSubmit = true;
+      transaction.receipt = txReceiptMock;
+    });
 
-  //   it("throws if you have not submitted yet", async () => {
-  //     await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
-  //   });
+    it("happy", async () => {
+      await (txDispatch as any).confirm(transaction);
+      expect(confirmTransaction).to.be.calledOnceWithExactly(makeChaiReadable(transaction));
+      // Check to make sure we overwrote transaction receipt.
+      expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(makeChaiReadable({
+        ...txReceiptMock,
+        confirmations: testNumOfConfirmations,
+      }));
+    });
 
-  //   it("throws if you have not validated yet", async () => {
-  //     await transaction.submit();
-  //     await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
+    it("throws if you have not submitted yet", async () => {
+      fakeTransactionState.didSubmit = false;
+      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+    });
 
-  //     // Set validated to true (should fail, response is undefined).
-  //     // Set mined response (should fail, receipt is still undefined).
-  //     // Set receipt (this should work).
-  //   });
+    it("throws if the transaction has no receipt (from mining step)", async () => {
+      transaction.receipt = undefined;
+      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+    });
 
-  //   it("escalates error if confirmation times out", async () => {
-  //     const timeoutError = new TimeoutError();
-  //     dispatch.confirmTransaction.resolves(err(timeoutError));
-  //     await transaction.submit();
-  //     await expect(transaction.confirm()).to.be.rejectedWith(timeoutError);
-  //   });
+    it("throws if confirmTransaction does not return receipt", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync(null));
 
-  //   it("won't return until it has the required number of confirmations", async () => {
-  //     // Raise confirmations required count for this test to 10.
-  //     const testConfirmationsRequired = 10;
-  //     (dispatch as any).confirmationsRequired = testConfirmationsRequired;
+      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
+        "Unable to obtain receipt: ethers responded with null",
+      );
+    });
 
-  //     // We should call confirm transaction twice, once for the first confirmation, and
-  //     // again to get the required number of confirmations.
-  //     dispatch.confirmTransaction.onCall(0).resolves(
-  //       ok({
-  //         ...TEST_TX_RECEIPT,
-  //         confirmations: 1,
-  //       }),
-  //     );
-  //     dispatch.confirmTransaction.onCall(1).resolves(
-  //       ok({
-  //         ...TEST_TX_RECEIPT,
-  //         confirmations: testConfirmationsRequired,
-  //       }),
-  //     );
+    it("throws if confirmTransaction receipt status == 0", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
 
-  //     await transaction.submit();
-  //     const receipt = await transaction.confirm();
-  //     expect(receipt.confirmations).to.eq(testConfirmationsRequired);
-  //     expect(dispatch.confirmTransaction.callCount).eq(2);
-  //   });
-  // });
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction was reverted but TransactionReverted error was not thrown",
+      );
+    });
+
+    it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
+      const timeoutError = new TimeoutError("test");
+      expect(await (txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure);
+    });
+  });
 
   describe("#bump", () => {
     it("should throw if reached MAX_ATTEMPTS", async () => {

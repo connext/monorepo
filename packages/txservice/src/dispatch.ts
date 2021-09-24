@@ -511,13 +511,22 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId: transaction.uuid,
     });
 
+    // Ensure we've submitted a tx.
+    if (!transaction.didSubmit) {
+      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
+        method,
+        chainId: this.chainId,
+        transaction: transaction.loggable,
+      });
+    }
+
     if (!transaction.receipt) {
       throw new TransactionServiceFailure(
         "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
         {
           method,
           chainId: this.chainId,
-          receipt: transaction.receipt,
+          receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
           transaction: transaction.loggable,
         },
       );
@@ -528,11 +537,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
     const confirmResult = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
-      if (confirmResult.error.type === TimeoutError.type) {
-        // This implies a re-org occurred.
-        throw confirmResult.error;
-      }
-      // No other errors should occur during this confirmation attempt.
+      // No other errors should occur during this confirmation attempt. This could occur during a reorg.
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
         method,
         chainId: this.chainId,
