@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Attempt fix on trust wallet again final final.
+
 ## 0.0.46
 
 - [sdk] Fix calldata encryption.
