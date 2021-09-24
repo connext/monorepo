@@ -15,7 +15,13 @@ import {
   TEST_TX,
 } from "./constants";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import { DispatchAborted, RpcError, TransactionReadError, TransactionReverted, TransactionServiceFailure } from "../src/error";
+import {
+  DispatchAborted,
+  RpcError,
+  TransactionReadError,
+  TransactionReverted,
+  TransactionServiceFailure,
+} from "../src/error";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -49,10 +55,16 @@ describe("ChainRpcProvider", () => {
       confirmationTimeout: 10_000,
       gasStations: [],
     };
-    chainProvider = new ChainRpcProvider(logger, chainId, chainConfig, {
-      ...DEFAULT_CONFIG,
-      gasInitialBumpPercent: 20,
-    }, signer);
+    chainProvider = new ChainRpcProvider(
+      logger,
+      chainId,
+      chainConfig,
+      {
+        ...DEFAULT_CONFIG,
+        gasInitialBumpPercent: 20,
+      },
+      signer,
+    );
 
     coreProvider = createStubInstance(providers.FallbackProvider);
     (chainProvider as any).provider = coreProvider;
@@ -61,10 +73,17 @@ describe("ChainRpcProvider", () => {
     context.id = getRandomBytes32();
     context.origin = "TransactionDispatchTest";
 
-    transaction = new Transaction(context, TEST_TX, TEST_TX_RESPONSE.nonce, new Gas(BigNumber.from(1), BigNumber.from(1)), {
-      confirmationTimeout: 1,
-      confirmationsRequired: 1,
-    }, "test_tx_uuid");
+    transaction = new Transaction(
+      context,
+      TEST_TX,
+      TEST_TX_RESPONSE.nonce,
+      new Gas(BigNumber.from(1), BigNumber.from(1)),
+      {
+        confirmationTimeout: 1,
+        confirmationsRequired: 1,
+      },
+      "test_tx_uuid",
+    );
     Sinon.stub(transaction, "params").get(() => TEST_FULL_TX);
   });
 
@@ -118,12 +137,14 @@ describe("ChainRpcProvider", () => {
     it("happy: should confirm the transaction using response argument's wait method", async () => {
       const stub = Sinon.stub();
       stub.resolves(TEST_TX_RECEIPT);
-      const testTransaction = {
-        ...TEST_TX_RESPONSE,
-        wait: stub,
-      };
+      transaction.responses = [
+        {
+          ...TEST_TX_RESPONSE,
+          wait: stub,
+        },
+      ];
 
-      const result = await chainProvider.confirmTransaction(testTransaction);
+      const result = await chainProvider.confirmTransaction(transaction);
 
       expect(stub.callCount).to.equal(1);
       expect(result.isOk()).to.be.true;
@@ -134,16 +155,20 @@ describe("ChainRpcProvider", () => {
       const testError = new Error("test error");
       const stub = Sinon.stub();
       stub.rejects(testError);
-      const testTransaction = {
-        ...TEST_TX_RESPONSE,
-        wait: stub,
-      };
+      transaction.responses = [
+        {
+          ...TEST_TX_RESPONSE,
+          wait: stub,
+        },
+      ];
 
-      const result = await chainProvider.confirmTransaction(testTransaction);
+      const result = await chainProvider.confirmTransaction(transaction);
 
       expect(result.isErr()).to.be.true;
       expect(result.isErr() ? result.error : null).to.be.eq(testError);
     });
+
+    it.skip("should do a Promise.race on all responses", async () => {});
   });
 
   describe("#readTransaction", () => {
@@ -193,7 +218,7 @@ describe("ChainRpcProvider", () => {
     };
     let goodRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
     let badRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
-  
+
     beforeEach(() => {
       const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       // Overwrite the _providers core providers. We're going to have one "bad" provider
@@ -252,7 +277,11 @@ describe("ChainRpcProvider", () => {
       goodRpcProvider.send.resolves("thisisnotanumber");
 
       const result = await chainProvider.estimateGas(testTx);
-      expect(result.isErr() && result.error.isNxtpError && result.error.message === TransactionServiceFailure.reasons.GasEstimateInvalid).to.be.true;
+      expect(
+        result.isErr() &&
+          result.error.isNxtpError &&
+          result.error.message === TransactionServiceFailure.reasons.GasEstimateInvalid,
+      ).to.be.true;
     });
 
     it("should error with RpcError if all providers have RpcError", async () => {

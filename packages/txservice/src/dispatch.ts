@@ -195,7 +195,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       try {
         // Wait until there's room in the buffer.
         while (this.inflightBuffer.isFull) {
-          await delay(1_000);
+          await delay(200);
         }
 
         // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means

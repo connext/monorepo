@@ -327,8 +327,16 @@ describe("TransactionDispatch", () => {
     });
 
     it("should stall if buffer is full, i.e. we hit inflight maximum", async () => {
-      (txDispatch as any).inflightBuffer = [{}, {}];
-      await expect().to.be.rejectedWith(MaxBufferLengthError);
+      // Fill up the inflight buffer
+      (txDispatch as any).inflightBuffer = [...Array(TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS)].map(() => ({}));
+      // Async send
+      const receipt = txDispatch.send(TEST_TX, context);
+      // Make sure we havent called submit yet
+      expect(submit.callCount).to.eq(0);
+      // Now that we've removed 1 spot from buffer, send should execute.
+      (txDispatch as any).inflightBuffer.shift();
+      expect(makeChaiReadable(await receipt)).to.be.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
+      expect(submit.callCount).to.eq(1);
     });
 
     it("should throw if getGas fails", async () => {
@@ -391,8 +399,9 @@ describe("TransactionDispatch", () => {
       expect(submit.getCall(0).args[0].nonce).to.eq(localNonce);
       // Should have incremented nonce up from the txCount value until it was accepted.
       for (let j = 0; j < testNumCalls - 2; j++) {
-        expect(submit.getCall(j + 1).args[0].nonce).to.eq(txCount + j);
+        expect(submit.getCall(j + 1).args[0].nonce).to.eq(txCount);
       }
+      expect(getTransactionCount.callCount).to.eq(testNumCalls);
     });
 
     it("should throw if a non-nonce error occurs", async () => {
@@ -400,13 +409,13 @@ describe("TransactionDispatch", () => {
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
     });
 
-    it("should eventually hit a maximum retry on initial submit", async () => {});
+    it.skip("should eventually hit a maximum retry on initial submit", async () => {});
 
-    it("should wait until transaction is mined/confirmed", async () => {});
+    it.skip("should wait until transaction is mined/confirmed", async () => {});
 
-    it("should throw if the transaction has an error after mine/confirm", async () => {});
+    it.skip("should throw if the transaction has an error after mine/confirm", async () => {});
 
-    it("should throw if the transaction has no receipt after mine/confirm", async () => {});
+    it.skip("should throw if the transaction has no receipt after mine/confirm", async () => {});
   });
 
   describe("#submit", () => {
@@ -460,27 +469,31 @@ describe("TransactionDispatch", () => {
 
     it("throws if confirmTransaction errors with TransactionReplaced but no replacement exists", async () => {
       confirmTransaction.returns(errAsync(new TransactionReplaced(undefined, undefined)));
-      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(
-        "Transaction was replaced, but no replacement transaction was returned",
-      );
+      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
     });
 
     it("throws if confirmTransaction errors with TransactionReplaced but replacement is unrecognized", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
       confirmTransaction.returns(
-        errAsync(new TransactionReplaced(undefined, { ...TEST_TX_RESPONSE, hash: "0x123456789" })),
+        errAsync(
+          new TransactionReplaced(
+            { ...TEST_TX_RECEIPT, transactionHash: "0x123456789" },
+            { ...TEST_TX_RESPONSE, hash: "0x123456789" },
+          ),
+        ),
       );
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionReplaced);
     });
 
     it("happy: confirms if transaction is replaced", async () => {
-      const replacement = { ...TEST_TX_RESPONSE, nonce: TEST_TX_RESPONSE.nonce + 1 };
-      transaction.responses = [TEST_TX_RESPONSE];
+      const replacementHash = getRandomBytes32();
+      const replacement = { ...TEST_TX_RESPONSE, hash: replacementHash };
+      transaction.responses = [TEST_TX_RESPONSE, { ...TEST_TX_RESPONSE, hash: replacementHash }];
       const preTx = { ...transaction };
       confirmTransaction.returns(errAsync(new TransactionReplaced(txReceiptMock, replacement)));
 
       await (txDispatch as any).mine(transaction);
-      expect(transaction).to.deep.eq({ ...preTx, minedResponse: replacement, receipt: txReceiptMock });
+      expect(makeChaiReadable(transaction.receipt)).to.deep.eq(makeChaiReadable(txReceiptMock));
     });
 
     it("throws if confirmTransaction errors with TransactionReverted", async () => {
