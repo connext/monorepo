@@ -177,7 +177,13 @@ export const newAuction = async (
   // estimate gas for contract
   // amountReceived = amountReceived.sub(gasFee)
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
-  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(data, outputDecimals, requestContext);
+  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
+    outputDecimals,
+    requestContext,
+  );
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);

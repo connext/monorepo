@@ -234,9 +234,19 @@ export class TransactionService {
     }
   }
 
-  public async getGasForTx(tx: WriteTransaction, requestContext: RequestContext): Promise<BigNumber> {
-    const result = await this.getProvider(tx.chainId).getGas(tx, requestContext);
-    return result.price.mul(result.limit);
+  /**
+   * Get the current gas price for the chain for which this instance is servicing.
+   *
+   * @param requestContext
+   * @param chainId
+   */
+  public async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
+    const result = await this.getProvider(chainId).getGasPrice(requestContext);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
   }
 
   /**
