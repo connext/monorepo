@@ -271,16 +271,6 @@ describe("TransactionDispatch", () => {
       expect((txDispatch as any).minedBuffer.length).to.eq(0);
     });
 
-    it("should catch top level error", async () => {
-      const error = new Error("test");
-      confirm.rejects(error);
-      fail.rejects(error);
-      await expect((txDispatch as any).confirmLoop()).to.not.be.rejected;
-      stubTx.error = error;
-      expect(fail).to.have.been.calledOnceWithExactly(stubTx);
-      expect((txDispatch as any).minedBuffer.length).to.eq(0);
-    });
-
     it("should confirm tx and remove from buffer", async () => {
       await (txDispatch as any).confirmLoop();
       expect(confirm).to.have.been.calledOnceWithExactly(stubTx);

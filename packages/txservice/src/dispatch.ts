@@ -143,35 +143,40 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
+  // TODO: Do we even need a confirm loop / buffer? Shouldn't we just call this.confirm with .then and .catch asyncronously
+  // in the mine loop?
   /**
    * Check for mined transactions in the mined buffer; if any are present it will wait for the target confirmations for each
    * one in FIFO order.
    */
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
-    let transaction: Transaction | undefined = undefined;
-    try {
-      while (this.minedBuffer.length > 0) {
-        transaction = this.minedBuffer.shift()!;
-        try {
+    const promises: Promise<void>[] = [];
+    while (this.minedBuffer.length > 0) {
+      const transaction = this.minedBuffer.shift()!;
+      promises.push(
+        new Promise<void>((resolve) => {
           // Checks to make sure we hit the target number of confirmations.
-          await this.confirm(transaction);
-          break;
-        } catch (error) {
-          this.logger.debug("Received error waiting for transaction to be confirmed:", requestContext, methodContext, {
-            chainId: this.chainId,
-            txsId: transaction.uuid,
-            error,
-          });
-          transaction.error = error;
-          await this.fail(transaction);
-        }
-      }
-    } catch (error) {
-      this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error), {
-        handlingTransaction: transaction ? transaction.loggable : undefined,
-      });
+          this.confirm(transaction)
+            .then(() => resolve())
+            .catch((error) => {
+              this.logger.debug(
+                "Received error waiting for transaction to be confirmed:",
+                requestContext,
+                methodContext,
+                {
+                  chainId: this.chainId,
+                  txsId: transaction.uuid,
+                  error,
+                },
+              );
+              transaction.error = error;
+              this.fail(transaction).then(() => resolve());
+            });
+        }),
+      );
     }
+    await Promise.all(promises);
   }
 
   /// LIFECYCLE
