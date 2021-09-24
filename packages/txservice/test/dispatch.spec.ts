@@ -271,16 +271,6 @@ describe("TransactionDispatch", () => {
       expect((txDispatch as any).minedBuffer.length).to.eq(0);
     });
 
-    it("should catch top level error", async () => {
-      const error = new Error("test");
-      confirm.rejects(error);
-      fail.rejects(error);
-      await expect((txDispatch as any).confirmLoop()).to.not.be.rejected;
-      stubTx.error = error;
-      expect(fail).to.have.been.calledOnceWithExactly(stubTx);
-      expect((txDispatch as any).minedBuffer.length).to.eq(0);
-    });
-
     it("should confirm tx and remove from buffer", async () => {
       await (txDispatch as any).confirmLoop();
       expect(confirm).to.have.been.calledOnceWithExactly(stubTx);
@@ -540,65 +530,67 @@ describe("TransactionDispatch", () => {
     });
   });
 
-  // describe("#confirm", () => {
-  //   it("happy", async () => {
-  //     await transaction.submit();
-  //     const receipt = await transaction.confirm();
-  //     // Expect receipt to be correct.
-  //     expect(receipt).to.deep.eq(TEST_TX_RECEIPT);
-  //     // Ensure confirmTransaction was called.
-  //     expect(dispatch.confirmTransaction.callCount).eq(1);
-  //     const confirmTransaction = dispatch.confirmTransaction.getCall(0);
-  //     // Ensure we pass the correct response.
-  //     expect(confirmTransaction.args[0]).to.deep.eq(TEST_TX_RESPONSE);
-  //   });
+  describe("#confirm", () => {
+    let confirmTransaction: SinonStub;
+    const testNumOfConfirmations = 10;
+    beforeEach(() => {
+      confirmTransaction = stub(txDispatch, "confirmTransaction");
+      confirmTransaction.returns(okAsync({
+        ...txReceiptMock,
+        confirmations: testNumOfConfirmations,
+      }));
+      fakeTransactionState.didSubmit = true;
+      transaction.receipt = txReceiptMock;
+    });
 
-  //   it("throws if you have not submitted yet", async () => {
-  //     await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
-  //   });
+    it("happy", async () => {
+      await (txDispatch as any).confirm(transaction);
+      expect(makeChaiReadable(confirmTransaction.getCall(0).args[0])).to.be.deep.eq(makeChaiReadable(transaction));
+      // Check to make sure we overwrote transaction receipt.
+      expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(makeChaiReadable({
+        ...txReceiptMock,
+        confirmations: testNumOfConfirmations,
+      }));
+    });
 
-  //   it("throws if you have not validated yet", async () => {
-  //     await transaction.submit();
-  //     await expect(transaction.confirm()).to.be.rejectedWith(TransactionServiceFailure);
+    it("throws if you have not submitted yet", async () => {
+      fakeTransactionState.didSubmit = false;
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction mine was called, but no transaction has been sent."
+      );
+    });
 
-  //     // Set validated to true (should fail, response is undefined).
-  //     // Set mined response (should fail, receipt is still undefined).
-  //     // Set receipt (this should work).
-  //   });
+    it("throws if the transaction has no receipt (from mining step)", async () => {
+      transaction.receipt = undefined;
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found."
+      );
+    });
 
-  //   it("escalates error if confirmation times out", async () => {
-  //     const timeoutError = new TimeoutError();
-  //     dispatch.confirmTransaction.resolves(err(timeoutError));
-  //     await transaction.submit();
-  //     await expect(transaction.confirm()).to.be.rejectedWith(timeoutError);
-  //   });
+    it("throws if confirmTransaction does not return receipt", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync(null));
 
-  //   it("won't return until it has the required number of confirmations", async () => {
-  //     // Raise confirmations required count for this test to 10.
-  //     const testConfirmationsRequired = 10;
-  //     (dispatch as any).confirmationsRequired = testConfirmationsRequired;
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction receipt was null",
+      );
+    });
 
-  //     // We should call confirm transaction twice, once for the first confirmation, and
-  //     // again to get the required number of confirmations.
-  //     dispatch.confirmTransaction.onCall(0).resolves(
-  //       ok({
-  //         ...TEST_TX_RECEIPT,
-  //         confirmations: 1,
-  //       }),
-  //     );
-  //     dispatch.confirmTransaction.onCall(1).resolves(
-  //       ok({
-  //         ...TEST_TX_RECEIPT,
-  //         confirmations: testConfirmationsRequired,
-  //       }),
-  //     );
+    it("throws if confirmTransaction receipt status == 0", async () => {
+      transaction.responses = [TEST_TX_RESPONSE];
+      confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
 
-  //     await transaction.submit();
-  //     const receipt = await transaction.confirm();
-  //     expect(receipt.confirmations).to.eq(testConfirmationsRequired);
-  //     expect(dispatch.confirmTransaction.callCount).eq(2);
-  //   });
-  // });
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        "Transaction was reverted but TransactionReverted error was not thrown",
+      );
+    });
+
+    it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
+      const timeoutError = new TimeoutError("test");
+      confirmTransaction.returns(errAsync(timeoutError));
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure.reasons.NotEnoughConfirmations);
+    });
+  });
 
   describe("#bump", () => {
     it("should throw if reached MAX_ATTEMPTS", async () => {
@@ -630,13 +622,17 @@ describe("TransactionDispatch", () => {
     });
   });
 
-  // describe("#fail", () => {
-  //   it("happy: kills the transaction, preventing further submits", async () => {
-  //     transaction.kill();
-  //     expect(transaction.discontinued).to.be.true;
-  //     expect(await transaction.submit()).to.be.rejectedWith(TransactionKilled);
-  //   });
-  // });
+  describe("#fail", () => {
+    it("happy: should execute the fail callback", async () => {
+      let called = false;
+      (txDispatch as any).callbacks.onFail = () => {
+        called = true;
+      };
+
+      await (txDispatch as any).fail(transaction);
+      expect(called).to.be.true;
+    });
+  });
 
   describe("#getGas", () => {});
 });

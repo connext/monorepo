@@ -143,35 +143,40 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
+  // TODO: Do we even need a confirm loop / buffer? Shouldn't we just call this.confirm with .then and .catch asyncronously
+  // in the mine loop?
   /**
    * Check for mined transactions in the mined buffer; if any are present it will wait for the target confirmations for each
    * one in FIFO order.
    */
   private async confirmLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.confirmLoop.name);
-    let transaction: Transaction | undefined = undefined;
-    try {
-      while (this.minedBuffer.length > 0) {
-        transaction = this.minedBuffer.shift()!;
-        try {
+    const promises: Promise<void>[] = [];
+    while (this.minedBuffer.length > 0) {
+      const transaction = this.minedBuffer.shift()!;
+      promises.push(
+        new Promise<void>((resolve) => {
           // Checks to make sure we hit the target number of confirmations.
-          await this.confirm(transaction);
-          break;
-        } catch (error) {
-          this.logger.debug("Received error waiting for transaction to be confirmed:", requestContext, methodContext, {
-            chainId: this.chainId,
-            txsId: transaction.uuid,
-            error,
-          });
-          transaction.error = error;
-          await this.fail(transaction);
-        }
-      }
-    } catch (error) {
-      this.logger.error("Error in confirm loop.", requestContext, methodContext, jsonifyError(error), {
-        handlingTransaction: transaction ? transaction.loggable : undefined,
-      });
+          this.confirm(transaction)
+            .then(() => resolve())
+            .catch((error) => {
+              this.logger.debug(
+                "Received error waiting for transaction to be confirmed:",
+                requestContext,
+                methodContext,
+                {
+                  chainId: this.chainId,
+                  txsId: transaction.uuid,
+                  error,
+                },
+              );
+              transaction.error = error;
+              this.fail(transaction).then(() => resolve());
+            });
+        }),
+      );
     }
+    await Promise.all(promises);
   }
 
   /// LIFECYCLE
@@ -511,13 +516,22 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId: transaction.uuid,
     });
 
+    // Ensure we've submitted a tx.
+    if (!transaction.didSubmit) {
+      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
+        method,
+        chainId: this.chainId,
+        transaction: transaction.loggable,
+      });
+    }
+
     if (!transaction.receipt) {
       throw new TransactionServiceFailure(
         "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
         {
           method,
           chainId: this.chainId,
-          receipt: transaction.receipt,
+          receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
           transaction: transaction.loggable,
         },
       );
@@ -528,11 +542,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
     const confirmResult = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
-      if (confirmResult.error.type === TimeoutError.type) {
-        // This implies a re-org occurred.
-        throw confirmResult.error;
-      }
-      // No other errors should occur during this confirmation attempt.
+      // No other errors should occur during this confirmation attempt. This could occur during a reorg.
       throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
         method,
         chainId: this.chainId,
@@ -549,6 +559,15 @@ export class TransactionDispatch extends ChainRpcProvider {
         chainId: this.chainId,
         badReceipt: receipt,
         minedReceipt: transaction.receipt,
+        transaction: transaction.loggable,
+      });
+    } else if (receipt.status === 0) {
+      // This should never occur. We should always get a TransactionReverted error in this event : and that error should
+      // have been thrown in the mine() method.
+      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
+        method,
+        chainId: this.chainId,
+        receipt,
         transaction: transaction.loggable,
       });
     }
