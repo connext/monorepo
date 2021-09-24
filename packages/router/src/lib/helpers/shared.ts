@@ -28,21 +28,18 @@ export const calculateGasFeeInReceivingToken = async (
   outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const { txService } = getContext();
-
-  const oracleContractAddress = getOracleContractAddress(ETHEREUM_CHAIN_ID);
-
-  const ethPrice = await txService.getTokenPrice(ETHEREUM_CHAIN_ID, oracleContractAddress, constants.AddressZero);
-  const receivingTokenPrice = await txService.getTokenPrice(ETHEREUM_CHAIN_ID, oracleContractAddress, receivingAssetId);
-  const gasPrice = await txService.getGasPrice(ETHEREUM_CHAIN_ID, requestContext);
+  const chaindIdForGasFee = getChainIdForGasFee();
+  const ethPrice = await getTokenPrice(chaindIdForGasFee, constants.AddressZero);
+  const receivingTokenPrice = await getTokenPrice(chaindIdForGasFee, receivingAssetId);
+  const gasPrice = await getGasPrice(chaindIdForGasFee, requestContext);
 
   // calculate gas limit for transactions on Ethereum
-  // sendingChainId = 1, calculate gas fee for fulfill transaction
-  // receivingChainId = 1, calculate gas fee for prepare transaction
+  // sendingChainId == chaindIdForGasFee, calculate gas fee for fulfill transaction
+  // receivingChainId == chaindIdForGasFee, calculate gas fee for prepare transaction
   let gasLimit;
-  if (sendingChainId == ETHEREUM_CHAIN_ID) {
+  if (sendingChainId == chaindIdForGasFee) {
     gasLimit = GAS_ESTIMATES.fulfill;
-  } else if (receivingChainId == ETHEREUM_CHAIN_ID) {
+  } else if (receivingChainId == chaindIdForGasFee) {
     gasLimit = GAS_ESTIMATES.prepare;
   } else {
     gasLimit = constants.Zero;
@@ -56,4 +53,36 @@ export const calculateGasFeeInReceivingToken = async (
     .div(BigNumber.from(10).pow(18 - outputDecimals));
 
   return gasAmountInUsd;
+};
+/**
+ * Gets token price in usd from price oracle
+ *
+ * @param chainId The network identifier
+ * @param assetId The asset address to get price for
+ */
+export const getTokenPrice = async (chainId: number, assetId: string): Promise<BigNumber> => {
+  const { txService } = getContext();
+  const oracleContractAddress = getOracleContractAddress(chainId);
+  const tokenPrice = await txService.getTokenPrice(chainId, oracleContractAddress, assetId);
+  return tokenPrice;
+};
+
+/**
+ * Gets gas price in usd
+ *
+ * @param chainId The network identifier
+ * @param requestContext Request context
+ * @returns Gas price
+ */
+export const getGasPrice = async (chainId: number, requestContext: RequestContext): Promise<BigNumber> => {
+  const { txService } = getContext();
+  const gasPrice = await txService.getGasPrice(chainId, requestContext);
+  return gasPrice;
+};
+
+/**
+ * Gets chain id to take fee from
+ */
+export const getChainIdForGasFee = () => {
+  return ETHEREUM_CHAIN_ID;
 };
