@@ -297,7 +297,7 @@ describe("Integration", () => {
   });
 
   it("should send Native tokens", async function () {
-    this.timeout(120_000);
+    this.timeout(150_000);
 
     const sendingAssetId = AddressZero;
     const receivingAssetId = AddressZero;
