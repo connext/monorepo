@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [txservice] Refactor
+- [txservice] Add serial submit
+
 ## 0.0.46
 
 - [sdk] Fix calldata encryption.
