@@ -29,6 +29,8 @@ export const calculateGasFeeInReceivingToken = async (
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   const chaindIdForGasFee = getChainIdForGasFee();
+  if (chaindIdForGasFee != sendingChainId && chaindIdForGasFee != receivingChainId) return constants.Zero;
+
   const ethPrice = await getTokenPrice(chaindIdForGasFee, constants.AddressZero);
   const receivingTokenPrice = await getTokenPrice(chaindIdForGasFee, receivingAssetId);
   const gasPrice = await getGasPrice(chaindIdForGasFee, requestContext);
