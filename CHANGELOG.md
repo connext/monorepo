@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.47
+
 - [utils] Attempt fix on trust wallet again final final.
 
 ## 0.0.46
