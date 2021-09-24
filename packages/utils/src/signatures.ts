@@ -1,5 +1,5 @@
 import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
-import { splitSignature } from "ethers/lib/utils";
+import { arrayify, splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
 import { AuctionBid } from "./messaging";
@@ -28,36 +28,19 @@ const sanitizeSignature = (sig: string): string => {
   return sig.slice(0, sig.length - 2) + hex.slice(2);
 };
 
-const sign = async (hash: string, signer: Wallet | Signer, recover: (sig: string) => string): Promise<string> => {
-  const msg = utils.arrayify(hash);
-  // special case for trust wallet until we can get this released:
-  // https://github.com/ethers-io/ethers.js/pull/1542
-  const signature = sanitizeSignature(await signer.signMessage(msg));
-  console.log("signature: ", signature);
-
-  // Get address
+const sign = async (hash: string, signer: Wallet | Signer): Promise<string> => {
+  const msg = arrayify(hash);
   const addr = await signer.getAddress();
-
-  // Try recovery
-  const recovered = recover(signature);
-  if (recovered.toLowerCase() === addr.toLowerCase()) {
-    return signature;
+  if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
+    console.log("Provider available, using it to sign");
+    try {
+      return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [hash, addr]));
+    } catch (err) {
+      console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
+    }
   }
 
-  // Signature will *not* be recovered correctly from the contracts
-  // Try to add prefix explicitly to the msg
-  return sanitizeSignature(await signer.signMessage(utils.hashMessage(msg)));
-
-  // TODO: this is weird, but seeing UI issues with this code below
-  // if (!signer.provider || !(typeof (signer.provider as providers.Web3Provider).send === "function")) {
-  //   // Signature will *not* be recovered correctly from the contracts
-  //   // here, and theres not an alternative to send an RPC request.
-  //   // Try to add prefix explicitly to the msg
-  //   return sanitizeSignature(await signer.signMessage(utils.hashMessage(msg)));
-  // }
-
-  // // Send an RPC request
-  // return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
+  return sanitizeSignature(await signer.signMessage(msg));
 };
 
 /**
@@ -80,21 +63,7 @@ export const signFulfillTransactionPayload = async (
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
   const hash = utils.solidityKeccak256(["bytes"], [payload]);
 
-  const addr = await signer.getAddress();
-  const msg = utils.arrayify(hash);
-
-  // brute force through provider if available
-  // attempt to fix trust wallet issue
-  if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
-    console.log("Provider available, using it to sign");
-    try {
-      return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [msg, addr]));
-    } catch (err) {
-      console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
-    }
-  }
-
-  return sanitizeSignature(await signer.signMessage(msg));
+  return sign(hash, signer);
 };
 
 /**
@@ -135,10 +104,8 @@ export const signCancelTransactionPayload = async (
   signer: Signer,
 ): Promise<string> => {
   const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return sign(hashed, signer, (signature) =>
-    recoverCancelTransactionPayload(transactionId, receivingChainId, receivingChainTxManagerAddress, signature),
-  );
+  const hash = utils.solidityKeccak256(["bytes"], [payload]);
+  return sign(hash, signer);
 };
 
 /**
