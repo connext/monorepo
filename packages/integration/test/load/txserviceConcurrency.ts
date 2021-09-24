@@ -44,15 +44,17 @@ type TransactionInfo = {
  */
 const txserviceConcurrencyTest = async (
   maxConcurrency: number,
+  minConcurrency = 1,
   step = 1,
   localChain = false,
   tokenAddress: string = constants.AddressZero,
+  _chainId?: string,
 ): Promise<void> => {
   let concurrency: number;
   const config = getConfig(localChain);
   const logger: pino.Logger = pino({ level: config.logLevel ?? "debug" });
   // For these tests, unless we are running on local, we should default to rinkeby.
-  const chainId = parseInt(Object.keys(config.chainConfig)[0] ?? "4");
+  const chainId = parseInt(_chainId ?? Object.keys(config.chainConfig)[0] ?? "4");
 
   /// MARK - SETUP MANAGER.
   const wallet = Wallet.fromMnemonic(config.mnemonic).connect(config.chainConfig[chainId].provider);
@@ -175,44 +177,44 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - TEST LOOP.
   logger.info("Beginning concurrency test.");
-  let active = false;
-  let periodicCount = 0;
-  let serialFailed = 0;
-  setInterval(async () => {
-    if (active) {
-      return;
-    }
-    active = true;
-    periodicCount++;
-    try {
-      const txInfo = await Promise.race([
-        sendTx({
-          id: `periodic:${periodicCount}`,
-          origin: "concurrencyTest",
-        }),
-        delay(280_000),
-      ]);
-      if (!txInfo) {
-        throw new Error("Periodic tx timed out");
-      }
-      if (txInfo.error) {
-        throw txInfo.error;
-      }
-      serialFailed = 0;
-      logger.info({ periodicCount, txInfo }, "Sent periodic transaction");
-    } catch (e) {
-      serialFailed++;
-      logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
-      if (serialFailed > 5) {
-        logger.error("Failed to send last 5 periodic txs");
-        process.exit(1);
-      }
-    }
-    active = false;
-  }, 45_000);
+  // let active = false;
+  // let periodicCount = 0;
+  // let serialFailed = 0;
+  // setInterval(async () => {
+  //   if (active) {
+  //     return;
+  //   }
+  //   active = true;
+  //   periodicCount++;
+  //   try {
+  //     const txInfo = await Promise.race([
+  //       sendTx({
+  //         id: `periodic:${periodicCount}`,
+  //         origin: "concurrencyTest",
+  //       }),
+  //       delay(280_000),
+  //     ]);
+  //     if (!txInfo) {
+  //       throw new Error("Periodic tx timed out");
+  //     }
+  //     if (txInfo.error) {
+  //       throw txInfo.error;
+  //     }
+  //     serialFailed = 0;
+  //     logger.info({ periodicCount, txInfo }, "Sent periodic transaction");
+  //   } catch (e) {
+  //     serialFailed++;
+  //     logger.error("Failed to send periodic tx", { error: jsonifyError(e), serialFailed });
+  //     if (serialFailed > 5) {
+  //       logger.error("Failed to send last 5 periodic txs");
+  //       process.exit(1);
+  //     }
+  //   }
+  //   active = false;
+  // }, 45_000);
   const stats: any[] = [];
   let loopNumber = 1;
-  for (concurrency = step; concurrency <= maxConcurrency; concurrency += step) {
+  for (concurrency = minConcurrency; concurrency <= maxConcurrency; concurrency += step) {
     logger.info({ concurrency, loopNumber }, `&&&&&&&& Begin loop`);
     // Create a queue to hold all payments with the given
     // concurrency
@@ -279,8 +281,10 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "1"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "1"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "2000"),
+  parseInt(process.env.CONCURRENCY_MIN ?? "500"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "100"),
   undefined,
   process.env.TOKEN_ADDRESS,
+  process.env.CHAIN_ID,
 );
