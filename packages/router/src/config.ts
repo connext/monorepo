@@ -53,7 +53,7 @@ export const TChainConfig = Type.Object({
   defaultInitialGas: Type.Optional(TIntegerString),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
-  priceOracleAddress: Type.String(),
+  priceOracleAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   safeRelayerFee: Type.String(),
