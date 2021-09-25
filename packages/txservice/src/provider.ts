@@ -1,11 +1,18 @@
-import { createLoggingContext, ERC20Abi, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  delay,
+  ERC20Abi,
+  jsonifyError,
+  Logger,
+  NxtpError,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import axios from "axios";
-import { BigNumber, Signer, Wallet, providers, constants, Contract } from "ethers";
+import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "../config";
+import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import {
-  DispatchAborted,
   parseError,
   RpcError,
   TransactionError,
@@ -13,14 +20,10 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
   UnpredictableGasLimit,
-} from "../error";
-import { CachedGas, CachedTransactionCount, ReadTransaction } from "../types";
-
-import { TransactionInterface } from "./transaction";
+} from "./error";
+import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
-
-const GAS_LIMIT_MIN = BigNumber.from(150_000);
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
@@ -31,15 +34,19 @@ export class ChainRpcProvider {
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private readonly _providers: providers.JsonRpcProvider[];
   private readonly provider: providers.FallbackProvider;
-  private readonly signer: Signer;
+  private readonly signer?: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
-  protected aborted: Error | undefined = undefined;
+  protected paused: Error | undefined = undefined;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
+
+  public get isReadOnly(): boolean {
+    return !this.signer;
+  }
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -57,10 +64,10 @@ export class ChainRpcProvider {
    */
   constructor(
     protected readonly logger: Logger,
-    signer: string | Signer,
     public readonly chainId: number,
-    private readonly chainConfig: ChainConfig,
-    private readonly config: TransactionServiceConfig,
+    protected readonly chainConfig: ChainConfig,
+    protected readonly config: TransactionServiceConfig,
+    signer?: string | Signer,
   ) {
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
@@ -107,27 +114,32 @@ export class ChainRpcProvider {
       );
     }
 
-    // TODO: #146 We may ought to do this instantiation in the txservice constructor.
-    this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+    if (signer) {
+      this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+    } else {
+      this.signer = undefined;
+    }
   }
 
   /**
    * Send the transaction request to the provider.
    *
+   * @remarks This method is set to access protected since it should really only be used by the inheriting class,
+   * TransactionDispatch, as of the time of writing this.
+   *
    * @param tx The transaction used for the request.
    *
    * @returns The ethers TransactionResponse.
    */
-  public sendTransaction(tx: TransactionInterface): ResultAsync<providers.TransactionResponse, TransactionError> {
+  protected sendTransaction(tx: Transaction): ResultAsync<providers.TransactionResponse, TransactionError> {
     // Do any parsing and value handling work here if necessary.
     const { params } = tx;
     const transaction = {
       ...params,
       value: BigNumber.from(params.value || 0),
     };
-    return this.resultWrapper<providers.TransactionResponse>(async () => {
-      this.assertNotAborted();
-      return await this.signer.sendTransaction(transaction);
+    return this.resultWrapper<providers.TransactionResponse>(true, async () => {
+      return await this.signer!.sendTransaction(transaction);
     });
   }
 
@@ -143,15 +155,19 @@ export class ChainRpcProvider {
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
    */
   public confirmTransaction(
-    response: providers.TransactionResponse,
-    confirmations?: number,
-    timeout?: number,
+    transaction: Transaction,
+    confirmations: number = this.confirmationsRequired,
+    timeout: number = this.confirmationTimeout,
   ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(() => {
-      // The only way to access the functionality internal to ethers for handling replacement tx.
-      // See issue: https://github.com/ethers-io/ethers.js/issues/1775
-      return (response as any).wait(confirmations ?? this.confirmationsRequired, timeout ?? this.confirmationTimeout);
-    });
+    return this.resultWrapper<providers.TransactionReceipt>(
+      true,
+      () => {
+        // The only way to access the functionality internal to ethers for handling replacement tx.
+        // See issue: https://github.com/ethers-io/ethers.js/issues/1775
+        return Promise.race(transaction.responses.map((response) => (response as any).wait(confirmations, timeout)));
+      },
+      false,
+    );
   }
 
   /**
@@ -163,9 +179,9 @@ export class ChainRpcProvider {
    * to read from chain.
    */
   public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(async () => {
+    return this.resultWrapper<string>(true, async () => {
       try {
-        return await this.signer.call(tx);
+        return await this.signer!.call(tx);
       } catch (error) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
@@ -187,7 +203,7 @@ export class ChainRpcProvider {
    * @returns A BigNumber representing the estimated gas value.
    */
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       const errors: any[] = [];
       // TODO: #147 If quorum > 1, we should make this call to multiple providers.
       for (const provider of this._providers) {
@@ -210,8 +226,7 @@ export class ChainRpcProvider {
         }
 
         try {
-          const gasLimit = BigNumber.from(result);
-          return gasLimit.gt(GAS_LIMIT_MIN) ? gasLimit : GAS_LIMIT_MIN;
+          return BigNumber.from(result);
         } catch (error) {
           throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
             invalidEstimate: result,
@@ -242,11 +257,12 @@ export class ChainRpcProvider {
     }
 
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60000) {
+    // TODO: This should cache per block, not every 3 seconds!
+    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
       return okAsync(this.cachedGas.price);
     }
 
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       const { gasInitialBumpPercent, gasMinimum } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
@@ -257,23 +273,28 @@ export class ChainRpcProvider {
         try {
           response = await axios.get(uri);
           const { rapid, fast } = response.data;
-          if (rapid !== undefined) {
-            gasPrice = BigNumber.from(rapid);
+          if (rapid) {
+            gasPrice = BigNumber.from(rapid.toString());
             break;
-          } else if (fast !== undefined) {
-            gasPrice = BigNumber.from(fast);
+          } else if (fast) {
+            gasPrice = utils.parseUnits(fast.toString(), "gwei");
             break;
+          } else {
+            this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
+              uri,
+              data: response.data,
+            });
           }
         } catch (e) {
           this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
             uri,
-            response,
+            data: response.data,
             error: jsonifyError(e),
           });
         }
       }
 
-      if (gasStations.length > 0 && gasPrice === undefined) {
+      if (gasStations.length > 0 && !gasPrice) {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
         });
@@ -320,7 +341,7 @@ export class ChainRpcProvider {
    * specified address.
    */
   public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(async () => {
+    return this.resultWrapper<BigNumber>(false, async () => {
       return await this.provider.getBalance(address);
     });
   }
@@ -333,7 +354,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current decimals.
    */
   public getDecimalsForAsset(assetId: string): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       if (this.cachedDecimals[assetId]) {
         return this.cachedDecimals[assetId];
       }
@@ -356,7 +377,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current blocktime.
    */
   public getBlockTime(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       const block = await this.provider.getBlock("latest");
       return block.timestamp;
     });
@@ -368,7 +389,7 @@ export class ChainRpcProvider {
    * @returns A number representing the current blocktime.
    */
   public getBlockNumber(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(async () => {
+    return this.resultWrapper<number>(false, async () => {
       const number = await this.provider.getBlockNumber();
       return number;
     });
@@ -380,8 +401,8 @@ export class ChainRpcProvider {
    * @returns A hash string address belonging to the signer.
    */
   public getAddress(): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(async () => {
-      return await this.signer.getAddress();
+    return this.resultWrapper<string>(true, async () => {
+      return await this.signer!.getAddress();
     });
   }
 
@@ -393,25 +414,29 @@ export class ChainRpcProvider {
    * @returns A TransactionReceipt instance.
    */
   public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(async () => {
+    return this.resultWrapper<providers.TransactionReceipt>(false, async () => {
       const receipt = await this.provider.getTransactionReceipt(hash);
       return receipt;
     });
   }
 
   /**
-   * Gets the current pending transaction count.
+   * Gets the current transaction count.
    *
-   * @returns Number of transactions sent, including pending transactions.
+   * @param blockTag - the block tag to get the transaction count for. Use "latest" mined-only transactions.
+   * Use "pending" for transactions that have not been mined yet, but will (supposedly) be mined in the pending
+   * block (essentially, transactions included in the mempool, but this behavior is not consistent).
+   *
+   * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
    */
-  public getTransactionCount(): ResultAsync<number, TransactionError> {
+  public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
     // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
     if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
       return okAsync(this.cachedTransactionCount.value);
     }
 
-    return this.resultWrapper<number>(async () => {
-      const value = await this.signer.getTransactionCount("pending");
+    return this.resultWrapper<number>(true, async () => {
+      const value = await this.signer!.getTransactionCount(blockTag);
       this.cachedTransactionCount = { value, timestamp: Date.now() };
       return value;
     });
@@ -428,26 +453,52 @@ export class ChainRpcProvider {
    *
    * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
    */
-  private resultWrapper<T>(method: () => Promise<T>): ResultAsync<T, NxtpError> {
+  private resultWrapper<T>(
+    needsSigner: boolean,
+    method: () => Promise<T>,
+    rpcCanTimeout = true,
+  ): ResultAsync<T, NxtpError> {
+    const RPC_TIMEOUT = 60_000;
     return ResultAsync.fromPromise(
-      this.isReady().then(() => {
+      this.isReady().then(async () => {
+        if (needsSigner && this.isReadOnly) {
+          throw new NxtpError("Method requires signer, and no signer was provided.");
+        }
         const errors = [];
-        while (errors.length < 5) {
+        let result: T | undefined = undefined;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const _ of Array(5).fill(0)) {
           try {
-            return method();
+            const _result = await Promise.race(
+              [method()].concat(
+                rpcCanTimeout
+                  ? [
+                      new Promise(async (_res, reject) => {
+                        await delay(RPC_TIMEOUT);
+                        reject(new RpcError(RpcError.reasons.Timeout));
+                      }),
+                    ]
+                  : [],
+              ),
+            );
+            result = _result;
+            break;
           } catch (e) {
             const error = parseError(e);
-            if (error.type === RpcError.type) {
+            // NOTE: If it's an rpc timeout error, we want to go ahead and throw.
+            if (error.type === RpcError.type && (error as RpcError).reason != RpcError.reasons.Timeout) {
               errors.push(error);
             } else {
               throw error;
             }
           }
         }
-        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+        if (result === undefined) {
+          throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+        }
+        return result;
       }),
       (error) => {
-        // TODO: Possibly anti-pattern/redundant with retry wrapper.
         // Parse error into TransactionError, etc.
         return parseError(error);
       },
@@ -460,7 +511,6 @@ export class ChainRpcProvider {
    */
   private async isReady(): Promise<boolean> {
     const method = this.isReady.name;
-    // TODO: #149 Do we need both ready and the check below, or is this redundant?
     // provider.ready returns a Promise which will stall until the network has heen established, ignoring
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.
@@ -473,17 +523,5 @@ export class ChainRpcProvider {
       });
     }
     return true;
-  }
-
-  /**
-   * Check to make sure we have not aborted this chain provider. This assert
-   * should only be called within sendTransaction (or upon transaction create, etc).
-   *
-   * @throws DispatchAborted error if we have aborted.
-   */
-  protected assertNotAborted(): void {
-    if (this.aborted) {
-      throw new DispatchAborted({ backfillError: jsonifyError(this.aborted) });
-    }
   }
 }

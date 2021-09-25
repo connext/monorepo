@@ -74,10 +74,10 @@ export const makeRouter = async () => {
     // TODO: txserviceconfig log level
     context.txService = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
-      context.wallet,
       {
         chains,
       },
+      context.wallet,
     );
 
     // adapters

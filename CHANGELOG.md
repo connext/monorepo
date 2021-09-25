@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [txservice] Refactor
+- [txservice] Add serial submit
+
 ## 0.0.47
 
 - [utils] Attempt fix on trust wallet again final final.
