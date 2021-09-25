@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.48
+
 - [txservice] Refactor
 - [txservice] Add serial submit
 
