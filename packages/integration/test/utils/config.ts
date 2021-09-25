@@ -8,6 +8,7 @@ export type ChainConfig = {
     providerUrls: string[];
     provider: providers.FallbackProvider;
     transactionManagerAddress?: string;
+    priceOracleAddress?: string;
     subgraph?: string;
   };
 };
@@ -40,12 +41,14 @@ const DEFAULT_LOCAL_CONFIG = {
       confirmations: 1,
       subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
       transactionManagerAddress: "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+      priceOracleAddress: "0x0000000000000000000000000000000000000000",
     },
     "1338": {
       providers: ["http://localhost:8546"],
       confirmations: 1,
       subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
       transactionManagerAddress: "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
+      priceOracleAddress: "0x0000000000000000000000000000000000000000",
     },
   },
   logLevel: "info",

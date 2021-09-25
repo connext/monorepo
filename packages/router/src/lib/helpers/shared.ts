@@ -22,6 +22,7 @@ export const getNtpTimeSeconds = async () => {
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (
+  sendingAssetId: string,
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
@@ -31,9 +32,7 @@ export const calculateGasFeeInReceivingToken = async (
   const chaindIdForGasFee = getChainIdForGasFee();
   if (chaindIdForGasFee != sendingChainId && chaindIdForGasFee != receivingChainId) return constants.Zero;
 
-  const ethPrice = await getTokenPrice(chaindIdForGasFee, constants.AddressZero);
-  const receivingTokenPrice = await getTokenPrice(chaindIdForGasFee, receivingAssetId);
-  const gasPrice = await getGasPrice(chaindIdForGasFee, requestContext);
+  let assetId;
 
   // calculate gas limit for transactions on Ethereum
   // sendingChainId == chaindIdForGasFee, calculate gas fee for fulfill transaction
@@ -41,11 +40,17 @@ export const calculateGasFeeInReceivingToken = async (
   let gasLimit;
   if (sendingChainId == chaindIdForGasFee) {
     gasLimit = GAS_ESTIMATES.fulfill;
+    assetId = sendingAssetId;
   } else if (receivingChainId == chaindIdForGasFee) {
     gasLimit = GAS_ESTIMATES.prepare;
+    assetId = receivingAssetId;
   } else {
-    gasLimit = constants.Zero;
+    return constants.Zero;
   }
+
+  const ethPrice = await getTokenPrice(chaindIdForGasFee, constants.AddressZero);
+  const receivingTokenPrice = await getTokenPrice(chaindIdForGasFee, assetId);
+  const gasPrice = await getGasPrice(chaindIdForGasFee, requestContext);
 
   const gasAmount = gasPrice.mul(gasLimit);
 

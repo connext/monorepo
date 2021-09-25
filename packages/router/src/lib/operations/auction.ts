@@ -178,6 +178,7 @@ export const newAuction = async (
   // amountReceived = amountReceived.sub(gasFee)
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
+    sendingAssetId,
     sendingChainId,
     receivingAssetId,
     receivingChainId,
