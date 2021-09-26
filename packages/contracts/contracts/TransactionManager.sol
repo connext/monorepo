@@ -332,6 +332,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == _chainId) {
+      // Check the sender is correct
+      require(msg.sender == invariantData.initiator, "#P:039");
+
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
@@ -404,6 +407,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       receivingChainTxManagerAddress: invariantData.receivingChainTxManagerAddress,
       user: invariantData.user,
       router: invariantData.router,
+      initiator: invariantData.initiator,
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
       sendingChainFallback: invariantData.sendingChainFallback,
@@ -754,6 +758,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
+      initiator: txData.initiator,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,

@@ -11,6 +11,7 @@ interface ITransactionManager {
     address receivingChainTxManagerAddress;
     address user;
     address router;
+    address initiator; // msg.sender of sending side
     address sendingAssetId;
     address receivingAssetId;
     address sendingChainFallback; // funds sent here on cancel
@@ -36,6 +37,7 @@ interface ITransactionManager {
     address receivingChainTxManagerAddress;
     address user;
     address router;
+    address initiator; // msg.sender of sending side
     address sendingAssetId;
     address receivingAssetId;
     address sendingChainFallback;

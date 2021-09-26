@@ -125,6 +125,7 @@ describe("TransactionManager", function () {
       receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
       router: router.address,
+      initiator: user.address,
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
       sendingChainFallback: user.address,
@@ -976,6 +977,17 @@ describe("TransactionManager", function () {
     });
 
     describe("failures when preparing on the sender chain", () => {
+      it("should revert if msg.sender is not invariantData.initiator", async () => {
+        const { transaction, record } = await getTransactionData({ initiator: AddressZero });
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith(getContractError("prepare: INITIATOR_MISMATCH"));
+      });
+
       it("should fail if amount is 0", async () => {
         const { transaction, record } = await getTransactionData({}, { amount: "0" });
         await expect(
@@ -1278,7 +1290,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       const { transaction, record } = await getTransactionData(
-        { sendingAssetId: assetId, receivingAssetId: tokenB.address },
+        { sendingAssetId: assetId, receivingAssetId: tokenB.address, initiator: other.address },
         { amount: prepareAmount },
       );
 
