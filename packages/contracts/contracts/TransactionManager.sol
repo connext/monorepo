@@ -110,13 +110,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 chain = chainId;
     if (chain == 0) {
       // If not provided, pull from block
-      assembly {
-        _chainId := chainid()
-      }
-    } else {
-      // Use provided override
-      _chainId = chain;
+      chain = block.chainid;
     }
+    return chain;
   }
 
   /**
