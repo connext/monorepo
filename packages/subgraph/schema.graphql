@@ -54,6 +54,7 @@ type Transaction @entity {
   signature: Bytes
   callData: String
   externalCallSuccess: Boolean
+  externalCallIsContract: Boolean
   externalCallReturnData: Bytes
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes

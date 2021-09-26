@@ -33,6 +33,32 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "renounced",
+        "type": "bool"
+      }
+    ],
+    "name": "AssetOwnershipRenounced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AssetOwnershipRenunciationProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "removedAssetId",
@@ -159,6 +185,32 @@
       }
     ],
     "name": "RouterAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "renounced",
+        "type": "bool"
+      }
+    ],
+    "name": "RouterOwnershipRenounced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RouterOwnershipRenunciationProposed",
     "type": "event"
   },
   {
@@ -420,6 +472,12 @@
         "indexed": false,
         "internalType": "bool",
         "name": "success",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isContract",
         "type": "bool"
       },
       {
@@ -706,6 +764,45 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "assetOwnershipTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0x3826e04d",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0x3826e04d",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "c__0xd8190500",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xd8190500",
+    "outputs": [],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1128,6 +1225,32 @@
   },
   {
     "inputs": [],
+    "name": "isAssetOwnershipRenounced",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isRouterOwnershipRenounced",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -1323,6 +1446,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "proposeAssetOwnershipRenunciation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -1331,6 +1461,13 @@
       }
     ],
     "name": "proposeNewOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposeRouterOwnershipRenunciation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1412,7 +1549,21 @@
   },
   {
     "inputs": [],
+    "name": "renounceAssetOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceRouterOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1444,6 +1595,19 @@
       }
     ],
     "name": "routerBalances",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "routerOwnershipTimestamp",
     "outputs": [
       {
         "internalType": "uint256",
