@@ -466,9 +466,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Make sure the transaction wasn't already completed
       require(txData.preparedBlockNumber > 0, "#F:021");
 
-      // Validate the user has signed
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
-
       // Check provided callData matches stored hash
       require(keccak256(callData) == txData.callDataHash, "#F:024");
 
@@ -486,7 +483,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     bool success;
     bytes memory returnData;
 
-    if (txData.sendingChainId == getChainId()) {
+    uint256 _chainId = getChainId();
+
+    if (txData.sendingChainId == _chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
@@ -495,10 +494,16 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // on the sending chain
       require(msg.sender == txData.router, "#F:016");
 
+      // Validate the user has signed
+      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
+
       // Complete tx to router for original sending amount
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
 
     } else {
+      // Validate the user has signed, using domain of contract
+      require(recoverFulfillSignature(txData.transactionId, relayerFee, _chainId, address(this), signature) == txData.user, "#F:022");
+
       // Sanity check: fee <= amount. Allow `=` in case of only 
       // wanting to execute 0-value crosschain tx, so only providing 
       // the fee amount
