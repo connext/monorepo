@@ -392,6 +392,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bool",
+        name: "isContract",
+        type: "bool",
+      },
+      {
+        indexed: false,
         internalType: "bytes",
         name: "returnData",
         type: "bytes",
