@@ -103,6 +103,7 @@ interface ITransactionManager {
     bytes signature,
     bytes callData,
     bool success,
+    bool isContract,
     bytes returnData,
     address caller
   );

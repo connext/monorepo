@@ -60,7 +60,7 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) override external payable onlyTransactionManager returns (bool, bytes memory) {
+  ) override external payable onlyTransactionManager returns (bool, bool, bytes memory) {
     // If it is not ether, approve the callTo
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
@@ -73,7 +73,8 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     // Check if the callTo is a contract
     bool success;
     bytes memory returnData;
-    if (Address.isContract(callTo)) {
+    bool isContract = Address.isContract(callTo);
+    if (isContract) {
       // Try to execute the callData
       // the low level call will return `false` if its execution reverts
       (success, returnData) = callTo.call{value: isNative ? amount : 0}(callData);
@@ -98,8 +99,9 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
       amount,
       callData,
       returnData,
-      success
+      success,
+      isContract
     );
-    return (success, returnData);
+    return (success, isContract, returnData);
   }
 }

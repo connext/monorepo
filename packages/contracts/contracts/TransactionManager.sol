@@ -481,6 +481,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Declare these variables for the event emission. Are only assigned
     // IFF there is an external call on the receiving chain
     bool success;
+    bool isContract;
     bytes memory returnData;
 
     uint256 _chainId = getChainId();
@@ -509,7 +510,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // the fee amount
       require(relayerFee <= txData.amount, "#F:023");
 
-      (success, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
+      (success, isContract, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
     }
 
     // Emit event
@@ -522,6 +523,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       signature,
       callData,
       success,
+      isContract,
       returnData,
       msg.sender
     );
@@ -800,7 +802,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     TransactionData calldata txData,
     uint256 relayerFee,
     bytes calldata callData
-  ) internal returns (bool, bytes memory) {
+  ) internal returns (bool, bool, bytes memory) {
     // The user is completing the transaction, they should get the
     // amount that the router deposited less fees for relayer.
 
@@ -821,7 +823,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       if (toSend > 0) {
         LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
       }
-      return (false, new bytes(0));
+      return (false, false, new bytes(0));
     } else {
       // Handle external calls with a fallback to the receiving
       // address in case the call fails so the funds dont remain
