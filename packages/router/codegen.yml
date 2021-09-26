@@ -1,4 +1,4 @@
-schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli
+schema: http://localhost:8010/subgraphs/name/connext/nxtp
 documents: "./src/adapters/subgraph/queries.ts"
 generates:
   ./src/adapters/subgraph/graphqlsdk.ts:

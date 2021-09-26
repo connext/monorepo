@@ -29,6 +29,7 @@ type Transaction @entity {
   receivingChainTxManagerAddress: Bytes!
   user: User!
   router: Router!
+  initiator: Bytes!
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
   sendingChainFallback: Bytes!

@@ -125,6 +125,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
+  transaction.initiator = event.params.txData.initiator;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;

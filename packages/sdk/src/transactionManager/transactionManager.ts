@@ -129,6 +129,7 @@ export class TransactionManager {
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
+      initiator: txData.initiator,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,

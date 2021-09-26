@@ -100,6 +100,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -124,6 +125,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -170,6 +172,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -481,6 +484,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -505,6 +509,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -543,6 +548,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -665,6 +671,7 @@ export class TransactionManager extends BaseContract {
       receivingChainTxManagerAddress: string;
       user: string;
       router: string;
+      initiator: string;
       sendingAssetId: string;
       receivingAssetId: string;
       sendingChainFallback: string;
@@ -689,6 +696,7 @@ export class TransactionManager extends BaseContract {
       receivingChainTxManagerAddress: string;
       user: string;
       router: string;
+      initiator: string;
       sendingAssetId: string;
       receivingAssetId: string;
       sendingChainFallback: string;
@@ -725,6 +733,7 @@ export class TransactionManager extends BaseContract {
       receivingChainTxManagerAddress: string;
       user: string;
       router: string;
+      initiator: string;
       sendingAssetId: string;
       receivingAssetId: string;
       sendingChainFallback: string;
@@ -839,6 +848,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -866,6 +876,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -875,6 +886,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -897,6 +909,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -926,6 +939,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -935,6 +949,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -967,6 +982,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -995,6 +1011,7 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -1004,6 +1021,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1170,6 +1188,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1179,6 +1198,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1209,6 +1229,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1218,6 +1239,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1263,6 +1285,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1272,6 +1295,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1308,6 +1332,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1317,6 +1342,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1365,6 +1391,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1374,6 +1401,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1407,6 +1435,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1416,6 +1445,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1483,6 +1513,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1507,6 +1538,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1543,6 +1575,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1674,6 +1707,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1698,6 +1732,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1738,6 +1773,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;

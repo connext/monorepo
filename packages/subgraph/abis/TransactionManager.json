@@ -272,6 +272,11 @@
           },
           {
             "internalType": "address",
+            "name": "initiator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "sendingAssetId",
             "type": "address"
           },
@@ -382,6 +387,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {
@@ -532,6 +542,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {
@@ -782,32 +797,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "c__0x3826e04d",
-        "type": "bytes32"
-      }
-    ],
-    "name": "c_0x3826e04d",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "c__0xd8190500",
-        "type": "bytes32"
-      }
-    ],
-    "name": "c_0xd8190500",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
             "internalType": "address",
@@ -822,6 +811,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {
@@ -912,6 +906,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {
@@ -1017,6 +1016,11 @@
           },
           {
             "internalType": "address",
+            "name": "initiator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "sendingAssetId",
             "type": "address"
           },
@@ -1113,6 +1117,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {
@@ -1283,6 +1292,11 @@
           },
           {
             "internalType": "address",
+            "name": "initiator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "sendingAssetId",
             "type": "address"
           },
@@ -1374,6 +1388,11 @@
           {
             "internalType": "address",
             "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initiator",
             "type": "address"
           },
           {

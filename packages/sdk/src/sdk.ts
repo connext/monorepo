@@ -151,7 +151,7 @@ export class NxtpSdk {
     },
     private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
     network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling: boolean = false,
+    skipPolling = false,
   ) {
     const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
     if (messaging) {
@@ -347,6 +347,7 @@ export class NxtpSdk {
       expiry: _expiry,
       dryRun,
       preferredRouter: _preferredRouter,
+      initiator,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
@@ -461,6 +462,7 @@ export class NxtpSdk {
 
     const payload = {
       user,
+      initiator: initiator ?? user,
       sendingChainId,
       sendingAssetId,
       amount,
@@ -638,6 +640,7 @@ export class NxtpSdk {
       receivingChainId,
       callTo,
       transactionId,
+      initiator,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
@@ -722,6 +725,7 @@ export class NxtpSdk {
       receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
       user,
       router,
+      initiator,
       sendingAssetId,
       receivingAssetId,
       sendingChainFallback: user,
