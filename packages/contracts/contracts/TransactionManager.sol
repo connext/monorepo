@@ -473,10 +473,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Validate the user has signed
       require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
 
-      // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
-      // 0-value crosschain tx, so only providing the fee amount
-      require(relayerFee <= txData.amount, "#F:023");
-
       // Check provided callData matches stored hash
       require(keccak256(callData) == txData.callDataHash, "#F:024");
 
@@ -507,6 +503,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
 
     } else {
+      // Sanity check: fee <= amount. Allow `=` in case of only 
+      // wanting to execute 0-value crosschain tx, so only providing 
+      // the fee amount
+      require(relayerFee <= txData.amount, "#F:023");
+
       (success, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
     }
 
