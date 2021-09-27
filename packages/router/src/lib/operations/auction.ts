@@ -97,7 +97,7 @@ export const newAuction = async (
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
   ) as number;
-  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime) {
+  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime * 1000) {
     throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
       methodContext,
       requestContext,
@@ -247,7 +247,7 @@ export const newAuction = async (
 
   AUCTION_REQUEST_MAP.set(
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
-    currentTime,
+    currentTime * 1000,
   );
   return { bid, bidSignature: dryRun ? undefined : bidSignature };
 };
