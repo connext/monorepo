@@ -311,20 +311,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     });
 
     if (!result.success) {
-      const error = result.value as NxtpError;
-      if (error.type === TransactionReverted.type && (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds) {
-        this.logger.debug(
-          "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
-          requestContext,
-          methodContext,
-          {
-            chainId: this.chainId,
-            txsId,
-            error: (error as TransactionReverted).reason,
-          },
-        );
-      }
-      throw error;
+      throw result.value;
     }
 
     const transaction = result.value as Transaction;
@@ -384,6 +371,19 @@ export class TransactionDispatch extends ChainRpcProvider {
     const result = await this.sendTransaction(transaction);
     // If we end up with an error, it should be thrown here.
     if (result.isErr()) {
+      const error = result.error;
+      if (error.type === TransactionReverted.type && (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds) {
+        this.logger.error(
+          "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
+          requestContext,
+          methodContext,
+          error.toJson(),
+          {
+            chainId: this.chainId,
+            transaction: transaction.loggable,
+          },
+        );
+      }
       throw result.error;
     }
 
