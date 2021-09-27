@@ -1,6 +1,6 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, getUuid, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, delay, getUuid, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
@@ -126,6 +126,13 @@ export class TransactionDispatch extends ChainRpcProvider {
               // so we'll want to fail the tx with whatever error we get.
               receivedBadNonce = true;
               shouldResubmit = false;
+            } else if (error.type === TransactionReverted.type && error.reason === TransactionReverted.reasons.InsufficientFunds) {
+              // If we get an insufficient funds error during a resubmit, we should log this critical alert but continue to try to mine
+              // whatever txs we've sent so far, on the basis that the router owner will eventually refill the account (and we'll eventually)
+              // be able to bump.
+              // Set shouldResubmit to false; next time around it will only attempt to mine and then if it times out again, it will go back to
+              // attempting to resubmit.
+              shouldResubmit = false;
             } else {
               transaction.error = error;
             }
@@ -196,7 +203,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId,
     });
 
-    const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | Error; success: boolean }> => {
+    const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | NxtpError; success: boolean }> => {
       try {
         // Wait until there's room in the buffer.
         while (this.inflightBuffer.isFull) {
@@ -247,7 +254,7 @@ export class TransactionDispatch extends ChainRpcProvider {
             multipleAttempts: iterations > 1,
             attemptNumber: iterations,
             lastErrorReceived,
-            txsId,
+            transaction: transaction.loggable,
             currentNonce: {
               transactionCount,
               localNonce: this.nonce,
@@ -304,7 +311,20 @@ export class TransactionDispatch extends ChainRpcProvider {
     });
 
     if (!result.success) {
-      throw result.value;
+      const error = result.value as NxtpError;
+      if (error.type === TransactionReverted.type && (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds) {
+        this.logger.debug(
+          "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
+          requestContext,
+          methodContext,
+          {
+            chainId: this.chainId,
+            txsId,
+            error: (error as TransactionReverted).reason,
+          },
+        );
+      }
+      throw error;
     }
 
     const transaction = result.value as Transaction;
@@ -318,7 +338,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
 
     if (!transaction.receipt) {
-      throw new Error("Transaction did not return a receipt");
+      throw new TransactionServiceFailure("Transaction did not return a receipt");
     }
 
     return transaction.receipt;
