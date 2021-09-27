@@ -70,7 +70,6 @@ export class ChainReader {
       return result.value;
     }
   }
-
   /**
    * Get the current gas price for the chain for which this instance is servicing.
    *
