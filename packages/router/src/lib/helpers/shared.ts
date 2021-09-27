@@ -1,7 +1,7 @@
 import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { constants } from "ethers";
-import { getOracleContractAddress } from "../../adapters/contract/contract";
+import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getContext } from "../../router";
 import { ETHEREUM_CHAIN_ID } from "./auction";
 
@@ -70,8 +70,9 @@ export const calculateGasFeeInReceivingToken = async (
 export const getTokenPrice = async (chainId: number, assetId: string): Promise<BigNumber> => {
   const { txService } = getContext();
   const oracleContractAddress = getOracleContractAddress(chainId);
-  const tokenPrice = await txService.getTokenPrice(chainId, oracleContractAddress, assetId);
-  return tokenPrice;
+  const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
+  const tokenPrice = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
+  return BigNumber.from(tokenPrice);
 };
 
 /**

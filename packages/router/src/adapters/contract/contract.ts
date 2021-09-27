@@ -14,6 +14,8 @@ import { constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain";
 
 import { getContext } from "../../router";
 
@@ -39,6 +41,8 @@ export const getOracleContractAddress = (chainId: number): string => {
 
 export const getTxManagerInterface = () =>
   new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+
+export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
 export const prepareSanitationCheck = async (
   chainId: number,

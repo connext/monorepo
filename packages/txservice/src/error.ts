@@ -10,6 +10,17 @@ export abstract class TransactionError extends NxtpError {
   static readonly type = TransactionError.name;
 }
 
+export class MaxBufferLengthError extends TransactionError {
+  /**
+   * Thrown if a backfill transaction fails and other txs are attempted
+   */
+  static readonly type = MaxBufferLengthError.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Inflight transaction buffer is full.", context, MaxBufferLengthError.type);
+  }
+}
+
 export class DispatchAborted extends TransactionError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted
@@ -37,6 +48,7 @@ export class RpcError extends TransactionError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ConnectionReset: "Connection was reset by peer.",
+    Timeout: "Request timed out",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
@@ -275,7 +287,12 @@ export const parseError = (error: any): NxtpError => {
 
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
-      return new TransactionReplaced(error.receipt, error.replacement, context);
+      return new TransactionReplaced(error.receipt, error.replacement, {
+        ...context,
+        hash: error.hash,
+        reason: error.reason,
+        cancelled: error.cancelled,
+      });
     case Logger.errors.INSUFFICIENT_FUNDS:
       return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
     case Logger.errors.CALL_EXCEPTION:
