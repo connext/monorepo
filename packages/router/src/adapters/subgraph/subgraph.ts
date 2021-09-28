@@ -73,8 +73,8 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
 
     logger.debug("Getting sync record", requestContext, methodContext, { chainId });
     const realBlockNumber = await txService.getBlockNumber(chainId);
-    const { _meta } = await sdk.GetBlockNumber();
-    const subgraphBlockNumber = _meta?.block.number ?? 0;
+    const res = await sdk.GetBlockNumber();
+    const subgraphBlockNumbers = res.map(r => r._meta?.block.number ?? 0);
     let record: SubgraphSyncRecord;
     if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
       logger.warn("SUBGRAPH IS OUT OF SYNC", requestContext, methodContext, {

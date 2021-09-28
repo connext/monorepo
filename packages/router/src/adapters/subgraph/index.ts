@@ -1,4 +1,4 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { FallbackSubgraph, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
@@ -41,8 +41,13 @@ export const getSdks = (): Record<number, Sdk> => {
 export const subgraphContractReader = (): ContractReader => {
   const { config } = getContext();
   Object.entries(config.chainConfig).forEach(([chainId, { subgraph }]) => {
-    const client = new GraphQLClient(subgraph);
-    sdks[parseInt(chainId)] = getSdk(client);
+    const clients: GraphQLClient[] = [];
+    subgraph.forEach(uri => {
+      const client = new GraphQLClient(uri);
+      clients.push(client);
+    });
+    const chainIdNumber = parseInt(chainId);
+    sdks[chainIdNumber] = getSdk(new FallbackSubgraph(chainIdNumber, clients));
   });
 
   return {
