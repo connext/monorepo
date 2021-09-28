@@ -9,6 +9,7 @@ import {
   encodeAuctionBid as _encodeAuctionBid,
   ethereumRequest as _ethereumRequest,
   encrypt as _encrypt,
+  PriceOracleAbi,
 } from "@connext/nxtp-utils";
 
 /**
@@ -57,6 +58,24 @@ export const getDecimals = async (assetId: string, provider: providers.FallbackP
   }
   const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
   return decimals;
+};
+
+/**
+ * Gets token price in usd.
+ *
+ * @param oralceAddress The price oracle address
+ * @param tokenAddress The token address to get the price
+ *
+ * @returns price in usd by decimals 18.
+ */
+export const getTokenPrice = async (
+  oralceAddress: string,
+  tokenAddress: string,
+  provider: providers.FallbackProvider,
+) => {
+  const priceOracleContract = new Contract(oralceAddress, PriceOracleAbi, provider);
+  const tokenPriceInBigNum = await priceOracleContract.getTokenPrice(tokenAddress);
+  return tokenPriceInBigNum;
 };
 
 // FOR TEST MOCKING

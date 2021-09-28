@@ -140,6 +140,7 @@ export class NxtpSdk {
         [chainId: number]: {
           provider: providers.FallbackProvider;
           transactionManagerAddress?: string;
+          priceOracleAddress?: string;
           subgraph?: string;
           subgraphSyncBuffer?: number;
         };
@@ -189,6 +190,7 @@ export class NxtpSdk {
       {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
+        priceOracleAddress: string;
       }
     > = {};
 
@@ -201,7 +203,13 @@ export class NxtpSdk {
     Object.entries(chainConfig).forEach(
       ([
         _chainId,
-        { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph, subgraphSyncBuffer },
+        {
+          provider,
+          transactionManagerAddress: _transactionManagerAddress,
+          priceOracleAddress: _priceOracleAddress,
+          subgraph: _subgraph,
+          subgraphSyncBuffer,
+        },
       ]) => {
         const chainId = parseInt(_chainId);
         let transactionManagerAddress = _transactionManagerAddress;
@@ -216,6 +224,7 @@ export class NxtpSdk {
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
+          priceOracleAddress: _priceOracleAddress || constants.AddressZero,
         };
 
         let subgraph = _subgraph;
@@ -795,10 +804,57 @@ export class NxtpSdk {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    let calculateRelayerFee = relayerFee;
+    if (useRelayers) {
+      // calculate relayer fee
+      const signatureForFee = await signFulfillTransactionPayload(
+        txData.transactionId,
+        relayerFee,
+        txData.receivingChainId,
+        txData.receivingChainTxManagerAddress,
+        this.config.signer,
+      );
+
+      const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
+        relayerFee,
+        signature: signatureForFee,
+        txData: {
+          ...txData,
+          callDataHash: utils.keccak256("0x"),
+        },
+        callData: "0x",
+      });
+      this.logger.info(
+        `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
+        requestContext,
+        methodContext,
+      );
+
+      if (gasNeeded.isZero()) {
+        const error = new InvalidParamStructure(
+          "calculateGasInToken",
+          "TransactionManager",
+          "Failed to calculate a gas fee in token",
+          {
+            relayerFee: relayerFee,
+            signatureForFee: signatureForFee,
+            txData: txData,
+            callDataHash: utils.keccak256("0x"),
+            callData: "0x",
+          },
+        );
+        this.logger.error("Failed to calculate gas in token", requestContext, methodContext, jsonifyError(error));
+
+        throw error;
+      }
+
+      calculateRelayerFee = gasNeeded.toString();
+    }
+
     this.logger.info("Generating fulfill signature", requestContext, methodContext);
     const signature = await signFulfillTransactionPayload(
       txData.transactionId,
-      relayerFee,
+      calculateRelayerFee,
       txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       this.config.signer,
@@ -806,7 +862,7 @@ export class NxtpSdk {
 
     this.logger.info("Generated signature", requestContext, methodContext, { signature });
     this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
-    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { relayerFee });
+    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { calculateRelayerFee });
     let callData = "0x";
     if (txData.callDataHash !== utils.keccak256(callData)) {
       try {
@@ -833,11 +889,11 @@ export class NxtpSdk {
 
       const request = {
         type: MetaTxTypes.Fulfill,
-        relayerFee,
+        relayerFee: calculateRelayerFee,
         to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
         chainId: txData.receivingChainId,
         data: {
-          relayerFee,
+          relayerFee: calculateRelayerFee,
           signature,
           txData,
           callData,
@@ -862,7 +918,7 @@ export class NxtpSdk {
         txData.receivingChainId,
         {
           callData,
-          relayerFee,
+          relayerFee: calculateRelayerFee,
           signature,
           txData,
         },

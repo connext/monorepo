@@ -15,6 +15,7 @@ import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { ChainNotConfigured } from "../error";
+import { getDecimals, getTokenPrice } from "../utils";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -40,6 +41,7 @@ export class TransactionManager {
     [chainId: number]: {
       provider: providers.FallbackProvider;
       transactionManager: TTransactionManager;
+      priceOracleAddress: string;
     };
   };
 
@@ -49,12 +51,13 @@ export class TransactionManager {
       [chainId: number]: {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
+        priceOracleAddress: string;
       };
     },
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};
-    Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress }]) => {
+    Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress, priceOracleAddress }]) => {
       const transactionManager = new Contract(
         transactionManagerAddress,
         TransactionManagerArtifact.abi,
@@ -63,6 +66,7 @@ export class TransactionManager {
       this.chainConfig[parseInt(chainId)] = {
         transactionManager,
         provider,
+        priceOracleAddress,
       };
     });
   }
@@ -365,5 +369,74 @@ export class TransactionManager {
     }
 
     return transactionManager.routerBalances(router, assetId);
+  }
+
+  /**
+   * Calculates gas amount in receiving token
+   *
+   * @param chainId - The receiving chain you want to check gas price on
+   * @param fulfillParams - The parameters for fulfill transactions
+   */
+  async calculateGasInTokenForFullfil(
+    chainId: number,
+    fulfillParams: FulfillParams,
+    _requestContext?: RequestContext<string>,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.calculateGasInToken",
+      _requestContext,
+      fulfillParams.txData.transactionId,
+    );
+
+    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
+
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
+
+    const signer = this.getConnectedSigner(provider);
+    const connected = transactionManager.connect(signer);
+    const { txData, relayerFee, signature, callData } = fulfillParams;
+
+    // get gas limit
+    let gasLimit;
+    try {
+      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData);
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    // get gas price
+    let gasPrice;
+    try {
+      gasPrice = await provider.getGasPrice();
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    const ethPriceInUsd = await getTokenPrice(
+      this.chainConfig[chainId]?.priceOracleAddress,
+      constants.AddressZero,
+      provider,
+    );
+
+    const receivingTokenPriceInUsd = await getTokenPrice(
+      this.chainConfig[chainId]?.priceOracleAddress,
+      txData.receivingAssetId,
+      provider,
+    );
+
+    const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
+
+    const tokenAmount = gasLimit
+      .mul(gasPrice)
+      .mul(ethPriceInUsd)
+      .div(receivingTokenPriceInUsd)
+      .div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    return tokenAmount;
   }
 }
