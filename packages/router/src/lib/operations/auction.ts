@@ -92,7 +92,7 @@ export const newAuction = async (
   }
 
   const currentTime = await getNtpTimeSeconds();
-  console.log("config = ", config);
+
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
@@ -106,6 +106,7 @@ export const newAuction = async (
       minimalPeriod: config.requestLimit,
     });
   }
+
   // Validate expiry is valid (greater than current time plus a buffer).
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
