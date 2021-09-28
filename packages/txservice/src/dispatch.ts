@@ -377,7 +377,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
           requestContext,
           methodContext,
-          error.toJson(),
+          jsonifyError(error),
           {
             chainId: this.chainId,
             transaction: transaction.loggable,
