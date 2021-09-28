@@ -7,7 +7,7 @@ import {
   signAuctionBid,
   createLoggingContext,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
+import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
@@ -188,6 +188,18 @@ export const newAuction = async (
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });
+
+  // Log if gas is low, but above min
+  const LOW_GAS = parseEther("0.1");
+  if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+    logger.warn("Router has low gas", requestContext, methodContext, {
+      sendingChainId,
+      receivingChainId,
+      senderBalance: formatEther(senderBalance),
+      receiverBalance: formatEther(receiverBalance),
+    });
+  }
+
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodContext,
