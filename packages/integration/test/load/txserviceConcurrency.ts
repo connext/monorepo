@@ -77,9 +77,13 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
-  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "info" }), wallet, {
-    chains,
-  });
+  const txservice = new TransactionService(
+    new Logger({ level: config.logLevel ?? "info" }),
+    {
+      chains,
+    },
+    wallet,
+  );
 
   /// MARK - VALIDATE FUNDS.
   // Make sure the funder has enough funding for this test.

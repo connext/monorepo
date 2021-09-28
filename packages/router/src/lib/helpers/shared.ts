@@ -2,7 +2,7 @@ import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES 
 import { BigNumber, constants } from "ethers";
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getContext } from "../../router";
-import { ETHEREUM_CHAIN_ID } from "./auction";
+import { FEE_CHAIN_IDS } from "./auction";
 
 /**
  * Helper to allow easy mocking
@@ -28,37 +28,61 @@ export const calculateGasFeeInReceivingToken = async (
   outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const chaindIdForGasFee = getChainIdForGasFee();
-  if (chaindIdForGasFee != sendingChainId && chaindIdForGasFee != receivingChainId) return constants.Zero;
+  const chaindIdsForGasFee = getChainIdForGasFee();
+  if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
+    return constants.Zero;
 
-  let assetId;
+  // calculate receiving token amount for gas fee
+  // if chaindIdsForGasFee includes both sendingChainId and receivingChainId, calculate gas fee for both prepare and fulfill transactions
+  // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
+  // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
+  if (chaindIdsForGasFee.includes(sendingChainId) && chaindIdsForGasFee.includes(receivingChainId)) {
+    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
 
-  // calculate gas limit for transactions on Ethereum
-  // sendingChainId == chaindIdForGasFee, calculate gas fee for fulfill transaction
-  // receivingChainId == chaindIdForGasFee, calculate gas fee for prepare transaction
-  let gasLimit;
-  if (sendingChainId == chaindIdForGasFee) {
-    gasLimit = GAS_ESTIMATES.fulfill;
-    assetId = sendingAssetId;
-  } else if (receivingChainId == chaindIdForGasFee) {
-    gasLimit = GAS_ESTIMATES.prepare;
-    assetId = receivingAssetId;
+    const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
+    const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
+    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
+    const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
+    const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
+
+    const gasAmountForFulfillInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
+    const gasAmountForPrepareInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
+    const gasAmountInUsd = gasAmountForPrepareInUsd.add(gasAmountForFulfillInUsd);
+    const tokenAmountForGasFee = gasAmountInUsd
+      .div(receivingTokenPrice)
+      .div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    return tokenAmountForGasFee;
+  } else if (chaindIdsForGasFee.includes(sendingChainId)) {
+    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+
+    const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
+    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
+    const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
+
+    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
+    const tokenAmountForGasFee = gasAmountInUsd
+      .div(receivingTokenPrice)
+      .div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    return tokenAmountForGasFee;
+  } else if (chaindIdsForGasFee.includes(receivingChainId)) {
+    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+
+    const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
+    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
+    const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
+
+    const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
+    const tokenAmountForGasFee = gasAmountInUsd
+      .div(receivingTokenPrice)
+      .div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    return tokenAmountForGasFee;
   } else {
     return constants.Zero;
   }
-
-  const ethPrice = await getTokenPrice(chaindIdForGasFee, constants.AddressZero);
-  const receivingTokenPrice = await getTokenPrice(chaindIdForGasFee, assetId);
-  const gasPrice = await getGasPrice(chaindIdForGasFee, requestContext);
-
-  const gasAmount = gasPrice.mul(gasLimit);
-
-  const gasAmountInUsd = gasAmount
-    .mul(ethPrice)
-    .div(receivingTokenPrice)
-    .div(BigNumber.from(10).pow(18 - outputDecimals));
-
-  return gasAmountInUsd;
 };
 /**
  * Gets token price in usd from price oracle
@@ -66,9 +90,13 @@ export const calculateGasFeeInReceivingToken = async (
  * @param chainId The network identifier
  * @param assetId The asset address to get price for
  */
-export const getTokenPrice = async (chainId: number, assetId: string): Promise<BigNumber> => {
+export const getTokenPrice = async (
+  chainId: number,
+  assetId: string,
+  requestContext: RequestContext,
+): Promise<BigNumber> => {
   const { txService } = getContext();
-  const oracleContractAddress = getOracleContractAddress(chainId);
+  const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
   const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
   const tokenPrice = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
   return BigNumber.from(tokenPrice);
@@ -88,8 +116,8 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
 };
 
 /**
- * Gets chain id to take fee from
+ * Gets chain ids to take fee from
  */
-export const getChainIdForGasFee = () => {
-  return ETHEREUM_CHAIN_ID;
+export const getChainIdForGasFee = (): number[] => {
+  return FEE_CHAIN_IDS;
 };
