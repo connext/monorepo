@@ -1,6 +1,14 @@
 import { BigNumber, Signer, providers, utils } from "ethers";
 import PriorityQueue from "p-queue";
-import { createLoggingContext, delay, getUuid, jsonifyError, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  delay,
+  getUuid,
+  jsonifyError,
+  Logger,
+  NxtpError,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
@@ -126,7 +134,10 @@ export class TransactionDispatch extends ChainRpcProvider {
               // so we'll want to fail the tx with whatever error we get.
               receivedBadNonce = true;
               shouldResubmit = false;
-            } else if (error.type === TransactionReverted.type && error.reason === TransactionReverted.reasons.InsufficientFunds) {
+            } else if (
+              error.type === TransactionReverted.type &&
+              error.reason === TransactionReverted.reasons.InsufficientFunds
+            ) {
               // If we get an insufficient funds error during a resubmit, we should log this critical alert but continue to try to mine
               // whatever txs we've sent so far, on the basis that the router owner will eventually refill the account (and we'll eventually)
               // be able to bump.
@@ -203,112 +214,114 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId,
     });
 
-    const result = await this.submitQueue.add(async (): Promise<{ value: Transaction | NxtpError; success: boolean }> => {
-      try {
-        // Wait until there's room in the buffer.
-        while (this.inflightBuffer.isFull) {
-          await delay(200);
-        }
-
-        // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
-        // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
-        // still possible to revert due to a state change below.
-        const gas = await this.getGas(minTx, requestContext);
-
-        // Retrieve the current mined transaction count and our local nonce.
-        const result = await this.getTransactionCount("pending");
-        if (result.isErr()) {
-          throw result.error;
-        }
-        let transactionCount = result.value;
-
-        // Set to whichever value is higher. This should almost always be our local nonce.
-        let nonce = Math.max(this.nonce, transactionCount);
-
-        // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
-        // go through on the first try.
-        let transaction: Transaction | undefined = undefined;
-        // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
-        let iterations = 0;
-        let lastErrorReceived: Error | undefined = undefined;
-        while (
-          iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
-          (!transaction || !transaction.didSubmit)
-        ) {
-          iterations++;
-          // Create a new transaction instance to track lifecycle. We will be submitting below.
-          transaction = new Transaction(
-            requestContext,
-            minTx,
-            nonce,
-            gas,
-            {
-              confirmationTimeout: this.confirmationTimeout,
-              confirmationsRequired: this.confirmationsRequired,
-            },
-            txsId,
-          );
-          this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
-            chainId: this.chainId,
-            // A quick boolean to indicate whether this is a retry.
-            multipleAttempts: iterations > 1,
-            attemptNumber: iterations,
-            lastErrorReceived,
-            transaction: transaction.loggable,
-            currentNonce: {
-              transactionCount,
-              localNonce: this.nonce,
-              assignedNonce: nonce,
-            },
-          });
-          try {
-            await this.submit(transaction);
-          } catch (error) {
-            if (error.type === BadNonce.type) {
-              lastErrorReceived = error.reason;
-              if (
-                error.reason === BadNonce.reasons.NonceExpired ||
-                // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
-                // Or should we treat the nonce as expired?
-                error.reason === BadNonce.reasons.ReplacementUnderpriced
-              ) {
-                // Currently only two possibilities are known to (potentially) cause this to happen:
-                // 1. Signer used outside of this class to send tx (should never happen).
-                // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
-                nonce = nonce + 1;
-                // TODO: Alternatively, we could retrieve the transactionCount again and set the nonce to Math.max(transactionCount, nonce + 1)
-                continue;
-              } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
-                // It's unknown whether nonce was too low or too high. For safety, we're going to set the nonce to the latest transaction count
-                // and retry (continually). Eventually the transaction count will catch up to / converge on the correct number.
-                // NOTE: This occasionally happens because a provider falls behind in terms of the current mempool and hasn't registered a tx yet.
-                const result = await this.getTransactionCount("latest");
-                if (result.isErr()) {
-                  throw result.error;
-                }
-                transactionCount = result.value;
-                nonce = result.value;
-                continue;
-              }
-            }
-            // This could be a reverted error, etc.
-            throw error;
+    const result = await this.submitQueue.add(
+      async (): Promise<{ value: Transaction | NxtpError; success: boolean }> => {
+        try {
+          // Wait until there's room in the buffer.
+          while (this.inflightBuffer.isFull) {
+            await delay(200);
           }
+
+          // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
+          // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
+          // still possible to revert due to a state change below.
+          const gas = await this.getGas(minTx, requestContext);
+
+          // Retrieve the current mined transaction count and our local nonce.
+          const result = await this.getTransactionCount("pending");
+          if (result.isErr()) {
+            throw result.error;
+          }
+          let transactionCount = result.value;
+
+          // Set to whichever value is higher. This should almost always be our local nonce.
+          let nonce = Math.max(this.nonce, transactionCount);
+
+          // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
+          // go through on the first try.
+          let transaction: Transaction | undefined = undefined;
+          // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
+          let iterations = 0;
+          let lastErrorReceived: Error | undefined = undefined;
+          while (
+            iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
+            (!transaction || !transaction.didSubmit)
+          ) {
+            iterations++;
+            // Create a new transaction instance to track lifecycle. We will be submitting below.
+            transaction = new Transaction(
+              requestContext,
+              minTx,
+              nonce,
+              gas,
+              {
+                confirmationTimeout: this.confirmationTimeout,
+                confirmationsRequired: this.confirmationsRequired,
+              },
+              txsId,
+            );
+            this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
+              chainId: this.chainId,
+              // A quick boolean to indicate whether this is a retry.
+              multipleAttempts: iterations > 1,
+              attemptNumber: iterations,
+              lastErrorReceived,
+              transaction: transaction.loggable,
+              currentNonce: {
+                transactionCount,
+                localNonce: this.nonce,
+                assignedNonce: nonce,
+              },
+            });
+            try {
+              await this.submit(transaction);
+            } catch (error) {
+              if (error.type === BadNonce.type) {
+                lastErrorReceived = error.reason;
+                if (
+                  error.reason === BadNonce.reasons.NonceExpired ||
+                  // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
+                  // Or should we treat the nonce as expired?
+                  error.reason === BadNonce.reasons.ReplacementUnderpriced
+                ) {
+                  // Currently only two possibilities are known to (potentially) cause this to happen:
+                  // 1. Signer used outside of this class to send tx (should never happen).
+                  // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
+                  nonce = nonce + 1;
+                  // TODO: Alternatively, we could retrieve the transactionCount again and set the nonce to Math.max(transactionCount, nonce + 1)
+                  continue;
+                } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
+                  // It's unknown whether nonce was too low or too high. For safety, we're going to set the nonce to the latest transaction count
+                  // and retry (continually). Eventually the transaction count will catch up to / converge on the correct number.
+                  // NOTE: This occasionally happens because a provider falls behind in terms of the current mempool and hasn't registered a tx yet.
+                  const result = await this.getTransactionCount("latest");
+                  if (result.isErr()) {
+                    throw result.error;
+                  }
+                  transactionCount = result.value;
+                  nonce = result.value;
+                  continue;
+                }
+              }
+              // This could be a reverted error, etc.
+              throw error;
+            }
+          }
+          if (!transaction || transaction.responses.length === 0) {
+            throw new TransactionServiceFailure(
+              "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+            );
+          }
+          // Push submitted transaction to inflight buffer.
+          this.inflightBuffer.push(transaction);
+          // Increment the successful nonce, and assign our local nonce to that value.
+          this.nonce = nonce + 1;
+          return { value: transaction, success: true };
+        } catch (error) {
+          return { value: error, success: false };
         }
-        if (!transaction || transaction.responses.length === 0) {
-          throw new TransactionServiceFailure(
-            "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
-          );
-        }
-        // Push submitted transaction to inflight buffer.
-        this.inflightBuffer.push(transaction);
-        // Increment the successful nonce, and assign our local nonce to that value.
-        this.nonce = nonce + 1;
-        return { value: transaction, success: true };
-      } catch (error) {
-        return { value: error, success: false };
-      }
-    });
+      },
+    );
 
     if (!result.success) {
       throw result.value;
@@ -372,7 +385,10 @@ export class TransactionDispatch extends ChainRpcProvider {
     // If we end up with an error, it should be thrown here.
     if (result.isErr()) {
       const error = result.error;
-      if (error.type === TransactionReverted.type && (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds) {
+      if (
+        error.type === TransactionReverted.type &&
+        (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds
+      ) {
         this.logger.error(
           "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
           requestContext,
