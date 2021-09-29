@@ -61,20 +61,17 @@ export type AssetBalance_Filter = {
 export enum AssetBalance_OrderBy {
   Id = "id",
   Amount = "amount",
-  Router = "router"
+  Router = "router",
 }
-
-
 
 export type Block_Height = {
   hash?: Maybe<Scalars["Bytes"]>;
   number?: Maybe<Scalars["Int"]>;
 };
 
-
 export enum OrderDirection {
   Asc = "asc",
-  Desc = "desc"
+  Desc = "desc",
 }
 
 export type Query = {
@@ -91,12 +88,10 @@ export type Query = {
   _meta?: Maybe<_Meta_>;
 };
 
-
 export type QueryAssetBalanceArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type QueryAssetBalancesArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -107,12 +102,10 @@ export type QueryAssetBalancesArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type QueryRouterArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type QueryRoutersArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -123,12 +116,10 @@ export type QueryRoutersArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type QueryTransactionArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type QueryTransactionsArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -139,12 +130,10 @@ export type QueryTransactionsArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type QueryUserArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type QueryUsersArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -154,7 +143,6 @@ export type QueryUsersArgs = {
   where?: Maybe<User_Filter>;
   block?: Maybe<Block_Height>;
 };
-
 
 export type Query_MetaArgs = {
   block?: Maybe<Block_Height>;
@@ -167,7 +155,6 @@ export type Router = {
   transactions: Array<Transaction>;
 };
 
-
 export type RouterAssetBalancesArgs = {
   skip?: Maybe<Scalars["Int"]>;
   first?: Maybe<Scalars["Int"]>;
@@ -175,7 +162,6 @@ export type RouterAssetBalancesArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<AssetBalance_Filter>;
 };
-
 
 export type RouterTransactionsArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -199,7 +185,7 @@ export type Router_Filter = {
 export enum Router_OrderBy {
   Id = "id",
   AssetBalances = "assetBalances",
-  Transactions = "transactions"
+  Transactions = "transactions",
 }
 
 export type Subscription = {
@@ -216,12 +202,10 @@ export type Subscription = {
   _meta?: Maybe<_Meta_>;
 };
 
-
 export type SubscriptionAssetBalanceArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type SubscriptionAssetBalancesArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -232,12 +216,10 @@ export type SubscriptionAssetBalancesArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type SubscriptionRouterArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type SubscriptionRoutersArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -248,12 +230,10 @@ export type SubscriptionRoutersArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type SubscriptionTransactionArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type SubscriptionTransactionsArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -264,12 +244,10 @@ export type SubscriptionTransactionsArgs = {
   block?: Maybe<Block_Height>;
 };
 
-
 export type SubscriptionUserArgs = {
   id: Scalars["ID"];
   block?: Maybe<Block_Height>;
 };
-
 
 export type SubscriptionUsersArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -279,7 +257,6 @@ export type SubscriptionUsersArgs = {
   where?: Maybe<User_Filter>;
   block?: Maybe<Block_Height>;
 };
-
 
 export type Subscription_MetaArgs = {
   block?: Maybe<Block_Height>;
@@ -325,7 +302,7 @@ export type Transaction = {
 export enum TransactionStatus {
   Prepared = "Prepared",
   Fulfilled = "Fulfilled",
-  Cancelled = "Cancelled"
+  Cancelled = "Cancelled",
 }
 
 export type Transaction_Filter = {
@@ -606,7 +583,7 @@ export enum Transaction_OrderBy {
   FulfillCaller = "fulfillCaller",
   FulfillTransactionHash = "fulfillTransactionHash",
   CancelCaller = "cancelCaller",
-  CancelTransactionHash = "cancelTransactionHash"
+  CancelTransactionHash = "cancelTransactionHash",
 }
 
 export type User = {
@@ -614,7 +591,6 @@ export type User = {
   id: Scalars["ID"];
   transactions: Array<Transaction>;
 };
-
 
 export type UserTransactionsArgs = {
   skip?: Maybe<Scalars["Int"]>;
@@ -637,7 +613,7 @@ export type User_Filter = {
 
 export enum User_OrderBy {
   Id = "id",
-  Transactions = "transactions"
+  Transactions = "transactions",
 }
 
 export type _Block_ = {
@@ -669,7 +645,7 @@ export enum _SubgraphErrorPolicy_ {
   /** Data will be returned even if the subgraph has indexing errors */
   Allow = "allow",
   /** If the subgraph has indexing errors, data will be omitted. The default. */
-  Deny = "deny"
+  Deny = "deny",
 }
 
 export type GetSenderTransactionsQueryVariables = Exact<{
@@ -678,8 +654,42 @@ export type GetSenderTransactionsQueryVariables = Exact<{
   status?: Maybe<TransactionStatus>;
 }>;
 
-
-export type GetSenderTransactionsQuery = { __typename?: "Query", router?: Maybe<{ __typename?: "Router", transactions: Array<{ __typename?: "Transaction", id: string, status: TransactionStatus, chainId: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: "User", id: string }, router: { __typename?: "Router", id: string } }> }> };
+export type GetSenderTransactionsQuery = {
+  __typename?: "Query";
+  router?: Maybe<{
+    __typename?: "Router";
+    transactions: Array<{
+      __typename?: "Transaction";
+      id: string;
+      status: TransactionStatus;
+      chainId: any;
+      receivingChainTxManagerAddress: any;
+      sendingAssetId: any;
+      receivingAssetId: any;
+      sendingChainFallback: any;
+      receivingAddress: any;
+      callTo: any;
+      sendingChainId: any;
+      receivingChainId: any;
+      callDataHash: any;
+      transactionId: any;
+      amount: any;
+      expiry: any;
+      preparedBlockNumber: any;
+      encryptedCallData: string;
+      encodedBid: any;
+      bidSignature: any;
+      prepareCaller?: Maybe<any>;
+      fulfillCaller?: Maybe<any>;
+      cancelCaller?: Maybe<any>;
+      prepareTransactionHash: any;
+      fulfillTransactionHash?: Maybe<any>;
+      cancelTransactionHash?: Maybe<any>;
+      user: { __typename?: "User"; id: string };
+      router: { __typename?: "Router"; id: string };
+    }>;
+  }>;
+};
 
 export type GetReceiverTransactionsQueryVariables = Exact<{
   routerId: Scalars["ID"];
@@ -688,82 +698,224 @@ export type GetReceiverTransactionsQueryVariables = Exact<{
   expiry_lt?: Maybe<Scalars["BigInt"]>;
 }>;
 
-
-export type GetReceiverTransactionsQuery = { __typename?: "Query", router?: Maybe<{ __typename?: "Router", transactions: Array<{ __typename?: "Transaction", id: string, status: TransactionStatus, chainId: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: "User", id: string }, router: { __typename?: "Router", id: string } }> }> };
+export type GetReceiverTransactionsQuery = {
+  __typename?: "Query";
+  router?: Maybe<{
+    __typename?: "Router";
+    transactions: Array<{
+      __typename?: "Transaction";
+      id: string;
+      status: TransactionStatus;
+      chainId: any;
+      receivingChainTxManagerAddress: any;
+      sendingAssetId: any;
+      receivingAssetId: any;
+      sendingChainFallback: any;
+      receivingAddress: any;
+      callTo: any;
+      sendingChainId: any;
+      receivingChainId: any;
+      callDataHash: any;
+      transactionId: any;
+      amount: any;
+      expiry: any;
+      preparedBlockNumber: any;
+      encryptedCallData: string;
+      encodedBid: any;
+      bidSignature: any;
+      prepareCaller?: Maybe<any>;
+      fulfillCaller?: Maybe<any>;
+      cancelCaller?: Maybe<any>;
+      prepareTransactionHash: any;
+      fulfillTransactionHash?: Maybe<any>;
+      cancelTransactionHash?: Maybe<any>;
+      user: { __typename?: "User"; id: string };
+      router: { __typename?: "Router"; id: string };
+    }>;
+  }>;
+};
 
 export type GetTransactionQueryVariables = Exact<{
   transactionId: Scalars["ID"];
 }>;
 
-
-export type GetTransactionQuery = { __typename?: "Query", transaction?: Maybe<{ __typename?: "Transaction", id: string, status: TransactionStatus, chainId: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: "User", id: string }, router: { __typename?: "Router", id: string } }> };
+export type GetTransactionQuery = {
+  __typename?: "Query";
+  transaction?: Maybe<{
+    __typename?: "Transaction";
+    id: string;
+    status: TransactionStatus;
+    chainId: any;
+    receivingChainTxManagerAddress: any;
+    sendingAssetId: any;
+    receivingAssetId: any;
+    sendingChainFallback: any;
+    receivingAddress: any;
+    callTo: any;
+    sendingChainId: any;
+    receivingChainId: any;
+    callDataHash: any;
+    transactionId: any;
+    amount: any;
+    expiry: any;
+    preparedBlockNumber: any;
+    encryptedCallData: string;
+    encodedBid: any;
+    bidSignature: any;
+    relayerFee?: Maybe<any>;
+    signature?: Maybe<any>;
+    prepareCaller?: Maybe<any>;
+    fulfillCaller?: Maybe<any>;
+    cancelCaller?: Maybe<any>;
+    prepareTransactionHash: any;
+    fulfillTransactionHash?: Maybe<any>;
+    cancelTransactionHash?: Maybe<any>;
+    user: { __typename?: "User"; id: string };
+    router: { __typename?: "Router"; id: string };
+  }>;
+};
 
 export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars["Bytes"]> | Scalars["Bytes"]>;
 }>;
 
-
-export type GetTransactionsQuery = { __typename?: "Query", transactions: Array<{ __typename?: "Transaction", id: string, status: TransactionStatus, chainId: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: "User", id: string }, router: { __typename?: "Router", id: string } }> };
+export type GetTransactionsQuery = {
+  __typename?: "Query";
+  transactions: Array<{
+    __typename?: "Transaction";
+    id: string;
+    status: TransactionStatus;
+    chainId: any;
+    receivingChainTxManagerAddress: any;
+    sendingAssetId: any;
+    receivingAssetId: any;
+    sendingChainFallback: any;
+    receivingAddress: any;
+    callTo: any;
+    sendingChainId: any;
+    receivingChainId: any;
+    callDataHash: any;
+    transactionId: any;
+    amount: any;
+    expiry: any;
+    preparedBlockNumber: any;
+    relayerFee?: Maybe<any>;
+    signature?: Maybe<any>;
+    callData?: Maybe<string>;
+    prepareCaller?: Maybe<any>;
+    fulfillCaller?: Maybe<any>;
+    cancelCaller?: Maybe<any>;
+    prepareTransactionHash: any;
+    fulfillTransactionHash?: Maybe<any>;
+    cancelTransactionHash?: Maybe<any>;
+    user: { __typename?: "User"; id: string };
+    router: { __typename?: "Router"; id: string };
+  }>;
+};
 
 export type GetAssetBalanceQueryVariables = Exact<{
   assetBalanceId: Scalars["ID"];
 }>;
 
-
-export type GetAssetBalanceQuery = { __typename?: "Query", assetBalance?: Maybe<{ __typename?: "AssetBalance", amount: any }> };
-
+export type GetAssetBalanceQuery = {
+  __typename?: "Query";
+  assetBalance?: Maybe<{ __typename?: "AssetBalance"; amount: any }>;
+};
 
 export const GetSenderTransactionsDocument = gql`
-    query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
-  router(id: $routerId) {
-    transactions(
-      where: {status: $status, sendingChainId: $sendingChainId}
-      orderBy: preparedBlockNumber
-      orderDirection: desc
-    ) {
-      id
-      status
-      chainId
-      user {
+  query GetSenderTransactions($routerId: ID!, $sendingChainId: BigInt!, $status: TransactionStatus) {
+    router(id: $routerId) {
+      transactions(
+        where: { status: $status, sendingChainId: $sendingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
         id
+        status
+        chainId
+        user {
+          id
+        }
+        router {
+          id
+        }
+        receivingChainTxManagerAddress
+        sendingAssetId
+        receivingAssetId
+        sendingChainFallback
+        receivingAddress
+        callTo
+        sendingChainId
+        receivingChainId
+        callDataHash
+        transactionId
+        amount
+        expiry
+        preparedBlockNumber
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
+        fulfillCaller
+        cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
       }
-      router {
-        id
-      }
-      receivingChainTxManagerAddress
-      sendingAssetId
-      receivingAssetId
-      sendingChainFallback
-      receivingAddress
-      callTo
-      sendingChainId
-      receivingChainId
-      callDataHash
-      transactionId
-      amount
-      expiry
-      preparedBlockNumber
-      encryptedCallData
-      encodedBid
-      bidSignature
-      prepareCaller
-      fulfillCaller
-      cancelCaller
-      prepareTransactionHash
-      fulfillTransactionHash
-      cancelTransactionHash
     }
   }
-}
-    `;
+`;
 export const GetReceiverTransactionsDocument = gql`
-    query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus, $expiry_lt: BigInt) {
-  router(id: $routerId) {
-    transactions(
-      where: {status: $status, receivingChainId: $receivingChainId}
-      orderBy: preparedBlockNumber
-      orderDirection: desc
-    ) {
+  query GetReceiverTransactions(
+    $routerId: ID!
+    $receivingChainId: BigInt!
+    $status: TransactionStatus
+    $expiry_lt: BigInt
+  ) {
+    router(id: $routerId) {
+      transactions(
+        where: { status: $status, receivingChainId: $receivingChainId }
+        orderBy: preparedBlockNumber
+        orderDirection: desc
+      ) {
+        id
+        status
+        chainId
+        user {
+          id
+        }
+        router {
+          id
+        }
+        receivingChainTxManagerAddress
+        sendingAssetId
+        receivingAssetId
+        sendingChainFallback
+        receivingAddress
+        callTo
+        sendingChainId
+        receivingChainId
+        callDataHash
+        transactionId
+        amount
+        expiry
+        preparedBlockNumber
+        encryptedCallData
+        encodedBid
+        bidSignature
+        prepareCaller
+        fulfillCaller
+        cancelCaller
+        prepareTransactionHash
+        fulfillTransactionHash
+        cancelTransactionHash
+      }
+    }
+  }
+`;
+export const GetTransactionDocument = gql`
+  query GetTransaction($transactionId: ID!) {
+    transaction(id: $transactionId) {
       id
       status
       chainId
@@ -789,6 +941,8 @@ export const GetReceiverTransactionsDocument = gql`
       encryptedCallData
       encodedBid
       bidSignature
+      relayerFee
+      signature
       prepareCaller
       fulfillCaller
       cancelCaller
@@ -797,92 +951,52 @@ export const GetReceiverTransactionsDocument = gql`
       cancelTransactionHash
     }
   }
-}
-    `;
-export const GetTransactionDocument = gql`
-    query GetTransaction($transactionId: ID!) {
-  transaction(id: $transactionId) {
-    id
-    status
-    chainId
-    user {
-      id
-    }
-    router {
-      id
-    }
-    receivingChainTxManagerAddress
-    sendingAssetId
-    receivingAssetId
-    sendingChainFallback
-    receivingAddress
-    callTo
-    sendingChainId
-    receivingChainId
-    callDataHash
-    transactionId
-    amount
-    expiry
-    preparedBlockNumber
-    encryptedCallData
-    encodedBid
-    bidSignature
-    relayerFee
-    signature
-    prepareCaller
-    fulfillCaller
-    cancelCaller
-    prepareTransactionHash
-    fulfillTransactionHash
-    cancelTransactionHash
-  }
-}
-    `;
+`;
 export const GetTransactionsDocument = gql`
-    query GetTransactions($transactionIds: [Bytes!]) {
-  transactions(where: {transactionId_in: $transactionIds}) {
-    id
-    status
-    chainId
-    user {
+  query GetTransactions($transactionIds: [Bytes!]) {
+    transactions(where: { transactionId_in: $transactionIds }) {
       id
+      status
+      chainId
+      user {
+        id
+      }
+      router {
+        id
+      }
+      receivingChainTxManagerAddress
+      sendingAssetId
+      receivingAssetId
+      sendingChainFallback
+      receivingAddress
+      callTo
+      sendingChainId
+      receivingChainId
+      callDataHash
+      transactionId
+      amount
+      expiry
+      preparedBlockNumber
+      relayerFee
+      signature
+      callData
+      prepareCaller
+      fulfillCaller
+      cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
     }
-    router {
-      id
-    }
-    receivingChainTxManagerAddress
-    sendingAssetId
-    receivingAssetId
-    sendingChainFallback
-    receivingAddress
-    callTo
-    sendingChainId
-    receivingChainId
-    callDataHash
-    transactionId
-    amount
-    expiry
-    preparedBlockNumber
-    relayerFee
-    signature
-    callData
-    prepareCaller
-    fulfillCaller
-    cancelCaller
-    prepareTransactionHash
-    fulfillTransactionHash
-    cancelTransactionHash
   }
-}
-    `;
+`;
 export const GetAssetBalanceDocument = gql`
-    query GetAssetBalance($assetBalanceId: ID!) {
-  assetBalance(id: $assetBalanceId) {
-    amount
+  query GetAssetBalance($assetBalanceId: ID!) {
+    assetBalance(id: $assetBalanceId) {
+      amount
+    }
   }
-}
-    `;
-    export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never }>;
+`;
+export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never }>;
 export type GetBlockNumberQuery = {
   __typename?: "Query";
   _meta?: Maybe<{ __typename?: "_Meta_"; block: { __typename?: "_Block_"; number: number } }>;
@@ -897,36 +1011,92 @@ export const GetBlockNumberDocument = gql`
   }
 `;
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
-
+export type SdkFunctionWrapper = <T>(
+  action: (requestHeaders?: Record<string, string>) => Promise<T>,
+  operationName: string,
+) => Promise<T>;
 
 const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
 
 export function getSdk(client: FallbackSubgraph, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    GetSenderTransactions(variables: GetSenderTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetSenderTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetSenderTransactionsQuery>(GetSenderTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetSenderTransactions");
+    GetSenderTransactions(
+      variables: GetSenderTransactionsQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetSenderTransactionsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetSenderTransactionsQuery>(GetSenderTransactionsDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetSenderTransactions",
+      );
     },
-    GetReceiverTransactions(variables: GetReceiverTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReceiverTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetReceiverTransactionsQuery>(GetReceiverTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetReceiverTransactions");
+    GetReceiverTransactions(
+      variables: GetReceiverTransactionsQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetReceiverTransactionsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetReceiverTransactionsQuery>(GetReceiverTransactionsDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetReceiverTransactions",
+      );
     },
-    GetTransaction(variables: GetTransactionQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionQuery>(GetTransactionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetTransaction");
+    GetTransaction(
+      variables: GetTransactionQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetTransactionQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetTransactionQuery>(GetTransactionDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetTransaction",
+      );
     },
-    GetTransactions(variables?: GetTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionsQuery>(GetTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetTransactions");
+    GetTransactions(
+      variables?: GetTransactionsQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetTransactionsQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetTransactionsQuery>(GetTransactionsDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetTransactions",
+      );
     },
-    GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetAssetBalance");
+    GetAssetBalance(
+      variables: GetAssetBalanceQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetAssetBalanceQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetAssetBalance",
+      );
     },
-    UpdateSyncStatus(realBlockNumber: number, variables?: GetBlockNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]) {
+    UpdateSyncStatus(
+      realBlockNumber: number,
+      variables?: GetBlockNumberQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ) {
       return client.sync(realBlockNumber, async (client) => {
         const { _meta } = await withWrapper(
-          (wrappedRequestHeaders) => client.request<GetBlockNumberQuery>(
-            GetBlockNumberDocument,
-            variables,
-            {...requestHeaders, ...wrappedRequestHeaders}
-          ),
+          (wrappedRequestHeaders) =>
+            client.request<GetBlockNumberQuery>(GetBlockNumberDocument, variables, {
+              ...requestHeaders,
+              ...wrappedRequestHeaders,
+            }),
           "GetBlockNumber",
         );
         return _meta?.block.number ?? 0;

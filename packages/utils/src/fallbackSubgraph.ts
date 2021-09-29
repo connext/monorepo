@@ -67,19 +67,14 @@ export class FallbackSubgraph {
     const outOfSyncRecords = this.subgraphs.filter((subgraph) => !subgraph.synced);
     if (outOfSyncRecords.length > 0) {
       const allOutOfSync = outOfSyncRecords.length === this.subgraphs.length;
-      this.logger.warn(
-        `${allOutOfSync ? "ALL subgraphs" : "Subgraph(s)"} out of sync.`,
-        undefined,
-        methodContext,
-        {
-          chainId: this.chainId,
-          outOfSyncRecords: outOfSyncRecords.map((subgraph) => ({
-            uri: subgraph.uri,
-            latestBlock: subgraph.latestBlock,
-            syncedBlock: subgraph.syncedBlock,
-          })),
-        },
-      );
+      this.logger.warn(`${allOutOfSync ? "ALL subgraphs" : "Subgraph(s)"} out of sync.`, undefined, methodContext, {
+        chainId: this.chainId,
+        outOfSyncRecords: outOfSyncRecords.map((subgraph) => ({
+          uri: subgraph.uri,
+          latestBlock: subgraph.latestBlock,
+          syncedBlock: subgraph.syncedBlock,
+        })),
+      });
     }
   }
 }
