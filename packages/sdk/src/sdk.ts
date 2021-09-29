@@ -768,13 +768,15 @@ export class NxtpSdk {
     );
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
 
+    const { txData, encryptedCallData } = params;
+
     // Validate params schema
     const validate = ajv.compile(TransactionPrepareEventSchema);
     const valid = validate(params);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
+        transactionId: txData.transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
@@ -782,8 +784,6 @@ export class NxtpSdk {
       });
       throw error;
     }
-
-    const { txData, encryptedCallData } = params;
 
     const signerAddress = await this.config.signer.getAddress();
 
@@ -893,13 +893,14 @@ export class NxtpSdk {
     );
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
+    const { txData } = cancelParams;
     // Validate params schema
     const validate = ajv.compile(CancelSchema);
     const valid = validate(cancelParams);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("cancel", "CancelParams", msg, cancelParams, {
-        transactionId: cancelParams.txData.transactionId,
+        transactionId: txData.transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
