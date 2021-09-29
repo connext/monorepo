@@ -151,7 +151,7 @@ export class NxtpSdk {
     },
     private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
     network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling: boolean = false,
+    skipPolling = false,
   ) {
     const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
     if (messaging) {
