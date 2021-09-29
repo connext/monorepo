@@ -2,6 +2,31 @@
 
 ## Next Release
 
+- [txservice] Properly handle insufficient funds errors
+- [router] Log gas when there is low balance
+
+## 0.0.48
+
+- [txservice] Refactor
+- [txservice] Add serial submit
+
+## 0.0.47
+
+- [utils] Attempt fix on trust wallet again final final.
+
+## 0.0.46
+
+- [sdk] Fix calldata encryption.
+- [sdk] Subgraph buffer.
+- [sdk] Fix dryRun.
+- [sdk] Add Subgraph loop errors handling.
+- [sdk] Change NxtpSDK constructor params.
+- [router] Attempt to resolve expired receiver prepare transactions.
+
+## 0.0.45
+
+- [sdk] Attempt fix on trust wallet again.
+
 ## 0.0.44
 
 - [sdk] Attempt fix on trust wallet again.

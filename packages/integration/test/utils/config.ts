@@ -10,6 +10,7 @@ export type ChainConfig = {
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string;
+    gasStations: string[];
   };
 };
 

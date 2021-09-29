@@ -47,7 +47,12 @@ export const getSenderTransactionsQuery = gql`
 `;
 
 export const getReceiverTransactionsQuery = gql`
-  query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus) {
+  query GetReceiverTransactions(
+    $routerId: ID!
+    $receivingChainId: BigInt!
+    $status: TransactionStatus
+    $expiry_lt: BigInt
+  ) {
     router(id: $routerId) {
       transactions(
         where: { status: $status, receivingChainId: $receivingChainId }

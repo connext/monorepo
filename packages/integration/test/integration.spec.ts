@@ -278,8 +278,10 @@ describe("Integration", () => {
     }
 
     userSdk = new NxtpSdk(
-      chainProviders,
-      userWallet,
+      {
+        chainConfig: chainProviders,
+        signer: userWallet,
+      },
       new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
       "local",
     );

@@ -7,8 +7,8 @@ import {
   getRandomBytes32,
   InvariantTransactionData,
   VariantTransactionData,
+  expect,
 } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils/src/expect";
 import { utils, constants } from "ethers";
 
 import {
