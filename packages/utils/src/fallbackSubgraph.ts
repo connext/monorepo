@@ -42,35 +42,28 @@ export class FallbackSubgraph<T extends SdkLike> {
     }));
   }
 
-  public getSynced(weighted = true): T {
+  public getSynced(): T {
     const synced = this.synced;
     if (synced.length === 0) {
       throw new Error("No subgraphs available / in-sync!");
     }
 
-    // Get a random client to ensure we are varying which subgraph client we're using, but prefer
-    // clients that are most in-sync.
-    if (weighted) {
-      let total = 0;
-      const weightedClients = synced.map((sdk) => {
-        // weight will be inversely correlated with size of sync buffer/difference.
-        const weight = 1 / (sdk.record.latestBlock - sdk.record.syncedBlock);
-        total += weight;
-        return {
-          client: sdk.client,
-          weight: total,
-        };
-      });
-      const random = Math.random() * total;
-      for (const item of weightedClients) {
-        if (item.weight > random) {
-          return item.client;
-        }
+    // Quickest way to, in one loop, get the most in-sync clients.
+    let mostInSyncClients: T[] = [];
+    let bestSync = this.subgraphSyncBuffer + 1;
+    for (let i = 0; i < synced.length; i++) {
+      const sdk = synced[i];
+      const difference = sdk.record.latestBlock - sdk.record.syncedBlock;
+      if (difference < bestSync) {
+        mostInSyncClients = [sdk.client];
+        bestSync = difference;
+      } else if (difference === bestSync) {
+        mostInSyncClients.push(sdk.client);
       }
     }
 
-    // Elements will be sorted in ascending order, so we'll just take the first element - the most in-sync client.
-    return synced.sort((sdk) => sdk.record.latestBlock - sdk.record.syncedBlock)[0].client;
+    // Now we just return a random client out of the most in sync ones.
+    return mostInSyncClients[Math.floor(Math.random() * mostInSyncClients.length)];
   }
 
   public async sync(realBlockNumber: number): Promise<SubgraphSyncRecord[]> {
