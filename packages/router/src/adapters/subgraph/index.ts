@@ -1,5 +1,6 @@
 import { FallbackSubgraph, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers/lib/ethers";
+import { GraphQLClient } from "graphql-request";
 
 import { ActiveTransaction, SingleChainTransaction, SubgraphSyncRecord } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
@@ -28,9 +29,9 @@ export type ContractReader = {
   getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord>;
 };
 
-const sdks: Record<number, Sdk> = {};
+const sdks: Record<number, FallbackSubgraph<Sdk>> = {};
 
-export const getSdks = (): Record<number, Sdk> => {
+export const getSdks = (): Record<number, FallbackSubgraph<Sdk>> => {
   if (Object.keys(sdks).length === 0) {
     throw new ContractReaderNotAvailableForChain(0);
   }
@@ -39,9 +40,11 @@ export const getSdks = (): Record<number, Sdk> => {
 
 export const subgraphContractReader = (): ContractReader => {
   const { config, logger } = getContext();
-  Object.entries(config.chainConfig).forEach(([chainId, { subgraph }]) => {
+  Object.entries(config.chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer }]) => {
     const chainIdNumber = parseInt(chainId);
-    sdks[chainIdNumber] = getSdk(new FallbackSubgraph(logger, chainIdNumber, subgraph));
+    const sdksWithClients = subgraph.map((uri) => getSdk(new GraphQLClient(uri)));
+    const fallbackSubgraph = new FallbackSubgraph<Sdk>(logger, chainIdNumber, sdksWithClients, subgraphSyncBuffer);
+    sdks[chainIdNumber] = fallbackSubgraph;
   });
 
   return {

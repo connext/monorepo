@@ -72,7 +72,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
 
     logger.debug("Getting sync record", requestContext, methodContext, { chainId });
     const realBlockNumber = await txService.getBlockNumber(chainId);
-    return await sdk.UpdateSyncStatus(realBlockNumber);
+    return await sdk.sync(realBlockNumber);
   } catch (e) {
     logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(e), {
       chainId,
@@ -100,7 +100,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         throw new NoChainConfig(chainId);
       }
 
-      const allReceiverExpired = await sdk.GetReceiverTransactions({
+      const allReceiverExpired = await sdk.getSynced().GetReceiverTransactions({
         routerId: routerAddress.toLowerCase(),
         receivingChainId: chainId,
         status: SdkTransactionStatus.Prepared,
@@ -113,7 +113,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       });
 
       // get all sender prepared txs
-      const allSenderPrepared = await sdk.GetSenderTransactions({
+      const allSenderPrepared = await sdk.getSynced().GetSenderTransactions({
         routerId: routerAddress.toLowerCase(),
         sendingChainId: chainId,
         status: SdkTransactionStatus.Prepared,
@@ -175,7 +175,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             );
             return [];
           }
-          const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
+          const query = await _sdk.getSynced().GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
           return query.transactions;
         }),
       );
@@ -250,7 +250,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
           // we have a receiver tx at this point
           // if expired, return
-          if (currentTime > receiving.expiry && correspondingReceiverTx!.status === SdkTransactionStatus.Prepared) {
+          if (currentTime > receiving.expiry && correspondingReceiverTx.status === SdkTransactionStatus.Prepared) {
             return {
               crosschainTx: {
                 invariant,
@@ -262,7 +262,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             } as ActiveTransaction<"ReceiverExpired">;
           }
 
-          if (correspondingReceiverTx!.status === SdkTransactionStatus.Fulfilled) {
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -271,15 +271,15 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                 receiving,
               },
               payload: {
-                signature: correspondingReceiverTx!.signature,
-                relayerFee: correspondingReceiverTx!.relayerFee,
-                callData: correspondingReceiverTx!.callData!,
-                receiverFulfilledHash: correspondingReceiverTx!.fulfillTransactionHash,
+                signature: correspondingReceiverTx.signature,
+                relayerFee: correspondingReceiverTx.relayerFee,
+                callData: correspondingReceiverTx.callData!,
+                receiverFulfilledHash: correspondingReceiverTx.fulfillTransactionHash,
               },
               status: CrosschainTransactionStatus.ReceiverFulfilled,
             } as ActiveTransaction<"ReceiverFulfilled">;
           }
-          if (correspondingReceiverTx!.status === SdkTransactionStatus.Cancelled) {
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Cancelled) {
             // receiver cancelled
             return {
               crosschainTx: {
@@ -329,7 +329,7 @@ export const getTransactionForChain = async (
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
-  const tx = await sdk.GetTransaction({
+  const tx = await sdk.getSynced().GetTransaction({
     transactionId: `${transactionId.toLowerCase()}-${user.toLowerCase()}-${routerAddress.toLowerCase()}`,
   });
 
@@ -380,6 +380,6 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
   }
 
   const assetBalanceId = `${assetId.toLowerCase()}-${wallet.address.toLowerCase()}`;
-  const bal = await sdk.GetAssetBalance({ assetBalanceId });
+  const bal = await sdk.getSynced().GetAssetBalance({ assetBalanceId });
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };

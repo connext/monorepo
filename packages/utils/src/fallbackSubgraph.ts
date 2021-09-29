@@ -1,78 +1,72 @@
-import { GraphQLClient } from "graphql-request";
-import { Variables, RequestDocument } from "graphql-request/dist/types";
-import { Headers } from "graphql-request/dist/types.dom";
-
 import { Logger } from "./logger";
 import { createLoggingContext } from "./request";
 
-export type SubgraphSyncRecord = {
-  client: GraphQLClient;
-  uri: string;
+export type Sdk<T> = {
+  client: T;
   synced: boolean;
   latestBlock: number;
   syncedBlock: number;
 };
 
-export class FallbackSubgraph {
-  private readonly subgraphs: SubgraphSyncRecord[];
+export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }> {
+  private readonly sdks: Sdk<T>[];
+
+  private get synced(): Sdk<T>[] {
+    return this.sdks.filter((sdk) => sdk.synced);
+  }
+
+  private get outOfSync(): Sdk<T>[] {
+    return this.sdks.filter((sdk) => !sdk.synced);
+  }
 
   constructor(
     private readonly logger: Logger,
     private readonly chainId: number,
-    private readonly uris: string[],
-    private readonly allowUnsynced: number = 1,
+    sdks: T[],
+    // Subgraph is considered out of sync if it is more than this many blocks behind the latest block.
+    private readonly subgraphSyncBuffer: number,
   ) {
-    this.subgraphs = this.uris.map((uri) => ({
-      client: new GraphQLClient(uri),
-      uri,
+    this.sdks = sdks.map((client) => ({
+      client,
       synced: false,
       latestBlock: 0,
       syncedBlock: 0,
     }));
   }
 
-  public request<T = any, V = Variables>(
-    document: RequestDocument,
-    variables?: V,
-    requestHeaders?: Headers | string[][] | Record<string, string>,
-  ): Promise<T> {
-    for (const subgraph of this.subgraphs) {
-      try {
-        if (subgraph.synced) {
-          return subgraph.client.request(document, variables, requestHeaders);
-        }
-      } catch (e) {
-        continue;
-      }
+  public getSynced(): T {
+    const synced = this.synced;
+    if (synced.length === 0) {
+      throw new Error("No subgraphs available / in-sync!");
     }
-    throw new Error("No subgraphs available / in-sync!");
+    // Get a random client to ensure we are varying which subgraph client we're using.
+    return synced[Math.floor(Math.random() * synced.length)].client;
   }
 
-  public async sync(realBlockNumber: number, getBlockNumberCallback: (client: GraphQLClient) => Promise<number>) {
+  public async sync(realBlockNumber: number) {
     const { methodContext } = createLoggingContext(this.sync.name);
     this.logger.debug("Getting sync records.", undefined, methodContext, {
       chainId: this.chainId,
-      uris: this.uris,
     });
-    for (let i = 0; i < this.subgraphs.length; i++) {
-      const subgraphBlockNumber = await getBlockNumberCallback(this.subgraphs[i].client);
-      if (realBlockNumber - subgraphBlockNumber > this.allowUnsynced) {
-        this.subgraphs[i].synced = false;
+    for (let i = 0; i < this.sdks.length; i++) {
+      const { _meta } = await this.sdks[i].client.GetBlockNumber();
+      const subgraphBlockNumber = _meta.block.number ?? 0;
+      if (realBlockNumber - subgraphBlockNumber > this.subgraphSyncBuffer) {
+        this.sdks[i].synced = false;
       } else {
-        this.subgraphs[i].synced = true;
+        this.sdks[i].synced = true;
       }
-      this.subgraphs[i].latestBlock = realBlockNumber;
-      this.subgraphs[i].syncedBlock = subgraphBlockNumber;
+      this.sdks[i].latestBlock = realBlockNumber;
+      this.sdks[i].syncedBlock = subgraphBlockNumber;
     }
-    const outOfSyncRecords = this.subgraphs.filter((subgraph) => !subgraph.synced);
+    const outOfSyncRecords = this.outOfSync;
     if (outOfSyncRecords.length > 0) {
-      const allOutOfSync = outOfSyncRecords.length === this.subgraphs.length;
-      this.logger.warn(`${allOutOfSync ? "ALL subgraphs" : "Subgraph(s)"} out of sync.`, undefined, methodContext, {
+      this.logger.warn("Subgraph client(s) out of sync.", undefined, methodContext, {
         chainId: this.chainId,
-        outOfSyncRecords: outOfSyncRecords.map((subgraph) => ({
-          uri: subgraph.uri,
-          latestBlock: subgraph.latestBlock,
-          syncedBlock: subgraph.syncedBlock,
+        allOutOfSync: outOfSyncRecords.length === this.sdks.length,
+        outOfSyncRecords: outOfSyncRecords.map((sdk) => ({
+          latestBlock: sdk.latestBlock,
+          syncedBlock: sdk.syncedBlock,
         })),
       });
     }
