@@ -70,6 +70,21 @@ export class ChainReader {
       return result.value;
     }
   }
+  /**
+   * Get the current gas price for the chain for which this instance is servicing.
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @param requestContext - The request context.
+   * @returns BigNumber representing the current gas price.
+   */
+  public async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
+    const result = await this.getProvider(chainId).getGasPrice(requestContext);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
 
   /**
    * Gets the decimals for an asset by chainId

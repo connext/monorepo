@@ -94,7 +94,7 @@ describe("Auction Operation", () => {
       );
     });
 
-    it("happy: should return auction bid for a valid swap", async () => {
+    it("happy: should return auction bid for first valid swap and should return rate exceeded error for second valid swap", async () => {
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -119,6 +119,8 @@ describe("Auction Operation", () => {
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
+
+      await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Auction rate exceeded");
     });
   });
 });

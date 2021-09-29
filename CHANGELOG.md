@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [txservice] Properly handle insufficient funds errors
+- [router] Log gas when there is low balance
+
 ## 0.0.48
 
 - [txservice] Refactor

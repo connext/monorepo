@@ -7,7 +7,7 @@ import {
   signAuctionBid,
   createLoggingContext,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
+import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
@@ -21,8 +21,9 @@ import {
   ParamsInvalid,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
+import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -91,8 +92,23 @@ export const newAuction = async (
     });
   }
 
-  // Validate expiry is valid (greater than current time plus a buffer).
   const currentTime = await getNtpTimeSeconds();
+
+  // Validate request limit
+  const lastAttemptTime = AUCTION_REQUEST_MAP.get(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+  ) as number;
+  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime * 1000) {
+    throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
+      methodContext,
+      requestContext,
+      lastAttemptTime,
+      currentTime,
+      minimalPeriod: config.requestLimit,
+    });
+  }
+
+  // Validate expiry is valid (greater than current time plus a buffer).
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodContext,
@@ -189,6 +205,18 @@ export const newAuction = async (
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });
+
+  // Log if gas is low, but above min
+  const LOW_GAS = parseEther("0.1");
+  if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+    logger.warn("Router has low gas", requestContext, methodContext, {
+      sendingChainId,
+      receivingChainId,
+      senderBalance: formatEther(senderBalance),
+      receiverBalance: formatEther(receiverBalance),
+    });
+  }
+
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodContext,
@@ -231,5 +259,10 @@ export const newAuction = async (
 
   const bidSignature = await signAuctionBid(bid, wallet);
   logger.info("Method complete", requestContext, methodContext, { bidSignature });
+
+  AUCTION_REQUEST_MAP.set(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+    currentTime * 1000,
+  );
   return { bid, bidSignature: dryRun ? undefined : bidSignature };
 };
