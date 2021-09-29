@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [contracts] Final updates from auditor
 - [txservice] Properly handle insufficient funds errors
 - [router] Log gas when there is low balance
 - [router] Properly default signature on admin cancel endpoint
