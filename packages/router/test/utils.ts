@@ -29,6 +29,7 @@ export const configMock: NxtpRouterConfig = {
       minGas: "100",
       safeRelayerFee: "1000",
       subgraphSyncBuffer: 10,
+      gasStations: [],
     },
     1338: {
       confirmations: 1,
@@ -38,6 +39,7 @@ export const configMock: NxtpRouterConfig = {
       minGas: "100",
       safeRelayerFee: "1000",
       subgraphSyncBuffer: 10,
+      gasStations: [],
     },
   },
   mnemonic: "hello world",

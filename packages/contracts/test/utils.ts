@@ -12,8 +12,12 @@ export const deployContract = async <T extends Contract = Contract>(
   factoryInfo: string | Artifact,
   ...args: any[]
 ): Promise<T> => {
-  const factoryArgs = typeof factoryInfo === "string" ? [factoryInfo] : [factoryInfo.abi, factoryInfo.bytecode];
-  const factory = (await ethers.getContractFactory(...factoryArgs)) as ContractFactory;
+  let factory: ContractFactory;
+  if (typeof factoryInfo === "string") {
+    factory = (await ethers.getContractFactory(factoryInfo)) as ContractFactory;
+  } else {
+    factory = await ethers.getContractFactory(factoryInfo.abi, factoryInfo.bytecode);
+  }
   const contract = await factory.deploy(...args, {
     maxFeePerGas: MAX_FEE_PER_GAS,
   });
