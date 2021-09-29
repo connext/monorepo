@@ -30,6 +30,7 @@
     // We want to be as strict as we can...
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
+    "useUnknownInCatchVariables": false,
     "strict": true
 
     // ...but you may want to disable some things if they cause pain.
