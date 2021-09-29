@@ -10,6 +10,7 @@ import { providers, BigNumber } from "ethers";
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
+import { NotAllowedFulfillRelay } from "../errors/fulfill";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -60,8 +61,20 @@ export const fulfill = async (
   // Only check for relayer fee at receiving side
   if (fulfillChain === invariantData.receivingChainId) {
     const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
+
     if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
       throw new NotEnoughRelayerFee(fulfillChain, {
+        methodContext,
+        requestContext,
+        relayerFee: input.relayerFee,
+        relayerFeeLowerBound: relayerFeeLowerBound,
+        invariantData,
+        input,
+      });
+    }
+    const allowFulfillRelay = BigNumber.from(relayerFeeLowerBound).gt(0);
+    if (!allowFulfillRelay && BigNumber.from(relayerFee).gt(0)) {
+      throw new NotAllowedFulfillRelay(fulfillChain, {
         methodContext,
         requestContext,
         relayerFee: input.relayerFee,

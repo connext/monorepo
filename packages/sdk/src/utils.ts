@@ -1,4 +1,4 @@
-import { constants, providers, Contract } from "ethers";
+import { constants, providers, Contract, BigNumber } from "ethers";
 import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
@@ -72,7 +72,7 @@ export const getTokenPrice = async (
   oralceAddress: string,
   tokenAddress: string,
   provider: providers.FallbackProvider,
-) => {
+): Promise<BigNumber> => {
   const priceOracleContract = new Contract(oralceAddress, PriceOracleAbi, provider);
   const tokenPriceInBigNum = await priceOracleContract.getTokenPrice(tokenAddress);
   return tokenPriceInBigNum;

@@ -57,6 +57,7 @@ describe("NxtpSdk", () => {
   let ethereumRequestMock: SinonStub;
   let encryptMock: SinonStub;
   let balanceStub: SinonStub;
+  let transactionManagerStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -79,11 +80,13 @@ describe("NxtpSdk", () => {
         provider: provider1337,
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
       [receivingChainId]: {
         provider: provider1338,
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
     };
     signer = createStubInstance(Wallet);
@@ -93,6 +96,7 @@ describe("NxtpSdk", () => {
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getDecimals").resolves(18);
+    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
     balanceStub = stub(utils, "getOnchainBalance");
@@ -788,6 +792,7 @@ describe("NxtpSdk", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
       stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
       setTimeout(() => {
@@ -813,6 +818,7 @@ describe("NxtpSdk", () => {
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
 
       const transactionHash = mkHash("0xc");
 

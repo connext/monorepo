@@ -814,7 +814,6 @@ export class NxtpSdk {
         txData.receivingChainTxManagerAddress,
         this.config.signer,
       );
-
       const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
         relayerFee,
         signature: signatureForFee,

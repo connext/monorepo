@@ -388,34 +388,14 @@ export class TransactionManager {
       fulfillParams.txData.transactionId,
     );
 
-    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
-
     const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
     if (!transactionManager || !provider) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const signer = this.getConnectedSigner(provider);
-    const connected = transactionManager.connect(signer);
-    const { txData, relayerFee, signature, callData } = fulfillParams;
-
-    // get gas limit
-    let gasLimit;
-    try {
-      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
-
-    // get gas price
-    let gasPrice;
-    try {
-      gasPrice = await provider.getGasPrice();
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
+    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
+    const gasAmount = await this.calculateGasAmountForFulfill(chainId, fulfillParams);
+    const { txData } = fulfillParams;
 
     const ethPriceInUsd = await getTokenPrice(
       this.chainConfig[chainId]?.priceOracleAddress,
@@ -431,12 +411,48 @@ export class TransactionManager {
 
     const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
 
-    const tokenAmount = gasLimit
-      .mul(gasPrice)
+    const tokenAmount = gasAmount
       .mul(ethPriceInUsd)
       .div(receivingTokenPriceInUsd)
       .div(BigNumber.from(10).pow(18 - outputDecimals));
 
     return tokenAmount;
+  }
+
+  /**
+   * Calculates gas amount for fulfill tranactions
+   *
+   * @param chainId The network identifier
+   * @param fulfillParams The params used for fulfill transactions
+   */
+  async calculateGasAmountForFulfill(chainId: number, fulfillParams: FulfillParams): Promise<BigNumber> {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
+
+    const signer = this.getConnectedSigner(provider);
+    const connected = transactionManager.connect(signer);
+    const { txData, relayerFee, signature, callData } = fulfillParams;
+
+    // get gas limit
+    let gasLimit = BigNumber.from(0);
+    try {
+      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData);
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    // get gas price
+    let gasPrice = BigNumber.from(0);
+    try {
+      gasPrice = await provider.getGasPrice();
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    return gasLimit.mul(gasPrice);
   }
 }
