@@ -190,6 +190,7 @@ export const newAuction = async (
       methodContext,
       requestContext,
       balance: balance.toString(),
+      amountReceived: amountReceived.toString(),
       amount,
       receivingAssetId,
       receivingChainId,
