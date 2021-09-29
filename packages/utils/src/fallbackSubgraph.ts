@@ -57,7 +57,7 @@ export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }>
     for (let i = 0; i < this.sdks.length; i++) {
       const { _meta } = await this.sdks[i].client.GetBlockNumber();
       const subgraphBlockNumber = _meta.block.number ?? 0;
-      const synced = (realBlockNumber - subgraphBlockNumber > this.subgraphSyncBuffer);
+      const synced = (realBlockNumber - subgraphBlockNumber) <= this.subgraphSyncBuffer;
       this.sdks[i].record = {
         synced,
         latestBlock: realBlockNumber,

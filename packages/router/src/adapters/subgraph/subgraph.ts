@@ -56,7 +56,7 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
   };
 };
 
-const setSyncRecord = async (chainId: number, requestContext: RequestContext) => {
+const setSyncRecord = async (chainId: number, requestContext: RequestContext): Promise<SubgraphSyncRecord[]> => {
   // get global context
   const { logger, txService, config } = getContext();
 
@@ -74,10 +74,10 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
     const realBlockNumber = await txService.getBlockNumber(chainId);
     return await sdk.sync(realBlockNumber);
   } catch (e) {
-    logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(e), {
+    logger.error("Error getting sync status for chain", requestContext, methodContext, jsonifyError(e), {
       chainId,
     });
-    return { synced: false, latestBlock: 0, syncedBlock: 0 };
+    return [{ synced: false, latestBlock: 0, syncedBlock: 0 }];
   }
 };
 
