@@ -23,8 +23,8 @@ import {
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
