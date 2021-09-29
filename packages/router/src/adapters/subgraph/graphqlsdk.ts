@@ -927,7 +927,7 @@ export function getSdk(client: FallbackSubgraph, withWrapper: SdkFunctionWrapper
             variables,
             {...requestHeaders, ...wrappedRequestHeaders}
           ),
-          "GetBlockNumber"
+          "GetBlockNumber",
         );
         return _meta?.block.number ?? 0;
       });
