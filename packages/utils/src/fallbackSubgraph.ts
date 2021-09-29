@@ -1,22 +1,26 @@
 import { Logger } from "./logger";
 import { createLoggingContext } from "./request";
 
-export type Sdk<T> = {
-  client: T;
+export type SubgraphSyncRecord = {
   synced: boolean;
   latestBlock: number;
   syncedBlock: number;
+}
+
+type Sdk<T> = {
+  client: T;
+  record: SubgraphSyncRecord;
 };
 
 export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }> {
   private readonly sdks: Sdk<T>[];
 
   private get synced(): Sdk<T>[] {
-    return this.sdks.filter((sdk) => sdk.synced);
+    return this.sdks.filter((sdk) => sdk.record.synced);
   }
 
   private get outOfSync(): Sdk<T>[] {
-    return this.sdks.filter((sdk) => !sdk.synced);
+    return this.sdks.filter((sdk) => !sdk.record.synced);
   }
 
   constructor(
@@ -28,9 +32,11 @@ export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }>
   ) {
     this.sdks = sdks.map((client) => ({
       client,
-      synced: false,
-      latestBlock: 0,
-      syncedBlock: 0,
+      record: {
+        synced: false,
+        latestBlock: 0,
+        syncedBlock: 0,
+      },
     }));
   }
 
@@ -43,7 +49,7 @@ export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }>
     return synced[Math.floor(Math.random() * synced.length)].client;
   }
 
-  public async sync(realBlockNumber: number) {
+  public async sync(realBlockNumber: number): Promise<SubgraphSyncRecord[]> {
     const { methodContext } = createLoggingContext(this.sync.name);
     this.logger.debug("Getting sync records.", undefined, methodContext, {
       chainId: this.chainId,
@@ -51,13 +57,12 @@ export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }>
     for (let i = 0; i < this.sdks.length; i++) {
       const { _meta } = await this.sdks[i].client.GetBlockNumber();
       const subgraphBlockNumber = _meta.block.number ?? 0;
-      if (realBlockNumber - subgraphBlockNumber > this.subgraphSyncBuffer) {
-        this.sdks[i].synced = false;
-      } else {
-        this.sdks[i].synced = true;
-      }
-      this.sdks[i].latestBlock = realBlockNumber;
-      this.sdks[i].syncedBlock = subgraphBlockNumber;
+      const synced = (realBlockNumber - subgraphBlockNumber > this.subgraphSyncBuffer);
+      this.sdks[i].record = {
+        synced,
+        latestBlock: realBlockNumber,
+        syncedBlock: subgraphBlockNumber,
+      };
     }
     const outOfSyncRecords = this.outOfSync;
     if (outOfSyncRecords.length > 0) {
@@ -65,10 +70,11 @@ export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any>; }>
         chainId: this.chainId,
         allOutOfSync: outOfSyncRecords.length === this.sdks.length,
         outOfSyncRecords: outOfSyncRecords.map((sdk) => ({
-          latestBlock: sdk.latestBlock,
-          syncedBlock: sdk.syncedBlock,
+          latestBlock: sdk.record.latestBlock,
+          syncedBlock: sdk.record.syncedBlock,
         })),
       });
     }
+    return this.sdks.map((sdk) => sdk.record);
   }
 }

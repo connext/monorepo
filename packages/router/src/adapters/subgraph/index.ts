@@ -1,8 +1,8 @@
-import { FallbackSubgraph, RequestContext } from "@connext/nxtp-utils";
+import { FallbackSubgraph, RequestContext, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { ActiveTransaction, SingleChainTransaction, SubgraphSyncRecord } from "../../lib/entities";
+import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
 import { getContext } from "../../router";
 
@@ -26,7 +26,7 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord>;
+  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
 const sdks: Record<number, FallbackSubgraph<Sdk>> = {};

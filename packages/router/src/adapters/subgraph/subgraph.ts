@@ -5,6 +5,7 @@ import {
   getUuid,
   jsonifyError,
   RequestContext,
+  SubgraphSyncRecord,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
@@ -16,16 +17,15 @@ import {
   SingleChainTransaction,
   CrosschainTransactionStatus,
   CancelPayload,
-  SubgraphSyncRecord,
 } from "../../lib/entities";
 
 import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
 
 import { getSdks } from ".";
 
-const synced: Record<number, SubgraphSyncRecord> = {};
+const synced: Record<number, SubgraphSyncRecord[]> = {};
 
-export const getSyncRecord = async (chainId: number, _requestContext?: RequestContext): Promise<SubgraphSyncRecord> => {
+export const getSyncRecord = async (chainId: number, _requestContext?: RequestContext): Promise<SubgraphSyncRecord[]> => {
   const { requestContext } = createLoggingContext(getSyncRecord.name, _requestContext);
 
   const record = synced[chainId];
@@ -250,7 +250,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
           // we have a receiver tx at this point
           // if expired, return
-          if (currentTime > receiving.expiry && correspondingReceiverTx!.status === SdkTransactionStatus.Prepared) {
+          if (currentTime > receiving.expiry && correspondingReceiverTx.status === SdkTransactionStatus.Prepared) {
             return {
               crosschainTx: {
                 invariant,
@@ -262,7 +262,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             } as ActiveTransaction<"ReceiverExpired">;
           }
 
-          if (correspondingReceiverTx!.status === SdkTransactionStatus.Fulfilled) {
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Fulfilled) {
             // receiver fulfilled
             return {
               crosschainTx: {
@@ -271,15 +271,15 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                 receiving,
               },
               payload: {
-                signature: correspondingReceiverTx!.signature,
-                relayerFee: correspondingReceiverTx!.relayerFee,
-                callData: correspondingReceiverTx!.callData!,
-                receiverFulfilledHash: correspondingReceiverTx!.fulfillTransactionHash,
+                signature: correspondingReceiverTx.signature,
+                relayerFee: correspondingReceiverTx.relayerFee,
+                callData: correspondingReceiverTx.callData!,
+                receiverFulfilledHash: correspondingReceiverTx.fulfillTransactionHash,
               },
               status: CrosschainTransactionStatus.ReceiverFulfilled,
             } as ActiveTransaction<"ReceiverFulfilled">;
           }
-          if (correspondingReceiverTx!.status === SdkTransactionStatus.Cancelled) {
+          if (correspondingReceiverTx.status === SdkTransactionStatus.Cancelled) {
             // receiver cancelled
             return {
               crosschainTx: {

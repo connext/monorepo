@@ -1,7 +1,5 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { NxtpError, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-
-import { SubgraphSyncRecord } from "../entities";
 
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
