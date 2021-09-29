@@ -5,7 +5,7 @@ import { getOperations } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
-import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
+import { AUCTION_MAP, BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { constants } from "ethers/lib/ethers";
 import { SubgraphNotSynced } from "../../../src/lib/errors/auction";
@@ -38,6 +38,8 @@ describe("Auction Operation", () => {
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
+
+      stub(AuctionHelperFns, "AUCTION_REQUEST_MAP").returns(AUCTION_MAP);
 
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
     });
@@ -93,7 +95,7 @@ describe("Auction Operation", () => {
       );
     });
 
-    it("happy: should return auction bid for a valid swap", async () => {
+    it("happy: should return auction bid for first valid swap and should return rate exceeded error for second valid swap", async () => {
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -117,6 +119,8 @@ describe("Auction Operation", () => {
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
+
+      await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Auction rate exceeded");
     });
   });
 });
