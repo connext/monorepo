@@ -18,7 +18,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TransactionManagerInterface extends ethers.utils.Interface {
   functions: {
@@ -391,6 +391,320 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TransactionFulfilled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionPrepared"): EventFragment;
 }
+
+export type AssetAddedEvent = TypedEvent<
+  [string, string] & { addedAssetId: string; caller: string }
+>;
+
+export type AssetOwnershipRenouncedEvent = TypedEvent<
+  [boolean] & { renounced: boolean }
+>;
+
+export type AssetOwnershipRenunciationProposedEvent = TypedEvent<
+  [BigNumber] & { timestamp: BigNumber }
+>;
+
+export type AssetRemovedEvent = TypedEvent<
+  [string, string] & { removedAssetId: string; caller: string }
+>;
+
+export type LiquidityAddedEvent = TypedEvent<
+  [string, string, BigNumber, string] & {
+    router: string;
+    assetId: string;
+    amount: BigNumber;
+    caller: string;
+  }
+>;
+
+export type LiquidityRemovedEvent = TypedEvent<
+  [string, string, BigNumber, string] & {
+    router: string;
+    assetId: string;
+    amount: BigNumber;
+    recipient: string;
+  }
+>;
+
+export type OwnershipProposedEvent = TypedEvent<
+  [string] & { proposedOwner: string }
+>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type RouterAddedEvent = TypedEvent<
+  [string, string] & { addedRouter: string; caller: string }
+>;
+
+export type RouterOwnershipRenouncedEvent = TypedEvent<
+  [boolean] & { renounced: boolean }
+>;
+
+export type RouterOwnershipRenunciationProposedEvent = TypedEvent<
+  [BigNumber] & { timestamp: BigNumber }
+>;
+
+export type RouterRemovedEvent = TypedEvent<
+  [string, string] & { removedRouter: string; caller: string }
+>;
+
+export type TransactionCancelledEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    },
+    string
+  ] & {
+    user: string;
+    router: string;
+    transactionId: string;
+    txData: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    };
+    caller: string;
+  }
+>;
+
+export type TransactionFulfilledEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    },
+    BigNumber,
+    string,
+    string,
+    boolean,
+    string,
+    string
+  ] & {
+    user: string;
+    router: string;
+    transactionId: string;
+    txData: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    };
+    relayerFee: BigNumber;
+    signature: string;
+    callData: string;
+    success: boolean;
+    returnData: string;
+    caller: string;
+  }
+>;
+
+export type TransactionPreparedEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    },
+    string,
+    string,
+    string,
+    string
+  ] & {
+    user: string;
+    router: string;
+    transactionId: string;
+    txData: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ] & {
+      receivingChainTxManagerAddress: string;
+      user: string;
+      router: string;
+      sendingAssetId: string;
+      receivingAssetId: string;
+      sendingChainFallback: string;
+      receivingAddress: string;
+      callTo: string;
+      callDataHash: string;
+      transactionId: string;
+      sendingChainId: BigNumber;
+      receivingChainId: BigNumber;
+      amount: BigNumber;
+      expiry: BigNumber;
+      preparedBlockNumber: BigNumber;
+    };
+    caller: string;
+    encryptedCallData: string;
+    encodedBid: string;
+    bidSignature: string;
+  }
+>;
 
 export class TransactionManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1068,6 +1382,14 @@ export class TransactionManager extends BaseContract {
   };
 
   filters: {
+    "AssetAdded(address,address)"(
+      addedAssetId?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { addedAssetId: string; caller: string }
+    >;
+
     AssetAdded(
       addedAssetId?: string | null,
       caller?: string | null
@@ -1076,13 +1398,29 @@ export class TransactionManager extends BaseContract {
       { addedAssetId: string; caller: string }
     >;
 
+    "AssetOwnershipRenounced(bool)"(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
     AssetOwnershipRenounced(
       renounced?: null
     ): TypedEventFilter<[boolean], { renounced: boolean }>;
 
+    "AssetOwnershipRenunciationProposed(uint256)"(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
+
     AssetOwnershipRenunciationProposed(
       timestamp?: null
     ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
+
+    "AssetRemoved(address,address)"(
+      removedAssetId?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { removedAssetId: string; caller: string }
+    >;
 
     AssetRemoved(
       removedAssetId?: string | null,
@@ -1090,6 +1428,16 @@ export class TransactionManager extends BaseContract {
     ): TypedEventFilter<
       [string, string],
       { removedAssetId: string; caller: string }
+    >;
+
+    "LiquidityAdded(address,address,uint256,address)"(
+      router?: string | null,
+      assetId?: string | null,
+      amount?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, string],
+      { router: string; assetId: string; amount: BigNumber; caller: string }
     >;
 
     LiquidityAdded(
@@ -1102,6 +1450,16 @@ export class TransactionManager extends BaseContract {
       { router: string; assetId: string; amount: BigNumber; caller: string }
     >;
 
+    "LiquidityRemoved(address,address,uint256,address)"(
+      router?: string | null,
+      assetId?: string | null,
+      amount?: null,
+      recipient?: null
+    ): TypedEventFilter<
+      [string, string, BigNumber, string],
+      { router: string; assetId: string; amount: BigNumber; recipient: string }
+    >;
+
     LiquidityRemoved(
       router?: string | null,
       assetId?: string | null,
@@ -1112,9 +1470,21 @@ export class TransactionManager extends BaseContract {
       { router: string; assetId: string; amount: BigNumber; recipient: string }
     >;
 
+    "OwnershipProposed(address)"(
+      proposedOwner?: string | null
+    ): TypedEventFilter<[string], { proposedOwner: string }>;
+
     OwnershipProposed(
       proposedOwner?: string | null
     ): TypedEventFilter<[string], { proposedOwner: string }>;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
 
     OwnershipTransferred(
       previousOwner?: string | null,
@@ -1122,6 +1492,14 @@ export class TransactionManager extends BaseContract {
     ): TypedEventFilter<
       [string, string],
       { previousOwner: string; newOwner: string }
+    >;
+
+    "RouterAdded(address,address)"(
+      addedRouter?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { addedRouter: string; caller: string }
     >;
 
     RouterAdded(
@@ -1132,13 +1510,29 @@ export class TransactionManager extends BaseContract {
       { addedRouter: string; caller: string }
     >;
 
+    "RouterOwnershipRenounced(bool)"(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
     RouterOwnershipRenounced(
       renounced?: null
     ): TypedEventFilter<[boolean], { renounced: boolean }>;
 
+    "RouterOwnershipRenunciationProposed(uint256)"(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
+
     RouterOwnershipRenunciationProposed(
       timestamp?: null
     ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
+
+    "RouterRemoved(address,address)"(
+      removedRouter?: string | null,
+      caller?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { removedRouter: string; caller: string }
+    >;
 
     RouterRemoved(
       removedRouter?: string | null,
@@ -1146,6 +1540,93 @@ export class TransactionManager extends BaseContract {
     ): TypedEventFilter<
       [string, string],
       { removedRouter: string; caller: string }
+    >;
+
+    "TransactionCancelled(address,address,bytes32,tuple,address)"(
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
+      txData?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [
+        string,
+        string,
+        string,
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        },
+        string
+      ],
+      {
+        user: string;
+        router: string;
+        transactionId: string;
+        txData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        };
+        caller: string;
+      }
     >;
 
     TransactionCancelled(
@@ -1231,6 +1712,108 @@ export class TransactionManager extends BaseContract {
           expiry: BigNumber;
           preparedBlockNumber: BigNumber;
         };
+        caller: string;
+      }
+    >;
+
+    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,bool,bytes,address)"(
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
+      txData?: null,
+      relayerFee?: null,
+      signature?: null,
+      callData?: null,
+      success?: null,
+      returnData?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [
+        string,
+        string,
+        string,
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        },
+        BigNumber,
+        string,
+        string,
+        boolean,
+        string,
+        string
+      ],
+      {
+        user: string;
+        router: string;
+        transactionId: string;
+        txData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        };
+        relayerFee: BigNumber;
+        signature: string;
+        callData: string;
+        success: boolean;
+        returnData: string;
         caller: string;
       }
     >;
@@ -1334,6 +1917,102 @@ export class TransactionManager extends BaseContract {
         success: boolean;
         returnData: string;
         caller: string;
+      }
+    >;
+
+    "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)"(
+      user?: string | null,
+      router?: string | null,
+      transactionId?: BytesLike | null,
+      txData?: null,
+      caller?: null,
+      encryptedCallData?: null,
+      encodedBid?: null,
+      bidSignature?: null
+    ): TypedEventFilter<
+      [
+        string,
+        string,
+        string,
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        },
+        string,
+        string,
+        string,
+        string
+      ],
+      {
+        user: string;
+        router: string;
+        transactionId: string;
+        txData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        };
+        caller: string;
+        encryptedCallData: string;
+        encodedBid: string;
+        bidSignature: string;
       }
     >;
 
