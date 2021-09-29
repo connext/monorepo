@@ -7,12 +7,14 @@ export type SubgraphSyncRecord = {
   syncedBlock: number;
 };
 
-type Sdk<T> = {
+type SdkLike = { GetBlockNumber: () => Promise<any> }
+
+type Sdk<T extends SdkLike> = {
   client: T;
   record: SubgraphSyncRecord;
 };
 
-export class FallbackSubgraph<T extends { GetBlockNumber: () => Promise<any> }> {
+export class FallbackSubgraph<T extends SdkLike> {
   private readonly sdks: Sdk<T>[];
 
   private get synced(): Sdk<T>[] {
