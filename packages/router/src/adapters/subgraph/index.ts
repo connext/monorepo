@@ -42,7 +42,7 @@ export const subgraphContractReader = (): ContractReader => {
   const { config, logger } = getContext();
   Object.entries(config.chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer }]) => {
     const chainIdNumber = parseInt(chainId);
-    const sdksWithClients = subgraph.map((uri) => getSdk(new GraphQLClient(uri)));
+    const sdksWithClients = subgraph.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
     const fallbackSubgraph = new FallbackSubgraph<Sdk>(logger, chainIdNumber, sdksWithClients, subgraphSyncBuffer);
     sdks[chainIdNumber] = fallbackSubgraph;
   });
