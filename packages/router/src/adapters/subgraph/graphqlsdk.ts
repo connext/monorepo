@@ -1,6 +1,7 @@
 import { FallbackSubgraph } from "@connext/nxtp-utils";
 import * as Dom from "graphql-request/dist/types.dom";
 import gql from "graphql-tag";
+
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -16,9 +17,6 @@ export type Scalars = {
   BigInt: any;
   Bytes: any;
 };
-
-
-
 
 export type AssetBalance = {
   __typename?: "AssetBalance";
@@ -884,6 +882,20 @@ export const GetAssetBalanceDocument = gql`
   }
 }
     `;
+    export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never }>;
+export type GetBlockNumberQuery = {
+  __typename?: "Query";
+  _meta?: Maybe<{ __typename?: "_Meta_"; block: { __typename?: "_Block_"; number: number } }>;
+};
+export const GetBlockNumberDocument = gql`
+  query GetBlockNumber {
+    _meta {
+      block {
+        number
+      }
+    }
+  }
+`;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string) => Promise<T>;
 
@@ -906,6 +918,19 @@ export function getSdk(client: FallbackSubgraph, withWrapper: SdkFunctionWrapper
     },
     GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), "GetAssetBalance");
+    },
+    UpdateSyncStatus(realBlockNumber: number, variables?: GetBlockNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]) {
+      return client.sync(realBlockNumber, async (client) => {
+        const { _meta } = await withWrapper(
+          (wrappedRequestHeaders) => client.request<GetBlockNumberQuery>(
+            GetBlockNumberDocument,
+            variables,
+            {...requestHeaders, ...wrappedRequestHeaders}
+          ),
+          "GetBlockNumber"
+        );
+        return _meta?.block.number ?? 0;
+      });
     },
   };
 }

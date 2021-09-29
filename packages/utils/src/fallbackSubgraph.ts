@@ -1,29 +1,9 @@
 import { GraphQLClient } from "graphql-request";
 import { Variables, RequestDocument } from "graphql-request/dist/types";
 import { Headers } from "graphql-request/dist/types.dom";
-// eslint-disable-next-line import/no-named-as-default
-import gql from "graphql-tag";
 
 import { Logger } from "./logger";
-import { MethodContext, RequestContext } from "./request";
-
-export type Maybe<T> = T | null;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-
-export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never }>;
-export type GetBlockNumberQuery = {
-  __typename?: "Query";
-  _meta?: Maybe<{ __typename?: "_Meta_"; block: { __typename?: "_Block_"; number: number } }>;
-};
-export const GetBlockNumberDocument = gql`
-  query GetBlockNumber {
-    _meta {
-      block {
-        number
-      }
-    }
-  }
-`;
+import { createLoggingContext } from "./request";
 
 export type SubgraphSyncRecord = {
   client: GraphQLClient;
@@ -58,22 +38,24 @@ export class FallbackSubgraph {
   ): Promise<T> {
     for (const subgraph of this.subgraphs) {
       try {
-        return subgraph.client.request(document, variables, requestHeaders);
+        if (subgraph.synced) {
+          return subgraph.client.request(document, variables, requestHeaders);
+        }
       } catch (e) {
         continue;
       }
     }
-    throw new Error("No subgraphs available");
+    throw new Error("No subgraphs available / in-sync!");
   }
 
-  public async sync(realBlockNumber: number, requestContext: RequestContext, methodContext: MethodContext) {
-    this.logger.debug("Getting sync records.", requestContext, methodContext, {
+  public async sync(realBlockNumber: number, getBlockNumberCallback: (client: GraphQLClient) => Promise<number>) {
+    const { methodContext } = createLoggingContext(this.sync.name);
+    this.logger.debug("Getting sync records.", undefined, methodContext, {
       chainId: this.chainId,
       uris: this.uris,
     });
     for (let i = 0; i < this.subgraphs.length; i++) {
-      const { _meta } = await this.subgraphs[i].client.request<GetBlockNumberQuery>(GetBlockNumberDocument);
-      const subgraphBlockNumber = _meta?.block.number ?? 0;
+      const subgraphBlockNumber = await getBlockNumberCallback(this.subgraphs[i].client);
       if (realBlockNumber - subgraphBlockNumber > this.allowUnsynced) {
         this.subgraphs[i].synced = false;
       } else {
@@ -87,7 +69,7 @@ export class FallbackSubgraph {
       const allOutOfSync = outOfSyncRecords.length === this.subgraphs.length;
       this.logger.warn(
         `${allOutOfSync ? "ALL subgraphs" : "Subgraph(s)"} out of sync.`,
-        requestContext,
+        undefined,
         methodContext,
         {
           chainId: this.chainId,

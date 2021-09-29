@@ -69,25 +69,10 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext) =>
     if (!chainConfig || !sdk) {
       throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
     }
-    const allowUnsynced = chainConfig.subgraphSyncBuffer;
 
     logger.debug("Getting sync record", requestContext, methodContext, { chainId });
     const realBlockNumber = await txService.getBlockNumber(chainId);
-    const res = await sdk.GetBlockNumber();
-    const subgraphBlockNumbers = res.map(r => r._meta?.block.number ?? 0);
-    let record: SubgraphSyncRecord;
-    if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
-      logger.warn("SUBGRAPH IS OUT OF SYNC", requestContext, methodContext, {
-        realBlockNumber,
-        subgraphBlockNumber,
-        chainId,
-      });
-      record = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-    } else {
-      record = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-    }
-    synced[chainId] = record;
-    return record;
+    return await sdk.UpdateSyncStatus(realBlockNumber);
   } catch (e) {
     logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(e), {
       chainId,
