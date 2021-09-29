@@ -47,6 +47,26 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   return { address: contract.address, abi: contract.abi };
 };
 
+/**
+ * Returns the addresses where the price oracle contract is deployed to
+ *
+ */
+export const getDeployedChainIdsForGasFee = (): number[] => {
+  const chainIdsForGasFee: number[] = [];
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = (contractDeployments as any)[String(chainId)];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
+      if (priceOracleContract) {
+        chainIdsForGasFee.push(Number(chainId));
+      }
+    }
+  });
+  return chainIdsForGasFee;
+};
+
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),

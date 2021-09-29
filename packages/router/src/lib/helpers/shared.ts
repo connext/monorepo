@@ -1,8 +1,8 @@
 import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
+import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
-import { FEE_CHAIN_IDS } from "./auction";
 
 /**
  * Helper to allow easy mocking
@@ -29,6 +29,7 @@ export const calculateGasFeeInReceivingToken = async (
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   const chaindIdsForGasFee = getChainIdForGasFee();
+
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
 
@@ -119,5 +120,5 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
  * Gets chain ids to take fee from
  */
 export const getChainIdForGasFee = (): number[] => {
-  return FEE_CHAIN_IDS;
+  return getDeployedChainIdsForGasFee();
 };
