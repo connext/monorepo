@@ -9,4 +9,4 @@ export const AUCTION_EXPIRY_BUFFER = 5 * 60;
  */
 export const getBidExpiry = (currentTime: number) => currentTime + 60 * 5;
 
-export const FEE_CHAIN_IDS = [1, 3, 4, 5];
+export const AUCTION_REQUEST_MAP = new Map();

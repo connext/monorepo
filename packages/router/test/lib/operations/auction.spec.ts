@@ -41,6 +41,8 @@ describe("Auction Operation", () => {
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
 
+      stub(AuctionHelperFns, "AUCTION_REQUEST_MAP").returns(AUCTION_MAP);
+
       stub(SharedHelperFns, "getTokenPrice").resolves(BigNumber.from("1000000000000000000"));
 
       stub(SharedHelperFns, "getGasPrice").resolves(BigNumber.from("100000000000"));
@@ -234,6 +236,34 @@ describe("Auction Operation", () => {
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
+    });
+
+    it("happy: should return auction bid for first valid swap and should return rate exceeded error for second valid swap", async () => {
+      const bid = await newAuction(auctionPayload, requestContext);
+      expect(bid.bid).to.deep.eq({
+        user: auctionPayload.user,
+        router: routerAddrMock,
+        sendingChainId: auctionPayload.sendingChainId,
+        sendingAssetId: auctionPayload.sendingAssetId,
+        amount: auctionPayload.amount,
+        receivingChainId: auctionPayload.receivingChainId,
+        receivingAssetId: auctionPayload.receivingAssetId,
+        amountReceived: MUTATED_AMOUNT,
+        bidExpiry: BID_EXPIRY,
+        receivingAddress: auctionPayload.receivingAddress,
+        transactionId: auctionPayload.transactionId,
+        expiry: auctionPayload.expiry,
+        callDataHash: auctionPayload.callDataHash,
+        callTo: auctionPayload.callTo,
+        encryptedCallData: auctionPayload.encryptedCallData,
+        sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
+        receivingChainTxManagerAddress:
+          configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+      });
+
+      expect(bid.bidSignature).to.eq(sigMock);
+
+      await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Auction rate exceeded");
     });
   });
 });
