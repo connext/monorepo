@@ -18,7 +18,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface IFulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
@@ -47,6 +47,19 @@ interface IFulfillInterpreterInterface extends ethers.utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
 }
+
+export type ExecutedEvent = TypedEvent<
+  [string, string, string, string, BigNumber, string, string, boolean] & {
+    transactionId: string;
+    callTo: string;
+    assetId: string;
+    fallbackAddress: string;
+    amount: BigNumber;
+    callData: string;
+    returnData: string;
+    success: boolean;
+  }
+>;
 
 export class IFulfillInterpreter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -136,6 +149,29 @@ export class IFulfillInterpreter extends BaseContract {
   };
 
   filters: {
+    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool)"(
+      transactionId?: BytesLike | null,
+      callTo?: null,
+      assetId?: null,
+      fallbackAddress?: null,
+      amount?: null,
+      callData?: null,
+      returnData?: null,
+      success?: null
+    ): TypedEventFilter<
+      [string, string, string, string, BigNumber, string, string, boolean],
+      {
+        transactionId: string;
+        callTo: string;
+        assetId: string;
+        fallbackAddress: string;
+        amount: BigNumber;
+        callData: string;
+        returnData: string;
+        success: boolean;
+      }
+    >;
+
     Executed(
       transactionId?: BytesLike | null,
       callTo?: null,

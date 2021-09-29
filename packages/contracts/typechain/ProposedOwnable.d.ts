@@ -17,7 +17,7 @@ import {
 import { BytesLike } from "@ethersproject/bytes";
 import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
-import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
+import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface ProposedOwnableInterface extends ethers.utils.Interface {
   functions: {
@@ -165,6 +165,30 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
     nameOrSignatureOrTopic: "RouterOwnershipRenunciationProposed"
   ): EventFragment;
 }
+
+export type AssetOwnershipRenouncedEvent = TypedEvent<
+  [boolean] & { renounced: boolean }
+>;
+
+export type AssetOwnershipRenunciationProposedEvent = TypedEvent<
+  [BigNumber] & { timestamp: BigNumber }
+>;
+
+export type OwnershipProposedEvent = TypedEvent<
+  [string] & { proposedOwner: string }
+>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type RouterOwnershipRenouncedEvent = TypedEvent<
+  [boolean] & { renounced: boolean }
+>;
+
+export type RouterOwnershipRenunciationProposedEvent = TypedEvent<
+  [BigNumber] & { timestamp: BigNumber }
+>;
 
 export class ProposedOwnable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -345,17 +369,37 @@ export class ProposedOwnable extends BaseContract {
   };
 
   filters: {
+    "AssetOwnershipRenounced(bool)"(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
     AssetOwnershipRenounced(
       renounced?: null
     ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
+    "AssetOwnershipRenunciationProposed(uint256)"(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
 
     AssetOwnershipRenunciationProposed(
       timestamp?: null
     ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
 
+    "OwnershipProposed(address)"(
+      proposedOwner?: string | null
+    ): TypedEventFilter<[string], { proposedOwner: string }>;
+
     OwnershipProposed(
       proposedOwner?: string | null
     ): TypedEventFilter<[string], { proposedOwner: string }>;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
 
     OwnershipTransferred(
       previousOwner?: string | null,
@@ -365,9 +409,17 @@ export class ProposedOwnable extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
+    "RouterOwnershipRenounced(bool)"(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
     RouterOwnershipRenounced(
       renounced?: null
     ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
+    "RouterOwnershipRenunciationProposed(uint256)"(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
 
     RouterOwnershipRenunciationProposed(
       timestamp?: null
