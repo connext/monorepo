@@ -1,4 +1,4 @@
-import { providers, Signer } from "ethers";
+import { providers } from "ethers";
 import {
   createLoggingContext,
   Logger,
@@ -103,7 +103,7 @@ export class Subgraph {
   private chainConfig: Record<number, SubgraphChainConfig>;
 
   constructor(
-    private readonly user: Signer,
+    private readonly userAddress: Promise<string>,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly logger: Logger,
     skipPolling = false,
@@ -305,7 +305,7 @@ export class Subgraph {
     // gone offline at some point during the transactions)
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
-        const user = (await this.user.getAddress()).toLowerCase();
+        const user = (await this.userAddress).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
 
@@ -505,7 +505,7 @@ export class Subgraph {
 
     const fulfilledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
-        const user = (await this.user.getAddress()).toLowerCase();
+        const user = (await this.userAddress).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
 
@@ -594,7 +594,7 @@ export class Subgraph {
 
     const cancelledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
-        const user = (await this.user.getAddress()).toLowerCase();
+        const user = (await this.userAddress).toLowerCase();
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
 

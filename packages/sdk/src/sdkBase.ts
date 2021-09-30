@@ -147,6 +147,7 @@ export class NxtpSdkNoSend {
           subgraphSyncBuffer?: number;
         };
       };
+      signerAddress: Promise<string>;
       signer?: Signer;
       natsUrl?: string;
       authUrl?: string;
@@ -235,12 +236,17 @@ export class NxtpSdkNoSend {
         };
       },
     );
-    this.transactionManager = new TransactionManager(
-      signer,
+    this.transactionManagerBase = new TransactionManagerBase(
       txManagerConfig,
+      config.signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      config.signerAddress,
+      subgraphConfig,
+      this.logger.child({ module: "Subgraph" }),
+      skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
