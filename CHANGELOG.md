@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.49
+
 - [txservice] Properly handle insufficient funds errors
 - [router] Log gas when there is low balance
 - [router] Properly default signature on admin cancel endpoint
