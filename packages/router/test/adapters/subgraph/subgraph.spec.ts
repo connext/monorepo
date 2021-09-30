@@ -49,24 +49,28 @@ describe("Subgraph Adapter", () => {
     };
 
     fallbackSubgraph = createStubInstance(FallbackSubgraph, {
+      useSynced: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
       getSynced: stub().callsFake(() => {
         return sdk;
       }),
-      sync: stub<[realBlockNumber: number]>().callsFake(async (realBlockNumber: number): Promise<SubgraphSyncRecord[]> => {
+      sync: stub<[latestBlock: number]>().callsFake(async (latestBlock: number): Promise<SubgraphSyncRecord[]> => {
         // The GetBlockNumber call is normally nested in the fallback subgraph in this case - we reimplement here to avoid using
         // actual fallback subgraph, but to emulate the same behavior.
         const { _meta } = await sdk.GetBlockNumber();
         const syncedBlock = _meta?.block.number ?? 0;
-        const synced = (realBlockNumber - syncedBlock) <= 10;
+        const synced = (latestBlock - syncedBlock) <= 10;
         return [
           {
             synced,
-            latestBlock: realBlockNumber,
+            latestBlock,
             syncedBlock,
+            lag: latestBlock - syncedBlock,
+            uri: "",
           }
         ]
       }),
     });
+
     sdks = {
       [chainId]: fallbackSubgraph,
     };
@@ -87,6 +91,8 @@ describe("Subgraph Adapter", () => {
           synced: true,
           syncedBlock: 10,
           latestBlock: 10,
+          lag: 0,
+          uri: "",
         },
       ]);
     });
@@ -103,10 +109,13 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should return an empty array if the chain is unsynced", async () => {
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: 1 } } });
-      txServiceMock.getBlockNumber.resolves(10000);
+      const testLatestBlockNumber = 10000;
+      const testSyncedBlockNumber = 1;
+      const testLag = testLatestBlockNumber - testSyncedBlockNumber;
+      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testSyncedBlockNumber } } });
+      txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(await getSyncRecord(chainId)).to.be.deep.eq([{ synced: false, syncedBlock: 1, latestBlock: 10000 }]);
+      expect(await getSyncRecord(chainId)).to.be.deep.eq([{ synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" }]);
     });
 
     it("should return an empty array if GetBlockNumber fails", async () => {

@@ -1,6 +1,7 @@
 import { providers, Signer } from "ethers";
 import {
   createLoggingContext,
+  FallbackSubgraph,
   Logger,
   RequestContext,
   TransactionData,
@@ -22,7 +23,14 @@ import {
   SubgraphSyncRecord,
 } from "../types";
 
-import { getSdk, Sdk, TransactionStatus } from "./graphqlsdk";
+import {
+  GetReceiverTransactionsQuery,
+  getSdk,
+  GetSenderTransactionsQuery,
+  GetTransactionsQuery,
+  Sdk,
+  TransactionStatus,
+} from "./graphqlsdk";
 
 /**
  * Converts subgraph transactions to properly typed TransactionData
@@ -86,7 +94,7 @@ export const createSubgraphEvts = (): {
 const DEFAULT_SUBGRAPH_SYNC_BUFFER = 50;
 
 export type SubgraphChainConfig = {
-  subgraph: string;
+  subgraph: string | string[];
   provider: providers.FallbackProvider;
   subgraphSyncBuffer: number;
 };
@@ -95,7 +103,7 @@ export type SubgraphChainConfig = {
  * @classdesc Handles all user-facing subgraph queries
  */
 export class Subgraph {
-  private sdks: Record<number, Sdk> = {};
+  private sdks: Record<number, FallbackSubgraph<Sdk>> = {};
   private evts = createSubgraphEvts();
   private activeTxs: Map<string, ActiveTransaction> = new Map();
   private pollingLoop: NodeJS.Timer | undefined;
@@ -113,8 +121,15 @@ export class Subgraph {
     Object.entries(_chainConfig).forEach(
       ([chainId, { subgraph, provider, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
         const cId = parseInt(chainId);
-        const client = new GraphQLClient(subgraph);
-        this.sdks[cId] = getSdk(client);
+        const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
+        const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
+        const fallbackSubgraph = new FallbackSubgraph<Sdk>(
+          logger,
+          cId,
+          sdksWithClients,
+          _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+        );
+        this.sdks[cId] = fallbackSubgraph;
         this.syncStatus[cId] = {
           latestBlock: 0,
           synced: true,
@@ -190,21 +205,32 @@ export class Subgraph {
       }
     });
 
+    // For each chain, update subgraph sync status
+    await Promise.all(
+      Object.keys(this.sdks).map(async (chainId) => {
+        await this.updateSyncStatus(parseInt(chainId));
+      }),
+    );
+
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
     const nonPreparedSendingTxs: any[] = [];
     const correspondingReceiverTxIdsByChain: Record<string, string[]> = {};
     await Promise.all(
-      Object.keys(idsBySendingChains).map(async (sendingChain) => {
-        const sendingSubgraph = this.sdks[parseInt(sendingChain)];
-        if (!sendingSubgraph) {
+      Object.keys(idsBySendingChains).map(async (sendingChainId) => {
+        const chainId = parseInt(sendingChainId);
+        const subgraph = this.sdks[chainId];
+        if (!subgraph) {
           return;
         }
-        const ids = idsBySendingChains[sendingChain];
+        const ids = idsBySendingChains[sendingChainId];
         if (ids.length === 0) {
           return;
         }
-        const { transactions } = await sendingSubgraph.GetTransactions({ transactionIds: ids });
+
+        const { transactions } = await subgraph.useSynced<GetTransactionsQuery>((client) =>
+          client.GetTransactions({ transactionIds: ids }),
+        );
         if (transactions.length === 0) {
           return;
         }
@@ -237,7 +263,9 @@ export class Subgraph {
         if (ids.length === 0) {
           return;
         }
-        const { transactions } = await subgraph.GetTransactions({ transactionIds: ids });
+        const { transactions } = await subgraph.useSynced<GetTransactionsQuery>((client) =>
+          client.GetTransactions({ transactionIds: ids }),
+        );
         if (transactions.length === 0) {
           return;
         }
@@ -309,24 +337,14 @@ export class Subgraph {
         const chainId = parseInt(c);
         const subgraph = this.sdks[chainId];
 
-        // first update sync status
-        const { _meta } = await subgraph.GetBlockNumber();
-        const subgraphBlockNumber = _meta?.block.number ?? 0;
-        const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
-        this.syncStatus[chainId].latestBlock = rpcBlockNumber;
-        this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
-        if (rpcBlockNumber - subgraphBlockNumber > this.chainConfig[chainId].subgraphSyncBuffer) {
-          this.syncStatus[chainId].synced = false;
-        } else {
-          this.syncStatus[chainId].synced = true;
-        }
-
         // get all sender prepared
-        const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({
-          sendingChainId: chainId,
-          userId: user,
-          status: TransactionStatus.Prepared,
-        });
+        const { transactions: senderPrepared } = await subgraph.useSynced<GetSenderTransactionsQuery>((client) =>
+          client.GetSenderTransactions({
+            sendingChainId: chainId,
+            userId: user,
+            status: TransactionStatus.Prepared,
+          }),
+        );
 
         // for each, break up receiving txs by chain
         const senderPerChain: Record<number, any[]> = {};
@@ -345,9 +363,11 @@ export class Subgraph {
             if (!_sdk) {
               return undefined;
             }
-            const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
-              transactionIds: senderTxs.map((tx) => tx.transactionId),
-            });
+            const { transactions: correspondingReceiverTxs } = await _sdk.useSynced<GetTransactionsQuery>((client) =>
+              client.GetTransactions({
+                transactionIds: senderTxs.map((tx) => tx.transactionId),
+              }),
+            );
 
             const active = senderTxs.map((senderTx): ActiveTransaction | undefined => {
               const correspondingReceiverTx = correspondingReceiverTxs.find(
@@ -510,11 +530,13 @@ export class Subgraph {
         const subgraph = this.sdks[chainId];
 
         // get all receiver fulfilled
-        const { transactions: receiverFulfilled } = await subgraph.GetReceiverTransactions({
-          receivingChainId: chainId,
-          userId: user,
-          status: TransactionStatus.Fulfilled,
-        });
+        const { transactions: receiverFulfilled } = await subgraph.useSynced<GetReceiverTransactionsQuery>((client) =>
+          client.GetReceiverTransactions({
+            receivingChainId: chainId,
+            userId: user,
+            status: TransactionStatus.Fulfilled,
+          }),
+        );
 
         // for each, break up receiving txs by chain
         const receiverPerChain: Record<number, any[]> = {};
@@ -534,9 +556,11 @@ export class Subgraph {
               return undefined;
             }
 
-            const { transactions: correspondingSenderTxs } = await _sdk.GetTransactions({
-              transactionIds: receiverTxs.map((tx) => tx.transactionId),
-            });
+            const { transactions: correspondingSenderTxs } = await _sdk.useSynced<GetTransactionsQuery>((client) =>
+              client.GetTransactions({
+                transactionIds: receiverTxs.map((tx) => tx.transactionId),
+              }),
+            );
 
             return receiverTxs.map((receiverTx): HistoricalTransaction | undefined => {
               const correspondingSenderTx = correspondingSenderTxs.find(
@@ -599,11 +623,13 @@ export class Subgraph {
         const subgraph = this.sdks[chainId];
 
         // get all receiver fulfilled
-        const { transactions: senderCancelled } = await subgraph.GetSenderTransactions({
-          sendingChainId: chainId,
-          userId: user,
-          status: TransactionStatus.Cancelled,
-        });
+        const { transactions: senderCancelled } = await subgraph.useSynced<GetSenderTransactionsQuery>((client) =>
+          client.GetSenderTransactions({
+            sendingChainId: chainId,
+            userId: user,
+            status: TransactionStatus.Cancelled,
+          }),
+        );
 
         const cancelled = senderCancelled.map((tx): HistoricalTransaction | undefined => {
           return {
@@ -641,6 +667,18 @@ export class Subgraph {
     );
 
     return fulfilledTxs.flat().concat(cancelledTxs.flat());
+  }
+
+  private async updateSyncStatus(chainId: number) {
+    const subgraph = this.sdks[chainId];
+    const latestBlock = await this.chainConfig[chainId].provider.getBlockNumber();
+    const records = await subgraph.sync(latestBlock);
+    const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
+    this.syncStatus[chainId] = {
+      latestBlock,
+      syncedBlock: mostSynced.syncedBlock,
+      synced: mostSynced.synced,
+    };
   }
 
   // Listener methods

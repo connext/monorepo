@@ -140,7 +140,7 @@ export class NxtpSdk {
         [chainId: number]: {
           provider: providers.FallbackProvider;
           transactionManagerAddress?: string;
-          subgraph?: string;
+          subgraph?: string | string[];
           subgraphSyncBuffer?: number;
         };
       };
@@ -226,7 +226,7 @@ export class NxtpSdk {
           throw new NoSubgraph(chainId);
         }
         subgraphConfig[chainId] = {
-          subgraph,
+          subgraph: typeof subgraph === "string" ? [subgraph] : subgraph,
           provider,
           subgraphSyncBuffer,
         };

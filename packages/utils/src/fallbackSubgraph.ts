@@ -74,17 +74,21 @@ export class FallbackSubgraph<T extends SdkLike> {
     if (synced.length === 0) {
       throw new Error("No subgraphs available / in-sync!");
     }
+    const errors: Error[] = [];
     // Starting with most in-sync, keep retrying the callback with each client.
     for (let i = 0; i < synced.length; i++) {
       try {
         return await method(synced[i].client);
       } catch (e) {
-        this.logger.error("Error calling method on subgraph client.", undefined, methodContext, jsonifyError(e), {
-          chainId: this.chainId,
-        });
+        errors.push(e);
       }
     }
-    throw new Error("No subgraphs available / in-sync!");
+    // TODO: Throw an error that holds all the errors that occurred?
+    this.logger.error("Error calling method on subgraph client(s).", undefined, methodContext, jsonifyError(errors[0]), {
+      chainId: this.chainId,
+      otherErrors: errors.slice(1),
+    });
+    throw errors[0];
   }
 
   public async sync(latestBlock: number): Promise<SubgraphSyncRecord[]> {
