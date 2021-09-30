@@ -41,8 +41,6 @@ describe("Auction Operation", () => {
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
 
-      stub(AuctionHelperFns, "AUCTION_REQUEST_MAP").returns(AUCTION_MAP);
-
       stub(SharedHelperFns, "getTokenPrice").resolves(BigNumber.from("1000000000000000000"));
 
       stub(SharedHelperFns, "getGasPrice").resolves(BigNumber.from("100000000000"));
@@ -138,6 +136,7 @@ describe("Auction Operation", () => {
     });
 
     it("happy-2: should take a gas fee for prepare transactions if receivingChain is fee chain", async () => {
+      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
       getReceiverAmountStub.returns("100000000000000000000");
 
       // sendingChain = 1337, receivingChain = 1338
@@ -172,6 +171,7 @@ describe("Auction Operation", () => {
     });
 
     it("happy-3: should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains", async () => {
+      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
       getReceiverAmountStub.returns("100000000000000000000");
 
       // sendingChain = 1337, receivingChain = 1338
@@ -206,6 +206,7 @@ describe("Auction Operation", () => {
     });
 
     it("happy-4: shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains", async () => {
+      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
       getReceiverAmountStub.returns("100000000000000000000");
 
       // sendingChain = 1337, receivingChain = 1338
@@ -239,6 +240,9 @@ describe("Auction Operation", () => {
     });
 
     it("happy: should return auction bid for first valid swap and should return rate exceeded error for second valid swap", async () => {
+      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
+      // sendingChain = 1337, receivingChain = 1338
+      getChainIdForGasFeeStub.returns([1]);
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
