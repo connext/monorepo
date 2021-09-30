@@ -112,7 +112,7 @@ const convertMockedToActiveTransaction = (
   };
 };
 
-describe("Subgraph", () => {
+describe.only("Subgraph", () => {
   let subgraph: Subgraph;
   let signer: SinonStubbedInstance<Wallet>;
   let sendingChainId: number = 1337;

@@ -206,11 +206,8 @@ export class Subgraph {
     });
 
     // For each chain, update subgraph sync status
-    await Promise.all(
-      Object.keys(this.sdks).map(async (chainId) => {
-        await this.updateSyncStatus(parseInt(chainId));
-      }),
-    );
+    await this.updateSyncStatus();
+    
 
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
@@ -523,6 +520,9 @@ export class Subgraph {
       _requestContext,
     );
 
+    // update subgraphs sync status
+    await this.updateSyncStatus();
+
     const fulfilledTxs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
         const user = (await this.user.getAddress()).toLowerCase();
@@ -669,16 +669,25 @@ export class Subgraph {
     return fulfilledTxs.flat().concat(cancelledTxs.flat());
   }
 
-  private async updateSyncStatus(chainId: number) {
-    const subgraph = this.sdks[chainId];
-    const latestBlock = await this.chainConfig[chainId].provider.getBlockNumber();
-    const records = await subgraph.sync(latestBlock);
-    const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
-    this.syncStatus[chainId] = {
-      latestBlock,
-      syncedBlock: mostSynced.syncedBlock,
-      synced: mostSynced.synced,
-    };
+  /**
+   * Update the sync statuses of subgraph providers for each chain.
+   * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
+   */
+  private async updateSyncStatus() {
+    await Promise.all(
+      Object.keys(this.sdks).map(async (_chainId) => {
+        const chainId = parseInt(_chainId);
+        const subgraph = this.sdks[chainId];
+        const latestBlock = await this.chainConfig[chainId].provider.getBlockNumber();
+        const records = await subgraph.sync(latestBlock);
+        const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
+        this.syncStatus[chainId] = {
+          latestBlock,
+          syncedBlock: mostSynced.syncedBlock,
+          synced: mostSynced.synced,
+        };
+      }),
+    );
   }
 
   // Listener methods
