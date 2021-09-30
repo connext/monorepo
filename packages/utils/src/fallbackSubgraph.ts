@@ -44,30 +44,6 @@ export class FallbackSubgraph<T extends SdkLike> {
     }));
   }
 
-  public getSynced(): T {
-    const synced = this.synced;
-    if (synced.length === 0) {
-      throw new Error("No subgraphs available / in-sync!");
-    }
-
-    // Quickest way to, in one loop, get the most in-sync clients.
-    let mostInSyncClients: T[] = [];
-    let bestSync = this.maxLag + 1;
-    for (let i = 0; i < synced.length; i++) {
-      const sdk = synced[i];
-      const difference = sdk.record.latestBlock - sdk.record.syncedBlock;
-      if (difference < bestSync) {
-        mostInSyncClients = [sdk.client];
-        bestSync = difference;
-      } else if (difference === bestSync) {
-        mostInSyncClients.push(sdk.client);
-      }
-    }
-
-    // Now we just return a random client out of the most in sync ones.
-    return mostInSyncClients[Math.floor(Math.random() * mostInSyncClients.length)];
-  }
-
   public async useSynced<Q>(method: (client: T) => Promise<any>): Promise<Q> {
     const { methodContext } = createLoggingContext(this.sync.name);
     const synced = this.synced.sort(sdk => sdk.record.latestBlock - sdk.record.syncedBlock);

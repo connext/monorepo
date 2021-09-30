@@ -50,9 +50,6 @@ describe("Subgraph Adapter", () => {
 
     fallbackSubgraph = createStubInstance(FallbackSubgraph, {
       useSynced: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
-      getSynced: stub().callsFake(() => {
-        return sdk;
-      }),
       sync: stub<[latestBlock: number]>().callsFake(async (latestBlock: number): Promise<SubgraphSyncRecord[]> => {
         // The GetBlockNumber call is normally nested in the fallback subgraph in this case - we reimplement here to avoid using
         // actual fallback subgraph, but to emulate the same behavior.
