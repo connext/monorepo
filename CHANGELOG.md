@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.50
+
+- [sdk] Hardcode estimated gas for xdai
+
 ## 0.0.49
 
 - [txservice] Properly handle insufficient funds errors
