@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-txservice",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "Robust transaction sending service for a wallet configured across multiple chains. Will bump gas and reattempt transactions as needed",
   "author": "Connext",
   "license": "MIT",
