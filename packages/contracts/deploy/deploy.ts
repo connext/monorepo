@@ -9,6 +9,9 @@ const TEST_ROUTERS = [
 ];
 
 const SKIP_SETUP = [1, 56, 250, 137, 100, 42161];
+const WRAPPED_ETH_MAP = new Map();
+WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
+WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -30,6 +33,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     args: [chainId],
     log: true,
   });
+
+  if (WRAPPED_ETH_MAP.has(chainId)) {
+    console.log("Deploying ConnextPriceOracle to configured chain");
+    await hre.deployments.deploy("ConnextPriceOracle", {
+      from: deployer,
+      args: [WRAPPED_ETH_MAP.get(chainId)],
+      log: true,
+    });
+  }
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");

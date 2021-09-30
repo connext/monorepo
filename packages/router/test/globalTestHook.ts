@@ -39,7 +39,7 @@ export const mochaHooks = {
 
     contractReaderMock = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
-      getAssetBalance: stub().resolves(BigNumber.from("10001")),
+      getAssetBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
       getSyncRecord: stub().returns({ synced: true, syncedBlock: 10000, latestBlock: 10000 }),
     };
@@ -57,8 +57,8 @@ export const mochaHooks = {
       contractWriter: contractWriterMock,
       logger: pino({ name: "ctxMock", level: process.env.LOG_LEVEL || "silent" }),
       chainData: await getChainData(),
-      messaging: (messagingMock as unknown) as RouterNxtpNatsMessagingService,
-      txService: (txServiceMock as unknown) as TransactionService,
+      messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
+      txService: txServiceMock as unknown as TransactionService,
       wallet: walletMock,
     };
 
