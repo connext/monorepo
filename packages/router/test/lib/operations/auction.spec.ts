@@ -10,7 +10,7 @@ import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { SubgraphNotSynced } from "../../../src/lib/errors/auction";
 
-const requestContext = createRequestContext("TEST");
+const requestContext = createRequestContext("TEST", mkBytes32());
 
 const auctionPayload: AuctionPayload = {
   user: mkAddress("0xa"),

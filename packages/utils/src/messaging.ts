@@ -367,6 +367,7 @@ export type AuctionBid = {
 
 export type AuctionResponse = {
   bid: AuctionBid;
+  gasFeeInReceivingToken: string;
   bidSignature?: string; // not included in dry run
 };
 

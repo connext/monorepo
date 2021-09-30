@@ -16,6 +16,7 @@ import "./src/tasks/setupTestRouter";
 import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
+import "./src/tasks/setAggregator";
 
 dotEnvConfig();
 
