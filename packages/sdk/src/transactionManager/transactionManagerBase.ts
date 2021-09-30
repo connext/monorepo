@@ -65,6 +65,16 @@ export class TransactionManagerBase {
   }
 
   /**
+   * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+   *
+   * @param chainId - The chain you want the address on
+   * @returns The deployed address or `undefined` if it has not been deployed yet
+   */
+  getTransactionManagerAddress(chainId: number): string | undefined {
+    return this.chainConfig[chainId]?.transactionManagerAddress;
+  }
+
+  /**
    * Sends the prepare transaction to the `TransactionManager` on the provided chain.
    *
    * @param chainId - The chain you want to prepare the transaction on (transactionData.sendingChainId)

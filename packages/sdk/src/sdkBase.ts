@@ -343,7 +343,7 @@ export class NxtpSdkNoSend {
       throw error;
     }
 
-    const user = await this.config.signer.getAddress();
+    const user = await this.config.signerAddress;
 
     const {
       sendingAssetId,
@@ -514,7 +514,7 @@ export class NxtpSdkNoSend {
 
           // check contract for router liquidity
           try {
-            const routerLiq = await this.transactionManager.getRouterLiquidity(
+            const routerLiq = await this.transactionManagerBase.getRouterLiquidity(
               receivingChainId,
               data.bid.router,
               receivingAssetId,
@@ -589,6 +589,35 @@ export class NxtpSdkNoSend {
     }
   }
 
+  public async approveForPrepare(
+    transferParams: AuctionResponse,
+    infiniteApprove = false,
+  ): Promise<providers.TransactionRequest | undefined> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.approveForPrepare.name,
+      undefined,
+      transferParams.bid.transactionId,
+    );
+
+    this.logger.info("Method started", requestContext, methodContext, { transferParams });
+
+    const {
+      bid: { sendingAssetId, sendingChainId, amount },
+    } = transferParams;
+
+    if (sendingAssetId !== constants.AddressZero) {
+      const approveTx = await this.transactionManagerBase.approveTokensIfNeeded(
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        infiniteApprove,
+        requestContext,
+      );
+      return approveTx;
+    }
+    return undefined;
+  }
+
   /**
    * Begins a crosschain transfer by calling `prepare` on the sending chain.
    *
@@ -598,10 +627,7 @@ export class NxtpSdkNoSend {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async prepareTransfer(
-    transferParams: AuctionResponse,
-    infiniteApprove = false,
-  ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
+  public async prepareTransfer(transferParams: AuctionResponse): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       this.prepareTransfer.name,
       undefined,
@@ -621,7 +647,7 @@ export class NxtpSdkNoSend {
     // Validate params schema
     const validate = ajv.compile(AuctionBidParamsSchema);
     const valid = validate(bid);
-    if (!valid) {
+    if (!valid || !bidSignature) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("prepareTransfer", "AuctionResponse", msg, transferParams, {
         transactionId: transferParams.bid.transactionId,
@@ -629,6 +655,7 @@ export class NxtpSdkNoSend {
       this.logger.error("Invalid transfer params", requestContext, methodContext, jsonifyError(error), {
         validationErrors: validate.errors,
         transferParams,
+        bidSignature,
       });
       throw error;
     }
@@ -650,85 +677,9 @@ export class NxtpSdkNoSend {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
-    if (!this.config.chainConfig[sendingChainId]) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[receivingChainId]) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    const signerAddr = await this.config.signer.getAddress();
-    const balance = await getOnchainBalance(
-      sendingAssetId,
-      signerAddr,
-      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
-    );
-    if (balance.lt(amount)) {
-      throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
-    }
-
-    if (!bidSignature) {
-      throw new InvalidBidSignature(transactionId, bid, router);
-    }
-
-    const recovered = recoverAuctionBid(bid, bidSignature);
-    if (recovered.toLowerCase() !== router.toLowerCase()) {
-      throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
-    }
-
-    this.logger.info("Preparing tx!", requestContext, methodContext, {
-      amount,
-      expiry,
-      encodedBid,
-      bidSignature,
-    });
-
-    if (sendingAssetId !== constants.AddressZero) {
-      const approveTx = await this.transactionManager.approveTokensIfNeeded(
-        sendingChainId,
-        sendingAssetId,
-        amount,
-        infiniteApprove,
-        requestContext,
-      );
-
-      if (approveTx) {
-        this.evts.SenderTokenApprovalSubmitted.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionResponse: approveTx,
-        });
-
-        const approveReceipt = await approveTx.wait(1);
-        if (approveReceipt?.status === 0) {
-          throw new SubmitError(
-            transactionId,
-            sendingChainId,
-            signerAddr,
-            "approve",
-            sendingAssetId,
-            { infiniteApprove, amount },
-            jsonifyError(new Error("Receipt status is 0")),
-            {
-              approveReceipt,
-            },
-          );
-        }
-        this.logger.info("Mined approve tx", requestContext, methodContext, {
-          transactionHash: approveReceipt.transactionHash,
-        });
-        this.evts.SenderTokenApprovalMined.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionReceipt: approveReceipt,
-        });
-      }
-    }
-
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
-      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
+      receivingChainTxManagerAddress: this.transactionManagerBase.getTransactionManagerAddress(receivingChainId)!,
       user,
       router,
       sendingAssetId,
@@ -749,12 +700,8 @@ export class NxtpSdkNoSend {
       amount,
       expiry,
     };
-    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params, requestContext);
-    this.evts.SenderTransactionPrepareSubmitted.post({
-      prepareParams: params,
-      transactionResponse: prepareResponse,
-    });
-    return { prepareResponse, transactionId };
+    const tx = await this.transactionManagerBase.prepare(sendingChainId, params, requestContext);
+    return tx;
   }
 
   /**
