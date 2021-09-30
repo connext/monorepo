@@ -151,6 +151,40 @@ yarn workspace @connext/nxtp-contracts export
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
 
+## How to set price information in ConnextPriceOracle
+
+Price Oracle fetches token price from chainlink protocol and decentralized exchanges such as uniswap, sushiswap, pancakeswap, etc.
+There are two types of tokens. First ones are listed on Chainlink Protocol. But others aren't listed on Chainlink protocol.
+You can get prices from chainlink by setting aggregators for tokens listed on Chainlink. See [here](https://docs.chain.link/docs/ethereum-addresses/)
+You can get prices from DEx by setting price records for tokens not listed on Chainlink.
+
+1. To use chainlink protocol, you need to set aggregators for tokens.
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat set-aggregator --token-addresses TOKEN_ADDRESSES --sources CHAINLINK_SOURCES --network NETWORK_NAME
+# e.g. yarn workspace @connext/nxtp-contracts hardhat set-aggregator --token-addresses 0xc778417e063141139fce010982780140aa0cd5ab --sources 0x8a753747a1fa494ec906ce90e9f37563a8af630e --network rinkeby
+```
+
+2. To use decentralized exchanges, you need to set price records for tokens.
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat set-dex-price --token TOKEN_ADDRESS --base-token BASE_TOKEN_ADDRESS --lp-token LP_TOKEN_ADDRESS --active ACTIVE --network NETWORK
+# e.g. yarn workspace @connext/nxtp-contracts hardhat set-dex-price --token 0x4AD6C49FC206C8070915151F31EAbE4c70016F55 --base-token 0xc778417E063141139Fce010982780140Aa0cD5Ab --lp-token 0x21F644B1433D1744a84dc0616C0BFfC04D3A45eb --active true --network rinkeby
+
+# 0x4AD6C49FC206C8070915151F31EAbE4c70016F55: DogeToken on Rinkeby
+# 0xc778417E063141139Fce010982780140Aa0cD5Ab: WETH on Rinkeby
+# 0x21F644B1433D1744a84dc0616C0BFfC04D3A45eb: WETH-DOGE LP on Rinkeby
+
+
+'TOKEN_ADDRESS': The token address that you want to fetch price of.
+
+'BASE_TOKEN_ADDRESS': The base token address used to add liquidity on DEX. Its price should be able to be fetched from Chainlink protocol.
+
+'LP_TOKEN_ADDRESS': TOKEN_ADDRESS-BASE_TOKEN_ADDRESS The pair address created by factory of DEX.
+
+'ACTIVE': Shows price record status. If true, the price record will work.
+```
+
 ## Helper Tasks
 
 There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. These can be run using the following example command structure:
