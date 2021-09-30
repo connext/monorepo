@@ -1,74 +1,67 @@
-import { BigNumber, Contract, providers, Signer } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 import {
   PrepareParams,
   CancelParams,
   FulfillParams,
-  isNode,
   Logger,
   RequestContext,
   createLoggingContext,
 } from "@connext/nxtp-utils";
-import { parseError } from "@connext/nxtp-txservice";
-import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
+import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
+import { Interface } from "ethers/lib/utils";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { ChainNotConfigured } from "../error";
 
-import { TransactionManagerBase } from "./transactionManagerBase";
+/**
+ * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.TransactionManager;
+  return { address: contract.address, abi: contract.abi };
+};
 
 /**
  * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
  */
-export class TransactionManager {
+export class TransactionManagerBase {
   private chainConfig: {
     [chainId: number]: {
       provider: providers.FallbackProvider;
-      transactionManager: TTransactionManager;
+      transactionManagerAddress: string;
     };
   };
 
-  private txManagerBase: TransactionManagerBase;
+  private txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+  private erc20Interface = new Interface(ERC20.abi) as IERC20Minimal["interface"];
 
   constructor(
-    private readonly signer: Signer,
     _chainConfig: {
       [chainId: number]: {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
       };
     },
+    private readonly signerAddress: Promise<string>,
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress }]) => {
-      const transactionManager = new Contract(
-        transactionManagerAddress,
-        TransactionManagerArtifact.abi,
-        provider,
-      ) as TTransactionManager;
       this.chainConfig[parseInt(chainId)] = {
-        transactionManager,
+        transactionManagerAddress,
         provider,
       };
     });
-    this.txManagerBase = new TransactionManagerBase(
-      _chainConfig,
-      this.signer.getAddress(),
-      this.logger.child({ name: "TransactionManagerBase" }),
-    );
-  }
-
-  /**
-   * Returns a connected signer. This is necessary because the browser-injected signer will not allow a provider to be connected.
-   *
-   * @param provider - The provider to connect if not a browser
-   * @returns The connected signer
-   */
-  getConnectedSigner(provider: providers.FallbackProvider): Signer {
-    if (isNode()) {
-      return this.signer.connect(provider);
-    }
-    return this.signer;
   }
 
   /**
@@ -88,7 +81,7 @@ export class TransactionManager {
     chainId: number,
     prepareParams: PrepareParams,
     _requestContext?: RequestContext<string>,
-  ): Promise<providers.TransactionResponse> {
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       "TransactionManager.prepare",
       _requestContext,
@@ -97,29 +90,45 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
 
-    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager || !provider) {
+    const { provider, transactionManagerAddress } = this.chainConfig[chainId] ?? {};
+    if (!provider || !transactionManagerAddress) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const signer = this.getConnectedSigner(provider);
+    const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const minTx = await this.txManagerBase.prepare(chainId, prepareParams, _requestContext);
+    const invariant = {
+      receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
+      user: txData.user,
+      router: txData.router,
+      sendingAssetId: txData.sendingAssetId,
+      receivingAssetId: txData.receivingAssetId,
+      sendingChainFallback: txData.sendingChainFallback,
+      callTo: txData.callTo,
+      receivingAddress: txData.receivingAddress,
+      sendingChainId: txData.sendingChainId,
+      receivingChainId: txData.receivingChainId,
+      callDataHash: txData.callDataHash,
+      transactionId: txData.transactionId,
+    };
 
-    // estimate gas
-    let gasLimit;
-    try {
-      gasLimit = await signer.estimateGas(minTx);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
+    const data = this.txManagerInterface.encodeFunctionData("prepare", [
+      invariant,
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
+    ]);
 
-    const tx = await signer.sendTransaction({ ...minTx, from: this.signer.getAddress(), gasLimit: gasLimit.mul(2) });
-    this.logger.info("Prepare transaction submitted", requestContext, methodContext, {
-      txHash: tx.hash,
-    });
-    return tx;
+    this.logger.info("Prepare transaction created", requestContext, methodContext);
+
+    return {
+      to: transactionManagerAddress,
+      value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
+      data,
+      from: await this.signerAddress,
+    };
   }
 
   /**
@@ -139,7 +148,7 @@ export class TransactionManager {
     chainId: number,
     cancelParams: CancelParams,
     _requestContext?: RequestContext<string>,
-  ): Promise<providers.TransactionResponse> {
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       "TransactionManager.cancel",
       _requestContext,
@@ -148,30 +157,24 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { cancelParams });
 
-    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager || !provider) {
+    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManagerAddress || !provider) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const signer = this.getConnectedSigner(provider);
+    const { txData, signature } = cancelParams;
 
-    const minTx = await this.txManagerBase.cancel(chainId, cancelParams, _requestContext);
+    this.logger.info("Cancel transaction created", requestContext, methodContext);
 
-    // estimate gas
-    let gasLimit;
-    try {
-      gasLimit = await signer.estimateGas(minTx);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
+    const data = this.txManagerInterface.encodeFunctionData("cancel", [txData, signature]);
 
-    const tx = await signer.sendTransaction({ ...minTx, from: this.signer.getAddress(), gasLimit: gasLimit.mul(2) });
+    this.logger.info("Prepare transaction created", requestContext, methodContext);
 
-    this.logger.info("Cancel transaction submitted", requestContext, methodContext, {
-      txHash: tx.hash,
-    });
-    return tx;
+    return {
+      to: transactionManagerAddress,
+      data,
+      from: await this.signerAddress,
+    };
   }
 
   /**
@@ -193,7 +196,7 @@ export class TransactionManager {
     chainId: number,
     fulfillParams: FulfillParams,
     _requestContext?: RequestContext<string>,
-  ): Promise<providers.TransactionResponse> {
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       "TransactionManager.fulfill",
       _requestContext,
@@ -202,28 +205,22 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
 
-    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager || !provider) {
+    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManagerAddress || !provider) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const signer = this.getConnectedSigner(provider);
+    const { txData, relayerFee, signature, callData } = fulfillParams;
 
-    const minTx = await this.txManagerBase.fulfill(chainId, fulfillParams, _requestContext);
+    const data = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
 
-    // estimate gas
-    let gasLimit;
-    try {
-      gasLimit = await signer.estimateGas(minTx);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
+    this.logger.info("Fulfill transaction created", requestContext, methodContext);
 
-    const tx = await signer.sendTransaction({ ...minTx, from: this.signer.getAddress(), gasLimit: gasLimit.mul(2) });
-
-    this.logger.info("Fulfill transaction submitted", requestContext, methodContext, { txHash: tx.hash });
-    return tx;
+    return {
+      to: transactionManagerAddress,
+      data,
+      from: await this.signerAddress,
+    };
   }
 
   /**
@@ -242,7 +239,7 @@ export class TransactionManager {
     amount: string,
     infiniteApprove = false,
     _requestContext?: RequestContext,
-  ): Promise<providers.TransactionResponse | undefined> {
+  ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(
       "TransactionManager.approveTokensIfNeeded",
       _requestContext,
@@ -250,38 +247,40 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, assetId, amount });
 
-    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManager || !provider) {
+    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManagerAddress || !provider) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const signer = this.getConnectedSigner(provider);
-
-    const minTx = await this.txManagerBase.approveTokensIfNeeded(
-      chainId,
-      assetId,
-      amount,
-      infiniteApprove,
-      _requestContext,
-    );
-
-    if (!minTx) {
+    const approvedData = this.erc20Interface.encodeFunctionData("allowance", [
+      await this.signerAddress,
+      transactionManagerAddress,
+    ]);
+    const approvedEncoded = await provider.call({
+      to: assetId,
+      data: approvedData,
+    });
+    const [approved] = this.erc20Interface.decodeFunctionResult("allowance", approvedEncoded);
+    this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
+    if (BigNumber.from(approved).lt(amount)) {
+      const data = this.erc20Interface.encodeFunctionData("approve", [
+        transactionManagerAddress,
+        infiniteApprove ? constants.MaxUint256 : amount,
+      ]);
+      this.logger.info("Approve transaction created", requestContext, methodContext);
+      return {
+        to: transactionManagerAddress,
+        data,
+        value: "0",
+        from: await this.signerAddress,
+      };
+    } else {
+      this.logger.info("Allowance sufficient", requestContext, methodContext, {
+        approved: approved.toString(),
+        amount,
+      });
       return undefined;
     }
-
-    // estimate gas
-    let gasLimit;
-    try {
-      gasLimit = await signer.estimateGas(minTx);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
-
-    const tx = await signer.sendTransaction({ ...minTx, from: this.signer.getAddress(), gasLimit: gasLimit.mul(2) });
-
-    this.logger.info("Approve transaction submitted", requestContext, methodContext, { txHash: tx.hash });
-    return tx;
   }
 
   /**
@@ -293,6 +292,15 @@ export class TransactionManager {
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
   async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
-    return await this.txManagerBase.getRouterLiquidity(chainId, router, assetId);
+    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManagerAddress || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
+
+    const data = this.txManagerInterface.encodeFunctionData("routerBalances", [router, assetId]);
+    const encoded = await provider.call({ to: transactionManagerAddress, data });
+    const [balance] = this.txManagerInterface.decodeFunctionResult("routerBalances", encoded);
+
+    return BigNumber.from(balance);
   }
 }
