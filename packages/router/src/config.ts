@@ -204,8 +204,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
 
-    if (!chainConfig.safeRelayerFee) {
-      nxtpConfig.chainConfig[chainId].safeRelayerFee = MIN_RELAYER_FEE.toString();
+    if (!chainConfig.relayFeeThreshold) {
+      nxtpConfig.chainConfig[chainId].relayFeeThreshold = +MIN_RELAYER_FEE;
+    }
+
+    if (!chainConfig.allowFulfillRelay) {
+      nxtpConfig.chainConfig[chainId].allowFulfillRelay = false;
     }
 
     if (!chainConfig.subgraph) {
