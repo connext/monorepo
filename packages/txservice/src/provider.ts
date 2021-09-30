@@ -272,6 +272,9 @@ export class ChainRpcProvider {
         let response: any;
         try {
           response = await axios.get(uri);
+          if (!response || !response.data) {
+            continue;
+          }
           const { rapid, fast } = response.data;
           if (rapid) {
             gasPrice = BigNumber.from(rapid.toString());
@@ -288,7 +291,7 @@ export class ChainRpcProvider {
         } catch (e) {
           this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
             uri,
-            data: response.data,
+            res: response ? (response?.data ? response.data : response) : undefined,
             error: jsonifyError(e),
           });
         }
