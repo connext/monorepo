@@ -14,7 +14,7 @@ POST {{routerUrl}}/remove-liquidity
 Content-Type: application/json
 
 {
-  "adminToken": "unspanktheunbanked",
+  "adminToken": "blahblah",
   "chainId": "{{chainId}}",
   "assetId": "{{assetId}}",
   "amount": "{{amount}}",
@@ -27,4 +27,15 @@ Content-Type: application/json
 
 {
   "adminToken": "blahblah"
+}
+
+### CANCEL SENDER
+POST {{routerUrl}}/cancel-sender
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah",
+  "transactionId": "0x76ed04081dc333c51575bf785389e46d8e7d85563b28b16da78e2597aada4791",
+  "senderChainId": 137,
+  "user": "0xf4cf09a03f2d9e3b86105d043dd7c45de9d9753c"
 }
