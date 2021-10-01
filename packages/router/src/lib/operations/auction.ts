@@ -69,6 +69,7 @@ export const newAuction = async (
     transactionId,
     receivingAddress,
     dryRun,
+    initiator,
   } = data;
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
@@ -253,6 +254,7 @@ export const newAuction = async (
   const bid: AuctionBid = {
     user,
     router: wallet.address,
+    initiator,
     sendingChainId,
     sendingAssetId,
     amount,

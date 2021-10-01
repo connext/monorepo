@@ -104,6 +104,7 @@ export const cancelAndFullfillSanitationCheck = async (
     receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
     user: transactionData.user,
     router: transactionData.router,
+    initiator: transactionData.initiator,
     sendingAssetId: transactionData.sendingAssetId,
     receivingAssetId: transactionData.receivingAssetId,
     sendingChainFallback: transactionData.sendingChainFallback,

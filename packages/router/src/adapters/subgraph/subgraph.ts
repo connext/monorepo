@@ -37,6 +37,7 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
     invariant: {
       receivingChainTxManagerAddress: sdkSendingTransaction.receivingChainTxManagerAddress,
       user: sdkSendingTransaction.user.id,
+      initiator: sdkSendingTransaction.initiator,
       router: sdkSendingTransaction.router.id,
       sendingAssetId: sdkSendingTransaction.sendingAssetId,
       sendingChainId: Number(sdkSendingTransaction.sendingChainId),
@@ -361,6 +362,7 @@ export const getTransactionForChain = async (
           receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
           user: transaction.user.id,
           router: transaction.router.id,
+          initiator: transaction.initiator,
           sendingAssetId: transaction.sendingAssetId,
           receivingAssetId: transaction.receivingAssetId,
           sendingChainFallback: transaction.sendingChainFallback,

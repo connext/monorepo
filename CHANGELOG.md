@@ -2,6 +2,10 @@
 
 ## Next Release
 
+- [contracts] Final updates from auditor
+- [contracts] Add price oracle contract
+- [router] Estimate gas and add to fee on configured chains
+
 ## 0.0.50
 
 - [sdk] Hardcode estimated gas for xdai

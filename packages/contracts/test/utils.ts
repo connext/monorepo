@@ -5,13 +5,19 @@ import { BigNumber, constants, Contract, ContractFactory, ContractReceipt, provi
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 import { ProposedOwnable } from "../typechain";
+import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
 export const deployContract = async <T extends Contract = Contract>(
-  contractName: string,
+  factoryInfo: string | Artifact,
   ...args: any[]
 ): Promise<T> => {
-  const factory = (await ethers.getContractFactory(contractName)) as ContractFactory;
+  let factory: ContractFactory;
+  if (typeof factoryInfo === "string") {
+    factory = (await ethers.getContractFactory(factoryInfo)) as ContractFactory;
+  } else {
+    factory = await ethers.getContractFactory(factoryInfo.abi, factoryInfo.bytecode);
+  }
   const contract = await factory.deploy(...args, {
     maxFeePerGas: MAX_FEE_PER_GAS,
   });
