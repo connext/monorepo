@@ -33,36 +33,19 @@ export const calculateGasFeeInReceivingToken = async (
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
 
+  let totalCost = constants.Zero;
   // TODO: this is returning zero when doing a rinkeby to goerli tx. i believe this is because the oracle
   // is not configured for goerli so theres no way to translate the price to goerli
   // TODO: we can combine these into just 2 if statements and remove the repeated logic
   // calculate receiving token amount for gas fee
-  // if chaindIdsForGasFee includes both sendingChainId and receivingChainId, calculate gas fee for both prepare and fulfill transactions
   // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
   // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
-  if (chaindIdsForGasFee.includes(sendingChainId) && chaindIdsForGasFee.includes(receivingChainId)) {
-    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
 
-    const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
-    const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
-    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
-    const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
-    const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
-
-    const gasAmountForFulfillInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
-    const gasAmountForPrepareInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
-    const gasAmountInUsd = gasAmountForPrepareInUsd.add(gasAmountForFulfillInUsd);
-    const tokenAmountForGasFee = receivingTokenPrice.isZero()
-      ? constants.Zero
-      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-    return tokenAmountForGasFee;
-  } else if (chaindIdsForGasFee.includes(sendingChainId)) {
+  if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
 
     const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
-    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
+    const receivingTokenPrice = await getTokenPrice(sendingChainId, sendingAssetId, requestContext);
     const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
 
     const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
@@ -70,8 +53,10 @@ export const calculateGasFeeInReceivingToken = async (
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
-    return tokenAmountForGasFee;
-  } else if (chaindIdsForGasFee.includes(receivingChainId)) {
+    totalCost.add(tokenAmountForGasFee);
+  }
+
+  if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
 
     const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
@@ -83,10 +68,10 @@ export const calculateGasFeeInReceivingToken = async (
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
-    return tokenAmountForGasFee;
-  } else {
-    return constants.Zero;
+    totalCost.add(tokenAmountForGasFee);
   }
+
+  return totalCost;
 };
 /**
  * Gets token price in usd from price oracle
