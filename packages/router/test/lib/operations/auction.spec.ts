@@ -115,6 +115,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -150,6 +151,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -185,6 +187,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -219,6 +222,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
