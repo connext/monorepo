@@ -32,7 +32,6 @@ export const calculateGasFeeInReceivingToken = async (
 
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
-
   let totalCost = constants.Zero;
   // TODO: this is returning zero when doing a rinkeby to goerli tx. i believe this is because the oracle
   // is not configured for goerli so theres no way to translate the price to goerli
@@ -43,7 +42,6 @@ export const calculateGasFeeInReceivingToken = async (
 
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-
     const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
     const receivingTokenPrice = await getTokenPrice(sendingChainId, sendingAssetId, requestContext);
     const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
@@ -53,12 +51,11 @@ export const calculateGasFeeInReceivingToken = async (
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
-    totalCost.add(tokenAmountForGasFee);
+    totalCost = totalCost.add(tokenAmountForGasFee);
   }
 
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-
     const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
     const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
     const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
@@ -68,7 +65,7 @@ export const calculateGasFeeInReceivingToken = async (
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
-    totalCost.add(tokenAmountForGasFee);
+    totalCost = totalCost.add(tokenAmountForGasFee);
   }
 
   return totalCost;
