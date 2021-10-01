@@ -1,6 +1,14 @@
-import { expect, FallbackSubgraph, mkAddress, SubgraphSyncRecord, transactionSubgraphMock } from "@connext/nxtp-utils";
+import {
+  expect,
+  FallbackSubgraph,
+  mkAddress,
+  requestContextMock,
+  SubgraphSyncRecord,
+  transactionSubgraphMock,
+  txDataMock,
+} from "@connext/nxtp-utils";
 import { constants } from "ethers";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
 import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
 import {
@@ -31,7 +39,8 @@ let sdk: SdkMock;
 let getSdkStub: SinonStub;
 
 describe("Subgraph Adapter", () => {
-  const chainId = 1337;
+  const sendingChainId = txDataMock.sendingChainId;
+  const receivingChainId = txDataMock.receivingChainId;
   let config;
   afterEach(() => {
     restore();
@@ -55,7 +64,7 @@ describe("Subgraph Adapter", () => {
         // actual fallback subgraph, but to emulate the same behavior.
         const { _meta } = await sdk.GetBlockNumber();
         const syncedBlock = _meta?.block.number ?? 0;
-        const synced = (latestBlock - syncedBlock) <= 10;
+        const synced = latestBlock - syncedBlock <= 10;
         return [
           {
             synced,
@@ -63,13 +72,13 @@ describe("Subgraph Adapter", () => {
             syncedBlock,
             lag: latestBlock - syncedBlock,
             uri: "",
-          }
-        ]
+          },
+        ];
       }),
     });
 
     sdks = {
-      [chainId]: fallbackSubgraph,
+      [sendingChainId]: fallbackSubgraph,
     };
 
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
@@ -83,7 +92,7 @@ describe("Subgraph Adapter", () => {
     it("should work", async () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
       txServiceMock.getBlockNumber.resolves(10);
-      expect(await getSyncRecord(chainId)).to.be.deep.eq([
+      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
         {
           synced: true,
           syncedBlock: 10,
@@ -96,9 +105,20 @@ describe("Subgraph Adapter", () => {
   });
 
   describe("getActiveTransactions", () => {
+    it("happy", async () => {
+      const _sdks = {
+        ...sdks,
+        [receivingChainId]: fallbackSubgraph,
+      };
+      getSdkStub.returns(_sdks as any);
+
+      sdk.GetSenderTransactions.resolves({ router: { transactions: [transactionSubgraphMock] } });
+      await getActiveTransactions(requestContextMock);
+    });
+
     it("should fail if theres no chain config for that chain", async () => {
       const _sdks = {
-        [9876]: sdks[chainId],
+        [9876]: sdks[sendingChainId],
       };
       getSdkStub.returns(_sdks as any);
 
@@ -112,7 +132,9 @@ describe("Subgraph Adapter", () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: testSyncedBlockNumber } } });
       txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(await getSyncRecord(chainId)).to.be.deep.eq([{ synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" }]);
+      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
+        { synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
+      ]);
     });
 
     it("should return an empty array if GetBlockNumber fails", async () => {
@@ -134,7 +156,7 @@ describe("Subgraph Adapter", () => {
     it("should fail GetTransaction fails", async () => {
       sdk.GetSenderTransactions.resolves({
         router: {
-          transactions: [{ ...transactionSubgraphMock, receivingChainId: chainId }],
+          transactions: [{ ...transactionSubgraphMock, receivingChainId: sendingChainId }],
         },
       });
 
@@ -145,7 +167,7 @@ describe("Subgraph Adapter", () => {
       expect(
         sdk.GetSenderTransactions.calledOnceWithExactly({
           routerId: routerAddrMock,
-          sendingChainId: chainId,
+          sendingChainId: sendingChainId,
           status: TransactionStatus.Prepared,
         }),
       ).to.be.true;
@@ -171,7 +193,7 @@ describe("Subgraph Adapter", () => {
       expect(
         sdk.GetSenderTransactions.calledOnceWithExactly({
           routerId: routerAddrMock,
-          sendingChainId: chainId,
+          sendingChainId: sendingChainId,
           status: TransactionStatus.Prepared,
         }),
       ).to.be.true;
@@ -194,7 +216,7 @@ describe("Subgraph Adapter", () => {
       expect(
         sdk.GetSenderTransactions.calledOnceWithExactly({
           routerId: routerAddrMock,
-          sendingChainId: chainId,
+          sendingChainId: sendingChainId,
           status: TransactionStatus.Prepared,
         }),
       ).to.be.true;
@@ -210,7 +232,7 @@ describe("Subgraph Adapter", () => {
       sdk.GetTransaction.resolves({ transaction });
       getSdkStub.returns(sdks);
 
-      const result = await getTransactionForChain(transactionId, user, chainId);
+      const result = await getTransactionForChain(transactionId, user, sendingChainId);
       expect(result).to.containSubset({
         txData: {
           ...transaction,
@@ -231,7 +253,7 @@ describe("Subgraph Adapter", () => {
       sdk.GetTransaction.resolves({ transaction: null });
       getSdkStub.returns(sdks);
 
-      const result = await getTransactionForChain(transactionId, user, chainId);
+      const result = await getTransactionForChain(transactionId, user, sendingChainId);
       expect(result).to.be.undefined;
       expect(
         sdk.GetTransaction.calledOnceWithExactly({
@@ -246,17 +268,17 @@ describe("Subgraph Adapter", () => {
 
       sdk.GetTransaction.rejects(new Error("fail"));
 
-      await expect(getTransactionForChain(transactionId, user, chainId)).to.be.rejectedWith("fail");
+      await expect(getTransactionForChain(transactionId, user, sendingChainId)).to.be.rejectedWith("fail");
     });
 
     it("should throw if there is no sdk", async () => {
       const transactionId = mkAddress("0xa");
       const user = mkAddress("0xbbb");
-      sdks[chainId] = undefined;
+      sdks[sendingChainId] = undefined;
       getSdkStub.returns(sdks);
 
-      await expect(getTransactionForChain(transactionId, user, chainId)).to.be.rejectedWith(
-        (new ContractReaderNotAvailableForChain(chainId) as any).message,
+      await expect(getTransactionForChain(transactionId, user, sendingChainId)).to.be.rejectedWith(
+        (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
       );
     });
   });
@@ -268,18 +290,18 @@ describe("Subgraph Adapter", () => {
       sdk.GetAssetBalance.resolves({ assetBalance: { amount } });
       getSdkStub.returns(sdks);
 
-      const result = await getAssetBalance(assetId, chainId);
+      const result = await getAssetBalance(assetId, sendingChainId);
       expect(result.eq(amount)).to.be.true;
       expect(sdk.GetAssetBalance.calledOnceWithExactly({ assetBalanceId: `${assetId}-${routerAddrMock}` }));
     });
 
     it("should throw if there is no sdk", async () => {
       const assetId = mkAddress("0xa");
-      sdks[chainId] = undefined;
+      sdks[sendingChainId] = undefined;
       getSdkStub.returns(sdks);
 
-      await expect(getAssetBalance(assetId, chainId)).to.be.rejectedWith(
-        (new ContractReaderNotAvailableForChain(chainId) as any).message,
+      await expect(getAssetBalance(assetId, sendingChainId)).to.be.rejectedWith(
+        (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
       );
     });
   });

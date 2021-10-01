@@ -83,7 +83,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
 
     const latestBlock = await txService.getBlockNumber(chainId);
     records = await sdk.sync(latestBlock);
-    logger.info(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
+    logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
       latestBlock,
       records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
@@ -118,6 +118,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       // update synced status
       await setSyncRecord(chainId, requestContext);
 
+      // get all receiver expired txs
       const allReceiverExpired = await sdk.useSynced<GetReceiverTransactionsQuery>((client) =>
         client.GetReceiverTransactions({
           routerId: routerAddress.toLowerCase(),
