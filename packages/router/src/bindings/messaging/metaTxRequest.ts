@@ -85,6 +85,7 @@ export const metaTxRequestBinding = async (
         receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
         user: txData.user,
         router: txData.router,
+        initiator: txData.initiator,
         sendingChainId: txData.sendingChainId,
         sendingAssetId: txData.sendingAssetId,
         sendingChainFallback: txData.sendingChainFallback,

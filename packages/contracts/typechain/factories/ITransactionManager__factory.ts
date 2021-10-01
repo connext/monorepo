@@ -188,6 +188,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -302,6 +307,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -392,6 +402,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bool",
+        name: "isContract",
+        type: "bool",
+      },
+      {
+        indexed: false,
         internalType: "bytes",
         name: "returnData",
         type: "bytes",
@@ -442,6 +458,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {
@@ -626,6 +647,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -716,6 +742,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -800,6 +831,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {
@@ -900,6 +936,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {
@@ -1018,6 +1059,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -1109,6 +1155,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {

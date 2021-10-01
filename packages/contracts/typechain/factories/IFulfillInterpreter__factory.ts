@@ -61,6 +61,12 @@ const _abi = [
         name: "success",
         type: "bool",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isContract",
+        type: "bool",
+      },
     ],
     name: "Executed",
     type: "event",
@@ -103,6 +109,11 @@ const _abi = [
       {
         internalType: "bool",
         name: "success",
+        type: "bool",
+      },
+      {
+        internalType: "bool",
+        name: "isContract",
         type: "bool",
       },
       {

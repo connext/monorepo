@@ -32,12 +32,14 @@ const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): Transac
     expiry,
     amount,
     preparedBlockNumber,
+    initiator,
   } = mocked;
 
   return {
     receivingChainTxManagerAddress,
     user: user.id,
     router: router.id,
+    initiator,
     sendingAssetId,
     receivingAssetId,
     sendingChainFallback,
@@ -656,6 +658,7 @@ describe("Subgraph", () => {
           crosschainTx: {
             invariant: {
               user,
+              initiator: transactionSubgraphMock.initiator,
               router: transactionSubgraphMock.router.id,
               sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
               sendingAssetId: transactionSubgraphMock.sendingAssetId,
@@ -697,6 +700,7 @@ describe("Subgraph", () => {
             invariant: {
               user,
               router: transactionSubgraphMock.router.id,
+              initiator: transactionSubgraphMock.initiator,
               sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
               sendingAssetId: transactionSubgraphMock.sendingAssetId,
               sendingChainFallback: transactionSubgraphMock.sendingChainFallback,

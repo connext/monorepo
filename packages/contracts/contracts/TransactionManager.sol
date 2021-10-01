@@ -110,13 +110,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 chain = chainId;
     if (chain == 0) {
       // If not provided, pull from block
-      assembly {
-        _chainId := chainid()
-      }
-    } else {
-      // Use provided override
-      _chainId = chain;
+      chain = block.chainid;
     }
+    return chain;
   }
 
   /**
@@ -336,6 +332,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     // First determine if this is sender side or receiver side
     if (invariantData.sendingChainId == _chainId) {
+      // Check the sender is correct
+      require(msg.sender == invariantData.initiator, "#P:039");
+
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
@@ -408,6 +407,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       receivingChainTxManagerAddress: invariantData.receivingChainTxManagerAddress,
       user: invariantData.user,
       router: invariantData.router,
+      initiator: invariantData.initiator,
       sendingAssetId: invariantData.sendingAssetId,
       receivingAssetId: invariantData.receivingAssetId,
       sendingChainFallback: invariantData.sendingChainFallback,
@@ -470,13 +470,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // Make sure the transaction wasn't already completed
       require(txData.preparedBlockNumber > 0, "#F:021");
 
-      // Validate the user has signed
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
-
-      // Sanity check: fee <= amount. Allow `=` in case of only wanting to execute
-      // 0-value crosschain tx, so only providing the fee amount
-      require(relayerFee <= txData.amount, "#F:023");
-
       // Check provided callData matches stored hash
       require(keccak256(callData) == txData.callDataHash, "#F:024");
 
@@ -492,9 +485,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Declare these variables for the event emission. Are only assigned
     // IFF there is an external call on the receiving chain
     bool success;
+    bool isContract;
     bytes memory returnData;
 
-    if (txData.sendingChainId == getChainId()) {
+    uint256 _chainId = getChainId();
+
+    if (txData.sendingChainId == _chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
@@ -503,11 +499,22 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // on the sending chain
       require(msg.sender == txData.router, "#F:016");
 
+      // Validate the user has signed
+      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
+
       // Complete tx to router for original sending amount
       routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
 
     } else {
-      (success, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
+      // Validate the user has signed, using domain of contract
+      require(recoverFulfillSignature(txData.transactionId, relayerFee, _chainId, address(this), signature) == txData.user, "#F:022");
+
+      // Sanity check: fee <= amount. Allow `=` in case of only 
+      // wanting to execute 0-value crosschain tx, so only providing 
+      // the fee amount
+      require(relayerFee <= txData.amount, "#F:023");
+
+      (success, isContract, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
     }
 
     // Emit event
@@ -520,6 +527,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       signature,
       callData,
       success,
+      isContract,
       returnData,
       msg.sender
     );
@@ -750,6 +758,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
+      initiator: txData.initiator,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,
@@ -798,7 +807,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     TransactionData calldata txData,
     uint256 relayerFee,
     bytes calldata callData
-  ) internal returns (bool, bytes memory) {
+  ) internal returns (bool, bool, bytes memory) {
     // The user is completing the transaction, they should get the
     // amount that the router deposited less fees for relayer.
 
@@ -819,7 +828,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       if (toSend > 0) {
         LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
       }
-      return (false, new bytes(0));
+      return (false, false, new bytes(0));
     } else {
       // Handle external calls with a fallback to the receiving
       // address in case the call fails so the funds dont remain

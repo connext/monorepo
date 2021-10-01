@@ -41,7 +41,7 @@ interface FulfillInterpreterInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool)": EventFragment;
+    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
@@ -125,7 +125,7 @@ export class FulfillInterpreter extends BaseContract {
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[boolean, string]>;
+    ): Promise<[boolean, boolean, string]>;
 
     getTransactionManager(overrides?: CallOverrides): Promise<string>;
   };
@@ -139,9 +139,20 @@ export class FulfillInterpreter extends BaseContract {
       amount?: null,
       callData?: null,
       returnData?: null,
-      success?: null
+      success?: null,
+      isContract?: null
     ): TypedEventFilter<
-      [string, string, string, string, BigNumber, string, string, boolean],
+      [
+        string,
+        string,
+        string,
+        string,
+        BigNumber,
+        string,
+        string,
+        boolean,
+        boolean
+      ],
       {
         transactionId: string;
         callTo: string;
@@ -151,6 +162,7 @@ export class FulfillInterpreter extends BaseContract {
         callData: string;
         returnData: string;
         success: boolean;
+        isContract: boolean;
       }
     >;
   };

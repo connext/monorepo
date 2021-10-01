@@ -14,6 +14,7 @@ const requestContext = createRequestContext("TEST", mkBytes32());
 
 const auctionPayload: AuctionPayload = {
   user: mkAddress("0xa"),
+  initiator: mkAddress("0xa"),
   sendingChainId: 1337,
   sendingAssetId: mkAddress("0xc"),
   amount: "10000000000000000000000",
@@ -114,6 +115,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -149,6 +151,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -184,6 +187,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -218,6 +222,7 @@ describe("Auction Operation", () => {
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
         router: routerAddrMock,
+        initiator: auctionPayload.initiator,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
         amount: auctionPayload.amount,
@@ -246,6 +251,7 @@ describe("Auction Operation", () => {
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
+        initiator: auctionPayload.initiator,
         router: routerAddrMock,
         sendingChainId: auctionPayload.sendingChainId,
         sendingAssetId: auctionPayload.sendingAssetId,
