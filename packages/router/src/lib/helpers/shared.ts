@@ -33,6 +33,9 @@ export const calculateGasFeeInReceivingToken = async (
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
 
+  // TODO: this is returning zero when doing a rinkeby to goerli tx. i believe this is because the oracle
+  // is not configured for goerli so theres no way to translate the price to goerli
+  // TODO: we can combine these into just 2 if statements and remove the repeated logic
   // calculate receiving token amount for gas fee
   // if chaindIdsForGasFee includes both sendingChainId and receivingChainId, calculate gas fee for both prepare and fulfill transactions
   // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
@@ -50,9 +53,9 @@ export const calculateGasFeeInReceivingToken = async (
     const gasAmountForFulfillInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
     const gasAmountForPrepareInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
     const gasAmountInUsd = gasAmountForPrepareInUsd.add(gasAmountForFulfillInUsd);
-    const tokenAmountForGasFee = gasAmountInUsd
-      .div(receivingTokenPrice)
-      .div(BigNumber.from(10).pow(18 - outputDecimals));
+    const tokenAmountForGasFee = receivingTokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     return tokenAmountForGasFee;
   } else if (chaindIdsForGasFee.includes(sendingChainId)) {
@@ -63,9 +66,9 @@ export const calculateGasFeeInReceivingToken = async (
     const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
 
     const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
-    const tokenAmountForGasFee = gasAmountInUsd
-      .div(receivingTokenPrice)
-      .div(BigNumber.from(10).pow(18 - outputDecimals));
+    const tokenAmountForGasFee = receivingTokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     return tokenAmountForGasFee;
   } else if (chaindIdsForGasFee.includes(receivingChainId)) {
@@ -76,9 +79,9 @@ export const calculateGasFeeInReceivingToken = async (
     const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
 
     const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
-    const tokenAmountForGasFee = gasAmountInUsd
-      .div(receivingTokenPrice)
-      .div(BigNumber.from(10).pow(18 - outputDecimals));
+    const tokenAmountForGasFee = receivingTokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     return tokenAmountForGasFee;
   } else {
