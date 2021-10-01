@@ -138,7 +138,7 @@ const config: HardhatUserConfig = {
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
-      url: "https://rpc-mumbai.matic.today",
+      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },
