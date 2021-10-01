@@ -2,9 +2,12 @@
 
 ## Next Release
 
+## 0.0.51
+
 - [contracts] Final updates from auditor
 - [contracts] Add price oracle contract
 - [router] Estimate gas and add to fee on configured chains
+- [contracts] Deploy on testnets
 
 ## 0.0.50
 
