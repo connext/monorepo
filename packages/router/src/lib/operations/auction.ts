@@ -6,6 +6,7 @@ import {
   RequestContext,
   signAuctionBid,
   createLoggingContext,
+  AuctionResponse,
 } from "@connext/nxtp-utils";
 import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
@@ -29,7 +30,7 @@ import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 export const newAuction = async (
   data: AuctionPayload,
   _requestContext: RequestContext<string>,
-): Promise<{ bid: AuctionBid; bidSignature?: string }> => {
+): Promise<AuctionResponse> => {
   const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
   receivedAuction.inc({
     sendingAssetId: data.sendingAssetId,
@@ -68,6 +69,7 @@ export const newAuction = async (
     transactionId,
     receivingAddress,
     dryRun,
+    initiator,
   } = data;
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
@@ -188,10 +190,9 @@ export const newAuction = async (
   // that router does not bid unless it is *sure* it's doing ok)
   // If you can support the transfer:
   // Next, prepare bid
-  // - TODO: Get price from AMM
-  // - TODO: Get fee rate
+  // Get fee rate
   // estimate gas for contract
-  // amountReceived = amountReceived.sub(gasFee)
+  // - TODO: Get price from AMM
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
     sendingAssetId,
@@ -201,6 +202,9 @@ export const newAuction = async (
     outputDecimals,
     requestContext,
   );
+  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  });
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
@@ -250,6 +254,7 @@ export const newAuction = async (
   const bid: AuctionBid = {
     user,
     router: wallet.address,
+    initiator,
     sendingChainId,
     sendingAssetId,
     amount,
@@ -275,5 +280,9 @@ export const newAuction = async (
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
     currentTime * 1000,
   );
-  return { bid, bidSignature: dryRun ? undefined : bidSignature };
+  return {
+    bid,
+    bidSignature: dryRun ? undefined : bidSignature,
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  };
 };

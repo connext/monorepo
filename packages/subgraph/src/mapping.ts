@@ -125,6 +125,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
+  transaction.initiator = event.params.txData.initiator;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
@@ -177,6 +178,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.callData = event.params.callData.toHexString();
   transaction!.externalCallSuccess = event.params.success;
   transaction!.externalCallReturnData = event.params.returnData;
+  transaction!.externalCallIsContract = event.params.isContract;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
 

@@ -89,7 +89,7 @@ describe("LibAsset", () => {
     it("should fail if transferring ether fails", async () => {
       await expect(
         libAssetTest.connect(wallet).transferNativeAsset(wallet.address, BigNumber.from(10_000)),
-      ).to.be.revertedWith("#TNA:028");
+      ).to.be.revertedWith("Address: insufficient balance");
     });
 
     it("happy case: transferNativeAsset", async () => {

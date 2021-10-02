@@ -44,7 +44,23 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
+ * Returns the address of the `ConnextPriceOracle` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
@@ -220,6 +236,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
       nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
+    }
+
+    // allow passed in address to override
+    if (!chainConfig.priceOracleAddress) {
+      const res = getDeployedPriceOracleContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
     }
 
     if (!chainConfig.minGas) {

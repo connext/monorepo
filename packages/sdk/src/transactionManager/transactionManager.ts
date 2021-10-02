@@ -15,6 +15,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import { ChainNotConfigured } from "../error";
 
 import { TransactionManagerBase } from "./transactionManagerBase";
+const HARDCODED_GAS_LIMIT = BigNumber.from(125_000);
 
 /**
  * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
@@ -109,7 +110,11 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await signer.estimateGas(minTx);
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await signer.estimateGas(minTx);
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
@@ -160,7 +165,11 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await signer.estimateGas(minTx);
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await signer.estimateGas(minTx);
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
@@ -214,7 +223,11 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await signer.estimateGas(minTx);
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await signer.estimateGas({ ...minTx, from: this.signer.getAddress() });
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
@@ -272,7 +285,11 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await signer.estimateGas(minTx);
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await signer.estimateGas(minTx);
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;

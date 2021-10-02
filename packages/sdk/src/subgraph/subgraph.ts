@@ -34,6 +34,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
   return {
     receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
     user: transaction.user.id,
+    initiator: transaction.initiator,
     router: transaction.router.id,
     sendingChainId: parseInt(transaction.sendingChainId),
     sendingAssetId: transaction.sendingAssetId,
@@ -559,6 +560,7 @@ export class Subgraph {
                   invariant: {
                     user,
                     router: receiverTx.router.id,
+                    initiator: receiverTx.initiator,
                     sendingChainId: Number(receiverTx.sendingChainId),
                     sendingAssetId: receiverTx.sendingAssetId,
                     sendingChainFallback: receiverTx.sendingChainFallback,
@@ -612,6 +614,7 @@ export class Subgraph {
             crosschainTx: {
               invariant: {
                 user,
+                initiator: tx.initiator,
                 router: tx.router.id,
                 sendingChainId: Number(tx.sendingChainId),
                 sendingAssetId: tx.sendingAssetId,

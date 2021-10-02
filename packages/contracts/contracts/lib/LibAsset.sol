@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
@@ -49,8 +50,7 @@ library LibAsset {
   function transferNativeAsset(address payable recipient, uint256 amount)
       internal
   {
-    (bool success,) = recipient.call{value: amount}("");
-    require(success, "#TNA:028");
+    Address.sendValue(recipient, amount);
   }
 
   /** 
