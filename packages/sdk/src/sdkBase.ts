@@ -33,7 +33,6 @@ import {
   getDeployedTransactionManagerContract,
 } from "./transactionManager/transactionManagerBase";
 import {
-  SubmitError,
   NoTransactionManager,
   NoSubgraph,
   InvalidParamStructure,
@@ -44,8 +43,6 @@ import {
   NoValidBids,
   UnknownAuctionError,
   ChainNotConfigured,
-  InvalidAmount,
-  InvalidBidSignature,
   MetaTxTimeout,
   SubgraphsNotSynced,
 } from "./error";
@@ -81,8 +78,7 @@ import {
   getDecimals,
   generateMessagingInbox,
   recoverAuctionBid,
-  getOnchainBalance,
-  signFulfillTransactionPayload,
+  getFulfillTransactionHashToSign,
   encodeAuctionBid,
   ethereumRequest,
   encrypt,
@@ -346,6 +342,7 @@ export class NxtpSdkNoSend {
     const user = await this.config.signerAddress;
 
     const {
+      initiator,
       sendingAssetId,
       sendingChainId,
       amount,
@@ -470,6 +467,7 @@ export class NxtpSdkNoSend {
 
     const payload = {
       user,
+      initiator: initiator ?? user,
       sendingChainId,
       sendingAssetId,
       amount,
@@ -663,6 +661,7 @@ export class NxtpSdkNoSend {
     const {
       user,
       router,
+      initiator,
       sendingAssetId,
       receivingAssetId,
       receivingAddress,
@@ -682,6 +681,7 @@ export class NxtpSdkNoSend {
       receivingChainTxManagerAddress: this.transactionManagerBase.getTransactionManagerAddress(receivingChainId)!,
       user,
       router,
+      initiator,
       sendingAssetId,
       receivingAssetId,
       sendingChainFallback: user,
@@ -704,6 +704,54 @@ export class NxtpSdkNoSend {
     return tx;
   }
 
+  public async getFulfillHashToSign(
+    params: Omit<TransactionPreparedEvent, "caller">,
+    relayerFee = "0",
+  ): Promise<string> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.getFulfillHashToSign.name,
+      undefined,
+      params.txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
+
+    // Validate params schema
+    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const valid = validate(params);
+    if (!valid) {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
+        transactionId: params.txData.transactionId,
+      });
+      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        params,
+      });
+      throw error;
+    }
+
+    const { txData } = params;
+
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    this.logger.info("Generating fulfill payload", requestContext, methodContext);
+    const hash = getFulfillTransactionHashToSign(
+      txData.transactionId,
+      relayerFee,
+      txData.receivingChainId,
+      txData.receivingChainTxManagerAddress,
+    );
+
+    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
+    return hash;
+  }
+
   /**
    * Fulfills the transaction on the receiving chain.
    *
@@ -714,9 +762,11 @@ export class NxtpSdkNoSend {
    */
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
+    fulfillSignature: string,
+    decryptedCallData: string,
     relayerFee = "0",
     useRelayers = true,
-  ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
+  ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
       undefined,
@@ -739,9 +789,7 @@ export class NxtpSdkNoSend {
       throw error;
     }
 
-    const { txData, encryptedCallData } = params;
-
-    const signerAddress = await this.config.signer.getAddress();
+    const { txData } = params;
 
     if (!this.config.chainConfig[txData.sendingChainId]) {
       throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
@@ -749,27 +797,6 @@ export class NxtpSdkNoSend {
 
     if (!this.config.chainConfig[txData.receivingChainId]) {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    this.logger.info("Generating fulfill signature", requestContext, methodContext);
-    const signature = await signFulfillTransactionPayload(
-      txData.transactionId,
-      relayerFee,
-      txData.receivingChainId,
-      txData.receivingChainTxManagerAddress,
-      this.config.signer,
-    );
-
-    this.logger.info("Generated signature", requestContext, methodContext, { signature });
-    this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
-    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { relayerFee });
-    let callData = "0x";
-    if (txData.callDataHash !== utils.keccak256(callData)) {
-      try {
-        callData = await ethereumRequest("eth_decrypt", [encryptedCallData, txData.user]);
-      } catch (e) {
-        throw new EncryptionError("decryption failed", jsonifyError(e));
-      }
     }
 
     if (useRelayers) {
@@ -790,13 +817,13 @@ export class NxtpSdkNoSend {
       const request = {
         type: MetaTxTypes.Fulfill,
         relayerFee,
-        to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId),
+        to: this.transactionManagerBase.getTransactionManagerAddress(txData.receivingChainId)!,
         chainId: txData.receivingChainId,
         data: {
           relayerFee,
-          signature,
+          signature: fulfillSignature,
           txData,
-          callData,
+          callData: decryptedCallData,
         },
       };
       await this.messaging.publishMetaTxRequest(request, responseInbox);
@@ -814,19 +841,19 @@ export class NxtpSdkNoSend {
       }
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await this.transactionManager.fulfill(
+      const fulfillRequest = await this.transactionManagerBase.fulfill(
         txData.receivingChainId,
         {
-          callData,
+          callData: decryptedCallData,
           relayerFee,
-          signature,
+          signature: fulfillSignature,
           txData,
         },
         requestContext,
       );
 
-      this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
-      return { fulfillResponse };
+      this.logger.info("Method complete", requestContext, methodContext, { fulfillRequest });
+      return { fulfillRequest };
     }
   }
 
@@ -841,7 +868,7 @@ export class NxtpSdkNoSend {
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
 
-  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
+  public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       this.cancel.name,
       undefined,
@@ -864,9 +891,9 @@ export class NxtpSdkNoSend {
       throw error;
     }
 
-    const cancelResponse = await this.transactionManager.cancel(chainId, cancelParams, requestContext);
-    this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
-    return cancelResponse;
+    const cancelRequest = await this.transactionManagerBase.cancel(chainId, cancelParams, requestContext);
+    this.logger.info("Method complete", requestContext, methodContext, { cancelRequest });
+    return cancelRequest;
   }
 
   /**

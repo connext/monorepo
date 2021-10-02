@@ -1,5 +1,5 @@
 import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
-import { arrayify, splitSignature } from "ethers/lib/utils";
+import { arrayify, hexDataLength, splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
 import { AuctionBid } from "./messaging";
@@ -60,10 +60,34 @@ export const signFulfillTransactionPayload = async (
   receivingChainTxManagerAddress: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
-  const hash = utils.solidityKeccak256(["bytes"], [payload]);
+  const hash = getFulfillTransactionHashToSign(
+    transactionId,
+    relayerFee,
+    receivingChainId,
+    receivingChainTxManagerAddress,
+  );
 
   return sign(hash, signer);
+};
+
+/**
+ * Generates a hash to sign of an fulfill transaction payload
+ *
+ * @param transactionId - Transaction ID that was signed
+ * @param relayerFee - Relayer fee that was signed
+ * @param receivingChainId - Chain id for receiving chain
+ * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
+ * @returns Hash that should be signed
+ */
+export const getFulfillTransactionHashToSign = (
+  transactionId: string,
+  relayerFee: string,
+  receivingChainId: number,
+  receivingChainTxManagerAddress: string,
+): string => {
+  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
+  const hash = utils.solidityKeccak256(["bytes"], [payload]);
+  return hash;
 };
 
 /**
