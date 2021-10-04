@@ -183,6 +183,31 @@ export class InvalidAmount extends ParamsError {
 }
 
 /**
+ * @classdesc Thrown if there callTo is not a Contract
+ */
+export class InvalidCallTo extends ParamsError {
+  static getMessage(callTo: string) {
+    return `No contract currently deployed at ${callTo}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly callTo: string,
+    public readonly context: any = {},
+  ) {
+    super(
+      InvalidCallTo.getMessage(callTo),
+      {
+        transactionId,
+        callTo,
+        ...context,
+      },
+      InvalidCallTo.type,
+    );
+  }
+}
+
+/**
  * @classdesc Thrown when bid signature undefined
  */
 export class InvalidBidSignature extends ParamsError {

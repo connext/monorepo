@@ -210,12 +210,15 @@ export const prepare = async (
   await prepareSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
-    txData,
-    amount,
-    expiry,
-    encryptedCallData,
-    encodedBid,
-    bidSignature,
+    {
+      invariantData: txData,
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
+      encodedMeta: "0x",
+    },
   ]);
 
   return await txService.sendTx(
@@ -246,7 +249,9 @@ export const fulfill = async (
 
   await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [
+    { txData, relayerFee, signature, callData, encodedMeta: "0x" },
+  ]);
 
   return await txService.sendTx(
     {
@@ -276,7 +281,7 @@ export const cancel = async (
 
   await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [txData, signature]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [{ txData, signature, encodedMeta: "0x" }]);
 
   return await txService.sendTx(
     {

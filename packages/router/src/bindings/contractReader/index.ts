@@ -90,11 +90,8 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
-    if (handlingTracker.has(transaction.crosschainTx.invariant.transactionId)) {
-      logger.debug("Already handling transaction", requestContext, methodContext);
-      continue;
-    }
 
+    // chainId where onChain interaction will happen
     let chainId: number;
     if (
       transaction.status === CrosschainTransactionStatus.SenderPrepared ||
@@ -103,6 +100,15 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       chainId = transaction.crosschainTx.invariant.receivingChainId;
     } else {
       chainId = transaction.crosschainTx.invariant.sendingChainId;
+    }
+
+    // check if transactionId is already handled for respective chainId
+    if (
+      handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
+      chainId === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.chainId
+    ) {
+      logger.debug("Already handling transaction", requestContext, methodContext);
+      continue;
     }
 
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {

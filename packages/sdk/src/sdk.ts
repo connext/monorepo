@@ -36,6 +36,7 @@ import {
   InvalidParamStructure,
   InvalidSlippage,
   InvalidExpiry,
+  InvalidCallTo,
   EncryptionError,
   NoBids,
   NoValidBids,
@@ -126,6 +127,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly transactionManager: TransactionManager;
+  private readonly logger: Logger;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
 
@@ -145,15 +147,20 @@ export class NxtpSdk {
         };
       };
       signer: Signer;
+      logger?: Logger;
+      network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
+      skipPolling?: boolean;
     },
-    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
-    network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+
+    this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
+    this.config.network = network ?? "testnet";
+    this.config.skipPolling = skipPolling ?? false;
+
     if (messaging) {
       this.messaging = messaging;
     } else {
@@ -540,8 +547,9 @@ export class NxtpSdk {
             getDecimals(receivingAssetId, receivingProvider),
           ]);
 
+          const amtMinusGas = BigNumber.from(data.bid.amountReceived).sub(data.gasFeeInReceivingToken);
           const lowerBound = calculateExchangeWad(
-            BigNumber.from(amount),
+            BigNumber.from(amtMinusGas),
             inputDecimals,
             lowerBoundExchangeRate,
             outputDecimals,
@@ -554,6 +562,8 @@ export class NxtpSdk {
               signer,
               lowerBound: lowerBound,
               bidAmount: data.bid.amount,
+              amtMinusGas: amtMinusGas.toString(),
+              gasFeeInReceivingToken: data.gasFeeInReceivingToken,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
               router: data.bid.router,
@@ -652,12 +662,11 @@ export class NxtpSdk {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
+    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
+
     const signerAddr = await this.config.signer.getAddress();
-    const balance = await getOnchainBalance(
-      sendingAssetId,
-      signerAddr,
-      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
-    );
+    const balance = await getOnchainBalance(sendingAssetId, signerAddr, this.config.signer.provider ?? sendingProvider);
     if (balance.lt(amount)) {
       throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
     }
@@ -669,6 +678,13 @@ export class NxtpSdk {
     const recovered = recoverAuctionBid(bid, bidSignature);
     if (recovered.toLowerCase() !== router.toLowerCase()) {
       throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
+    }
+
+    if (callTo !== constants.AddressZero) {
+      const callToContractCode = await receivingProvider.getCode(callTo);
+      if (!callToContractCode || callToContractCode === "0x") {
+        throw new InvalidCallTo(transactionId, callTo);
+      }
     }
 
     this.logger.info("Preparing tx!", requestContext, methodContext, {
