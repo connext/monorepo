@@ -326,7 +326,7 @@ describe("Contract Reader Binding", () => {
           invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0xeee") },
         },
       };
-      binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, prepare.status);
+      binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, {blockNumber: 1234, chainId: prepare.crosschainTx.invariant.receivingChainId});
       await binding.handleActiveTransactions([prepare, fulfill]);
       expect(handleSingleStub).callCount(1);
       expect(handleSingleStub).to.be.calledOnceWith(fulfill);

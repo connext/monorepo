@@ -32,6 +32,7 @@ import {
   SubgraphsNotSynced,
   SubmitError,
   UnknownAuctionError,
+  InvalidCallTo,
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
@@ -638,6 +639,16 @@ describe("NxtpSdk", () => {
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
       await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined })).to.eventually.be.rejectedWith(
         InvalidBidSignature.getMessage(auctionBid.router, undefined, undefined),
+      );
+    });
+
+    it("should error if it callTo isn't deployed contract", async () => {
+      const mockCallTo = getAddress(mkAddress("0xc"));
+      const { auctionBid, bidSignature } = getMock({}, { callTo: mockCallTo });
+
+      balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
+      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature })).to.eventually.be.rejectedWith(
+        InvalidCallTo.getMessage(mockCallTo),
       );
     });
 
