@@ -64,6 +64,21 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
 };
 
 /**
+ * Returns the address of the `StableSwap` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedStableSwapContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.StableSwap;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+/**
  * Returns the addresses where the price oracle contract is deployed to
  *
  */
