@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] Add sanity check for callTo parameter
+- [router] perf subgraph buffer
+
 ## 0.0.51
 
 - [contracts] Final updates from auditor
