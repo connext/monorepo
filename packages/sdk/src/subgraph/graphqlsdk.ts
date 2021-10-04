@@ -314,6 +314,7 @@ export type Transaction = {
   bidSignature: Scalars['Bytes'];
   encodedBid: Scalars['Bytes'];
   prepareTransactionHash: Scalars['Bytes'];
+  prepareMeta?: Maybe<Scalars['Bytes']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   signature?: Maybe<Scalars['Bytes']>;
   callData?: Maybe<Scalars['String']>;
@@ -322,8 +323,10 @@ export type Transaction = {
   externalCallReturnData?: Maybe<Scalars['Bytes']>;
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   fulfillTransactionHash?: Maybe<Scalars['Bytes']>;
+  fulfillMeta?: Maybe<Scalars['Bytes']>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
   cancelTransactionHash?: Maybe<Scalars['Bytes']>;
+  cancelMeta?: Maybe<Scalars['Bytes']>;
 };
 
 export enum TransactionStatus {
@@ -519,6 +522,12 @@ export type Transaction_Filter = {
   prepareTransactionHash_not_in?: Maybe<Array<Scalars['Bytes']>>;
   prepareTransactionHash_contains?: Maybe<Scalars['Bytes']>;
   prepareTransactionHash_not_contains?: Maybe<Scalars['Bytes']>;
+  prepareMeta?: Maybe<Scalars['Bytes']>;
+  prepareMeta_not?: Maybe<Scalars['Bytes']>;
+  prepareMeta_in?: Maybe<Array<Scalars['Bytes']>>;
+  prepareMeta_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  prepareMeta_contains?: Maybe<Scalars['Bytes']>;
+  prepareMeta_not_contains?: Maybe<Scalars['Bytes']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   relayerFee_not?: Maybe<Scalars['BigInt']>;
   relayerFee_gt?: Maybe<Scalars['BigInt']>;
@@ -573,6 +582,12 @@ export type Transaction_Filter = {
   fulfillTransactionHash_not_in?: Maybe<Array<Scalars['Bytes']>>;
   fulfillTransactionHash_contains?: Maybe<Scalars['Bytes']>;
   fulfillTransactionHash_not_contains?: Maybe<Scalars['Bytes']>;
+  fulfillMeta?: Maybe<Scalars['Bytes']>;
+  fulfillMeta_not?: Maybe<Scalars['Bytes']>;
+  fulfillMeta_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillMeta_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillMeta_contains?: Maybe<Scalars['Bytes']>;
+  fulfillMeta_not_contains?: Maybe<Scalars['Bytes']>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
   cancelCaller_not?: Maybe<Scalars['Bytes']>;
   cancelCaller_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -585,6 +600,12 @@ export type Transaction_Filter = {
   cancelTransactionHash_not_in?: Maybe<Array<Scalars['Bytes']>>;
   cancelTransactionHash_contains?: Maybe<Scalars['Bytes']>;
   cancelTransactionHash_not_contains?: Maybe<Scalars['Bytes']>;
+  cancelMeta?: Maybe<Scalars['Bytes']>;
+  cancelMeta_not?: Maybe<Scalars['Bytes']>;
+  cancelMeta_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelMeta_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelMeta_contains?: Maybe<Scalars['Bytes']>;
+  cancelMeta_not_contains?: Maybe<Scalars['Bytes']>;
 };
 
 export enum Transaction_OrderBy {
@@ -613,6 +634,7 @@ export enum Transaction_OrderBy {
   BidSignature = 'bidSignature',
   EncodedBid = 'encodedBid',
   PrepareTransactionHash = 'prepareTransactionHash',
+  PrepareMeta = 'prepareMeta',
   RelayerFee = 'relayerFee',
   Signature = 'signature',
   CallData = 'callData',
@@ -621,8 +643,10 @@ export enum Transaction_OrderBy {
   ExternalCallReturnData = 'externalCallReturnData',
   FulfillCaller = 'fulfillCaller',
   FulfillTransactionHash = 'fulfillTransactionHash',
+  FulfillMeta = 'fulfillMeta',
   CancelCaller = 'cancelCaller',
-  CancelTransactionHash = 'cancelTransactionHash'
+  CancelTransactionHash = 'cancelTransactionHash',
+  CancelMeta = 'cancelMeta'
 }
 
 export type User = {

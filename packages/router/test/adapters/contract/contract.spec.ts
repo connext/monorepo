@@ -27,7 +27,7 @@ describe("Contract Adapter", () => {
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
     stub(ContractFns, "prepareSanitationCheck").resolves();
     stub(ContractFns, "cancelAndFullfillSanitationCheck").resolves();
-    stub(ContractFns, "getTxManagerInterface").returns((interfaceMock as unknown) as TransactionManagerInterface);
+    stub(ContractFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
   });
 
   describe("#getContractAddress", () => {
@@ -43,12 +43,15 @@ describe("Contract Adapter", () => {
 
       const res = await prepare(chainId, prepareParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("prepare", [
-        prepareParamsMock.txData,
-        prepareParamsMock.amount,
-        prepareParamsMock.expiry,
-        prepareParamsMock.encryptedCallData,
-        prepareParamsMock.encodedBid,
-        prepareParamsMock.bidSignature,
+        {
+          invariantData: prepareParamsMock.txData,
+          amount: prepareParamsMock.amount,
+          expiry: prepareParamsMock.expiry,
+          encryptedCallData: prepareParamsMock.encryptedCallData,
+          encodedBid: prepareParamsMock.encodedBid,
+          bidSignature: prepareParamsMock.bidSignature,
+          encodedMeta: "0x",
+        },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
@@ -60,10 +63,13 @@ describe("Contract Adapter", () => {
 
       const res = await fulfill(chainId, fulfillParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
-        fulfillParamsMock.txData,
-        fulfillParamsMock.relayerFee,
-        fulfillParamsMock.signature,
-        fulfillParamsMock.callData,
+        {
+          txData: fulfillParamsMock.txData,
+          relayerFee: fulfillParamsMock.relayerFee,
+          signature: fulfillParamsMock.signature,
+          callData: fulfillParamsMock.callData,
+          encodedMeta: "0x",
+        },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
@@ -75,8 +81,11 @@ describe("Contract Adapter", () => {
 
       const res = await cancel(chainId, cancelParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("cancel", [
-        cancelParamsMock.txData,
-        cancelParamsMock.signature,
+        {
+          txData: cancelParamsMock.txData,
+          signature: cancelParamsMock.signature,
+          encodedMeta: "0x",
+        },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
