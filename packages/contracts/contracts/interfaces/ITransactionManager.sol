@@ -90,6 +90,7 @@ interface ITransactionManager {
     *                     this transaction. Only used within the function for
     *                     event emission. The validity of the bid and
     *                     bidSignature are enforced offchain
+    * @param encodedMeta The meta for the function
     */
   struct PrepareArgs {
     InvariantTransactionData invariantData;
@@ -98,6 +99,21 @@ interface ITransactionManager {
     bytes encryptedCallData;
     bytes encodedBid;
     bytes bidSignature;
+    bytes encodedMeta;
+  }
+
+  /**
+    * Arguments for calling cancel()
+    * @param txData All of the data (invariant and variant) for a crosschain
+    *               transaction. The variant data provided is checked against
+    *               what was stored when the `prepare` function was called.
+    * @param signature The user's signature that allows a transaction to be
+    *                  cancelled by a relayer
+    * @param encodedMeta The meta for the function
+    */
+  struct CancelArgs {
+    TransactionData txData;
+    bytes signature;
     bytes encodedMeta;
   }
 
@@ -145,7 +161,8 @@ interface ITransactionManager {
     address indexed router,
     bytes32 indexed transactionId,
     TransactionData txData,
-    address caller
+    address caller,
+    CancelArgs args
   );
 
   // Getters
@@ -190,5 +207,5 @@ interface ITransactionManager {
     bytes calldata callData
   ) external returns (TransactionData memory);
 
-  function cancel(TransactionData calldata txData, bytes calldata signature) external returns (TransactionData memory);
+  function cancel(CancelArgs calldata args) external returns (TransactionData memory);
 }
