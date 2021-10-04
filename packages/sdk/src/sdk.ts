@@ -158,7 +158,7 @@ export class NxtpSdk {
     const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
-    this.config.network = network ?? "local";
+    this.config.network = network ?? "testnet";
     this.config.skipPolling = skipPolling ?? false;
 
     if (messaging) {
