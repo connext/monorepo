@@ -36,6 +36,7 @@ import {
   InvalidParamStructure,
   InvalidSlippage,
   InvalidExpiry,
+  InvalidCallTo,
   EncryptionError,
   NoBids,
   NoValidBids,
@@ -652,12 +653,11 @@ export class NxtpSdk {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
+    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
+
     const signerAddr = await this.config.signer.getAddress();
-    const balance = await getOnchainBalance(
-      sendingAssetId,
-      signerAddr,
-      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
-    );
+    const balance = await getOnchainBalance(sendingAssetId, signerAddr, this.config.signer.provider ?? sendingProvider);
     if (balance.lt(amount)) {
       throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
     }
@@ -669,6 +669,13 @@ export class NxtpSdk {
     const recovered = recoverAuctionBid(bid, bidSignature);
     if (recovered.toLowerCase() !== router.toLowerCase()) {
       throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
+    }
+
+    if (callTo !== constants.AddressZero) {
+      const callToContractCode = await receivingProvider.getCode(callTo);
+      if (!callToContractCode || callToContractCode === "0x") {
+        throw new InvalidCallTo(transactionId, callTo);
+      }
     }
 
     this.logger.info("Preparing tx!", requestContext, methodContext, {
