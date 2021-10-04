@@ -172,100 +172,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "initiator",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
-          },
-          {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint256",
-            name: "sendingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "receivingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "expiry",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedBlockNumber",
-            type: "uint256",
-          },
-        ],
-        indexed: false,
-        internalType: "struct ITransactionManager.TransactionData",
-        name: "txData",
-        type: "tuple",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-      {
-        components: [
-          {
             components: [
               {
                 internalType: "address",
@@ -367,6 +273,12 @@ const _abi = [
         internalType: "struct ITransactionManager.CancelArgs",
         name: "args",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
       },
     ],
     name: "TransactionCancelled",

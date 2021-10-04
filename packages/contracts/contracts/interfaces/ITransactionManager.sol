@@ -160,9 +160,8 @@ interface ITransactionManager {
     address indexed user,
     address indexed router,
     bytes32 indexed transactionId,
-    TransactionData txData,
-    address caller,
-    CancelArgs args
+    CancelArgs args,
+    address caller
   );
 
   // Getters

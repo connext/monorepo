@@ -186,7 +186,7 @@ interface ITransactionManagerInterface extends ethers.utils.Interface {
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
-    "TransactionCancelled(address,address,bytes32,tuple,address,tuple)": EventFragment;
+    "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,bool,bool,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,tuple)": EventFragment;
   };
@@ -768,49 +768,12 @@ export class ITransactionManager extends BaseContract {
       user?: string | null,
       router?: string | null,
       transactionId?: BytesLike | null,
-      txData?: null,
-      caller?: null,
-      args?: null
+      args?: null,
+      caller?: null
     ): TypedEventFilter<
       [
         string,
         string,
-        string,
-        [
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          initiator: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
-        },
         string,
         [
           [
@@ -888,48 +851,13 @@ export class ITransactionManager extends BaseContract {
           };
           signature: string;
           encodedMeta: string;
-        }
+        },
+        string
       ],
       {
         user: string;
         router: string;
         transactionId: string;
-        txData: [
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
-        ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          initiator: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
-        };
-        caller: string;
         args: [
           [
             string,
@@ -1007,6 +935,7 @@ export class ITransactionManager extends BaseContract {
           signature: string;
           encodedMeta: string;
         };
+        caller: string;
       }
     >;
 

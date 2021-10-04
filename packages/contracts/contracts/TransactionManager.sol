@@ -621,9 +621,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       args.txData.user,
       args.txData.router,
       args.txData.transactionId,
-      args.txData,
-      msg.sender,
-      args
+      args,
+      msg.sender
     );
 
     // Return
