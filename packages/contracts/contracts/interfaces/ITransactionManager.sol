@@ -69,6 +69,38 @@ interface ITransactionManager {
     address receivingChainTxManagerAddress; // For domain separation
   }
 
+  /**
+    * Arguments for calling prepare()
+    * @param invariantData The data for a crosschain transaction that will
+    *                      not change between sending and receiving chains.
+    *                      The hash of this data is used as the key to store 
+    *                      the inforamtion that does change between chains 
+    *                      (amount,expiry,preparedBlock) for verification
+    * @param amount The amount of the transaction on this chain
+    * @param expiry The block.timestamp when the transaction will no longer be
+    *               fulfillable and is freely cancellable on this chain
+    * @param encryptedCallData The calldata to be executed when the tx is
+    *                          fulfilled. Used in the function to allow the user
+    *                          to reconstruct the tx from events. Hash is stored
+    *                          onchain to prevent shenanigans.
+    * @param encodedBid The encoded bid that was accepted by the user for this
+    *                   crosschain transfer. It is supplied as a param to the
+    *                   function but is only used in event emission
+    * @param bidSignature The signature of the bidder on the encoded bid for
+    *                     this transaction. Only used within the function for
+    *                     event emission. The validity of the bid and
+    *                     bidSignature are enforced offchain
+    */
+  struct PrepareArgs {
+    InvariantTransactionData invariantData;
+    uint256 amount;
+    uint256 expiry;
+    bytes encryptedCallData;
+    bytes encodedBid;
+    bytes bidSignature;
+    bytes encodedMeta;
+  }
+
   // Adding/removing asset events
   event RouterAdded(address indexed addedRouter, address indexed caller);
 
@@ -91,9 +123,7 @@ interface ITransactionManager {
     bytes32 indexed transactionId,
     TransactionData txData,
     address caller,
-    bytes encryptedCallData,
-    bytes encodedBid,
-    bytes bidSignature
+    PrepareArgs args
   );
 
   event TransactionFulfilled(
@@ -150,12 +180,7 @@ interface ITransactionManager {
   // 3. fulfill by user on receiving chain
   // 4. fulfill by router on sending chain
   function prepare(
-    InvariantTransactionData calldata txData,
-    uint256 amount,
-    uint256 expiry,
-    bytes calldata encryptedCallData,
-    bytes calldata encodedBid,
-    bytes calldata bidSignature
+    PrepareArgs calldata args
   ) external payable returns (TransactionData memory);
 
   function fulfill(
