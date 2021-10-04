@@ -56,7 +56,7 @@ export const TChainConfig = Type.Object({
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
-  relayFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }), // percentage to allow relay fee to be + or -
+  relayFeeThreshold: Type.Number(),
   subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
 });
 
@@ -203,7 +203,6 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
-
     if (!chainConfig.relayFeeThreshold) {
       nxtpConfig.chainConfig[chainId].relayFeeThreshold = +MIN_RELAYER_FEE;
     }

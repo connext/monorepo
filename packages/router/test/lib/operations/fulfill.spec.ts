@@ -39,7 +39,7 @@ describe("Fulfill Receiver Operation", () => {
 
     it("should error if relayer fee is lower than the lower bound", async () => {
       await expect(
-        fulfill(invariantDataMock, { ...fulfillInputMock, relayerFee: "1" }, requestContext),
+        fulfill(invariantDataMock, { ...fulfillInputMock, relayerFee: "1000" }, requestContext),
       ).to.eventually.be.rejectedWith("Not enough relayer fee");
     });
 

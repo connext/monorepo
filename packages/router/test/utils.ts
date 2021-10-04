@@ -27,7 +27,8 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
       minGas: "100",
-      safeRelayerFee: "1000",
+      relayFeeThreshold: 100,
+      allowFulfillRelay: true,
       subgraphSyncBuffer: 10,
     },
     1338: {
@@ -36,7 +37,8 @@ export const configMock: NxtpRouterConfig = {
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
       minGas: "100",
-      safeRelayerFee: "1000",
+      relayFeeThreshold: 100,
+      allowFulfillRelay: true,
       subgraphSyncBuffer: 10,
     },
   },
@@ -69,7 +71,7 @@ export const fulfillInputMock: FulfillInput = {
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
   signature: "0xabcd",
-  relayerFee: "100000",
+  relayerFee: "10",
   callData: "0xbaa",
   side: "receiver",
 };
