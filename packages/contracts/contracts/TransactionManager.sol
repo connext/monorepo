@@ -438,41 +438,33 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     *         liquidity. The user includes a relayer fee since it is not 
     *         assumed they will have gas on the receiving chain. This function 
     *         *must* be called before the transaction expiry has elapsed.
-    * @param txData All of the data (invariant and variant) for a crosschain
-    *               transaction. The variant data provided is checked against
-    *               what was stored when the `prepare` function was called.
-    * @param relayerFee The fee that should go to the relayer when they are
-    *                   calling the function on the receiving chain for the user
-    * @param signature The users signature on the transaction id + fee that
-    *                  can be used by the router to unlock the transaction on 
-    *                  the sending chain
-    * @param callData The calldata to be sent to and executed by the 
-    *                 `FulfillHelper`
+    * @param args TODO
     */
   function fulfill(
-    TransactionData calldata txData,
-    uint256 relayerFee,
-    bytes calldata signature, // signature on fee + digest
-    bytes calldata callData
+    FulfillArgs calldata args
   ) external override nonReentrant returns (TransactionData memory) {
     // Get the hash of the invariant tx data. This hash is the same
     // between sending and receiving chains. The variant data is stored
     // in the contract when `prepare` is called within the mapping.
 
     { // scope: validation and effects
-      bytes32 digest = hashInvariantTransactionData(txData);
+      bytes32 digest = hashInvariantTransactionData(args.txData);
 
       // Make sure that the variant data matches what was stored
-      require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#F:019");
+      require(variantTransactionData[digest] == hashVariantTransactionData(
+        args.txData.amount,
+        args.txData.expiry,
+        args.txData.preparedBlockNumber
+      ), "#F:019");
 
       // Make sure the expiry has not elapsed
-      require(txData.expiry >= block.timestamp, "#F:020");
+      require(args.txData.expiry >= block.timestamp, "#F:020");
 
       // Make sure the transaction wasn't already completed
-      require(txData.preparedBlockNumber > 0, "#F:021");
+      require(args.txData.preparedBlockNumber > 0, "#F:021");
 
       // Check provided callData matches stored hash
-      require(keccak256(callData) == txData.callDataHash, "#F:024");
+      require(keccak256(args.callData) == args.txData.callDataHash, "#F:024");
 
       // To prevent `fulfill` / `cancel` from being called multiple times, the
       // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -480,7 +472,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // a store can tell the difference between a transaction that has not been
       // prepared, and a transaction that was already completed on the receiver
       // chain.
-      variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+      variantTransactionData[digest] = hashVariantTransactionData(
+        args.txData.amount,
+        args.txData.expiry,
+        0
+      );
     }
 
     // Declare these variables for the event emission. Are only assigned
@@ -491,49 +487,66 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     uint256 _chainId = getChainId();
 
-    if (txData.sendingChainId == _chainId) {
+    if (args.txData.sendingChainId == _chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
 
       // Make sure that the user is not accidentally fulfilling the transaction
       // on the sending chain
-      require(msg.sender == txData.router, "#F:016");
+      require(msg.sender == args.txData.router, "#F:016");
 
       // Validate the user has signed
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
+      require(
+        recoverFulfillSignature(
+          args.txData.transactionId,
+          args.relayerFee,
+          args.txData.receivingChainId,
+          args.txData.receivingChainTxManagerAddress,
+          args.signature
+        ) == args.txData.user, "#F:022"
+      );
 
       // Complete tx to router for original sending amount
-      routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      routerBalances[args.txData.router][args.txData.sendingAssetId] += args.txData.amount;
 
     } else {
       // Validate the user has signed, using domain of contract
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, _chainId, address(this), signature) == txData.user, "#F:022");
+      require(
+        recoverFulfillSignature(
+          args.txData.transactionId,
+          args.relayerFee,
+          _chainId,
+          address(this),
+          args.signature
+        ) == args.txData.user, "#F:022"
+      );
 
       // Sanity check: fee <= amount. Allow `=` in case of only 
       // wanting to execute 0-value crosschain tx, so only providing 
       // the fee amount
-      require(relayerFee <= txData.amount, "#F:023");
+      require(args.relayerFee <= args.txData.amount, "#F:023");
 
-      (success, isContract, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
+      (success, isContract, returnData) = _receivingChainFulfill(
+        args.txData,
+        args.relayerFee,
+        args.callData
+      );
     }
 
     // Emit event
     emit TransactionFulfilled(
-      txData.user,
-      txData.router,
-      txData.transactionId,
-      txData,
-      relayerFee,
-      signature,
-      callData,
+      args.txData.user,
+      args.txData.router,
+      args.txData.transactionId,
+      args,
       success,
       isContract,
       returnData,
       msg.sender
     );
 
-    return txData;
+    return args.txData;
   }
 
   /**

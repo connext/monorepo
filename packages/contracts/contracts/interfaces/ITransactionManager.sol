@@ -103,6 +103,27 @@ interface ITransactionManager {
   }
 
   /**
+    * @param txData All of the data (invariant and variant) for a crosschain
+    *               transaction. The variant data provided is checked against
+    *               what was stored when the `prepare` function was called.
+    * @param relayerFee The fee that should go to the relayer when they are
+    *                   calling the function on the receiving chain for the user
+    * @param signature The users signature on the transaction id + fee that
+    *                  can be used by the router to unlock the transaction on 
+    *                  the sending chain
+    * @param callData The calldata to be sent to and executed by the 
+    *                 `FulfillHelper`
+    * @param encodedMeta The meta for the function
+    */
+  struct FulfillArgs {
+    TransactionData txData;
+    uint256 relayerFee;
+    bytes signature;
+    bytes callData;
+    bytes encodedMeta;
+  }
+
+  /**
     * Arguments for calling cancel()
     * @param txData All of the data (invariant and variant) for a crosschain
     *               transaction. The variant data provided is checked against
@@ -146,10 +167,7 @@ interface ITransactionManager {
     address indexed user,
     address indexed router,
     bytes32 indexed transactionId,
-    TransactionData txData,
-    uint256 relayerFee,
-    bytes signature,
-    bytes callData,
+    FulfillArgs args,
     bool success,
     bool isContract,
     bytes returnData,
@@ -200,10 +218,7 @@ interface ITransactionManager {
   ) external payable returns (TransactionData memory);
 
   function fulfill(
-    TransactionData calldata txData,
-    uint256 relayerFee,
-    bytes calldata signature,
-    bytes calldata callData
+    FulfillArgs calldata args
   ) external returns (TransactionData memory);
 
   function cancel(CancelArgs calldata args) external returns (TransactionData memory);
