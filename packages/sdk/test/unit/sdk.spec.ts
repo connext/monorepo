@@ -174,7 +174,13 @@ describe("NxtpSdk", () => {
     crossChainParamsOverrides: Partial<CrossChainParams> = {},
     auctionBidOverrides: Partial<AuctionBid> = {},
     _bidSignature: string = EmptyCallDataHash,
-  ): { crossChainParams: CrossChainParams; auctionBid: AuctionBid; bidSignature: string } => {
+    _gasFeeInReceivingToken = "0",
+  ): {
+    crossChainParams: CrossChainParams;
+    auctionBid: AuctionBid;
+    bidSignature: string;
+    gasFeeInReceivingToken: string;
+  } => {
     const transactionId = getRandomBytes32();
     const crossChainParams = {
       callData: EmptyBytes,
@@ -213,8 +219,9 @@ describe("NxtpSdk", () => {
     };
 
     const bidSignature = _bidSignature;
+    const gasFeeInReceivingToken = _gasFeeInReceivingToken;
 
-    return { crossChainParams, auctionBid, bidSignature };
+    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken };
   };
 
   describe("#constructor", () => {
@@ -519,7 +526,10 @@ describe("NxtpSdk", () => {
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
       setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature: undefined, bid: auctionBid } });
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature: undefined, bid: auctionBid, gasFeeInReceivingToken: "0" },
+        });
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
@@ -534,7 +544,7 @@ describe("NxtpSdk", () => {
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
       setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
@@ -553,7 +563,7 @@ describe("NxtpSdk", () => {
       encryptMock.resolves(randomHash);
 
       setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
       }, 100);
 
       const res = await sdk.getTransferQuote(crossChainParams);
@@ -574,11 +584,11 @@ describe("NxtpSdk", () => {
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
       setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid } });
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid, gasFeeInReceivingToken: "0" } });
       }, 100);
 
       setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
       }, 150);
       const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouter: auctionBid.router });
 
@@ -590,28 +600,28 @@ describe("NxtpSdk", () => {
   describe("#prepareTransfer", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
-        const { auctionBid, bidSignature } = getMock({}, { user: "abc" });
-        await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("prepareTransfer", "AuctionResponse"),
-        );
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { user: "abc" });
+        await expect(
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("prepareTransfer", "AuctionResponse"));
       });
     });
 
     describe("should error if invalid config", () => {
       it("unknown sendingChainId", async () => {
-        const { auctionBid, bidSignature } = getMock({}, { sendingChainId: 1400 });
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { sendingChainId: 1400 });
 
-        await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
-          ChainNotConfigured.getMessage(1400, supportedChains),
-        );
+        await expect(
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
 
       it("unknown receivingChainId", async () => {
-        const { auctionBid, bidSignature } = getMock({}, { receivingChainId: 1400 });
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { receivingChainId: 1400 });
 
-        await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
-          ChainNotConfigured.getMessage(1400, supportedChains),
-        );
+        await expect(
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
     });
 
@@ -628,42 +638,44 @@ describe("NxtpSdk", () => {
     });
 
     it("should error if it has insufficient balance", async () => {
-      const { auctionBid, bidSignature } = getMock({}, {}, "");
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(0));
       await expect(
-        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature }),
+        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith(
         InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
       );
     });
 
     it("should error if bidSignature undefined", async () => {
-      const { auctionBid } = getMock({}, {}, "");
+      const { auctionBid, gasFeeInReceivingToken } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined })).to.eventually.be.rejectedWith(
-        InvalidBidSignature.getMessage(auctionBid.router, undefined, undefined),
-      );
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith(InvalidBidSignature.getMessage(auctionBid.router, undefined, undefined));
     });
 
     it("should error if it callTo isn't deployed contract", async () => {
       const mockCallTo = getAddress(mkAddress("0xc"));
-      const { auctionBid, bidSignature } = getMock({}, { callTo: mockCallTo });
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { callTo: mockCallTo });
 
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature })).to.eventually.be.rejectedWith(
-        InvalidCallTo.getMessage(mockCallTo),
-      );
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith(InvalidCallTo.getMessage(mockCallTo));
     });
 
     it("should error if approveTokensIfNeeded transaction fails", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       transactionManager.approveTokensIfNeeded.rejects("fails");
 
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith("");
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith("");
     });
 
     it("should error if approve transaction.wait errors", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
@@ -671,11 +683,13 @@ describe("NxtpSdk", () => {
 
       transactionManager.approveTokensIfNeeded.returns(TxResponseMock);
 
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith("fails");
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith("fails");
     });
 
     it("should error if approve transaction reverts", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
@@ -686,39 +700,43 @@ describe("NxtpSdk", () => {
 
       transactionManager.approveTokensIfNeeded.resolves(TxResponseMock);
 
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith(
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith(
         SubmitError.getMessage(user, "approve", auctionBid.sendingAssetId, auctionBid.sendingChainId),
       );
     });
 
     it("should error if prepare errors", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.resolves(undefined);
       transactionManager.prepare.rejects(new Error("fail"));
-      await expect(sdk.prepareTransfer({ bid: auctionBid, bidSignature })).to.eventually.be.rejectedWith("fail");
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith("fail");
     });
 
     it("happy: start transfer with suffice approval", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.returns(undefined);
       transactionManager.prepare.resolves(TxResponse);
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
+      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
       expect(res.prepareResponse).to.be.eq(TxResponse);
       expect(res.transactionId).to.be.eq(auctionBid.transactionId);
     });
 
     it("happy: start transfer ", async () => {
-      const { auctionBid, bidSignature } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.resolves(TxResponse);
       transactionManager.prepare.resolves(TxResponse);
 
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature });
+      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
       expect(res.prepareResponse).to.be.eq(TxResponse);
       expect(res.transactionId).to.be.eq(auctionBid.transactionId);
     });

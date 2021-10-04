@@ -168,7 +168,6 @@ export class TransactionManager {
       throw sanitized;
     }
 
-    console.log("gasLimit: ", gasLimit.toString());
     const tx = await connected.prepare(contractArgs, {
       value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
       from: this.signer.getAddress(),
