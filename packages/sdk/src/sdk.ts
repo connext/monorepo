@@ -547,8 +547,9 @@ export class NxtpSdk {
             getDecimals(receivingAssetId, receivingProvider),
           ]);
 
+          const amtMinusGas = BigNumber.from(data.bid.amountReceived).sub(data.gasFeeInReceivingToken);
           const lowerBound = calculateExchangeWad(
-            BigNumber.from(amount),
+            BigNumber.from(amtMinusGas),
             inputDecimals,
             lowerBoundExchangeRate,
             outputDecimals,
@@ -561,6 +562,8 @@ export class NxtpSdk {
               signer,
               lowerBound: lowerBound,
               bidAmount: data.bid.amount,
+              amtMinusGas: amtMinusGas.toString(),
+              gasFeeInReceivingToken: data.gasFeeInReceivingToken,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
               router: data.bid.router,
