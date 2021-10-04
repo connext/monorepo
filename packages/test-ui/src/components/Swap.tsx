@@ -61,17 +61,15 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       setUserBalance(_balance);
       form.setFieldsValue({ receivingAddress: address });
 
-      const _sdk = new NxtpSdk(
-        {
-          chainConfig: chainProviders,
-          signer,
-          messaging: undefined,
-          natsUrl: process.env.REACT_APP_NATS_URL_OVERRIDE,
-          authUrl: process.env.REACT_APP_AUTH_URL_OVERRIDE,
-        },
-        new Logger({ level: "info" }),
-        (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
-      );
+      const _sdk = new NxtpSdk({
+        chainConfig: chainProviders,
+        signer,
+        messaging: undefined,
+        natsUrl: process.env.REACT_APP_NATS_URL_OVERRIDE,
+        authUrl: process.env.REACT_APP_AUTH_URL_OVERRIDE,
+        logger: new Logger({ level: "info" }),
+        network: (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
+      });
       setSdk(_sdk);
       const activeTxs = await _sdk.getActiveTransactions();
 
