@@ -129,11 +129,15 @@ export class SdkAgent {
     const address = await signer.getAddress();
 
     // Create sdk
-    const sdk = new NxtpSdk(
-      { chainConfig: chainProviders, signer, natsUrl, authUrl, messaging },
-      logger.child({ name: "Sdk" }),
-      "local",
-    );
+    const sdk = new NxtpSdk({
+      chainConfig: chainProviders,
+      signer,
+      natsUrl,
+      authUrl,
+      messaging,
+      logger: logger.child({ name: "Sdk" }),
+      network: "local",
+    });
     await sdk.connectMessaging();
     const agent = new SdkAgent(address, sdk);
 

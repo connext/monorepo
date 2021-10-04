@@ -127,6 +127,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly transactionManager: TransactionManager;
+  private readonly logger: Logger;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
 
@@ -146,15 +147,20 @@ export class NxtpSdk {
         };
       };
       signer: Signer;
+      logger?: Logger;
+      network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
+      skipPolling?: boolean;
     },
-    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
-    network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+
+    this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
+    this.config.network = network ?? "testnet";
+    this.config.skipPolling = skipPolling ?? false;
+
     if (messaging) {
       this.messaging = messaging;
     } else {

@@ -116,10 +116,14 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk(
-      { chainConfig, signer, natsUrl: "http://example.com", authUrl: "http://example.com", messaging: undefined },
+    sdk = new NxtpSdk({
+      chainConfig,
+      signer,
+      natsUrl: "http://example.com",
+      authUrl: "http://example.com",
+      messaging: undefined,
       logger,
-    );
+    });
 
     (sdk as any).transactionManager = transactionManager;
     (sdk as any).subgraph = subgraph;
@@ -223,16 +227,15 @@ describe("NxtpSdk", () => {
       };
       let error;
       try {
-        const instance = new NxtpSdk(
-          {
-            chainConfig: _chainConfig,
-            signer,
-            natsUrl: "http://example.com",
-            authUrl: "http://example.com",
-            messaging: undefined,
-          },
+        const instance = new NxtpSdk({
+          chainConfig: _chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
           logger,
-        );
+          network: "mainnet",
+        });
       } catch (e) {
         error = e;
       }
@@ -251,16 +254,15 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        const instance = new NxtpSdk(
-          {
-            chainConfig: _chainConfig,
-            signer,
-            natsUrl: "http://example.com",
-            authUrl: "http://example.com",
-            messaging: undefined,
-          },
+        const instance = new NxtpSdk({
+          chainConfig: _chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
           logger,
-        );
+          network: "local",
+        });
       } catch (e) {
         error = e;
       }
@@ -279,16 +281,15 @@ describe("NxtpSdk", () => {
           subgraph: "http://example.com",
         },
       };
-      const instance = new NxtpSdk(
-        {
-          chainConfig,
-          signer,
-          natsUrl: "http://example.com",
-          authUrl: "http://example.com",
-          messaging: undefined,
-        },
+      const instance = new NxtpSdk({
+        chainConfig,
+        signer,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        network: "testnet",
         logger,
-      );
+      });
     });
   });
 
