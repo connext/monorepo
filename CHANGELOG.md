@@ -2,9 +2,12 @@
 
 ## Next Release
 
+## 0.0.52
+
 - [sdk] Add sanity check for callTo parameter
 - [sdk] update sdk constructor params structure again
 - [router] perf subgraph buffer
+- [contracts] Redeploy contracts to testnets
 
 ## 0.0.51
 
