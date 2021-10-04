@@ -1,5 +1,5 @@
 import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
-import { arrayify, hexDataLength, splitSignature } from "ethers/lib/utils";
+import { arrayify, splitSignature } from "ethers/lib/utils";
 
 import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
 import { AuctionBid } from "./messaging";

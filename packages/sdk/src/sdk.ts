@@ -28,7 +28,7 @@ import {
   createLoggingContext,
 } from "@connext/nxtp-utils";
 
-import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
+import { TransactionManager } from "./transactionManager/transactionManager";
 import {
   SubmitError,
   NoTransactionManager,
@@ -85,6 +85,8 @@ import {
   encrypt,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
+import { NxtpSdkBase } from "./sdkBase";
+import { getDeployedTransactionManagerContract } from "./transactionManager/transactionManagerBase";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -125,9 +127,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
  */
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
-  private readonly transactionManager: TransactionManager;
-  private readonly messaging: UserNxtpNatsMessagingService;
-  private readonly subgraph: Subgraph;
+  private readonly sdkBase: NxtpSdkBase;
 
   // Keep messaging evts separate from the evt container that has things
   // attached to it
@@ -154,107 +154,24 @@ export class NxtpSdk {
     skipPolling = false,
   ) {
     const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
-    if (messaging) {
-      this.messaging = messaging;
-    } else {
-      let _natsUrl;
-      let _authUrl;
-      switch (network) {
-        case "mainnet": {
-          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
-          _authUrl = authUrl ?? NATS_AUTH_URL;
-          break;
-        }
-        case "testnet": {
-          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
-          _authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
-          break;
-        }
-        case "local": {
-          _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
-          _authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
-          break;
-        }
-      }
-      this.messaging = new UserNxtpNatsMessagingService({
-        signer,
-        logger: this.logger.child({ module: "UserNxtpNatsMessagingService" }),
-        natsUrl: _natsUrl,
-        authUrl: _authUrl,
-      });
-    }
 
-    const txManagerConfig: Record<
-      number,
+    this.sdkBase = new NxtpSdkBase(
       {
-        provider: providers.FallbackProvider;
-        transactionManagerAddress: string;
-      }
-    > = {};
-
-    const subgraphConfig: Record<
-      number,
-      Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }
-    > = {};
-
-    // create configs for subclasses based on passed-in config
-    Object.entries(chainConfig).forEach(
-      ([
-        _chainId,
-        { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph, subgraphSyncBuffer },
-      ]) => {
-        const chainId = parseInt(_chainId);
-        let transactionManagerAddress = _transactionManagerAddress;
-        if (!transactionManagerAddress) {
-          const res = getDeployedTransactionManagerContract(chainId);
-          if (!res || !res.address) {
-            throw new NoTransactionManager(chainId);
-          }
-          transactionManagerAddress = res.address;
-        }
-
-        txManagerConfig[chainId] = {
-          provider,
-          transactionManagerAddress,
-        };
-
-        let subgraph = _subgraph;
-        if (!subgraph) {
-          subgraph = getDeployedSubgraphUri(chainId);
-        }
-        if (!subgraph) {
-          throw new NoSubgraph(chainId);
-        }
-        subgraphConfig[chainId] = {
-          subgraph,
-          provider,
-          subgraphSyncBuffer,
-        };
+        chainConfig,
+        signerAddress: signer.getAddress(),
+        authUrl,
+        messaging,
+        natsUrl,
+        signer,
       },
+      logger,
+      network,
+      skipPolling,
     );
-    this.transactionManager = new TransactionManager(
-      signer,
-      txManagerConfig,
-      this.logger.child({ module: "TransactionManager" }, "debug"),
-    );
-    this.subgraph = new Subgraph(signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
-    // Setup the subscriptions
-    const token = await this.messaging.connect(bearerToken);
-    await this.messaging.subscribeToAuctionResponse(
-      (_from: string, inbox: string, data?: AuctionResponse, err?: any) => {
-        this.auctionResponseEvt.post({ inbox, data, err });
-      },
-    );
-
-    await this.messaging.subscribeToMetaTxResponse((_from: string, inbox: string, data?: MetaTxResponse, err?: any) => {
-      this.metaTxResponseEvt.post({ inbox, data, err });
-    });
-
-    await delay(1000);
-    return token;
+    return this.sdkBase.connectMessaging(bearerToken);
   }
 
   /**
@@ -263,7 +180,7 @@ export class NxtpSdk {
    * @returns An array of the active transactions and their status
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
-    return this.subgraph.getActiveTransactions();
+    return this.sdkBase.getActiveTransactions();
   }
 
   /**
@@ -272,14 +189,7 @@ export class NxtpSdk {
    * @returns
    */
   getSubgraphSyncStatus(chainId: number): SubgraphSyncRecord {
-    const record = this.subgraph.getSyncStatus(chainId);
-    return (
-      record ?? {
-        synced: false,
-        syncedBlock: 0,
-        latestBlock: 0,
-      }
-    );
+    return this.sdkBase.getSubgraphSyncStatus(chainId);
   }
 
   /**
@@ -288,7 +198,7 @@ export class NxtpSdk {
    * @returns An array of historical transactions
    */
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
-    return this.subgraph.getHistoricalTransactions();
+    return this.sdkBase.getHistoricalTransactions();
   }
 
   /**
@@ -312,274 +222,7 @@ export class NxtpSdk {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
-    const transactionId = params.transactionId ?? getRandomBytes32();
-    const { requestContext, methodContext } = createLoggingContext(
-      this.getTransferQuote.name,
-      undefined,
-      transactionId,
-    );
-
-    this.logger.info("Method started", requestContext, methodContext, { params });
-
-    // Validate params schema
-    const validate = ajv.compile(CrossChainParamsSchema);
-    const valid = validate(params);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("getTransferQuote", "CrossChainParams", msg, params);
-      this.logger.error("Invalid transfer params", requestContext, methodContext, jsonifyError(error), {
-        validationError: msg,
-        params,
-      });
-      throw error;
-    }
-
-    const user = await this.config.signer.getAddress();
-
-    const {
-      sendingAssetId,
-      sendingChainId,
-      amount,
-      receivingChainId,
-      receivingAssetId,
-      receivingAddress,
-      slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
-      expiry: _expiry,
-      dryRun,
-      preferredRouter: _preferredRouter,
-      initiator,
-    } = params;
-    if (!this.config.chainConfig[sendingChainId]) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[receivingChainId]) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
-    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
-
-    const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
-    const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { sendingChainId, receivingChainId });
-    }
-
-    if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
-      throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
-    }
-
-    if (parseFloat(slippageTolerance) > parseFloat(MAX_SLIPPAGE_TOLERANCE)) {
-      throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
-    }
-
-    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
-
-    const blockTimestamp = await getTimestampInSeconds();
-    const expiry = _expiry ?? getExpiry(blockTimestamp);
-    if (expiry - blockTimestamp < getMinExpiryBuffer()) {
-      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
-    }
-
-    if (expiry - blockTimestamp > getMaxExpiryBuffer()) {
-      throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
-    }
-
-    const callTo = params.callTo ?? constants.AddressZero;
-    const callData = params.callData ?? "0x";
-
-    let encryptedCallData = "0x";
-    const callDataHash = utils.keccak256(callData);
-    if (callData !== "0x") {
-      try {
-        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
-        encryptedCallData = await encrypt(callData, encryptionPublicKey);
-      } catch (e) {
-        throw new EncryptionError("public key encryption failed", jsonifyError(e));
-      }
-    }
-
-    if (!this.messaging.isConnected()) {
-      await this.connectMessaging();
-    }
-
-    const inbox = generateMessagingInbox();
-
-    const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
-      if (dryRun) {
-        try {
-          const result = await this.auctionResponseEvt
-            .pipe((data) => data.inbox === inbox)
-            .pipe((data) => !!data.data)
-            .pipe((data) => !data.err)
-            .waitFor(AUCTION_TIMEOUT);
-          return resolve([result.data!]);
-        } catch (e) {
-          return reject(e);
-        }
-      }
-
-      if (preferredRouter) {
-        this.logger.warn("Waiting for preferred router", requestContext, methodContext, {
-          preferredRouter,
-        });
-        try {
-          const result = await this.auctionResponseEvt
-            .pipe((data) => data.inbox === inbox)
-            .pipe((data) => !!data.data)
-            .pipe((data) => !data.err)
-            .pipe((data) => data.data?.bid.router === preferredRouter)
-            .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
-          return resolve([result.data!]);
-        } catch (e) {
-          return reject(e);
-        }
-      }
-
-      const auctionCtx = Evt.newCtx();
-      const bids: AuctionResponse[] = [];
-      this.auctionResponseEvt
-        .pipe(auctionCtx)
-        .pipe((data) => data.inbox === inbox)
-        .pipe((data) => !!data.data)
-        .pipe((data) => {
-          if (data.err) {
-            this.logger.warn("Invalid bid received", requestContext, methodContext, { inbox, err: data.err });
-            return false;
-          }
-          return true;
-        })
-        .attach((data) => {
-          bids.push(data.data!);
-        });
-
-      setTimeout(async () => {
-        this.auctionResponseEvt.detach(auctionCtx);
-        return resolve(bids);
-      }, AUCTION_TIMEOUT);
-    });
-
-    const payload = {
-      user,
-      initiator: initiator ?? user,
-      sendingChainId,
-      sendingAssetId,
-      amount,
-      receivingChainId,
-      receivingAssetId,
-      receivingAddress,
-      callTo,
-      callDataHash,
-      encryptedCallData,
-      expiry,
-      transactionId,
-      dryRun: !!dryRun,
-    };
-    await this.messaging.publishAuctionRequest(payload, inbox);
-
-    this.logger.info(`Waiting up to ${AUCTION_TIMEOUT} ms for responses`, requestContext, methodContext, {
-      inbox,
-    });
-    try {
-      const auctionResponses = await auctionBidsPromise;
-      this.logger.info("Auction closed", requestContext, methodContext, {
-        auctionResponses,
-        transactionId,
-        inbox,
-      });
-      if (auctionResponses.length === 0) {
-        throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
-      }
-      if (dryRun) {
-        return auctionResponses[0];
-      }
-      const filtered: (AuctionResponse | string)[] = await Promise.all(
-        auctionResponses.map(async (data: AuctionResponse) => {
-          // validate bid
-          // check router sig on bid
-          const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
-          if (signer !== data.bid.router) {
-            const msg = "Invalid router signature on bid";
-            this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
-            return msg;
-          }
-
-          // check contract for router liquidity
-          try {
-            const routerLiq = await this.transactionManager.getRouterLiquidity(
-              receivingChainId,
-              data.bid.router,
-              receivingAssetId,
-            );
-            if (routerLiq.lt(data.bid.amountReceived)) {
-              const msg = "Router's liquidity low";
-              this.logger.warn(msg, requestContext, methodContext, {
-                signer,
-                receivingChainId,
-                receivingAssetId,
-                router: data.bid.router,
-                routerLiq: routerLiq.toString(),
-                amountReceived: data.bid.amountReceived,
-              });
-              return msg;
-            }
-          } catch (err) {
-            const msg = "Error getting router liquidity";
-            this.logger.error(msg, requestContext, methodContext, jsonifyError(err), {
-              sendingChainId,
-              receivingChainId,
-            });
-            return msg;
-          }
-
-          // check if the price changes unfovorably by more than the slippage tolerance(percentage).
-          const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-          const [inputDecimals, outputDecimals] = await Promise.all([
-            getDecimals(sendingAssetId, sendingProvider),
-            getDecimals(receivingAssetId, receivingProvider),
-          ]);
-
-          const lowerBound = calculateExchangeWad(
-            BigNumber.from(amount),
-            inputDecimals,
-            lowerBoundExchangeRate,
-            outputDecimals,
-          );
-
-          // safe calculation if the amountReceived is greater than 4 decimals
-          if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
-            const msg = "Invalid bid price: price impact is more than the slippage tolerance";
-            this.logger.warn(msg, requestContext, methodContext, {
-              signer,
-              lowerBound: lowerBound,
-              bidAmount: data.bid.amount,
-              amountReceived: data.bid.amountReceived,
-              slippageTolerance: slippageTolerance,
-              router: data.bid.router,
-            });
-            return msg;
-          }
-
-          return data;
-        }),
-      );
-
-      const valid = filtered.filter((x) => typeof x !== "string") as AuctionResponse[];
-      const invalid = filtered.filter((x) => typeof x === "string") as string[];
-      if (valid.length === 0) {
-        throw new NoValidBids(transactionId, payload, invalid.join(","), auctionResponses);
-      }
-      const chosen = valid.sort((a: AuctionResponse, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
-      })[0];
-      return chosen;
-    } catch (e) {
-      this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
-        transactionId,
-      });
-      throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
-    }
+    return this.sdkBase.getTransferQuote(params);
   }
 
   /**
@@ -603,28 +246,7 @@ export class NxtpSdk {
 
     this.logger.info("Method started", requestContext, methodContext, { transferParams });
 
-    const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
-    const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams });
-    }
-
     const { bid, bidSignature } = transferParams;
-
-    // Validate params schema
-    const validate = ajv.compile(AuctionBidParamsSchema);
-    const valid = validate(bid);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("prepareTransfer", "AuctionResponse", msg, transferParams, {
-        transactionId: transferParams.bid.transactionId,
-      });
-      this.logger.error("Invalid transfer params", requestContext, methodContext, jsonifyError(error), {
-        validationErrors: validate.errors,
-        transferParams,
-      });
-      throw error;
-    }
 
     const {
       user,
@@ -644,109 +266,68 @@ export class NxtpSdk {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
-    if (!this.config.chainConfig[sendingChainId]) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[receivingChainId]) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
     const signerAddr = await this.config.signer.getAddress();
-    const balance = await getOnchainBalance(
-      sendingAssetId,
-      signerAddr,
-      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
-    );
-    if (balance.lt(amount)) {
-      throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
-    }
 
-    if (!bidSignature) {
-      throw new InvalidBidSignature(transactionId, bid, router);
-    }
+    const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
+    if (approveTxReq) {
+      const approveTx = await this.config.signer.sendTransaction(approveTxReq);
+      this.evts.SenderTokenApprovalSubmitted.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionResponse: approveTx,
+      });
 
-    const recovered = recoverAuctionBid(bid, bidSignature);
-    if (recovered.toLowerCase() !== router.toLowerCase()) {
-      throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
-    }
-
-    this.logger.info("Preparing tx!", requestContext, methodContext, {
-      amount,
-      expiry,
-      encodedBid,
-      bidSignature,
-    });
-
-    if (sendingAssetId !== constants.AddressZero) {
-      const approveTx = await this.transactionManager.approveTokensIfNeeded(
-        sendingChainId,
-        sendingAssetId,
-        amount,
-        infiniteApprove,
-        requestContext,
-      );
-
-      if (approveTx) {
-        this.evts.SenderTokenApprovalSubmitted.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionResponse: approveTx,
-        });
-
-        const approveReceipt = await approveTx.wait(1);
-        if (approveReceipt?.status === 0) {
-          throw new SubmitError(
-            transactionId,
-            sendingChainId,
-            signerAddr,
-            "approve",
-            sendingAssetId,
-            { infiniteApprove, amount },
-            jsonifyError(new Error("Receipt status is 0")),
-            {
-              approveReceipt,
-            },
-          );
-        }
-        this.logger.info("Mined approve tx", requestContext, methodContext, {
-          transactionHash: approveReceipt.transactionHash,
-        });
-        this.evts.SenderTokenApprovalMined.post({
-          assetId: sendingAssetId,
-          chainId: sendingChainId,
-          transactionReceipt: approveReceipt,
-        });
+      const approveReceipt = await approveTx.wait(1);
+      if (approveReceipt?.status === 0) {
+        throw new SubmitError(
+          transactionId,
+          sendingChainId,
+          signerAddr,
+          "approve",
+          sendingAssetId,
+          { infiniteApprove, amount },
+          jsonifyError(new Error("Receipt status is 0")),
+          {
+            approveReceipt,
+          },
+        );
       }
+      this.logger.info("Mined approve tx", requestContext, methodContext, {
+        transactionHash: approveReceipt.transactionHash,
+      });
+      this.evts.SenderTokenApprovalMined.post({
+        assetId: sendingAssetId,
+        chainId: sendingChainId,
+        transactionReceipt: approveReceipt,
+      });
     }
 
     // Prepare sender side tx
-    const txData: InvariantTransactionData = {
-      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId),
-      user,
-      router,
-      initiator,
-      sendingAssetId,
-      receivingAssetId,
-      sendingChainFallback: user,
-      callTo,
-      receivingAddress,
-      sendingChainId,
-      receivingChainId,
-      callDataHash,
-      transactionId,
-    };
-    const params: PrepareParams = {
-      txData,
-      encryptedCallData,
-      bidSignature,
-      encodedBid,
-      amount,
-      expiry,
-    };
-    const prepareResponse = await this.transactionManager.prepare(sendingChainId, params, requestContext);
+    const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
+    const prepareResponse = await this.config.signer.sendTransaction(prepareReq);
     this.evts.SenderTransactionPrepareSubmitted.post({
-      prepareParams: params,
+      prepareParams: {
+        txData: {
+          receivingChainTxManagerAddress: "",
+          user,
+          router,
+          initiator,
+          sendingAssetId,
+          receivingAssetId,
+          sendingChainFallback: user,
+          callTo,
+          receivingAddress,
+          sendingChainId,
+          receivingChainId,
+          callDataHash,
+          transactionId,
+        },
+        encryptedCallData,
+        bidSignature: bidSignature!,
+        encodedBid,
+        amount,
+        expiry,
+      },
       transactionResponse: prepareResponse,
     });
     return { prepareResponse, transactionId };

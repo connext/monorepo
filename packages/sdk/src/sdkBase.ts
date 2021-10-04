@@ -83,7 +83,7 @@ import {
   ethereumRequest,
   encrypt,
 } from "./utils";
-import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -122,8 +122,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
  *
  */
-export class NxtpSdkNoSend {
-  private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
+export class NxtpSdkBase {
   private readonly transactionManagerBase: TransactionManagerBase;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
@@ -909,96 +908,7 @@ export class NxtpSdkNoSend {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
-    this.metaTxResponseEvt.detach();
-    this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();
-  }
-
-  // Listener methods
-  /**
-   * Attaches a callback to the emitted event
-   *
-   * @param event - The event name to attach a handler for
-   * @param callback - The callback to invoke on event emission
-   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
-   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
-   */
-  public attach<T extends NxtpSdkEvent>(
-    event: T,
-    callback: (data: NxtpSdkEventPayloads[T]) => void,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
-    timeout?: number,
-  ): void {
-    const args = [timeout, callback].filter((x) => !!x);
-    if (Object.keys(SubgraphEvents).includes(event)) {
-      this.subgraph.attach(event as SubgraphEvent, callback as any, filter as any);
-    } else {
-      this.evts[event].pipe(filter).attach(...(args as [number, any]));
-    }
-  }
-
-  /**
-   * Attaches a callback to the emitted event that will be executed one time and then detached.
-   *
-   * @param event - The event name to attach a handler for
-   * @param callback - The callback to invoke on event emission
-   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
-   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
-   *
-   */
-  public attachOnce<T extends NxtpSdkEvent>(
-    event: T,
-    callback: (data: NxtpSdkEventPayloads[T]) => void,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
-    timeout?: number,
-  ): void {
-    const args = [timeout, callback].filter((x) => !!x);
-    if (Object.keys(SubgraphEvents).includes(event)) {
-      this.subgraph.attachOnce(event as SubgraphEvent, callback as any, filter as any, timeout);
-    } else {
-      this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
-    }
-  }
-
-  /**
-   * Removes all attached handlers from the given event.
-   *
-   * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
-   */
-  public detach<T extends NxtpSdkEvent>(event?: T): void {
-    if (event) {
-      if (Object.keys(SubgraphEvents).includes(event)) {
-        this.subgraph.detach(event as SubgraphEvent);
-      } else {
-        this.evts[event].detach();
-      }
-      this.evts[event].detach();
-    } else {
-      Object.values(this.evts).forEach((evt) => evt.detach());
-      this.subgraph.detach();
-    }
-  }
-
-  /**
-   * Returns a promise that resolves when the event matching the filter is emitted
-   *
-   * @param event - The event name to wait for
-   * @param timeout - The ms to continue waiting before rejecting
-   * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
-   *
-   * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
-   *
-   */
-  public waitFor<T extends NxtpSdkEvent>(
-    event: T,
-    timeout: number,
-    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
-  ): Promise<NxtpSdkEventPayloads[T]> {
-    if (Object.keys(SubgraphEvents).includes(event)) {
-      return this.subgraph.waitFor(event as SubgraphEvent, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
-    } else {
-      return this.evts[event].pipe(filter).waitFor(timeout);
-    }
   }
 }
