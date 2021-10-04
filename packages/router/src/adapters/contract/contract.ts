@@ -56,7 +56,7 @@ export const prepareSanitationCheck = async (
   const { txService, logger } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(
-    cancelAndFullfillSanitationCheck.name,
+    prepareSanitationCheck.name,
     _requestContext,
     invariantTransactionData.transactionId,
   );

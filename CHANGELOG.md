@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+
 ## 0.0.52
 
 - [sdk] Add sanity check for callTo parameter
