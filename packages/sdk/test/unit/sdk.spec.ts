@@ -234,6 +234,7 @@ describe("NxtpSdk", () => {
           authUrl: "http://example.com",
           messaging: undefined,
           logger,
+          network: "mainnet",
         });
       } catch (e) {
         error = e;
@@ -260,6 +261,7 @@ describe("NxtpSdk", () => {
           authUrl: "http://example.com",
           messaging: undefined,
           logger,
+          network: "local",
         });
       } catch (e) {
         error = e;
@@ -285,6 +287,7 @@ describe("NxtpSdk", () => {
         natsUrl: "http://example.com",
         authUrl: "http://example.com",
         messaging: undefined,
+        network: "testnet",
         logger,
       });
     });
