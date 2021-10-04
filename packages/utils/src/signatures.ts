@@ -36,7 +36,7 @@ const sign = async (hash: string, signer: Wallet | Signer): Promise<string> => {
     try {
       return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [hash, addr]));
     } catch (err) {
-      console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
+      // console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
     }
   }
 

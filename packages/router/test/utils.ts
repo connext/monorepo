@@ -13,7 +13,7 @@ import {
 
 export const routerAddrMock = mkAddress("0xb");
 
-export const MUTATED_AMOUNT = "100";
+export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;
 export const BID_EXPIRY = 123401;
 
@@ -26,18 +26,22 @@ export const configMock: NxtpRouterConfig = {
       providers: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xaaa"),
+      priceOracleAddress: mkAddress("0x0"),
       minGas: "100",
       safeRelayerFee: "1000",
       subgraphSyncBuffer: 10,
+      gasStations: [],
     },
     1338: {
       confirmations: 1,
       providers: ["http://example.com"],
       subgraph: "http://example.com",
       transactionManagerAddress: mkAddress("0xbbb"),
+      priceOracleAddress: mkAddress("0x0"),
       minGas: "100",
       safeRelayerFee: "1000",
       subgraphSyncBuffer: 10,
+      gasStations: [],
     },
   },
   mnemonic: "hello world",
@@ -54,6 +58,7 @@ export const configMock: NxtpRouterConfig = {
   ],
   host: "0.0.0.0",
   port: 8080,
+  requestLimit: 2000,
 };
 
 export const prepareInputMock: PrepareInput = {

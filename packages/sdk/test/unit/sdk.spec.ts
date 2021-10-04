@@ -139,8 +139,9 @@ describe("NxtpSdk", () => {
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
     const transaction = {
       receivingChainTxManagerAddress: mkAddress("0xaa"),
-      user: user,
-      router: router,
+      user,
+      initiator: user,
+      router,
       sendingAssetId: mkAddress("0xc"),
       receivingAssetId: mkAddress("0xb"),
       sendingChainFallback: user,
@@ -148,8 +149,8 @@ describe("NxtpSdk", () => {
       receivingAddress: mkAddress("0xa"),
       callDataHash: EmptyCallDataHash,
       transactionId: getRandomBytes32(),
-      sendingChainId: sendingChainId,
-      receivingChainId: receivingChainId,
+      sendingChainId,
+      receivingChainId,
       ...txOverrides,
     };
 
@@ -185,12 +186,13 @@ describe("NxtpSdk", () => {
     };
 
     const auctionBid = {
-      user: user,
-      router: router,
-      sendingChainId: sendingChainId,
+      user,
+      router,
+      initiator: user,
+      sendingChainId,
       sendingAssetId: mkAddress("0xa"),
       amount: "1000000",
-      receivingChainId: receivingChainId,
+      receivingChainId,
       receivingAssetId: mkAddress("0xb"),
       amountReceived: "1000000",
       receivingAddress: mkAddress("0xc"),
@@ -199,8 +201,8 @@ describe("NxtpSdk", () => {
       callDataHash: EmptyCallDataHash,
       callTo: AddressZero,
       encryptedCallData: EmptyBytes,
-      sendingChainTxManagerAddress: sendingChainTxManagerAddress,
-      receivingChainTxManagerAddress: receivingChainTxManagerAddress,
+      sendingChainTxManagerAddress,
+      receivingChainTxManagerAddress,
       bidExpiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       ...auctionBidOverrides,
     };

@@ -29,6 +29,7 @@ type Transaction @entity {
   receivingChainTxManagerAddress: Bytes!
   user: User!
   router: Router!
+  initiator: Bytes!
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
   sendingChainFallback: Bytes!
@@ -54,6 +55,7 @@ type Transaction @entity {
   signature: Bytes
   callData: String
   externalCallSuccess: Boolean
+  externalCallIsContract: Boolean
   externalCallReturnData: Bytes
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes

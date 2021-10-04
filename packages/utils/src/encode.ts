@@ -15,6 +15,7 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   address receivingChainTxManagerAddress,
   address user,
   address router,
+  address initiator,
   address sendingAssetId,
   address receivingAssetId,
   address sendingChainFallback,
@@ -123,6 +124,7 @@ export const encodeCancelData = (
 export const AuctionBidEncoding = tidy(`tuple(
   address user,
   address router,
+  address initiator,
   uint24 sendingChainId,
   address sendingAssetId,
   uint256 amount,
@@ -160,6 +162,7 @@ export const decodeAuctionBid = (data: string): AuctionBid => {
   return {
     user: decoded.user,
     router: decoded.router,
+    initiator: decoded.initiator,
     sendingAssetId: decoded.sendingAssetId,
     sendingChainId: decoded.sendingChainId,
     amount: decoded.amount.toString(),

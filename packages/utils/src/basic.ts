@@ -33,3 +33,8 @@ export const ERC20Abi = [
   "function approve(address _spender, uint256 _value) public returns (bool success)",
   "function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)",
 ];
+
+export const PriceOracleAbi = [
+  // Read-Only Functions
+  "function getTokenPrice(address token) external view returns (uint256)",
+];

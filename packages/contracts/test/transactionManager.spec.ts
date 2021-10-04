@@ -125,6 +125,7 @@ describe("TransactionManager", function () {
       receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
       router: router.address,
+      initiator: user.address,
       sendingAssetId: AddressZero,
       receivingAssetId: AddressZero,
       sendingChainFallback: user.address,
@@ -976,6 +977,17 @@ describe("TransactionManager", function () {
     });
 
     describe("failures when preparing on the sender chain", () => {
+      it("should revert if msg.sender is not invariantData.initiator", async () => {
+        const { transaction, record } = await getTransactionData({ initiator: AddressZero });
+        await expect(
+          transactionManager
+            .connect(user)
+            .prepare(transaction, record.amount, record.expiry, EmptyBytes, EmptyBytes, EmptyBytes, {
+              value: record.amount,
+            }),
+        ).to.be.revertedWith(getContractError("prepare: INITIATOR_MISMATCH"));
+      });
+
       it("should fail if amount is 0", async () => {
         const { transaction, record } = await getTransactionData({}, { amount: "0" });
         await expect(
@@ -1278,7 +1290,7 @@ describe("TransactionManager", function () {
       const assetId = AddressZero;
 
       const { transaction, record } = await getTransactionData(
-        { sendingAssetId: assetId, receivingAssetId: tokenB.address },
+        { sendingAssetId: assetId, receivingAssetId: tokenB.address, initiator: other.address },
         { amount: prepareAmount },
       );
 
@@ -1406,70 +1418,6 @@ describe("TransactionManager", function () {
       ).to.be.revertedWith(getContractError("fulfill: ALREADY_COMPLETED"));
     });
 
-    it("should revert if param user didn't sign the signature", async () => {
-      const { transaction, record } = await getTransactionData();
-      const relayerFee = "10";
-      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
-
-      const variant = {
-        amount: record.amount,
-        expiry: record.expiry,
-        preparedBlockNumber: blockNumber,
-      };
-
-      const signature = await signFulfillTransactionPayload(
-        transaction.transactionId,
-        relayerFee,
-        transaction.receivingChainId,
-        transaction.receivingChainTxManagerAddress,
-        Wallet.createRandom(),
-      );
-
-      await expect(
-        transactionManager.connect(router).fulfill(
-          {
-            ...transaction,
-            ...variant,
-          },
-          relayerFee,
-          signature,
-          EmptyBytes,
-        ),
-      ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
-    });
-
-    it("should revert if the relayerFee > txData.amount", async () => {
-      const { transaction, record } = await getTransactionData();
-      const relayerFee = "1000000000";
-      const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
-
-      const variant = {
-        amount: record.amount,
-        expiry: record.expiry,
-        preparedBlockNumber: blockNumber,
-      };
-
-      const signature = await signFulfillTransactionPayload(
-        transaction.transactionId,
-        relayerFee,
-        transaction.receivingChainId,
-        transaction.receivingChainTxManagerAddress,
-        user,
-      );
-
-      await expect(
-        transactionManager.connect(router).fulfill(
-          {
-            ...transaction,
-            ...variant,
-          },
-          relayerFee,
-          signature,
-          EmptyBytes,
-        ),
-      ).to.be.revertedWith(getContractError("fulfill: INVALID_RELAYER_FEE"));
-    });
-
     it("should revert if the hash of callData != txData.callDataHash", async () => {
       const prepareAmount = "10";
       const assetId = tokenA.address;
@@ -1547,9 +1495,84 @@ describe("TransactionManager", function () {
           ),
         ).to.be.revertedWith(getContractError("fulfill: ROUTER_MISMATCH"));
       });
+
+      it("should revert if param user didn't sign the signature", async () => {
+        const { transaction, record } = await getTransactionData();
+        const relayerFee = "10";
+        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+        const variant = {
+          amount: record.amount,
+          expiry: record.expiry,
+          preparedBlockNumber: blockNumber,
+        };
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee,
+          transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
+          Wallet.createRandom(),
+        );
+
+        await expect(
+          transactionManager.connect(router).fulfill(
+            {
+              ...transaction,
+              ...variant,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
+      });
     });
 
     describe("receiver chain (user) fulfill", () => {
+      it("should revert if the relayerFee > txData.amount on receiving chain", async () => {
+        const prepareAmount = "10";
+        const assetId = AddressZero;
+        const relayerFee = "1000";
+
+        // Add receiving liquidity
+        await addAndAssertLiquidity(prepareAmount, assetId, router, transactionManagerReceiverSide);
+
+        const { transaction, record } = await getTransactionData(
+          {
+            sendingChainId: (await transactionManager.getChainId()).toNumber(),
+            receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
+            sendingAssetId: assetId,
+            receivingAssetId: assetId,
+          },
+          { amount: prepareAmount },
+        );
+
+        // Router prepares
+        const { blockNumber } = await prepareAndAssert(transaction, record, router, transactionManagerReceiverSide);
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee,
+          transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
+          user,
+        );
+
+        await expect(
+          transactionManagerReceiverSide.connect(router).fulfill(
+            {
+              ...transaction,
+              ...record,
+              preparedBlockNumber: blockNumber,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_RELAYER_FEE"));
+      });
+
       it("should revert if the relayerFee > 0 and transferAsset fails", async () => {
         const prepareAmount = "100";
         const assetId = tokenA.address;
@@ -1697,6 +1720,102 @@ describe("TransactionManager", function () {
             EmptyBytes,
           ),
         ).revertedWith("transfer: SHOULD_REVERT");
+      });
+
+      it("should revert if user didn't sign the right chain id", async () => {
+        const { transaction, record } = await getTransactionData();
+        const relayerFee = "10";
+        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+        const variant = {
+          amount: record.amount,
+          expiry: record.expiry,
+          preparedBlockNumber: blockNumber,
+        };
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee,
+          transaction.receivingChainId + 1,
+          transaction.receivingChainTxManagerAddress,
+          user,
+        );
+
+        await expect(
+          transactionManager.connect(router).fulfill(
+            {
+              ...transaction,
+              ...variant,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
+      });
+
+      it("should revert if user didn't sign the right transaction address", async () => {
+        const { transaction, record } = await getTransactionData();
+        const relayerFee = "10";
+        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+        const variant = {
+          amount: record.amount,
+          expiry: record.expiry,
+          preparedBlockNumber: blockNumber,
+        };
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee,
+          transaction.receivingChainId,
+          Wallet.createRandom().address,
+          user,
+        );
+
+        await expect(
+          transactionManager.connect(router).fulfill(
+            {
+              ...transaction,
+              ...variant,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
+      });
+
+      it("should revert if user didn't sign", async () => {
+        const { transaction, record } = await getTransactionData();
+        const relayerFee = "10";
+        const { blockNumber } = await prepareAndAssert(transaction, record, user, transactionManager);
+
+        const variant = {
+          amount: record.amount,
+          expiry: record.expiry,
+          preparedBlockNumber: blockNumber,
+        };
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          relayerFee,
+          transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
+          Wallet.createRandom(),
+        );
+
+        await expect(
+          transactionManager.connect(router).fulfill(
+            {
+              ...transaction,
+              ...variant,
+            },
+            relayerFee,
+            signature,
+            EmptyBytes,
+          ),
+        ).to.be.revertedWith(getContractError("fulfill: INVALID_SIGNATURE"));
       });
     });
 

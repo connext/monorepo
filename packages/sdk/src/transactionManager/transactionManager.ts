@@ -16,6 +16,8 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 import { ChainNotConfigured } from "../error";
 
+const HARDCODED_GAS_LIMIT = BigNumber.from(125_000);
+
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
  *
@@ -129,6 +131,7 @@ export class TransactionManager {
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
+      initiator: txData.initiator,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,
@@ -145,19 +148,24 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await connected.estimateGas.prepare(
-        invariant,
-        amount,
-        expiry,
-        encryptedCallData,
-        encodedBid,
-        bidSignature,
-      );
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await connected.estimateGas.prepare(
+          invariant,
+          amount,
+          expiry,
+          encryptedCallData,
+          encodedBid,
+          bidSignature,
+        );
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
     }
 
+    console.log("gasLimit: ", gasLimit.toString());
     const tx = await connected.prepare(invariant, amount, expiry, encryptedCallData, encodedBid, bidSignature, {
       value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
       from: this.signer.getAddress(),
@@ -208,9 +216,13 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await connected.estimateGas.cancel(txData, signature, {
-        from: this.signer.getAddress(),
-      });
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await connected.estimateGas.cancel(txData, signature, {
+          from: this.signer.getAddress(),
+        });
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
@@ -267,9 +279,13 @@ export class TransactionManager {
     // estimate gas
     let gasLimit;
     try {
-      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData, {
-        from: this.signer.getAddress(),
-      });
+      if (chainId === 100) {
+        gasLimit = HARDCODED_GAS_LIMIT;
+      } else {
+        gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData, {
+          from: this.signer.getAddress(),
+        });
+      }
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
@@ -323,13 +339,17 @@ export class TransactionManager {
       // estimate gas
       let gasLimit;
       try {
-        gasLimit = await erc20.estimateGas.approve(
-          transactionManager.address,
-          infiniteApprove ? constants.MaxUint256 : amount,
-          {
-            from: this.signer.getAddress(),
-          },
-        );
+        if (chainId === 100) {
+          gasLimit = HARDCODED_GAS_LIMIT;
+        } else {
+          gasLimit = await erc20.estimateGas.approve(
+            transactionManager.address,
+            infiniteApprove ? constants.MaxUint256 : amount,
+            {
+              from: this.signer.getAddress(),
+            },
+          );
+        }
       } catch (e) {
         const sanitized = parseError(e);
         throw sanitized;

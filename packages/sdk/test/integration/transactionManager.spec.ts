@@ -27,6 +27,7 @@ import {
   getDeployedTransactionManagerContract,
 } from "../../src/transactionManager/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
+import { deployContract } from "../../../contracts/test/utils";
 
 const { AddressZero } = constants;
 const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
@@ -63,6 +64,7 @@ describe("Transaction Manager", function () {
     const transaction = {
       receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
+      initiator: user.address,
       router: router.address,
       sendingAssetId: tokenA.address,
       receivingAssetId: tokenB.address,
@@ -86,24 +88,20 @@ describe("Transaction Manager", function () {
 
     return { transaction, record };
   };
+
   const fixture = async () => {
-    const transactionManagerFactory = await ethers.getContractFactory(
-      TransactionManagerArtifact.abi,
-      TransactionManagerArtifact.bytecode,
-      wallet,
-    );
-    const counterFactory = await ethers.getContractFactory(CounterArtifact.abi, CounterArtifact.bytecode, wallet);
-    const testERC20Factory = await ethers.getContractFactory(TestERC20Artifact.abi, TestERC20Artifact.bytecode, wallet);
+    transactionManager = await deployContract<TransactionManagerTypechain>(TransactionManagerArtifact, sendingChainId);
 
-    transactionManager = (await transactionManagerFactory.deploy(sendingChainId)) as TransactionManagerTypechain;
-    transactionManagerReceiverSide = (await transactionManagerFactory.deploy(
+    transactionManagerReceiverSide = await deployContract<TransactionManagerTypechain>(
+      TransactionManagerArtifact,
       receivingChainId,
-    )) as TransactionManagerTypechain;
+    );
 
-    tokenA = (await testERC20Factory.deploy()) as TestERC20;
-    tokenB = (await testERC20Factory.deploy()) as TestERC20;
+    counter = await deployContract<Counter>(CounterArtifact);
 
-    counter = (await counterFactory.deploy()) as Counter;
+    tokenA = await deployContract<TestERC20>(TestERC20Artifact);
+
+    tokenB = await deployContract<TestERC20>(TestERC20Artifact);
 
     return { transactionManager, transactionManagerReceiverSide, tokenA, tokenB };
   };
@@ -114,7 +112,7 @@ describe("Transaction Manager", function () {
     loadFixture = createFixtureLoader([wallet, user, receiver]);
   });
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     await addPrivileges(transactionManager, [router.address], [AddressZero, tokenA.address, tokenB.address]);

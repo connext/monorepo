@@ -6,8 +6,9 @@ import {
   RequestContext,
   signAuctionBid,
   createLoggingContext,
+  AuctionResponse,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
+import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
@@ -21,13 +22,15 @@ import {
   ParamsInvalid,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
+import { AUCTION_REQUEST_MAP } from "../helpers/auction";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
   _requestContext: RequestContext<string>,
-): Promise<{ bid: AuctionBid; bidSignature?: string }> => {
+): Promise<AuctionResponse> => {
   const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
   receivedAuction.inc({
     sendingAssetId: data.sendingAssetId,
@@ -66,6 +69,7 @@ export const newAuction = async (
     transactionId,
     receivingAddress,
     dryRun,
+    initiator,
   } = data;
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
@@ -90,8 +94,23 @@ export const newAuction = async (
     });
   }
 
-  // Validate expiry is valid (greater than current time plus a buffer).
   const currentTime = await getNtpTimeSeconds();
+
+  // Validate request limit
+  const lastAttemptTime = AUCTION_REQUEST_MAP.get(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+  ) as number;
+  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime * 1000) {
+    throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
+      methodContext,
+      requestContext,
+      lastAttemptTime,
+      currentTime,
+      minimalPeriod: config.requestLimit,
+    });
+  }
+
+  // Validate expiry is valid (greater than current time plus a buffer).
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
       methodContext,
@@ -165,7 +184,28 @@ export const newAuction = async (
   }
 
   // getting the swap rate from the receiver side config
-  const amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  let amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+
+  // (TODO in what other scenarios would auction fail here? We should make sure
+  // that router does not bid unless it is *sure* it's doing ok)
+  // If you can support the transfer:
+  // Next, prepare bid
+  // Get fee rate
+  // estimate gas for contract
+  // - TODO: Get price from AMM
+  const amountReceivedInBigNum = BigNumber.from(amountReceived);
+  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
+    outputDecimals,
+    requestContext,
+  );
+  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  });
+  amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.info("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
@@ -174,6 +214,7 @@ export const newAuction = async (
       methodContext,
       requestContext,
       balance: balance.toString(),
+      amountReceived: amountReceived.toString(),
       amount,
       receivingAssetId,
       receivingChainId,
@@ -188,6 +229,18 @@ export const newAuction = async (
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });
+
+  // Log if gas is low, but above min
+  const LOW_GAS = parseEther("0.1");
+  if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+    logger.warn("Router has low gas", requestContext, methodContext, {
+      sendingChainId,
+      receivingChainId,
+      senderBalance: formatEther(senderBalance),
+      receiverBalance: formatEther(receiverBalance),
+    });
+  }
+
   if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
     throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
       methodContext,
@@ -195,20 +248,13 @@ export const newAuction = async (
     });
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
-  // (TODO in what other scenarios would auction fail here? We should make sure
-  // that router does not bid unless it is *sure* it's doing ok)
-  // If you can support the transfer:
-  // Next, prepare bid
-  // - TODO: Get price from AMM
-  // - TODO: Get fee rate
-  // estimate gas for contract
-  // amountReceived = amountReceived.sub(gasFee)
 
   // - Create bid object
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
     user,
     router: wallet.address,
+    initiator,
     sendingChainId,
     sendingAssetId,
     amount,
@@ -229,5 +275,14 @@ export const newAuction = async (
 
   const bidSignature = await signAuctionBid(bid, wallet);
   logger.info("Method complete", requestContext, methodContext, { bidSignature });
-  return { bid, bidSignature: dryRun ? undefined : bidSignature };
+
+  AUCTION_REQUEST_MAP.set(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+    currentTime * 1000,
+  );
+  return {
+    bid,
+    bidSignature: dryRun ? undefined : bidSignature,
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  };
 };

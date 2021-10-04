@@ -37,6 +37,7 @@ export const invariantDataMock: InvariantTransactionData = {
   receivingChainTxManagerAddress: mkAddress("0xbb"),
   user: mkAddress("0xa"),
   router: mkAddress("0xb"),
+  initiator: mkAddress("0xbb"),
   sendingAssetId: mkAddress("0xc"),
   receivingAssetId: mkAddress("0xd"),
   sendingChainFallback: mkAddress("0xe"),
@@ -57,6 +58,7 @@ export const variantDataMock: VariantTransactionData = {
 export const auctionBidMock: AuctionBid = {
   user: invariantDataMock.user,
   router: invariantDataMock.router,
+  initiator: invariantDataMock.initiator,
   sendingAssetId: invariantDataMock.sendingAssetId,
   receivingAssetId: invariantDataMock.receivingAssetId,
   receivingAddress: invariantDataMock.receivingAddress,
@@ -82,6 +84,7 @@ export const txDataMock: TransactionData = {
 export const transactionSubgraphMock: any = {
   user: { id: txDataMock.user },
   router: { id: txDataMock.router },
+  initiator: txDataMock.initiator,
   receivingChainTxManagerAddress: txDataMock.receivingChainTxManagerAddress,
   sendingChainId: txDataMock.sendingChainId,
   sendingAssetId: txDataMock.sendingAssetId,

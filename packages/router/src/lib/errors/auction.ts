@@ -22,6 +22,12 @@ export class AuctionExpired extends NxtpError {
   }
 }
 
+export class AuctionRateExceeded extends NxtpError {
+  constructor(duration: number, context: any = {}) {
+    super(`Auction rate exceeded duration: ${duration}`, context, "AuctionRateExceeded");
+  }
+}
+
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
     super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name);
