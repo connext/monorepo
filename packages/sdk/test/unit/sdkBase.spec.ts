@@ -630,16 +630,6 @@ describe.only("NxtpSdkBase", () => {
       );
     });
 
-    it("should error if it has insufficient balance", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, {}, "");
-      balanceStub.resolves(BigNumber.from(0));
-      await expect(
-        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith(
-        InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-      );
-    });
-
     it("should error if bidSignature undefined", async () => {
       const { auctionBid, gasFeeInReceivingToken } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
@@ -656,15 +646,6 @@ describe.only("NxtpSdkBase", () => {
       await expect(
         sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith(InvalidCallTo.getMessage(mockCallTo));
-    });
-
-    it("should error if approveTokensIfNeeded transaction fails", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      transactionManager.approveTokensIfNeeded.rejects("fails");
-
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith("");
     });
 
     it("should error if prepare errors", async () => {
@@ -774,7 +755,7 @@ describe.only("NxtpSdkBase", () => {
       });
     });
 
-    it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
+    it.only("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
       stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
@@ -805,7 +786,7 @@ describe.only("NxtpSdkBase", () => {
       }
     });
 
-    it("happy: finish transfer => useRelayers:true", async () => {
+    it.only("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
 
       const transactionHash = mkHash("0xc");
