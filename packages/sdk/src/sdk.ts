@@ -166,7 +166,7 @@ export class NxtpSdk {
     } else {
       let _natsUrl;
       let _authUrl;
-      switch (network) {
+      switch (this.config.network) {
         case "mainnet": {
           _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
@@ -244,7 +244,12 @@ export class NxtpSdk {
       txManagerConfig,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      signer,
+      subgraphConfig,
+      this.logger.child({ module: "Subgraph" }),
+      this.config.skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
