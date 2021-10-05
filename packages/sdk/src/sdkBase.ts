@@ -43,6 +43,7 @@ import {
   MetaTxTimeout,
   SubgraphsNotSynced,
   InvalidCallTo,
+  InvalidBidSignature,
 } from "./error";
 import {
   NxtpSdkEventPayloads,
@@ -130,7 +131,7 @@ export class NxtpSdkBase {
     } else {
       let _natsUrl;
       let _authUrl;
-      switch (network) {
+      switch (this.config.network) {
         case "mainnet": {
           _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
@@ -619,7 +620,7 @@ export class NxtpSdkBase {
     // Validate params schema
     const validate = ajv.compile(AuctionBidParamsSchema);
     const valid = validate(bid);
-    if (!valid || !bidSignature) {
+    if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("prepareTransfer", "AuctionResponse", msg, transferParams, {
         transactionId: transferParams.bid.transactionId,
@@ -649,6 +650,10 @@ export class NxtpSdkBase {
       transactionId,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
+
+    if (!bidSignature) {
+      throw new InvalidBidSignature(transactionId, bid, router);
+    }
 
     if (callTo !== constants.AddressZero) {
       const callToContractCode = await this.config.chainConfig[receivingChainId].provider.getCode(callTo);
