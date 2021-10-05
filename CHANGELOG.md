@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## 0.0.55
+
+- [sdk] Fix lower bound
+
+## 0.0.54
+
+- [contracts] Update default subgraphs
+
 ## 0.0.53
 
 - [contracts] Redeploy to mainnets
