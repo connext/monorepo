@@ -547,22 +547,22 @@ export class NxtpSdk {
             getDecimals(receivingAssetId, receivingProvider),
           ]);
 
-          const amtMinusGas = BigNumber.from(data.bid.amountReceived).sub(data.gasFeeInReceivingToken);
-          const lowerBound = calculateExchangeWad(
-            BigNumber.from(amtMinusGas),
+          let lowerBound = calculateExchangeWad(
+            BigNumber.from(amount),
             inputDecimals,
             lowerBoundExchangeRate,
             outputDecimals,
           );
+
+          lowerBound = lowerBound.sub(data.gasFeeInReceivingToken);
 
           // safe calculation if the amountReceived is greater than 4 decimals
           if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
             const msg = "Invalid bid price: price impact is more than the slippage tolerance";
             this.logger.warn(msg, requestContext, methodContext, {
               signer,
-              lowerBound: lowerBound,
+              lowerBound: lowerBound.toString(),
               bidAmount: data.bid.amount,
-              amtMinusGas: amtMinusGas.toString(),
               gasFeeInReceivingToken: data.gasFeeInReceivingToken,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
