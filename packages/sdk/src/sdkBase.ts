@@ -651,6 +651,14 @@ export class NxtpSdkBase {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
+    if (!this.config.chainConfig[sendingChainId]) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[receivingChainId]) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
     if (!bidSignature) {
       throw new InvalidBidSignature(transactionId, bid, router);
     }
