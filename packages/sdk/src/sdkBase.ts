@@ -28,10 +28,7 @@ import {
   createLoggingContext,
 } from "@connext/nxtp-utils";
 
-import {
-  TransactionManagerBase,
-  getDeployedTransactionManagerContract,
-} from "./transactionManager/transactionManagerBase";
+import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
 import {
   NoTransactionManager,
   NoSubgraph,
@@ -45,21 +42,10 @@ import {
   ChainNotConfigured,
   MetaTxTimeout,
   SubgraphsNotSynced,
+  InvalidCallTo,
 } from "./error";
 import {
-  NxtpSdkEvent,
   NxtpSdkEventPayloads,
-  NxtpSdkEvents,
-  SenderTokenApprovalSubmittedPayload,
-  SenderTokenApprovalMinedPayload,
-  SenderTransactionPrepareSubmittedPayload,
-  SenderTransactionPreparedPayload,
-  SenderTransactionFulfilledPayload,
-  SenderTransactionCancelledPayload,
-  ReceiverPrepareSignedPayload,
-  ReceiverTransactionPreparedPayload,
-  ReceiverTransactionFulfilledPayload,
-  ReceiverTransactionCancelledPayload,
   CrossChainParams,
   CrossChainParamsSchema,
   AuctionBidParamsSchema,
@@ -83,7 +69,7 @@ import {
   ethereumRequest,
   encrypt,
 } from "./utils";
-import { Subgraph, SubgraphChainConfig } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig, SubgraphEvent } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -99,31 +85,11 @@ export const createMessagingEvt = <T>() => {
 };
 
 /**
- * Helper to generate evt instances for all SDK events
- *
- * @returns A container keyed on event names whos values contain the EVT instance for the keyed event
- */
-export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } => {
-  return {
-    [NxtpSdkEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload>(),
-    [NxtpSdkEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload>(),
-    [NxtpSdkEvents.SenderTransactionPrepareSubmitted]: Evt.create<SenderTransactionPrepareSubmittedPayload>(),
-    [NxtpSdkEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload>(),
-    [NxtpSdkEvents.SenderTransactionFulfilled]: Evt.create<SenderTransactionFulfilledPayload>(),
-    [NxtpSdkEvents.SenderTransactionCancelled]: Evt.create<SenderTransactionCancelledPayload>(),
-    [NxtpSdkEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload>(),
-    [NxtpSdkEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload>(),
-    [NxtpSdkEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload>(),
-    [NxtpSdkEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload>(),
-  };
-};
-
-/**
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
  *
  */
 export class NxtpSdkBase {
-  private readonly transactionManagerBase: TransactionManagerBase;
+  private readonly transactionManager: TransactionManager;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
@@ -237,7 +203,7 @@ export class NxtpSdkBase {
         };
       },
     );
-    this.transactionManagerBase = new TransactionManagerBase(
+    this.transactionManager = new TransactionManager(
       txManagerConfig,
       config.signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
@@ -517,7 +483,7 @@ export class NxtpSdkBase {
 
           // check contract for router liquidity
           try {
-            const routerLiq = await this.transactionManagerBase.getRouterLiquidity(
+            const routerLiq = await this.transactionManager.getRouterLiquidity(
               receivingChainId,
               data.bid.router,
               receivingAssetId,
@@ -612,7 +578,7 @@ export class NxtpSdkBase {
     } = transferParams;
 
     if (sendingAssetId !== constants.AddressZero) {
-      const approveTx = await this.transactionManagerBase.approveTokensIfNeeded(
+      const approveTx = await this.transactionManager.approveTokensIfNeeded(
         sendingChainId,
         sendingAssetId,
         amount,
@@ -684,9 +650,16 @@ export class NxtpSdkBase {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
+    if (callTo !== constants.AddressZero) {
+      const callToContractCode = await this.config.chainConfig[receivingChainId].provider.getCode(callTo);
+      if (!callToContractCode || callToContractCode === "0x") {
+        throw new InvalidCallTo(transactionId, callTo);
+      }
+    }
+
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
-      receivingChainTxManagerAddress: this.transactionManagerBase.getTransactionManagerAddress(receivingChainId)!,
+      receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId)!,
       user,
       router,
       initiator,
@@ -708,7 +681,7 @@ export class NxtpSdkBase {
       amount,
       expiry,
     };
-    const tx = await this.transactionManagerBase.prepare(sendingChainId, params, requestContext);
+    const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
     return tx;
   }
 
@@ -825,7 +798,7 @@ export class NxtpSdkBase {
       const request = {
         type: MetaTxTypes.Fulfill,
         relayerFee,
-        to: this.transactionManagerBase.getTransactionManagerAddress(txData.receivingChainId)!,
+        to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId)!,
         chainId: txData.receivingChainId,
         data: {
           relayerFee,
@@ -849,7 +822,7 @@ export class NxtpSdkBase {
       }
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillRequest = await this.transactionManagerBase.fulfill(
+      const fulfillRequest = await this.transactionManager.fulfill(
         txData.receivingChainId,
         {
           callData: decryptedCallData,
@@ -899,7 +872,7 @@ export class NxtpSdkBase {
       throw error;
     }
 
-    const cancelRequest = await this.transactionManagerBase.cancel(chainId, cancelParams, requestContext);
+    const cancelRequest = await this.transactionManager.cancel(chainId, cancelParams, requestContext);
     this.logger.info("Method complete", requestContext, methodContext, { cancelRequest });
     return cancelRequest;
   }
@@ -919,5 +892,67 @@ export class NxtpSdkBase {
   public removeAllListeners(): void {
     this.messaging.disconnect();
     this.subgraph.stopPolling();
+  }
+
+  // Listener methods
+  /**
+   * Attaches a callback to the emitted event
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   */
+  public attach<T extends SubgraphEvent>(
+    event: T,
+    callback: (data: NxtpSdkEventPayloads[T]) => void,
+    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
+  ): void {
+    this.subgraph.attach(event, callback as any, filter as any);
+  }
+
+  /**
+   * Attaches a callback to the emitted event that will be executed one time and then detached.
+   *
+   * @param event - The event name to attach a handler for
+   * @param callback - The callback to invoke on event emission
+   * @param filter - (optional) A filter where callbacks are only invoked if the filter returns true
+   * @param timeout - (optional) A timeout to detach the handler within. I.e. if no events fired within the timeout, then the handler is detached
+   *
+   */
+  public attachOnce<T extends SubgraphEvent>(
+    event: T,
+    callback: (data: NxtpSdkEventPayloads[T]) => void,
+    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
+    timeout?: number,
+  ): void {
+    this.subgraph.attachOnce(event, callback as any, filter as any, timeout);
+  }
+
+  /**
+   * Removes all attached handlers from the given event.
+   *
+   * @param event - (optional) The event name to remove handlers from. If not provided, will detach handlers from *all* subgraph events
+   */
+  public detach<T extends SubgraphEvent>(event?: T): void {
+    this.subgraph.detach(event);
+  }
+
+  /**
+   * Returns a promise that resolves when the event matching the filter is emitted
+   *
+   * @param event - The event name to wait for
+   * @param timeout - The ms to continue waiting before rejecting
+   * @param filter - (optional) A filter where the promise is only resolved if the filter returns true
+   *
+   * @returns Promise that will resolve with the event payload once the event is emitted, or rejects if the timeout is reached.
+   *
+   */
+  public waitFor<T extends SubgraphEvent>(
+    event: T,
+    timeout: number,
+    filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
+  ): Promise<NxtpSdkEventPayloads[T]> {
+    return this.subgraph.waitFor(event, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
   }
 }

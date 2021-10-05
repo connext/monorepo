@@ -34,7 +34,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
 /**
  * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
  */
-export class TransactionManagerBase {
+export class TransactionManager {
   private chainConfig: {
     [chainId: number]: {
       provider: providers.FallbackProvider;
@@ -107,10 +107,11 @@ export class TransactionManagerBase {
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const invariant = {
+    const invariantData = {
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
+      initiator: txData.initiator,
       sendingAssetId: txData.sendingAssetId,
       receivingAssetId: txData.receivingAssetId,
       sendingChainFallback: txData.sendingChainFallback,
@@ -123,12 +124,15 @@ export class TransactionManagerBase {
     };
 
     const data = this.txManagerInterface.encodeFunctionData("prepare", [
-      invariant,
-      amount,
-      expiry,
-      encryptedCallData,
-      encodedBid,
-      bidSignature,
+      {
+        invariantData,
+        amount,
+        expiry,
+        encryptedCallData,
+        encodedBid,
+        bidSignature,
+        encodedMeta: "0x",
+      },
     ]);
 
     this.logger.info("Prepare transaction created", requestContext, methodContext);
@@ -176,7 +180,13 @@ export class TransactionManagerBase {
 
     this.logger.info("Cancel transaction created", requestContext, methodContext);
 
-    const data = this.txManagerInterface.encodeFunctionData("cancel", [txData, signature]);
+    const data = this.txManagerInterface.encodeFunctionData("cancel", [
+      {
+        txData,
+        signature,
+        encodedMeta: "0x",
+      },
+    ]);
 
     this.logger.info("Prepare transaction created", requestContext, methodContext);
 
@@ -222,7 +232,15 @@ export class TransactionManagerBase {
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
-    const data = this.txManagerInterface.encodeFunctionData("fulfill", [txData, relayerFee, signature, callData]);
+    const data = this.txManagerInterface.encodeFunctionData("fulfill", [
+      {
+        txData,
+        relayerFee,
+        signature,
+        callData,
+        encodedMeta: "0x",
+      },
+    ]);
 
     this.logger.info("Fulfill transaction created", requestContext, methodContext);
 
