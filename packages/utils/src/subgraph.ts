@@ -19,24 +19,23 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan";
     case 56:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc";
-      // return "https://connext-bsc-subgraph.apps.bwarelabs.com/subgraphs/name/connext/nxtp-bsc";
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-staging";
+      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-bsc";
     case 69:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan";
     case 97:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel";
     case 100:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai";
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-staging";
+      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-xdai";
     case 137:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic";
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic-staging";
+      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-matic";
     case 250:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom";
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-staging";
+      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-fantom";
     case 42161:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one";
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-staging";
+      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-arbitrum-one";
     case 80001:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
     case 421611:
