@@ -126,6 +126,7 @@ export class NxtpSdkBase {
   private readonly transactionManagerBase: TransactionManagerBase;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
+  private readonly logger: Logger;
 
   // Keep messaging evts separate from the evt container that has things
   // attached to it
@@ -144,15 +145,20 @@ export class NxtpSdkBase {
       };
       signerAddress: Promise<string>;
       signer?: Signer;
+      logger?: Logger;
+      network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
+      skipPolling?: boolean;
     },
-    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
-    network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+
+    this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
+    this.config.network = network ?? "testnet";
+    this.config.skipPolling = skipPolling ?? false;
+
     if (messaging) {
       this.messaging = messaging;
     } else {
@@ -341,7 +347,6 @@ export class NxtpSdkBase {
     const user = await this.config.signerAddress;
 
     const {
-      initiator,
       sendingAssetId,
       sendingChainId,
       amount,
@@ -352,6 +357,7 @@ export class NxtpSdkBase {
       expiry: _expiry,
       dryRun,
       preferredRouter: _preferredRouter,
+      initiator,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
@@ -544,8 +550,9 @@ export class NxtpSdkBase {
             getDecimals(receivingAssetId, receivingProvider),
           ]);
 
+          const amtMinusGas = BigNumber.from(data.bid.amountReceived).sub(data.gasFeeInReceivingToken);
           const lowerBound = calculateExchangeWad(
-            BigNumber.from(amount),
+            BigNumber.from(amtMinusGas),
             inputDecimals,
             lowerBoundExchangeRate,
             outputDecimals,
@@ -558,6 +565,8 @@ export class NxtpSdkBase {
               signer,
               lowerBound: lowerBound,
               bidAmount: data.bid.amount,
+              amtMinusGas: amtMinusGas.toString(),
+              gasFeeInReceivingToken: data.gasFeeInReceivingToken,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
               router: data.bid.router,
