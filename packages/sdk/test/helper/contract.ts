@@ -148,9 +148,15 @@ export const prepareAndAssert = async (
     transactionId: transaction.transactionId,
     txData,
     caller: preparer.address,
-    encryptedCallData: encryptedCallData,
-    bidSignature: EmptyBytes,
-    encodedBid: EmptyBytes,
+    args: {
+      invariantData: prepareParams.txData,
+      amount: prepareParams.amount,
+      expiry: prepareParams.expiry,
+      encryptedCallData,
+      bidSignature: EmptyBytes,
+      encodedBid: EmptyBytes,
+      encodedMeta: EmptyBytes,
+    },
   });
 
   // Verify amount has been deducted from preparer

@@ -277,14 +277,12 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "TOKEN_GIFT to user mined: ");
     }
 
-    userSdk = new NxtpSdk(
-      {
-        chainConfig: chainProviders,
-        signer: userWallet,
-      },
-      new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
-      "local",
-    );
+    userSdk = new NxtpSdk({
+      chainConfig: chainProviders,
+      signer: userWallet,
+      logger: new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
+      network: "local",
+    });
   });
 
   it.only("should send ERC20 tokens", async function () {

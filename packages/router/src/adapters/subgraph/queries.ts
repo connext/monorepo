@@ -56,7 +56,7 @@ export const getReceiverTransactionsQuery = gql`
   ) {
     router(id: $routerId) {
       transactions(
-        where: { status: $status, receivingChainId: $receivingChainId }
+        where: { status: $status, receivingChainId: $receivingChainId, expiry_lt: $expiry_lt }
         orderBy: preparedBlockNumber
         orderDirection: desc
       ) {

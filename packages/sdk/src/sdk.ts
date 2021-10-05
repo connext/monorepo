@@ -36,6 +36,7 @@ import {
   InvalidParamStructure,
   InvalidSlippage,
   InvalidExpiry,
+  InvalidCallTo,
   EncryptionError,
   NoBids,
   NoValidBids,
@@ -145,15 +146,15 @@ export class NxtpSdk {
         };
       };
       signer: Signer;
+      logger?: Logger;
+      network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
+      skipPolling?: boolean;
     },
-    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
-    network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
 
     this.sdkBase = new NxtpSdkBase(
       {
@@ -163,10 +164,10 @@ export class NxtpSdk {
         messaging,
         natsUrl,
         signer,
+        logger,
+        network,
+        skipPolling,
       },
-      logger,
-      network,
-      skipPolling,
     );
   }
 
@@ -266,7 +267,54 @@ export class NxtpSdk {
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
+    if (!this.config.chainConfig[sendingChainId]) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[receivingChainId]) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
+    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
+
     const signerAddr = await this.config.signer.getAddress();
+    const balance = await getOnchainBalance(sendingAssetId, signerAddr, this.config.signer.provider ?? sendingProvider);
+    if (balance.lt(amount)) {
+      throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
+    }
+
+    if (!bidSignature) {
+      throw new InvalidBidSignature(transactionId, bid, router);
+    }
+
+    const recovered = recoverAuctionBid(bid, bidSignature);
+    if (recovered.toLowerCase() !== router.toLowerCase()) {
+      throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
+    }
+
+    if (callTo !== constants.AddressZero) {
+      const callToContractCode = await receivingProvider.getCode(callTo);
+      if (!callToContractCode || callToContractCode === "0x") {
+        throw new InvalidCallTo(transactionId, callTo);
+      }
+    }
+
+    this.logger.info("Preparing tx!", requestContext, methodContext, {
+      amount,
+      expiry,
+      encodedBid,
+      bidSignature,
+    });
+
+    if (sendingAssetId !== constants.AddressZero) {
+      const approveTx = await this.transactionManager.approveTokensIfNeeded(
+        sendingChainId,
+        sendingAssetId,
+        amount,
+        infiniteApprove,
+        requestContext,
+      );
 
     const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
     if (approveTxReq) {
