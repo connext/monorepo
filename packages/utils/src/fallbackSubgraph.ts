@@ -44,9 +44,9 @@ export class FallbackSubgraph<T extends SdkLike> {
     }));
   }
 
-  public async useSynced<Q>(method: (client: T) => Promise<any>): Promise<Q> {
+  public async useSynced<Q>(method: (client: T) => Promise<any>, minBlock?: number): Promise<Q> {
     const { methodContext } = createLoggingContext(this.sync.name);
-    const synced = this.synced.sort(sdk => sdk.record.latestBlock - sdk.record.syncedBlock);
+    const synced = this.synced.sort(sdk => sdk.record.lag).filter(sdk => sdk.record.syncedBlock > (minBlock ?? 0));
     if (synced.length === 0) {
       throw new Error("No subgraphs available / in-sync!");
     }
