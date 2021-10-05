@@ -1,7 +1,6 @@
 import {
   createLoggingContext,
   createRequestContext,
-  delay,
   jsonifyError,
   RequestContextWithTransactionId,
   safeJsonStringify,
@@ -49,9 +48,11 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("Got active transactions", requestContext, methodContext, { transactions: transactions.length });
-        logger.debug("Got active transactions", requestContext, methodContext, {
-          transactions: transactions,
+        logger.info("Got active transactions", requestContext, methodContext, {
+          transactions: transactions.length,
+        });
+        logger.debug("handling tracker", requestContext, methodContext, {
+          handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -65,7 +66,7 @@ export const bindContractReader = async () => {
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
       const record = await contractReader.getSyncRecord(Number(chainId));
       handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= record.syncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber <= record.syncedBlock) {
           logger.debug("Deleting Tracker Record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
@@ -110,10 +111,6 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       continue;
     }
 
-    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-      blockNumber: -1,
-      chainId,
-    });
     const res = await handleSingle(transaction, requestContext);
     logger.debug("Transaction Result", requestContext, methodContext, { transactionResult: res });
     if (res) {
@@ -124,7 +121,6 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
     } else {
       handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
     }
-    await delay(750); // delay here to not flood the provider
   }
 };
 
