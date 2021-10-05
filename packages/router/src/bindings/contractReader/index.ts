@@ -122,7 +122,6 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
     } else {
       handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
     }
-    await delay(750); // delay here to not flood the provider
   }
 };
 
