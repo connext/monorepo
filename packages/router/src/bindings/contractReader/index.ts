@@ -1,7 +1,6 @@
 import {
   createLoggingContext,
   createRequestContext,
-  delay,
   jsonifyError,
   RequestContextWithTransactionId,
   safeJsonStringify,
