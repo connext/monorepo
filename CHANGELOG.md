@@ -4,6 +4,18 @@
 
 - [sdk/router] Add fallback subgraph using multiple subgraph URIs
 
+## 0.0.56
+
+- [subgraph] Use bware subgraph endpoints
+
+## 0.0.55
+
+- [sdk] Fix lower bound
+
+## 0.0.54
+
+- [contracts] Update default subgraphs
+
 ## 0.0.53
 
 - [contracts] Redeploy to mainnets
