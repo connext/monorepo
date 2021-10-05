@@ -66,7 +66,7 @@ export const bindContractReader = async () => {
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
       const record = await contractReader.getSyncRecord(Number(chainId));
       handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber <= record.syncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= record.syncedBlock) {
           logger.debug("Deleting Tracker Record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
@@ -111,16 +111,28 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       continue;
     }
 
-    const res = await handleSingle(transaction, requestContext);
-    logger.debug("Transaction Result", requestContext, methodContext, { transactionResult: res });
-    if (res) {
-      handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-        blockNumber: res.blockNumber,
-        chainId,
+    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+      blockNumber: -1,
+      chainId,
+    });
+
+    handleSingle(transaction, requestContext)
+      .then((result) => {
+        logger.debug("Handle Single Result", requestContext, methodContext, { transactionResult: result });
+
+        if (result && result.blockNumber) {
+          handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+            blockNumber: result.blockNumber,
+            chainId,
+          });
+        } else {
+          handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
+        }
+      })
+      .catch((err) => {
+        logger.debug("Handle Single Errors", requestContext, methodContext, { error: jsonifyError(err) });
+        handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
       });
-    } else {
-      handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
-    }
   }
 };
 
