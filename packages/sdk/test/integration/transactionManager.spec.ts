@@ -8,6 +8,7 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   expect,
+  Logger,
 } from "@connext/nxtp-utils";
 import { utils, constants } from "ethers";
 
@@ -20,7 +21,6 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 import {
   TransactionManager,
@@ -30,7 +30,7 @@ import { ChainNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 
@@ -134,7 +134,6 @@ describe("Transaction Manager", function () {
     await tx.wait();
 
     userTransactionManager = new TransactionManager(
-      user,
       {
         [sendingChainId]: {
           provider: user.provider,
@@ -145,11 +144,11 @@ describe("Transaction Manager", function () {
           transactionManagerAddress: transactionManagerReceiverSide.address,
         },
       },
+      user.getAddress(),
       logger,
     );
 
     routerTransactionManager = new TransactionManager(
-      router,
       {
         [sendingChainId]: {
           provider: router.provider,
@@ -160,6 +159,7 @@ describe("Transaction Manager", function () {
           transactionManagerAddress: transactionManagerReceiverSide.address,
         },
       },
+      router.getAddress(),
       logger,
     );
   });
@@ -348,7 +348,7 @@ describe("Transaction Manager", function () {
 
         const res = await userTransactionManager.cancel(transaction.sendingChainId, cancelParams);
 
-        const receipt = await res.wait();
+        const receipt = await user.sendTransaction(res).wait();
 
         expect(receipt.status).to.be.eq(1);
       });
@@ -445,7 +445,7 @@ describe("Transaction Manager", function () {
 
         const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);
 
-        const receipt = await res.wait();
+        const receipt = await router.sendTransaction(res).wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -461,7 +461,7 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const res = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
 
-        const receipt = await res.wait();
+        const receipt = await user.sendTransaction(res).wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
