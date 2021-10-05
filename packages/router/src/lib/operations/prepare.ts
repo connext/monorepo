@@ -17,6 +17,7 @@ import {
   SenderChainDataInvalid,
   BidExpiryInvalid,
 } from "../errors";
+import { NotExistVirtuallAMM } from "../errors/contracts";
 import {
   decodeAuctionBid,
   getNtpTimeSeconds,
@@ -26,6 +27,7 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
+import { getChainIdsForAMM } from "../helpers/shared";
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
@@ -83,7 +85,28 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  const [senderBalance, receiverBalance] = await Promise.all([
+    txService.getBalance(invariantData.sendingChainId, wallet.address),
+    txService.getBalance(invariantData.receivingChainId, wallet.address),
+  ]);
+
+  const chaindIdsForAMM = getChainIdsForAMM();
+  if (chaindIdsForAMM.length == 0) {
+    throw new NotExistVirtuallAMM({
+      methodContext,
+      requestContext,
+    });
+  }
+
+  const receiverAmount = await getReceiverAmount(
+    senderAmount,
+    inputDecimals,
+    outputDecimals,
+    chaindIdsForAMM[0].chainId,
+    chaindIdsForAMM[0].address,
+    senderBalance,
+    receiverBalance,
+  );
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,

@@ -25,7 +25,8 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFeeInReceivingToken, getChainIdsForAMM } from "../helpers/shared";
+import { NotExistVirtuallAMM } from "../errors/contracts";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -183,8 +184,32 @@ export const newAuction = async (
     });
   }
 
+  const [senderBalance, receiverBalance] = await Promise.all([
+    txService.getBalance(sendingChainId, wallet.address),
+    txService.getBalance(receivingChainId, wallet.address),
+  ]);
+  logger.info("Got balances", requestContext, methodContext, {
+    senderBalance: senderBalance.toString(),
+    receiverBalance: receiverBalance.toString(),
+  });
+
   // getting the swap rate from the receiver side config
-  let amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  const chaindIdsForAMM = getChainIdsForAMM();
+  if (chaindIdsForAMM.length == 0) {
+    throw new NotExistVirtuallAMM({
+      methodContext,
+      requestContext,
+    });
+  }
+  let amountReceived = await getReceiverAmount(
+    amount,
+    inputDecimals,
+    outputDecimals,
+    chaindIdsForAMM[0].chainId,
+    chaindIdsForAMM[0].address,
+    senderBalance,
+    receiverBalance,
+  );
 
   // (TODO in what other scenarios would auction fail here? We should make sure
   // that router does not bid unless it is *sure* it's doing ok)
@@ -220,15 +245,6 @@ export const newAuction = async (
       receivingChainId,
     });
   }
-
-  const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
-  ]);
-  logger.info("Got balances", requestContext, methodContext, {
-    senderBalance: senderBalance.toString(),
-    receiverBalance: receiverBalance.toString(),
-  });
 
   // Log if gas is low, but above min
   const LOW_GAS = parseEther("0.1");

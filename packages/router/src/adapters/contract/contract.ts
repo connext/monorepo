@@ -15,9 +15,11 @@ import { Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
+  StableSwap as TStableSwap,
 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/amm/StableSwap.sol/StableSwap.json";
 
 import { getContext } from "../../router";
 import { NotExistPriceOracle } from "../../lib/errors/contracts";
@@ -46,6 +48,8 @@ export const getTxManagerInterface = () =>
   new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
 export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
+
+export const getStableSwapInterface = () => new Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
 export const prepareSanitationCheck = async (
   chainId: number,

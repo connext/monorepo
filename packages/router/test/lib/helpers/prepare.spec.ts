@@ -1,11 +1,16 @@
 import { expect, jsonifyError } from "@connext/nxtp-utils";
 import { AmountInvalid } from "../../../src/lib/errors/prepare";
+import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
+import { stub } from "sinon";
 import {
   getReceiverAmount,
   getReceiverExpiryBuffer,
   validBidExpiry,
   validExpiryBuffer,
 } from "../../../src/lib/helpers";
+import { BigNumber } from "@ethersproject/bignumber";
+import { CHAIN_IDS_FOR_AMM } from "../../utils";
 
 describe("validExpiryBuffer", () => {
   it("should work", () => {
@@ -29,15 +34,29 @@ describe("validBidExpiry", () => {
 });
 
 describe("getReceiverAmount", () => {
+  beforeEach(() => {
+    stub(PrepareHelperFns, "getSwapRate").resolves(BigNumber.from("9000"));
+
+    stub(SharedHelperFns, "getChainIdsForAMM").returns(CHAIN_IDS_FOR_AMM);
+  });
+
   it("should work", async () => {
-    const result = await getReceiverAmount("10000", 1, 1);
-    expect(result).to.be.eq((10000 * 0.9995).toString());
+    const result = await getReceiverAmount(
+      "10000",
+      1,
+      1,
+      1337,
+      "0x0",
+      BigNumber.from("100000"),
+      BigNumber.from("100000"),
+    );
+    expect(result).to.be.eq((9000 * 0.9995).toString().split(".")[0]);
   });
 
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1);
+      await getReceiverAmount("1.0", 1, 1, 1337, "0x0", BigNumber.from("100000"), BigNumber.from("100000"));
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);

@@ -8,6 +8,7 @@ import {
 import { BigNumber } from "ethers";
 
 import { AmountInvalid } from "../errors/prepare";
+import { getSwapRateFromVirutalAMM } from "./shared";
 
 const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
@@ -37,8 +38,24 @@ export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExp
  * @remarks
  * TODO: getSwapRate using AMM
  */
-export const getSwapRate = async (): Promise<string> => {
-  return "1";
+export const getSwapRate = async (
+  chainIdForAMM: number,
+  amount: BigNumber,
+  balances: BigNumber[],
+  indexIn: number,
+  indexOut: number,
+  stableSwapAddress: string,
+): Promise<BigNumber> => {
+  const amountOut = await getSwapRateFromVirutalAMM(
+    chainIdForAMM,
+    amount,
+    balances,
+    indexIn,
+    indexOut,
+    stableSwapAddress,
+  );
+
+  return amountOut;
 };
 
 /**
@@ -54,13 +71,27 @@ export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
   outputDecimals: number,
+  chainIdForAMM: number,
+  stableSwapAddress: string,
+  senderBalance: BigNumber,
+  receiverBalance: BigNumber,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
+
+  const convertedSenderBalance = senderBalance.mul(BigNumber.from(10).pow(18 - inputDecimals));
+  const convertedReceiverBalance = receiverBalance.mul(BigNumber.from(10).pow(18 - outputDecimals));
+  const balances: BigNumber[] = [convertedSenderBalance, convertedReceiverBalance];
   // 1. swap rate from AMM
-  const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
+  const amountAfterSwapRate = await getSwapRate(
+    chainIdForAMM,
+    BigNumber.from(amount),
+    balances,
+    0,
+    1,
+    stableSwapAddress,
+  );
 
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);

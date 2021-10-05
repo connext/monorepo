@@ -64,23 +64,7 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
 };
 
 /**
- * Returns the address of the `StableSwap` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedStableSwapContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.StableSwap;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-/**
- * Returns the addresses where the price oracle contract is deployed to
- *
+ * Returns the chain ids where the price oracle contract is deployed to
  */
 export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
@@ -96,6 +80,41 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
     }
   });
   return chainIdsForGasFee;
+};
+
+/**
+ * Returns the address of the `StableSwap` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedStableSwapContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.StableSwap;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
+ * Returns the chain ids where the stable swap contract is deployed to
+ */
+export const getDeployedChainIdsForAMM = (): any[] => {
+  const chainIdsForAMM: any[] = [];
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = (contractDeployments as any)[String(chainId)];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const stableSwapContract = record[chainName]?.contracts?.StableSwap;
+      if (stableSwapContract && stableSwapContract.address) {
+        chainIdsForAMM.push({ chainId: Number(chainId), address: stableSwapContract.address });
+      }
+    }
+  });
+  return chainIdsForAMM;
 };
 
 export const TChainConfig = Type.Object({

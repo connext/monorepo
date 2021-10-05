@@ -1,7 +1,11 @@
 import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
-import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
-import { getDeployedChainIdsForGasFee } from "../../config";
+import {
+  getOracleContractAddress,
+  getPriceOracleInterface,
+  getStableSwapInterface,
+} from "../../adapters/contract/contract";
+import { getDeployedChainIdsForAMM, getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
 /**
@@ -106,4 +110,40 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
  */
 export const getChainIdForGasFee = (): number[] => {
   return getDeployedChainIdsForGasFee();
+};
+
+/**
+ * Gets output amount from virtual amm
+ *
+ * @param chainId The network identifier where stableSwap contract is deployed to
+ * @param amountIn The input amount
+ * @param balances The map of liquidity balances
+ * @param indexIn The index of source chain
+ * @param indexOut The index of destination chain
+ * @param requestContext Request context
+ */
+export const getSwapRateFromVirutalAMM = async (
+  chainId: number,
+  amountIn: BigNumber,
+  balances: BigNumber[],
+  indexIn: number,
+  indexOut: number,
+  stableSwapAddress: string,
+): Promise<BigNumber> => {
+  const { txService } = getContext();
+  const encodedGivenIn = getStableSwapInterface().encodeFunctionData("onSwapGivenIn", [
+    amountIn,
+    balances,
+    indexIn,
+    indexOut,
+  ]);
+  const amountOut = await txService.readTx({ chainId, to: stableSwapAddress, data: encodedGivenIn });
+  return BigNumber.from(amountOut);
+};
+
+/**
+ * Gets chain ids for virtual amm
+ */
+export const getChainIdsForAMM = (): any[] => {
+  return getDeployedChainIdsForAMM();
 };

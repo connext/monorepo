@@ -5,7 +5,7 @@ import { getOperations } from "../../../src/lib/operations";
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
-import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
+import { BID_EXPIRY, CHAIN_IDS_FOR_AMM, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { SubgraphNotSynced } from "../../../src/lib/errors/auction";
@@ -47,6 +47,8 @@ describe("Auction Operation", () => {
       stub(SharedHelperFns, "getGasPrice").resolves(BigNumber.from("100000000000"));
 
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
+
+      stub(SharedHelperFns, "getChainIdsForAMM").returns(CHAIN_IDS_FOR_AMM);
 
       getChainIdForGasFeeStub = stub(SharedHelperFns, "getChainIdForGasFee").returns([1337]);
     });

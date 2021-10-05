@@ -11,7 +11,7 @@ import {
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
-import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
+import { CHAIN_IDS_FOR_AMM, MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { getOperations } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
 
@@ -34,6 +34,7 @@ describe("Prepare Receiver Operation", () => {
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
+      stub(SharedHelperFns, "getChainIdsForAMM").returns(CHAIN_IDS_FOR_AMM);
     });
 
     it("should error if invariant data validation fails", async () => {
