@@ -30,13 +30,13 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-staging";
     case 137:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-matic";
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic-staging";
     case 250:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-fantom";
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-staging";
     case 42161:
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-arbitrum-one";
+      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-staging";
     case 80001:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
     case 421611:
