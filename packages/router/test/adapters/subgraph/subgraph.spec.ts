@@ -178,12 +178,12 @@ describe("Subgraph Adapter", () => {
       ).to.be.true;
     });
 
-    it("should return an empty array if subgraph is out of sync", async () => {
+    it.only("should return an empty array if subgraph is out of sync", async () => {
       // NOTE: This will ultimately just call our fake function defined in the beforeEach; but it ensures that
       // we will return an out of sync subgraph sync record.
       const testCurrentBlockNumber = 10000;
-      txServiceMock.getBlockNumber.resolves(100);
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testCurrentBlockNumber - TEST_SUBGRAPH_MAX_LAG - 1 } } });
+      txServiceMock.getBlockNumber.resolves(testCurrentBlockNumber);
+      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testCurrentBlockNumber - TEST_SUBGRAPH_MAX_LAG * 2 } } });
 
       sdk.GetSenderTransactions.resolves({
         router: {
