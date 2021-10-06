@@ -52,6 +52,9 @@ export const bindContractReader = async () => {
         logger.info("Got active transactions", requestContext, methodContext, {
           transactions: transactions.length,
         });
+        logger.debug("Got active transactions", requestContext, methodContext, {
+          transactions,
+        });
         logger.debug("handling tracker", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
