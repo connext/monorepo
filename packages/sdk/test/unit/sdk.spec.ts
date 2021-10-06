@@ -16,7 +16,7 @@ import { NxtpSdk, MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../s
 
 import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdk";
-import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash } from "../helper";
+import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
 import { Evt } from "evt";
 import {
   ChainNotConfigured,
@@ -36,28 +36,23 @@ import {
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
-import { Subgraph } from "../../src/subgraph/subgraph";
-import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
-const response = "connected";
+const ApproveReq = TxRequest;
+const PrepareReq = { ...TxRequest, data: "0xaaabbb" };
 
-describe("NxtpSdk", () => {
+describe.only("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
-  let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
-  let subgraph: SinonStubbedInstance<Subgraph>;
   let transactionManager: SinonStubbedInstance<TransactionManager>;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
-  let ethereumRequestMock: SinonStub;
-  let encryptMock: SinonStub;
   let balanceStub: SinonStub;
   let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
 
@@ -91,6 +86,8 @@ describe("NxtpSdk", () => {
     };
     signer = createStubInstance(Wallet);
     sdkBase = createStubInstance(NxtpSdkBase);
+    sdkBase.approveForPrepare.resolves(ApproveReq);
+    sdkBase.prepareTransfer.resolves(PrepareReq);
 
     stub(utils, "getDecimals").resolves(18);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
@@ -101,8 +98,6 @@ describe("NxtpSdk", () => {
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
-    ethereumRequestMock = stub(utils, "ethereumRequest");
-    encryptMock = stub(utils, "encrypt");
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
@@ -214,7 +209,7 @@ describe("NxtpSdk", () => {
   describe("#constructor", () => {});
 
   describe("#connectMessaging", () => {
-    it.only("should work", async () => {
+    it("should work", async () => {
       await sdk.connectMessaging("foo");
       expect(sdkBase.connectMessaging).to.be.calledOnceWithExactly("foo");
     });
@@ -222,365 +217,30 @@ describe("NxtpSdk", () => {
 
   describe("#getActiveTransactions", () => {
     it("happy getActiveTransactions", async () => {
-      const { transaction, record } = await getTransactionData();
-      const activeTransaction = {
-        crosschainTx: { invariant: transaction, sending: record, receiving: record },
-        status: NxtpSdkEvents.SenderTransactionPrepared,
-        bidSignature: EmptyBytes,
-        encodedBid: EmptyBytes,
-        encryptedCallData: EmptyBytes,
-        preparedTimestamp: Math.floor(Date.now() / 1000),
-      };
-      subgraph.getActiveTransactions.resolves([activeTransaction]);
-      const res = await sdk.getActiveTransactions();
-      expect(res[0]).to.be.eq(activeTransaction);
+      await sdk.getActiveTransactions();
+      expect(sdkBase.getActiveTransactions).to.be.calledOnceWithExactly();
     });
   });
 
   describe("#getHistoricalTransactions", () => {
     it("should work", async () => {
-      const { transaction, record } = await getTransactionData();
-      const activeTransaction = {
-        crosschainTx: { invariant: transaction, sending: record, receiving: record },
-        status: HistoricalTransactionStatus.FULFILLED,
-        bidSignature: EmptyBytes,
-        encodedBid: EmptyBytes,
-        encryptedCallData: EmptyBytes,
-        preparedTimestamp: Math.floor(Date.now() / 1000),
-      };
-      subgraph.getHistoricalTransactions.resolves([activeTransaction]);
-      const res = await sdk.getHistoricalTransactions();
-      expect(res).to.be.deep.eq([activeTransaction]);
+      await sdk.getHistoricalTransactions();
+      expect(sdkBase.getActiveTransactions).to.be.calledOnceWithExactly();
     });
   });
 
   describe("#getTransferQuote", () => {
-    // TODO: #143 callData encryption
-
-    describe("should error if invalid params", () => {
-      const { crossChainParams } = getMock({ callData: "abc" });
-      it("invalid callData", async () => {
-        await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("getTransferQuote", "CrossChainParams"),
-        );
-      });
-    });
-
-    describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
-        const { crossChainParams } = getMock({ sendingChainId: 1400 });
-        await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-          ChainNotConfigured.getMessage(1400, supportedChains),
-        );
-      });
-
-      it("unkown receivingChainId", async () => {
-        const { crossChainParams } = getMock({ receivingChainId: 1400 });
-
-        await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-          ChainNotConfigured.getMessage(1400, supportedChains),
-        );
-      });
-    });
-
-    it("should error if subgraph not synced", async () => {
-      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+    it("happy: should get a transfer quote ", async () => {
       const { crossChainParams } = getMock();
 
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        SubgraphsNotSynced.getMessage(
-          { latestBlock: 0, synced: false, syncedBlock: 0 },
-          { latestBlock: 0, synced: false, syncedBlock: 0 },
-        ),
-      );
-    });
-
-    it("should error if slippageTolerance is lower than Min allowed", async () => {
-      const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MIN_SLIPPAGE_TOLERANCE) - 1).toString() });
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        InvalidSlippage.getMessage(crossChainParams.slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE),
-      );
-    });
-
-    it("should error if slippageTolerance is higher than Max allowed", async () => {
-      const { crossChainParams } = getMock({ slippageTolerance: (parseFloat(MAX_SLIPPAGE_TOLERANCE) + 1).toString() });
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        InvalidSlippage.getMessage(crossChainParams.slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE),
-      );
-    });
-
-    it("should error if expiry is too short", async () => {
-      const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMinExpiryBuffer() - 1000 });
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        InvalidExpiry.getMessage(crossChainParams.expiry, getMinExpiryBuffer(), getMaxExpiryBuffer()),
-      );
-    });
-
-    it("should error if expiry is too high", async () => {
-      const { crossChainParams } = getMock({ expiry: Math.floor(Date.now() / 1000) + getMaxExpiryBuffer() + 1000 });
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        InvalidExpiry.getMessage(crossChainParams.expiry, getMinExpiryBuffer(), getMaxExpiryBuffer()),
-      );
-    });
-
-    it("should error if eth_getEncryptionPublicKey errors", async () => {
-      const callData = getRandomBytes32();
-      const { crossChainParams } = getMock({ callData });
-
-      ethereumRequestMock.throws(new Error("fails"));
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
-    });
-
-    it("should fail if encrypt fails", async () => {
-      const callData = getRandomBytes32();
-      const { crossChainParams } = getMock({ callData });
-
-      encryptMock.throws(new Error("fails"));
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
-    });
-
-    it("should not include improperly signed bids", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.user);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
-      );
-    });
-
-    it("should log error if getRouterLiquidity errors", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-
-      transactionManager.getRouterLiquidity.rejects(new Error("fail"));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
-      );
-    });
-
-    it("should log error if router liquidity is lower than amountReceived", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived).sub("1"));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
-      );
-    });
-
-    it("should log error if amountReceived is lower than lower bound", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      const crossChainParamsMock = JSON.parse(JSON.stringify(crossChainParams));
-      crossChainParamsMock.amount = "100000000";
-      auctionBid.amountReceived = "1";
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
-      }, 200);
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
-      );
-    });
-
-    it("happy: should get a transfer quote => dryRun ", async () => {
-      const { crossChainParams, auctionBid } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature: undefined, bid: auctionBid, gasFeeInReceivingToken: "0" },
-        });
-      }, 100);
-      const res = await sdk.getTransferQuote(crossChainParams);
-
-      expect(res.bid).to.be.eq(auctionBid);
-      expect(res.bidSignature).to.be.undefined;
-    });
-
-    it("happy: should get a transfer quote", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
-      }, 100);
-      const res = await sdk.getTransferQuote(crossChainParams);
-
-      expect(res.bid).to.be.eq(auctionBid);
-      expect(res.bidSignature).to.be.eq(bidSignature);
-    });
-
-    it("happy: should get a transfer quote with callData", async () => {
-      const callData = getRandomBytes32();
-      const randomHash = keccak256(getRandomBytes32());
-      const { crossChainParams, auctionBid, bidSignature } = getMock({ callData });
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-      ethereumRequestMock.resolves(randomHash);
-      encryptMock.resolves(randomHash);
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
-      }, 100);
-
-      const res = await sdk.getTransferQuote(crossChainParams);
-      expect(res.bid).to.be.eq(auctionBid);
-      expect(res.bidSignature).to.be.eq(bidSignature);
-    });
-
-    it("happy: should get a transfer quote from a preferred router", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      const nonPreferredBid: AuctionBid = {
-        ...auctionBid,
-        router: mkAddress("0xddd"),
-        amountReceived: BigNumber.from(auctionBid.amountReceived).add(1).toString(),
-      };
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid, gasFeeInReceivingToken: "0" } });
-      }, 100);
-
-      setTimeout(() => {
-        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
-      }, 150);
-      const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouter: auctionBid.router });
-
-      expect(res.bid).to.be.eq(auctionBid);
-      expect(res.bidSignature).to.be.eq(bidSignature);
+      await sdk.getTransferQuote(crossChainParams);
+      expect(sdkBase.getActiveTransactions).to.be.calledOnceWithExactly(crossChainParams);
     });
   });
 
   describe("#prepareTransfer", () => {
-    describe("should error if invalid param", () => {
-      it("invalid user", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { user: "abc" });
-        await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("prepareTransfer", "AuctionResponse"));
-      });
-    });
-
-    describe("should error if invalid config", () => {
-      it("unknown sendingChainId", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { sendingChainId: 1400 });
-
-        await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
-      });
-
-      it("unknown receivingChainId", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { receivingChainId: 1400 });
-
-        await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
-      });
-    });
-
-    it("should error if subgraph not synced", async () => {
-      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
-      const { crossChainParams } = getMock();
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        SubgraphsNotSynced.getMessage(
-          { latestBlock: 0, synced: false, syncedBlock: 0 },
-          { latestBlock: 0, synced: false, syncedBlock: 0 },
-        ),
-      );
-    });
-
-    it("should error if it has insufficient balance", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, {}, "");
-      balanceStub.resolves(BigNumber.from(0));
-      await expect(
-        sdk.prepareTransfer({ bid: { ...auctionBid, amount: "10" }, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith(
-        InvalidAmount.getMessage(auctionBid.user, "0", "10", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-      );
-    });
-
-    it("should error if bidSignature undefined", async () => {
-      const { auctionBid, gasFeeInReceivingToken } = getMock({}, {}, "");
-      balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith(InvalidBidSignature.getMessage(auctionBid.router, undefined, undefined));
-    });
-
-    it("should error if it callTo isn't deployed contract", async () => {
-      const mockCallTo = getAddress(mkAddress("0xc"));
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { callTo: mockCallTo });
-
-      balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith(InvalidCallTo.getMessage(mockCallTo));
-    });
-
-    it("should error if approveTokensIfNeeded transaction fails", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      transactionManager.approveTokensIfNeeded.rejects("fails");
-
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith("");
-    });
-
-    it("should error if approve transaction.wait errors", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      balanceStub.resolves(BigNumber.from(auctionBid.amount));
-
-      const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
-      TxResponseMock.wait = () => Promise.reject(new Error("fails"));
-
-      transactionManager.approveTokensIfNeeded.returns(TxResponseMock);
-
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith("fails");
-    });
-
     it("should error if approve transaction reverts", async () => {
       const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
       const TxReceiptMock = JSON.parse(JSON.stringify(TxReceipt));
@@ -588,7 +248,7 @@ describe("NxtpSdk", () => {
 
       TxResponseMock.wait = () => Promise.resolve(TxReceiptMock);
 
-      transactionManager.approveTokensIfNeeded.resolves(TxResponseMock);
+      signer.sendTransaction.resolves(TxResponseMock);
 
       await expect(
         sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
@@ -597,23 +257,11 @@ describe("NxtpSdk", () => {
       );
     });
 
-    it("should error if prepare errors", async () => {
+    it("happy: prepare transfer with suffice approval", async () => {
       const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
-      transactionManager.approveTokensIfNeeded.resolves(undefined);
-      transactionManager.prepare.rejects(new Error("fail"));
-      await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith("fail");
-    });
+      sdkBase.approveForPrepare.returns(undefined);
 
-    it("happy: start transfer with suffice approval", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      balanceStub.resolves(BigNumber.from(auctionBid.amount));
-
-      transactionManager.approveTokensIfNeeded.returns(undefined);
-      transactionManager.prepare.resolves(TxResponse);
       const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
       expect(res.prepareResponse).to.be.eq(TxResponse);
       expect(res.transactionId).to.be.eq(auctionBid.transactionId);
