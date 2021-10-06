@@ -770,6 +770,20 @@ describe("NxtpSdk", () => {
         );
       });
 
+      it("invalid params in case gasAmount is zero", async () => {
+        const { transaction, record } = await getTransactionData();
+        transactionManager.calculateGasInTokenForFullfil.resolves(constants.Zero);
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("calculateGasInToken", "TransactionManager"));
+      });
+
       it("invalid encryptedCallData", async () => {
         const { transaction, record } = await getTransactionData();
 
