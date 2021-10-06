@@ -239,7 +239,8 @@ export class NxtpSdk {
         }
 
         let priceOracleAddress = _priceOracleAddress;
-        if (!priceOracleAddress) {
+        const chainIdsForGasFee = getDeployedChainIdsForGasFee();
+        if (!priceOracleAddress && chainIdsForGasFee.includes(chainId)) {
           const res = getDeployedPriceOracleContract(chainId);
           if (!res || !res.address) {
             throw new NoPriceOracle(chainId);
@@ -251,7 +252,7 @@ export class NxtpSdk {
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
-          priceOracleAddress,
+          priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
 
         let subgraph = _subgraph;
