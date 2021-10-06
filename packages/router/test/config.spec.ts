@@ -1,6 +1,12 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
-import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
+import {
+  getEnvConfig,
+  getConfig,
+  getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedChainIdsForGasFee,
+} from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
 describe("Config", () => {
@@ -18,6 +24,26 @@ describe("Config", () => {
     it("happy func", () => {
       const res = getDeployedTransactionManagerContract(4);
       expect(res).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedPriceOracleContract", () => {
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedPriceOracleContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedPriceOracleContract(4);
+      expect(res).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedChainIdsForGasFee", () => {
+    it("happy func", () => {
+      const res = getDeployedChainIdsForGasFee();
+      expect(res).to.be.includes(4);
+      expect(res).to.be.includes(5);
     });
   });
 

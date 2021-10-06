@@ -9,7 +9,14 @@ import {
   expect,
 } from "@connext/nxtp-utils";
 
-import { fulfill, getContractAddress, prepare, cancel, removeLiquidity } from "../../../src/adapters/contract/contract";
+import {
+  fulfill,
+  getContractAddress,
+  getOracleContractAddress,
+  prepare,
+  cancel,
+  removeLiquidity,
+} from "../../../src/adapters/contract/contract";
 import * as ContractFns from "../../../src/adapters/contract/contract";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { Interface } from "ethers/lib/utils";
@@ -34,6 +41,15 @@ describe("Contract Adapter", () => {
     it("should error if chainId is not supported in config", async () => {
       const chainId = 1400;
       expect(() => getContractAddress(chainId)).throws(`No contract exists for chain ${chainId}`);
+    });
+  });
+
+  describe("#getOracleContractAddress", () => {
+    it("should error if chainId is not supported in config", async () => {
+      const chainId = 1400;
+      expect(() => getOracleContractAddress(chainId, requestContext)).throws(
+        `Price Oracle doesn't exist for chain ${chainId}`,
+      );
     });
   });
 
