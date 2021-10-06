@@ -28,7 +28,13 @@ import {
   createLoggingContext,
 } from "@connext/nxtp-utils";
 
-import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
+import {
+  TransactionManager,
+  getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedChainIdsForGasFee,
+} from "./transactionManager/transactionManager";
+
 import {
   SubmitError,
   NoTransactionManager,
@@ -45,6 +51,7 @@ import {
   InvalidBidSignature,
   MetaTxTimeout,
   SubgraphsNotSynced,
+  NoPriceOracle,
 } from "./error";
 import {
   NxtpSdkEvent,
@@ -221,10 +228,20 @@ export class NxtpSdk {
           transactionManagerAddress = res.address;
         }
 
+        let priceOracleAddress = _priceOracleAddress;
+        if (!priceOracleAddress) {
+          const res = getDeployedPriceOracleContract(chainId);
+          if (!res || !res.address) {
+            throw new NoPriceOracle(chainId);
+          }
+
+          priceOracleAddress = res.address;
+        }
+
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
-          priceOracleAddress: _priceOracleAddress || constants.AddressZero,
+          priceOracleAddress,
         };
 
         let subgraph = _subgraph;
@@ -805,7 +822,8 @@ export class NxtpSdk {
     }
 
     let calculateRelayerFee = relayerFee;
-    if (useRelayers) {
+    const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
+    if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
       // calculate relayer fee
       const signatureForFee = await signFulfillTransactionPayload(
         txData.transactionId,

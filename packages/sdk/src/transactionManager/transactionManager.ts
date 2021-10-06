@@ -14,7 +14,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotConfigured } from "../error";
+import { ChainNotConfigured, PriceOracleNotConfigured } from "../error";
 import { getDecimals, getTokenPrice } from "../utils";
 
 /**
@@ -31,6 +31,42 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   }
   const contract = record[name]?.contracts?.TransactionManager;
   return { address: contract.address, abi: contract.abi };
+};
+
+/**
+ * Returns the address of the `PriceOracle` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  return { address: contract.address, abi: contract.abi };
+};
+
+/**
+ * Returns the addresses where the price oracle contract is deployed to
+ *
+ */
+export const getDeployedChainIdsForGasFee = (): number[] => {
+  const chainIdsForGasFee: number[] = [];
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = (contractDeployments as any)[String(chainId)];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
+      if (priceOracleContract) {
+        chainIdsForGasFee.push(Number(chainId));
+      }
+    }
+  });
+  return chainIdsForGasFee;
 };
 
 /**
@@ -403,11 +439,19 @@ export class TransactionManager {
       provider,
     );
 
+    if (ethPriceInUsd.isZero()) {
+      throw new PriceOracleNotConfigured(chainId, constants.AddressZero);
+    }
+
     const receivingTokenPriceInUsd = await getTokenPrice(
       this.chainConfig[chainId]?.priceOracleAddress,
       txData.receivingAssetId,
       provider,
     );
+
+    if (receivingTokenPriceInUsd.isZero()) {
+      throw new PriceOracleNotConfigured(chainId, txData.receivingAssetId);
+    }
 
     const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
 
@@ -435,10 +479,18 @@ export class TransactionManager {
     const connected = transactionManager.connect(signer);
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
+    const contractArgs = {
+      txData,
+      relayerFee,
+      signature,
+      callData,
+      encodedMeta: "0x",
+    };
+
     // get gas limit
     let gasLimit = BigNumber.from(0);
     try {
-      gasLimit = await connected.estimateGas.fulfill(txData, relayerFee, signature, callData);
+      gasLimit = await connected.estimateGas.fulfill(contractArgs);
     } catch (e) {
       const sanitized = parseError(e);
       throw sanitized;
