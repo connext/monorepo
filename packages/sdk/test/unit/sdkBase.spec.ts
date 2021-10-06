@@ -755,7 +755,7 @@ describe.only("NxtpSdkBase", () => {
       });
     });
 
-    it.only("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
+    it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
       stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
@@ -786,7 +786,7 @@ describe.only("NxtpSdkBase", () => {
       }
     });
 
-    it.only("happy: finish transfer => useRelayers:true", async () => {
+    it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
 
       const transactionHash = mkHash("0xc");
