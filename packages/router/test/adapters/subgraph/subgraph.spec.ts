@@ -195,7 +195,7 @@ describe("Subgraph Adapter", () => {
       expect(res).to.be.deep.eq([]);
     });
 
-    it("should work if status ReceiverNotConfigured ", async () => {
+    it("should work if status ReceiverNotConfigured", async () => {
       sdk.GetSenderTransactions.resolves({
         router: {
           transactions: [transactionSubgraphMock],

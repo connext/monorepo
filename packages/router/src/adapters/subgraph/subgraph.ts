@@ -117,12 +117,9 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
           throw new NoChainConfig(chainId);
         }
 
-        console.log("helloooo");
         // update synced status
         const records = await setSyncRecord(chainId, requestContext);
-        console.log("records:", records);
         if (records.every((r) => !r.synced)) {
-          console.log("oh noes :(");
           logger.warn(
             `All subgraphs out of sync! Cannot get active transactions for chain ${cId}`,
             requestContext,
@@ -134,7 +131,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
           );
           return [];
         }
-        console.log("hiiiii");
 
         // get all receiver expired txs
         const allReceiverExpired = await sdk.useSynced<GetReceiverTransactionsQuery>((client) =>
@@ -152,7 +148,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         });
 
         // get all sender prepared txs
-        console.log("boop");
         const allSenderPrepared = await sdk.useSynced<GetSenderTransactionsQuery>((client) =>
           client.GetSenderTransactions({
             routerId: routerAddress.toLowerCase(),
@@ -160,7 +155,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             status: SdkTransactionStatus.Prepared,
           }),
         );
-        console.log("bop");
 
         // create list of txIds for each receiving chain
         const receivingChains: Record<string, string[]> = {};
@@ -350,7 +344,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       }
     }),
   );
-  console.log("hi", errors.size);
   if (errors.size === Object.keys(sdks).length) {
     if (errors.size === 1) {
       // Just throw the first error in the Map if there's only one chain supported.
