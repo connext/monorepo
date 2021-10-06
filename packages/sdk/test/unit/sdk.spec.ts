@@ -39,6 +39,7 @@ import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "..
 import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
+import { NxtpSdkBase } from "../../src/sdkBase";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -58,6 +59,7 @@ describe("NxtpSdk", () => {
   let ethereumRequestMock: SinonStub;
   let encryptMock: SinonStub;
   let balanceStub: SinonStub;
+  let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -88,10 +90,7 @@ describe("NxtpSdk", () => {
       },
     };
     signer = createStubInstance(Wallet);
-    messaging = createStubInstance(UserNxtpNatsMessagingService);
-    subgraph = createStubInstance(Subgraph);
-    subgraph.getSyncStatus.returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
-    transactionManager = createStubInstance(TransactionManager);
+    sdkBase = createStubInstance(NxtpSdkBase);
 
     stub(utils, "getDecimals").resolves(18);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
@@ -111,25 +110,13 @@ describe("NxtpSdk", () => {
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
-    messaging.isConnected.resolves(true);
-    messaging.publishMetaTxRequest.resolves({ inbox: "inbox" });
-
     signer.getAddress.resolves(user);
 
     sdk = new NxtpSdk({
       chainConfig,
       signer,
-      natsUrl: "http://example.com",
-      authUrl: "http://example.com",
-      messaging: undefined,
-      logger,
+      sdkBase: sdkBase as any,
     });
-
-    (sdk as any).transactionManager = transactionManager;
-    (sdk as any).subgraph = subgraph;
-    (sdk as any).messaging = messaging;
-
-    messaging.connect.resolves(response);
   });
 
   afterEach(() => {
@@ -224,109 +211,12 @@ describe("NxtpSdk", () => {
     return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken };
   };
 
-  describe("#constructor", () => {
-    it("should error if transaction manager doesn't exist for chainId", async () => {
-      const _chainConfig = {
-        [sendingChainId]: {
-          provider: provider1337,
-          subgraph: "http://example.com",
-        },
-      };
-      let error;
-      try {
-        const instance = new NxtpSdk({
-          chainConfig: _chainConfig,
-          signer,
-          natsUrl: "http://example.com",
-          authUrl: "http://example.com",
-          messaging: undefined,
-          logger,
-          network: "mainnet",
-        });
-      } catch (e) {
-        error = e;
-      }
-      expect(error).to.be.an("error");
-
-      expect(error.message).to.be.eq(NoTransactionManager.getMessage(sendingChainId));
-    });
-
-    it("should error if subgraph doesn't exist for chainId", async () => {
-      const _chainConfig = {
-        [sendingChainId]: {
-          provider: provider1337,
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-      };
-
-      let error;
-      try {
-        const instance = new NxtpSdk({
-          chainConfig: _chainConfig,
-          signer,
-          natsUrl: "http://example.com",
-          authUrl: "http://example.com",
-          messaging: undefined,
-          logger,
-          network: "local",
-        });
-      } catch (e) {
-        error = e;
-      }
-      expect(error).to.be.an("error");
-      expect(error.message).to.be.eq(NoSubgraph.getMessage(sendingChainId));
-    });
-
-    it("happy: constructor, get transactionManager address", async () => {
-      const chainConfig = {
-        [4]: {
-          provider: provider1337,
-          subgraph: "http://example.com",
-        },
-        [5]: {
-          provider: provider1338,
-          subgraph: "http://example.com",
-        },
-      };
-      const instance = new NxtpSdk({
-        chainConfig,
-        signer,
-        natsUrl: "http://example.com",
-        authUrl: "http://example.com",
-        messaging: undefined,
-        network: "testnet",
-        logger,
-      });
-    });
-  });
+  describe("#constructor", () => {});
 
   describe("#connectMessaging", () => {
-    it("should fail if connect fails", async () => {
-      messaging.connect.rejects(new Error("fail"));
-
-      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
-    });
-
-    it("should fail if subscribeToAuctionResponse fails", async () => {
-      messaging.subscribeToAuctionResponse.rejects(new Error("fail"));
-
-      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
-      expect(messaging.connect.callCount).to.be.eq(1);
-    });
-
-    it("should fail if subscribeToMetaTxResponse fails", async () => {
-      messaging.subscribeToMetaTxResponse.rejects(new Error("fail"));
-
-      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
-      expect(messaging.connect.callCount).to.be.eq(1);
-      expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
-    });
-
-    it("should work", async () => {
-      await sdk.connectMessaging();
-      expect(messaging.connect.callCount).to.be.eq(1);
-      expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
-      expect(messaging.subscribeToMetaTxResponse.callCount).to.be.eq(1);
+    it.only("should work", async () => {
+      await sdk.connectMessaging("foo");
+      expect(sdkBase.connectMessaging).to.be.calledOnceWithExactly("foo");
     });
   });
 

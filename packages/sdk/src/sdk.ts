@@ -96,23 +96,26 @@ export class NxtpSdk {
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
       skipPolling?: boolean;
+      sdkBase?: NxtpSdkBase;
     },
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling, sdkBase } = this.config;
 
-    this.logger = logger || new Logger({ name: "NxtpSdk" });
+    this.logger = logger ?? new Logger({ name: "NxtpSdk" });
 
-    this.sdkBase = new NxtpSdkBase({
-      chainConfig,
-      signerAddress: signer.getAddress(),
-      authUrl,
-      messaging,
-      natsUrl,
-      signer,
-      logger: this.logger.child({ name: "NxtpSdkBase" }),
-      network,
-      skipPolling,
-    });
+    this.sdkBase =
+      sdkBase ??
+      new NxtpSdkBase({
+        chainConfig,
+        signerAddress: signer.getAddress(),
+        authUrl,
+        messaging,
+        natsUrl,
+        signer,
+        logger: this.logger.child({ name: "NxtpSdkBase" }),
+        network,
+        skipPolling,
+      });
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
