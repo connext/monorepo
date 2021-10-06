@@ -32,16 +32,16 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "approvedAssets(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
     "assetOwnershipTimestamp()": FunctionFragment;
-    "cancel(tuple,bytes)": FunctionFragment;
+    "cancel(tuple)": FunctionFragment;
     "delay()": FunctionFragment;
-    "fulfill(tuple,uint256,bytes,bytes)": FunctionFragment;
+    "fulfill(tuple)": FunctionFragment;
     "getChainId()": FunctionFragment;
     "getStoredChainId()": FunctionFragment;
     "interpreter()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
     "owner()": FunctionFragment;
-    "prepare(tuple,uint256,uint256,bytes,bytes,bytes)": FunctionFragment;
+    "prepare(tuple)": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
@@ -97,23 +97,27 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "cancel",
     values: [
       {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
-      },
-      BytesLike
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        signature: BytesLike;
+        encodedMeta: BytesLike;
+      }
     ]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
@@ -121,25 +125,29 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "fulfill",
     values: [
       {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
-      },
-      BigNumberish,
-      BytesLike,
-      BytesLike
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        relayerFee: BigNumberish;
+        signature: BytesLike;
+        callData: BytesLike;
+        encodedMeta: BytesLike;
+      }
     ]
   ): string;
   encodeFunctionData(
@@ -167,24 +175,28 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "prepare",
     values: [
       {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-      },
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike,
-      BytesLike
+        invariantData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+        };
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        encryptedCallData: BytesLike;
+        encodedBid: BytesLike;
+        bidSignature: BytesLike;
+        encodedMeta: BytesLike;
+      }
     ]
   ): string;
   encodeFunctionData(
@@ -367,8 +379,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
-    "TransactionFulfilled(address,address,bytes32,tuple,uint256,bytes,bytes,bool,bytes,address)": EventFragment;
-    "TransactionPrepared(address,address,bytes32,tuple,address,bytes,bytes,bytes)": EventFragment;
+    "TransactionFulfilled(address,address,bytes32,tuple,bool,bool,bytes,address)": EventFragment;
+    "TransactionPrepared(address,address,bytes32,tuple,address,tuple)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
@@ -477,50 +489,58 @@ export class TransactionManager extends BaseContract {
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cancel(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        signature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     fulfill(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        relayerFee: BigNumberish;
+        signature: BytesLike;
+        callData: BytesLike;
+        encodedMeta: BytesLike;
       },
-      relayerFee: BigNumberish,
-      signature: BytesLike,
-      callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -539,25 +559,29 @@ export class TransactionManager extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
-      invariantData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
+      args: {
+        invariantData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+        };
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        encryptedCallData: BytesLike;
+        encodedBid: BytesLike;
+        bidSignature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      amount: BigNumberish,
-      expiry: BigNumberish,
-      encryptedCallData: BytesLike,
-      encodedBid: BytesLike,
-      bidSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -661,50 +685,58 @@ export class TransactionManager extends BaseContract {
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   cancel(
-    txData: {
-      receivingChainTxManagerAddress: string;
-      user: string;
-      router: string;
-      sendingAssetId: string;
-      receivingAssetId: string;
-      sendingChainFallback: string;
-      receivingAddress: string;
-      callTo: string;
-      callDataHash: BytesLike;
-      transactionId: BytesLike;
-      sendingChainId: BigNumberish;
-      receivingChainId: BigNumberish;
-      amount: BigNumberish;
-      expiry: BigNumberish;
-      preparedBlockNumber: BigNumberish;
+    args: {
+      txData: {
+        receivingChainTxManagerAddress: string;
+        user: string;
+        router: string;
+        initiator: string;
+        sendingAssetId: string;
+        receivingAssetId: string;
+        sendingChainFallback: string;
+        receivingAddress: string;
+        callTo: string;
+        callDataHash: BytesLike;
+        transactionId: BytesLike;
+        sendingChainId: BigNumberish;
+        receivingChainId: BigNumberish;
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        preparedBlockNumber: BigNumberish;
+      };
+      signature: BytesLike;
+      encodedMeta: BytesLike;
     },
-    signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   fulfill(
-    txData: {
-      receivingChainTxManagerAddress: string;
-      user: string;
-      router: string;
-      sendingAssetId: string;
-      receivingAssetId: string;
-      sendingChainFallback: string;
-      receivingAddress: string;
-      callTo: string;
-      callDataHash: BytesLike;
-      transactionId: BytesLike;
-      sendingChainId: BigNumberish;
-      receivingChainId: BigNumberish;
-      amount: BigNumberish;
-      expiry: BigNumberish;
-      preparedBlockNumber: BigNumberish;
+    args: {
+      txData: {
+        receivingChainTxManagerAddress: string;
+        user: string;
+        router: string;
+        initiator: string;
+        sendingAssetId: string;
+        receivingAssetId: string;
+        sendingChainFallback: string;
+        receivingAddress: string;
+        callTo: string;
+        callDataHash: BytesLike;
+        transactionId: BytesLike;
+        sendingChainId: BigNumberish;
+        receivingChainId: BigNumberish;
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        preparedBlockNumber: BigNumberish;
+      };
+      relayerFee: BigNumberish;
+      signature: BytesLike;
+      callData: BytesLike;
+      encodedMeta: BytesLike;
     },
-    relayerFee: BigNumberish,
-    signature: BytesLike,
-    callData: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -721,25 +753,29 @@ export class TransactionManager extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   prepare(
-    invariantData: {
-      receivingChainTxManagerAddress: string;
-      user: string;
-      router: string;
-      sendingAssetId: string;
-      receivingAssetId: string;
-      sendingChainFallback: string;
-      receivingAddress: string;
-      callTo: string;
-      sendingChainId: BigNumberish;
-      receivingChainId: BigNumberish;
-      callDataHash: BytesLike;
-      transactionId: BytesLike;
+    args: {
+      invariantData: {
+        receivingChainTxManagerAddress: string;
+        user: string;
+        router: string;
+        initiator: string;
+        sendingAssetId: string;
+        receivingAssetId: string;
+        sendingChainFallback: string;
+        receivingAddress: string;
+        callTo: string;
+        sendingChainId: BigNumberish;
+        receivingChainId: BigNumberish;
+        callDataHash: BytesLike;
+        transactionId: BytesLike;
+      };
+      amount: BigNumberish;
+      expiry: BigNumberish;
+      encryptedCallData: BytesLike;
+      encodedBid: BytesLike;
+      bidSignature: BytesLike;
+      encodedMeta: BytesLike;
     },
-    amount: BigNumberish,
-    expiry: BigNumberish,
-    encryptedCallData: BytesLike,
-    encodedBid: BytesLike,
-    bidSignature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -835,27 +871,32 @@ export class TransactionManager extends BaseContract {
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancel(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        signature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -875,6 +916,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -893,29 +935,34 @@ export class TransactionManager extends BaseContract {
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     fulfill(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        relayerFee: BigNumberish;
+        signature: BytesLike;
+        callData: BytesLike;
+        encodedMeta: BytesLike;
       },
-      relayerFee: BigNumberish,
-      signature: BytesLike,
-      callData: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -935,6 +982,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -963,28 +1011,33 @@ export class TransactionManager extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     prepare(
-      invariantData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
+      args: {
+        invariantData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+        };
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        encryptedCallData: BytesLike;
+        encodedBid: BytesLike;
+        bidSignature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      amount: BigNumberish,
-      expiry: BigNumberish,
-      encryptedCallData: BytesLike,
-      encodedBid: BytesLike,
-      bidSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -1004,6 +1057,7 @@ export class TransactionManager extends BaseContract {
         receivingChainTxManagerAddress: string;
         user: string;
         router: string;
+        initiator: string;
         sendingAssetId: string;
         receivingAssetId: string;
         sendingChainFallback: string;
@@ -1152,7 +1206,7 @@ export class TransactionManager extends BaseContract {
       user?: string | null,
       router?: string | null,
       transactionId?: BytesLike | null,
-      txData?: null,
+      args?: null,
       caller?: null
     ): TypedEventFilter<
       [
@@ -1160,37 +1214,81 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         [
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          },
           string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
+          string
         ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
+          txData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          };
+          signature: string;
+          encodedMeta: string;
         },
         string
       ],
@@ -1198,38 +1296,82 @@ export class TransactionManager extends BaseContract {
         user: string;
         router: string;
         transactionId: string;
-        txData: [
+        args: [
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          },
           string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
+          string
         ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
+          txData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          };
+          signature: string;
+          encodedMeta: string;
         };
         caller: string;
       }
@@ -1239,11 +1381,9 @@ export class TransactionManager extends BaseContract {
       user?: string | null,
       router?: string | null,
       transactionId?: BytesLike | null,
-      txData?: null,
-      relayerFee?: null,
-      signature?: null,
-      callData?: null,
+      args?: null,
       success?: null,
+      isContract?: null,
       returnData?: null,
       caller?: null
     ): TypedEventFilter<
@@ -1252,41 +1392,87 @@ export class TransactionManager extends BaseContract {
         string,
         string,
         [
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          },
           BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
+          string,
+          string,
+          string
         ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
+          txData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          };
+          relayerFee: BigNumber;
+          signature: string;
+          callData: string;
+          encodedMeta: string;
         },
-        BigNumber,
-        string,
-        string,
+        boolean,
         boolean,
         string,
         string
@@ -1295,43 +1481,89 @@ export class TransactionManager extends BaseContract {
         user: string;
         router: string;
         transactionId: string;
-        txData: [
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
-          string,
+        args: [
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          },
           BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber,
-          BigNumber
+          string,
+          string,
+          string
         ] & {
-          receivingChainTxManagerAddress: string;
-          user: string;
-          router: string;
-          sendingAssetId: string;
-          receivingAssetId: string;
-          sendingChainFallback: string;
-          receivingAddress: string;
-          callTo: string;
-          callDataHash: string;
-          transactionId: string;
-          sendingChainId: BigNumber;
-          receivingChainId: BigNumber;
-          amount: BigNumber;
-          expiry: BigNumber;
-          preparedBlockNumber: BigNumber;
+          txData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber,
+            BigNumber
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            callDataHash: string;
+            transactionId: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            amount: BigNumber;
+            expiry: BigNumber;
+            preparedBlockNumber: BigNumber;
+          };
+          relayerFee: BigNumber;
+          signature: string;
+          callData: string;
+          encodedMeta: string;
         };
-        relayerFee: BigNumber;
-        signature: string;
-        callData: string;
         success: boolean;
+        isContract: boolean;
         returnData: string;
         caller: string;
       }
@@ -1343,9 +1575,7 @@ export class TransactionManager extends BaseContract {
       transactionId?: BytesLike | null,
       txData?: null,
       caller?: null,
-      encryptedCallData?: null,
-      encodedBid?: null,
-      bidSignature?: null
+      args?: null
     ): TypedEventFilter<
       [
         string,
@@ -1362,6 +1592,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1371,6 +1602,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1385,9 +1617,79 @@ export class TransactionManager extends BaseContract {
           preparedBlockNumber: BigNumber;
         },
         string,
-        string,
-        string,
-        string
+        [
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            string,
+            string
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            callDataHash: string;
+            transactionId: string;
+          },
+          BigNumber,
+          BigNumber,
+          string,
+          string,
+          string,
+          string
+        ] & {
+          invariantData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            string,
+            string
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            callDataHash: string;
+            transactionId: string;
+          };
+          amount: BigNumber;
+          expiry: BigNumber;
+          encryptedCallData: string;
+          encodedBid: string;
+          bidSignature: string;
+          encodedMeta: string;
+        }
       ],
       {
         user: string;
@@ -1404,6 +1706,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1413,6 +1716,7 @@ export class TransactionManager extends BaseContract {
           receivingChainTxManagerAddress: string;
           user: string;
           router: string;
+          initiator: string;
           sendingAssetId: string;
           receivingAssetId: string;
           sendingChainFallback: string;
@@ -1427,9 +1731,79 @@ export class TransactionManager extends BaseContract {
           preparedBlockNumber: BigNumber;
         };
         caller: string;
-        encryptedCallData: string;
-        encodedBid: string;
-        bidSignature: string;
+        args: [
+          [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            string,
+            string
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            callDataHash: string;
+            transactionId: string;
+          },
+          BigNumber,
+          BigNumber,
+          string,
+          string,
+          string,
+          string
+        ] & {
+          invariantData: [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            BigNumber,
+            BigNumber,
+            string,
+            string
+          ] & {
+            receivingChainTxManagerAddress: string;
+            user: string;
+            router: string;
+            initiator: string;
+            sendingAssetId: string;
+            receivingAssetId: string;
+            sendingChainFallback: string;
+            receivingAddress: string;
+            callTo: string;
+            sendingChainId: BigNumber;
+            receivingChainId: BigNumber;
+            callDataHash: string;
+            transactionId: string;
+          };
+          amount: BigNumber;
+          expiry: BigNumber;
+          encryptedCallData: string;
+          encodedBid: string;
+          bidSignature: string;
+          encodedMeta: string;
+        };
       }
     >;
   };
@@ -1476,50 +1850,58 @@ export class TransactionManager extends BaseContract {
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancel(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        signature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     fulfill(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        relayerFee: BigNumberish;
+        signature: BytesLike;
+        callData: BytesLike;
+        encodedMeta: BytesLike;
       },
-      relayerFee: BigNumberish,
-      signature: BytesLike,
-      callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1536,25 +1918,29 @@ export class TransactionManager extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
-      invariantData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
+      args: {
+        invariantData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+        };
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        encryptedCallData: BytesLike;
+        encodedBid: BytesLike;
+        bidSignature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      amount: BigNumberish,
-      expiry: BigNumberish,
-      encryptedCallData: BytesLike,
-      encodedBid: BytesLike,
-      bidSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1667,50 +2053,58 @@ export class TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     cancel(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        signature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fulfill(
-      txData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        amount: BigNumberish;
-        expiry: BigNumberish;
-        preparedBlockNumber: BigNumberish;
+      args: {
+        txData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          amount: BigNumberish;
+          expiry: BigNumberish;
+          preparedBlockNumber: BigNumberish;
+        };
+        relayerFee: BigNumberish;
+        signature: BytesLike;
+        callData: BytesLike;
+        encodedMeta: BytesLike;
       },
-      relayerFee: BigNumberish,
-      signature: BytesLike,
-      callData: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1731,25 +2125,29 @@ export class TransactionManager extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     prepare(
-      invariantData: {
-        receivingChainTxManagerAddress: string;
-        user: string;
-        router: string;
-        sendingAssetId: string;
-        receivingAssetId: string;
-        sendingChainFallback: string;
-        receivingAddress: string;
-        callTo: string;
-        sendingChainId: BigNumberish;
-        receivingChainId: BigNumberish;
-        callDataHash: BytesLike;
-        transactionId: BytesLike;
+      args: {
+        invariantData: {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumberish;
+          receivingChainId: BigNumberish;
+          callDataHash: BytesLike;
+          transactionId: BytesLike;
+        };
+        amount: BigNumberish;
+        expiry: BigNumberish;
+        encryptedCallData: BytesLike;
+        encodedBid: BytesLike;
+        bidSignature: BytesLike;
+        encodedMeta: BytesLike;
       },
-      amount: BigNumberish,
-      expiry: BigNumberish,
-      encryptedCallData: BytesLike,
-      encodedBid: BytesLike,
-      bidSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

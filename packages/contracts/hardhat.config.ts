@@ -16,6 +16,7 @@ import "./src/tasks/setupTestRouter";
 import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
+import "./src/tasks/setAggregator";
 
 dotEnvConfig();
 
@@ -137,7 +138,7 @@ const config: HardhatUserConfig = {
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
-      url: "https://rpc-mumbai.matic.today",
+      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },

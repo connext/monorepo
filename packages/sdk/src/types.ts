@@ -26,6 +26,7 @@ export const CrossChainParamsSchema = Type.Object({
   slippageTolerance: Type.Optional(Type.String()),
   dryRun: Type.Optional(Type.Boolean()),
   preferredRouter: Type.Optional(TAddress),
+  initiator: Type.Optional(TAddress),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -33,6 +34,7 @@ export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 export const AuctionBidParamsSchema = Type.Object({
   user: TAddress,
   router: TAddress,
+  initiator: TAddress,
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   amount: TIntegerString,

@@ -172,84 +172,106 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "expiry",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "preparedBlockNumber",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITransactionManager.TransactionData",
+            name: "txData",
+            type: "tuple",
           },
           {
-            internalType: "address",
-            name: "user",
-            type: "address",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
-          },
-          {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint256",
-            name: "sendingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "receivingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "expiry",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedBlockNumber",
-            type: "uint256",
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
           },
         ],
         indexed: false,
-        internalType: "struct ITransactionManager.TransactionData",
-        name: "txData",
+        internalType: "struct ITransactionManager.CancelArgs",
+        name: "args",
         type: "tuple",
       },
       {
@@ -286,108 +308,128 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
-          },
-          {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "expiry",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "preparedBlockNumber",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITransactionManager.TransactionData",
+            name: "txData",
+            type: "tuple",
           },
           {
             internalType: "uint256",
-            name: "sendingChainId",
+            name: "relayerFee",
             type: "uint256",
           },
           {
-            internalType: "uint256",
-            name: "receivingChainId",
-            type: "uint256",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
           },
           {
-            internalType: "uint256",
-            name: "expiry",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedBlockNumber",
-            type: "uint256",
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
           },
         ],
         indexed: false,
-        internalType: "struct ITransactionManager.TransactionData",
-        name: "txData",
+        internalType: "struct ITransactionManager.FulfillArgs",
+        name: "args",
         type: "tuple",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "callData",
-        type: "bytes",
       },
       {
         indexed: false,
         internalType: "bool",
         name: "success",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isContract",
         type: "bool",
       },
       {
@@ -446,6 +488,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "initiator",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "sendingAssetId",
             type: "address",
           },
@@ -517,22 +564,114 @@ const _abi = [
         type: "address",
       },
       {
+        components: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+            ],
+            internalType: "struct ITransactionManager.InvariantTransactionData",
+            name: "invariantData",
+            type: "tuple",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "expiry",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "encryptedCallData",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "encodedBid",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "bidSignature",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
+          },
+        ],
         indexed: false,
-        internalType: "bytes",
-        name: "encryptedCallData",
-        type: "bytes",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "encodedBid",
-        type: "bytes",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "bidSignature",
-        type: "bytes",
+        internalType: "struct ITransactionManager.PrepareArgs",
+        name: "args",
+        type: "tuple",
       },
     ],
     name: "TransactionPrepared",
@@ -610,89 +749,106 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "expiry",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "preparedBlockNumber",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITransactionManager.TransactionData",
+            name: "txData",
+            type: "tuple",
           },
           {
-            internalType: "address",
-            name: "user",
-            type: "address",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
-          },
-          {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint256",
-            name: "sendingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "receivingChainId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "expiry",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedBlockNumber",
-            type: "uint256",
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
           },
         ],
-        internalType: "struct ITransactionManager.TransactionData",
-        name: "txData",
+        internalType: "struct ITransactionManager.CancelArgs",
+        name: "args",
         type: "tuple",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
       },
     ],
     name: "cancel",
@@ -712,6 +868,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {
@@ -788,99 +949,116 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
-          },
-          {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "expiry",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "preparedBlockNumber",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct ITransactionManager.TransactionData",
+            name: "txData",
+            type: "tuple",
           },
           {
             internalType: "uint256",
-            name: "sendingChainId",
+            name: "relayerFee",
             type: "uint256",
           },
           {
-            internalType: "uint256",
-            name: "receivingChainId",
-            type: "uint256",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
           },
           {
-            internalType: "uint256",
-            name: "expiry",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "preparedBlockNumber",
-            type: "uint256",
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
           },
         ],
-        internalType: "struct ITransactionManager.TransactionData",
-        name: "txData",
+        internalType: "struct ITransactionManager.FulfillArgs",
+        name: "args",
         type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "relayerFee",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes",
-        name: "callData",
-        type: "bytes",
       },
     ],
     name: "fulfill",
@@ -900,6 +1078,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {
@@ -1002,94 +1185,111 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "receivingChainTxManagerAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "router",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAssetId",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "sendingChainFallback",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "receivingAddress",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "callTo",
-            type: "address",
+            components: [
+              {
+                internalType: "address",
+                name: "receivingChainTxManagerAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "router",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "initiator",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAssetId",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainFallback",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "receivingAddress",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "callTo",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "sendingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "receivingChainId",
+                type: "uint256",
+              },
+              {
+                internalType: "bytes32",
+                name: "callDataHash",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "transactionId",
+                type: "bytes32",
+              },
+            ],
+            internalType: "struct ITransactionManager.InvariantTransactionData",
+            name: "invariantData",
+            type: "tuple",
           },
           {
             internalType: "uint256",
-            name: "sendingChainId",
+            name: "amount",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "receivingChainId",
+            name: "expiry",
             type: "uint256",
           },
           {
-            internalType: "bytes32",
-            name: "callDataHash",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "encryptedCallData",
+            type: "bytes",
           },
           {
-            internalType: "bytes32",
-            name: "transactionId",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "encodedBid",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "bidSignature",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "encodedMeta",
+            type: "bytes",
           },
         ],
-        internalType: "struct ITransactionManager.InvariantTransactionData",
-        name: "txData",
+        internalType: "struct ITransactionManager.PrepareArgs",
+        name: "args",
         type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "expiry",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "encryptedCallData",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes",
-        name: "encodedBid",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes",
-        name: "bidSignature",
-        type: "bytes",
       },
     ],
     name: "prepare",
@@ -1109,6 +1309,11 @@ const _abi = [
           {
             internalType: "address",
             name: "router",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "initiator",
             type: "address",
           },
           {

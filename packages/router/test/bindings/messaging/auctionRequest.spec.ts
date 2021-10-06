@@ -1,7 +1,7 @@
 import {
   AuctionBid,
   AuctionPayload,
-  createRequestContext,
+  createLoggingContext,
   expect,
   mkAddress,
   mkBytes32,
@@ -57,11 +57,11 @@ const err = new AuctionExpired(800).toJson();
 const inbox = "inbox";
 const from = mkAddress("0xfff");
 
-const requestContext = createRequestContext("auctionRequestBinding");
+const { requestContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
 describe("auctionRequestBinding", () => {
   beforeEach(async () => {
-    newAuctionStub = stub().resolves({ bid, bidSignature });
+    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123" });
     stub(operations, "getOperations").returns({
       newAuction: newAuctionStub,
     } as any);
@@ -79,7 +79,11 @@ describe("auctionRequestBinding", () => {
       ...requestContext,
       transactionId: auctionPayload.transactionId,
     });
-    expect(messagingMock.publishAuctionResponse).to.be.calledOnceWith(from, inbox, { bid, bidSignature });
+    expect(messagingMock.publishAuctionResponse).to.be.calledOnceWith(from, inbox, {
+      bid,
+      bidSignature,
+      gasFeeInReceivingToken: "123",
+    });
   });
 
   it("should not proceed if there is an error", async () => {

@@ -44,6 +44,7 @@ export const Errors: ErrorsType = {
   "036": "INVALID_PROPOSAL",
   "037": "NO_PROPOSAL",
   "038": "NO_OWNERSHIP_CHANGE",
+  "039": "INITIATOR_MISMATCH",
 };
 
 type ErrorsPrefixType = {

@@ -41,15 +41,17 @@ export const auctionRequestBinding = async (
     logger.error("No data in auction request", requestContext, methodContext, err);
     return;
   }
+
   // On every new auction broadcast, route to the new auction handler
   logger.info("Received auction request", requestContext, methodContext);
-  const { bid, bidSignature } = await newAuction(data, requestContext);
-  await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature });
+  const { bid, bidSignature, gasFeeInReceivingToken } = await newAuction(data, requestContext);
+
+  await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature, gasFeeInReceivingToken });
   attemptedAuction.inc({
     sendingAssetId: bid.sendingAssetId,
     receivingAssetId: bid.receivingAssetId,
     sendingChainId: bid.sendingChainId,
     receivingChainId: bid.receivingChainId,
   });
-  logger.info("Handled auction request");
+  logger.info("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
 };

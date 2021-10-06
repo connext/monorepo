@@ -44,7 +44,43 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
+ * Returns the address of the `ConnextPriceOracle` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
+ * Returns the addresses where the price oracle contract is deployed to
+ *
+ */
+export const getDeployedChainIdsForGasFee = (): number[] => {
+  const chainIdsForGasFee: number[] = [];
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = (contractDeployments as any)[String(chainId)];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
+      if (priceOracleContract) {
+        chainIdsForGasFee.push(Number(chainId));
+      }
+    }
+  });
+  return chainIdsForGasFee;
 };
 
 export const TChainConfig = Type.Object({
@@ -53,6 +89,7 @@ export const TChainConfig = Type.Object({
   defaultInitialGas: Type.Optional(TIntegerString),
   subgraph: Type.String(),
   transactionManagerAddress: Type.String(),
+  priceOracleAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
@@ -88,6 +125,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
+  requestLimit: Type.Number(),
   cleanUpMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
@@ -165,6 +203,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
+    requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
@@ -198,6 +237,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
         throw new Error(`No transactionManager address for chain ${chainId}`);
       }
       nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
+    }
+
+    // allow passed in address to override
+    if (!chainConfig.priceOracleAddress) {
+      const res = getDeployedPriceOracleContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
     }
 
     if (!chainConfig.minGas) {

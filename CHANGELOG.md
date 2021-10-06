@@ -2,6 +2,47 @@
 
 ## Next Release
 
+## 0.0.56
+
+- [subgraph] Use bware subgraph endpoints
+
+## 0.0.55
+
+- [sdk] Fix lower bound
+
+## 0.0.54
+
+- [contracts] Update default subgraphs
+
+## 0.0.53
+
+- [contracts] Redeploy to mainnets
+- [utils] Update default subgraph URLs
+
+## 0.0.52
+
+- [sdk] Add sanity check for callTo parameter
+- [sdk] update sdk constructor params structure again
+- [router] perf subgraph buffer
+- [contracts] Redeploy contracts to testnets
+
+## 0.0.51
+
+- [contracts] Final updates from auditor
+- [contracts] Add price oracle contract
+- [router] Estimate gas and add to fee on configured chains
+- [contracts] Deploy on testnets
+
+## 0.0.50
+
+- [sdk] Hardcode estimated gas for xdai
+
+## 0.0.49
+
+- [txservice] Properly handle insufficient funds errors
+- [router] Log gas when there is low balance
+- [router] Properly default signature on admin cancel endpoint
+
 ## 0.0.48
 
 - [txservice] Refactor

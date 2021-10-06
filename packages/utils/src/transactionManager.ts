@@ -7,6 +7,7 @@ export const InvariantTransactionDataSchema = Type.Object({
   receivingChainTxManagerAddress: TAddress,
   user: TAddress,
   router: TAddress,
+  initiator: TAddress,
   sendingAssetId: TAddress,
   receivingAssetId: TAddress,
   sendingChainFallback: TAddress,

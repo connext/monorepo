@@ -329,6 +329,7 @@ export type NxtpMessageEnvelope<T> = {
 
 export const AuctionPayloadSchema = Type.Object({
   user: TAddress,
+  initiator: TAddress,
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   amount: TIntegerString,
@@ -348,6 +349,7 @@ export type AuctionPayload = Static<typeof AuctionPayloadSchema>;
 export type AuctionBid = {
   user: string;
   router: string;
+  initiator: string;
   sendingChainId: number;
   sendingAssetId: string;
   amount: string;
@@ -367,6 +369,7 @@ export type AuctionBid = {
 
 export type AuctionResponse = {
   bid: AuctionBid;
+  gasFeeInReceivingToken: string;
   bidSignature?: string; // not included in dry run
 };
 
