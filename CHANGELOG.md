@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.56
+
+- [subgraph] Use bware subgraph endpoints
+
 ## 0.0.55
 
 - [sdk] Fix lower bound
