@@ -903,6 +903,8 @@ export class NxtpSdkBase {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
+    this.metaTxResponseEvt.detach();
+    this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();
   }

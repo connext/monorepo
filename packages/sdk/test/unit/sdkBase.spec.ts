@@ -21,7 +21,6 @@ import { Evt } from "evt";
 import {
   ChainNotConfigured,
   EncryptionError,
-  InvalidAmount,
   InvalidBidSignature,
   InvalidExpiry,
   InvalidParamStructure,
@@ -45,7 +44,7 @@ const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 const { AddressZero } = constants;
 const response = "connected";
 
-describe.only("NxtpSdkBase", () => {
+describe("NxtpSdkBase", () => {
   let sdk: NxtpSdkBase;
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
@@ -766,8 +765,8 @@ describe.only("NxtpSdkBase", () => {
         });
       }, 200);
 
-      try {
-        await sdk.fulfillTransfer(
+      await expect(
+        sdk.fulfillTransfer(
           {
             txData: { ...transaction, ...record },
 
@@ -779,11 +778,8 @@ describe.only("NxtpSdkBase", () => {
           "0x",
           "0",
           true,
-        );
-        expect("Should have errored").to.be.undefined;
-      } catch (e) {
-        expect(e.message).to.be.eq(MetaTxTimeout.getMessage(1_000));
-      }
+        ),
+      ).to.be.rejectedWith(MetaTxTimeout.getMessage(1_000));
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
