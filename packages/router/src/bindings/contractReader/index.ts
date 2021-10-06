@@ -1,6 +1,7 @@
 import {
   createLoggingContext,
   createRequestContext,
+  delay,
   jsonifyError,
   RequestContextWithTransactionId,
   safeJsonStringify,
@@ -133,6 +134,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
         logger.debug("Handle Single Errors", requestContext, methodContext, { error: jsonifyError(err) });
         handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
       });
+    await delay(750); // delay here to not flood the provider
   }
 };
 
