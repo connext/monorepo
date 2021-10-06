@@ -183,6 +183,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
   transaction!.fulfillMeta = event.params.args.encodedMeta;
+  transaction!.fulfillTimestamp = event.block.timestamp;
 
   transaction!.save();
 
@@ -214,6 +215,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
   transaction!.cancelMeta = event.params.args.encodedMeta;
+  transaction!.cancelTimestamp = event.block.timestamp;
 
   transaction!.save();
 
