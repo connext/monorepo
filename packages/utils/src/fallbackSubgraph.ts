@@ -20,10 +20,6 @@ type Sdk<T extends SdkLike> = {
 export class FallbackSubgraph<T extends SdkLike> {
   private readonly sdks: Sdk<T>[];
 
-  private get synced(): Sdk<T>[] {
-    return this.sdks.filter((sdk) => sdk.record.synced);
-  }
-
   constructor(
     private readonly logger: Logger,
     private readonly chainId: number,
@@ -48,16 +44,19 @@ export class FallbackSubgraph<T extends SdkLike> {
     }));
   }
 
-  public async useSynced<Q>(method: (client: T) => Promise<any>, minBlock?: number): Promise<Q> {
+  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = false, minBlock?: number): Promise<Q> {
     const { methodContext } = createLoggingContext(this.sync.name);
-    const synced = this.synced.sort((sdk) => sdk.record.lag).filter((sdk) => sdk.record.syncedBlock > (minBlock ?? 0));
-    if (synced.length === 0) {
-      throw new Error("No subgraphs available and in-sync!");
+    // Order the subgraphs by lag / how in-sync they are.
+    const ordered = this.sdks
+      .sort((sdk) => sdk.record.lag)
+      .filter((sdk) => (sdk.record.syncedBlock > (minBlock ?? 0) && syncRequired ? sdk.record.synced : true));
+    if (ordered.every((sdk) => !sdk.record.synced)) {
+      throw new Error(`All subgraphs out of sync! Cannot handle active transactions for chain ${this.chainId}`);
     }
     const errors: Error[] = [];
     // Starting with most in-sync, keep retrying the callback with each client.
-    for (let i = 0; i < synced.length; i++) {
-      const sdk = synced[i];
+    for (let i = 0; i < ordered.length; i++) {
+      const sdk = ordered[i];
       try {
         return await method(sdk.client);
       } catch (e) {

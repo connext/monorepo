@@ -227,7 +227,7 @@ export class Subgraph {
           return;
         }
 
-        const { transactions } = await subgraph.useSynced<GetTransactionsQuery>((client) =>
+        const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
           client.GetTransactions({ transactionIds: ids }),
         );
         if (transactions.length === 0) {
@@ -262,7 +262,7 @@ export class Subgraph {
         if (ids.length === 0) {
           return;
         }
-        const { transactions } = await subgraph.useSynced<GetTransactionsQuery>((client) =>
+        const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
           client.GetTransactions({ transactionIds: ids }),
         );
         if (transactions.length === 0) {
@@ -339,7 +339,7 @@ export class Subgraph {
           const subgraph = this.sdks[chainId];
 
           // get all sender prepared
-          const { transactions: senderPrepared } = await subgraph.useSynced<GetSenderTransactionsQuery>((client) =>
+          const { transactions: senderPrepared } = await subgraph.request<GetSenderTransactionsQuery>((client) =>
             client.GetSenderTransactions({
               sendingChainId: chainId,
               userId: user,
@@ -364,7 +364,7 @@ export class Subgraph {
               if (!_sdk) {
                 return undefined;
               }
-              const { transactions: correspondingReceiverTxs } = await _sdk.useSynced<GetTransactionsQuery>((client) =>
+              const { transactions: correspondingReceiverTxs } = await _sdk.request<GetTransactionsQuery>((client) =>
                 client.GetTransactions({
                   transactionIds: senderTxs.map((tx) => tx.transactionId),
                 }),
@@ -549,7 +549,7 @@ export class Subgraph {
         const subgraph = this.sdks[chainId];
 
         // get all receiver fulfilled
-        const { transactions: receiverFulfilled } = await subgraph.useSynced<GetReceiverTransactionsQuery>((client) =>
+        const { transactions: receiverFulfilled } = await subgraph.request<GetReceiverTransactionsQuery>((client) =>
           client.GetReceiverTransactions({
             receivingChainId: chainId,
             userId: user,
@@ -575,7 +575,7 @@ export class Subgraph {
               return undefined;
             }
 
-            const { transactions: correspondingSenderTxs } = await _sdk.useSynced<GetTransactionsQuery>((client) =>
+            const { transactions: correspondingSenderTxs } = await _sdk.request<GetTransactionsQuery>((client) =>
               client.GetTransactions({
                 transactionIds: receiverTxs.map((tx) => tx.transactionId),
               }),
@@ -643,7 +643,7 @@ export class Subgraph {
         const subgraph = this.sdks[chainId];
 
         // get all receiver fulfilled
-        const { transactions: senderCancelled } = await subgraph.useSynced<GetSenderTransactionsQuery>((client) =>
+        const { transactions: senderCancelled } = await subgraph.request<GetSenderTransactionsQuery>((client) =>
           client.GetSenderTransactions({
             sendingChainId: chainId,
             userId: user,

@@ -63,7 +63,7 @@ describe("Subgraph Adapter", () => {
     txServiceMock.getBlockNumber.resolves(10000);
 
     fallbackSubgraph = createStubInstance(FallbackSubgraph, {
-      useSynced: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
+      request: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
       sync: stub<[latestBlock: number]>().callsFake(async (latestBlock: number): Promise<SubgraphSyncRecord[]> => {
         // The GetBlockNumber call is normally nested in the fallback subgraph in this case - we reimplement here to avoid using
         // actual fallback subgraph, but to emulate the same behavior.
@@ -178,12 +178,12 @@ describe("Subgraph Adapter", () => {
       ).to.be.true;
     });
 
-    it.only("should return an empty array if subgraph is out of sync", async () => {
+    it("should work if subgraph is out of sync", async () => {
       // NOTE: This will ultimately just call our fake function defined in the beforeEach; but it ensures that
       // we will return an out of sync subgraph sync record.
       const testCurrentBlockNumber = 10000;
-      txServiceMock.getBlockNumber.resolves(testCurrentBlockNumber);
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testCurrentBlockNumber - TEST_SUBGRAPH_MAX_LAG * 2 } } });
+      txServiceMock.getBlockNumber.resolves(100);
+      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testCurrentBlockNumber - TEST_SUBGRAPH_MAX_LAG - 1 } } });
 
       sdk.GetSenderTransactions.resolves({
         router: {
@@ -192,10 +192,22 @@ describe("Subgraph Adapter", () => {
       });
 
       const res = await getActiveTransactions();
-      expect(res).to.be.deep.eq([]);
+      const { invariant, sending } = sdkSenderTransactionToCrosschainTransaction(transactionSubgraphMock);
+
+      expect(res[0].crosschainTx.invariant).to.include(invariant);
+      expect(res[0].crosschainTx.sending).to.include(sending);
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverNotConfigured);
+
+      expect(
+        sdk.GetSenderTransactions.calledOnceWithExactly({
+          routerId: routerAddrMock,
+          sendingChainId: sendingChainId,
+          status: TransactionStatus.Prepared,
+        }),
+      ).to.be.true;
     });
 
-    it("should work if status ReceiverNotConfigured", async () => {
+    it("should work if status ReceiverNotConfigured ", async () => {
       sdk.GetSenderTransactions.resolves({
         router: {
           transactions: [transactionSubgraphMock],
