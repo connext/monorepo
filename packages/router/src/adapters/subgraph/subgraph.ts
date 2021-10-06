@@ -117,7 +117,19 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
       }
 
       // update synced status
-      await setSyncRecord(chainId, requestContext);
+      const records = await setSyncRecord(chainId, requestContext);
+      if (records.every((r) => !r.synced)) {
+        logger.warn(
+          `All subgraphs out of sync! Cannot get active transactions for chain ${cId}`,
+          requestContext,
+          methodContext,
+          {
+            chainId: cId,
+            records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
+          },
+        );
+        return;
+      }
 
       // get all receiver expired txs
       const allReceiverExpired = await sdk.useSynced<GetReceiverTransactionsQuery>((client) =>
