@@ -38,6 +38,9 @@ let sdk: SdkMock;
 
 let getSdkStub: SinonStub;
 
+const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
+const TEST_SUBGRAPH_MAX_LAG = 10;
+
 describe("Subgraph Adapter", () => {
   const sendingChainId = txDataMock.sendingChainId;
   const receivingChainId = txDataMock.receivingChainId;
@@ -57,6 +60,8 @@ describe("Subgraph Adapter", () => {
       GetBlockNumber: stub().resolves({ _meta: { block: { number: 10000 } } }),
     };
 
+    txServiceMock.getBlockNumber.resolves(10000);
+
     fallbackSubgraph = createStubInstance(FallbackSubgraph, {
       useSynced: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
       sync: stub<[latestBlock: number]>().callsFake(async (latestBlock: number): Promise<SubgraphSyncRecord[]> => {
@@ -64,7 +69,7 @@ describe("Subgraph Adapter", () => {
         // actual fallback subgraph, but to emulate the same behavior.
         const { _meta } = await sdk.GetBlockNumber();
         const syncedBlock = _meta?.block.number ?? 0;
-        const synced = latestBlock - syncedBlock <= 10;
+        const synced = latestBlock - syncedBlock <= TEST_SUBGRAPH_MAX_LAG;
         return [
           {
             synced,
@@ -147,13 +152,13 @@ describe("Subgraph Adapter", () => {
       expect(await getActiveTransactions()).to.be.deep.eq([]);
     });
 
-    it("should fail GetSenderTransactions fails", async () => {
+    it("should fail if GetSenderTransactions fails", async () => {
       sdk.GetSenderTransactions.rejects(new Error("fail"));
 
       await expect(getActiveTransactions()).to.be.rejectedWith("fail");
     });
 
-    it("should fail GetTransaction fails", async () => {
+    it("should fail if GetTransaction fails", async () => {
       sdk.GetSenderTransactions.resolves({
         router: {
           transactions: [{ ...transactionSubgraphMock, receivingChainId: sendingChainId }],
@@ -173,9 +178,12 @@ describe("Subgraph Adapter", () => {
       ).to.be.true;
     });
 
-    it("should work if subgraph is out of sync ", async () => {
+    it("should return an empty array if subgraph is out of sync", async () => {
+      // NOTE: This will ultimately just call our fake function defined in the beforeEach; but it ensures that
+      // we will return an out of sync subgraph sync record.
+      const testCurrentBlockNumber = 10000;
       txServiceMock.getBlockNumber.resolves(100);
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: 50 } } });
+      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testCurrentBlockNumber - TEST_SUBGRAPH_MAX_LAG - 1 } } });
 
       sdk.GetSenderTransactions.resolves({
         router: {
@@ -184,19 +192,7 @@ describe("Subgraph Adapter", () => {
       });
 
       const res = await getActiveTransactions();
-      const { invariant, sending } = sdkSenderTransactionToCrosschainTransaction(transactionSubgraphMock);
-
-      expect(res[0].crosschainTx.invariant).to.include(invariant);
-      expect(res[0].crosschainTx.sending).to.include(sending);
-      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverNotConfigured);
-
-      expect(
-        sdk.GetSenderTransactions.calledOnceWithExactly({
-          routerId: routerAddrMock,
-          sendingChainId: sendingChainId,
-          status: TransactionStatus.Prepared,
-        }),
-      ).to.be.true;
+      expect(res).to.be.deep.eq([]);
     });
 
     it("should work if status ReceiverNotConfigured ", async () => {
@@ -220,6 +216,16 @@ describe("Subgraph Adapter", () => {
           status: TransactionStatus.Prepared,
         }),
       ).to.be.true;
+    });
+
+    it("should throw if all chains throw errors", async () => {
+      const _sdks = {
+        ...sdks,
+        [receivingChainId]: fallbackSubgraph,
+      };
+      getSdkStub.returns(_sdks as any);
+      sdk.GetSenderTransactions.rejects(new Error("fail"));
+      await expect(getActiveTransactions()).to.be.rejectedWith(GET_ACTIVE_TX_FAILED);
     });
   });
 

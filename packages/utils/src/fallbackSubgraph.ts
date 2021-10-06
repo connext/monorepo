@@ -56,22 +56,14 @@ export class FallbackSubgraph<T extends SdkLike> {
     }
     const errors: Error[] = [];
     // Starting with most in-sync, keep retrying the callback with each client.
-    // const retries: Record<string, number> = {};
     for (let i = 0; i < synced.length; i++) {
       const sdk = synced[i];
       try {
         return await method(sdk.client);
       } catch (e) {
         errors.push(e);
-        // We'll retry after an ENOTFOUND error up to 5 times.
-        // if ((e.errno === "ENOTFOUND") && (retries[sdk.record.uri] ?? 0) < 5) {
-        //   retries[sdk.record.uri] = (retries[sdk.record.uri] ?? 0) + 1;
-        //   // This will reinsert this sdk to the front of the list, so we'll use it again in the next iteration.
-        //   synced.unshift(sdk);
-        // }
       }
     }
-    // TODO: Throw an error that holds all the errors that occurred?
     this.logger.error(
       "Error calling method on subgraph client(s).",
       undefined,
