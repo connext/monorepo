@@ -88,6 +88,7 @@ const convertMockedToActiveTransaction = (
         receivingChainTxManagerAddress,
         user: user.id,
         router: router.id,
+        initiator: user.id,
         sendingAssetId,
         receivingAssetId,
         sendingChainFallback,
@@ -113,6 +114,8 @@ const convertMockedToActiveTransaction = (
     },
   };
 };
+
+const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 
 describe("Subgraph", () => {
   let subgraph: Subgraph;
@@ -155,6 +158,7 @@ describe("Subgraph", () => {
         id: user,
       } as graphqlsdk.User,
       router: {} as graphqlsdk.Router,
+      initiator: user,
       receivingChainTxManagerAddress: mkAddress("0xaa"),
       sendingAssetId: mkAddress("0xc"),
       receivingAssetId: mkAddress("0xd"),
@@ -550,7 +554,7 @@ describe("Subgraph", () => {
 
       it("should fail if it cannot call `GetSenderTransactions`", async () => {
         sdkStub.GetSenderTransactions.rejects(new Error("fail"));
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(GET_ACTIVE_TX_FAILED);
       });
 
       it("should fail if there is a sender tx, but it fails to call `GetTransactions`", async () => {
@@ -567,7 +571,10 @@ describe("Subgraph", () => {
         }).resolves({ transactions: [] });
 
         sdkStub.GetTransactions.rejects(new Error("fail"));
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        // We should get back an empty array, indicating that the senderPrepared mock tx we returned above did not get processed
+        // because GetTransactions failed.
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
       });
 
       it("should return empty array if it cannot find an sdk for the receiving chain on sender tx", async () => {
@@ -610,9 +617,14 @@ describe("Subgraph", () => {
           transactionIds: [sender.transactionId],
         }).resolves({ transactions: [receiver] });
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
-          InvalidTxStatus.getMessage("fail", sender.transactionId),
-        );
+        // We should not get the tx back that has the wrong status.
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
+      });
+
+      it("should throw if all chains throw errors", async () => {
+        sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(GET_ACTIVE_TX_FAILED);
       });
     });
   });
