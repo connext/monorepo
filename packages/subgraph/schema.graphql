@@ -61,11 +61,13 @@ type Transaction @entity {
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes
   fulfillMeta: Bytes
+  fulfillTimestamp: BigInt
 
   # TransactionCancelled
   cancelCaller: Bytes
   cancelTransactionHash: Bytes
   cancelMeta: Bytes
+  cancelTimestamp: BigInt
 }
 
 # User entity keeps track of active user transactions
