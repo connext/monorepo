@@ -56,7 +56,7 @@ export const TChainConfig = Type.Object({
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
-  relayFeeThreshold: Type.Number(),
+  relayFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
 });
 

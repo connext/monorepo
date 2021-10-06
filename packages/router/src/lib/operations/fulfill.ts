@@ -73,7 +73,11 @@ export const fulfill = async (
       });
     }
 
-    if (BigNumber.from(input.relayerFee).gt(relayerFeeLowerBound)) {
+    const recvAmountLowerBound = BigNumber.from(amount)
+      .mul(100 - relayerFeeLowerBound)
+      .div(100);
+
+    if (BigNumber.from(amount).sub(input.relayerFee).lt(recvAmountLowerBound)) {
       throw new NotEnoughRelayerFee(fulfillChain, {
         methodContext,
         requestContext,
