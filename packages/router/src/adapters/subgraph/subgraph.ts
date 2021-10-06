@@ -328,7 +328,11 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
     }),
   );
   if (errors.size === Object.keys(sdks).length) {
-    throw new Error("getActiveTransactions failed for all chains");
+    if (errors.size === 1) {
+      // Just throw the first error in the Map if there's only one chain supported.
+      throw errors.values().next().value;
+    }
+    throw new Error("Failed to get active transactions for all chains");
   }
   const flattened = allChains.filter((x) => !!x).flat();
   return flattened;
