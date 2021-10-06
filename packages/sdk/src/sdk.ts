@@ -26,6 +26,9 @@ import {
   MetaTxTypes,
   Logger,
   createLoggingContext,
+  TransactionData,
+  RequestContext,
+  MethodContext,
 } from "@connext/nxtp-utils";
 
 import {
@@ -824,46 +827,12 @@ export class NxtpSdk {
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      // calculate relayer fee
-      const signatureForFee = await signFulfillTransactionPayload(
-        txData.transactionId,
-        relayerFee,
-        txData.receivingChainId,
-        txData.receivingChainTxManagerAddress,
-        this.config.signer,
-      );
-      const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
-        relayerFee,
-        signature: signatureForFee,
-        txData: {
-          ...txData,
-          callDataHash: utils.keccak256("0x"),
-        },
-        callData: "0x",
-      });
+      const gasNeeded = await this.estimateFulfillFee(txData, relayerFee, requestContext, methodContext);
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
         requestContext,
         methodContext,
       );
-
-      if (gasNeeded.isZero()) {
-        const error = new InvalidParamStructure(
-          "calculateGasInToken",
-          "TransactionManager",
-          "Failed to calculate a gas fee in token",
-          {
-            relayerFee: relayerFee,
-            signatureForFee: signatureForFee,
-            txData: txData,
-            callDataHash: utils.keccak256("0x"),
-            callData: "0x",
-          },
-        );
-        this.logger.error("Failed to calculate gas in token", requestContext, methodContext, jsonifyError(error));
-
-        throw error;
-      }
 
       calculateRelayerFee = gasNeeded.toString();
     }
@@ -945,6 +914,51 @@ export class NxtpSdk {
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { fulfillResponse };
     }
+  }
+
+  public async estimateFulfillFee(
+    txData: TransactionData,
+    relayerFee: string,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    const signatureForFee = await signFulfillTransactionPayload(
+      txData.transactionId,
+      relayerFee,
+      txData.receivingChainId,
+      txData.receivingChainTxManagerAddress,
+      this.config.signer,
+    );
+
+    const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
+      relayerFee,
+      signature: signatureForFee,
+      txData: {
+        ...txData,
+        callDataHash: utils.keccak256("0x"),
+      },
+      callData: "0x",
+    });
+
+    if (gasNeeded.isZero()) {
+      const error = new InvalidParamStructure(
+        "calculateGasInToken",
+        "TransactionManager",
+        "Failed to calculate a gas fee in token",
+        {
+          relayerFee: relayerFee,
+          signatureForFee: signatureForFee,
+          txData: txData,
+          callDataHash: utils.keccak256("0x"),
+          callData: "0x",
+        },
+      );
+      this.logger.error("Failed to calculate gas in token", requestContext, methodContext, jsonifyError(error));
+
+      throw error;
+    }
+
+    return gasNeeded;
   }
 
   /**
