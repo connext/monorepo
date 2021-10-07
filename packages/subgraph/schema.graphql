@@ -24,6 +24,7 @@ type Transaction @entity {
   status: TransactionStatus!
   chainId: BigInt!
   preparedTimestamp: BigInt!
+  fulfillTimestamp: BigInt
 
   # TransactionData
   receivingChainTxManagerAddress: Bytes!

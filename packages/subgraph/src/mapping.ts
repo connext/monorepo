@@ -182,6 +182,8 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.externalCallIsContract = event.params.isContract;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
+  transaction!.fulfillTimestamp = event.block.timestamp;
+
   transaction!.fulfillMeta = event.params.args.encodedMeta;
 
   transaction!.save();
