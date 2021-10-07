@@ -227,7 +227,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           // still possible to revert due to a state change below.
           const gas = await this.getGas(minTx, requestContext);
 
-          // Retrieve the current mined transaction count and our local nonce.
+          // Retrieve the current pending transaction count and our local nonce.
           const result = await this.getTransactionCount("pending");
           if (result.isErr()) {
             throw result.error;
@@ -278,6 +278,12 @@ export class TransactionDispatch extends ChainRpcProvider {
             } catch (error) {
               if (error.type === BadNonce.type) {
                 lastErrorReceived = error.reason;
+                 // We'll retrieve/update the local transaction count to latest mined value. This tx count will be used below.
+                 const result = await this.getTransactionCount("latest");
+                 if (result.isErr()) {
+                   throw result.error;
+                 }
+                 transactionCount = result.value;
                 if (
                   error.reason === BadNonce.reasons.NonceExpired ||
                   // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
@@ -287,19 +293,14 @@ export class TransactionDispatch extends ChainRpcProvider {
                   // Currently only two possibilities are known to (potentially) cause this to happen:
                   // 1. Signer used outside of this class to send tx (should never happen).
                   // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
-                  nonce = nonce + 1;
-                  // TODO: Alternatively, we could retrieve the transactionCount again and set the nonce to Math.max(transactionCount, nonce + 1)
+                  // Potentially increment the nonce here, but compare it to an up-to-date tx count to make sure we're in the right ballpark.
+                  nonce = Math.max(nonce + 1, transactionCount);
                   continue;
                 } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
                   // It's unknown whether nonce was too low or too high. For safety, we're going to set the nonce to the latest transaction count
                   // and retry (continually). Eventually the transaction count will catch up to / converge on the correct number.
                   // NOTE: This occasionally happens because a provider falls behind in terms of the current mempool and hasn't registered a tx yet.
-                  const result = await this.getTransactionCount("latest");
-                  if (result.isErr()) {
-                    throw result.error;
-                  }
-                  transactionCount = result.value;
-                  nonce = result.value;
+                  nonce = transactionCount;
                   continue;
                 }
               }
