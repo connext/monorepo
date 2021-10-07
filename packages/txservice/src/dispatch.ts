@@ -40,7 +40,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   // Buffer of mined transactions waiting for X confirmations.
   private minedBuffer: TransactionBuffer;
 
-  private readonly submitQueue = new PriorityQueue({ concurrency: 1 });
+  private readonly queue = new PriorityQueue({ concurrency: 1 });
 
   // The current nonce of the signer is tracked locally here. It will be used for comparison
   // to the nonce we get back from the pending transaction count call to our providers.
@@ -215,12 +215,19 @@ export class TransactionDispatch extends ChainRpcProvider {
       txsId,
     });
 
-    const result = await this.submitQueue.add(
+    const result = await this.queue.add(
       async (): Promise<{ value: Transaction | NxtpError; success: boolean }> => {
         try {
           // Wait until there's room in the buffer.
-          while (this.inflightBuffer.isFull) {
-            await delay(200);
+          if (this.inflightBuffer.isFull) {
+            this.logger.warn("Inflight buffer is full! Waiting in queue to send.", requestContext, methodContext, {
+              chainId: this.chainId,
+              bufferLength: this.inflightBuffer.length,
+              txsId,
+            });
+            while (this.inflightBuffer.isFull) {
+              await delay(200);
+            }
           }
 
           // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
@@ -228,29 +235,33 @@ export class TransactionDispatch extends ChainRpcProvider {
           // still possible to revert due to a state change below.
           const gas = await this.getGas(minTx, requestContext);
 
-          // Retrieve the current pending transaction count and our local nonce.
+          // Retrieve the current pending transaction count.
           const result = await this.getTransactionCount("pending");
           if (result.isErr()) {
             throw result.error;
           }
           let transactionCount = result.value;
 
-          // If for some reason the transaction count we received back from the provider is lower than the last once we received,
-          // we should use this lower one instead. This will backfill any nonce gaps they may have been left behind as a result of
-          // provider issues and/or reorgs.
+          let nonce;
+          // If for some reason the transaction count we received from the provider is lower than the last once we received (meaning nonce
+          // backtracked), we should start at the lower value instead. This will backfill any nonce gaps that may have been left behind
+          // as a result of provider connection issues and/or reorgs.
+          // NOTE: If this backfill replaces an "existing" faulty transaction (i.e. one that the provider doesn't actually have in mempool),
+          // the push operation to the inflight buffer we do below will handle replacing/killing the faulty transaction.
           if (transactionCount < this.lastReceivedTxCount) {
-            
+            nonce = transactionCount;
+          } else {
+            // Set to whichever value is higher. This should almost always be our local nonce, but often both will be the same.
+            nonce = Math.max(this.nonce, transactionCount);
+            this.lastReceivedTxCount = transactionCount;
           }
-
-          // Set to whichever value is higher. This should almost always be our local nonce.
-          let nonce = Math.max(this.nonce, transactionCount);
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
           // go through on the first try.
           let transaction: Transaction | undefined = undefined;
+          let lastErrorReceived: Error | undefined = undefined;
           // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
           let iterations = 0;
-          let lastErrorReceived: Error | undefined = undefined;
           while (
             iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
             (!transaction || !transaction.didSubmit)
@@ -270,12 +281,10 @@ export class TransactionDispatch extends ChainRpcProvider {
             );
             this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
               chainId: this.chainId,
-              // A quick boolean to indicate whether this is a retry.
-              multipleAttempts: iterations > 1,
-              attemptNumber: iterations,
+              iterations,
               lastErrorReceived,
               transaction: transaction.loggable,
-              currentNonce: {
+              nonceInfo: {
                 transactionCount,
                 localNonce: this.nonce,
                 assignedNonce: nonce,
@@ -338,7 +347,7 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     const transaction = result.value as Transaction;
     // Wait for transaction to be picked up by the mine and confirm loops and closed out.
-    while (!transaction.didFinish && !transaction.error && !transaction.discontinued) {
+    while (!transaction.didFinish && !transaction.error) {
       await delay(1_000);
     }
 
@@ -365,11 +374,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     if (transaction.didFinish) {
       // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
       throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
-    }
-
-    // Check to make sure this tx hasn't been killed.
-    if (transaction.discontinued) {
-      throw new TransactionServiceFailure("Tried to resubmit discontinued transaction.", { method });
     }
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
@@ -641,7 +645,12 @@ export class TransactionDispatch extends ChainRpcProvider {
         transaction: transaction.loggable,
       });
       throw error;
+    } else if (transaction.bumps > transaction.hashes.length) {
+      // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
+      // The number of gas bumps we've done should always equal the number of txs we've submitted.
+      return;
     }
+    transaction.bumps++;
     const previousPrice = transaction.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
     const result = await this.getGasPrice(requestContext);

@@ -116,15 +116,16 @@ type TransactionConfig = {
 type LoggableTransactionData = {
   txsId: string;
   nonce: number;
-  hashes: string[];
-  attempt: number;
+  hashes?: string[];
+  attempt?: number;
+  bumps?: number;
+  minedBlockNumber?: number;
+  confirmedBlockNumber?: number;
   gasPrice: string;
   gasLimit: string;
-  discontinued: boolean;
   error: any;
-  confirmations: number;
-  didSubmit: boolean;
-  didFinish: boolean;
+  confirmations?: number;
+  state?: string;
 };
 
 /**
@@ -140,20 +141,33 @@ export class Transaction {
 
   // Receipt that we received for the on-chain transaction that was mined with
   // the desired number of confirmations.
-  public receipt?: providers.TransactionReceipt;
+  private _receipt: providers.TransactionReceipt | undefined;
+  public get receipt(): providers.TransactionReceipt | undefined {
+    return this._receipt;
+  }
+  public set receipt(value: providers.TransactionReceipt | undefined) {
+    // If the receipt has not yet been set, we can assume this is the mined receipt.
+    if (!this._receipt) {
+      this.minedBlockNumber = value?.blockNumber ?? -1;
+    }
+    this._receipt = value;
+  }
+  // Used to track when the transaction was mined, in the event that the mined receipt gets replaced by
+  // the confirmation receipt.
+  private minedBlockNumber = -1;
 
   // TODO: private setter
   // Timestamp initially set on creation, but will be updated each time submit() is called.
   public timestamp: number = Date.now();
-
-  // Indicates whether this transaction has been killed by monitor loop.
-  public discontinued = false;
 
   // This error will be set in the instance of a failure.
   public error: Error | undefined;
 
   // Which transaction attempt we are on.
   public attempt = 0;
+
+  // How many times we have bumped the gas price.
+  public bumps = 0;
 
   public get hash(): string | undefined {
     return this.didMine
@@ -206,17 +220,21 @@ export class Transaction {
 
   public get loggable(): LoggableTransactionData {
     return {
+      // These values should always be defined.
       txsId: this.uuid,
       nonce: this.nonce,
-      attempt: this.attempt,
-      hashes: this.hashes,
       gasPrice: `${utils.formatUnits(this.gas.price, "gwei")} gwei`,
       gasLimit: this.gas.limit.toString(),
-      discontinued: this.discontinued,
+      // Keeping these values as undefined if 0 in order to keep logs slim (undefined values won't be logged).
+      attempt: this.attempt > 0 ? this.attempt : undefined,
+      bumps: this.bumps > 0 ? this.bumps : undefined,
+      hashes: this.hashes.length > 0 ? this.hashes : undefined,
+      // Track block numbers for mine and confirm for observability.
+      minedBlockNumber: this.minedBlockNumber === -1 ? undefined : this.minedBlockNumber,
+      confirmedBlockNumber: this.receipt && (this.receipt.blockNumber > this.minedBlockNumber) ? this.receipt.blockNumber : undefined,
+      confirmations: this.receipt?.confirmations,
       error: this.error,
-      confirmations: this.receipt ? this.receipt.confirmations : 0,
-      didSubmit: this.didSubmit,
-      didFinish: this.didFinish,
+      state: this.error ? "E" : this.didFinish ? "C" : this.didMine ? "M" : this.didSubmit ? "S" : undefined,
     };
   }
 
@@ -298,9 +316,10 @@ export class TransactionBuffer extends Array<Transaction> {
       if (lastNonce !== -1 && tx.nonce > lastNonce + 1) {
         // Log if this nonce increments from the last by more than 1. This could be normal in the event that
         // we're "catching up" to the correct nonce, thus having to skip a few nonces.
-        this.log("Pushed transaction skipped a nonce.", {
+        this.log("Pushed transaction skipped nonce value(s).", {
           lastNonce,
-          txNonce: tx.nonce,
+          gap: tx.nonce - lastNonce - 1,
+          transaction: tx.loggable,
         });
       }
     } else {
