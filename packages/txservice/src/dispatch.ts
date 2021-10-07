@@ -46,6 +46,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   // to the nonce we get back from the pending transaction count call to our providers.
   // NOTE: Should not be accessed outside of the helper methods, getNonce and incrementNonce.
   private nonce = 0;
+  private lastReceivedTxCount = -1;
 
   /**
    * Transaction lifecycle management class. Extends ChainRpcProvider, thus exposing all provider methods
@@ -233,6 +234,13 @@ export class TransactionDispatch extends ChainRpcProvider {
             throw result.error;
           }
           let transactionCount = result.value;
+
+          // If for some reason the transaction count we received back from the provider is lower than the last once we received,
+          // we should use this lower one instead. This will backfill any nonce gaps they may have been left behind as a result of
+          // provider issues and/or reorgs.
+          if (transactionCount < this.lastReceivedTxCount) {
+            
+          }
 
           // Set to whichever value is higher. This should almost always be our local nonce.
           let nonce = Math.max(this.nonce, transactionCount);
