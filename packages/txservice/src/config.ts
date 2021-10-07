@@ -75,9 +75,9 @@ export const ChainConfigSchema = Type.Object({
 
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
-  confirmationTimeout: Type.Optional(Type.Number()),
+  confirmationTimeout: Type.Optional(Type.Integer()),
   // Number of confirmations needed for each chain, specified by chain Id.
-  confirmations: Type.Optional(Type.Number()),
+  confirmations: Type.Optional(Type.Integer()),
 });
 
 export type ChainConfig = Static<typeof ChainConfigSchema>;
@@ -87,35 +87,28 @@ export const validateChainConfig = ajv.compile(ChainConfigSchema);
 const TransactionServiceConfigSchema = Type.Object({
   /// GAS
   // % to bump gas by from gas station quote.
-  gasInitialBumpPercent: Type.Number(),
+  gasInitialBumpPercent: Type.Integer(),
   // % to bump gas by when tx confirmation times out.
-  gasReplacementBumpPercent: Type.Number(),
+  gasReplacementBumpPercent: Type.Integer(),
   // Gas shouldn't ever exceed this amount.
   gasMaximum: TIntegerString,
   // Minimum gas price.
   gasMinimum: TIntegerString,
-  // Each time we submit a tx, this is the scalar we use to set the maximum for the gas price we assign it.
+  // Each time we submit a tx, this is the percentage scalar we use to set the maximum for the gas price we assign it.
   // The higher this number is, the more tolerant we are of gas price increases. The lower it is, the more we curb
   // increases in gas price from tx to tx.
-  // NOTE: This number should ALWAYS be greater than 1, unless you want to disable it entirely (in which case, just set it to 0).
-  gasPriceMaxIncreaseScalar: Type.Number(),
+  // NOTE: This value should ALWAYS be greater than 100, unless you want to disable it entirely (in which case, just set it to 0).
+  gasPriceMaxIncreaseScalar: Type.Integer(),
 
   /// CONFIRMATIONS
-  // The multiplier by which we extend our timeout period if a tx has at least 1 confirmation.
-  confirmationTimeoutExtensionMultiplier: Type.Number(),
   // Default number of confirmations we require for a tx.
-  defaultConfirmationsRequired: Type.Number(),
+  defaultConfirmationsRequired: Type.Integer(),
   // Default amount of time (ms) to wait before a confirmation polling period times out.
-  defaultConfirmationTimeout: Type.Number(),
+  defaultConfirmationTimeout: Type.Integer(),
 
   /// RPC PROVIDERS
-  // The timeout (in ms) after which another Provider will be attempted. Optional, as we will
-  // default to ethers' default value for this item.
-  defaultStallTimeout: Type.Optional(Type.Number()),
   // RPC provider call max attempts - how many attempts / retries will we do upon failure?
-  rpcProviderMaxRetries: Type.Number(),
-  // Maximum number of times we will attempt to send a tx despite nonce expired errors.
-  maxNonceErrorCount: Type.Number(),
+  rpcProviderMaxRetries: Type.Integer(),
 
   /// CHAINS
   // Configuration for each chain that this txservice will be supporting.
@@ -134,14 +127,12 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasReplacementBumpPercent: 20,
   gasMaximum: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
-  gasPriceMaxIncreaseScalar: 2.0,
+  gasPriceMaxIncreaseScalar: 200,
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
   // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
   defaultConfirmationTimeout: 90_000,
-  confirmationTimeoutExtensionMultiplier: 4,
   defaultConfirmationsRequired: 10,
 
   rpcProviderMaxRetries: 5,
-  maxNonceErrorCount: 10,
 } as TransactionServiceConfig;
