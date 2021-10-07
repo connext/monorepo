@@ -388,7 +388,7 @@ describe("ChainRpcProvider", () => {
       const result = await (chainProvider as any).getGasPrice();
 
       expect(result.isOk()).to.be.true;
-      expect(result.isOk() ? result.value.toString() : null).to.be.eq(expectedGasPrice);
+      expect(result.isOk() ? result.value.toString() : null).to.be.eq(expectedGasPrice.toString());
     });
   });
 
