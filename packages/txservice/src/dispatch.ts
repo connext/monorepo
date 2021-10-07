@@ -645,9 +645,9 @@ export class TransactionDispatch extends ChainRpcProvider {
         transaction: transaction.loggable,
       });
       throw error;
-    } else if (transaction.bumps > transaction.hashes.length) {
+    } else if (transaction.bumps >= transaction.hashes.length) {
       // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
-      // The number of gas bumps we've done should always equal the number of txs we've submitted.
+      // The number of gas bumps we've done should always be less than the number of txs we've submitted.
       return;
     }
     transaction.bumps++;

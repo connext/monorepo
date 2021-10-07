@@ -68,7 +68,6 @@ const stubDispatchMethods = (methods?: SinonStub[]): void => {
 let fakeTransactionState: {
   didSubmit: boolean;
   didFinish: boolean;
-  discontinued: boolean;
 };
 
 let sendTransactionStub: SinonStub<any[], ResultAsync<providers.TransactionResponse, TransactionError>>;
@@ -80,7 +79,6 @@ describe("TransactionDispatch", () => {
     fakeTransactionState = {
       didSubmit: false,
       didFinish: false,
-      discontinued: false,
     };
 
     dispatchCallbacks = {
@@ -134,7 +132,6 @@ describe("TransactionDispatch", () => {
       "test_tx_uuid",
     );
     Sinon.stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-    Sinon.stub(transaction, "discontinued").get(() => fakeTransactionState.discontinued);
     Sinon.stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
     (transaction as any).context = context;
     transaction.attempt = 0;
@@ -186,7 +183,7 @@ describe("TransactionDispatch", () => {
       expect((txDispatch as any).minedBuffer.length).to.eq(1);
     });
 
-    it("should bump all txs in the buffer", async () => {
+    it("should bump txs in the buffer", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
       const stubTx2 = { ...stubTx, data: "0xb" };
       const stubTx3 = { ...stubTx, data: "0xc" };
@@ -215,7 +212,7 @@ describe("TransactionDispatch", () => {
       expect(bump).to.have.been.calledWithExactly(readableStubTx3);
       expect(submit).to.have.been.calledWithExactly(readableStubTx3);
 
-      expect((txDispatch as any).minedBuffer.length).to.deep.eq(3);
+      expect((txDispatch as any).minedBuffer.length).to.deep.eq(1);
     });
 
     it("should assign errors on tx resubmit", async () => {
@@ -417,11 +414,6 @@ describe("TransactionDispatch", () => {
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
     });
 
-    it("should throw if transaction is discontinued", async () => {
-      fakeTransactionState.discontinued = true;
-      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
-    });
-
     it("should throw if it's a second attempt and gas price hasn't been increased", async () => {
       const txResponse: providers.TransactionResponse = { ...TEST_TX_RESPONSE };
       transaction.responses = [txResponse];
@@ -526,7 +518,8 @@ describe("TransactionDispatch", () => {
       transaction.responses = [TEST_TX_RESPONSE];
       const preTx = { ...transaction };
       await (txDispatch as any).mine(transaction);
-      expect(transaction).to.deep.eq({ ...preTx, receipt: txReceiptMock });
+      expect(makeChaiReadable(transaction.receipt)).to.deep.eq(makeChaiReadable(txReceiptMock));
+      expect(transaction.minedBlockNumber).to.eq(txReceiptMock.blockNumber);
     });
   });
 
@@ -593,6 +586,11 @@ describe("TransactionDispatch", () => {
   });
 
   describe("#bump", () => {
+    beforeEach(() => {
+      (transaction as any).responses = [TEST_TX_RESPONSE];
+      transaction.bumps = 0;
+    });
+
     it("should throw if reached MAX_ATTEMPTS", async () => {
       transaction.attempt = Transaction.MAX_ATTEMPTS;
       await expect(txDispatch.bump(transaction)).to.be.rejectedWith(
@@ -603,6 +601,20 @@ describe("TransactionDispatch", () => {
     it("should fail if getGasPrice fails", async () => {
       txDispatch.getGasPrice = (_rc: RequestContext) => Promise.reject(new Error("fail")) as any;
       await expect(txDispatch.bump(transaction)).to.be.rejectedWith("fail");
+    });
+
+    it("shouldn't bump if a previous resubmit failed", async () => {
+      // This will simulate state: we've sent off 1 initial tx, bumped gas price, then failed to resubmit
+      // (there should be a second hash present in the transaction if the "resubmit" was successful).
+      (transaction as any).responses = [TEST_TX_RESPONSE];
+      transaction.bumps = 1;
+      const testCurrentGasPrice = BigNumber.from(1234567);
+      transaction.gas.price = testCurrentGasPrice;
+      // Should return without bumping.
+      await txDispatch.bump(transaction);
+      // Assuming it didn't bump, these values should stay the same.
+      expect(transaction.gas.price.toString()).to.be.eq(testCurrentGasPrice.toString());
+      expect(transaction.bumps).to.be.eq(1);
     });
 
     it("happy: should bump updated price", async () => {

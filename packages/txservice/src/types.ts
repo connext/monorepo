@@ -154,7 +154,7 @@ export class Transaction {
   }
   // Used to track when the transaction was mined, in the event that the mined receipt gets replaced by
   // the confirmation receipt.
-  private minedBlockNumber = -1;
+  public minedBlockNumber = -1;
 
   // TODO: private setter
   // Timestamp initially set on creation, but will be updated each time submit() is called.
