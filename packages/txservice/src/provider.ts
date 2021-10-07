@@ -267,7 +267,7 @@ export class ChainRpcProvider {
     }
 
     return this.resultWrapper<BigNumber>(false, async () => {
-      const { gasInitialBumpPercent, gasMinimum, gasPriceIncreaseMaxScalar } = this.config;
+      const { gasInitialBumpPercent, gasMinimum, gasPriceMaxIncreaseScalar } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
       // Use gas station APIs, if available.
@@ -335,8 +335,8 @@ export class ChainRpcProvider {
       }
 
       // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
-      if (gasPriceIncreaseMaxScalar !== undefined && gasPriceIncreaseMaxScalar > 1 && this.lastUsedGasPrice) {
-        const max = this.lastUsedGasPrice.mul(gasPriceIncreaseMaxScalar);
+      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 1 && this.lastUsedGasPrice) {
+        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar);
         if (gasPrice.gt(max)) {
           gasPrice = max;
         }

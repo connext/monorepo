@@ -98,7 +98,7 @@ const TransactionServiceConfigSchema = Type.Object({
   // The higher this number is, the more tolerant we are of gas price increases. The lower it is, the more we curb
   // increases in gas price from tx to tx.
   // NOTE: This number should ALWAYS be greater than 1, unless you want to disable it entirely (in which case, just set it to 0).
-  gasPriceIncreaseMaxScalar: Type.Number(),
+  gasPriceMaxIncreaseScalar: Type.Number(),
 
   /// CONFIRMATIONS
   // The multiplier by which we extend our timeout period if a tx has at least 1 confirmation.
@@ -134,7 +134,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasReplacementBumpPercent: 20,
   gasMaximum: parseUnits("1500", "gwei").toString(),
   gasMinimum: parseUnits("5", "gwei").toString(),
-  gasPriceIncreaseMaxScalar: 2.0,
+  gasPriceMaxIncreaseScalar: 2.0,
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
   // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
