@@ -37,7 +37,8 @@ export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
       // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one";
       return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-arbitrum-one";
     case 43114:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche";
+      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche";
+      return "https://connext-avalanche-subgraph.apps.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche";
     case 80001:
       return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
     case 421611:
