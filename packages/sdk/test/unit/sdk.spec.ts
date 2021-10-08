@@ -111,6 +111,7 @@ describe.only("NxtpSdk", () => {
       chainConfig,
       signer,
       sdkBase: sdkBase as any,
+      logger,
     });
   });
 
@@ -257,14 +258,13 @@ describe.only("NxtpSdk", () => {
       );
     });
 
-    it("happy: prepare transfer with suffice approval", async () => {
+    it.only("happy: prepare transfer with suffice approval", async () => {
       const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
       sdkBase.approveForPrepare.returns(undefined);
 
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
-      expect(res.prepareResponse).to.be.eq(TxResponse);
-      expect(res.transactionId).to.be.eq(auctionBid.transactionId);
+      await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
+      expect(signer.signTransaction).to.be.calledOnceWithExactly(PrepareReq);
     });
 
     it("happy: start transfer ", async () => {
