@@ -37,6 +37,7 @@ export class ChainRpcProvider {
   private readonly signer?: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;
+  private lastUsedGasPrice: BigNumber | undefined = undefined;
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
   protected paused: Error | undefined = undefined;
@@ -138,6 +139,9 @@ export class ChainRpcProvider {
       ...params,
       value: BigNumber.from(params.value || 0),
     };
+    // Update our last used gas price with this tx's gas price. This is used to determine the cap of
+    // subsuquent tx's gas price.
+    this.lastUsedGasPrice = transaction.gasPrice;
     return this.resultWrapper<providers.TransactionResponse>(true, async () => {
       return await this.signer!.sendTransaction(transaction);
     });
@@ -263,9 +267,10 @@ export class ChainRpcProvider {
     }
 
     return this.resultWrapper<BigNumber>(false, async () => {
-      const { gasInitialBumpPercent, gasMinimum } = this.config;
+      const { gasInitialBumpPercent, gasMinimum, gasPriceMaxIncreaseScalar } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
+      // Use gas station APIs, if available.
       const gasStations = this.chainConfig.gasStations ?? [];
       for (let i = 0; i < gasStations.length; i++) {
         const uri = gasStations[i];
@@ -296,13 +301,13 @@ export class ChainRpcProvider {
           });
         }
       }
-
       if (gasStations.length > 0 && !gasPrice) {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
         });
       }
 
+      // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
       if (!gasPrice) {
         try {
           gasPrice = await this.provider.getGasPrice();
@@ -327,6 +332,14 @@ export class ChainRpcProvider {
       const min = BigNumber.from(gasMinimum);
       if (gasPrice.lt(min)) {
         gasPrice = min;
+      }
+
+      // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
+      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 1 && this.lastUsedGasPrice) {
+        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar);
+        if (gasPrice.gt(max)) {
+          gasPrice = max;
+        }
       }
 
       // Cache the latest gas price.
