@@ -101,6 +101,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
     chainId = BigInt.fromI32(43113);
+  } else if (network == "avalanche") {
+    chainId = BigInt.fromI32(43114);
   } else if (network == "mumbai") {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
