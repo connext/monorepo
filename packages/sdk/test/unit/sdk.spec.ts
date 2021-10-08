@@ -32,10 +32,9 @@ const PrepareReq = { ...TxRequest, data: "0xaaabbb" };
 const FulfillReq = { ...TxRequest, data: "0xaaabbbccc" };
 const CancelReq = { ...TxRequest, data: "0xaaabbbcccddd" };
 
-describe.only("NxtpSdk", () => {
+describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
-  let transactionManager: SinonStubbedInstance<TransactionManager>;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
@@ -216,7 +215,7 @@ describe.only("NxtpSdk", () => {
   describe("#getHistoricalTransactions", () => {
     it("should work", async () => {
       await sdk.getHistoricalTransactions();
-      expect(sdkBase.getActiveTransactions).to.be.calledOnceWithExactly();
+      expect(sdkBase.getHistoricalTransactions).to.be.calledOnceWithExactly();
     });
   });
 
@@ -225,7 +224,7 @@ describe.only("NxtpSdk", () => {
       const { crossChainParams } = getMock();
 
       await sdk.getTransferQuote(crossChainParams);
-      expect(sdkBase.getActiveTransactions).to.be.calledOnceWithExactly(crossChainParams);
+      expect(sdkBase.getTransferQuote).to.be.calledOnceWithExactly(crossChainParams);
     });
   });
 
