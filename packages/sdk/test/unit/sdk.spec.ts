@@ -1,41 +1,26 @@
 import {
   mkAddress,
-  mkHash,
-  UserNxtpNatsMessagingService,
   getRandomBytes32,
   InvariantTransactionData,
   VariantTransactionData,
   AuctionBid,
   Logger,
+  sigMock,
+  mkBytes32,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
-import { NxtpSdk, MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
+import { NxtpSdk } from "../../src/sdk";
 
 import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdk";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
 import { Evt } from "evt";
-import {
-  ChainNotConfigured,
-  EncryptionError,
-  InvalidAmount,
-  InvalidBidSignature,
-  InvalidExpiry,
-  InvalidParamStructure,
-  InvalidSlippage,
-  MetaTxTimeout,
-  NoSubgraph,
-  NoTransactionManager,
-  SubgraphsNotSynced,
-  SubmitError,
-  UnknownAuctionError,
-  InvalidCallTo,
-} from "../../src/error";
-import { getAddress, keccak256 } from "ethers/lib/utils";
-import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
+import { EncryptionError, SubmitError } from "../../src/error";
+import { getAddress } from "ethers/lib/utils";
+import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
 
@@ -44,6 +29,8 @@ const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 const { AddressZero } = constants;
 const ApproveReq = TxRequest;
 const PrepareReq = { ...TxRequest, data: "0xaaabbb" };
+const FulfillReq = { ...TxRequest, data: "0xaaabbbccc" };
+const CancelReq = { ...TxRequest, data: "0xaaabbbcccddd" };
 
 describe.only("NxtpSdk", () => {
   let sdk: NxtpSdk;
@@ -55,6 +42,7 @@ describe.only("NxtpSdk", () => {
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
   let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
+  let ethereumRequestStub: SinonStub<[method: string, params: string[]], Promise<any>>;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -64,8 +52,6 @@ describe.only("NxtpSdk", () => {
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
-
-  const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
   beforeEach(async () => {
     provider1337 = createStubInstance(providers.FallbackProvider);
@@ -85,18 +71,22 @@ describe.only("NxtpSdk", () => {
       },
     };
     signer = createStubInstance(Wallet);
+    signer.sendTransaction.resolves(TxResponse);
     sdkBase = createStubInstance(NxtpSdkBase);
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
+    sdkBase.cancel.resolves(CancelReq);
 
     stub(utils, "getDecimals").resolves(18);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+    ethereumRequestStub = stub(utils, "ethereumRequest");
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
     stub(sdkIndex, "createMessagingEvt").returns(messageEvt);
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
+    signFulfillTransactionPayloadMock.resolves(sigMock);
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
 
@@ -258,181 +248,65 @@ describe.only("NxtpSdk", () => {
       );
     });
 
-    it.only("happy: prepare transfer with suffice approval", async () => {
+    it("happy: prepare transfer with suffice approval", async () => {
       const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
-      sdkBase.approveForPrepare.returns(undefined);
-
-      await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
-      expect(signer.signTransaction).to.be.calledOnceWithExactly(PrepareReq);
-    });
-
-    it("happy: start transfer ", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
-      balanceStub.resolves(BigNumber.from(auctionBid.amount));
-
-      transactionManager.approveTokensIfNeeded.resolves(TxResponse);
-      transactionManager.prepare.resolves(TxResponse);
+      sdkBase.approveForPrepare.resolves(undefined);
 
       const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
-      expect(res.prepareResponse).to.be.eq(TxResponse);
-      expect(res.transactionId).to.be.eq(auctionBid.transactionId);
+      expect(signer.sendTransaction).to.be.calledOnceWithExactly(PrepareReq);
+      expect(res.prepareResponse).to.be.deep.eq(TxResponse);
+    });
+
+    it("happy: prepare transfer with approval ", async () => {
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
+
+      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
+
+      expect(signer.sendTransaction).to.be.calledWithExactly(ApproveReq);
+      expect(signer.sendTransaction).to.be.calledWithExactly(PrepareReq);
+      expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
   });
 
   describe("#fulfillTransfer", () => {
-    describe("should error if invalid param", () => {
-      it("invalid user", async () => {
-        const { transaction, record } = await getTransactionData({ user: "abc" });
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
-        );
-      });
-
-      it("invalid encryptedCallData", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-            encryptedCallData: 1 as any,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
-        );
-      });
-    });
-
-    describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
-        const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
-      });
-
-      it("unkown receivingChainId", async () => {
-        const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
-
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
-      });
-    });
-
-    it("should error if signFulfillTransactionPayload errors", async () => {
+    it("throws error if calldata needs to be decrypted and fails", async () => {
       const { transaction, record } = await getTransactionData();
 
-      signFulfillTransactionPayloadMock.rejects(new Error("fails"));
+      ethereumRequestStub.rejects("foo");
+
       await expect(
         sdk.fulfillTransfer({
-          txData: { ...transaction, ...record },
+          txData: { ...transaction, callDataHash: mkBytes32("0xabcde"), ...record },
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith("fails");
-    });
-
-    it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
-      const { transaction, record } = await getTransactionData();
-      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
-
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          err: "Blahhh",
-        });
-      }, 200);
-
-      try {
-        await sdk.fulfillTransfer({
-          txData: { ...transaction, ...record },
-
-          encryptedCallData: EmptyCallDataHash,
-          encodedBid: EmptyCallDataHash,
-          bidSignature: EmptyCallDataHash,
-        });
-        expect("Should have errored").to.be.undefined;
-      } catch (e) {
-        expect(e.message).to.be.eq(MetaTxTimeout.getMessage(1_000));
-      }
+      ).to.eventually.be.rejectedWith(EncryptionError.getMessage("decryption failed"));
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
+      const metaTxResponse = { chainId: 1337, transactionHash: mkBytes32() };
 
-      const transactionHash = mkHash("0xc");
-
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: {
-            transactionHash,
-            chainId: sendingChainId,
-          },
-        });
-      }, 200);
+      sdkBase.fulfillTransfer.resolves({ metaTxResponse });
 
       const res = await sdk.fulfillTransfer({
         txData: { ...transaction, ...record },
-
         encryptedCallData: EmptyCallDataHash,
         encodedBid: EmptyCallDataHash,
         bidSignature: EmptyCallDataHash,
       });
 
-      expect(res.metaTxResponse.transactionHash).to.be.eq(transactionHash);
-      expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
-    });
-
-    it("should error if finish transfer => useRelayers:false, fulfill errors", async () => {
-      const { transaction, record } = await getTransactionData();
-
-      signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
-
-      transactionManager.fulfill.rejects(new Error("fail"));
-      await expect(
-        sdk.fulfillTransfer(
-          {
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          },
-          "0",
-          false,
-        ),
-      ).to.eventually.be.rejectedWith("fail");
+      expect(res.metaTxResponse).to.deep.eq(metaTxResponse);
+      expect(res.fulfillResponse).to.be.undefined;
     });
 
     it("happy: finish transfer => useRelayers:false", async () => {
       const { transaction, record } = await getTransactionData();
 
-      transactionManager.fulfill.resolves(TxResponse);
+      sdkBase.fulfillTransfer.resolves({ fulfillRequest: FulfillReq });
+
       const res = await sdk.fulfillTransfer(
         {
           txData: { ...transaction, ...record },
@@ -444,73 +318,16 @@ describe.only("NxtpSdk", () => {
         "0",
         false,
       );
+
+      expect(signer.sendTransaction).to.be.calledOnceWithExactly(FulfillReq);
       expect(res.fulfillResponse).to.be.eq(TxResponse);
+      expect(res.metaTxResponse).to.be.undefined;
     });
   });
 
   describe("#cancel", () => {
-    describe("should error if invalid param", () => {
-      it("invalid user", async () => {
-        const { transaction, record } = await getTransactionData({ user: "abc" });
-
-        await expect(
-          sdk.cancel(
-            {
-              txData: { ...transaction, ...record },
-              signature: "",
-            },
-            sendingChainId,
-          ),
-        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("cancel", "CancelParams"));
-      });
-
-      it("invalid relayerFee", async () => {
-        const { transaction, record } = await getTransactionData({ user: "abc" });
-        await expect(
-          sdk.cancel(
-            {
-              txData: { ...transaction, ...record },
-              signature: EmptyCallDataHash,
-            },
-            sendingChainId,
-          ),
-        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("cancel", "CancelParams"));
-      });
-
-      it("invalid signature", async () => {
-        const { transaction, record } = await getTransactionData({ user: "abc" });
-
-        await expect(
-          sdk.cancel(
-            {
-              txData: { ...transaction, ...record },
-              signature: "",
-            },
-            sendingChainId,
-          ),
-        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("cancel", "CancelParams"));
-      });
-    });
-
-    it("should error if transactionManager cancel fails", async () => {
-      const { transaction, record } = await getTransactionData();
-
-      transactionManager.cancel.rejects(new Error("fail"));
-      await expect(
-        sdk.cancel(
-          {
-            txData: { ...transaction, ...record },
-            signature: EmptyCallDataHash,
-          },
-          sendingChainId,
-        ),
-      ).to.eventually.be.rejectedWith("fail");
-    });
-
     it("happy: cancel", async () => {
       const { transaction, record } = await getTransactionData();
-
-      transactionManager.cancel.resolves(TxResponse);
 
       const res = await sdk.cancel(
         {
@@ -520,6 +337,7 @@ describe.only("NxtpSdk", () => {
         sendingChainId,
       );
 
+      expect(signer.sendTransaction).to.be.calledOnceWithExactly(CancelReq);
       expect(res).to.be.eq(TxResponse);
     });
   });

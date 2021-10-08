@@ -1,7 +1,6 @@
 import { providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
-  ajv,
   UserNxtpNatsMessagingService,
   TransactionPreparedEvent,
   AuctionResponse,
@@ -11,7 +10,7 @@ import {
   createLoggingContext,
 } from "@connext/nxtp-utils";
 
-import { SubmitError, InvalidParamStructure, EncryptionError, ChainNotConfigured } from "./error";
+import { SubmitError, EncryptionError } from "./error";
 import {
   NxtpSdkEvent,
   NxtpSdkEventPayloads,
@@ -27,7 +26,6 @@ import {
   ReceiverTransactionFulfilledPayload,
   ReceiverTransactionCancelledPayload,
   CrossChainParams,
-  TransactionPrepareEventSchema,
   HistoricalTransaction,
   SubgraphSyncRecord,
   ActiveTransaction,
@@ -301,32 +299,9 @@ export class NxtpSdk {
     );
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
 
-    // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
-    const valid = validate(params);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
-      });
-      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
-        validationError: msg,
-        params,
-      });
-      throw error;
-    }
-
     const { txData, encryptedCallData } = params;
 
     const signerAddress = await this.config.signer.getAddress();
-
-    if (!this.config.chainConfig[txData.sendingChainId]) {
-      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[txData.receivingChainId]) {
-      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
-    }
 
     this.logger.info("Generating fulfill signature", requestContext, methodContext);
     const signature = await signFulfillTransactionPayload(
