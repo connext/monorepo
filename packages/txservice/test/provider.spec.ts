@@ -62,7 +62,7 @@ describe("ChainRpcProvider", () => {
       {
         ...DEFAULT_CONFIG,
         gasInitialBumpPercent: 20,
-        gasPriceMaxIncreaseScalar: 2.0,
+        gasPriceMaxIncreaseScalar: 200,
       },
       signer,
     );
@@ -376,12 +376,12 @@ describe("ChainRpcProvider", () => {
 
     it("should employ the gas price max increase scalar if configured and applicable", async () => {
       // For test reliability, start from the config value and work backwards.
-      const testScalar = (chainProvider as any).config.gasPriceMaxIncreaseScalar ^ 0;
+      const testScalar = (chainProvider as any).config.gasPriceMaxIncreaseScalar;
       const testLastUsedGasPrice = utils.parseUnits("5", "gwei");
       (chainProvider as any).lastUsedGasPrice = testLastUsedGasPrice;
       // We're going to set the gas price our provider returns to the max value + 1 gwei.
       // We expect the getGasPrice method to cap the price it returns at the max value.
-      const expectedGasPrice = testLastUsedGasPrice.mul(testScalar);
+      const expectedGasPrice = testLastUsedGasPrice.mul(testScalar).div(100);
       const testGasPrice = expectedGasPrice.add(utils.parseUnits("1", "gwei"));
       coreProvider.getGasPrice.resolves(testGasPrice);
 

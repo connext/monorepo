@@ -139,9 +139,6 @@ export class ChainRpcProvider {
       ...params,
       value: BigNumber.from(params.value || 0),
     };
-    // Update our last used gas price with this tx's gas price. This is used to determine the cap of
-    // subsuquent tx's gas price.
-    this.lastUsedGasPrice = transaction.gasPrice;
     return this.resultWrapper<providers.TransactionResponse>(true, async () => {
       return await this.signer!.sendTransaction(transaction);
     });
@@ -334,16 +331,24 @@ export class ChainRpcProvider {
         gasPrice = min;
       }
 
-      // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
-      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 1 && this.lastUsedGasPrice) {
-        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar);
+      let hitMaximum = false;
+      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 100 && this.lastUsedGasPrice !== undefined) {
+        // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
+        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
         if (gasPrice.gt(max)) {
+          hitMaximum = true;
           gasPrice = max;
         }
+        // Update our last used gas price with this tx's gas price. This may be used to determine the cap of
+        // subsuquent tx's gas price.
+        this.lastUsedGasPrice = gasPrice;
       }
 
-      // Cache the latest gas price.
-      this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+      // Cache the latest gas price, assuming we didn't hit the maximum increase cap.
+      // We'll want to re-request the gas price if we did hit the cap.
+      if (!hitMaximum) {
+        this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+      }
       return gasPrice;
     });
   }
