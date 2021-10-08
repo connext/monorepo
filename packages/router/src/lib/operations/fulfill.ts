@@ -60,7 +60,7 @@ export const fulfill = async (
 
   // Only check for relayer fee at receiving side
   if (fulfillChain === invariantData.receivingChainId) {
-    const relayerFeeLowerBound = config.chainConfig[fulfillChain].DEFAULT_RELAYER_FEE_THRESHOLD;
+    const relayerFeeLowerBound = config.chainConfig[fulfillChain].relayerFeeThreshold;
     const allowFulfillRelay = config.chainConfig[fulfillChain].allowFulfillRelay;
     if (!allowFulfillRelay && BigNumber.from(relayerFee).gt(0)) {
       throw new NotAllowedFulfillRelay(fulfillChain, {
