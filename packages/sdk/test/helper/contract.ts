@@ -129,7 +129,7 @@ export const prepareAndAssert = async (
 
   const res = await transactionManagerObj.prepare(transaction.sendingChainId, prepareParams);
 
-  const receipt = await res.wait();
+  const receipt = await (await preparer.sendTransaction(res)).wait();
   expect(receipt.status).to.be.eq(1);
 
   const variantDigest = getVariantTransactionDigest({

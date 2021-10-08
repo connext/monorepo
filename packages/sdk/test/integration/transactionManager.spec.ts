@@ -229,23 +229,6 @@ describe("Transaction Manager", function () {
         );
       });
 
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        const prepareParams: PrepareParams = {
-          txData: transaction,
-          amount: record.amount,
-          expiry: record.expiry,
-          encryptedCallData: EmptyBytes,
-          encodedBid: EmptyBytes,
-          bidSignature: EmptyBytes,
-        };
-
-        await expect(userTransactionManager.prepare(transaction.sendingChainId, prepareParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
-        );
-      });
-
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
@@ -286,36 +269,6 @@ describe("Transaction Manager", function () {
 
         await expect(userTransactionManager.cancel(InvalidChainId, cancelParams)).to.be.rejectedWith(
           ChainNotConfigured.getMessage(InvalidChainId, supportedChains),
-        );
-      });
-
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(
-          transaction,
-          record,
-          user,
-          transactionManager,
-          userTransactionManager,
-        );
-
-        const signature = await signCancelTransactionPayload(
-          transaction.transactionId,
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const cancelParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
-          relayerFee: relayerFee,
-          signature: signature,
-        };
-
-        await expect(userTransactionManager.cancel(transaction.sendingChainId, cancelParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
         );
       });
 
@@ -390,33 +343,7 @@ describe("Transaction Manager", function () {
         );
       });
 
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
-
-        const signature = await signFulfillTransactionPayload(
-          transaction.transactionId,
-          relayerFee.toString(),
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const fulfillParams: FulfillParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: 0 },
-          relayerFee: relayerFee,
-          signature: signature,
-          callData: EmptyBytes,
-        };
-
-        await expect(routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
-        );
-      });
-
-      it("happy case", async () => {
+      it.only("happy case", async () => {
         const { transaction, record } = await getTransactionData();
 
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
@@ -444,7 +371,6 @@ describe("Transaction Manager", function () {
         };
 
         const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);
-
         const receipt = await router.sendTransaction(res).wait();
         expect(receipt.status).to.be.eq(1);
       });
