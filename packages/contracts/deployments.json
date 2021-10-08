@@ -2456,6 +2456,129 @@
             }
           ]
         },
+        "StableSwap": {
+          "address": "0xD29a127BBdcC1a3271872bd43080768A55DadDf8",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amplificationParameter",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "inputs": [],
+              "name": "amplificationParameter",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getAmplificationParameter",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "balances",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "indexIn",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "indexOut",
+                  "type": "uint256"
+                }
+              ],
+              "name": "onSwapGivenIn",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "balances",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "indexIn",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "indexOut",
+                  "type": "uint256"
+                }
+              ],
+              "name": "onSwapGivenOut",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amplificationParameter",
+                  "type": "uint256"
+                }
+              ],
+              "name": "updateAmplificationParameter",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
         "TestERC20": {
           "address": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198",
           "abi": [

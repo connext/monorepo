@@ -193,8 +193,19 @@ export const newAuction = async (
     receiverBalance: receiverBalance.toString(),
   });
 
+  const [senderLiquidity, receiverLiquidity] = await Promise.all([
+    contractReader.getAssetBalance(sendingAssetId, sendingChainId),
+    contractReader.getAssetBalance(receivingAssetId, receivingChainId),
+  ]);
+
+  logger.info("Got asset balance", requestContext, methodContext, {
+    senderLiquidity: senderLiquidity.toString(),
+    receiverLiquidity: receiverLiquidity.toString(),
+  });
+
   // getting the swap rate from the receiver side config
   const chaindIdsForAMM = getChainIdsForAMM();
+  logger.info("ChainIds for AMM", requestContext, methodContext, { chaindIdsForAMM });
   if (chaindIdsForAMM.length == 0) {
     throw new NotExistVirtuallAMM({
       methodContext,
@@ -207,8 +218,8 @@ export const newAuction = async (
     outputDecimals,
     chaindIdsForAMM[0].chainId,
     chaindIdsForAMM[0].address,
-    senderBalance,
-    receiverBalance,
+    senderLiquidity,
+    receiverLiquidity,
   );
 
   // (TODO in what other scenarios would auction fail here? We should make sure
@@ -232,13 +243,11 @@ export const newAuction = async (
   });
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
-  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
-  if (balance.lt(amountReceived)) {
+  if (receiverLiquidity.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodContext,
       requestContext,
-      balance: balance.toString(),
+      balance: receiverLiquidity.toString(),
       amountReceived: amountReceived.toString(),
       amount,
       receivingAssetId,

@@ -6,6 +6,8 @@ import {
   getDeployedTransactionManagerContract,
   getDeployedPriceOracleContract,
   getDeployedChainIdsForGasFee,
+  getDeployedChainIdsForAMM,
+  getDeployedStableSwapContract,
 } from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
@@ -44,6 +46,25 @@ describe("Config", () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
       expect(res).to.be.includes(5);
+    });
+  });
+
+  describe("#getDeployedStableSwapContract", () => {
+    it("should undefined if no stableSwap contract", () => {
+      const res = getDeployedStableSwapContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedStableSwapContract(4);
+      expect(res).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedChainIdsForAMM", () => {
+    it("happy func", () => {
+      const res = getDeployedChainIdsForAMM();
+      expect(res).to.be.length.gte(1);
     });
   });
 

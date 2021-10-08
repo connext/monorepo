@@ -15,7 +15,7 @@ WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainn
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
 WRAPPED_ETH_MAP.set("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"); // goerli WETH
 
-const VIRTUAL_AMM_CHAINS = [4, 5];
+const VIRTUAL_AMM_CHAINS = [4, 5, 1337, 1338];
 
 /**
  * Hardhat task defining the contract deployments for nxtp
