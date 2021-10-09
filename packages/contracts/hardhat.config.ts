@@ -135,6 +135,11 @@ const config: HardhatUserConfig = {
       chainId: 43113,
       url: "https://api.avax-test.network/ext/bc/C/rpc",
     },
+    avalanche: {
+      url: "https://api.avax.network/ext/bc/C/rpc",
+      chainId: 43114,
+      accounts: { mnemonic },
+    },
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,

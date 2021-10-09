@@ -49,6 +49,7 @@ type Transaction @entity {
   bidSignature: Bytes!
   encodedBid: Bytes!
   prepareTransactionHash: Bytes!
+  prepareMeta: Bytes
 
   # TransactionFulfilled
   relayerFee: BigInt
@@ -59,10 +60,14 @@ type Transaction @entity {
   externalCallReturnData: Bytes
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes
+  fulfillMeta: Bytes
+  fulfillTimestamp: BigInt
 
   # TransactionCancelled
   cancelCaller: Bytes
   cancelTransactionHash: Bytes
+  cancelMeta: Bytes
+  cancelTimestamp: BigInt
 }
 
 # User entity keeps track of active user transactions

@@ -15,7 +15,7 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const CHAINS = [56, 100, 137, 250, 42161];
+const CHAINS = [56, 100, 137, 250, 42161, 43114];
 
 type BalanceEntry = {
   chain: string;

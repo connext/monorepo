@@ -49,9 +49,14 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("Got active transactions", requestContext, methodContext, { transactions: transactions.length });
+        logger.info("Got active transactions", requestContext, methodContext, {
+          transactions: transactions.length,
+        });
         logger.debug("Got active transactions", requestContext, methodContext, {
-          transactions: transactions,
+          transactions,
+        });
+        logger.debug("handling tracker", requestContext, methodContext, {
+          handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -89,11 +94,8 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
-    if (handlingTracker.has(transaction.crosschainTx.invariant.transactionId)) {
-      logger.debug("Already handling transaction", requestContext, methodContext);
-      continue;
-    }
 
+    // chainId where onChain interaction will happen
     let chainId: number;
     if (
       transaction.status === CrosschainTransactionStatus.SenderPrepared ||
@@ -104,20 +106,37 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
       chainId = transaction.crosschainTx.invariant.sendingChainId;
     }
 
+    // check if transactionId is already handled for respective chainId
+    if (
+      handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
+      chainId === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.chainId
+    ) {
+      logger.debug("Already handling transaction", requestContext, methodContext);
+      continue;
+    }
+
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
       blockNumber: -1,
       chainId,
     });
-    const res = await handleSingle(transaction, requestContext);
-    logger.debug("Transaction Result", requestContext, methodContext, { transactionResult: res });
-    if (res) {
-      handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-        blockNumber: res.blockNumber,
-        chainId,
+
+    handleSingle(transaction, requestContext)
+      .then((result) => {
+        logger.debug("Handle Single Result", requestContext, methodContext, { transactionResult: result });
+
+        if (result && result.blockNumber) {
+          handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+            blockNumber: result.blockNumber,
+            chainId,
+          });
+        } else {
+          handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
+        }
+      })
+      .catch((err) => {
+        logger.debug("Handle Single Errors", requestContext, methodContext, { error: jsonifyError(err) });
+        handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
       });
-    } else {
-      handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
-    }
     await delay(750); // delay here to not flood the provider
   }
 };

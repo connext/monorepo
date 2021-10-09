@@ -260,59 +260,36 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     *         the router to complete the transaction and time for the router to
     *         fulfill the transaction on the sending chain after the unlocking
     *         signature is revealed, respectively.
-    * @param invariantData The data for a crosschain transaction that will
-    *                      not change between sending and receiving chains.
-    *                      The hash of this data is used as the key to store 
-    *                      the inforamtion that does change between chains 
-    *                      (amount,expiry,preparedBlock) for verification
-    * @param amount The amount of the transaction on this chain
-    * @param expiry The block.timestamp when the transaction will no longer be
-    *               fulfillable and is freely cancellable on this chain
-    * @param encryptedCallData The calldata to be executed when the tx is
-    *                          fulfilled. Used in the function to allow the user
-    *                          to reconstruct the tx from events. Hash is stored
-    *                          onchain to prevent shenanigans.
-    * @param encodedBid The encoded bid that was accepted by the user for this
-    *                   crosschain transfer. It is supplied as a param to the
-    *                   function but is only used in event emission
-    * @param bidSignature The signature of the bidder on the encoded bid for
-    *                     this transaction. Only used within the function for
-    *                     event emission. The validity of the bid and
-    *                     bidSignature are enforced offchain
+    * @param args TODO
     */
   function prepare(
-    InvariantTransactionData calldata invariantData,
-    uint256 amount,
-    uint256 expiry,
-    bytes calldata encryptedCallData,
-    bytes calldata encodedBid,
-    bytes calldata bidSignature
+    PrepareArgs calldata args
   ) external payable override nonReentrant returns (TransactionData memory) {
     // Sanity check: user is sensible
-    require(invariantData.user != address(0), "#P:009");
+    require(args.invariantData.user != address(0), "#P:009");
 
     // Sanity check: router is sensible
-    require(invariantData.router != address(0), "#P:001");
+    require(args.invariantData.router != address(0), "#P:001");
 
     // Router is approved *on both chains*
-    require(isRouterOwnershipRenounced() || approvedRouters[invariantData.router], "#P:003");
+    require(isRouterOwnershipRenounced() || approvedRouters[args.invariantData.router], "#P:003");
 
     // Sanity check: sendingChainFallback is sensible
-    require(invariantData.sendingChainFallback != address(0), "#P:010");
+    require(args.invariantData.sendingChainFallback != address(0), "#P:010");
 
     // Sanity check: valid fallback
-    require(invariantData.receivingAddress != address(0), "#P:026");
+    require(args.invariantData.receivingAddress != address(0), "#P:026");
 
     // Make sure the chains are different
-    require(invariantData.sendingChainId != invariantData.receivingChainId, "#P:011");
+    require(args.invariantData.sendingChainId != args.invariantData.receivingChainId, "#P:011");
 
     // Make sure the chains are relevant
     uint256 _chainId = getChainId();
-    require(invariantData.sendingChainId == _chainId || invariantData.receivingChainId == _chainId, "#P:012");
+    require(args.invariantData.sendingChainId == _chainId || args.invariantData.receivingChainId == _chainId, "#P:012");
 
     { // Expiry scope
       // Make sure the expiry is greater than min
-      uint256 buffer = expiry - block.timestamp;
+      uint256 buffer = args.expiry - block.timestamp;
       require(buffer >= MIN_TIMEOUT, "#P:013");
 
       // Make sure the expiry is lower than max
@@ -320,7 +297,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     }
 
     // Make sure the hash is not a duplicate
-    bytes32 digest = keccak256(abi.encode(invariantData));
+    bytes32 digest = keccak256(abi.encode(args.invariantData));
     require(variantTransactionData[digest] == bytes32(0), "#P:015");
 
     // NOTE: the `encodedBid` and `bidSignature` are simply passed through
@@ -330,21 +307,25 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     //       in the event of a router or user crash, they may recover the
     //       correct bid information without requiring an offchain store.
 
+    // Amount actually used (if fee-on-transfer will be different than
+    // supplied)
+    uint256 amount = args.amount;
+
     // First determine if this is sender side or receiver side
-    if (invariantData.sendingChainId == _chainId) {
+    if (args.invariantData.sendingChainId == _chainId) {
       // Check the sender is correct
-      require(msg.sender == invariantData.initiator, "#P:039");
+      require(msg.sender == args.invariantData.initiator, "#P:039");
 
       // Sanity check: amount is sensible
       // Only check on sending chain to enforce router fees. Transactions could
       // be 0-valued on receiving chain if it is just a value-less call to some
       // `IFulfillHelper`
-      require(amount > 0, "#P:002");
+      require(args.amount > 0, "#P:002");
 
       // Assets are approved
       // NOTE: Cannot check this on receiving chain because of differing
       // chain contexts
-      require(isAssetOwnershipRenounced() || approvedAssets[invariantData.sendingAssetId], "#P:004");
+      require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.sendingAssetId], "#P:004");
 
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
@@ -354,11 +335,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
       // Validate correct amounts on msg and transfer from user to
       // contract
-      amount = transferAssetToContract(invariantData.sendingAssetId, amount);
+      amount = transferAssetToContract(
+        args.invariantData.sendingAssetId,
+        args.amount
+      );
 
       // Store the transaction variants. This happens after transferring to
       // account for fee on transfer tokens
-      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(
+        amount,
+        args.expiry,
+        block.number
+      );
     } else {
       // This is receiver side prepare. The router has proposed a bid on the
       // transfer which the user has accepted. They can now lock up their
@@ -374,54 +362,67 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // NOTE: This cannot happen on the sending chain (different chain 
       // contexts), so a user could mistakenly create a transfer that must be
       // cancelled if this is incorrect
-      require(invariantData.callTo == address(0) || Address.isContract(invariantData.callTo), "#P:031");
+      require(args.invariantData.callTo == address(0) || Address.isContract(args.invariantData.callTo), "#P:031");
 
       // Check that the asset is approved
       // NOTE: This cannot happen on both chains because of differing chain 
       // contexts. May be possible for user to create transaction that is not
       // prepare-able on the receiver chain.
-      require(isAssetOwnershipRenounced() || approvedAssets[invariantData.receivingAssetId], "#P:004");
+      require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.receivingAssetId], "#P:004");
 
       // Check that the caller is the router
-      require(msg.sender == invariantData.router, "#P:016");
+      require(msg.sender == args.invariantData.router, "#P:016");
 
       // Check that the router isnt accidentally locking funds in the contract
       require(msg.value == 0, "#P:017");
 
       // Check that router has liquidity
-      uint256 balance = routerBalances[invariantData.router][invariantData.receivingAssetId];
+      uint256 balance = routerBalances[args.invariantData.router][args.invariantData.receivingAssetId];
       require(balance >= amount, "#P:018");
 
       // Store the transaction variants
-      variantTransactionData[digest] = hashVariantTransactionData(amount, expiry, block.number);
+      variantTransactionData[digest] = hashVariantTransactionData(
+        amount,
+        args.expiry,
+        block.number
+      );
 
       // Decrement the router liquidity
       // using unchecked because underflow protected against with require
       unchecked {
-        routerBalances[invariantData.router][invariantData.receivingAssetId] = balance - amount;
+        routerBalances[args.invariantData.router][args.invariantData.receivingAssetId] = balance - amount;
       }
     }
 
     // Emit event
     TransactionData memory txData = TransactionData({
-      receivingChainTxManagerAddress: invariantData.receivingChainTxManagerAddress,
-      user: invariantData.user,
-      router: invariantData.router,
-      initiator: invariantData.initiator,
-      sendingAssetId: invariantData.sendingAssetId,
-      receivingAssetId: invariantData.receivingAssetId,
-      sendingChainFallback: invariantData.sendingChainFallback,
-      callTo: invariantData.callTo,
-      receivingAddress: invariantData.receivingAddress,
-      callDataHash: invariantData.callDataHash,
-      transactionId: invariantData.transactionId,
-      sendingChainId: invariantData.sendingChainId,
-      receivingChainId: invariantData.receivingChainId,
+      receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
+      user: args.invariantData.user,
+      router: args.invariantData.router,
+      initiator: args.invariantData.initiator,
+      sendingAssetId: args.invariantData.sendingAssetId,
+      receivingAssetId: args.invariantData.receivingAssetId,
+      sendingChainFallback: args.invariantData.sendingChainFallback,
+      callTo: args.invariantData.callTo,
+      receivingAddress: args.invariantData.receivingAddress,
+      callDataHash: args.invariantData.callDataHash,
+      transactionId: args.invariantData.transactionId,
+      sendingChainId: args.invariantData.sendingChainId,
+      receivingChainId: args.invariantData.receivingChainId,
       amount: amount,
-      expiry: expiry,
+      expiry: args.expiry,
       preparedBlockNumber: block.number
     });
-    emit TransactionPrepared(txData.user, txData.router, txData.transactionId, txData, msg.sender, encryptedCallData, encodedBid, bidSignature);
+
+    emit TransactionPrepared(
+      txData.user,
+      txData.router,
+      txData.transactionId,
+      txData,
+      msg.sender,
+      args
+    );
+
     return txData;
   }
 
@@ -437,41 +438,33 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     *         liquidity. The user includes a relayer fee since it is not 
     *         assumed they will have gas on the receiving chain. This function 
     *         *must* be called before the transaction expiry has elapsed.
-    * @param txData All of the data (invariant and variant) for a crosschain
-    *               transaction. The variant data provided is checked against
-    *               what was stored when the `prepare` function was called.
-    * @param relayerFee The fee that should go to the relayer when they are
-    *                   calling the function on the receiving chain for the user
-    * @param signature The users signature on the transaction id + fee that
-    *                  can be used by the router to unlock the transaction on 
-    *                  the sending chain
-    * @param callData The calldata to be sent to and executed by the 
-    *                 `FulfillHelper`
+    * @param args TODO
     */
   function fulfill(
-    TransactionData calldata txData,
-    uint256 relayerFee,
-    bytes calldata signature, // signature on fee + digest
-    bytes calldata callData
+    FulfillArgs calldata args
   ) external override nonReentrant returns (TransactionData memory) {
     // Get the hash of the invariant tx data. This hash is the same
     // between sending and receiving chains. The variant data is stored
     // in the contract when `prepare` is called within the mapping.
 
     { // scope: validation and effects
-      bytes32 digest = hashInvariantTransactionData(txData);
+      bytes32 digest = hashInvariantTransactionData(args.txData);
 
       // Make sure that the variant data matches what was stored
-      require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#F:019");
+      require(variantTransactionData[digest] == hashVariantTransactionData(
+        args.txData.amount,
+        args.txData.expiry,
+        args.txData.preparedBlockNumber
+      ), "#F:019");
 
       // Make sure the expiry has not elapsed
-      require(txData.expiry >= block.timestamp, "#F:020");
+      require(args.txData.expiry >= block.timestamp, "#F:020");
 
       // Make sure the transaction wasn't already completed
-      require(txData.preparedBlockNumber > 0, "#F:021");
+      require(args.txData.preparedBlockNumber > 0, "#F:021");
 
       // Check provided callData matches stored hash
-      require(keccak256(callData) == txData.callDataHash, "#F:024");
+      require(keccak256(args.callData) == args.txData.callDataHash, "#F:024");
 
       // To prevent `fulfill` / `cancel` from being called multiple times, the
       // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -479,7 +472,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // a store can tell the difference between a transaction that has not been
       // prepared, and a transaction that was already completed on the receiver
       // chain.
-      variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+      variantTransactionData[digest] = hashVariantTransactionData(
+        args.txData.amount,
+        args.txData.expiry,
+        0
+      );
     }
 
     // Declare these variables for the event emission. Are only assigned
@@ -490,49 +487,66 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     uint256 _chainId = getChainId();
 
-    if (txData.sendingChainId == _chainId) {
+    if (args.txData.sendingChainId == _chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
       // reserves.
 
       // Make sure that the user is not accidentally fulfilling the transaction
       // on the sending chain
-      require(msg.sender == txData.router, "#F:016");
+      require(msg.sender == args.txData.router, "#F:016");
 
       // Validate the user has signed
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, txData.receivingChainId, txData.receivingChainTxManagerAddress, signature) == txData.user, "#F:022");
+      require(
+        recoverFulfillSignature(
+          args.txData.transactionId,
+          args.relayerFee,
+          args.txData.receivingChainId,
+          args.txData.receivingChainTxManagerAddress,
+          args.signature
+        ) == args.txData.user, "#F:022"
+      );
 
       // Complete tx to router for original sending amount
-      routerBalances[txData.router][txData.sendingAssetId] += txData.amount;
+      routerBalances[args.txData.router][args.txData.sendingAssetId] += args.txData.amount;
 
     } else {
       // Validate the user has signed, using domain of contract
-      require(recoverFulfillSignature(txData.transactionId, relayerFee, _chainId, address(this), signature) == txData.user, "#F:022");
+      require(
+        recoverFulfillSignature(
+          args.txData.transactionId,
+          args.relayerFee,
+          _chainId,
+          address(this),
+          args.signature
+        ) == args.txData.user, "#F:022"
+      );
 
       // Sanity check: fee <= amount. Allow `=` in case of only 
       // wanting to execute 0-value crosschain tx, so only providing 
       // the fee amount
-      require(relayerFee <= txData.amount, "#F:023");
+      require(args.relayerFee <= args.txData.amount, "#F:023");
 
-      (success, isContract, returnData) = _receivingChainFulfill(txData, relayerFee, callData);
+      (success, isContract, returnData) = _receivingChainFulfill(
+        args.txData,
+        args.relayerFee,
+        args.callData
+      );
     }
 
     // Emit event
     emit TransactionFulfilled(
-      txData.user,
-      txData.router,
-      txData.transactionId,
-      txData,
-      relayerFee,
-      signature,
-      callData,
+      args.txData.user,
+      args.txData.router,
+      args.txData.transactionId,
+      args,
       success,
       isContract,
       returnData,
       msg.sender
     );
 
-    return txData;
+    return args.txData;
   }
 
   /**
@@ -543,13 +557,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     *         able to cancel. On the sending chain, this means only the router
     *         is able to cancel before the expiry, while only the user can
     *         prematurely cancel on the receiving chain.
-    * @param txData All of the data (invariant and variant) for a crosschain
-    *               transaction. The variant data provided is checked against
-    *               what was stored when the `prepare` function was called.
-    * @param signature The user's signature that allows a transaction to be
-    *                  cancelled by a relayer
+    * @param args TODO
     */
-  function cancel(TransactionData calldata txData, bytes calldata signature)
+  function cancel(CancelArgs calldata args)
     external
     override
     nonReentrant
@@ -562,13 +572,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Get the hash of the invariant tx data. This hash is the same
     // between sending and receiving chains. The variant data is stored
     // in the contract when `prepare` is called within the mapping.
-    bytes32 digest = hashInvariantTransactionData(txData);
+    bytes32 digest = hashInvariantTransactionData(args.txData);
 
     // Verify the variant data is correct
-    require(variantTransactionData[digest] == hashVariantTransactionData(txData.amount, txData.expiry, txData.preparedBlockNumber), "#C:019");
+    require(variantTransactionData[digest] == hashVariantTransactionData(args.txData.amount, args.txData.expiry, args.txData.preparedBlockNumber), "#C:019");
 
     // Make sure the transaction wasn't already completed
-    require(txData.preparedBlockNumber > 0, "#C:021");
+    require(args.txData.preparedBlockNumber > 0, "#C:021");
 
     // To prevent `fulfill` / `cancel` from being called multiple times, the
     // preparedBlockNumber is set to 0 before being hashed. The value of the
@@ -576,33 +586,37 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // a store can tell the difference between a transaction that has not been
     // prepared, and a transaction that was already completed on the receiver
     // chain.
-    variantTransactionData[digest] = hashVariantTransactionData(txData.amount, txData.expiry, 0);
+    variantTransactionData[digest] = hashVariantTransactionData(args.txData.amount, args.txData.expiry, 0);
 
     // Get chainId for gas
     uint256 _chainId = getChainId();
 
     // Return the appropriate locked funds
-    if (txData.sendingChainId == _chainId) {
+    if (args.txData.sendingChainId == _chainId) {
       // Sender side, funds must be returned to the user
-      if (txData.expiry >= block.timestamp) {
+      if (args.txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by router
         // NOTE: no need to validate the signature here, since you are requiring
         // the router must be the sender when the cancellation is during the
         // fulfill-able window
-        require(msg.sender == txData.router, "#C:025");
+        require(msg.sender == args.txData.router, "#C:025");
       }
 
       // Return users locked funds
       // NOTE: no need to check if amount > 0 because cant be prepared on
       // sending chain with 0 value
-      LibAsset.transferAsset(txData.sendingAssetId, payable(txData.sendingChainFallback), txData.amount);
+      LibAsset.transferAsset(
+        args.txData.sendingAssetId,
+        payable(args.txData.sendingChainFallback),
+        args.txData.amount
+      );
 
     } else {
       // Receiver side, router liquidity is returned
-      if (txData.expiry >= block.timestamp) {
+      if (args.txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(msg.sender == txData.user || recoverCancelSignature(txData.transactionId, _chainId, address(this), signature) == txData.user, "#C:022");
+        require(msg.sender == args.txData.user || recoverCancelSignature(args.txData.transactionId, _chainId, address(this), args.signature) == args.txData.user, "#C:022");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not
@@ -612,14 +626,20 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       }
 
       // Return liquidity to router
-      routerBalances[txData.router][txData.receivingAssetId] += txData.amount;
+      routerBalances[args.txData.router][args.txData.receivingAssetId] += args.txData.amount;
     }
 
     // Emit event
-    emit TransactionCancelled(txData.user, txData.router, txData.transactionId, txData, msg.sender);
+    emit TransactionCancelled(
+      args.txData.user,
+      args.txData.router,
+      args.txData.transactionId,
+      args,
+      msg.sender
+    );
 
     // Return
-    return txData;
+    return args.txData;
   }
 
   //////////////////////////

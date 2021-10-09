@@ -36,6 +36,7 @@ import {
   InvalidParamStructure,
   InvalidSlippage,
   InvalidExpiry,
+  InvalidCallTo,
   EncryptionError,
   NoBids,
   NoValidBids,
@@ -126,6 +127,7 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly transactionManager: TransactionManager;
+  private readonly logger: Logger;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
 
@@ -145,21 +147,26 @@ export class NxtpSdk {
         };
       };
       signer: Signer;
+      logger?: Logger;
+      network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
       authUrl?: string;
       messaging?: UserNxtpNatsMessagingService;
+      skipPolling?: boolean;
     },
-    private readonly logger: Logger = new Logger({ name: "NxtpSdk", level: "info" }),
-    network: "testnet" | "mainnet" | "local" = "mainnet",
-    skipPolling = false,
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl } = this.config;
+    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+
+    this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
+    this.config.network = network ?? "testnet";
+    this.config.skipPolling = skipPolling ?? false;
+
     if (messaging) {
       this.messaging = messaging;
     } else {
       let _natsUrl;
       let _authUrl;
-      switch (network) {
+      switch (this.config.network) {
         case "mainnet": {
           _natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
           _authUrl = authUrl ?? NATS_AUTH_URL;
@@ -237,7 +244,12 @@ export class NxtpSdk {
       txManagerConfig,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signer, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      signer,
+      subgraphConfig,
+      this.logger.child({ module: "Subgraph" }),
+      this.config.skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -540,20 +552,23 @@ export class NxtpSdk {
             getDecimals(receivingAssetId, receivingProvider),
           ]);
 
-          const lowerBound = calculateExchangeWad(
+          let lowerBound = calculateExchangeWad(
             BigNumber.from(amount),
             inputDecimals,
             lowerBoundExchangeRate,
             outputDecimals,
           );
 
+          lowerBound = lowerBound.sub(data.gasFeeInReceivingToken);
+
           // safe calculation if the amountReceived is greater than 4 decimals
           if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
             const msg = "Invalid bid price: price impact is more than the slippage tolerance";
             this.logger.warn(msg, requestContext, methodContext, {
               signer,
-              lowerBound: lowerBound,
+              lowerBound: lowerBound.toString(),
               bidAmount: data.bid.amount,
+              gasFeeInReceivingToken: data.gasFeeInReceivingToken,
               amountReceived: data.bid.amountReceived,
               slippageTolerance: slippageTolerance,
               router: data.bid.router,
@@ -652,12 +667,11 @@ export class NxtpSdk {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
+    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
+
     const signerAddr = await this.config.signer.getAddress();
-    const balance = await getOnchainBalance(
-      sendingAssetId,
-      signerAddr,
-      this.config.signer.provider ?? this.config.chainConfig[sendingChainId].provider,
-    );
+    const balance = await getOnchainBalance(sendingAssetId, signerAddr, this.config.signer.provider ?? sendingProvider);
     if (balance.lt(amount)) {
       throw new InvalidAmount(transactionId, signerAddr, balance.toString(), amount, sendingChainId, sendingAssetId);
     }
@@ -669,6 +683,13 @@ export class NxtpSdk {
     const recovered = recoverAuctionBid(bid, bidSignature);
     if (recovered.toLowerCase() !== router.toLowerCase()) {
       throw new InvalidBidSignature(transactionId, bid, router, recovered, bidSignature);
+    }
+
+    if (callTo !== constants.AddressZero) {
+      const callToContractCode = await receivingProvider.getCode(callTo);
+      if (!callToContractCode || callToContractCode === "0x") {
+        throw new InvalidCallTo(transactionId, callTo);
+      }
     }
 
     this.logger.info("Preparing tx!", requestContext, methodContext, {

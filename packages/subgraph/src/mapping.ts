@@ -101,6 +101,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
     chainId = BigInt.fromI32(43113);
+  } else if (network == "avalanche") {
+    chainId = BigInt.fromI32(43114);
   } else if (network == "mumbai") {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
@@ -142,11 +144,12 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // TransactionPrepared specific
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactionHash = event.transaction.hash;
-  transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
-  transaction.encodedBid = event.params.encodedBid;
-  transaction.bidSignature = event.params.bidSignature;
+  transaction.encryptedCallData = event.params.args.encryptedCallData.toHexString();
+  transaction.encodedBid = event.params.args.encodedBid;
+  transaction.bidSignature = event.params.args.bidSignature;
 
   // Meta
+  transaction.prepareMeta = event.params.args.encodedMeta;
   transaction.status = "Prepared";
   transaction.chainId = chainId;
   transaction.preparedTimestamp = event.block.timestamp;
@@ -173,14 +176,16 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Fulfilled";
-  transaction!.relayerFee = event.params.relayerFee;
-  transaction!.signature = event.params.signature;
-  transaction!.callData = event.params.callData.toHexString();
+  transaction!.relayerFee = event.params.args.relayerFee;
+  transaction!.signature = event.params.args.signature;
+  transaction!.callData = event.params.args.callData.toHexString();
   transaction!.externalCallSuccess = event.params.success;
   transaction!.externalCallReturnData = event.params.returnData;
   transaction!.externalCallIsContract = event.params.isContract;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
+  transaction!.fulfillMeta = event.params.args.encodedMeta;
+  transaction!.fulfillTimestamp = event.block.timestamp;
 
   transaction!.save();
 
@@ -238,6 +243,8 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.status = "Cancelled";
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
+  transaction!.cancelMeta = event.params.args.encodedMeta;
+  transaction!.cancelTimestamp = event.block.timestamp;
 
   transaction!.save();
 
