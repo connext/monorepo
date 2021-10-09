@@ -76,7 +76,7 @@ type User @entity {
   transactions: [Transaction!]! @derivedFrom(field: "user")
 }
 
-type HourlyMetrics @entity {
+type HourlyMetric @entity {
   # unique hourly id per asset created by dividing timestamp by 3600 and concatenating assetId
   id: ID!
   # timestamp rounded down to nearest hour
