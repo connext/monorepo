@@ -84,9 +84,9 @@ type HourlyMetrics @entity {
   # assetId
   assetId: String!
   # hourly volume per asset
-  volume: BigDecimal!
+  volume: BigInt!
   # hourly liquidity per asset
-  liquidity: BigDecimal!
+  liquidity: BigInt!
   # hourly number of transactions per asset
   txCount: BigInt!
 }
