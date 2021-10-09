@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt, dataSource, BigDecimal } from "@graphprotocol/graph-ts";
+import { BigInt, dataSource } from "@graphprotocol/graph-ts";
 
 import {
   TransactionManager,
@@ -203,29 +203,29 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   }
 
   // update metrics
-  let timestamp = event.block.timestamp.toI32()
-  let hour = timestamp / 3600 // rounded
-  let hourIDPerAsset = hour.toString() + "-" + event.params.receivingAssetId.toHex()
-  let hourStartTimestamp =  hour * 3600
+  let timestamp = event.block.timestamp.toI32();
+  let hour = timestamp / 3600; // rounded
+  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
+  let hourStartTimestamp = hour * 3600;
   let hourlyMetrics = HourlyMetrics.load(hourIDPerAsset.toString());
   if (hourlyMetrics === null) {
     hourlyMetrics = new HourlyMetrics(hourIDPerAsset.toString());
-    hourlyMetrics.hourStartTimestamp = hourStartTimestamp;
-    hourlyMetrics.assetId = event.params.receivingAssetId.toHex();
-    hourlyMetrics.volume = BigDecimal.fromString('0');
-    hourlyMetrics.liquidity = BigDecimal.fromString('0');
+    hourlyMetrics.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
+    hourlyMetrics.assetId = transaction.receivingAssetId.toHex();
+    hourlyMetrics.volume = BigInt.fromI32(0);
+    hourlyMetrics.liquidity = BigInt.fromI32(0);
     hourlyMetrics.txCount = BigInt.fromI32(0);
   }
   // Only count volume on receiving chain
   if (transaction.chainId == transaction.receivingChainId) {
-    hourlyMetrics.volume += event.params.amount;
-    hourlyMetrics.txCount += 1;
+    hourlyMetrics.volume += transaction.amount;
+    hourlyMetrics.txCount += BigInt.fromI32(1);
   } else if (transaction.chainId == transaction.sendingChainId) {
     // load assetBalance
     let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    if(hourlyMetrics.liquidity < assetBalance.amount) {
-      hourlyMetrics.liquidity = assetBalance.amount
+    if (hourlyMetrics.liquidity < assetBalance.amount) {
+      hourlyMetrics.liquidity = assetBalance.amount;
     }
   }
 }
