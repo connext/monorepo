@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt, dataSource } from "@graphprotocol/graph-ts";
+import { BigInt, dataSource, BigDecimal } from "@graphprotocol/graph-ts";
 
 import {
   TransactionManager,
@@ -9,7 +9,7 @@ import {
   TransactionFulfilled,
   TransactionPrepared,
 } from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User } from "../generated/schema";
+import { Transaction, AssetBalance, Router, User, HourlyMetrics } from "../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -195,6 +195,33 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     }
     assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
+  }
+
+  // update metrics
+  let timestamp = event.block.timestamp.toI32()
+  let hour = timestamp / 3600 // rounded
+  let hourIDPerAsset = hour.toString() + "-" + event.params.receivingAssetId.toHex()
+  let hourStartTimestamp =  hour * 3600
+  let hourlyMetrics = HourlyMetrics.load(hourIDPerAsset.toString());
+  if (hourlyMetrics === null) {
+    hourlyMetrics = new HourlyMetrics(hourIDPerAsset.toString());
+    hourlyMetrics.hourStartTimestamp = hourStartTimestamp;
+    hourlyMetrics.assetId = event.params.receivingAssetId.toHex();
+    hourlyMetrics.volume = BigDecimal.fromString('0');
+    hourlyMetrics.liquidity = BigDecimal.fromString('0');
+    hourlyMetrics.txCount = BigInt.fromI32(0);
+  }
+  // Only count volume on receiving chain
+  if (transaction.chainId == transaction.receivingChainId) {
+    hourlyMetrics.volume += event.params.amount;
+    hourlyMetrics.txCount += 1;
+  } else if (transaction.chainId == transaction.sendingChainId) {
+    // load assetBalance
+    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    if(hourlyMetrics.liquidity < assetBalance.amount) {
+      hourlyMetrics.liquidity = assetBalance.amount
+    }
   }
 }
 

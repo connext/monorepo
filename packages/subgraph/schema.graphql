@@ -70,3 +70,18 @@ type User @entity {
   id: ID!
   transactions: [Transaction!]! @derivedFrom(field: "user")
 }
+
+type HourlyMetrics @entity {
+  # unique hourly id per asset created by dividing timestamp by 3600 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  hourStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # hourly volume per asset
+  volume: BigDecimal!
+  # hourly liquidity per asset
+  liquidity: BigDecimal!
+  # hourly number of transactions per asset
+  txCount: BigInt!
+}
