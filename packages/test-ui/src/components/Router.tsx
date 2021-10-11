@@ -177,10 +177,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
               // return;
               decimals = 18;
             }
+            const chain = data.chain === "ETH" ? data.network : data.chain;
             return {
               assetId,
               balance: utils.formatUnits(amount, decimals),
-              chain: data.chain,
+              chain,
               symbol:
                 data.assetId[assetId]?.symbol ??
                 data.assetId[assetId.toLowerCase()]?.symbol ??
