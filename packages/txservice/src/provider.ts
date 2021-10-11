@@ -298,10 +298,23 @@ export class ChainRpcProvider {
           });
         }
       }
+
       if (gasStations.length > 0 && !gasPrice) {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
         });
+      } else if (gasStations.length > 0 && gasPrice) {
+        // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
+        const providerQuote = await this.provider.getGasPrice();
+        this.logger.debug("Retrieved gas prices",
+          requestContext,
+          methodContext,
+          {
+            chainId: this.chainId,
+            gasStationQuote: gasPrice,
+            providerQuote,
+          }
+        );
       }
 
       // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
