@@ -145,5 +145,10 @@ export const getSwapRateFromVirutalAMM = async (
  * Gets chain ids for virtual amm
  */
 export const getChainIdsForAMM = (): any[] => {
+  const { config } = getContext();
+
+  if (config.stableSwapChainId && config.stableSwapAddress) {
+    return [{ chainId: config.stableSwapChainId, address: config.stableSwapAddress }];
+  }
   return getDeployedChainIdsForAMM();
 };

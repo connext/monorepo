@@ -159,6 +159,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
+  stableSwapChainId: Type.Optional(Type.Number()),
+  stableSwapAddress: Type.Optional(Type.String()),
   cleanUpMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
@@ -237,6 +239,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
     requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
+    stableSwapChainId: process.env.STABLE_SWAP_CHAIN_ID || configJson.stableSwapChainId || configFile.stableSwapChainId,
+    stableSwapAddress: process.env.STABLE_SWAP_ADDRESS || configJson.stableSwapAddress || configFile.stableSwapAddress,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
