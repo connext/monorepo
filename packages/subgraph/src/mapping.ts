@@ -9,7 +9,7 @@ import {
   TransactionFulfilled,
   TransactionPrepared,
 } from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User } from "../generated/schema";
+import { Transaction, AssetBalance, Router, User, HourlyMetric } from "../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -201,6 +201,35 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
+
+  // update metrics
+  let timestamp = event.block.timestamp.toI32();
+  let hour = timestamp / 3600; // rounded
+  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
+  let hourStartTimestamp = hour * 3600;
+  let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
+  if (hourlyMetric === null) {
+    hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
+    hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
+    hourlyMetric.assetId = transaction.receivingAssetId.toHex();
+    hourlyMetric.volume = BigInt.fromI32(0);
+    hourlyMetric.liquidity = BigInt.fromI32(0);
+    hourlyMetric.txCount = BigInt.fromI32(0);
+  }
+  // Only count volume on receiving chain
+  if (transaction.chainId == transaction.receivingChainId) {
+    hourlyMetric.volume += transaction.amount;
+    hourlyMetric.txCount += BigInt.fromI32(1);
+  } else if (transaction.chainId == transaction.sendingChainId) {
+    // load assetBalance
+    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    if (hourlyMetric.liquidity < assetBalance.amount) {
+      hourlyMetric.liquidity = assetBalance.amount;
+    }
+  }
+
+  hourlyMetric!.save();
 }
 
 /**
