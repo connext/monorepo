@@ -40,6 +40,32 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "bool",
+        name: "renounced",
+        type: "bool",
+      },
+    ],
+    name: "ConditionOwnershipRenounced",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "ConditionOwnershipRenunciationProposed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "proposedOwner",
@@ -95,32 +121,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "renounced",
-        type: "bool",
-      },
-    ],
-    name: "ValidationOwnershipRenounced",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-    ],
-    name: "ValidationOwnershipRenunciationProposed",
-    type: "event",
-  },
-  {
     inputs: [],
     name: "acceptProposedOwner",
     outputs: [],
@@ -130,6 +130,19 @@ const _abi = [
   {
     inputs: [],
     name: "assetOwnershipTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "conditionOwnershipTimestamp",
     outputs: [
       {
         internalType: "uint256",
@@ -168,7 +181,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "isRouterOwnershipRenounced",
+    name: "isConditionOwnershipRenounced",
     outputs: [
       {
         internalType: "bool",
@@ -181,7 +194,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "isValidationOwnershipRenounced",
+    name: "isRouterOwnershipRenounced",
     outputs: [
       {
         internalType: "bool",
@@ -213,6 +226,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "proposeConditionOwnershipRenunciation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -228,13 +248,6 @@ const _abi = [
   {
     inputs: [],
     name: "proposeRouterOwnershipRenunciation",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "proposeValidationOwnershipRenunciation",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -274,6 +287,13 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "renounceConditionOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
@@ -282,13 +302,6 @@ const _abi = [
   {
     inputs: [],
     name: "renounceRouterOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceValidationOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -309,19 +322,6 @@ const _abi = [
   {
     inputs: [],
     name: "routerOwnershipTimestamp",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "validationOwnershipTimestamp",
     outputs: [
       {
         internalType: "uint256",

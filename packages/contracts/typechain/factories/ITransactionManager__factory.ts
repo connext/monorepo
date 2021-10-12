@@ -54,6 +54,44 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "condition",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "ConditionAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "condition",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "ConditionRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "router",
         type: "address",
       },
@@ -175,6 +213,16 @@ const _abi = [
             components: [
               {
                 internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
                 name: "receivingChainTxManagerAddress",
                 type: "address",
               },
@@ -254,13 +302,13 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct ITransactionManager.TransactionData",
+            internalType: "struct TransactionData",
             name: "txData",
             type: "tuple",
           },
           {
             internalType: "bytes",
-            name: "signature",
+            name: "unlockData",
             type: "bytes",
           },
           {
@@ -311,6 +359,16 @@ const _abi = [
             components: [
               {
                 internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
                 name: "receivingChainTxManagerAddress",
                 type: "address",
               },
@@ -390,7 +448,7 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct ITransactionManager.TransactionData",
+            internalType: "struct TransactionData",
             name: "txData",
             type: "tuple",
           },
@@ -401,7 +459,7 @@ const _abi = [
           },
           {
             internalType: "bytes",
-            name: "signature",
+            name: "unlockData",
             type: "bytes",
           },
           {
@@ -473,6 +531,16 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "sendingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "receivingChainTxManagerAddress",
             type: "address",
           },
@@ -553,7 +621,7 @@ const _abi = [
           },
         ],
         indexed: false,
-        internalType: "struct ITransactionManager.TransactionData",
+        internalType: "struct TransactionData",
         name: "txData",
         type: "tuple",
       },
@@ -567,6 +635,16 @@ const _abi = [
         components: [
           {
             components: [
+              {
+                internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
               {
                 internalType: "address",
                 name: "receivingChainTxManagerAddress",
@@ -633,7 +711,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct ITransactionManager.InvariantTransactionData",
+            internalType: "struct InvariantTransactionData",
             name: "invariantData",
             type: "tuple",
           },
@@ -686,6 +764,19 @@ const _abi = [
       },
     ],
     name: "addAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "condition",
+        type: "address",
+      },
+    ],
+    name: "addCondition",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -752,6 +843,16 @@ const _abi = [
             components: [
               {
                 internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
                 name: "receivingChainTxManagerAddress",
                 type: "address",
               },
@@ -831,13 +932,13 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct ITransactionManager.TransactionData",
+            internalType: "struct TransactionData",
             name: "txData",
             type: "tuple",
           },
           {
             internalType: "bytes",
-            name: "signature",
+            name: "unlockData",
             type: "bytes",
           },
           {
@@ -855,6 +956,16 @@ const _abi = [
     outputs: [
       {
         components: [
+          {
+            internalType: "address",
+            name: "receivingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "sendingChainCondition",
+            type: "address",
+          },
           {
             internalType: "address",
             name: "receivingChainTxManagerAddress",
@@ -936,7 +1047,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ITransactionManager.TransactionData",
+        internalType: "struct TransactionData",
         name: "",
         type: "tuple",
       },
@@ -950,6 +1061,16 @@ const _abi = [
         components: [
           {
             components: [
+              {
+                internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
               {
                 internalType: "address",
                 name: "receivingChainTxManagerAddress",
@@ -1031,7 +1152,7 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct ITransactionManager.TransactionData",
+            internalType: "struct TransactionData",
             name: "txData",
             type: "tuple",
           },
@@ -1042,7 +1163,7 @@ const _abi = [
           },
           {
             internalType: "bytes",
-            name: "signature",
+            name: "unlockData",
             type: "bytes",
           },
           {
@@ -1067,6 +1188,16 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "sendingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "receivingChainTxManagerAddress",
             type: "address",
           },
@@ -1146,7 +1277,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ITransactionManager.TransactionData",
+        internalType: "struct TransactionData",
         name: "",
         type: "tuple",
       },
@@ -1188,6 +1319,16 @@ const _abi = [
             components: [
               {
                 internalType: "address",
+                name: "receivingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
+                name: "sendingChainCondition",
+                type: "address",
+              },
+              {
+                internalType: "address",
                 name: "receivingChainTxManagerAddress",
                 type: "address",
               },
@@ -1252,7 +1393,7 @@ const _abi = [
                 type: "bytes32",
               },
             ],
-            internalType: "struct ITransactionManager.InvariantTransactionData",
+            internalType: "struct InvariantTransactionData",
             name: "invariantData",
             type: "tuple",
           },
@@ -1298,6 +1439,16 @@ const _abi = [
         components: [
           {
             internalType: "address",
+            name: "receivingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "sendingChainCondition",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "receivingChainTxManagerAddress",
             type: "address",
           },
@@ -1377,7 +1528,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ITransactionManager.TransactionData",
+        internalType: "struct TransactionData",
         name: "",
         type: "tuple",
       },
@@ -1394,6 +1545,19 @@ const _abi = [
       },
     ],
     name: "removeAssetId",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "condition",
+        type: "address",
+      },
+    ],
+    name: "removeCondition",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
