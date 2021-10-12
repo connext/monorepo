@@ -47,7 +47,7 @@ type Transaction @entity {
   encryptedCallData: String!
   prepareCaller: Bytes
   bidSignature: Bytes!
-  encodedBid: Bytes!
+  encodedBid: String!
   prepareTransactionHash: Bytes!
   prepareMeta: Bytes
 
