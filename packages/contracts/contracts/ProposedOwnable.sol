@@ -33,8 +33,8 @@ abstract contract ProposedOwnable {
   bool private _assetOwnershipRenounced;
   uint256 private _assetOwnershipTimestamp;
 
-  bool private _validationOwnershipRenounced;
-  uint256 private _validationOwnershipTimestamp;
+  bool private _conditionOwnershipRenounced;
+  uint256 private _conditionOwnershipTimestamp;
 
   uint256 private constant _delay = 7 days;
 
@@ -42,9 +42,9 @@ abstract contract ProposedOwnable {
 
   event RouterOwnershipRenounced(bool renounced);
 
-  event ValidationOwnershipRenunciationProposed(uint256 timestamp);
+  event ConditionOwnershipRenunciationProposed(uint256 timestamp);
 
-  event ValidationOwnershipRenounced(bool renounced);
+  event ConditionOwnershipRenounced(bool renounced);
 
   event AssetOwnershipRenunciationProposed(uint256 timestamp);
 
@@ -100,8 +100,8 @@ abstract contract ProposedOwnable {
   /**
     * @notice Returns the timestamp when validation ownership was last proposed to be renounced
     */
-  function validationOwnershipTimestamp() public view virtual returns (uint256) {
-    return _validationOwnershipTimestamp;
+  function conditionOwnershipTimestamp() public view virtual returns (uint256) {
+    return _conditionOwnershipTimestamp;
   }
 
 
@@ -212,40 +212,40 @@ abstract contract ProposedOwnable {
     * @notice Indicates if the ownership of the validation whitelist has
     * been renounced
     */
-  function isValidationOwnershipRenounced() public view returns (bool) {
-    return _owner == address(0) || _validationOwnershipRenounced;
+  function isConditionOwnershipRenounced() public view returns (bool) {
+    return _owner == address(0) || _conditionOwnershipRenounced;
   }
 
   /** 
     * @notice Indicates if the ownership of the validation whitelist has
     * been renounced
     */
-  function proposeValidationOwnershipRenunciation() public virtual onlyOwner {
+  function proposeConditionOwnershipRenunciation() public virtual onlyOwner {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_validationOwnershipRenounced, "#PVOR:038");
+    require(!_conditionOwnershipRenounced, "#PCOR:038");
 
     // Begin delay, emit event
-    _setValidationOwnershipTimestamp();
+    _setConditionOwnershipTimestamp();
   }
 
   /** 
     * @notice Indicates if the ownership of the validation whitelist has
     * been renounced
     */
-  function renounceValidationOwnership() public virtual onlyOwner {
+  function renounceConditionOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_validationOwnershipRenounced, "#RVO:038");
+    require(!_conditionOwnershipRenounced, "#RCO:038");
 
     // Ensure there has been a proposal cycle started
-    require(_validationOwnershipTimestamp > 0, "#RVO:037");
+    require(_conditionOwnershipTimestamp > 0, "#RCO:037");
 
     // Delay has elapsed
-    require((block.timestamp - _validationOwnershipTimestamp) > _delay, "#RVO:030");
+    require((block.timestamp - _conditionOwnershipTimestamp) > _delay, "#RCO:030");
 
     // Set renounced, emit event, reset timestamp to 0
-    _setValidationOwnership(true);
+    _setConditionOwnership(true);
   }
 
   /** 
@@ -320,15 +320,15 @@ abstract contract ProposedOwnable {
     emit RouterOwnershipRenounced(value);
   }
 
-  function _setValidationOwnershipTimestamp() private {
-    _validationOwnershipTimestamp = block.timestamp;
-    emit ValidationOwnershipRenunciationProposed(_validationOwnershipTimestamp);
+  function _setConditionOwnershipTimestamp() private {
+    _conditionOwnershipTimestamp = block.timestamp;
+    emit ConditionOwnershipRenunciationProposed(_conditionOwnershipTimestamp);
   }
 
-  function _setValidationOwnership(bool value) private {
-    _validationOwnershipRenounced = value;
-    _validationOwnershipTimestamp = 0;
-    emit ValidationOwnershipRenounced(value);
+  function _setConditionOwnership(bool value) private {
+    _conditionOwnershipRenounced = value;
+    _conditionOwnershipTimestamp = 0;
+    emit ConditionOwnershipRenounced(value);
   }
 
   function _setAssetOwnershipTimestamp() private {
