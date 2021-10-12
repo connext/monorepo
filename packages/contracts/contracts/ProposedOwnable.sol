@@ -33,11 +33,18 @@ abstract contract ProposedOwnable {
   bool private _assetOwnershipRenounced;
   uint256 private _assetOwnershipTimestamp;
 
+  bool private _validationOwnershipRenounced;
+  uint256 private _validationOwnershipTimestamp;
+
   uint256 private constant _delay = 7 days;
 
   event RouterOwnershipRenunciationProposed(uint256 timestamp);
 
   event RouterOwnershipRenounced(bool renounced);
+
+  event ValidationOwnershipRenunciationProposed(uint256 timestamp);
+
+  event ValidationOwnershipRenounced(bool renounced);
 
   event AssetOwnershipRenunciationProposed(uint256 timestamp);
 
@@ -89,6 +96,14 @@ abstract contract ProposedOwnable {
   function assetOwnershipTimestamp() public view virtual returns (uint256) {
     return _assetOwnershipTimestamp;
   }
+
+  /**
+    * @notice Returns the timestamp when validation ownership was last proposed to be renounced
+    */
+  function validationOwnershipTimestamp() public view virtual returns (uint256) {
+    return _validationOwnershipTimestamp;
+  }
+
 
   /**
     * @notice Returns the delay period before a new owner can be accepted.
@@ -194,6 +209,46 @@ abstract contract ProposedOwnable {
   }
 
   /** 
+    * @notice Indicates if the ownership of the validation whitelist has
+    * been renounced
+    */
+  function isValidationOwnershipRenounced() public view returns (bool) {
+    return _owner == address(0) || _validationOwnershipRenounced;
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the validation whitelist has
+    * been renounced
+    */
+  function proposeValidationOwnershipRenunciation() public virtual onlyOwner {
+    // Use contract as source of truth
+    // Will fail if all ownership is renounced by modifier
+    require(!_validationOwnershipRenounced, "#PVOR:038");
+
+    // Begin delay, emit event
+    _setValidationOwnershipTimestamp();
+  }
+
+  /** 
+    * @notice Indicates if the ownership of the validation whitelist has
+    * been renounced
+    */
+  function renounceValidationOwnership() public virtual onlyOwner {
+    // Contract as sournce of truth
+    // Will fail if all ownership is renounced by modifier
+    require(!_validationOwnershipRenounced, "#RVO:038");
+
+    // Ensure there has been a proposal cycle started
+    require(_validationOwnershipTimestamp > 0, "#RVO:037");
+
+    // Delay has elapsed
+    require((block.timestamp - _validationOwnershipTimestamp) > _delay, "#RVO:030");
+
+    // Set renounced, emit event, reset timestamp to 0
+    _setValidationOwnership(true);
+  }
+
+  /** 
     * @notice Indicates if the ownership has been renounced() by
     * checking if current owner is address(0)
     */
@@ -263,6 +318,17 @@ abstract contract ProposedOwnable {
     _routerOwnershipRenounced = value;
     _routerOwnershipTimestamp = 0;
     emit RouterOwnershipRenounced(value);
+  }
+
+  function _setValidationOwnershipTimestamp() private {
+    _validationOwnershipTimestamp = block.timestamp;
+    emit ValidationOwnershipRenunciationProposed(_validationOwnershipTimestamp);
+  }
+
+  function _setValidationOwnership(bool value) private {
+    _validationOwnershipRenounced = value;
+    _validationOwnershipTimestamp = 0;
+    emit ValidationOwnershipRenounced(value);
   }
 
   function _setAssetOwnershipTimestamp() private {

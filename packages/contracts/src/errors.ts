@@ -76,6 +76,8 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#RAO": "renounceAssetOwnership",
   "#PNO": "proposeNewOwner",
   "#RO": "renounceOwnership",
+  "#RVO": "renounceValidationOwnership",
+  "#PVOR": "proposeValidationOwnershipRenunciation",
 };
 
 /**

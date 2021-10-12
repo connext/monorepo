@@ -40,11 +40,13 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "interpreter()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
+    "isValidationOwnershipRenounced()": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple)": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
+    "proposeValidationOwnershipRenunciation()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "removeAssetId(address)": FunctionFragment;
@@ -53,9 +55,11 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "renounceAssetOwnership()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounceRouterOwnership()": FunctionFragment;
+    "renounceValidationOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "routerOwnershipTimestamp()": FunctionFragment;
+    "validationOwnershipTimestamp()": FunctionFragment;
     "variantTransactionData(bytes32)": FunctionFragment;
   };
 
@@ -170,6 +174,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "isRouterOwnershipRenounced",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "isValidationOwnershipRenounced",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "prepare",
@@ -211,6 +219,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "proposeRouterOwnershipRenunciation",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "proposeValidationOwnershipRenunciation",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposedTimestamp",
@@ -240,6 +252,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "renounceRouterOwnership",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "renounceValidationOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "routerBalances",
@@ -247,6 +263,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "routerOwnershipTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validationOwnershipTimestamp",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -308,6 +328,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "isRouterOwnershipRenounced",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isValidationOwnershipRenounced",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
@@ -320,6 +344,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "proposeRouterOwnershipRenunciation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeValidationOwnershipRenunciation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
@@ -351,6 +379,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     functionFragment: "renounceRouterOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceValidationOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "routerBalances",
@@ -358,6 +390,10 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "routerOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validationOwnershipTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -381,6 +417,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "TransactionCancelled(address,address,bytes32,tuple,address)": EventFragment;
     "TransactionFulfilled(address,address,bytes32,tuple,bool,bool,bytes,address)": EventFragment;
     "TransactionPrepared(address,address,bytes32,tuple,address,tuple)": EventFragment;
+    "ValidationOwnershipRenounced(bool)": EventFragment;
+    "ValidationOwnershipRenunciationProposed(uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
@@ -402,6 +440,12 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TransactionCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionFulfilled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionPrepared"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ValidationOwnershipRenounced"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ValidationOwnershipRenunciationProposed"
+  ): EventFragment;
 }
 
 export class TransactionManager extends BaseContract {
@@ -556,6 +600,10 @@ export class TransactionManager extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    isValidationOwnershipRenounced(
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
@@ -598,6 +646,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    proposeValidationOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -631,6 +683,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    renounceValidationOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     routerBalances(
@@ -640,6 +696,10 @@ export class TransactionManager extends BaseContract {
     ): Promise<[BigNumber]>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    validationOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     variantTransactionData(
       arg0: BytesLike,
@@ -750,6 +810,8 @@ export class TransactionManager extends BaseContract {
 
   isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
+  isValidationOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   prepare(
@@ -792,6 +854,10 @@ export class TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  proposeValidationOwnershipRenunciation(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -825,6 +891,10 @@ export class TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  renounceValidationOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   routerBalances(
@@ -834,6 +904,8 @@ export class TransactionManager extends BaseContract {
   ): Promise<BigNumber>;
 
   routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  validationOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   variantTransactionData(
     arg0: BytesLike,
@@ -1008,6 +1080,8 @@ export class TransactionManager extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
+    isValidationOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     prepare(
@@ -1084,6 +1158,10 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    proposeValidationOwnershipRenunciation(
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     proposed(overrides?: CallOverrides): Promise<string>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1105,6 +1183,8 @@ export class TransactionManager extends BaseContract {
 
     renounceRouterOwnership(overrides?: CallOverrides): Promise<void>;
 
+    renounceValidationOwnership(overrides?: CallOverrides): Promise<void>;
+
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     routerBalances(
@@ -1114,6 +1194,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<BigNumber>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    validationOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     variantTransactionData(
       arg0: BytesLike,
@@ -1806,6 +1888,14 @@ export class TransactionManager extends BaseContract {
         };
       }
     >;
+
+    ValidationOwnershipRenounced(
+      renounced?: null
+    ): TypedEventFilter<[boolean], { renounced: boolean }>;
+
+    ValidationOwnershipRenunciationProposed(
+      timestamp?: null
+    ): TypedEventFilter<[BigNumber], { timestamp: BigNumber }>;
   };
 
   estimateGas: {
@@ -1915,6 +2005,10 @@ export class TransactionManager extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    isValidationOwnershipRenounced(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
@@ -1957,6 +2051,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    proposeValidationOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1990,6 +2088,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    renounceValidationOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerBalances(
@@ -1999,6 +2101,8 @@ export class TransactionManager extends BaseContract {
     ): Promise<BigNumber>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    validationOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     variantTransactionData(
       arg0: BytesLike,
@@ -2122,6 +2226,10 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isValidationOwnershipRenounced(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     prepare(
@@ -2164,6 +2272,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    proposeValidationOwnershipRenunciation(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2197,6 +2309,10 @@ export class TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    renounceValidationOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     routerBalances(
@@ -2206,6 +2322,10 @@ export class TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     routerOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    validationOwnershipTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
