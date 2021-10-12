@@ -326,16 +326,6 @@ describe("TransactionDispatch", () => {
       expect(transactionCount).to.eq(txCount);
     });
 
-    // it("happy: should handle nonce expired || replacement underpriced", async () => {
-    // determineNonce should essentially increment in this case, however skipping nonces that have
-    // already been used.
-
-    // });
-
-    // it("happy: should handle nonce incorrect", async () => {
-
-    // });
-
     it("happy: handles backtracking txcount", async () => {
       (txDispatch as any).nonce = 101;
       (txDispatch as any).lastReceivedTxCount = 100;
