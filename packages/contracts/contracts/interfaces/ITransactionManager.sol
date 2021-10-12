@@ -6,23 +6,6 @@ import "./Types.sol";
 interface ITransactionManager {
   // Structs
 
-  // The structure of the signed data for fulfill
-  struct SignedFulfillData {
-    bytes32 transactionId;
-    uint256 relayerFee;
-    string functionIdentifier; // "fulfill" or "cancel"
-    uint256 receivingChainId; // For domain separation
-    address receivingChainTxManagerAddress; // For domain separation
-  }
-
-  // The structure of the signed data for cancellation
-  struct SignedCancelData {
-    bytes32 transactionId;
-    string functionIdentifier;
-    uint256 receivingChainId;
-    address receivingChainTxManagerAddress; // For domain separation
-  }
-
   /**
     * Arguments for calling prepare()
     * @param invariantData The data for a crosschain transaction that will

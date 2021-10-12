@@ -10,7 +10,6 @@ import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 
 /**
@@ -752,26 +751,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 relayerFee,
     uint256 chainId
   ) internal returns (bool) {
-    // Check if this change is sending or receiving
-    bool isSending = chainId == txData.sendingChainId;
-
-    // Make sure address on this chain is *not* a contract.
-    // If it is, condition should be a user signature recovery on the receiving
-    // chain.
-    if (!Address.isContract(isSending ? txData.sendingChainCondition : txData.receivingChainCondition)) {
-      // Default to signature recovery (using domain of contract if possible)
-      address recovered = recoverFulfillSignature(
-        txData.transactionId,
-        relayerFee,
-        isSending ? txData.sendingChainId : chainId,
-        isSending ? txData.receivingChainTxManagerAddress : address(this),
-        unlockData
-      );
-      return recovered == txData.user;
-    }
-
-    // Address *is* a contraacct, should be validated on this chain when prepared
-    return IConditionInterpreter(isSending ? txData.sendingChainCondition : txData.receivingChainCondition).shouldFulfill(txData, unlockData, relayerFee, chainId);
+    // Should be validated on this chain when prepared
+    return IConditionInterpreter(
+      chainId == txData.sendingChainId ? txData.sendingChainCondition : txData.receivingChainCondition
+    ).shouldFulfill(txData, unlockData, relayerFee, chainId);
   }
 
   function validateCancelCondition(
@@ -780,85 +763,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     uint256 chainId
   ) internal returns (bool) {
     // Should only be evaluated on the receiving chain
-
-    // Make sure address on this chain is *not* a contract.
-    // If it is, condition should be a user signature recovery on the receiving
-    // chain.
-    if (!Address.isContract(txData.receivingChainCondition)) {
-      // Default to signature recovery (using domain of contract if possible)
-      address recovered = recoverCancelSignature(
-        txData.transactionId,
-        chainId,
-        address(this),
-        unlockData
-      );
-      return recovered == txData.user;
-    }
-
-    // Address *is* a contraacct, should be validated on this chain when prepared
     return IConditionInterpreter(txData.receivingChainCondition).shouldCancel(txData, unlockData, chainId);
-  }
-
-  /// @notice Recovers the signer from the signature provided by the user
-  /// @param transactionId Transaction identifier of tx being recovered
-  /// @param signature The signature you are recovering the signer from
-  function recoverCancelSignature(
-    bytes32 transactionId,
-    uint256 receivingChainId,
-    address receivingChainTxManagerAddress,
-    bytes calldata signature
-  ) internal pure returns (address) {
-    // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({
-      transactionId: transactionId,
-      functionIdentifier: "cancel",
-      receivingChainId: receivingChainId,
-      receivingChainTxManagerAddress: receivingChainTxManagerAddress
-    });
-
-    // Recover
-    return recoverSignature(abi.encode(payload), signature);
-  }
-
-  /**
-    * @notice Recovers the signer from the signature provided by the user
-    * @param transactionId Transaction identifier of tx being recovered
-    * @param relayerFee The fee paid to the relayer for submitting the
-    *                   tx on behalf of the user.
-    * @param signature The signature you are recovering the signer from
-    */
-  function recoverFulfillSignature(
-    bytes32 transactionId,
-    uint256 relayerFee,
-    uint256 receivingChainId,
-    address receivingChainTxManagerAddress,
-    bytes calldata signature
-  ) internal pure returns (address) {
-    // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({
-      transactionId: transactionId,
-      relayerFee: relayerFee,
-      functionIdentifier: "fulfill",
-      receivingChainId: receivingChainId,
-      receivingChainTxManagerAddress: receivingChainTxManagerAddress
-    });
-
-    // Recover
-    return recoverSignature(abi.encode(payload), signature);
-  }
-
-  /**
-    * @notice Holds the logic to recover the signer from an encoded payload.
-    *         Will hash and convert to an eth signed message.
-    * @param encodedPayload The payload that was signed
-    * @param signature The signature you are recovering the signer from
-    */
-  function recoverSignature(bytes memory encodedPayload, bytes calldata  signature) internal pure returns (address) {
-    // Recover
-    return ECDSA.recover(
-      ECDSA.toEthSignedMessageHash(keccak256(encodedPayload)),
-      signature
-    );
   }
 
   /**
