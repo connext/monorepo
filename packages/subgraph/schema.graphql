@@ -90,3 +90,16 @@ type HourlyMetric @entity {
   # hourly number of transactions per asset
   txCount: BigInt!
 }
+
+type DayMetric @entity {
+  # unique hourly id per asset created by dividing timestamp by 86400 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  dayStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # hourly volume per asset
+  volume: BigInt!
+  # hourly number of transactions per asset
+  txCount: BigInt!
+}
