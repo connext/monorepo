@@ -1,9 +1,8 @@
 import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
-import axios from "axios";
 import { BigNumber, providers, Wallet } from "ethers";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
-import Sinon, { createStubInstance, reset, restore, SinonSpy, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
@@ -39,6 +38,7 @@ let context: RequestContext = {
 
 let getGas: SinonStub<any[], Gas>;
 let getTransactionCount: SinonStub<any[], number>;
+let determineNonce: SinonStub<any[], { nonce: number; backfill: boolean; transactionCount: number }>;
 let submit: SinonStub<any[], Promise<void>>;
 let mine: SinonStub<any[], Promise<void>>;
 let confirm: SinonStub<any[], Promise<void>>;
@@ -49,15 +49,20 @@ const stubDispatchMethods = (methods?: SinonStub[]): void => {
   getGas = stub().callsFake(() => {
     return new Gas(BigNumber.from(1), BigNumber.from(1));
   });
+  determineNonce = stub().callsFake(() => {
+    const nonce = TEST_TX_RESPONSE.nonce;
+    return { nonce, backfill: false, transactionCount: nonce };
+  });
   getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
   submit = stub().resolves();
   mine = stub().resolves();
   confirm = stub().resolves();
   bump = stub().resolves();
   fail = stub().resolves();
-  const methodsToStub = methods ?? [getGas, getTransactionCount, submit, mine, confirm, bump, fail];
+  // const methodsToStub = methods ?? [getGas, getTransactionCount, determineNonce, submit, mine, confirm, bump, fail];
   (txDispatch as any).getGas = getGas;
   (txDispatch as any).getTransactionCount = getTransactionCount;
+  (txDispatch as any).determineNonce = determineNonce;
   (txDispatch as any).submit = submit;
   (txDispatch as any).mine = mine;
   (txDispatch as any).confirm = confirm;
@@ -275,6 +280,156 @@ describe("TransactionDispatch", () => {
     });
   });
 
+  describe("#determineNonce", () => {
+    let attemptedNonces: number[];
+    beforeEach(() => {
+      (txDispatch as any).nonce = 0;
+      (txDispatch as any).lastReceivedTxCount = -1;
+      getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
+      (txDispatch as any).getTransactionCount = getTransactionCount;
+      attemptedNonces = [];
+    });
+
+    it("happy: first send, no error", async () => {
+      const txCount = 20;
+      getTransactionCount.resolves(ok(txCount));
+      const { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
+      expect(nonce).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect(transactionCount).to.eq(txCount);
+      // should have called getTransactionCount (NOTE: we are temporarily calling it twice for debugging,
+      // leaving this as a > 0 check for now).
+      expect(getTransactionCount.callCount > 0).to.be.true;
+      // This method should have modified the passed-in map.
+      expect(attemptedNonces.includes(nonce)).to.be.true;
+      // Should have also modified lastReceivedTxCount.
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(txCount);
+    });
+
+    it("should assign nonce based on higher value: transaction count or cached nonce", async () => {
+      const txCount = 97;
+      let localNonce = 3;
+      getTransactionCount.resolves(ok(txCount));
+      (txDispatch as any).nonce = localNonce;
+      let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
+      expect(nonce).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect(transactionCount).to.eq(txCount);
+
+      // Now, let's try again, but this time we'll set the local nonce to be higher than the txCount
+      attemptedNonces = [];
+      localNonce = 348;
+      (txDispatch as any).nonce = localNonce;
+      ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces));
+      expect(nonce).to.eq(localNonce);
+      expect(backfill).to.be.false;
+      expect(transactionCount).to.eq(txCount);
+    });
+
+    // it("happy: should handle nonce expired || replacement underpriced", async () => {
+    // determineNonce should essentially increment in this case, however skipping nonces that have
+    // already been used.
+
+    // });
+
+    // it("happy: should handle nonce incorrect", async () => {
+
+    // });
+
+    it("happy: handles backtracking txcount", async () => {
+      (txDispatch as any).nonce = 101;
+      (txDispatch as any).lastReceivedTxCount = 100;
+      let backtrackTxCount = 91;
+
+      // On initial attempt:
+      getTransactionCount.onCall(0).resolves(ok(backtrackTxCount));
+      let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
+      expect(nonce).to.eq(backtrackTxCount);
+      expect(transactionCount).to.eq(backtrackTxCount);
+      expect(backfill).to.be.true;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(backtrackTxCount);
+
+      // On second, follow-up attempt, txcount backtracks further:
+      const error = new BadNonce(BadNonce.reasons.NonceExpired);
+      backtrackTxCount = 83;
+      getTransactionCount.onCall(1).resolves(ok(backtrackTxCount));
+      ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces, error));
+      expect(nonce).to.eq(backtrackTxCount);
+      expect(transactionCount).to.eq(backtrackTxCount);
+      expect(backfill).to.be.true;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(backtrackTxCount);
+    });
+
+    it("should throw if getTransactionCount fails", async () => {
+      getTransactionCount.resolves(err(new RpcError("fail")));
+      await expect((txDispatch as any).determineNonce(attemptedNonces)).to.be.rejectedWith("fail");
+    });
+
+    it("should handle nonce too low error by incrementing nonce to first unused position", async () => {
+      attemptedNonces = [52, 53, 54, 55, 56];
+      const nonceExpiredError = new BadNonce(BadNonce.reasons.NonceExpired);
+      const replacementUnderpricedError = new BadNonce(BadNonce.reasons.ReplacementUnderpriced);
+      let txCount = attemptedNonces[0];
+      (txDispatch as any).lastReceivedTxCount = txCount;
+      getTransactionCount.resolves(ok(txCount));
+      const expectedNonce = attemptedNonces[attemptedNonces.length - 1] + 1;
+
+      // Should increment by 1 for both of these.
+      // NONCE_EXPIRED
+      let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(
+        attemptedNonces,
+        nonceExpiredError,
+      );
+      expect(nonce).to.eq(expectedNonce);
+      expect(transactionCount).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(txCount);
+      // REPLACEMENT_UNDERPRICED
+      ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(
+        attemptedNonces,
+        replacementUnderpricedError,
+      ));
+      expect(nonce).to.eq(expectedNonce + 1);
+      expect(transactionCount).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(txCount);
+
+      // In this test case, we simulate conditions as they would be if we backfilled for the previous transaction (so the nonce is much lower than it
+      // should be). We should set the nonce to the transaction count in this case.
+      // NOTE: This may seem redundant with a previous unit test "should assign nonce based on higher value: transaction count or cached nonce";
+      // but in fact, it is different: in this case we have a value inside our attemptedNonces, and we are handling things inside the 'BadNonce error' block.
+      const localNonce = 59;
+      (txDispatch as any).nonce = localNonce;
+      attemptedNonces = [localNonce];
+      (txDispatch as any).lastReceivedTxCount = localNonce;
+      txCount = 83;
+      getTransactionCount.resolves(ok(txCount));
+      ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(
+        attemptedNonces,
+        nonceExpiredError,
+      ));
+      expect(nonce).to.eq(txCount);
+      expect(transactionCount).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(txCount);
+    });
+
+    it("should handle nonce incorrect by always setting to the tx count", async () => {
+      attemptedNonces = [33, 34, 35, 36, 37, 37, 37];
+      const error = new BadNonce(BadNonce.reasons.NonceIncorrect);
+      const txCount = 37;
+      (txDispatch as any).lastReceivedTxCount = txCount;
+      getTransactionCount.resolves(ok(txCount));
+
+      // Should not increment for this error, and instead just set it to the exact tx count.
+      let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces, error);
+      expect(nonce).to.eq(txCount);
+      expect(transactionCount).to.eq(txCount);
+      expect(backfill).to.be.false;
+      expect((txDispatch as any).lastReceivedTxCount).to.eq(txCount);
+    });
+  });
+
   describe("#send", () => {
     beforeEach(() => {
       stubDispatchMethods();
@@ -299,10 +454,6 @@ describe("TransactionDispatch", () => {
       // should have called getGas
       expect(getGas.callCount).to.eq(1);
       expect(getGas.getCall(0).args[0]).to.deep.eq(TEST_TX);
-
-      // should have called getTransactionCount (NOTE: we are temporarily calling it twice for debugging,
-      // leaving this as a > 0 check for now).
-      expect(getTransactionCount.callCount > 0).to.be.true;
 
       // should have called submit (just once)
       expect(submit.callCount).to.eq(1);
@@ -332,64 +483,36 @@ describe("TransactionDispatch", () => {
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
     });
 
-    it("should throw if getTransactionCount fails", async () => {
-      getTransactionCount.resolves(err(new RpcError("fail")));
-      await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
-    });
-
-    it("should assign nonce based on higher value: transaction count or cached nonce", async () => {
-      const txCount = 97;
-      getTransactionCount.resolves(ok(txCount));
-      // This should start at 0 on boot, but leaving this line here for clarity.
-      (txDispatch as any).nonce = 0;
-      await txDispatch.send(TEST_TX, context);
-
-      expect(submit.getCall(0).args[0].nonce).to.eq(txCount);
-
-      // Now, let's try again, but this time we'll set the local nonce to be higher than the txCount
-      const nonce = 348;
-      (txDispatch as any).nonce = nonce;
-      await txDispatch.send(TEST_TX, context);
-
-      expect(submit.getCall(1).args[0].nonce).to.eq(nonce);
-    });
-
-    it("should handle nonce too low by incrementing nonce and retrying", async () => {
-      const testNumCalls = 7;
-      let i = 0;
-      for (i = 0; i < testNumCalls - 1; i++) {
-        submit.onCall(i).rejects(new BadNonce(BadNonce.reasons.NonceExpired));
-      }
-      submit.onCall(i + 1).resolves();
+    it("should retrieve new nonce and retry after a badnonce error", async () => {
+      const badNonceError = new BadNonce(BadNonce.reasons.NonceExpired);
+      submit.onCall(0).rejects(badNonceError);
+      submit.onCall(1).resolves();
+      const txCount = 2;
+      // Array to which we can push copies of argument to avoid mutex getting in the way of call validation.
+      const attemptedNoncesArgPerCall: any[] = [];
+      determineNonce.onCall(0).callsFake((attemptedNonces: number[]) => {
+        attemptedNoncesArgPerCall.push(Array.from(attemptedNonces));
+        const nonce = txCount;
+        attemptedNonces.push(nonce);
+        return { nonce, backfill: false, transactionCount: txCount };
+      });
+      determineNonce.onCall(1).callsFake((attemptedNonces: number[]) => {
+        attemptedNoncesArgPerCall.push(Array.from(attemptedNonces));
+        const nonce = txCount + 1;
+        attemptedNonces.push(nonce);
+        return { nonce, backfill: false, transactionCount: txCount };
+      });
 
       await txDispatch.send(TEST_TX, context);
-      expect(submit.callCount).to.eq(testNumCalls);
-      for (let j = 0; j < testNumCalls - 1; j++) {
-        expect(submit.getCall(j).args[0].nonce).to.eq(TEST_TX_RESPONSE.nonce + j);
-      }
-    });
+      expect(submit.callCount).to.eq(3);
+      expect(submit.getCall(0).args[0].nonce).to.eq(2);
+      expect(submit.getCall(1).args[0].nonce).to.eq(3);
 
-    it("should handle nonce incorrect (too high)", async () => {
-      const txCount = 30;
-      const localNonce = 42;
-      (txDispatch as any).nonce = localNonce;
-      getTransactionCount.resolves(ok(txCount));
-
-      const testNumCalls = 7;
-      let i = 0;
-      for (i = 0; i < testNumCalls - 1; i++) {
-        submit.onCall(i).rejects(new BadNonce(BadNonce.reasons.NonceIncorrect));
-      }
-      submit.onCall(i + 1).resolves();
-
-      await txDispatch.send(TEST_TX, context);
-      expect(submit.callCount).to.eq(testNumCalls);
-      expect(submit.getCall(0).args[0].nonce).to.eq(localNonce);
-      // Should have incremented nonce up from the txCount value until it was accepted.
-      for (let j = 0; j < testNumCalls - 2; j++) {
-        expect(submit.getCall(j + 1).args[0].nonce).to.eq(txCount);
-      }
-      expect(getTransactionCount.callCount).to.eq(testNumCalls);
+      expect(determineNonce.callCount).to.eq(2);
+      expect(attemptedNoncesArgPerCall[0]).to.deep.eq([]);
+      expect(determineNonce.getCall(0).args[1]).to.eq(undefined);
+      expect(attemptedNoncesArgPerCall[1]).to.deep.eq([2]);
+      expect(determineNonce.getCall(1).args[1]).to.eq(badNonceError);
     });
 
     it("should throw if a non-nonce error occurs", async () => {
@@ -528,10 +651,12 @@ describe("TransactionDispatch", () => {
     const testNumOfConfirmations = 10;
     beforeEach(() => {
       confirmTransaction = stub(txDispatch, "confirmTransaction");
-      confirmTransaction.returns(okAsync({
-        ...txReceiptMock,
-        confirmations: testNumOfConfirmations,
-      }));
+      confirmTransaction.returns(
+        okAsync({
+          ...txReceiptMock,
+          confirmations: testNumOfConfirmations,
+        }),
+      );
       fakeTransactionState.didSubmit = true;
       transaction.receipt = txReceiptMock;
     });
@@ -540,23 +665,25 @@ describe("TransactionDispatch", () => {
       await (txDispatch as any).confirm(transaction);
       expect(makeChaiReadable(confirmTransaction.getCall(0).args[0])).to.be.deep.eq(makeChaiReadable(transaction));
       // Check to make sure we overwrote transaction receipt.
-      expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(makeChaiReadable({
-        ...txReceiptMock,
-        confirmations: testNumOfConfirmations,
-      }));
+      expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(
+        makeChaiReadable({
+          ...txReceiptMock,
+          confirmations: testNumOfConfirmations,
+        }),
+      );
     });
 
     it("throws if you have not submitted yet", async () => {
       fakeTransactionState.didSubmit = false;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Transaction mine was called, but no transaction has been sent."
+        "Transaction mine was called, but no transaction has been sent.",
       );
     });
 
     it("throws if the transaction has no receipt (from mining step)", async () => {
       transaction.receipt = undefined;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found."
+        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
       );
     });
 
@@ -564,9 +691,7 @@ describe("TransactionDispatch", () => {
       transaction.responses = [TEST_TX_RESPONSE];
       confirmTransaction.returns(okAsync(null));
 
-      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Transaction receipt was null",
-      );
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith("Transaction receipt was null");
     });
 
     it("throws if confirmTransaction receipt status == 0", async () => {
@@ -581,7 +706,9 @@ describe("TransactionDispatch", () => {
     it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
       const timeoutError = new TimeoutError("test");
       confirmTransaction.returns(errAsync(timeoutError));
-      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(TransactionServiceFailure.reasons.NotEnoughConfirmations);
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        TransactionServiceFailure.reasons.NotEnoughConfirmations,
+      );
     });
   });
 

@@ -204,13 +204,13 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @remarks
    * This should only ever be called within the queue in the send() method.
    *
-   * @param attemptedNonces - Map of nonces that have already been attempted.
+   * @param attemptedNonces - Array of nonces that have already been attempted, in order of attempt.
    * @param error - (optional) The last error that was thrown when attempting to send an initial transaction.
    * @param previousNonce - (optional) The previous nonce assigned. Should only be defined if the error argument is also
    * passed in.
-   * @returns
+   * @returns object - containing nonce, backfill, and transactionCount.
    */
-  private async determineNonce(attemptedNonces: Map<number, boolean>, error?: BadNonce, previousNonce?: number) {
+  private async determineNonce(attemptedNonces: number[], error?: BadNonce): Promise<{ nonce: number; backfill: boolean; transactionCount: number }> {
     // Retrieve the current pending transaction count.
     const result = await this.getTransactionCount("pending");
     if (result.isErr()) {
@@ -218,16 +218,22 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
     const transactionCount = result.value;
 
-    let nonce = previousNonce;
+    // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
+    // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
+    let nonce = attemptedNonces.length > 0 ? attemptedNonces[attemptedNonces.length - 1] : Math.max(
+      this.nonce, // TODO: See below ... + 1 ?
+      transactionCount,
+    );
+    // If backfill conditions are met, then we should instead set the nonce to the backfill value.
     const backfill = transactionCount < this.lastReceivedTxCount;
     if (backfill) {
       // If for some reason the transaction count we received from the provider is lower than the last once we received (meaning nonce
       // backtracked), we should start at the lower value instead. This will backfill any nonce gaps that may have been left behind
       // as a result of provider connection issues and/or reorgs.
       // NOTE: If this backfill replaces an "existing" faulty transaction (i.e. one that the provider doesn't actually have in mempool),
-      // the push operation to the inflight buffer we do below will handle replacing/killing the faulty transaction.
+      // the push operation to the inflight buffer we do in the send method will handle replacing/killing the faulty transaction.
       nonce = transactionCount;
-    } else if (error && nonce !== undefined) {
+    } else if (error) {
       if (
         error.reason === BadNonce.reasons.NonceExpired ||
         // TODO: Should replacement underpriced result in us raising the gas price and attempting to override the transaction?
@@ -239,10 +245,11 @@ export class TransactionDispatch extends ChainRpcProvider {
         // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
         // If we haven't tried the up-to-date tx count, let's try that next; otherwise, just increment the nonce by 1 until we
         // get a nonce we haven't tried.
-        if (!attemptedNonces.has(transactionCount)) {
+        if (!attemptedNonces.includes(transactionCount)) {
           nonce = transactionCount;
         } else {
-          while (attemptedNonces.has(nonce)) {
+          // TODO: Do we need to set the nonce to the lowest/min value in the array of attempted nonce first?
+          while (attemptedNonces.includes(nonce)) {
             nonce++;
           }
         }
@@ -253,18 +260,11 @@ export class TransactionDispatch extends ChainRpcProvider {
         // Regardless of whether we've already attempted this nonce, we're going to try it again.
         nonce = transactionCount;
       }
-    } else {
-      // This block should really only be called in the first initial send attempt.
-      // Set to whichever value is higher. This should almost always be our local nonce, but often both will be the same.
-      nonce = Math.max(
-        this.nonce, // TODO: See below ... + 1 ?
-        transactionCount,
-      );
     }
 
     // Set lastReceivedTxCount - this will be used in future calls of this method to determine if we need to backtrack nonce (i.e. backfill).
     this.lastReceivedTxCount = transactionCount;
-    attemptedNonces.set(nonce, true);
+    attemptedNonces.push(nonce);
     // TODO: Should we just set/update the member var nonce here? In which case, add 1 in the TODO above? ^^
     // this.nonce = nonce;
     return { nonce, backfill, transactionCount };
@@ -307,7 +307,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         const gas = await this.getGas(minTx, requestContext);
 
         // Get initial nonce.
-        const attemptedNonces: Map<number, boolean> = new Map();
+        const attemptedNonces: number[] = [];
         let { nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces);
 
         // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
@@ -350,7 +350,8 @@ export class TransactionDispatch extends ChainRpcProvider {
           } catch (error) {
             if (error.type === BadNonce.type) {
               lastErrorReceived = error.reason;
-              ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error, nonce));
+              ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
+              continue;
             }
             // This could be a reverted error, etc.
             throw error;
