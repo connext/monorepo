@@ -1,6 +1,6 @@
 import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
-import { BigNumber, providers, Wallet } from "ethers";
+import { BigNumber, providers, utils, Wallet } from "ethers";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -773,5 +773,30 @@ describe("TransactionDispatch", () => {
     });
   });
 
-  describe("#getGas", () => {});
+  describe("#getGas", () => {
+    let gasPrice = utils.parseUnits("5", "gwei");
+    let gasLimit = BigNumber.from(21004);
+    beforeEach(() => {
+      (txDispatch as any).getGasPrice = stub().resolves(ok(gasPrice));
+      (txDispatch as any).estimateGas = stub().resolves(ok(gasLimit));
+    });
+
+    it("happy", async () => {
+      const gas = await (txDispatch as any).getGas();
+      expect(gas.price.toString()).to.eq(gasPrice.toString());
+      expect(gas.limit.toString()).to.eq(gasLimit.toString());
+    });
+
+    it("should throw if estimateGas throws", async () => {
+      const error = new TransactionReverted(TransactionReverted.reasons.CallException);
+      (txDispatch as any).estimateGas = stub().resolves(err(error));
+      await expect((txDispatch as any).getGas(transaction)).to.be.rejectedWith(error);
+    });
+
+    it("should throw if getGasPrice throws", async () => {
+      const error = new RpcError("fail");
+      (txDispatch as any).getGasPrice = stub().resolves(err(error));
+      await expect((txDispatch as any).getGas(transaction)).to.be.rejectedWith(error);
+    });
+  });
 });
