@@ -1,56 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
+import "./Types.sol";
+
 interface ITransactionManager {
   // Structs
-
-  // Holds all data that is constant between sending and
-  // receiving chains. The hash of this is what gets signed
-  // to ensure the signature can be used on both chains.
-  struct InvariantTransactionData {
-    address receivingChainTxManagerAddress;
-    address user;
-    address router;
-    address initiator; // msg.sender of sending side
-    address sendingAssetId;
-    address receivingAssetId;
-    address sendingChainFallback; // funds sent here on cancel
-    address receivingAddress;
-    address callTo;
-    uint256 sendingChainId;
-    uint256 receivingChainId;
-    bytes32 callDataHash; // hashed to prevent free option
-    bytes32 transactionId;
-  }
-
-  // Holds all data that varies between sending and receiving
-  // chains. The hash of this is stored onchain to ensure the
-  // information passed in is valid.
-  struct VariantTransactionData {
-    uint256 amount;
-    uint256 expiry;
-    uint256 preparedBlockNumber;
-  }
-
-  // All Transaction data, constant and variable
-  struct TransactionData {
-    address receivingChainTxManagerAddress;
-    address user;
-    address router;
-    address initiator; // msg.sender of sending side
-    address sendingAssetId;
-    address receivingAssetId;
-    address sendingChainFallback;
-    address receivingAddress;
-    address callTo;
-    bytes32 callDataHash;
-    bytes32 transactionId;
-    uint256 sendingChainId;
-    uint256 receivingChainId;
-    uint256 amount;
-    uint256 expiry;
-    uint256 preparedBlockNumber; // Needed for removal of active blocks on fulfill/cancel
-  }
 
   // The structure of the signed data for fulfill
   struct SignedFulfillData {
@@ -108,9 +62,7 @@ interface ITransactionManager {
     *               what was stored when the `prepare` function was called.
     * @param relayerFee The fee that should go to the relayer when they are
     *                   calling the function on the receiving chain for the user
-    * @param signature The users signature on the transaction id + fee that
-    *                  can be used by the router to unlock the transaction on 
-    *                  the sending chain
+    * @param unlockData TODO
     * @param callData The calldata to be sent to and executed by the 
     *                 `FulfillHelper`
     * @param encodedMeta The meta for the function
@@ -118,7 +70,7 @@ interface ITransactionManager {
   struct FulfillArgs {
     TransactionData txData;
     uint256 relayerFee;
-    bytes signature;
+    bytes unlockData;
     bytes callData;
     bytes encodedMeta;
   }
@@ -128,13 +80,12 @@ interface ITransactionManager {
     * @param txData All of the data (invariant and variant) for a crosschain
     *               transaction. The variant data provided is checked against
     *               what was stored when the `prepare` function was called.
-    * @param signature The user's signature that allows a transaction to be
-    *                  cancelled by a relayer
+    * @param unlockData TODO
     * @param encodedMeta The meta for the function
     */
   struct CancelArgs {
     TransactionData txData;
-    bytes signature;
+    bytes unlockData;
     bytes encodedMeta;
   }
 
@@ -147,6 +98,11 @@ interface ITransactionManager {
   event AssetAdded(address indexed addedAssetId, address indexed caller);
 
   event AssetRemoved(address indexed removedAssetId, address indexed caller);
+
+  // Adding/removing conditions
+  event ConditionAdded(address indexed condition, address indexed caller);
+
+  event ConditionRemoved(address indexed condition, address indexed caller);
 
   // Liquidity events
   event LiquidityAdded(address indexed router, address indexed assetId, uint256 amount, address caller);
@@ -195,6 +151,10 @@ interface ITransactionManager {
   function addAssetId(address assetId) external;
 
   function removeAssetId(address assetId) external;
+
+  function addCondition(address condition) external;
+
+  function removeCondition(address condition) external;
 
   // Router only methods
   function addLiquidityFor(uint256 amount, address assetId, address router) external payable;

@@ -3,6 +3,8 @@ pragma solidity 0.8.4;
 
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/ITransactionManager.sol";
+import "./interfaces/IConditionInterpreter.sol";
+import "./interfaces/Types.sol";
 import "./interpreters/FulfillInterpreter.sol";
 import "./ProposedOwnable.sol";
 import "./lib/LibAsset.sol";
@@ -64,9 +66,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   mapping(address => bool) public approvedRouters;
 
   /**
-    * @dev Mapping of allowed assetIds on same chain as contract
+    * @dev Mapping of allowed condition contracts on same chain as contract
     */
   mapping(address => bool) public approvedAssets;
+
+  /**
+    * @dev Mapping of allowed assetIds on same chain as contract
+    */
+  mapping(address => bool) public approvedConditions;
 
   /**
     * @dev Mapping of hash of `InvariantTransactionData` to the hash
@@ -188,6 +195,41 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     // Emit event
     emit AssetRemoved(assetId, msg.sender);
+  }
+
+  /**
+    * @notice Used to add conditions on same chain as contract that can
+    *         be transferred.
+    * @param condition Address of condition contract to add
+    */
+  function addCondition(address condition) external override onlyOwner {
+    // Sanity check: needs approval
+    require(approvedConditions[condition] == false, "#AC:032");
+
+    // Sanity check: is a contract
+    require(Address.isContract(condition), "#AC:031");
+
+    // Update mapping
+    approvedConditions[condition] = true;
+
+    // Emit event
+    emit ConditionAdded(condition, msg.sender);
+  }
+
+  /**
+    * @notice Used to remove conditions on same chain as contract that can
+    *         be transferred.
+    * @param condition Address of condition contract to add
+    */
+  function removeCondition(address condition) external override onlyOwner {
+    // Sanity check: already approval
+    require(approvedConditions[condition] == true, "#RC:033");
+
+    // Update mapping
+    approvedConditions[condition] = false;
+
+    // Emit event
+    emit ConditionRemoved(condition, msg.sender);
   }
 
   /**
@@ -327,6 +369,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // chain contexts
       require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.sendingAssetId], "#P:004");
 
+      // Require sending-side condition is approved
+      require(isConditionOwnershipRenounced() || approvedConditions[args.invariantData.sendingChainCondition], "#P:040");
+
       // This is sender side prepare. The user is beginning the process of 
       // submitting an onchain tx after accepting some bid. They should
       // lock their funds in the contract for the router to claim after
@@ -370,6 +415,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // prepare-able on the receiver chain.
       require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.receivingAssetId], "#P:004");
 
+      // Require receiving-side condition is approved
+      require(isConditionOwnershipRenounced() || approvedConditions[args.invariantData.receivingChainCondition], "#P:040");
+
       // Check that the caller is the router
       require(msg.sender == args.invariantData.router, "#P:016");
 
@@ -396,6 +444,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     // Emit event
     TransactionData memory txData = TransactionData({
+      receivingChainCondition: args.invariantData.receivingChainCondition,
+      sendingChainCondition: args.invariantData.sendingChainCondition,
       receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
       user: args.invariantData.user,
       router: args.invariantData.router,
@@ -487,6 +537,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
 
     uint256 _chainId = getChainId();
 
+    // Validate the unlocking condition passes
+    require(
+      validateFulfillCondition(
+        args.txData,
+        args.unlockData,
+        args.relayerFee,
+        _chainId
+      ),
+      "#F:022"
+    );
+
     if (args.txData.sendingChainId == _chainId) {
       // The router is completing the transaction, they should get the
       // amount that the user deposited credited to their liquidity
@@ -496,32 +557,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       // on the sending chain
       require(msg.sender == args.txData.router, "#F:016");
 
-      // Validate the user has signed
-      require(
-        recoverFulfillSignature(
-          args.txData.transactionId,
-          args.relayerFee,
-          args.txData.receivingChainId,
-          args.txData.receivingChainTxManagerAddress,
-          args.signature
-        ) == args.txData.user, "#F:022"
-      );
-
       // Complete tx to router for original sending amount
       routerBalances[args.txData.router][args.txData.sendingAssetId] += args.txData.amount;
 
     } else {
-      // Validate the user has signed, using domain of contract
-      require(
-        recoverFulfillSignature(
-          args.txData.transactionId,
-          args.relayerFee,
-          _chainId,
-          address(this),
-          args.signature
-        ) == args.txData.user, "#F:022"
-      );
-
       // Sanity check: fee <= amount. Allow `=` in case of only 
       // wanting to execute 0-value crosschain tx, so only providing 
       // the fee amount
@@ -616,7 +655,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       if (args.txData.expiry >= block.timestamp) {
         // Timeout has not expired and tx may only be cancelled by user
         // Validate signature
-        require(msg.sender == args.txData.user || recoverCancelSignature(args.txData.transactionId, _chainId, address(this), args.signature) == args.txData.user, "#C:022");
+        require(msg.sender == args.txData.user || validateCancelCondition(args.txData, args.unlockData, _chainId), "#C:022");
 
         // NOTE: there is no incentive here for relayers to submit this on
         // behalf of the user (i.e. fee not respected) because the user has not
@@ -706,6 +745,60 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     return trueAmount;
   }
 
+
+  function validateFulfillCondition(
+    TransactionData calldata txData,
+    bytes calldata unlockData,
+    uint256 relayerFee,
+    uint256 chainId
+  ) internal returns (bool) {
+    // Check if this change is sending or receiving
+    bool isSending = chainId == txData.sendingChainId;
+
+    // Make sure address on this chain is *not* a contract.
+    // If it is, condition should be a user signature recovery on the receiving
+    // chain.
+    if (!Address.isContract(isSending ? txData.sendingChainCondition : txData.receivingChainCondition)) {
+      // Default to signature recovery (using domain of contract if possible)
+      address recovered = recoverFulfillSignature(
+        txData.transactionId,
+        relayerFee,
+        isSending ? txData.sendingChainId : chainId,
+        isSending ? txData.receivingChainTxManagerAddress : address(this),
+        unlockData
+      );
+      return recovered == txData.user;
+    }
+
+    // Address *is* a contraacct, should be validated on this chain when prepared
+    return IConditionInterpreter(isSending ? txData.sendingChainCondition : txData.receivingChainCondition).shouldFulfill(txData, unlockData, relayerFee, chainId);
+  }
+
+  function validateCancelCondition(
+    TransactionData calldata txData,
+    bytes calldata unlockData,
+    uint256 chainId
+  ) internal returns (bool) {
+    // Should only be evaluated on the receiving chain
+
+    // Make sure address on this chain is *not* a contract.
+    // If it is, condition should be a user signature recovery on the receiving
+    // chain.
+    if (!Address.isContract(txData.receivingChainCondition)) {
+      // Default to signature recovery (using domain of contract if possible)
+      address recovered = recoverCancelSignature(
+        txData.transactionId,
+        chainId,
+        address(this),
+        unlockData
+      );
+      return recovered == txData.user;
+    }
+
+    // Address *is* a contraacct, should be validated on this chain when prepared
+    return IConditionInterpreter(txData.receivingChainCondition).shouldCancel(txData, unlockData, chainId);
+  }
+
   /// @notice Recovers the signer from the signature provided by the user
   /// @param transactionId Transaction identifier of tx being recovered
   /// @param signature The signature you are recovering the signer from
@@ -775,6 +868,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     */
   function hashInvariantTransactionData(TransactionData calldata txData) internal pure returns (bytes32) {
     InvariantTransactionData memory invariant = InvariantTransactionData({
+      receivingChainCondition: txData.receivingChainCondition,
+      sendingChainCondition: txData.sendingChainCondition,
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,

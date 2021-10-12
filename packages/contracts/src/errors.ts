@@ -27,7 +27,7 @@ export const Errors: ErrorsType = {
   "019": "INVALID_VARIANT_DATA",
   "020": "EXPIRED",
   "021": "ALREADY_COMPLETED",
-  "022": "INVALID_SIGNATURE",
+  "022": "INVALID_CONDITION",
   "023": "INVALID_RELAYER_FEE",
   "024": "INVALID_CALL_DATA",
   "025": "ROUTER_MUST_CANCEL",
@@ -45,6 +45,7 @@ export const Errors: ErrorsType = {
   "037": "NO_PROPOSAL",
   "038": "NO_OWNERSHIP_CHANGE",
   "039": "INITIATOR_MISMATCH",
+  "040": "INVALID_CONDITION",
 };
 
 type ErrorsPrefixType = {
