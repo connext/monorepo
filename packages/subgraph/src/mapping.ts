@@ -145,7 +145,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactionHash = event.transaction.hash;
   transaction.encryptedCallData = event.params.args.encryptedCallData.toHexString();
-  transaction.encodedBid = event.params.args.encodedBid;
+  transaction.encodedBid = event.params.args.encodedBid.toHexString();
   transaction.bidSignature = event.params.args.bidSignature;
 
   // Meta
