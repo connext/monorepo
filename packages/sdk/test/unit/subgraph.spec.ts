@@ -194,7 +194,7 @@ describe("Subgraph", () => {
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer, chainConfig as any, logger);
+    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, logger);
   });
 
   afterEach(() => {
