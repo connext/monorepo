@@ -201,6 +201,26 @@ describe("Contract Reader Binding", () => {
       });
     });
 
+    it("should handle already cancelled in ReceiverExpired", async () => {
+      const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
+        ...activeTransactionFulfillMock,
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverExpired,
+      };
+      cancelMock.rejects(new Error("#C:019"));
+      await binding.handleSingle(receiverExpired, context);
+    });
+
+    it("should handle error in ReceiverExpired", async () => {
+      const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
+        ...activeTransactionFulfillMock,
+        payload: undefined,
+        status: CrosschainTransactionStatus.ReceiverExpired,
+      };
+      cancelMock.rejects(new Error("fail"));
+      await binding.handleSingle(receiverExpired, context);
+    });
+
     it("should handle SenderExpired", async () => {
       const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
         ...activeTransactionFulfillMock,
@@ -219,6 +239,34 @@ describe("Contract Reader Binding", () => {
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
         side: "sender",
       });
+    });
+
+    it("should handle already cancelled in SenderExpired", async () => {
+      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+      cancelMock.rejects(new Error("#C:019"));
+      await binding.handleSingle(senderExpiredNoReceiver, context);
+    });
+
+    it("should handle error in SenderExpired", async () => {
+      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: undefined,
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+      cancelMock.rejects(new Error("fail"));
+      await binding.handleSingle(senderExpiredNoReceiver, context);
     });
 
     it("should handle ReceiverCancelled", async () => {
