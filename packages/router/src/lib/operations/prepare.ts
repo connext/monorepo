@@ -26,6 +26,7 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
@@ -83,7 +84,20 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  let receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  const amountReceivedInBigNum = BigNumber.from(receiverAmount);
+  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
+    invariantData.sendingAssetId,
+    invariantData.sendingChainId,
+    invariantData.receivingAssetId,
+    invariantData.receivingChainId,
+    outputDecimals,
+    requestContext,
+  );
+  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  });
+  receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,

@@ -8,7 +8,7 @@ const TEST_ROUTERS = [
   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", // local router
 ];
 
-const SKIP_SETUP = [1, 56, 250, 137, 100, 42161];
+const SKIP_SETUP = [1, 56, 250, 137, 100, 42161, 43114];
 const WRAPPED_ETH_MAP = new Map();
 WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH

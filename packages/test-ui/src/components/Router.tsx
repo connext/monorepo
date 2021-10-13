@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider, Menu, Dropdown } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 import { ChainData, ERC20Abi, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
@@ -15,7 +15,9 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const CHAINS = [56, 100, 137, 250, 42161];
+const TESTNET_CHAINS = [421611, 97, 43113, 5, 42, 80001, 4, 3];
+
+const MAINNET_CHAINS = [56, 100, 137, 250, 42161, 43114];
 
 type BalanceEntry = {
   chain: string;
@@ -23,6 +25,12 @@ type BalanceEntry = {
   assetId: string;
   balance: string;
 };
+
+const Networks = {
+  Mainnets: "Mainnets",
+  Testnets: "Testnets",
+} as const;
+type Network = keyof typeof Networks;
 
 const getLiquidityQuery = gql`
   query getLiquidity($router: ID!) {
@@ -41,6 +49,26 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   const [routerAddress, setRouterAddress] = useState<string>();
   const [balances, setBalances] = useState<BalanceEntry[]>();
   const [form] = Form.useForm();
+  const [network, setNetwork] = useState<Network>(Networks.Mainnets);
+
+  const switchNetwork = (_network: Network) => {
+    if (_network === network) {
+      return;
+    }
+    setNetwork(_network);
+    refreshBalances(_network);
+  };
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="0" onClick={() => switchNetwork(Networks.Mainnets)}>
+        {Networks.Mainnets}
+      </Menu.Item>
+      <Menu.Item key="1" onClick={() => switchNetwork(Networks.Testnets)}>
+        {Networks.Testnets}
+      </Menu.Item>
+    </Menu>
+  );
 
   useEffect(() => {
     const init = async () => {
@@ -114,13 +142,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   };
 
   // Refreshes the balances table with human readable values for each asset on current chain.
-  const refreshBalances = async (): Promise<void> => {
+  const refreshBalances = async (_network?: Network): Promise<void> => {
     if (!isValidAddress(routerAddress)) {
       return;
     }
 
+    const balancesOnNetwork = _network ?? network;
+
     const entries = await Promise.all(
-      CHAINS.map(async (chainId) => {
+      (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
         const uri = getDeployedSubgraphUri(chainId);
         if (!uri) {
           console.error("Subgraph not available for chain: ", chainId);
@@ -138,18 +168,20 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             console.log("id: ", id);
             console.log("amount: ", amount);
             const assetId = utils.getAddress(id.split("-")[0]);
-            const decimals =
+            let decimals =
               data.assetId[assetId]?.decimals ??
               data.assetId[assetId.toLowerCase()]?.decimals ??
               data.assetId[assetId.toUpperCase()]?.decimals;
             if (!decimals) {
-              console.error(`No decimals for asset ${assetId} on chain ${chainId}`);
-              return;
+              console.warn(`No decimals for asset ${assetId} on chain ${chainId}, using 18`);
+              // return;
+              decimals = 18;
             }
+            const chain = data.chain === "ETH" ? data.network : data.chain;
             return {
               assetId,
               balance: utils.formatUnits(amount, decimals),
-              chain: data.chain,
+              chain,
               symbol:
                 data.assetId[assetId]?.symbol ??
                 data.assetId[assetId.toLowerCase()]?.symbol ??
@@ -213,9 +245,14 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           <Typography.Title level={4}>Router Balances</Typography.Title>
         </Col>
         <Col span={4}>
-          <Button type="primary" onClick={() => refreshBalances()}>
-            Reload
-          </Button>
+          <Row justify="space-around">
+            <Button type="primary" onClick={() => refreshBalances()}>
+              Reload
+            </Button>
+            <Dropdown overlay={menu}>
+              <Button type="default">{network}</Button>
+            </Dropdown>
+          </Row>
         </Col>
       </Row>
       <Row gutter={16}>
@@ -260,10 +297,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
                 key: "balance",
               },
             ]}
-            dataSource={balances?.map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
+            dataSource={(balances ?? []).map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
             footer={() => (
               <div>
-                Total: {balances?.map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b) || "0"}
+                Total:{" "}
+                {(balances ?? []).map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b, 0) || "0"}
               </div>
             )}
           />

@@ -3,6 +3,9 @@
 ## Next Release
 
 - [sdk/router] Add fallback subgraph using multiple subgraph URIs
+- [txservice] Add nonce gap backfill in event that txcount backtracks
+- [txservice] Curb gas spikes
+- [sdk/router] Catch errors per chain in active tx subgraph poller
 
 ## 0.0.56
 
