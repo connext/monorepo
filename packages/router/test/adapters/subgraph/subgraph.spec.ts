@@ -20,6 +20,7 @@ import {
 } from "../../../src/adapters/subgraph/subgraph";
 import { CrosschainTransactionStatus } from "../../../src/lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
+import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 import { configMock, routerAddrMock } from "../../utils";
 
@@ -93,7 +94,7 @@ describe("Subgraph Adapter", () => {
     ctxMock.config = config;
   });
 
-  describe("getSyncRecord", () => {
+  describe("#getSyncRecord", () => {
     it("should work", async () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
       txServiceMock.getBlockNumber.resolves(10);
@@ -109,7 +110,7 @@ describe("Subgraph Adapter", () => {
     });
   });
 
-  describe("getActiveTransactions", () => {
+  describe("#getActiveTransactions", () => {
     it("happy", async () => {
       const _sdks = {
         ...sdks,
@@ -207,7 +208,98 @@ describe("Subgraph Adapter", () => {
       ).to.be.true;
     });
 
-    it("should work if status ReceiverNotConfigured ", async () => {
+    it("should handle ReceiverExpired", async () => {
+      const _sdks = {
+        ...sdks,
+        [receivingChainId]: fallbackSubgraph,
+      };
+      getSdkStub.returns(_sdks as any);
+      sdk.GetSenderTransactions.callsFake(() => {
+        return {
+          router: {
+            transactions: [transactionSubgraphMock],
+          },
+        };
+      });
+      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+        const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
+        expect(transactionIds).to.deep.eq([expectedId]);
+        return {
+          transactions: [
+            {
+              ...transactionSubgraphMock,
+              expiry: await getNtpTimeSeconds() - 10,
+              status: TransactionStatus.Prepared,
+            },
+          ],
+        };
+      });
+
+      const res = await getActiveTransactions();
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverExpired);
+    });
+
+    it("should handle ReceiverCancelled", async () => {
+      const _sdks = {
+        ...sdks,
+        [receivingChainId]: fallbackSubgraph,
+      };
+      getSdkStub.returns(_sdks as any);
+      sdk.GetSenderTransactions.callsFake(() => {
+        return {
+          router: {
+            transactions: [transactionSubgraphMock],
+          },
+        };
+      });
+      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+        const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
+        expect(transactionIds).to.deep.eq([expectedId]);
+        return {
+          transactions: [
+            {
+              ...transactionSubgraphMock,
+              status: TransactionStatus.Cancelled,
+            },
+          ],
+        };
+      });
+
+      const res = await getActiveTransactions();
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverCancelled);
+    });
+
+    it("should handle ReceiverFulfilled", async () => {
+      const _sdks = {
+        ...sdks,
+        [receivingChainId]: fallbackSubgraph,
+      };
+      getSdkStub.returns(_sdks as any);
+      sdk.GetSenderTransactions.callsFake(() => {
+        return {
+          router: {
+            transactions: [transactionSubgraphMock],
+          },
+        };
+      });
+      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+        const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
+        expect(transactionIds).to.deep.eq([expectedId]);
+        return {
+          transactions: [
+            {
+              ...transactionSubgraphMock,
+              status: TransactionStatus.Fulfilled,
+            },
+          ],
+        };
+      });
+
+      const res = await getActiveTransactions();
+      expect(res[0].status).to.be.eq(CrosschainTransactionStatus.ReceiverFulfilled);
+    });
+
+    it("should work if status ReceiverNotConfigured", async () => {
       sdk.GetSenderTransactions.resolves({
         router: {
           transactions: [transactionSubgraphMock],
@@ -241,7 +333,7 @@ describe("Subgraph Adapter", () => {
     });
   });
 
-  describe("getTransactionForChain", () => {
+  describe("#getTransactionForChain", () => {
     it("should work", async () => {
       const transaction = transactionSubgraphMock;
       const transactionId = transaction.transactionId;
@@ -301,7 +393,7 @@ describe("Subgraph Adapter", () => {
     });
   });
 
-  describe("getAssetBalance", () => {
+  describe("#getAssetBalance", () => {
     it("should work", async () => {
       const assetId = mkAddress("0xa");
       const amount = "1000";
