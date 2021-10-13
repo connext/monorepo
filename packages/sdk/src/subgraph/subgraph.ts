@@ -1,6 +1,7 @@
 import { providers, Signer } from "ethers";
 import {
   createLoggingContext,
+  jsonifyError,
   Logger,
   RequestContext,
   TransactionData,
@@ -304,189 +305,206 @@ export class Subgraph {
 
     // Step 2: handle any not-listed active transactions (i.e. sdk has
     // gone offline at some point during the transactions)
+    const errors: Map<string, Error> = new Map();
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
-        const user = (await this.user.getAddress()).toLowerCase();
-        const chainId = parseInt(c);
-        const subgraph = this.sdks[chainId];
+        try {
+          const user = (await this.user.getAddress()).toLowerCase();
+          const chainId = parseInt(c);
+          const subgraph = this.sdks[chainId];
 
-        // first update sync status
-        const { _meta } = await subgraph.GetBlockNumber();
-        const subgraphBlockNumber = _meta?.block.number ?? 0;
-        const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
-        this.syncStatus[chainId].latestBlock = rpcBlockNumber;
-        this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
-        if (rpcBlockNumber - subgraphBlockNumber > this.chainConfig[chainId].subgraphSyncBuffer) {
-          this.syncStatus[chainId].synced = false;
-        } else {
-          this.syncStatus[chainId].synced = true;
-        }
-
-        // get all sender prepared
-        const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({
-          sendingChainId: chainId,
-          userId: user,
-          status: TransactionStatus.Prepared,
-        });
-
-        // for each, break up receiving txs by chain
-        const senderPerChain: Record<number, any[]> = {};
-        senderPrepared.forEach((tx) => {
-          if (!senderPerChain[tx.receivingChainId]) {
-            senderPerChain[tx.receivingChainId] = [tx];
+          // first update sync status
+          const { _meta } = await subgraph.GetBlockNumber();
+          const subgraphBlockNumber = _meta?.block.number ?? 0;
+          const rpcBlockNumber = await this.chainConfig[chainId].provider.getBlockNumber();
+          this.syncStatus[chainId].latestBlock = rpcBlockNumber;
+          this.syncStatus[chainId].syncedBlock = subgraphBlockNumber;
+          if (rpcBlockNumber - subgraphBlockNumber > this.chainConfig[chainId].subgraphSyncBuffer) {
+            this.syncStatus[chainId].synced = false;
           } else {
-            senderPerChain[tx.receivingChainId].push(tx);
+            this.syncStatus[chainId].synced = true;
           }
-        });
 
-        // for each chain in each of the sets of txs, get the corresponding receiver txs
-        const activeTxs = await Promise.all(
-          Object.entries(senderPerChain).map(async ([chainId, senderTxs]) => {
-            const _sdk = this.sdks[parseInt(chainId)];
-            if (!_sdk) {
-              return undefined;
+          // get all sender prepared
+          const { transactions: senderPrepared } = await subgraph.GetSenderTransactions({
+            sendingChainId: chainId,
+            userId: user,
+            status: TransactionStatus.Prepared,
+          });
+
+          // for each, break up receiving txs by chain
+          const senderPerChain: Record<number, any[]> = {};
+          senderPrepared.forEach((tx) => {
+            if (!senderPerChain[tx.receivingChainId]) {
+              senderPerChain[tx.receivingChainId] = [tx];
+            } else {
+              senderPerChain[tx.receivingChainId].push(tx);
             }
-            const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
-              transactionIds: senderTxs.map((tx) => tx.transactionId),
-            });
+          });
 
-            const active = senderTxs.map((senderTx): ActiveTransaction | undefined => {
-              const correspondingReceiverTx = correspondingReceiverTxs.find(
-                (tx) => tx.transactionId === senderTx.transactionId,
-              );
-              const sendingTxData = convertTransactionToTxData(senderTx);
-              const {
-                amount: sendingAmount,
-                preparedBlockNumber: sendingPreparedBlockNumber,
-                expiry: sendingExpiry,
-                ...invariant
-              } = sendingTxData;
-              const sendingVariant: VariantTransactionData = {
-                amount: sendingAmount,
-                preparedBlockNumber: sendingPreparedBlockNumber,
-                expiry: sendingExpiry,
-              };
-
-              const active = this.activeTxs.get(senderTx.transactionId);
-              if (!correspondingReceiverTx) {
-                // if receiver doesnt exist, its a sender prepared
-                // if we are not tracking it
-
-                const common = {
-                  bidSignature: senderTx.bidSignature,
-                  caller: senderTx.prepareCaller,
-                  encodedBid: senderTx.encodedBid,
-                  encryptedCallData: senderTx.encryptedCallData,
-                  transactionHash: senderTx.prepareTransactionHash,
-                  preparedTimestamp: senderTx.preparedTimestamp,
-                };
-                const tx: ActiveTransaction = {
-                  ...common,
-                  crosschainTx: {
-                    invariant,
-                    sending: sendingVariant,
-                  },
-                  status: SubgraphEvents.SenderTransactionPrepared,
-                };
-                if (!active) {
-                  this.activeTxs.set(senderTx.transactionId, tx);
-                  this.evts.SenderTransactionPrepared.post({
-                    ...common,
-                    txData: sendingTxData,
-                  });
-                }
-                return tx;
-                // otherwise we are already tracking, no change
+          // for each chain in each of the sets of txs, get the corresponding receiver txs
+          const activeTxs = await Promise.all(
+            Object.entries(senderPerChain).map(async ([chainId, senderTxs]) => {
+              const _sdk = this.sdks[parseInt(chainId)];
+              if (!_sdk) {
+                return undefined;
               }
-              if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
-                const receiverData = convertTransactionToTxData(correspondingReceiverTx);
-                const common = {
-                  bidSignature: correspondingReceiverTx.bidSignature,
-                  caller: correspondingReceiverTx.prepareCaller,
-                  encodedBid: correspondingReceiverTx.encodedBid,
-                  encryptedCallData: correspondingReceiverTx.encryptedCallData,
-                  transactionHash: correspondingReceiverTx.prepareTransactionHash,
-                  preparedTimestamp: senderTx.preparedTimestamp,
-                };
-                const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
+              const { transactions: correspondingReceiverTxs } = await _sdk.GetTransactions({
+                transactionIds: senderTxs.map((tx) => tx.transactionId),
+              });
 
-                const tx: ActiveTransaction = {
-                  ...common,
-                  crosschainTx: {
-                    invariant,
-                    receiving: { amount, expiry, preparedBlockNumber },
-                    sending: sendingVariant,
-                  },
-                  status: SubgraphEvents.ReceiverTransactionPrepared,
+              const active = senderTxs.map((senderTx): ActiveTransaction | undefined => {
+                const correspondingReceiverTx = correspondingReceiverTxs.find(
+                  (tx) => tx.transactionId === senderTx.transactionId,
+                );
+                const sendingTxData = convertTransactionToTxData(senderTx);
+                const {
+                  amount: sendingAmount,
+                  preparedBlockNumber: sendingPreparedBlockNumber,
+                  expiry: sendingExpiry,
+                  ...invariant
+                } = sendingTxData;
+                const sendingVariant: VariantTransactionData = {
+                  amount: sendingAmount,
+                  preparedBlockNumber: sendingPreparedBlockNumber,
+                  expiry: sendingExpiry,
                 };
-                if (!active) {
-                  this.logger.warn("Missing active sender tx", requestContext, methodContext, {
-                    transactionId: invariant.transactionId,
-                    active: this.activeTxs.keys(),
-                  });
-                }
-                // if receiver is prepared, its a receiver prepared
-                // if we are not tracking it or the status changed post an event
-                if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {
-                  this.activeTxs.set(senderTx.transactionId, tx);
-                  this.evts.ReceiverTransactionPrepared.post({
+
+                const active = this.activeTxs.get(senderTx.transactionId);
+                if (!correspondingReceiverTx) {
+                  // if receiver doesnt exist, its a sender prepared
+                  // if we are not tracking it
+
+                  const common = {
+                    bidSignature: senderTx.bidSignature,
+                    caller: senderTx.prepareCaller,
+                    encodedBid: senderTx.encodedBid,
+                    encryptedCallData: senderTx.encryptedCallData,
+                    transactionHash: senderTx.prepareTransactionHash,
+                    preparedTimestamp: senderTx.preparedTimestamp,
+                  };
+                  const tx: ActiveTransaction = {
                     ...common,
-                    txData: receiverData,
+                    crosschainTx: {
+                      invariant,
+                      sending: sendingVariant,
+                    },
+                    status: SubgraphEvents.SenderTransactionPrepared,
+                  };
+                  if (!active) {
+                    this.activeTxs.set(senderTx.transactionId, tx);
+                    this.evts.SenderTransactionPrepared.post({
+                      ...common,
+                      txData: sendingTxData,
+                    });
+                  }
+                  return tx;
+                  // otherwise we are already tracking, no change
+                }
+                if (correspondingReceiverTx.status === TransactionStatus.Prepared) {
+                  const receiverData = convertTransactionToTxData(correspondingReceiverTx);
+                  const common = {
+                    bidSignature: correspondingReceiverTx.bidSignature,
+                    caller: correspondingReceiverTx.prepareCaller,
+                    encodedBid: correspondingReceiverTx.encodedBid,
+                    encryptedCallData: correspondingReceiverTx.encryptedCallData,
                     transactionHash: correspondingReceiverTx.prepareTransactionHash,
-                  });
-                }
-                return tx;
-                // otherwise we are already tracking, no change
-              }
-              if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
-                const tx = {
-                  txData: convertTransactionToTxData(correspondingReceiverTx),
-                  signature: correspondingReceiverTx.signature,
-                  relayerFee: correspondingReceiverTx.relayerFee,
-                  callData: correspondingReceiverTx.callData!,
-                  caller: correspondingReceiverTx.fulfillCaller,
-                  transactionHash: correspondingReceiverTx.fulfillTransactionHash,
-                };
-                // if receiver is fulfilled, its a receiver fulfilled
-                // if we are not tracking it or the status changed post an event
-                if (!active || active.status !== SubgraphEvents.ReceiverTransactionFulfilled) {
-                  this.activeTxs.delete(senderTx.transactionId);
-                  this.evts.ReceiverTransactionFulfilled.post(tx);
-                }
-                return undefined; // no longer active
-              }
-              if (correspondingReceiverTx.status === TransactionStatus.Cancelled) {
-                const tx = {
-                  txData: convertTransactionToTxData(correspondingReceiverTx),
-                  relayerFee: correspondingReceiverTx.relayerFee,
-                  caller: correspondingReceiverTx.fulfillCaller,
-                  transactionHash: correspondingReceiverTx.cancelTransactionHash,
-                };
-                // if receiver is cancelled, its a receiver cancelled
-                if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
-                  this.activeTxs.delete(senderTx.transactionId);
-                  this.evts.ReceiverTransactionCancelled.post(tx);
-                }
-                return undefined; // no longer active
-              }
+                    preparedTimestamp: senderTx.preparedTimestamp,
+                  };
+                  const { amount, expiry, preparedBlockNumber, ...invariant } = receiverData;
 
-              // Unrecognized corresponding status, likely an error with the
-              // subgraph. Throw an error
-              throw new InvalidTxStatus(
-                correspondingReceiverTx.transactionId,
-                correspondingReceiverTx.status,
-                correspondingReceiverTx,
-              );
-            });
+                  const tx: ActiveTransaction = {
+                    ...common,
+                    crosschainTx: {
+                      invariant,
+                      receiving: { amount, expiry, preparedBlockNumber },
+                      sending: sendingVariant,
+                    },
+                    status: SubgraphEvents.ReceiverTransactionPrepared,
+                  };
+                  if (!active) {
+                    this.logger.warn("Missing active sender tx", requestContext, methodContext, {
+                      transactionId: invariant.transactionId,
+                      active: this.activeTxs.keys(),
+                    });
+                  }
+                  // if receiver is prepared, its a receiver prepared
+                  // if we are not tracking it or the status changed post an event
+                  if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {
+                    this.activeTxs.set(senderTx.transactionId, tx);
+                    this.evts.ReceiverTransactionPrepared.post({
+                      ...common,
+                      txData: receiverData,
+                      transactionHash: correspondingReceiverTx.prepareTransactionHash,
+                    });
+                  }
+                  return tx;
+                  // otherwise we are already tracking, no change
+                }
+                if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
+                  const tx = {
+                    txData: convertTransactionToTxData(correspondingReceiverTx),
+                    signature: correspondingReceiverTx.signature,
+                    relayerFee: correspondingReceiverTx.relayerFee,
+                    callData: correspondingReceiverTx.callData!,
+                    caller: correspondingReceiverTx.fulfillCaller,
+                    transactionHash: correspondingReceiverTx.fulfillTransactionHash,
+                  };
+                  // if receiver is fulfilled, its a receiver fulfilled
+                  // if we are not tracking it or the status changed post an event
+                  if (!active || active.status !== SubgraphEvents.ReceiverTransactionFulfilled) {
+                    this.activeTxs.delete(senderTx.transactionId);
+                    this.evts.ReceiverTransactionFulfilled.post(tx);
+                  }
+                  return undefined; // no longer active
+                }
+                if (correspondingReceiverTx.status === TransactionStatus.Cancelled) {
+                  const tx = {
+                    txData: convertTransactionToTxData(correspondingReceiverTx),
+                    relayerFee: correspondingReceiverTx.relayerFee,
+                    caller: correspondingReceiverTx.fulfillCaller,
+                    transactionHash: correspondingReceiverTx.cancelTransactionHash,
+                  };
+                  // if receiver is cancelled, its a receiver cancelled
+                  if (!active || active.status !== SubgraphEvents.ReceiverTransactionCancelled) {
+                    this.activeTxs.delete(senderTx.transactionId);
+                    this.evts.ReceiverTransactionCancelled.post(tx);
+                  }
+                  return undefined; // no longer active
+                }
 
-            return active;
-          }),
-        );
+                // Unrecognized corresponding status, likely an error with the
+                // subgraph. Throw an error
+                throw new InvalidTxStatus(
+                  correspondingReceiverTx.transactionId,
+                  correspondingReceiverTx.status,
+                  correspondingReceiverTx,
+                );
+              });
 
-        const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
-        return activeFlattened;
+              return active;
+            }),
+          );
+
+          const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
+          return activeFlattened;
+        } catch (e) {
+          errors.set(c, e);
+          this.logger.error("Error getting active transactions", requestContext, methodContext, jsonifyError(e), {
+            chainId: c,
+          });
+          return [];
+        }
       }),
     );
+
+    if (errors.size === Object.keys(this.sdks).length) {
+      if (errors.size === 1) {
+        // Just throw the first error in the Map if there's only one chain supported.
+        throw errors.values().next().value;
+      }
+      throw new Error("Failed to get active transactions for all chains");
+    }
 
     const all = txs.flat();
     if (all.length > 0) {

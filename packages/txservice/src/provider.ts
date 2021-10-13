@@ -37,6 +37,7 @@ export class ChainRpcProvider {
   private readonly signer?: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;
+  private lastUsedGasPrice: BigNumber | undefined = undefined;
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
   protected paused: Error | undefined = undefined;
@@ -74,7 +75,7 @@ export class ChainRpcProvider {
     // NOTE: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
-    this.quorum = 1;
+    this.quorum = chainConfig.quorum ?? 1;
 
     const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
 
@@ -263,9 +264,10 @@ export class ChainRpcProvider {
     }
 
     return this.resultWrapper<BigNumber>(false, async () => {
-      const { gasInitialBumpPercent, gasMinimum } = this.config;
+      const { gasInitialBumpPercent, gasMinimum, gasPriceMaxIncreaseScalar } = this.config;
       let gasPrice: BigNumber | undefined = undefined;
 
+      // Use gas station APIs, if available.
       const gasStations = this.chainConfig.gasStations ?? [];
       for (let i = 0; i < gasStations.length; i++) {
         const uri = gasStations[i];
@@ -301,8 +303,21 @@ export class ChainRpcProvider {
         this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
           gasStations,
         });
+      } else if (gasStations.length > 0 && gasPrice) {
+        // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
+        const providerQuote = await this.provider.getGasPrice();
+        this.logger.debug("Retrieved gas prices",
+          requestContext,
+          methodContext,
+          {
+            chainId: this.chainId,
+            gasStationQuote: gasPrice,
+            providerQuote,
+          }
+        );
       }
 
+      // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
       if (!gasPrice) {
         try {
           gasPrice = await this.provider.getGasPrice();
@@ -329,8 +344,24 @@ export class ChainRpcProvider {
         gasPrice = min;
       }
 
-      // Cache the latest gas price.
-      this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+      let hitMaximum = false;
+      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 100 && this.lastUsedGasPrice !== undefined) {
+        // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
+        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
+        if (gasPrice.gt(max)) {
+          hitMaximum = true;
+          gasPrice = max;
+        }
+        // Update our last used gas price with this tx's gas price. This may be used to determine the cap of
+        // subsuquent tx's gas price.
+        this.lastUsedGasPrice = gasPrice;
+      }
+
+      // Cache the latest gas price, assuming we didn't hit the maximum increase cap.
+      // We'll want to re-request the gas price if we did hit the cap.
+      if (!hitMaximum) {
+        this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+      }
       return gasPrice;
     });
   }
