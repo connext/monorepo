@@ -48,7 +48,7 @@ class SyncProvider extends StaticJsonRpcProvider {
     _connectionInfo: utils.ConnectionInfo | string,
     public readonly chainId: number,
     // Should point to parent ChainRpcProvider cache.
-    public parentCache: CachedData,
+    public parentCache: ProviderCachedData,
     private readonly onBlock: (provider: SyncProvider, blockNumber: number, url: string) => Promise<boolean>,
   ) {
     super(_connectionInfo, chainId);
@@ -78,7 +78,7 @@ class SyncProvider extends StaticJsonRpcProvider {
   }
 
   public send(method: string, params: Array<any>): Promise<any> {
-    if (!this.synced) {
+    if (!this.synced && method !== "eth_blockNumber") {
       throw new RpcError(RpcError.reasons.OutOfSync);
     }
 
@@ -92,9 +92,6 @@ class SyncProvider extends StaticJsonRpcProvider {
           return this.parentCache.gasPrice as any;
         }
       }
-      // else if (method !== "eth_blockNumber") {
-      //   throw new RpcError(RpcError.reasons.OutOfSync);
-      // }
     }
 
     this.logger.debug("RPC method call", undefined, undefined, {
@@ -106,7 +103,7 @@ class SyncProvider extends StaticJsonRpcProvider {
   }
 }
 
-type CachedData = {
+type ProviderCachedData = {
   leadingProvider: string;
   blockNumber: number;
   gasPrice?: BigNumber;
@@ -121,6 +118,9 @@ export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private readonly _providers: SyncProvider[];
+  private get syncedProviders(): SyncProvider[] {
+    return this._providers.filter((provider) => provider.synced).sort((a, b) => a.lag - b.lag);
+  }
   private readonly provider: providers.FallbackProvider;
   private readonly signer?: Signer;
   private readonly quorum: number;
@@ -130,7 +130,7 @@ export class ChainRpcProvider {
   // Cached decimal values per asset.
   private cachedDecimals: Record<string, number> = {};
   // Cache of transient data (i.e. data that can change per block).
-  private cache: CachedData = {
+  private cache: ProviderCachedData = {
     leadingProvider: "",
     blockNumber: -1,
     gasPrice: undefined,
@@ -349,8 +349,7 @@ export class ChainRpcProvider {
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
     return this.resultWrapper<BigNumber>(false, async () => {
       const errors: any[] = [];
-      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
-      const syncedProviders = this._providers.filter((provider) => provider.synced).sort((a, b) => a.lag - b.lag);
+      const syncedProviders = this.syncedProviders;
       this.logger.debug("DEBUG ESTIMATE GAS", undefined, undefined, {
         syncedProvders: syncedProviders.map((p) => p.lag).join(","),
       });
@@ -358,7 +357,6 @@ export class ChainRpcProvider {
         let result: string;
         try {
           // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: #147 Is there any reason prepare should be called for each iteration?
           const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);
         } catch (error) {
