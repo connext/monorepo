@@ -1,6 +1,7 @@
 import {
   createLoggingContext,
   createRequestContext,
+  delay,
   jsonifyError,
   RequestContextWithTransactionId,
   safeJsonStringify,
@@ -50,6 +51,9 @@ export const bindContractReader = async () => {
       if (transactions.length > 0) {
         logger.info("Got active transactions", requestContext, methodContext, {
           transactions: transactions.length,
+        });
+        logger.debug("Got active transactions", requestContext, methodContext, {
+          transactions,
         });
         logger.debug("handling tracker", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
@@ -133,6 +137,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
         logger.debug("Handle Single Errors", requestContext, methodContext, { error: jsonifyError(err) });
         handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
       });
+    await delay(750); // delay here to not flood the provider
   }
 };
 
