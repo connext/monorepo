@@ -40,7 +40,7 @@ export class ChainRpcProvider {
   private lastUsedGasPrice: BigNumber | undefined = undefined;
   private cachedTransactionCount?: CachedTransactionCount;
   private cachedDecimals: Record<string, number> = {};
-  protected paused: Error | undefined = undefined;
+  private currentBlock = -1;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -107,6 +107,20 @@ export class ChainRpcProvider {
       }));
       this.provider = new FallbackProvider(hydratedConfigs, this.quorum);
       this._providers = hydratedConfigs.map((p) => p.provider);
+
+      // for (let i = 0; i < filteredConfigs.length; i++) {
+      //   const p = hydratedConfigs[i].provider;
+      //   const url = filteredConfigs[i].url;
+      //   p.on("block", (blockNumber: number) => {
+      //     if (blockNumber > this.currentBlock) {
+      //       this.currentBlock = blockNumber;
+      //       this.logger.debug("Next block.", requestContext, methodContext, { blockNumber, url });
+      //       // Call/cache all the things.
+
+      //     } else if (this)
+          
+      //   });
+      // }
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
@@ -311,8 +325,8 @@ export class ChainRpcProvider {
           methodContext,
           {
             chainId: this.chainId,
-            gasStationQuote: gasPrice,
-            providerQuote,
+            gasStationQuote: utils.parseUnits(gasPrice.toString(), "gwei"),
+            providerQuote: utils.parseUnits(providerQuote.toString(), "gwei"),
           }
         );
       }

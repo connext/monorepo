@@ -267,7 +267,11 @@ export class TransactionBuffer extends Array<Transaction> {
   }
 
   public get nonces(): number[] {
-    return this.map((tx) => tx.nonce);
+    const nonces = this.map((tx) => tx.nonce);
+    if (this.lastShiftedTx) {
+      nonces.unshift(this.lastShiftedTx.nonce);
+    }
+    return nonces;
   }
 
   // We use this to record the last tx that was shifted out of the buffer.
@@ -360,6 +364,10 @@ export class TransactionBuffer extends Array<Transaction> {
     this.lastShiftedTx = tx;
     this.log();
     return tx;
+  }
+
+  public getTxByNonce(nonce: number): Transaction | undefined {
+    return this.find((tx) => tx.nonce === nonce) ?? this.lastShiftedTx;
   }
 
   private log(message?: string, context: any = {}, error = false) {

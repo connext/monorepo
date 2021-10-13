@@ -12,7 +12,7 @@ import {
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
-import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
+import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure, TransactionBackfilled } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -106,9 +106,8 @@ export class TransactionDispatch extends ChainRpcProvider {
     let transaction: Transaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
-        // Shift the first transaction from the buffer and get it mined.
-        // NOTE: By shifting from the buffer, we effectively increase the ACTUAL inflight buffer cap by 1, which ought to be negligible.
         transaction = this.inflightBuffer.shift()!;
+        // Shift the first transaction from the buffer and get it mined.
         let receivedBadNonce = false;
         let shouldResubmit = false;
         while (!transaction.didMine && !transaction.error) {
@@ -129,7 +128,21 @@ export class TransactionDispatch extends ChainRpcProvider {
               error,
             });
             if (error.type === TimeoutError.type && !receivedBadNonce) {
-              shouldResubmit = true;
+              // Check to see if this nonce has already been mined; this would imply this transaction got replaced, or
+              // failed to reach chain.
+              const result = await this.getTransactionCount("latest");
+              if (result.isErr()) {
+                throw result.error;
+              }
+              const transactionCount = result.value;
+              if (transactionCount > transaction.nonce) {
+                transaction.error = new TransactionBackfilled({
+                  latestTransactionCount: transactionCount,
+                  nonce: transaction.nonce,
+                });
+              } else {
+                shouldResubmit = true;
+              }
             } else if (error.type === BadNonce.type) {
               // If we timeout in the next mine attempt, then we know the transaction was replaced by a foreign (unknown) transaction,
               // so we'll want to fail the tx with whatever error we get.
@@ -217,6 +230,16 @@ export class TransactionDispatch extends ChainRpcProvider {
       throw result.error;
     }
     const transactionCount = result.value;
+
+    const latestRes = await this.getTransactionCount("latest");
+    if (latestRes.isErr()) {
+      throw latestRes.error;
+    }
+    const latestTxCount = latestRes.value;
+    this.logger.debug("tx counts", undefined, undefined, {
+      transactionCount,
+      latestTxCount,
+    });
 
     // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
     // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
@@ -346,6 +369,13 @@ export class TransactionDispatch extends ChainRpcProvider {
             },
           });
           try {
+            if (backfill) {
+              const replaced = this.inflightBuffer.getTxByNonce(transaction.nonce);
+              // Lets make sure we only replace/backfill a transaction that did not actually make it to chain.
+              if (replaced) {
+                transaction.gas.price = replaced.gas.price;
+              }
+            }
             await this.submit(transaction);
           } catch (error) {
             if (error.type === BadNonce.type) {
