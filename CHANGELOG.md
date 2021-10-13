@@ -2,6 +2,27 @@
 
 ## Next Release
 
+- [txservice] Add nonce gap backfill in event that txcount backtracks
+- [txservice] Curb gas spikes
+- [sdk/router] Catch errors per chain in active tx subgraph poller
+
+## 0.0.56
+
+- [subgraph] Use bware subgraph endpoints
+
+## 0.0.55
+
+- [sdk] Fix lower bound
+
+## 0.0.54
+
+- [contracts] Update default subgraphs
+
+## 0.0.53
+
+- [contracts] Redeploy to mainnets
+- [utils] Update default subgraph URLs
+
 ## 0.0.52
 
 - [sdk] Add sanity check for callTo parameter

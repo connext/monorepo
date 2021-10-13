@@ -9,7 +9,7 @@ import {
   TransactionFulfilled,
   TransactionPrepared,
 } from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User } from "../generated/schema";
+import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -101,6 +101,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
     chainId = BigInt.fromI32(43113);
+  } else if (network == "avalanche") {
+    chainId = BigInt.fromI32(43114);
   } else if (network == "mumbai") {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
@@ -143,7 +145,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactionHash = event.transaction.hash;
   transaction.encryptedCallData = event.params.args.encryptedCallData.toHexString();
-  transaction.encodedBid = event.params.args.encodedBid;
+  transaction.encodedBid = event.params.args.encodedBid.toHexString();
   transaction.bidSignature = event.params.args.bidSignature;
 
   // Meta
@@ -183,6 +185,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
   transaction!.fulfillMeta = event.params.args.encodedMeta;
+  transaction!.fulfillTimestamp = event.block.timestamp;
 
   transaction!.save();
 
@@ -198,6 +201,57 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
+
+  // update metrics
+  let timestamp = event.block.timestamp.toI32();
+
+  let hour = timestamp / 3600; // rounded
+  let hourStartTimestamp = hour * 3600;
+
+  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
+
+  let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
+  if (hourlyMetric === null) {
+    hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
+    hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
+    hourlyMetric.assetId = transaction.receivingAssetId.toHex();
+    hourlyMetric.volume = BigInt.fromI32(0);
+    hourlyMetric.liquidity = BigInt.fromI32(0);
+    hourlyMetric.txCount = BigInt.fromI32(0);
+  }
+
+  let day = timestamp / 86400; // rounded
+  let dayStartTimestamp = day * 86400;
+
+  let dayIDPerAsset = day.toString() + "-" + transaction.receivingAssetId.toHex();
+
+  let dayMetric = DayMetric.load(dayIDPerAsset.toString());
+  if (dayMetric === null) {
+    dayMetric = new DayMetric(dayIDPerAsset.toString());
+    dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
+    dayMetric.assetId = transaction.receivingAssetId.toHex();
+    dayMetric.volume = BigInt.fromI32(0);
+    dayMetric.txCount = BigInt.fromI32(0);
+  }
+
+  // Only count volume on receiving chain
+  if (transaction.chainId == transaction.receivingChainId) {
+    hourlyMetric.volume = hourlyMetric.volume.plus(transaction.amount);
+    hourlyMetric.txCount = hourlyMetric.txCount.plus(BigInt.fromI32(1));
+
+    dayMetric.volume = dayMetric.volume.plus(transaction.amount);
+    dayMetric.txCount = dayMetric.txCount.plus(BigInt.fromI32(1));
+  } else if (transaction.chainId == transaction.sendingChainId) {
+    // load assetBalance
+    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+    let assetBalance = AssetBalance.load(assetBalanceId);
+    if (hourlyMetric.liquidity < assetBalance.amount) {
+      hourlyMetric.liquidity = assetBalance.amount;
+    }
+  }
+
+  hourlyMetric.save();
+  dayMetric.save();
 }
 
 /**
@@ -214,6 +268,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
   transaction!.cancelMeta = event.params.args.encodedMeta;
+  transaction!.cancelTimestamp = event.block.timestamp;
 
   transaction!.save();
 
