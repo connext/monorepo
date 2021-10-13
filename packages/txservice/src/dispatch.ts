@@ -12,7 +12,7 @@ import {
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
-import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure } from "./error";
+import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure, TransactionBackfilled } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -129,7 +129,21 @@ export class TransactionDispatch extends ChainRpcProvider {
               error,
             });
             if (error.type === TimeoutError.type && !receivedBadNonce) {
-              shouldResubmit = true;
+              // Check to see if this nonce has already been mined; this would imply this transaction got replaced, or
+              // failed to reach chain.
+              const result = await this.getTransactionCount("latest");
+              if (result.isErr()) {
+                throw result.error;
+              }
+              const transactionCount = result.value;
+              if (transactionCount > transaction.nonce) {
+                transaction.error = new TransactionBackfilled({
+                  latestTransactionCount: transactionCount,
+                  nonce: transaction.nonce,
+                });
+              } else {
+                shouldResubmit = true;
+              }
             } else if (error.type === BadNonce.type) {
               // If we timeout in the next mine attempt, then we know the transaction was replaced by a foreign (unknown) transaction,
               // so we'll want to fail the tx with whatever error we get.
