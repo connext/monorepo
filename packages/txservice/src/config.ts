@@ -64,6 +64,8 @@ export const validateProviderConfig = ajv.compile(ProviderConfigSchema);
 export const ChainConfigSchema = Type.Object({
   // List of configurations for providers for this chain.
   providers: Type.Array(ProviderConfigSchema),
+  // Quorum is consensus count that must be reached among providers.
+  quorum: Type.Optional(Type.Integer()),
 
   // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
   // in the event that a gas station is malfunctioning.

@@ -75,7 +75,7 @@ export class ChainRpcProvider {
     // NOTE: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
     // which might be okay in our case, but for now we have a low bar.
     // NOTE: This only applies to fallback provider case below.
-    this.quorum = 1;
+    this.quorum = chainConfig.quorum ?? 1;
 
     const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
 
