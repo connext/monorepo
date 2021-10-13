@@ -78,6 +78,9 @@ export const ChainConfigSchema = Type.Object({
   confirmationTimeout: Type.Optional(Type.Integer()),
   // Number of confirmations needed for each chain, specified by chain Id.
   confirmations: Type.Optional(Type.Integer()),
+
+  // Quorum is consensus count that must be reached among providers.
+  quorum: Type.Optional(Type.Integer()),
 });
 
 export type ChainConfig = Static<typeof ChainConfigSchema>;

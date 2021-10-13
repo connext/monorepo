@@ -715,17 +715,17 @@ export class TransactionDispatch extends ChainRpcProvider {
     const previousPrice = transaction.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
     const result = await this.getGasPrice(requestContext);
-    const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
+    const updatedPrice = result.isOk() ? result.value : BigNumber.from(this.config.gasMinimum);
     const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     transaction.gas.price = determinedBaseline
       .add(determinedBaseline.mul(this.config.gasReplacementBumpPercent).div(100))
       .add(1);
-    this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+    this.logger.info(`Tx bumped.`, requestContext, methodContext, {
       chainId: this.chainId,
-      latestAvgPrice: `${utils.formatUnits(updatedPrice, "gwei")} gwei`,
-      previousPrice: `${utils.formatUnits(previousPrice, "gwei")} gwei`,
-      newGasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
+      updatedPrice: utils.formatUnits(updatedPrice, "gwei"),
+      previousPrice: utils.formatUnits(previousPrice, "gwei"),
+      newGasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
       transaction: transaction.loggable,
     });
   }

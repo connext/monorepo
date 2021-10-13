@@ -281,9 +281,9 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "1"),
-  parseInt(process.env.CONCURRENCY_MIN ?? "1"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "1"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "100"),
+  parseInt(process.env.CONCURRENCY_MIN ?? "100"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "100"),
   undefined,
   process.env.TOKEN_ADDRESS,
   process.env.CHAIN_ID,
