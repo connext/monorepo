@@ -288,6 +288,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Set lastReceivedTxCount - this will be used in future calls of this method to determine if we need to backtrack nonce (i.e. backfill).
     this.lastReceivedTxCount = transactionCount;
     attemptedNonces.push(nonce);
+    console.log("test1", this.lastReceivedTxCount, transactionCount, nonce, attemptedNonces, backfill, error);
     // TODO: Should we just set/update the member var nonce here? In which case, add 1 in the TODO above? ^^
     // this.nonce = nonce;
     return { nonce, backfill, transactionCount };

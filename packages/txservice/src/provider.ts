@@ -588,9 +588,6 @@ export class ChainRpcProvider {
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.
     const ready = await this.provider.ready;
-    for (const provider of this._providers) {
-      provider.sync();
-    }
     if (!ready) {
       // Error out, not enough providers are ready.
       throw new RpcError(RpcError.reasons.OutOfSync, {
