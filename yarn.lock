@@ -1908,6 +1908,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-test-ui@workspace:packages/test-ui"
   dependencies:
+    "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@types/eslint": ^7.28.0
