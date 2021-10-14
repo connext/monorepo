@@ -21,94 +21,12 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
-import { ReadTransaction, Transaction } from "./types";
+import { ProviderCachedData, ReadTransaction, SyncProvider, Transaction } from "./types";
 
-const { StaticJsonRpcProvider, FallbackProvider } = providers;
+const { FallbackProvider } = providers;
 
 // A provider must be within this many blocks of the "leading" provider to be considered in-sync.
 const PROVIDER_MAX_LAG = 40;
-
-/**
- * @classdesc An extension of StaticJsonRpcProvider that intercepts all send() calls to log RPC calls made to
- * providers for debugging purposes.
- */
-class SyncProvider extends StaticJsonRpcProvider {
-  private readonly connectionInfo: utils.ConnectionInfo;
-  private _synced = true;
-  public get synced(): boolean {
-    return this._synced;
-  }
-  public lag = 0;
-  private syncedBlockNumber = -1;
-  private lastSynced = Date.now();
-  private isSyncing = false;
-
-  constructor(
-    private readonly logger: Logger,
-    _connectionInfo: utils.ConnectionInfo | string,
-    public readonly chainId: number,
-    // Should point to parent ChainRpcProvider cache.
-    public parentCache: ProviderCachedData,
-    private readonly onBlock: (provider: SyncProvider, blockNumber: number, url: string) => Promise<boolean>,
-  ) {
-    super(_connectionInfo, chainId);
-    this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
-    this.sync();
-  }
-
-  public async sync(): Promise<void> {
-    // TODO: DEBUG: Any provider other than our lead provider may only be synced if it's been 10 sec.
-    if (
-      this.isSyncing ||
-      !this.synced ||
-      (this.connectionInfo.url !== this.parentCache.leadingProvider && Date.now() - this.lastSynced < 10_000)
-    ) {
-      return;
-    }
-    this.isSyncing = true;
-    this.lastSynced = Date.now();
-    this.once("block", async (blockNumber: number) => {
-      this.syncedBlockNumber = blockNumber;
-      try {
-        this._synced = await this.onBlock(this, blockNumber, this.connectionInfo.url);
-      } finally {
-        this.isSyncing = false;
-      }
-    });
-  }
-
-  public send(method: string, params: Array<any>): Promise<any> {
-    if (!this.synced && method !== "eth_blockNumber") {
-      throw new RpcError(RpcError.reasons.OutOfSync);
-    }
-
-    if (this.connectionInfo.url !== this.parentCache.leadingProvider) {
-      if (method === "eth_getTransactionCount") {
-        if (this.parentCache.transactionCount) {
-          return this.parentCache.transactionCount as any;
-        }
-      } else if (method === "eth_gasPrice") {
-        if (this.parentCache.gasPrice) {
-          return this.parentCache.gasPrice as any;
-        }
-      }
-    }
-
-    this.logger.debug("RPC method call", undefined, undefined, {
-      method,
-      url: this.connectionInfo.url,
-      leading: this.parentCache.leadingProvider === this.connectionInfo.url,
-    });
-    return super.send(method, params);
-  }
-}
-
-type ProviderCachedData = {
-  leadingProvider: string;
-  blockNumber: number;
-  gasPrice?: BigNumber;
-  transactionCount?: number;
-};
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
@@ -190,14 +108,12 @@ export class ChainRpcProvider {
     if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
         provider: new SyncProvider(
-          logger,
           {
             url: config.url,
             user: config.user,
             password: config.password,
           },
           this.chainId,
-          this.cache,
           async (provider: SyncProvider, blockNumber: number, url: string) => {
             provider.lag = Math.max(0, this.cache.blockNumber - blockNumber);
             const synced = provider.lag < PROVIDER_MAX_LAG;
@@ -205,42 +121,23 @@ export class ChainRpcProvider {
             if (blockNumber > this.cache.blockNumber) {
               this.cache.blockNumber = blockNumber;
               this.cache.leadingProvider = url;
-              if (this.signer && !this.isUpdatingCache) {
-                this.isUpdatingCache = true;
-                try {
-                  // TODO: Do we also need to getGasPrice via gas station?
-                  // TODO: Should we manage RPC retries here at all (i.e. use retryWrapper)?
-                  // TODO: What about all the nuance involved with the call to get gas price, e.g. setting to at least the minimum, etc.?
-                  await Promise.all([
-                    provider
-                      .getGasPrice()
-                      .then((value) => (this.cache.gasPrice = value))
-                      .catch((_) => {}),
-                    provider
-                      .getTransactionCount(await this.signer.getAddress(), "pending")
-                      .then((value) => (this.cache.transactionCount = value))
-                      .catch((_) => {}),
-                  ]);
-                  this.logger.debug("New block.", requestContext, methodContext, {
-                    blockNumber,
-                    cache: {
-                      gasPrice: this.cache.gasPrice ? utils.formatUnits(this.cache.gasPrice, "gwei") : undefined,
-                      transactionCount: this.cache.transactionCount,
-                    },
-                    provider: url,
-                  });
-                } finally {
-                  this.isUpdatingCache = false;
-                }
-              }
-            } else if (!synced && provider.synced) {
-              // If the provider was previously synced but fell out of sync, debug log:
+            }
+            
+            if (!synced && provider.synced) {
+              // If the provider was previously synced but fell out of sync, debug log to notify.
               this.logger.debug("Provider fell out of sync.", requestContext, methodContext, {
                 blockNumber,
                 provider: url,
                 lag: provider.lag,
               });
+            } else if (synced) {
+              this.logger.debug("Provider synced.", requestContext, methodContext, {
+                blockNumber,
+                provider: url,
+                lag: provider.lag,
+              });
             }
+
             return synced;
           },
         ),
