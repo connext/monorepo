@@ -26,7 +26,7 @@ import { config as dotenvConfig } from "dotenv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
-const DEFAULT_RELAYER_FEE_THRESHOLD = "0"; // relayerFee is in respective chain native asset unit
+const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain native asset unit
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
