@@ -1,7 +1,7 @@
 import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 
-import { Gas, Transaction } from "../src/types";
+import { Cached, Gas, SyncProvider, Transaction } from "../src/types";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import {
@@ -221,7 +221,7 @@ describe("ChainRpcProvider", () => {
     let badRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
 
     beforeEach(() => {
-      Sinon.stub((chainProvider as any), "syncedProviders").get(() => (chainProvider as any)._providers);
+      Sinon.stub(chainProvider as any, "syncedProviders").get(() => (chainProvider as any)._providers);
 
       const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       // Overwrite the _providers core providers. We're going to have one "bad" provider
@@ -497,6 +497,33 @@ describe("ChainRpcProvider", () => {
       const result = await chainProvider.getBlockTime();
       expect(result.isErr()).to.be.true;
       expect(result.isErr() && result.error.message === RpcError.reasons.OutOfSync).to.be.true;
+    });
+  });
+
+  describe("#onBlock", () => {
+    let mockSyncProvider: SinonStubbedInstance<SyncProvider>;
+    let mockProviderUrl = "fakeprovider";
+    beforeEach(() => {
+      mockSyncProvider = Sinon.createStubInstance(SyncProvider);
+      mockSyncProvider.lag = -1;
+      (mockSyncProvider as any)._synced = true;
+      Sinon.stub(mockSyncProvider, "synced").get(() => (mockSyncProvider as any)._synced);
+    });
+
+    it("happy: no cached block number (router boot)", async () => {
+      (chainProvider as any).cache.blockNumber = new Cached<number>();
+      expect(await (chainProvider as any).onBlock(mockSyncProvider, 10, mockProviderUrl)).to.be.true;
+    });
+
+    it("happy: provider in sync", async () => {
+      const testBlockNumber = 1234567;
+      (chainProvider as any).cache.blockNumber.set(testBlockNumber);
+      expect(await (chainProvider as any).onBlock(mockSyncProvider, testBlockNumber, mockProviderUrl)).to.be.true;
+    });
+
+    it("handles provider out of sync", async () => {
+      (chainProvider as any).cache.blockNumber.set(1234567);
+      expect(await (chainProvider as any).onBlock(mockSyncProvider, 123, mockProviderUrl)).to.be.false;
     });
   });
 });

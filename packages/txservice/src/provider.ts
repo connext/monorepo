@@ -113,33 +113,7 @@ export class ChainRpcProvider {
             password: config.password,
           },
           this.chainId,
-          async (provider: SyncProvider, blockNumber: number, url: string) => {
-            const cachedBlockNumber = this.cache.blockNumber.get() ?? -1;
-            provider.lag = Math.max(0,  - blockNumber);
-            const synced = provider.lag < PROVIDER_MAX_LAG;
-            // Check if this is the latest block.
-            if (blockNumber > cachedBlockNumber) {
-              this.cache.blockNumber.set(blockNumber);
-              this.cache.leadingProvider.set(url);
-            }
-            
-            if (!synced && provider.synced) {
-              // If the provider was previously synced but fell out of sync, debug log to notify.
-              this.logger.debug("Provider fell out of sync.", requestContext, methodContext, {
-                blockNumber,
-                provider: url,
-                lag: provider.lag,
-              });
-            } else if (synced) {
-              this.logger.debug("Provider synced.", requestContext, methodContext, {
-                blockNumber,
-                provider: url,
-                lag: provider.lag,
-              });
-            }
-
-            return synced;
-          },
+          this.onBlock,
         ),
         priority: config.priority ?? 1,
         weight: config.weight ?? 1,
@@ -596,5 +570,41 @@ export class ChainRpcProvider {
       });
     }
     return true;
+  }
+
+  /**
+   * Callback method used for handling a block update from synchronized providers.
+   * @param provider - SyncProvider instance this block update applies to.
+   * @param blockNumber - Current block number (according to the provider).
+   * @param url - URL of the provider.
+   * @returns boolean indicating whether the provider is in sync.
+   */
+  private async onBlock(provider: SyncProvider, blockNumber: number, url: string) {
+    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
+    const cachedBlockNumber = this.cache.blockNumber.get() ?? -1;
+    provider.lag = Math.max(0, cachedBlockNumber - blockNumber);
+    const synced = provider.lag < PROVIDER_MAX_LAG;
+    // Check if this is the latest block.
+    if (blockNumber > cachedBlockNumber) {
+      this.cache.blockNumber.set(blockNumber);
+      this.cache.leadingProvider.set(url);
+    }
+    
+    if (!synced && provider.synced) {
+      // If the provider was previously synced but fell out of sync, debug log to notify.
+      this.logger.debug("Provider fell out of sync.", undefined, undefined, {
+        blockNumber,
+        provider: url,
+        lag: provider.lag,
+      });
+    } else if (synced) {
+      this.logger.debug("Provider synced.", requestContext, methodContext, {
+        blockNumber,
+        provider: url,
+        lag: provider.lag,
+      });
+    }
+
+    return synced;
   }
 }
