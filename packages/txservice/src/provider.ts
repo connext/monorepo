@@ -113,7 +113,7 @@ export class ChainRpcProvider {
             password: config.password,
           },
           this.chainId,
-          this.onBlock,
+          (...args) => this.onBlock(...args),
         ),
         priority: config.priority ?? 1,
         weight: config.weight ?? 1,
