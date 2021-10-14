@@ -39,6 +39,7 @@ import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "..
 import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
+import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -58,6 +59,7 @@ describe("NxtpSdk", () => {
   let ethereumRequestMock: SinonStub;
   let encryptMock: SinonStub;
   let balanceStub: SinonStub;
+  let transactionManagerStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -65,6 +67,7 @@ describe("NxtpSdk", () => {
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
+  let priceOracleAddress: string = mkAddress("0xccc");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
@@ -80,11 +83,13 @@ describe("NxtpSdk", () => {
         provider: provider1337,
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
       [receivingChainId]: {
         provider: provider1338,
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
     };
     signer = createStubInstance(Wallet);
@@ -94,7 +99,10 @@ describe("NxtpSdk", () => {
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getDecimals").resolves(18);
+    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+
+    stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
@@ -256,6 +264,7 @@ describe("NxtpSdk", () => {
         [sendingChainId]: {
           provider: provider1337,
           transactionManagerAddress: sendingChainTxManagerAddress,
+          priceOracleAddress: priceOracleAddress,
         },
       };
 
@@ -282,10 +291,12 @@ describe("NxtpSdk", () => {
         [4]: {
           provider: provider1337,
           subgraph: "http://example.com",
+          priceOracleAddress: priceOracleAddress,
         },
         [5]: {
           provider: provider1338,
           subgraph: "http://example.com",
+          priceOracleAddress: priceOracleAddress,
         },
       };
       const instance = new NxtpSdk({
@@ -759,6 +770,20 @@ describe("NxtpSdk", () => {
         );
       });
 
+      it("invalid params in case gasAmount is zero", async () => {
+        const { transaction, record } = await getTransactionData();
+        transactionManager.calculateGasInTokenForFullfil.resolves(constants.Zero);
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("calculateGasInToken", "TransactionManager"));
+      });
+
       it("invalid encryptedCallData", async () => {
         const { transaction, record } = await getTransactionData();
 
@@ -820,6 +845,7 @@ describe("NxtpSdk", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
       stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
 
       setTimeout(() => {
@@ -845,6 +871,7 @@ describe("NxtpSdk", () => {
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
 
       const transactionHash = mkHash("0xc");
 
