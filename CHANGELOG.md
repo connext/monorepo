@@ -8,6 +8,7 @@
 - [txservice] Curb gas spikes
 - [sdk/router] Catch errors per chain in active tx subgraph poller
 - [router] Fix estimate gas bug
+- [subgraphs] Fix user typo
 
 ## 0.0.56
 
