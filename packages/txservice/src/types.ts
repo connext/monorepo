@@ -391,11 +391,33 @@ export class TransactionBuffer extends Array<Transaction> {
   }
 }
 
+export class Cached<T> {
+  // TODO: Cached items should eventually be cached in terms of block number, not timestamp.
+  // For now, this is set to 3 seconds.
+  private static CACHE_TIMEOUT = 3_000;
+
+  private value: T | undefined;
+  private timestamp: number | undefined;
+
+  public get expired(): boolean {
+    return this.timestamp ? Date.now() - this.timestamp > Cached.CACHE_TIMEOUT : true;
+  }
+
+  set(value: T) {
+    this.value = value;
+    this.timestamp = Date.now();
+  }
+
+  get(): T | undefined {
+    return !this.expired ? this.value : undefined;
+  }
+}
+
 export type ProviderCachedData = {
-  leadingProvider: string;
-  blockNumber: number;
-  gasPrice?: BigNumber;
-  transactionCount?: number;
+  leadingProvider: Cached<string>;
+  blockNumber: Cached<number>;
+  gasPrice: Cached<BigNumber>;
+  transactionCount: Cached<number>;
 };
 
 /**

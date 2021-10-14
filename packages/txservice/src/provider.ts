@@ -21,7 +21,7 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
-import { ProviderCachedData, ReadTransaction, SyncProvider, Transaction } from "./types";
+import { Cached, ProviderCachedData, ReadTransaction, SyncProvider, Transaction } from "./types";
 
 const { FallbackProvider } = providers;
 
@@ -49,10 +49,10 @@ export class ChainRpcProvider {
   private cachedDecimals: Record<string, number> = {};
   // Cache of transient data (i.e. data that can change per block).
   private cache: ProviderCachedData = {
-    leadingProvider: "",
-    blockNumber: -1,
-    gasPrice: undefined,
-    transactionCount: undefined,
+    leadingProvider: new Cached<string>(),
+    blockNumber: new Cached<number>(),
+    gasPrice: new Cached<BigNumber>(),
+    transactionCount: new Cached<number>(),
   };
   private isUpdatingCache = false;
 
@@ -115,12 +115,16 @@ export class ChainRpcProvider {
           },
           this.chainId,
           async (provider: SyncProvider, blockNumber: number, url: string) => {
-            provider.lag = Math.max(0, this.cache.blockNumber - blockNumber);
+            const cachedBlockNumber = this.cache.blockNumber.get() ?? -1;
+            provider.lag = Math.max(0,  - blockNumber);
             const synced = provider.lag < PROVIDER_MAX_LAG;
             // Check if this is the latest block.
-            if (blockNumber > this.cache.blockNumber) {
-              this.cache.blockNumber = blockNumber;
-              this.cache.leadingProvider = url;
+            if (blockNumber > cachedBlockNumber) {
+              this.cache.blockNumber.set(blockNumber);
+              this.cache.leadingProvider.set(url);
+            } else if (this.cache.leadingProvider.get() === url) {
+              // If this provider is no longer the 'leading provider' (and it was previously), we need to update the cache.
+              this.cache.leadingProvider.set("");
             }
             
             if (!synced && provider.synced) {
@@ -299,10 +303,8 @@ export class ChainRpcProvider {
       return okAsync(BigNumber.from(hardcoded));
     }
 
-    // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    // TODO: Do we need to compare this price to gas station?
-    if (this.cache.gasPrice) {
-      return okAsync(this.cache.gasPrice);
+    if (!this.cache.gasPrice.expired) {
+      return okAsync(this.cache.gasPrice.get()!);
     }
 
     return this.resultWrapper<BigNumber>(false, async () => {
@@ -505,8 +507,8 @@ export class ChainRpcProvider {
    * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
    */
   public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
-    if (this.cache.transactionCount) {
-      return okAsync(this.cache.transactionCount);
+    if (!this.cache.transactionCount.expired) {
+      return okAsync(this.cache.transactionCount.get()!);
     }
 
     return this.resultWrapper<number>(true, async () => {
