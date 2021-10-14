@@ -221,6 +221,8 @@ describe("ChainRpcProvider", () => {
     let badRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
 
     beforeEach(() => {
+      Sinon.stub((chainProvider as any), "syncedProviders").get(() => (chainProvider as any)._providers);
+
       const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       // Overwrite the _providers core providers. We're going to have one "bad" provider
       // that rejects/fails, and one good one that will resolve.

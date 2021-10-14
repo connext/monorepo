@@ -54,7 +54,6 @@ export class ChainRpcProvider {
     gasPrice: new Cached<BigNumber>(),
     transactionCount: new Cached<number>(),
   };
-  private isUpdatingCache = false;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -122,9 +121,6 @@ export class ChainRpcProvider {
             if (blockNumber > cachedBlockNumber) {
               this.cache.blockNumber.set(blockNumber);
               this.cache.leadingProvider.set(url);
-            } else if (this.cache.leadingProvider.get() === url) {
-              // If this provider is no longer the 'leading provider' (and it was previously), we need to update the cache.
-              this.cache.leadingProvider.set("");
             }
             
             if (!synced && provider.synced) {
@@ -251,9 +247,6 @@ export class ChainRpcProvider {
     return this.resultWrapper<BigNumber>(false, async () => {
       const errors: any[] = [];
       const syncedProviders = this.syncedProviders;
-      this.logger.debug("DEBUG ESTIMATE GAS", undefined, undefined, {
-        syncedProvders: syncedProviders.map((p) => p.lag).join(","),
-      });
       for (const provider of syncedProviders) {
         let result: string;
         try {
@@ -384,6 +377,7 @@ export class ChainRpcProvider {
         gasPrice = min;
       }
 
+      let hitMaximum = false;
       if (
         gasPriceMaxIncreaseScalar !== undefined &&
         gasPriceMaxIncreaseScalar > 100 &&
@@ -393,6 +387,7 @@ export class ChainRpcProvider {
         const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
         if (gasPrice.gt(max)) {
           gasPrice = max;
+          hitMaximum = true;
           this.logger.debug("Hit the gas price curbed maximum.", requestContext, methodContext, {
             chainId: this.chainId,
             gasPrice,
@@ -405,6 +400,9 @@ export class ChainRpcProvider {
         this.lastUsedGasPrice = gasPrice;
       }
 
+      if (!hitMaximum) {
+        this.cache.gasPrice.set(gasPrice);
+      }
       return gasPrice;
     });
   }
@@ -507,9 +505,10 @@ export class ChainRpcProvider {
    * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
    */
   public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
-    if (!this.cache.transactionCount.expired) {
-      return okAsync(this.cache.transactionCount.get()!);
-    }
+    // TODO: Implement caching for txcount (must be cached per block).
+    // if (!this.cache.transactionCount.expired) {
+    //   return okAsync(this.cache.transactionCount.get()!);
+    // }
 
     return this.resultWrapper<number>(true, async () => {
       return await this.signer!.getTransactionCount(blockTag);
