@@ -225,8 +225,8 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns object - containing nonce, backfill, and transactionCount.
    */
   private async determineNonce(attemptedNonces: number[], error?: BadNonce): Promise<{ nonce: number; backfill: boolean; transactionCount: number }> {
-    // Retrieve the current pending transaction count.
-    const result = await this.getTransactionCount("pending");
+    // Retrieve the latest mined transaction count.
+    const result = await this.getTransactionCount("latest");
     if (result.isErr()) {
       throw result.error;
     }
