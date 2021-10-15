@@ -14,6 +14,13 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 // 1338: 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC
 // 1337: 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC
 
+// TODO: get from config/utils
+// Stable swap on rinkeby
+const STABLE_SWAP_ADDR = "0xD29a127BBdcC1a3271872bd43080768A55DadDf8";
+const STABLE_SWAP_PROVIDER = new providers.JsonRpcProvider(
+  "https://rinkeby.infura.io/v3/c787a0397d9f4c0db9d28dec3a231c1e",
+);
+
 // router: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 
 type RouterProps = {
@@ -24,7 +31,7 @@ type RouterProps = {
 
 const decimals: Record<string, number> = {};
 
-const LOCAL_STABLE_SWAP_ADDR = "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC";
+// const LOCAL_STABLE_SWAP_ADDR = "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC";
 const LOCAL_TOKEN = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const LOCAL_TRANSACTION_MANAGER = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const LOCAL_CHAINS = [1337, 1338];
@@ -69,7 +76,13 @@ const getSwapRateFromVirutalAMM = async (
   providerForAmm: providers.Provider,
 ): Promise<BigNumber> => {
   const contract = new Contract(stableSwapAddress, StableSwapArtifact.abi, providerForAmm);
-  console.log("requesting amount out");
+  console.log(
+    "balances",
+    balances.map((b) => b.toString()),
+  );
+  console.log("amountIn", amountIn.toString());
+  console.log("indexIn", indexIn);
+  console.log("indexOut", indexOut);
   const amountOut = await contract.onSwapGivenIn(amountIn, balances, indexIn, indexOut);
   return BigNumber.from(amountOut);
 };
@@ -77,7 +90,7 @@ const getSwapRateFromVirutalAMM = async (
 export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactElement => {
   const [txManager, setTxManager] = useState<Contract>();
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
-  const [routerAddress, setRouterAddress] = useState<string>();
+  const [routerAddress, setRouterAddress] = useState<string>("0x29A519e21d6A97cdB82270b69c98bAc6426CDCf9");
   const [balances, setBalances] = useState<BalanceEntry[]>();
   const [form] = Form.useForm();
   const [network, setNetwork] = useState<Network>(Networks.Mainnets);
@@ -149,7 +162,46 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     return _decimals;
   };
 
-  const getBalancesAfterLiquidity = async (assetId: string, amountToAdd: string) => {
+  const getSubgraphAndChainDataForChain = (chainId: number): { uri?: string; data?: any } => {
+    let uri: string | undefined;
+    let data: any | undefined;
+    if (LOCAL_CHAINS.includes(chainId)) {
+      uri = `http://localhost:${chainId === 1337 ? 9 : 8}010/subgraphs/name/connext/nxtp`;
+      data = {
+        chain: chainId.toString(),
+        assetId: {
+          [constants.AddressZero]: {
+            decimals: 18,
+            symbol: constants.EtherSymbol,
+          },
+          [LOCAL_TOKEN]: {
+            decimals: 18,
+            symbol: "TEST",
+          },
+        },
+      };
+    } else {
+      uri = getDeployedSubgraphUri(chainId);
+      data = chainData?.find((c) => c.chainId === chainId);
+    }
+    return { uri, data };
+  };
+
+  const getSymbolFromAssetId = (assetId: string, chainId: number): string => {
+    const { data } = getSubgraphAndChainDataForChain(chainId);
+    if (!data) {
+      console.warn("No chaindata found for", injectedProviderChainId);
+      return assetId;
+    }
+    return (
+      data.assetId[getAddress(assetId)]?.symbol ??
+      data.assetId[assetId.toLowerCase()]?.symbol ??
+      data.assetId[assetId.toUpperCase()]?.symbol ??
+      assetId
+    );
+  };
+
+  const getBalancesAfterLiquidity = async (assetId: string, amountToAdd = "0") => {
     if (!signer || !txManager) {
       throw new Error("Needs signer");
     }
@@ -158,6 +210,8 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       console.warn("bad inputs:", assetId, amountToAdd);
       return;
     }
+
+    const symbol = getSymbolFromAssetId(assetId, injectedProviderChainId!);
 
     // Get pool balances via the router balances on all contracts
     const totalLiquidity = (
@@ -176,60 +230,73 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
     // TODO: how to find pool on non-local chains?
     const sendingAssetPool = totalLiquidity.filter(
-      (entry) => entry?.assetId.toLowerCase() === assetId.toLowerCase(),
+      (entry) => entry?.symbol.toLowerCase() === symbol.toLowerCase(),
     ) as BalanceEntry[];
     const sendingAssetBalanceIdx = sendingAssetPool.findIndex(
-      (entry) => entry?.assetId.toLowerCase() === assetId.toLowerCase() && injectedProviderChainId === entry.chainId,
+      (entry) => entry?.symbol.toLowerCase() === symbol.toLowerCase() && injectedProviderChainId === entry.chainId,
     );
 
-    console.log("sendingAssetPool", sendingAssetPool);
-    console.log("sendingAssetBalanceIdx", sendingAssetBalanceIdx);
-
-    const amountToAddWei = utils.parseUnits(amountToAdd, sendingAssetPool[sendingAssetBalanceIdx]?.decimals ?? 18);
-    const updated = amountToAddWei.add(sendingAssetPool[sendingAssetBalanceIdx]?.balance ?? 0);
-
-    if (sendingAssetBalanceIdx === -1) {
-      // Does not exist
-      // TODO: how to know how many chains to support on
-      // TODO: display a warning?
-    }
+    const sendingAssetDecimals = sendingAssetPool[sendingAssetBalanceIdx]?.decimals ?? 18;
+    const amountToAddWei = utils.parseUnits(amountToAdd, sendingAssetDecimals);
+    const updated = amountToAddWei
+      .add(sendingAssetPool[sendingAssetBalanceIdx]?.balance ?? 0)
+      .mul(BigNumber.from(10).pow(18 - sendingAssetDecimals));
 
     // Convert 1 of asset to others in pool
-    const balanceWithSendingAssetBasis = await Promise.all(
-      sendingAssetPool.map(async (entry, idx) => {
-        if (idx === sendingAssetBalanceIdx) {
-          // hardcode
-          return {
-            ...entry,
-            basis: "1.0",
-          };
-        }
+    const balanceWithSendingAssetBasis = (
+      await Promise.all(
+        sendingAssetPool.map(async (entry, idx) => {
+          try {
+            if (idx === sendingAssetBalanceIdx) {
+              // hardcode
+              return {
+                ...entry,
+                basis: "1.0",
+              };
+            }
 
-        // TODO: how many chains?
-        const balances =
-          sendingAssetBalanceIdx === -1
-            ? [updated, constants.Zero]
-            : sendingAssetPool.map((e, idx) => {
-                if (idx === sendingAssetBalanceIdx) {
-                  return updated;
-                }
-                return BigNumber.from(e?.balance ?? 0);
-              });
-        const basis = await getSwapRateFromVirutalAMM(
-          utils.parseUnits("1", sendingAssetPool[sendingAssetBalanceIdx]?.decimals ?? 18),
-          balances,
-          Math.max(sendingAssetBalanceIdx, 0),
-          idx,
-          LOCAL_STABLE_SWAP_ADDR, // TODO: swap addr on signer chain
-          signer.provider!,
-        );
-        return {
-          ...entry,
-          basis: utils.formatUnits(basis, entry?.decimals ?? 18),
-        };
-      }),
-    );
+            // TODO: how many chains?
+            const balances =
+              sendingAssetBalanceIdx === -1
+                ? [updated, constants.Zero]
+                : sendingAssetPool.map((e, idx) => {
+                    if (idx === sendingAssetBalanceIdx) {
+                      return updated;
+                    }
+                    const decimals = e.decimals ?? 18;
+                    return BigNumber.from(e?.balance ?? 0).mul(BigNumber.from(10).pow(18 - decimals));
+                  });
 
+            const amtIn = utils
+              .parseUnits("1", sendingAssetDecimals)
+              .mul(BigNumber.from(10).pow(18 - sendingAssetDecimals));
+
+            console.log("sendingAssetPool", sendingAssetPool);
+            console.log("sendingAssetBalanceIdx", sendingAssetBalanceIdx);
+            console.warn("test, amtIn gt balance in amtOut", amtIn.gt(balances[idx]));
+            console.warn("amtOut is 0", balances[idx].isZero());
+            const basis = await getSwapRateFromVirutalAMM(
+              amtIn,
+              balances,
+              Math.max(sendingAssetBalanceIdx, 0),
+              idx,
+              STABLE_SWAP_ADDR,
+              STABLE_SWAP_PROVIDER,
+            );
+            console.warn("basis", basis.toString());
+            return {
+              ...entry,
+              basis: utils.formatUnits(basis, entry?.decimals ?? 18),
+            };
+          } catch (e) {
+            console.warn(`failed to get basis on ${entry.chainId}:`, e);
+            return;
+          }
+        }),
+      )
+    ).filter((x) => !!x) as (BalanceEntry & { basis: string })[];
+
+    console.log("setting balances", balanceWithSendingAssetBasis);
     setAddLiquidityBalances(balanceWithSendingAssetBasis);
     return balanceWithSendingAssetBasis;
   };
@@ -288,27 +355,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   };
 
   const getBalancesFromSubgraph = async (chainId: number): Promise<BalanceEntry[] | undefined> => {
-    let uri: string | undefined;
-    let data: any | undefined;
-    if (LOCAL_CHAINS.includes(chainId)) {
-      uri = `http://localhost:${chainId === 1337 ? 9 : 8}010/subgraphs/name/connext/nxtp`;
-      data = {
-        chain: chainId.toString(),
-        assetId: {
-          [constants.AddressZero]: {
-            decimals: 18,
-            symbol: constants.EtherSymbol,
-          },
-          [LOCAL_TOKEN]: {
-            decimals: 18,
-            symbol: "TEST",
-          },
-        },
-      };
-    } else {
-      uri = getDeployedSubgraphUri(chainId);
-      data = chainData?.find((c) => c.chainId === chainId);
-    }
+    const { data, uri } = getSubgraphAndChainDataForChain(chainId);
     if (!uri) {
       console.error("Subgraph not available for chain: ", chainId);
       return;
@@ -317,7 +364,8 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       console.error("Chaindata not available for chain: ", chainId);
       return;
     }
-    const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress!.toLowerCase() });
+    console.log("**** data", data);
+    const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress.toLowerCase() });
     const balanceEntries = (liquidity?.router?.assetBalances ?? []).map(
       ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
         console.log("chainId: ", chainId);
