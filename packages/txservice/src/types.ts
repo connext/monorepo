@@ -333,14 +333,18 @@ export class TransactionBuffer extends Array<Transaction> {
         index = 0;
         replacedTx = this.lastShiftedTx;
       } else {
+        let shouldReplace = false;
         // Loop through the array and find the correct index to insert the tx.
         for (index = 0; index < this.length; index++) {
-          if (this[index].nonce >= tx.nonce) {
+          if (this[index].nonce > tx.nonce) {
+            break;
+          } else if (this[index].nonce === tx.nonce) {
+            shouldReplace = true;
             break;
           }
         }
         // This splice operation will replace that transaction in the buffer.
-        replacedTx = super.splice(index, 1, tx)[0];
+        replacedTx = super.splice(index, shouldReplace ? 1 : 0, tx)[0];
       }
       replacedTx.error = new TransactionBackfilled({
         replacement: tx.loggable,
