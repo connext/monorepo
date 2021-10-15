@@ -226,7 +226,6 @@ describe("Transaction Manager", function () {
     it("happy case", async () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
-      expect(res).to.be.includes(5);
     });
   });
 
