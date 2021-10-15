@@ -409,7 +409,7 @@ export class Cached<T> {
   }
 
   get(): T | undefined {
-    return !this.expired ? this.value : undefined;
+    return this.value;
   }
 }
 

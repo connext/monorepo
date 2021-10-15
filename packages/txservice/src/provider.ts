@@ -25,8 +25,9 @@ import { Cached, ProviderCachedData, ReadTransaction, SyncProvider, Transaction 
 
 const { FallbackProvider } = providers;
 
+// TODO: Move to config
 // A provider must be within this many blocks of the "leading" provider to be considered in-sync.
-const PROVIDER_MAX_LAG = 40;
+const PROVIDER_MAX_LAG = 20;
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
