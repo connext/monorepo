@@ -94,8 +94,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Use interval promise to make sure loop iterations don't overlap.
       interval(async () => await this.mineLoop(), 2_000);
       interval(async () => await this.confirmLoop(), 2_000);
-      // Starts an interval loop that synchronizes the provider every minute.
-      interval(async () => await this.syncProviders(), 60_000);
     }
   }
 
@@ -108,8 +106,9 @@ export class TransactionDispatch extends ChainRpcProvider {
     let transaction: Transaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
-        transaction = this.inflightBuffer.shift()!;
         // Shift the first transaction from the buffer and get it mined.
+        // NOTE: By shifting from the buffer, we effectively increase the ACTUAL inflight buffer cap by 1, which ought to be negligible.
+        transaction = this.inflightBuffer.shift()!;
         let receivedBadNonce = false;
         let shouldResubmit = false;
         while (!transaction.didMine && !transaction.error) {
@@ -232,16 +231,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       throw result.error;
     }
     const transactionCount = result.value;
-
-    const latestRes = await this.getTransactionCount("latest");
-    if (latestRes.isErr()) {
-      throw latestRes.error;
-    }
-    const latestTxCount = latestRes.value;
-    this.logger.debug("tx counts", undefined, undefined, {
-      transactionCount,
-      latestTxCount,
-    });
 
     // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
     // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
@@ -371,13 +360,6 @@ export class TransactionDispatch extends ChainRpcProvider {
             },
           });
           try {
-            if (backfill) {
-              const replaced = this.inflightBuffer.getTxByNonce(transaction.nonce);
-              // Lets make sure we only replace/backfill a transaction that did not actually make it to chain.
-              if (replaced) {
-                transaction.gas.price = replaced.gas.price;
-              }
-            }
             await this.submit(transaction);
           } catch (error) {
             if (error.type === BadNonce.type) {
@@ -717,17 +699,17 @@ export class TransactionDispatch extends ChainRpcProvider {
     const previousPrice = transaction.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
     const result = await this.getGasPrice(requestContext);
-    const updatedPrice = result.isOk() ? result.value : BigNumber.from(this.config.gasMinimum);
+    const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
     const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     transaction.gas.price = determinedBaseline
       .add(determinedBaseline.mul(this.config.gasReplacementBumpPercent).div(100))
       .add(1);
-    this.logger.info(`Tx bumped.`, requestContext, methodContext, {
+    this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
       chainId: this.chainId,
-      updatedPrice: utils.formatUnits(updatedPrice, "gwei"),
-      previousPrice: utils.formatUnits(previousPrice, "gwei"),
-      newGasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
+      latestAvgPrice: `${utils.formatUnits(updatedPrice, "gwei")} gwei`,
+      previousPrice: `${utils.formatUnits(previousPrice, "gwei")} gwei`,
+      newGasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
       transaction: transaction.loggable,
     });
   }

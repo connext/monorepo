@@ -1,9 +1,7 @@
 import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, providers, utils } from "ethers";
 
-import { MaxBufferLengthError, RpcError, TransactionBackfilled } from "./error";
-
-export const { StaticJsonRpcProvider } = providers;
+import { MaxBufferLengthError, TransactionBackfilled } from "./error";
 
 export type ReadTransaction = {
   chainId: number;
@@ -233,8 +231,7 @@ export class Transaction {
       hashes: this.hashes.length > 0 ? this.hashes : undefined,
       // Track block numbers for mine and confirm for observability.
       minedBlockNumber: this.minedBlockNumber === -1 ? undefined : this.minedBlockNumber,
-      confirmedBlockNumber:
-        this.receipt && this.receipt.blockNumber > this.minedBlockNumber ? this.receipt.blockNumber : undefined,
+      confirmedBlockNumber: this.receipt && (this.receipt.blockNumber > this.minedBlockNumber) ? this.receipt.blockNumber : undefined,
       confirmations: this.receipt?.confirmations,
       error: this.error,
       state: this.error ? "E" : this.didFinish ? "C" : this.didMine ? "M" : this.didSubmit ? "S" : undefined,
@@ -270,11 +267,7 @@ export class TransactionBuffer extends Array<Transaction> {
   }
 
   public get nonces(): number[] {
-    const nonces = this.map((tx) => tx.nonce);
-    if (this.lastShiftedTx) {
-      nonces.unshift(this.lastShiftedTx.nonce);
-    }
-    return nonces;
+    return this.map((tx) => tx.nonce);
   }
 
   // We use this to record the last tx that was shifted out of the buffer.
@@ -369,10 +362,6 @@ export class TransactionBuffer extends Array<Transaction> {
     return tx;
   }
 
-  public getTxByNonce(nonce: number): Transaction | undefined {
-    return this.find((tx) => tx.nonce === nonce) ?? this.lastShiftedTx;
-  }
-
   private log(message?: string, context: any = {}, error = false) {
     const ctx = {
       chainId: this.id.chainId,
@@ -387,91 +376,5 @@ export class TransactionBuffer extends Array<Transaction> {
     } else {
       this.logger.debug(msg, undefined, undefined, ctx);
     }
-  }
-}
-
-export class Cached<T> {
-  // TODO: Cached items should eventually be cached in terms of block number, not timestamp.
-  // For now, this is set to 3 seconds.
-  private static CACHE_TIMEOUT = 3_000;
-
-  private value: T | undefined;
-  private timestamp: number | undefined;
-
-  public get expired(): boolean {
-    return this.timestamp ? Date.now() - this.timestamp > Cached.CACHE_TIMEOUT : true;
-  }
-
-  set(value: T) {
-    this.value = value;
-    this.timestamp = Date.now();
-  }
-
-  get(): T | undefined {
-    return this.value;
-  }
-}
-
-export type ProviderCachedData = {
-  gasPrice: Cached<BigNumber>;
-  transactionCount: Cached<number>;
-};
-
-/**
- * @classdesc An extension of StaticJsonRpcProvider that manages a providers chain synchronization status
- * and intercepts all RPC send() calls to ensure that the provider is in sync.
- */
-export class SyncProvider extends StaticJsonRpcProvider {
-  private readonly connectionInfo: utils.ConnectionInfo;
-  public synced = true;
-  public lag = 0;
-
-  // This variable is used to track the last block number this provider synced to, and is kept separately from the
-  // inherited `blockNumber` property (which is a getter that uses an update method).
-  private _syncedBlockNumber = -1;
-  public get syncedBlockNumber(): number {
-    return this._syncedBlockNumber;
-  }
-
-  public get url(): string {
-    return this.connectionInfo.url;
-  }
-
-  constructor(
-    _connectionInfo: utils.ConnectionInfo | string,
-    public readonly chainId: number,
-  ) {
-    super(_connectionInfo, chainId);
-    this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
-  }
-
-  /**
-   * Synchronizes the provider with chain by checking the current block number and updating the syncedBlockNumber
-   * property.
-   */
-  public sync(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.once("block", async (blockNumber: number) => {
-        this._syncedBlockNumber = blockNumber;
-        resolve();
-      });
-    });
-  }
-
-  /**
-   * Overridden RPC send method. If the provider is currently out of sync, this method will
-   * now throw an RpcError indicating such. This way, we ensure an out of sync provider is never
-   * consulted (except when checking the block number, which is used for syncing).
-   *
-   * @param method - RPC method name.
-   * @param params - RPC method params.
-   * @returns any - RPC response.
-   * @throws RpcError - If the provider is currently out of sync.
-   */
-  public send(method: string, params: Array<any>): Promise<any> {
-    if (!this.synced && method !== "eth_blockNumber") {
-      throw new RpcError(RpcError.reasons.OutOfSync);
-    }
-    return super.send(method, params);
   }
 }

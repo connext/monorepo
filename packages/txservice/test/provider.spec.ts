@@ -1,7 +1,7 @@
 import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 
-import { Cached, Gas, SyncProvider, Transaction } from "../src/types";
+import { Gas, Transaction } from "../src/types";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import {
@@ -221,8 +221,6 @@ describe("ChainRpcProvider", () => {
     let badRpcProvider: SinonStubbedInstance<providers.StaticJsonRpcProvider>;
 
     beforeEach(() => {
-      Sinon.stub(chainProvider as any, "syncedProviders").get(() => (chainProvider as any)._providers);
-
       const prepareResult: [string, any[]] = [rpcCommand, [hexlifiedTx]];
       // Overwrite the _providers core providers. We're going to have one "bad" provider
       // that rejects/fails, and one good one that will resolve.
@@ -497,41 +495,6 @@ describe("ChainRpcProvider", () => {
       const result = await chainProvider.getBlockTime();
       expect(result.isErr()).to.be.true;
       expect(result.isErr() && result.error.message === RpcError.reasons.OutOfSync).to.be.true;
-    });
-  });
-
-  describe("#syncProviders", () => {
-    let testSyncedBlockNumber = 1234567;
-    let testOutOfSyncBlockNumber = 1234000;
-    let syncedProvider: SinonStubbedInstance<SyncProvider>;
-    let outOfSyncProvider: SinonStubbedInstance<SyncProvider>;
-    let mockProviderUrl = "fakeprovider";
-    beforeEach(() => {
-      syncedProvider = Sinon.createStubInstance(SyncProvider);
-      outOfSyncProvider = Sinon.createStubInstance(SyncProvider);
-      syncedProvider.lag = -1;
-      outOfSyncProvider.lag = -1;
-      (syncedProvider as any)._syncedBlockNumber = testSyncedBlockNumber;
-      (outOfSyncProvider as any)._syncedBlockNumber = testOutOfSyncBlockNumber;
-      (syncedProvider as any).synced = true;
-      (outOfSyncProvider as any).synced = true;
-      Sinon.stub((syncedProvider as any), "url").get(() => mockProviderUrl);
-      Sinon.stub((outOfSyncProvider as any), "url").get(() => mockProviderUrl);
-    });
-
-    it("happy", async () => {
-      (chainProvider as any)._providers = [syncedProvider, outOfSyncProvider];
-      await (chainProvider as any).syncProviders();
-
-      expect(syncedProvider.lag).to.be.eq(0);
-      const expectedOutOfSyncLag = testSyncedBlockNumber - testOutOfSyncBlockNumber;
-      expect(outOfSyncProvider.lag).to.be.eq(expectedOutOfSyncLag);
-
-      expect(syncedProvider.sync.callCount).to.equal(1);
-      expect(outOfSyncProvider.sync.callCount).to.equal(1);
-
-      expect(outOfSyncProvider.synced).to.be.false;
-      expect(syncedProvider.synced).to.be.true;
     });
   });
 });
