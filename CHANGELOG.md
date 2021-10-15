@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [subgraphs] Fix user typo
+
 ## 0.0.57
 
 - [txservice] Add nonce gap backfill in event that txcount backtracks
