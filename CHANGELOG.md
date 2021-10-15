@@ -2,8 +2,11 @@
 
 ## Next Release
 
+## 0.0.58
+
 - [subgraphs] Fix user typo
 - [txservice] Sync chain providers
+- [sdk] Estimate gas on fulfill for configured chains
 
 ## 0.0.57
 
