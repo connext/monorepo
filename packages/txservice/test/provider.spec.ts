@@ -500,30 +500,38 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("#onBlock", () => {
-    let mockSyncProvider: SinonStubbedInstance<SyncProvider>;
+  describe("#syncProviders", () => {
+    let testSyncedBlockNumber = 1234567;
+    let testOutOfSyncBlockNumber = 1234000;
+    let syncedProvider: SinonStubbedInstance<SyncProvider>;
+    let outOfSyncProvider: SinonStubbedInstance<SyncProvider>;
     let mockProviderUrl = "fakeprovider";
     beforeEach(() => {
-      mockSyncProvider = Sinon.createStubInstance(SyncProvider);
-      mockSyncProvider.lag = -1;
-      (mockSyncProvider as any)._synced = true;
-      Sinon.stub(mockSyncProvider, "synced").get(() => (mockSyncProvider as any)._synced);
+      syncedProvider = Sinon.createStubInstance(SyncProvider);
+      outOfSyncProvider = Sinon.createStubInstance(SyncProvider);
+      syncedProvider.lag = -1;
+      outOfSyncProvider.lag = -1;
+      (syncedProvider as any)._syncedBlockNumber = testSyncedBlockNumber;
+      (outOfSyncProvider as any)._syncedBlockNumber = testOutOfSyncBlockNumber;
+      (syncedProvider as any).synced = true;
+      (outOfSyncProvider as any).synced = true;
+      Sinon.stub((syncedProvider as any), "url").get(() => mockProviderUrl);
+      Sinon.stub((outOfSyncProvider as any), "url").get(() => mockProviderUrl);
     });
 
-    it("happy: no cached block number (router boot)", async () => {
-      (chainProvider as any).cache.blockNumber = new Cached<number>();
-      expect(await (chainProvider as any).onBlock(mockSyncProvider, 10, mockProviderUrl)).to.be.true;
-    });
+    it("happy", async () => {
+      (chainProvider as any)._providers = [syncedProvider, outOfSyncProvider];
+      await (chainProvider as any).syncProviders();
 
-    it("happy: provider in sync", async () => {
-      const testBlockNumber = 1234567;
-      (chainProvider as any).cache.blockNumber.set(testBlockNumber);
-      expect(await (chainProvider as any).onBlock(mockSyncProvider, testBlockNumber, mockProviderUrl)).to.be.true;
-    });
+      expect(syncedProvider.lag).to.be.eq(0);
+      const expectedOutOfSyncLag = testSyncedBlockNumber - testOutOfSyncBlockNumber;
+      expect(outOfSyncProvider.lag).to.be.eq(expectedOutOfSyncLag);
 
-    it("handles provider out of sync", async () => {
-      (chainProvider as any).cache.blockNumber.set(1234567);
-      expect(await (chainProvider as any).onBlock(mockSyncProvider, 123, mockProviderUrl)).to.be.false;
+      expect(syncedProvider.sync.callCount).to.equal(1);
+      expect(outOfSyncProvider.sync.callCount).to.equal(1);
+
+      expect(outOfSyncProvider.synced).to.be.false;
+      expect(syncedProvider.synced).to.be.true;
     });
   });
 });
