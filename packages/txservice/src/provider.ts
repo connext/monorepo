@@ -50,8 +50,6 @@ export class ChainRpcProvider {
   private cachedDecimals: Record<string, number> = {};
   // Cache of transient data (i.e. data that can change per block).
   private cache: ProviderCachedData = {
-    leadingProvider: new Cached<string>(),
-    blockNumber: new Cached<number>(),
     gasPrice: new Cached<BigNumber>(),
     transactionCount: new Cached<number>(),
   };
@@ -114,7 +112,6 @@ export class ChainRpcProvider {
             password: config.password,
           },
           this.chainId,
-          (...args) => this.onBlock(...args),
         ),
         priority: config.priority ?? 1,
         weight: config.weight ?? 1,
@@ -580,32 +577,33 @@ export class ChainRpcProvider {
    * @param url - URL of the provider.
    * @returns boolean indicating whether the provider is in sync.
    */
-  private async onBlock(provider: SyncProvider, blockNumber: number, url: string) {
-    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
-    const cachedBlockNumber = this.cache.blockNumber.get() ?? -1;
-    provider.lag = Math.max(0, cachedBlockNumber - blockNumber);
-    const synced = provider.lag < PROVIDER_MAX_LAG;
-    // Check if this is the latest block.
-    if (blockNumber > cachedBlockNumber) {
-      this.cache.blockNumber.set(blockNumber);
-      this.cache.leadingProvider.set(url);
-    }
-    
-    if (!synced && provider.synced) {
-      // If the provider was previously synced but fell out of sync, debug log to notify.
-      this.logger.debug("Provider fell out of sync.", undefined, undefined, {
-        blockNumber,
-        provider: url,
-        lag: provider.lag,
-      });
-    } else if (synced) {
-      this.logger.debug("Provider synced.", requestContext, methodContext, {
-        blockNumber,
-        provider: url,
-        lag: provider.lag,
-      });
-    }
+  protected async syncProviders(): Promise<void> {
+    const { requestContext, methodContext } = createLoggingContext(this.syncProviders.name);
 
-    return synced;
+    // First, sync all providers simultaneously.
+    await Promise.all(this._providers.map(async (p) => await p.sync()));
+
+    // Find the provider with the highest block number and use that as source of truth.
+    const highestBlock = Math.max(...this._providers.map((p) => p.syncedBlockNumber));
+    for (const provider of this._providers) {
+      const blockNumber = provider.syncedBlockNumber;
+      provider.lag = highestBlock - blockNumber;
+      const synced = provider.lag < PROVIDER_MAX_LAG;
+      if (!synced && provider.synced) {
+        // If the provider was previously synced but fell out of sync, debug log to notify.
+        this.logger.debug("Provider fell out of sync.", undefined, undefined, {
+          blockNumber,
+          provider: provider.url,
+          lag: provider.lag,
+        });
+      } else if (synced) {
+        this.logger.debug("Provider synced.", requestContext, methodContext, {
+          blockNumber,
+          provider: provider.url,
+          lag: provider.lag,
+        });
+      }
+      provider.synced = synced;
+    }
   }
 }

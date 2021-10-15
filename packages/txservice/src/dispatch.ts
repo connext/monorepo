@@ -94,6 +94,8 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Use interval promise to make sure loop iterations don't overlap.
       interval(async () => await this.mineLoop(), 2_000);
       interval(async () => await this.confirmLoop(), 2_000);
+      // Starts an interval loop that synchronizes the provider every minute.
+      interval(async () => await this.syncProviders(), 60_000);
     }
   }
 

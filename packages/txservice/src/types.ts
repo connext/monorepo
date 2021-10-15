@@ -1,6 +1,5 @@
 import { Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, providers, utils } from "ethers";
-import interval from "interval-promise";
 
 import { MaxBufferLengthError, RpcError, TransactionBackfilled } from "./error";
 
@@ -414,8 +413,6 @@ export class Cached<T> {
 }
 
 export type ProviderCachedData = {
-  leadingProvider: Cached<string>;
-  blockNumber: Cached<number>;
   gasPrice: Cached<BigNumber>;
   transactionCount: Cached<number>;
 };
@@ -426,58 +423,38 @@ export type ProviderCachedData = {
  */
 export class SyncProvider extends StaticJsonRpcProvider {
   private readonly connectionInfo: utils.ConnectionInfo;
-  private _synced = true;
-  public get synced(): boolean {
-    return this._synced;
-  }
+  public synced = true;
   public lag = 0;
+
   // This variable is used to track the last block number this provider synced to, and is kept separately from the
   // inherited `blockNumber` property (which is a getter that uses an update method).
-  private syncedBlockNumber = -1;
-  private isSyncing = false;
-  private loopsRunning = false;
+  private _syncedBlockNumber = -1;
+  public get syncedBlockNumber(): number {
+    return this._syncedBlockNumber;
+  }
+
+  public get url(): string {
+    return this.connectionInfo.url;
+  }
 
   constructor(
     _connectionInfo: utils.ConnectionInfo | string,
     public readonly chainId: number,
-    private readonly onBlock: (provider: SyncProvider, blockNumber: number, url: string) => Promise<boolean>,
   ) {
     super(_connectionInfo, chainId);
     this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
-    this.syncLoop();
   }
 
   /**
-   * Starts an interval loop that synchronizes the provider every minute.
+   * Synchronizes the provider with chain by checking the current block number and updating the syncedBlockNumber
+   * property.
    */
-  public syncLoop() {
-    if (!this.loopsRunning) {
-      this.loopsRunning = true;
-      // Use interval promise to make sure loop iterations don't overlap.
-      interval(async () => await this.sync(), 60_000);
-    }
-  }
-
-  /**
-   * Synchronizes the provider with chain by checking the current block number and setting the
-   * sync property according to the result of the onBlock() callback method.
-   *
-   * onBlock() callback should take in the provider and the block number and return a boolean value
-   * indicating whether the provider is in sync; the evaluation should be based on the block number of
-   * this provider vs that of other providers.
-   */
-  public async sync(): Promise<void> {
-    if (this.isSyncing) {
-      return;
-    }
-    this.isSyncing = true;
-    this.once("block", async (blockNumber: number) => {
-      this.syncedBlockNumber = blockNumber;
-      try {
-        this._synced = await this.onBlock(this, blockNumber, this.connectionInfo.url);
-      } finally {
-        this.isSyncing = false;
-      }
+  public sync(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.once("block", async (blockNumber: number) => {
+        this._syncedBlockNumber = blockNumber;
+        resolve();
+      });
     });
   }
 
@@ -495,26 +472,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
     if (!this.synced && method !== "eth_blockNumber") {
       throw new RpcError(RpcError.reasons.OutOfSync);
     }
-
-    // TODO: Use cache for these values in order to short-circuit calls made within ethers.
-    // if (this.connectionInfo.url !== this.parentCache.leadingProvider) {
-    //   if (method === "eth_getTransactionCount") {
-    //     if (this.parentCache.transactionCount) {
-    //       return this.parentCache.transactionCount as any;
-    //     }
-    //   } else if (method === "eth_gasPrice") {
-    //     if (this.parentCache.gasPrice) {
-    //       return this.parentCache.gasPrice as any;
-    //     }
-    //   }
-    // }
-
-    // TODO: Remove. Left here for debugging purposes / RPC call monitoring and optimization.
-    // this.logger.debug("RPC method call", undefined, undefined, {
-    //   method,
-    //   url: this.connectionInfo.url,
-    //   leading: this.parentCache.leadingProvider === this.connectionInfo.url,
-    // });
     return super.send(method, params);
   }
 }
