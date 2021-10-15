@@ -7,7 +7,6 @@ export type ChainConfig = {
     confirmations: number;
     providerUrls: string[];
     provider: providers.FallbackProvider;
-    quorum?: number;
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string;
@@ -77,13 +76,13 @@ export const getConfig = (useDefaultLocal = false): Config => {
   const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
   const chainConfig: ChainConfig = {};
   Object.entries(data.chainConfig).map(([chainId, config]) => {
-    const { providers: providerUrls, confirmations, quorum, ...rest } = config as any;
+    const { providers: providerUrls, confirmations, ...rest } = config as any;
     chainConfig[parseInt(chainId)] = {
       confirmations,
       providerUrls: providerUrls,
       provider: new providers.FallbackProvider(
         providerUrls.map((url: string) => new providers.StaticJsonRpcProvider(url, parseInt(chainId))),
-        quorum ?? 1,
+        1,
       ),
       ...rest,
     };

@@ -342,7 +342,7 @@ describe("TransactionDispatch", () => {
       // On second, follow-up attempt, txcount backtracks further:
       const error = new BadNonce(BadNonce.reasons.NonceExpired);
       backtrackTxCount = 83;
-      getTransactionCount.resolves(ok(backtrackTxCount));
+      getTransactionCount.onCall(1).resolves(ok(backtrackTxCount));
       ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces, error));
       expect(nonce).to.eq(backtrackTxCount);
       expect(transactionCount).to.eq(backtrackTxCount);
