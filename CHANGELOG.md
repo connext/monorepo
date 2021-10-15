@@ -3,6 +3,7 @@
 ## Next Release
 
 - [subgraphs] Fix user typo
+- [txservice] Sync chain providers
 
 ## 0.0.57
 
