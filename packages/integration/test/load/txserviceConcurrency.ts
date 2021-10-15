@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { delay, getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
@@ -281,8 +281,8 @@ const txserviceConcurrencyTest = async (
 
 // NOTE: With this current setup's default, we will run the concurrency loop twice - once with 500 tx's and once with 1000 tx's.
 txserviceConcurrencyTest(
-  parseInt(process.env.CONCURRENCY_MAX ?? "2000"),
-  parseInt(process.env.CONCURRENCY_MIN ?? "500"),
+  parseInt(process.env.CONCURRENCY_MAX ?? "100"),
+  parseInt(process.env.CONCURRENCY_MIN ?? "100"),
   parseInt(process.env.CONCURRENCY_STEP ?? "100"),
   undefined,
   process.env.TOKEN_ADDRESS,

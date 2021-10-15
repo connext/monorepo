@@ -21,9 +21,13 @@ import {
   TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
-import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
+import { Cached, ProviderCachedData, ReadTransaction, SyncProvider, Transaction } from "./types";
 
-const { StaticJsonRpcProvider, FallbackProvider } = providers;
+const { FallbackProvider } = providers;
+
+// TODO: Move to config
+// A provider must be within this many blocks of the "leading" provider to be considered in-sync.
+const PROVIDER_MAX_LAG = 20;
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
@@ -32,15 +36,23 @@ const { StaticJsonRpcProvider, FallbackProvider } = providers;
 export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
-  private readonly _providers: providers.JsonRpcProvider[];
+  private readonly _providers: SyncProvider[];
+  private get syncedProviders(): SyncProvider[] {
+    return this._providers.filter((provider) => provider.synced).sort((a, b) => a.lag - b.lag);
+  }
   private readonly provider: providers.FallbackProvider;
   private readonly signer?: Signer;
   private readonly quorum: number;
-  private cachedGas?: CachedGas;
+
   private lastUsedGasPrice: BigNumber | undefined = undefined;
-  private cachedTransactionCount?: CachedTransactionCount;
+
+  // Cached decimal values per asset.
   private cachedDecimals: Record<string, number> = {};
-  protected paused: Error | undefined = undefined;
+  // Cache of transient data (i.e. data that can change per block).
+  private cache: ProviderCachedData = {
+    gasPrice: new Cached<BigNumber>(),
+    transactionCount: new Cached<number>(),
+  };
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -93,7 +105,7 @@ export class ChainRpcProvider {
     });
     if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
-        provider: new StaticJsonRpcProvider(
+        provider: new SyncProvider(
           {
             url: config.url,
             user: config.user,
@@ -206,12 +218,11 @@ export class ChainRpcProvider {
   public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
     return this.resultWrapper<BigNumber>(false, async () => {
       const errors: any[] = [];
-      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
-      for (const provider of this._providers) {
+      const syncedProviders = this.syncedProviders;
+      for (const provider of syncedProviders) {
         let result: string;
         try {
           // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: #147 Is there any reason prepare should be called for each iteration?
           const args = provider.prepareRequest("estimateGas", { transaction });
           result = await provider.send(args[0], args[1]);
         } catch (error) {
@@ -257,10 +268,8 @@ export class ChainRpcProvider {
       return okAsync(BigNumber.from(hardcoded));
     }
 
-    // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    // TODO: This should cache per block, not every 3 seconds!
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
-      return okAsync(this.cachedGas.price);
+    if (!this.cache.gasPrice.expired) {
+      return okAsync(this.cache.gasPrice.get()!);
     }
 
     return this.resultWrapper<BigNumber>(false, async () => {
@@ -306,15 +315,11 @@ export class ChainRpcProvider {
       } else if (gasStations.length > 0 && gasPrice) {
         // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
         const providerQuote = await this.provider.getGasPrice();
-        this.logger.debug("Retrieved gas prices",
-          requestContext,
-          methodContext,
-          {
-            chainId: this.chainId,
-            gasStationQuote: gasPrice,
-            providerQuote,
-          }
-        );
+        this.logger.debug("Retrieved gas prices", requestContext, methodContext, {
+          chainId: this.chainId,
+          gasStationQuote: utils.parseUnits(gasPrice.toString(), "gwei"),
+          providerQuote: utils.parseUnits(providerQuote.toString(), "gwei"),
+        });
       }
 
       // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
@@ -345,22 +350,30 @@ export class ChainRpcProvider {
       }
 
       let hitMaximum = false;
-      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 100 && this.lastUsedGasPrice !== undefined) {
+      if (
+        gasPriceMaxIncreaseScalar !== undefined &&
+        gasPriceMaxIncreaseScalar > 100 &&
+        this.lastUsedGasPrice !== undefined
+      ) {
         // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
         const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
         if (gasPrice.gt(max)) {
-          hitMaximum = true;
           gasPrice = max;
+          hitMaximum = true;
+          this.logger.debug("Hit the gas price curbed maximum.", requestContext, methodContext, {
+            chainId: this.chainId,
+            gasPrice,
+            gasPriceMaxIncreaseScalar,
+            lastUsedGasPrice: this.lastUsedGasPrice,
+          });
         }
         // Update our last used gas price with this tx's gas price. This may be used to determine the cap of
         // subsuquent tx's gas price.
         this.lastUsedGasPrice = gasPrice;
       }
 
-      // Cache the latest gas price, assuming we didn't hit the maximum increase cap.
-      // We'll want to re-request the gas price if we did hit the cap.
       if (!hitMaximum) {
-        this.cachedGas = { price: gasPrice, timestamp: Date.now() };
+        this.cache.gasPrice.set(gasPrice);
       }
       return gasPrice;
     });
@@ -464,15 +477,13 @@ export class ChainRpcProvider {
    * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
    */
   public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
-    // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
-    if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
-      return okAsync(this.cachedTransactionCount.value);
-    }
+    // TODO: Implement caching for txcount (must be cached per block).
+    // if (!this.cache.transactionCount.expired) {
+    //   return okAsync(this.cache.transactionCount.get()!);
+    // }
 
     return this.resultWrapper<number>(true, async () => {
-      const value = await this.signer!.getTransactionCount(blockTag);
-      this.cachedTransactionCount = { value, timestamp: Date.now() };
-      return value;
+      return await this.signer!.getTransactionCount(blockTag);
     });
   }
 
@@ -557,5 +568,42 @@ export class ChainRpcProvider {
       });
     }
     return true;
+  }
+
+  /**
+   * Callback method used for handling a block update from synchronized providers.
+   * @param provider - SyncProvider instance this block update applies to.
+   * @param blockNumber - Current block number (according to the provider).
+   * @param url - URL of the provider.
+   * @returns boolean indicating whether the provider is in sync.
+   */
+  protected async syncProviders(): Promise<void> {
+    const { requestContext, methodContext } = createLoggingContext(this.syncProviders.name);
+
+    // First, sync all providers simultaneously.
+    await Promise.all(this._providers.map(async (p) => await p.sync()));
+
+    // Find the provider with the highest block number and use that as source of truth.
+    const highestBlock = Math.max(...this._providers.map((p) => p.syncedBlockNumber));
+    for (const provider of this._providers) {
+      const blockNumber = provider.syncedBlockNumber;
+      provider.lag = highestBlock - blockNumber;
+      const synced = provider.lag < PROVIDER_MAX_LAG;
+      if (!synced && provider.synced) {
+        // If the provider was previously synced but fell out of sync, debug log to notify.
+        this.logger.debug("Provider fell out of sync.", undefined, undefined, {
+          blockNumber,
+          provider: provider.url,
+          lag: provider.lag,
+        });
+      } else if (synced) {
+        this.logger.debug("Provider synced.", requestContext, methodContext, {
+          blockNumber,
+          provider: provider.url,
+          lag: provider.lag,
+        });
+      }
+      provider.synced = synced;
+    }
   }
 }
