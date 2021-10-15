@@ -216,7 +216,7 @@ describe("Transaction Manager", function () {
       expect(res).to.be.undefined;
     });
     it("happy case", async () => {
-      const chainId = 5;
+      const chainId = 4;
       const res = getDeployedPriceOracleContract(chainId);
       expect(res.address).to.be.a("string");
     });
