@@ -1,5 +1,5 @@
 import { Logger } from "@connext/nxtp-utils";
-import { BigNumber, constants, utils, Wallet } from "ethers";
+import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import PriorityQueue from "p-queue";
 
 import { getOnchainBalance, sendGift } from "./chain";
@@ -8,7 +8,7 @@ import { ChainConfig } from "./config";
 // const MINIMUM_FUNDING_MULTIPLE = 2;
 // const USER_MIN_ETH = utils.parseEther("0.2");
 // const USER_MIN_TOKEN = utils.parseEther("1000000");
-
+const NUM_RETRIES = 20;
 export class OnchainAccountManager {
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
@@ -91,21 +91,23 @@ export class OnchainAccountManager {
       }
     }
 
+    const connectedFunder = this.funder.connect(provider);
+
     // send gift
     const response = await funderQueue.add(async () => {
-      this.log.debug("Sending gift", undefined, undefined, {
-        assetId,
-        to: account,
-        from: this.funder.address,
-        value: toSend.toString(),
-      });
-      const response = await sendGift(
-        assetId,
-        toSend.toString(),
-        account,
-        this.funder.connect(provider),
-        this.funderNonces.get(chainId),
-      );
+      let response: providers.TransactionResponse | undefined = undefined;
+      const errors: Error[] = [];
+      for (let i = 0; i < NUM_RETRIES; i++) {
+        try {
+          response = await sendGift(assetId, toSend.toString(), account, connectedFunder, this.funderNonces.get(chainId));
+          break;
+        } catch (e) {
+          errors.push(e);
+        }
+      }
+      if (!response) {
+        throw new Error(`Failed to send gift to ${account} after ${errors.length} attempts: ${errors[0].message}`);
+      }
       this.funderNonces.set(chainId, response.nonce + 1);
       return response;
     });
