@@ -14,7 +14,8 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotConfigured } from "../error";
+import { ChainNotConfigured, PriceOracleNotConfigured } from "../error";
+import { getDecimals, getTokenPrice } from "../utils";
 
 const HARDCODED_GAS_LIMIT = BigNumber.from(125_000);
 
@@ -35,6 +36,42 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
 };
 
 /**
+ * Returns the address of the `PriceOracle` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  return { address: contract.address, abi: contract.abi };
+};
+
+/**
+ * Returns the addresses where the price oracle contract is deployed to
+ *
+ */
+export const getDeployedChainIdsForGasFee = (): number[] => {
+  const chainIdsForGasFee: number[] = [];
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = (contractDeployments as any)[String(chainId)];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
+      if (priceOracleContract) {
+        chainIdsForGasFee.push(Number(chainId));
+      }
+    }
+  });
+  return chainIdsForGasFee;
+};
+
+/**
  * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
  */
 export class TransactionManager {
@@ -42,6 +79,7 @@ export class TransactionManager {
     [chainId: number]: {
       provider: providers.FallbackProvider;
       transactionManager: TTransactionManager;
+      priceOracleAddress: string;
     };
   };
 
@@ -51,12 +89,13 @@ export class TransactionManager {
       [chainId: number]: {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
+        priceOracleAddress: string;
       };
     },
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};
-    Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress }]) => {
+    Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress, priceOracleAddress }]) => {
       const transactionManager = new Contract(
         transactionManagerAddress,
         TransactionManagerArtifact.abi,
@@ -65,6 +104,7 @@ export class TransactionManager {
       this.chainConfig[parseInt(chainId)] = {
         transactionManager,
         provider,
+        priceOracleAddress,
       };
     });
   }
@@ -401,5 +441,106 @@ export class TransactionManager {
     }
 
     return transactionManager.routerBalances(router, assetId);
+  }
+
+  /**
+   * Calculates gas amount in receiving token
+   *
+   * @param chainId - The receiving chain you want to check gas price on
+   * @param fulfillParams - The parameters for fulfill transactions
+   */
+  async calculateGasInTokenForFullfil(
+    chainId: number,
+    fulfillParams: FulfillParams,
+    _requestContext?: RequestContext<string>,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      "TransactionManager.calculateGasInToken",
+      _requestContext,
+      fulfillParams.txData.transactionId,
+    );
+
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
+
+    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
+    const gasAmount = await this.calculateGasAmountForFulfill(chainId, fulfillParams);
+    const { txData } = fulfillParams;
+
+    const ethPriceInUsd = await getTokenPrice(
+      this.chainConfig[chainId]?.priceOracleAddress,
+      constants.AddressZero,
+      provider,
+    );
+
+    if (ethPriceInUsd.isZero()) {
+      throw new PriceOracleNotConfigured(chainId, constants.AddressZero);
+    }
+
+    const receivingTokenPriceInUsd = await getTokenPrice(
+      this.chainConfig[chainId]?.priceOracleAddress,
+      txData.receivingAssetId,
+      provider,
+    );
+
+    if (receivingTokenPriceInUsd.isZero()) {
+      throw new PriceOracleNotConfigured(chainId, txData.receivingAssetId);
+    }
+
+    const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
+
+    const tokenAmount = gasAmount
+      .mul(ethPriceInUsd)
+      .div(receivingTokenPriceInUsd)
+      .div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    return tokenAmount;
+  }
+
+  /**
+   * Calculates gas amount for fulfill tranactions
+   *
+   * @param chainId The network identifier
+   * @param fulfillParams The params used for fulfill transactions
+   */
+  async calculateGasAmountForFulfill(chainId: number, fulfillParams: FulfillParams): Promise<BigNumber> {
+    const { transactionManager, provider } = this.chainConfig[chainId] ?? {};
+    if (!transactionManager || !provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
+
+    const signer = this.getConnectedSigner(provider);
+    const connected = transactionManager.connect(signer);
+    const { txData, relayerFee, signature, callData } = fulfillParams;
+
+    const contractArgs = {
+      txData,
+      relayerFee,
+      signature,
+      callData,
+      encodedMeta: "0x",
+    };
+
+    // get gas limit
+    let gasLimit = BigNumber.from(0);
+    try {
+      gasLimit = await connected.estimateGas.fulfill(contractArgs);
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    // get gas price
+    let gasPrice = BigNumber.from(0);
+    try {
+      gasPrice = await provider.getGasPrice();
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
+    return gasLimit.mul(gasPrice);
   }
 }

@@ -11,3 +11,9 @@ export class NotEnoughRelayerFee extends NxtpError {
     super(`Not enough relayer fee, ${chainId}`, context, "NotEnoughRelayerFee");
   }
 }
+
+export class NotAllowedFulfillRelay extends NxtpError {
+  constructor(chainId: number, context: any = {}) {
+    super(`Not allowed fulfill relay, ${chainId}`, context, "NotAllowFulfillRelay");
+  }
+}
