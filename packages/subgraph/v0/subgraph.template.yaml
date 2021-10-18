@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./v0//schema.graphql
+  file: ./v0/schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: TransactionManager
@@ -34,4 +34,4 @@ dataSources:
           handler: handleTransactionFulfilled
         - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address)
           handler: handleTransactionCancelled
-      file: ./src/v0/mapping.ts
+      file: ./v0/mapping.ts

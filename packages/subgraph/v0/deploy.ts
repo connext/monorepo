@@ -37,7 +37,7 @@ const run = async () => {
     networksToDeploy.push(res);
   }
 
-  const jsonFile: any = yamlToJson.load(readFileSync("./subgraph.template.yaml", "utf8"));
+  const jsonFile: any = yamlToJson.load(readFileSync("./v0/subgraph.template.yaml", "utf8"));
 
   for (const n of networksToDeploy) {
     console.log(n);
