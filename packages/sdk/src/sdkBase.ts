@@ -26,25 +26,34 @@ import {
   MetaTxTypes,
   Logger,
   createLoggingContext,
+  TransactionData,
+  RequestContext,
+  MethodContext,
 } from "@connext/nxtp-utils";
 
-import { TransactionManager, getDeployedTransactionManagerContract } from "./transactionManager/transactionManager";
 import {
   NoTransactionManager,
   NoSubgraph,
-  InvalidParamStructure,
   InvalidSlippage,
   InvalidExpiry,
+  InvalidCallTo,
   EncryptionError,
   NoBids,
   NoValidBids,
   UnknownAuctionError,
   ChainNotConfigured,
+  InvalidBidSignature,
   MetaTxTimeout,
   SubgraphsNotSynced,
-  InvalidCallTo,
-  InvalidBidSignature,
+  NoPriceOracle,
+  InvalidParamStructure,
 } from "./error";
+import {
+  TransactionManager,
+  getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedChainIdsForGasFee,
+} from "./transactionManager/transactionManager";
 import {
   NxtpSdkEventPayloads,
   CrossChainParams,
@@ -66,6 +75,7 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   getFulfillTransactionHashToSign,
+  signFulfillTransactionPayload,
   encodeAuctionBid,
   ethereumRequest,
   encrypt,
@@ -106,6 +116,7 @@ export class NxtpSdkBase {
         [chainId: number]: {
           provider: providers.FallbackProvider;
           transactionManagerAddress?: string;
+          priceOracleAddress?: string;
           subgraph?: string;
           subgraphSyncBuffer?: number;
         };
@@ -120,7 +131,8 @@ export class NxtpSdkBase {
       skipPolling?: boolean;
     },
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } = this.config;
+    const { signerAddress, chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } =
+      this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
     this.config.network = network ?? "testnet";
@@ -161,6 +173,7 @@ export class NxtpSdkBase {
       {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
+        priceOracleAddress: string;
       }
     > = {};
 
@@ -173,7 +186,13 @@ export class NxtpSdkBase {
     Object.entries(chainConfig).forEach(
       ([
         _chainId,
-        { provider, transactionManagerAddress: _transactionManagerAddress, subgraph: _subgraph, subgraphSyncBuffer },
+        {
+          provider,
+          transactionManagerAddress: _transactionManagerAddress,
+          priceOracleAddress: _priceOracleAddress,
+          subgraph: _subgraph,
+          subgraphSyncBuffer,
+        },
       ]) => {
         const chainId = parseInt(_chainId);
         let transactionManagerAddress = _transactionManagerAddress;
@@ -185,9 +204,21 @@ export class NxtpSdkBase {
           transactionManagerAddress = res.address;
         }
 
+        let priceOracleAddress = _priceOracleAddress;
+        const chainIdsForGasFee = getDeployedChainIdsForGasFee();
+        if (!priceOracleAddress && chainIdsForGasFee.includes(chainId)) {
+          const res = getDeployedPriceOracleContract(chainId);
+          if (!res || !res.address) {
+            throw new NoPriceOracle(chainId);
+          }
+
+          priceOracleAddress = res.address;
+        }
+
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
+          priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
 
         let subgraph = _subgraph;
@@ -206,15 +237,10 @@ export class NxtpSdkBase {
     );
     this.transactionManager = new TransactionManager(
       txManagerConfig,
-      config.signerAddress,
+      signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(
-      config.signerAddress,
-      subgraphConfig,
-      this.logger.child({ module: "Subgraph" }),
-      skipPolling,
-    );
+    this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -888,6 +914,44 @@ export class NxtpSdkBase {
     const cancelRequest = await this.transactionManager.cancel(chainId, cancelParams, requestContext);
     this.logger.info("Method complete", requestContext, methodContext, { cancelRequest });
     return cancelRequest;
+  }
+
+  public async estimateFulfillFee(
+    txData: TransactionData,
+    signatureForFee: string,
+    relayerFee: string,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
+      relayerFee,
+      signature: signatureForFee,
+      txData: {
+        ...txData,
+        callDataHash: utils.keccak256("0x"),
+      },
+      callData: "0x",
+    });
+
+    if (gasNeeded.isZero()) {
+      const error = new InvalidParamStructure(
+        "calculateGasInToken",
+        "TransactionManager",
+        "Failed to calculate a gas fee in token",
+        {
+          relayerFee: relayerFee,
+          signatureForFee: signatureForFee,
+          txData: txData,
+          callDataHash: utils.keccak256("0x"),
+          callData: "0x",
+        },
+      );
+      this.logger.error("Failed to calculate gas in token", requestContext, methodContext, jsonifyError(error));
+
+      throw error;
+    }
+
+    return gasNeeded;
   }
 
   /**
