@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] Add SDKBase class that does not use signer
+- [contracts] Add PriceOracle to BSC
+
 ## 0.0.58
 
 - [subgraphs] Fix user typo
