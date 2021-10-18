@@ -1,51 +1,49 @@
 /// PROD NETWORK
-export const arbitrumOne = {
-  network: "arbitrum-one",
-  address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
-  startBlock: 1915295,
-};
+export const Networks = [
+  {
+    subgraphName: "",
+    network: "arbitrum-one",
+    address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+    startBlock: 1915295,
+  },
+  {
+    network: "avalanche",
+    address: "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    startBlock: 5285668,
+  },
+  {
+    network: "bsc",
+    address: "0x2A9EA5e8cDDf40730f4f4F839F673a51600C314e",
+    startBlock: 11481191,
+  },
+  {
+    network: "chapel",
+    address: "0xBCdFdEd0F6CfAbaECdDb6Bd3866BeA42DdE7D31c",
+    startBlock: 12924456,
+  },
+  {
+    network: "fantom",
+    address: "0x0D29d9Fa94a23e0D2F06EfC79c25144A8F51Fc4b",
+    startBlock: 18291901,
+  },
+  {
+    network: "fuji",
+    address: "0xcE5E0D6870594F4923322D1771CF9606C2f1dB7e",
+    startBlock: 1908755,
+  },
+  {
+    network: "matic",
+    address: "0x6090De2EC76eb1Dc3B5d632734415c93c44Fd113",
+    startBlock: 19835794,
+  },
+  {
+    network: "xdai",
+    address: "0x115909BDcbaB21954bEb4ab65FC2aBEE9866fa93",
+    startBlock: 18410655,
+  }
+];
 
-export const avalanche = {
-  network: "avalanche",
-  address: "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
-  startBlock: 5285668,
-};
-
-export const bsc = {
-  network: "bsc",
-  address: "0x2A9EA5e8cDDf40730f4f4F839F673a51600C314e",
-  startBlock: 11481191,
-};
-
-export const chapel = {
-  network: "chapel",
-  address: "0xBCdFdEd0F6CfAbaECdDb6Bd3866BeA42DdE7D31c",
-  startBlock: 12924456,
-};
-
-export const fantom = {
-  network: "fantom",
-  address: "0x0D29d9Fa94a23e0D2F06EfC79c25144A8F51Fc4b",
-  startBlock: 18291901,
-};
-
-export const fuji = {
-  network: "fuji",
-  address: "0xcE5E0D6870594F4923322D1771CF9606C2f1dB7e",
-  startBlock: 1908755,
-};
-
-export const matic = {
-  network: "matic",
-  address: "0x6090De2EC76eb1Dc3B5d632734415c93c44Fd113",
-  startBlock: 19835794,
-};
-
-export const xdai = {
-  network: "xdai",
-  address: "0x115909BDcbaB21954bEb4ab65FC2aBEE9866fa93",
-  startBlock: 18410655,
-};
+export const xdai = ;
 
 /// TEST NETWORK
 
