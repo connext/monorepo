@@ -71,7 +71,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     router.save();
   }
 
-  let user = User.load(event.params.txData.router.toHex());
+  let user = User.load(event.params.txData.user.toHex());
   if (user == null) {
     user = new User(event.params.txData.user.toHex());
     user.save();

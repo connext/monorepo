@@ -3,6 +3,7 @@ import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
   signFulfillTransactionPayload as _signFulfillTransactionPayload,
+  getFulfillTransactionHashToSign as _getFulfillTransactionHashToSign,
   ERC20Abi,
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
@@ -84,6 +85,8 @@ export const getTokenPrice = async (
  *
  */
 export const signFulfillTransactionPayload = _signFulfillTransactionPayload;
+
+export const getFulfillTransactionHashToSign = _getFulfillTransactionHashToSign;
 
 /**
  * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
