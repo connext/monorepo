@@ -414,13 +414,11 @@ describe("Transaction Manager", function () {
         ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
 
-      it.skip("happy case", async () => {
+      it("happy case", async () => {
         const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
 
         const res = await user.sendTransaction(approveReq);
-        console.log(res);
         const receipt = await res.wait();
-        console.log(receipt);
         expect(receipt.status).to.be.eq(1);
       });
     });
