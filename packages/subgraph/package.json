@@ -5,9 +5,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "yarn codegen && graph build",
-    "clean": "rimraf ./build ./tsconfig.tsBuildInfo ./generated",
+    "clean": "rm -rf ./build ./tsconfig.tsBuildInfo ./generated",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
+    "deployV0": "ts-node ./script/deploy-v0.ts",
     "prepare:xdai:prod": "mustache config/xdai.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:xdai:staging": "mustache config/xdai.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:bsc:prod": "mustache config/bsc.prod.json subgraph.template.yaml > subgraph.yaml",
@@ -69,11 +70,17 @@
   ],
   "dependencies": {
     "ethers": "^5.4.6",
-    "mustache": "^4.2.0"
+    "js-yaml": "^4.1.0",
+    "mustache": "^4.2.0",
+    "ts-node": "^10.3.0",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.21.1",
     "@graphprotocol/graph-ts": "^0.20.1",
+    "@types/js-yaml": "^4",
+    "@types/mustache": "^4.1.2",
+    "@types/yaml": "^1",
     "sinon": "^11.1.2"
   }
 }
