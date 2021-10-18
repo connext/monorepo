@@ -75,7 +75,6 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   getFulfillTransactionHashToSign,
-  signFulfillTransactionPayload,
   encodeAuctionBid,
   ethereumRequest,
   encrypt,
