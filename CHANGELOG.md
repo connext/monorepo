@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## 0.0.60
+## 0.0.61
 
 - [sdk] Add SDKBase class that does not use signer
 - [contracts] Add PriceOracle to BSC
