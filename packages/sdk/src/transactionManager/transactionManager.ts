@@ -338,7 +338,7 @@ export class TransactionManager {
       ]);
       this.logger.info("Approve transaction created", requestContext, methodContext);
       return {
-        to: transactionManagerAddress,
+        to: assetId,
         data,
         value: "0",
         from: await this.signerAddress,
