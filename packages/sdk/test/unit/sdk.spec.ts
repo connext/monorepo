@@ -18,7 +18,14 @@ import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdk";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
 import { Evt } from "evt";
-import { EncryptionError, SubmitError } from "../../src/error";
+import {
+  EncryptionError,
+  SubmitError,
+  NoTransactionManager,
+  NoSubgraph,
+  ChainNotConfigured,
+  MetaTxTimeout,
+} from "../../src/error";
 import { getAddress } from "ethers/lib/utils";
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
@@ -43,7 +50,7 @@ describe("NxtpSdk", () => {
   let balanceStub: SinonStub;
   let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
   let ethereumRequestStub: SinonStub<[method: string, params: string[]], Promise<any>>;
-  let transactionManagerStub: SinonStub;
+  let transactionManagerStub: SinonStubbedInstance<TransactionManager>;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -54,8 +61,10 @@ describe("NxtpSdk", () => {
   let priceOracleAddress: string = mkAddress("0xccc");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
+  const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
   beforeEach(async () => {
+    transactionManagerStub = createStubInstance(TransactionManager);
     provider1337 = createStubInstance(providers.FallbackProvider);
     (provider1337 as any)._isProvider = true;
     provider1338 = createStubInstance(providers.FallbackProvider);
@@ -80,6 +89,7 @@ describe("NxtpSdk", () => {
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
     sdkBase.cancel.resolves(CancelReq);
+    sdkBase.estimateFulfillFee.resolves(BigNumber.from(1));
 
     stub(utils, "getDecimals").resolves(18);
     stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
@@ -354,52 +364,6 @@ describe("NxtpSdk", () => {
   });
 
   describe("#fulfillTransfer", () => {
-    describe("should error if invalid param", () => {
-      it("invalid user", async () => {
-        const { transaction, record } = await getTransactionData({ user: "abc" });
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
-        );
-      });
-
-      it("invalid params in case gasAmount is zero", async () => {
-        const { transaction, record } = await getTransactionData();
-        transactionManager.calculateGasInTokenForFullfil.resolves(constants.Zero);
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-
-            encryptedCallData: EmptyCallDataHash,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("calculateGasInToken", "TransactionManager"));
-      });
-
-      it("invalid encryptedCallData", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await expect(
-          sdk.fulfillTransfer({
-            txData: { ...transaction, ...record },
-            encryptedCallData: 1 as any,
-            encodedBid: EmptyCallDataHash,
-            bidSignature: EmptyCallDataHash,
-          }),
-        ).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
-        );
-      });
-    });
-
     describe("should error if invalid config", () => {
       it("unkown sendingChainId", async () => {
         const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
@@ -441,20 +405,13 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith("fails");
+      ).to.eventually.be.rejectedWith(EncryptionError.getMessage("decryption failed"));
     });
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
-      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
-      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
-
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          err: "Blahhh",
-        });
-      }, 200);
+      transactionManagerStub.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
+      sdkBase.fulfillTransfer.throws(new MetaTxTimeout(transaction.transactionId, 1_000, {} as any));
 
       try {
         await sdk.fulfillTransfer({
@@ -472,9 +429,14 @@ describe("NxtpSdk", () => {
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
-      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
+      transactionManagerStub.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
 
-      sdkBase.fulfillTransfer.resolves({ metaTxResponse });
+      const mockTransactionHash = getRandomBytes32();
+      const mockMetaTxResponse = {
+        transactionHash: mockTransactionHash,
+        chainId: transaction.chainId,
+      };
+      sdkBase.fulfillTransfer.resolves({ metaTxResponse: mockMetaTxResponse });
 
       const res = await sdk.fulfillTransfer({
         txData: { ...transaction, ...record },
@@ -483,7 +445,7 @@ describe("NxtpSdk", () => {
         bidSignature: EmptyCallDataHash,
       });
 
-      expect(res.metaTxResponse).to.deep.eq(metaTxResponse);
+      expect(res.metaTxResponse).to.deep.eq(mockMetaTxResponse);
       expect(res.fulfillResponse).to.be.undefined;
     });
 
