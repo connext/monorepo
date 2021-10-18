@@ -8,6 +8,7 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   expect,
+  Logger,
 } from "@connext/nxtp-utils";
 import { utils, constants, BigNumber } from "ethers";
 
@@ -20,7 +21,6 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
-import pino, { BaseLogger } from "pino";
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 import {
   TransactionManager,
@@ -32,7 +32,7 @@ import { ChainNotConfigured, PriceOracleNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
 
 const { AddressZero } = constants;
-const logger: BaseLogger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 const EmptyBytes = "0x";
 const EmptyCallDataHash = utils.keccak256(EmptyBytes);
 
@@ -136,7 +136,6 @@ describe("Transaction Manager", function () {
     await tx.wait();
 
     userTransactionManager = new TransactionManager(
-      user,
       {
         [sendingChainId]: {
           provider: user.provider,
@@ -147,11 +146,11 @@ describe("Transaction Manager", function () {
           transactionManagerAddress: transactionManagerReceiverSide.address,
         },
       },
+      user.getAddress(),
       logger,
     );
 
     routerTransactionManager = new TransactionManager(
-      router,
       {
         [sendingChainId]: {
           provider: router.provider,
@@ -162,6 +161,7 @@ describe("Transaction Manager", function () {
           transactionManagerAddress: transactionManagerReceiverSide.address,
         },
       },
+      router.getAddress(),
       logger,
     );
   });
@@ -263,23 +263,6 @@ describe("Transaction Manager", function () {
         );
       });
 
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        const prepareParams: PrepareParams = {
-          txData: transaction,
-          amount: record.amount,
-          expiry: record.expiry,
-          encryptedCallData: EmptyBytes,
-          encodedBid: EmptyBytes,
-          bidSignature: EmptyBytes,
-        };
-
-        await expect(userTransactionManager.prepare(transaction.sendingChainId, prepareParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
-        );
-      });
-
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
@@ -323,36 +306,6 @@ describe("Transaction Manager", function () {
         );
       });
 
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(
-          transaction,
-          record,
-          user,
-          transactionManager,
-          userTransactionManager,
-        );
-
-        const signature = await signCancelTransactionPayload(
-          transaction.transactionId,
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const cancelParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
-          relayerFee: relayerFee,
-          signature: signature,
-        };
-
-        await expect(userTransactionManager.cancel(transaction.sendingChainId, cancelParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
-        );
-      });
-
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
 
@@ -382,7 +335,7 @@ describe("Transaction Manager", function () {
 
         const res = await userTransactionManager.cancel(transaction.sendingChainId, cancelParams);
 
-        const receipt = await res.wait();
+        const receipt = await (await user.sendTransaction(res)).wait();
 
         expect(receipt.status).to.be.eq(1);
       });
@@ -424,35 +377,8 @@ describe("Transaction Manager", function () {
         );
       });
 
-      it("should error if transaction fails", async () => {
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
-
-        const signature = await signFulfillTransactionPayload(
-          transaction.transactionId,
-          relayerFee.toString(),
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const fulfillParams: FulfillParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: 0 },
-          relayerFee: relayerFee,
-          signature: signature,
-          callData: EmptyBytes,
-        };
-
-        await expect(routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams)).to.be.rejectedWith(
-          "Exception while processing transaction",
-        );
-      });
-
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
-
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
         const { blockNumber } = await prepareAndAssert(
           transaction,
@@ -461,7 +387,6 @@ describe("Transaction Manager", function () {
           transactionManager,
           userTransactionManager,
         );
-
         const signature = await signFulfillTransactionPayload(
           transaction.transactionId,
           relayerFee.toString(),
@@ -469,17 +394,14 @@ describe("Transaction Manager", function () {
           transaction.receivingChainTxManagerAddress,
           user,
         );
-
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
           relayerFee: relayerFee,
           signature: signature,
           callData: EmptyBytes,
         };
-
         const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);
-
-        const receipt = await res.wait();
+        const receipt = await (await router.sendTransaction(res)).wait();
         expect(receipt.status).to.be.eq(1);
       });
     });
@@ -493,8 +415,9 @@ describe("Transaction Manager", function () {
       });
 
       it("happy case", async () => {
-        const res = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
+        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
 
+        const res = await user.sendTransaction(approveReq);
         const receipt = await res.wait();
         expect(receipt.status).to.be.eq(1);
       });
