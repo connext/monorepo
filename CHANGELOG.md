@@ -4,6 +4,7 @@
 
 - [sdk] Add SDKBase class that does not use signer
 - [contracts] Add PriceOracle to BSC
+- [sdk] Add way to bypass messaging signer
 
 ## 0.0.58
 
