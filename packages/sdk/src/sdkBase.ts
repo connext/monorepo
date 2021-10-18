@@ -122,6 +122,7 @@ export class NxtpSdkBase {
       };
       signerAddress: Promise<string>;
       signer?: Signer;
+      messagingSigner?: Signer;
       logger?: Logger;
       network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
@@ -130,7 +131,7 @@ export class NxtpSdkBase {
       skipPolling?: boolean;
     },
   ) {
-    const { signerAddress, chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling } =
+    const { signerAddress, chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling } =
       this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
@@ -160,7 +161,7 @@ export class NxtpSdkBase {
         }
       }
       this.messaging = new UserNxtpNatsMessagingService({
-        signer: signer ?? Wallet.createRandom(), // create random wallet just for messaging auth
+        signer: messagingSigner ?? Wallet.createRandom(), // create random wallet just for messaging auth
         logger: this.logger.child({ module: "UserNxtpNatsMessagingService" }),
         natsUrl: _natsUrl,
         authUrl: _authUrl,

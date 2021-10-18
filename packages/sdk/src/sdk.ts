@@ -93,6 +93,7 @@ export class NxtpSdk {
         };
       };
       signer: Signer;
+      messagingSigner?: Signer;
       logger?: Logger;
       network?: "testnet" | "mainnet" | "local";
       natsUrl?: string;
@@ -102,7 +103,8 @@ export class NxtpSdk {
       sdkBase?: NxtpSdkBase;
     },
   ) {
-    const { chainConfig, signer, messaging, natsUrl, authUrl, logger, network, skipPolling, sdkBase } = this.config;
+    const { chainConfig, signer, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling, sdkBase } =
+      this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk" });
 
@@ -117,6 +119,7 @@ export class NxtpSdk {
         signer,
         logger: this.logger.child({ name: "NxtpSdkBase" }),
         network,
+        messagingSigner,
         skipPolling,
       });
   }
