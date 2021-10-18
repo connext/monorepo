@@ -5,6 +5,7 @@ export {
   NotEnoughGas,
   ZeroValueBid,
   AuctionExpired,
+  NotEnoughAmount,
 } from "./auction";
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
