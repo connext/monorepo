@@ -8,8 +8,8 @@ import {
   TransactionCancelled,
   TransactionFulfilled,
   TransactionPrepared,
-} from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../generated/schema";
+} from "../../generated/TransactionManager/TransactionManager";
+import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist

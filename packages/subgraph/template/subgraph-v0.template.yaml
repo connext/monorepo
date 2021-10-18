@@ -22,7 +22,7 @@ dataSources:
         - TransactionPrepared
       abis:
         - name: TransactionManager
-          file: ./abis/TransactionManager-v0.json
+          file: ./abis/v0/TransactionManager.json
       eventHandlers:
         - event: LiquidityAdded(indexed address,indexed address,uint256,address)
           handler: handleLiquidityAdded
@@ -34,4 +34,4 @@ dataSources:
           handler: handleTransactionFulfilled
         - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address)
           handler: handleTransactionCancelled
-      file: ./src/mapping-v0.ts
+      file: ./src/v0/mapping.ts
