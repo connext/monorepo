@@ -340,7 +340,6 @@ export class TransactionManager {
       return {
         to: assetId,
         data,
-        value: "0",
         from: await this.signerAddress,
       };
     } else {
