@@ -9,7 +9,7 @@ import util from "util";
 const exec = util.promisify(_exec);
 
 export type Network = {
-  subgrpahName: string;
+  subgraphName: string;
   network: string;
   address: string;
   startBlock: number;
@@ -48,7 +48,7 @@ const run = async () => {
 
     console.log("Running Deployment for " + n.network);
     const { stdout: out, stderr: err } = await exec(
-      `yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgrpahName} --access-token 7472f2dc1bfc456583a126e09607f099`,
+      `yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token 7472f2dc1bfc456583a126e09607f099`,
     );
 
     console.log(`stdout: ${out}`);
