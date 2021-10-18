@@ -1,0 +1,106 @@
+type AssetBalance @entity {
+  id: ID!
+  amount: BigInt!
+  router: Router!
+  assetId: Bytes!
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+  transactions: [Transaction!]! @derivedFrom(field: "router")
+}
+
+enum TransactionStatus {
+  Prepared
+  Fulfilled
+  Cancelled
+}
+
+# Transaction represents a transaction
+type Transaction @entity {
+  id: ID!
+  # Subgraph Meta
+  status: TransactionStatus!
+  chainId: BigInt!
+  preparedTimestamp: BigInt!
+
+  # TransactionData
+  receivingChainTxManagerAddress: Bytes!
+  user: User!
+  router: Router!
+  initiator: Bytes!
+  sendingAssetId: Bytes!
+  receivingAssetId: Bytes!
+  sendingChainFallback: Bytes!
+  callTo: Bytes!
+  receivingAddress: Bytes!
+  callDataHash: Bytes!
+  transactionId: Bytes!
+  sendingChainId: BigInt!
+  receivingChainId: BigInt!
+  amount: BigInt!
+  expiry: BigInt!
+  preparedBlockNumber: BigInt!
+
+  # TransactionPrepared
+  encryptedCallData: String!
+  prepareCaller: Bytes
+  bidSignature: Bytes!
+  encodedBid: String!
+  prepareTransactionHash: Bytes!
+  prepareMeta: Bytes
+
+  # TransactionFulfilled
+  relayerFee: BigInt
+  signature: Bytes
+  callData: String
+  externalCallSuccess: Boolean
+  externalCallIsContract: Boolean
+  externalCallReturnData: Bytes
+  fulfillCaller: Bytes
+  fulfillTransactionHash: Bytes
+  fulfillMeta: Bytes
+  fulfillTimestamp: BigInt
+
+  # TransactionCancelled
+  cancelCaller: Bytes
+  cancelTransactionHash: Bytes
+  cancelMeta: Bytes
+  cancelTimestamp: BigInt
+}
+
+# User entity keeps track of active user transactions
+type User @entity {
+  id: ID!
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+}
+
+type HourlyMetric @entity {
+  # unique hourly id per asset created by dividing timestamp by 3600 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  hourStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # hourly volume per asset
+  volume: BigInt!
+  # hourly liquidity per asset
+  liquidity: BigInt!
+  # hourly number of transactions per asset
+  txCount: BigInt!
+}
+
+type DayMetric @entity {
+  # unique hourly id per asset created by dividing timestamp by 86400 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  dayStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # hourly volume per asset
+  volume: BigInt!
+  # hourly number of transactions per asset
+  txCount: BigInt!
+}
