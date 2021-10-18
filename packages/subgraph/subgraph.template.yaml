@@ -8,8 +8,7 @@ dataSources:
     source:
       address: "{{address}}"
       abi: TransactionManager
-      # prettier-ignore
-      startBlock: {{startBlock}}
+      startBlock: "{{startBlock}}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
