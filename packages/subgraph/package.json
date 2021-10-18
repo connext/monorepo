@@ -8,7 +8,7 @@
     "clean": "rm -rf ./build ./tsconfig.tsBuildInfo ./generated",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
-    "deployV0": "ts-node ./script/deploy-v0.ts",
+    "deployV0": "ts-node ./v0/deploy.ts",
     "prepare:xdai:prod": "mustache config/xdai.prod.json subgraph.template.yaml > subgraph.yaml",
     "prepare:xdai:staging": "mustache config/xdai.staging.json subgraph.template.yaml > subgraph.yaml",
     "prepare:bsc:prod": "mustache config/bsc.prod.json subgraph.template.yaml > subgraph.yaml",
