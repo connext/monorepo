@@ -4,12 +4,16 @@
     "4": {
       "providers": ["https://rinkeby.infura.io/v3/"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby",
+      "allowFulfillRelay": true,
+      "relayerFeeThreshold": 10
     },
     "5": {
       "providers": ["https://goerli.infura.io/v3/"],
       "confirmations": 1,
-      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
+      "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli",
+      "allowFulfillRelay": true,
+      "relayerFeeThreshold": 10
     }
   },
   "logLevel": "info",

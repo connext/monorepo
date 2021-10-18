@@ -23,6 +23,7 @@ import { getAddress } from "ethers/lib/utils";
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
+import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -42,6 +43,7 @@ describe("NxtpSdk", () => {
   let balanceStub: SinonStub;
   let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
   let ethereumRequestStub: SinonStub<[method: string, params: string[]], Promise<any>>;
+  let transactionManagerStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -49,6 +51,7 @@ describe("NxtpSdk", () => {
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
+  let priceOracleAddress: string = mkAddress("0xccc");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
@@ -62,11 +65,13 @@ describe("NxtpSdk", () => {
         provider: provider1337,
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
       [receivingChainId]: {
         provider: provider1338,
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
+        priceOracleAddress: constants.AddressZero,
       },
     };
     signer = createStubInstance(Wallet);
@@ -77,8 +82,11 @@ describe("NxtpSdk", () => {
     sdkBase.cancel.resolves(CancelReq);
 
     stub(utils, "getDecimals").resolves(18);
+    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
     ethereumRequestStub = stub(utils, "ethereumRequest");
+
+    stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
@@ -196,7 +204,84 @@ describe("NxtpSdk", () => {
     return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken };
   };
 
-  describe("#constructor", () => {});
+  describe("#constructor", () => {
+    it("should error if transaction manager doesn't exist for chainId", async () => {
+      const _chainConfig = {
+        [sendingChainId]: {
+          provider: provider1337,
+          subgraph: "http://example.com",
+        },
+      };
+      let error;
+      try {
+        const instance = new NxtpSdk({
+          chainConfig: _chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
+          logger,
+          network: "mainnet",
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+
+      expect(error.message).to.be.eq(NoTransactionManager.getMessage(sendingChainId));
+    });
+
+    it("should error if subgraph doesn't exist for chainId", async () => {
+      const _chainConfig = {
+        [sendingChainId]: {
+          provider: provider1337,
+          transactionManagerAddress: sendingChainTxManagerAddress,
+          priceOracleAddress: priceOracleAddress,
+        },
+      };
+
+      let error;
+      try {
+        const instance = new NxtpSdk({
+          chainConfig: _chainConfig,
+          signer,
+          natsUrl: "http://example.com",
+          authUrl: "http://example.com",
+          messaging: undefined,
+          logger,
+          network: "local",
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.an("error");
+      expect(error.message).to.be.eq(NoSubgraph.getMessage(sendingChainId));
+    });
+
+    it("happy: constructor, get transactionManager address", async () => {
+      const chainConfig = {
+        [4]: {
+          provider: provider1337,
+          subgraph: "http://example.com",
+          priceOracleAddress: priceOracleAddress,
+        },
+        [5]: {
+          provider: provider1338,
+          subgraph: "http://example.com",
+          priceOracleAddress: priceOracleAddress,
+        },
+      };
+      const instance = new NxtpSdk({
+        chainConfig,
+        signer,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        network: "testnet",
+        logger,
+      });
+    });
+  });
 
   describe("#connectMessaging", () => {
     it("should work", async () => {
@@ -269,7 +354,82 @@ describe("NxtpSdk", () => {
   });
 
   describe("#fulfillTransfer", () => {
-    it("throws error if calldata needs to be decrypted and fails", async () => {
+    describe("should error if invalid param", () => {
+      it("invalid user", async () => {
+        const { transaction, record } = await getTransactionData({ user: "abc" });
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(
+          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
+        );
+      });
+
+      it("invalid params in case gasAmount is zero", async () => {
+        const { transaction, record } = await getTransactionData();
+        transactionManager.calculateGasInTokenForFullfil.resolves(constants.Zero);
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("calculateGasInToken", "TransactionManager"));
+      });
+
+      it("invalid encryptedCallData", async () => {
+        const { transaction, record } = await getTransactionData();
+
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+            encryptedCallData: 1 as any,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(
+          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
+        );
+      });
+    });
+
+    describe("should error if invalid config", () => {
+      it("unkown sendingChainId", async () => {
+        const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
+      });
+
+      it("unkown receivingChainId", async () => {
+        const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
+
+        await expect(
+          sdk.fulfillTransfer({
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          }),
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
+      });
+    });
+
+    it("should error if signFulfillTransactionPayload errors", async () => {
       const { transaction, record } = await getTransactionData();
 
       ethereumRequestStub.rejects("foo");
@@ -281,12 +441,38 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith(EncryptionError.getMessage("decryption failed"));
+      ).to.eventually.be.rejectedWith("fails");
+    });
+
+    it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
+      const { transaction, record } = await getTransactionData();
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
+      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          err: "Blahhh",
+        });
+      }, 200);
+
+      try {
+        await sdk.fulfillTransfer({
+          txData: { ...transaction, ...record },
+
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        });
+        expect("Should have errored").to.be.undefined;
+      } catch (e) {
+        expect(e.message).to.be.eq(MetaTxTimeout.getMessage(1_000));
+      }
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
       const { transaction, record } = await getTransactionData();
-      const metaTxResponse = { chainId: 1337, transactionHash: mkBytes32() };
+      transactionManager.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
 
       sdkBase.fulfillTransfer.resolves({ metaTxResponse });
 

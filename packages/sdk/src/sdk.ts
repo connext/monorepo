@@ -1,4 +1,4 @@
-import { providers, Signer, utils } from "ethers";
+import { providers, Signer, utils, BigNumber } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -8,9 +8,13 @@ import {
   jsonifyError,
   Logger,
   createLoggingContext,
+  TransactionData,
+  RequestContext,
+  MethodContext,
 } from "@connext/nxtp-utils";
 
-import { SubmitError, EncryptionError } from "./error";
+import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
+import { SubmitError, ChainNotConfigured, EncryptionError } from "./error";
 import {
   NxtpSdkEvent,
   NxtpSdkEventPayloads,
@@ -83,6 +87,7 @@ export class NxtpSdk {
         [chainId: number]: {
           provider: providers.FallbackProvider;
           transactionManagerAddress?: string;
+          priceOracleAddress?: string;
           subgraph?: string;
           subgraphSyncBuffer?: number;
         };
@@ -303,10 +308,31 @@ export class NxtpSdk {
 
     const signerAddress = await this.config.signer.getAddress();
 
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    let calculateRelayerFee = relayerFee;
+    const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
+    if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
+      const gasNeeded = await this.estimateFulfillFee(txData, relayerFee, requestContext, methodContext);
+      this.logger.info(
+        `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
+        requestContext,
+        methodContext,
+      );
+
+      calculateRelayerFee = gasNeeded.toString();
+    }
+
     this.logger.info("Generating fulfill signature", requestContext, methodContext);
     const signature = await signFulfillTransactionPayload(
       txData.transactionId,
-      relayerFee,
+      calculateRelayerFee,
       txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       this.config.signer,
@@ -314,8 +340,7 @@ export class NxtpSdk {
 
     this.logger.info("Generated signature", requestContext, methodContext, { signature });
     this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
-    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { relayerFee });
-
+    this.logger.info("Preparing fulfill tx", requestContext, methodContext, { calculateRelayerFee });
     let callData = "0x";
     if (txData.callDataHash !== utils.keccak256(callData)) {
       try {
@@ -335,6 +360,30 @@ export class NxtpSdk {
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { fulfillResponse };
     }
+  }
+
+  public async estimateFulfillFee(
+    txData: TransactionData,
+    relayerFee: string,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    const signatureForFee = await signFulfillTransactionPayload(
+      txData.transactionId,
+      relayerFee,
+      txData.receivingChainId,
+      txData.receivingChainTxManagerAddress,
+      this.config.signer,
+    );
+
+    const estimateFulfillFeeResponse = await this.sdkBase.estimateFulfillFee(
+      txData,
+      signatureForFee,
+      relayerFee,
+      requestContext,
+      methodContext,
+    );
+    return estimateFulfillFeeResponse;
   }
 
   /**

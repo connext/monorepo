@@ -28,6 +28,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   let assetBalance = AssetBalance.load(assetBalanceId);
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
+    assetBalance.assetId = event.params.assetId;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
   }
@@ -70,7 +71,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     router.save();
   }
 
-  let user = User.load(event.params.txData.router.toHex());
+  let user = User.load(event.params.txData.user.toHex());
   if (user == null) {
     user = new User(event.params.txData.user.toHex());
     user.save();
@@ -195,6 +196,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.assetId = transaction.sendingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }
@@ -278,6 +280,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.assetId = transaction.receivingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }

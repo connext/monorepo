@@ -13,42 +13,18 @@ echo "Deploying $deployment to $network..."
 
 if [ "$network" = "testnets" ]
 then
-  echo "Deploying to ropsten"
-  yarn workspace @connext/nxtp-subgraph deploy:ropsten:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to ropsten"
-
-  echo "Deploying to rinkeby"
-  yarn workspace @connext/nxtp-subgraph deploy:rinkeby:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to rinkeby"
-
-  echo "Deploying to goerli"
-  yarn workspace @connext/nxtp-subgraph deploy:goerli:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to goerli"
-
-  echo "Deploying to kovan"
-  yarn workspace @connext/nxtp-subgraph deploy:kovan:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to kovan"
-
-  echo "Deploying to chapel"
-  yarn workspace @connext/nxtp-subgraph deploy:chapel:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to chapel"
-
-  echo "Deploying to mumbai"
-  yarn workspace @connext/nxtp-subgraph deploy:mumbai:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to mumbai"
-
-  echo "Deploying to arbitrum-rinkeby"
-  yarn workspace @connext/nxtp-subgraph deploy:arbitrum-rinkeby:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to arbitrum-rinkeby"
-
-  echo "Deploying to fuji"
-  yarn workspace @connext/nxtp-subgraph deploy:fuji:$deployment --access-token "$GRAPH_API_KEY"
-  echo "Deployed to fuji"
-
-elif [ "$network" != "mainnets" ]
+  chains=("ropsten" "rinkeby" "goerli" "kovan" "chapel" "mumbai", "arbitrum-rinkeby", "fuji")
+elif [ "$network" = "mainnets" ]
 then
+  chains=("xdai" "bsc" "fantom" "matic" "arbitrum-one" "avalanche")
+else
   echo "Network must be 'testnets' or 'mainnets'"
   exit 1
 fi
 
-echo "FIXME: deploy to mainnets"
+for chain in ${chains[*]}
+do
+  echo "Deploying to $chain"
+  yarn workspace @connext/nxtp-subgraph deploy:$chain:$deployment --access-token "$GRAPH_API_KEY"
+  echo "Deployed to $chain"
+done

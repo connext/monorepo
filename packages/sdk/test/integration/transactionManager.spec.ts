@@ -10,7 +10,7 @@ import {
   expect,
   Logger,
 } from "@connext/nxtp-utils";
-import { utils, constants } from "ethers";
+import { utils, constants, BigNumber } from "ethers";
 
 import {
   Counter,
@@ -25,8 +25,10 @@ import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 import {
   TransactionManager,
   getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedChainIdsForGasFee,
 } from "../../src/transactionManager/transactionManager";
-import { ChainNotConfigured } from "../../src/error";
+import { ChainNotConfigured, PriceOracleNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
 
 const { AddressZero } = constants;
@@ -192,6 +194,38 @@ describe("Transaction Manager", function () {
       const chainId = 5;
       const res = getDeployedTransactionManagerContract(chainId);
       expect(res.address).to.be.a("string");
+    });
+  });
+
+  describe("#getDeployedPriceOracleContract", () => {
+    it("should undefined if no transaction manager", () => {
+      const res = getDeployedPriceOracleContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedPriceOracleContract(4);
+      expect(res).to.be.ok;
+    });
+  });
+
+  describe("getDeployedPriceOracleContract", () => {
+    it("happy case: returns undefined", async () => {
+      const chainId = sendingChainId;
+      const res = getDeployedPriceOracleContract(chainId);
+      expect(res).to.be.undefined;
+    });
+    it("happy case", async () => {
+      const chainId = 4;
+      const res = getDeployedPriceOracleContract(chainId);
+      expect(res.address).to.be.a("string");
+    });
+  });
+
+  describe("getDeployedChainIdsForGasFee", () => {
+    it("happy case", async () => {
+      const res = getDeployedChainIdsForGasFee();
+      expect(res).to.be.includes(4);
     });
   });
 
@@ -416,6 +450,40 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
         expect(res.toString()).to.be.eq(routerFunds);
+      });
+    });
+
+    describe("calculateGasInTokenForFullfill", () => {
+      it("should error if unfamiliar chainId", async () => {
+        const InvalidChainId = 123;
+        const { transaction, record } = await getTransactionData();
+
+        await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        const { blockNumber } = await prepareAndAssert(
+          transaction,
+          record,
+          user,
+          transactionManager,
+          userTransactionManager,
+        );
+
+        const signature = await signFulfillTransactionPayload(
+          transaction.transactionId,
+          "0",
+          transaction.receivingChainId,
+          transaction.receivingChainTxManagerAddress,
+          user,
+        );
+
+        const fulfillParams: FulfillParams = {
+          txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
+          relayerFee: "0",
+          signature: signature,
+          callData: EmptyBytes,
+        };
+        await expect(
+          userTransactionManager.calculateGasInTokenForFullfil(InvalidChainId, fulfillParams),
+        ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
     });
   });
