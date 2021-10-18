@@ -3,7 +3,7 @@ import YAML from "yaml";
 import { readFileSync, writeFileSync } from "fs";
 import { safeJsonStringify } from "@connext/nxtp-utils";
 import { exec as _exec } from "child_process";
-import { Networks } from "../config/v0";
+import { Networks } from "./config";
 import util from "util";
 
 const exec = util.promisify(_exec);
@@ -19,6 +19,11 @@ const run = async () => {
   const cmdArg = process.argv.slice(2);
   const cmdNetwork = cmdArg[0];
 
+  if (!cmdNetwork) {
+    console.log("please add network or all after the command");
+    return;
+  }
+
   let networksToDeploy: Network[] = [];
   if (cmdNetwork.toUpperCase() === "ALL") {
     networksToDeploy = Networks;
@@ -32,7 +37,7 @@ const run = async () => {
     networksToDeploy.push(res);
   }
 
-  const jsonFile: any = yamlToJson.load(readFileSync("./subgraph-v0.template.yaml", "utf8"));
+  const jsonFile: any = yamlToJson.load(readFileSync("./subgraph.template.yaml", "utf8"));
 
   for (const n of networksToDeploy) {
     console.log(n);
@@ -46,20 +51,19 @@ const run = async () => {
     doc.contents = obj;
     writeFileSync("./subgraph.yaml", doc.toString());
 
-    console.log("Running Deployment for " + n.network);
-    const { stdout: out, stderr: err } = await exec(
-      `yarn build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token 7472f2dc1bfc456583a126e09607f099`,
-    );
+    console.log("Running Build command for " + n.network);
+    const { stdout: out, stderr: err } = await exec(`yarn build`);
 
     console.log(`stdout: ${out}`);
     console.error(`stderr: ${err}`);
 
-    // const { stdout, stderr } = await exec(
-    //   ``,
-    // );
+    console.log("Running Deployment command for " + n.network);
+    const { stdout, stderr } = await exec(
+      `graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token 7472f2dc1bfc456583a126e09607f099`,
+    );
 
-    // console.log(`stdout: ${stdout}`);
-    // console.error(`stderr: ${stderr}`);
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
   }
 };
 run();

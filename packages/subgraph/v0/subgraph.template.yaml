@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: ./v0//schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: TransactionManager
@@ -22,7 +22,7 @@ dataSources:
         - TransactionPrepared
       abis:
         - name: TransactionManager
-          file: ./abis/v0/TransactionManager.json
+          file: ./v0/abis/TransactionManager.json
       eventHandlers:
         - event: LiquidityAdded(indexed address,indexed address,uint256,address)
           handler: handleLiquidityAdded
