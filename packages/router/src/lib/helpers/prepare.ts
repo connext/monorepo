@@ -61,12 +61,15 @@ export const getReceiverAmount = async (
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
   const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
+  console.log("inputDecimals: ", inputDecimals);
+  console.log("outputDecimals: ", outputDecimals);
+  console.log("amountAfterSwapRate: ", amountAfterSwapRate.toString());
 
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);
+  console.log("receivingAmount: ", receivingAmount.toString());
 
-  // TODO:  gas fee reimbursement
   return receivingAmount.toString();
 };
 
