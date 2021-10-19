@@ -3,11 +3,14 @@ import {
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeAmount,
+  getRateFromPercentage,
+  calculateExchangeWad,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { AmountInvalid } from "../errors/prepare";
 
+const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
@@ -58,17 +61,11 @@ export const getReceiverAmount = async (
   }
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeAmount(amount, swapRate);
-  let amountInDec = BigNumber.from(amountAfterSwapRate);
-  if (outputDecimals > inputDecimals) {
-    amountInDec = amountInDec.mul(BigNumber.from(10).pow(outputDecimals - inputDecimals));
-  } else if (outputDecimals < inputDecimals) {
-    amountInDec = amountInDec.div(BigNumber.from(10).pow(inputDecimals - outputDecimals));
-  }
+  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
 
   // 2. flat fee by Router
-  const routerFeeRate = "0.9995";
-  const receivingAmount = calculateExchangeAmount(amountInDec.toString(), routerFeeRate);
+  const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
+  const receivingAmount = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
   return receivingAmount;
 };
 
