@@ -2,11 +2,9 @@ import {
   AuctionBid,
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
-  calculateExchangeWad,
-  getRateFromPercentage,
   calculateExchangeAmount,
 } from "@connext/nxtp-utils";
-import { BigNumber, utils } from "ethers";
+import { BigNumber } from "ethers";
 
 import { AmountInvalid } from "../errors/prepare";
 
