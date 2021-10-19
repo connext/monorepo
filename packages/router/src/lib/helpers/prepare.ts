@@ -4,8 +4,9 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeWad,
   getRateFromPercentage,
+  calculateExchangeAmount,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 
 import { AmountInvalid } from "../errors/prepare";
 
@@ -60,17 +61,18 @@ export const getReceiverAmount = async (
   }
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
-  console.log("inputDecimals: ", inputDecimals);
-  console.log("outputDecimals: ", outputDecimals);
-  console.log("amountAfterSwapRate: ", amountAfterSwapRate.toString());
+  const amountAfterSwapRate = calculateExchangeAmount(utils.parseUnits("100", 6).toString(), swapRate);
+  let amountInDec = BigNumber.from(amountAfterSwapRate);
+  if (outputDecimals > inputDecimals) {
+    amountInDec = amountInDec.mul(BigNumber.from(10).pow(outputDecimals - inputDecimals));
+  } else {
+    amountInDec = amountInDec.div(BigNumber.from(10).pow(inputDecimals - outputDecimals));
+  }
 
   // 2. flat fee by Router
-  const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
-  const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);
-  console.log("receivingAmount: ", receivingAmount.toString());
-
-  return receivingAmount.toString();
+  const routerFeeRate = "0.9995";
+  const receivingAmount = calculateExchangeAmount(amountInDec.toString(), routerFeeRate);
+  return receivingAmount;
 };
 
 /**
