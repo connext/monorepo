@@ -61,11 +61,11 @@ export const getReceiverAmount = async (
   }
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeAmount(utils.parseUnits("100", 6).toString(), swapRate);
+  const amountAfterSwapRate = calculateExchangeAmount(amount, swapRate);
   let amountInDec = BigNumber.from(amountAfterSwapRate);
   if (outputDecimals > inputDecimals) {
     amountInDec = amountInDec.mul(BigNumber.from(10).pow(outputDecimals - inputDecimals));
-  } else {
+  } else if (outputDecimals < inputDecimals) {
     amountInDec = amountInDec.div(BigNumber.from(10).pow(inputDecimals - outputDecimals));
   }
 
