@@ -1,5 +1,4 @@
 import { expect, jsonifyError } from "@connext/nxtp-utils";
-import { utils } from "ethers";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { AmountInvalid } from "../../../src/lib/errors/prepare";
 import {
