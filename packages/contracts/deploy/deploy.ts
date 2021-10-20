@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { parseEther } from "@ethersproject/units";
+import { parseEther, parseUnits } from "@ethersproject/units";
 
 const TEST_ROUTERS = [
   "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // live testnet router
@@ -70,7 +70,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     const res = await hre.deployments.deploy("StableSwap", {
       from: deployer,
       log: true,
-      args: [parseEther("2500")],
+      args: [parseUnits("5000", 0)],
     });
 
     console.log(`Deployed AMM. address: ${res.address}, txhash: ${res.transactionHash}, chainId: ${chainId}`);

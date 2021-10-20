@@ -111,6 +111,7 @@ library Errors {
     uint256 internal constant BPT_IN_MAX_AMOUNT = 207;
     uint256 internal constant BPT_OUT_MIN_AMOUNT = 208;
     uint256 internal constant EXPIRED_PERMIT = 209;
+    uint256 internal constant NOT_TWO_TOKENS = 210;
 
     // Pools
     uint256 internal constant MIN_AMP = 300;
@@ -125,6 +126,20 @@ library Errors {
     uint256 internal constant INVALID_TOKEN = 309;
     uint256 internal constant UNHANDLED_JOIN_KIND = 310;
     uint256 internal constant ZERO_INVARIANT = 311;
+    uint256 internal constant ORACLE_INVALID_SECONDS_QUERY = 312;
+    uint256 internal constant ORACLE_NOT_INITIALIZED = 313;
+    uint256 internal constant ORACLE_QUERY_TOO_OLD = 314;
+    uint256 internal constant ORACLE_INVALID_INDEX = 315;
+    uint256 internal constant ORACLE_BAD_SECS = 316;
+    uint256 internal constant AMP_END_TIME_TOO_CLOSE = 317;
+    uint256 internal constant AMP_ONGOING_UPDATE = 318;
+    uint256 internal constant AMP_RATE_TOO_HIGH = 319;
+    uint256 internal constant AMP_NO_ONGOING_UPDATE = 320;
+    uint256 internal constant STABLE_INVARIANT_DIDNT_CONVERGE = 321;
+    uint256 internal constant STABLE_GET_BALANCE_DIDNT_CONVERGE = 322;
+    uint256 internal constant RELAYER_NOT_CONTRACT = 323;
+    uint256 internal constant BASE_POOL_RELAYER_NOT_CALLED = 324;
+    uint256 internal constant REBALANCING_RELAYER_REENTERED = 325;
 
     // Lib
     uint256 internal constant REENTRANCY = 400;
@@ -153,6 +168,9 @@ library Errors {
     uint256 internal constant REVOKE_SENDER_NOT_ADMIN = 423;
     uint256 internal constant RENOUNCE_SENDER_NOT_ALLOWED = 424;
     uint256 internal constant BUFFER_PERIOD_EXPIRED = 425;
+    uint256 internal constant CALLER_IS_NOT_OWNER = 426;
+    uint256 internal constant NEW_OWNER_IS_ZERO = 427;
+    uint256 internal constant CODE_DEPLOYMENT_FAILED = 428;
 
     // Vault
     uint256 internal constant INVALID_POOL_ID = 500;
@@ -188,5 +206,5 @@ library Errors {
     // Fees
     uint256 internal constant SWAP_FEE_PERCENTAGE_TOO_HIGH = 600;
     uint256 internal constant FLASH_LOAN_FEE_PERCENTAGE_TOO_HIGH = 601;
-    uint256 internal constant INSUFFICIENT_FLASH_LOAN_FEES = 602;
+    uint256 internal constant INSUFFICIENT_FLASH_LOAN_FEE_AMOUNT = 602;
 }

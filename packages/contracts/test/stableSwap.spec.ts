@@ -6,7 +6,7 @@ import { StableSwap } from "../typechain";
 use(solidity);
 
 import { constants, providers, BigNumber, Wallet } from "ethers";
-import { parseEther } from "@ethersproject/units";
+import { parseEther, parseUnits } from "@ethersproject/units";
 import { deployContract } from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
@@ -21,7 +21,7 @@ describe("StableSwap.sol", () => {
   let balances = [parseEther("100"), parseEther("100")];
 
   const fixture = async () => {
-    stableSwap = await deployContract<StableSwap>("StableSwap", parseEther("2500"));
+    stableSwap = await deployContract<StableSwap>("StableSwap", parseUnits("2500", 0));
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -35,14 +35,14 @@ describe("StableSwap.sol", () => {
 
   describe("amplificationParameter", () => {
     it("should work", async () => {
-      const expectAmplification = BigNumber.from("2500").mul(BigNumber.from(10).pow(18)).toString();
+      const expectAmplification = BigNumber.from("2500");
       expect(await stableSwap.amplificationParameter()).to.be.eq(expectAmplification);
     });
   });
 
   describe("getAmplificationParameter", () => {
     it("should work", async () => {
-      const expectAmplification = BigNumber.from("2500").mul(BigNumber.from(10).pow(18)).toString();
+      const expectAmplification = BigNumber.from("2500");
       expect(await stableSwap.getAmplificationParameter()).to.be.eq(expectAmplification);
     });
   });
