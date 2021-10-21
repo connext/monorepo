@@ -16,7 +16,7 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 
 // TODO: get from config/utils
 // Stable swap on rinkeby
-const STABLE_SWAP_ADDR = "0xD29a127BBdcC1a3271872bd43080768A55DadDf8";
+const STABLE_SWAP_ADDR = "0x94aae89Cdf66D555605160e1AB59E2CC160468d1";
 const STABLE_SWAP_PROVIDER = new providers.JsonRpcProvider(
   "https://rinkeby.infura.io/v3/c787a0397d9f4c0db9d28dec3a231c1e",
 );
@@ -47,6 +47,13 @@ type BalanceEntry = {
   balance: string;
   decimals: number;
   chainId: number;
+};
+
+type PriceImpactEntry = {
+  chain: string;
+  amountIn: string;
+  oldAmountOut: string;
+  newAmountOut: string;
 };
 
 const Networks = {
@@ -92,9 +99,12 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [routerAddress, setRouterAddress] = useState<string>("0x29A519e21d6A97cdB82270b69c98bAc6426CDCf9");
   const [balances, setBalances] = useState<BalanceEntry[]>();
+  const [priceImpacts, setPriceImpacts] = useState<PriceImpactEntry[]>();
   const [form] = Form.useForm();
   const [network, setNetwork] = useState<Network>(Networks.Mainnets);
   const [addLiquidityBalances, setAddLiquidityBalances] = useState<(BalanceEntry & { basis: string })[]>([]);
+  const [liquidityAmount, setLiquidityAmount] = useState(0);
+  const [assetId, setAssetId] = useState("");
 
   const switchNetwork = (_network: Network) => {
     if (_network === network) {
@@ -430,6 +440,100 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     setBalances(liquidityTable);
   };
 
+  // Fetches price impacts
+  const fetchPriceImpacts = async (liquidity: number, assetId: string, _network?: Network): Promise<void> => {
+    if (!isValidAddress(routerAddress)) {
+      return;
+    }
+
+    setPriceImpacts([]);
+
+    const activeChainId = await signer?.getChainId();
+    if (!activeChainId) return;
+    console.log("> fetchImpactPrice, symbol = ", getSymbolFromAssetId(assetId, activeChainId));
+    const entries = (
+      await Promise.all(
+        getChains(_network).map(async (chainId) => {
+          const balances = (await getBalancesFromSubgraph(chainId)) ?? [];
+          if (balances.length === 0) {
+            return undefined;
+          }
+          return balances;
+        }),
+      )
+    )
+      .flat()
+      .filter((x) => !!x) as unknown as BalanceEntry[];
+
+    console.log("> fetchPriceImpacts, entries = ", entries);
+
+    const oldBalanceList = entries.map((e) => {
+      return {
+        chainId: e.chainId,
+        chain: e.chain,
+        balance: utils.formatUnits(e.balance, e.decimals),
+        decimals: e.decimals,
+      };
+    });
+
+    const newBalanceList = entries.map((e) => {
+      const defaultBal = Number(utils.formatUnits(e.balance, e.decimals));
+      const newBal = e.chainId === activeChainId ? (defaultBal + liquidity).toString() : defaultBal.toString();
+      return {
+        chainId: e.chainId,
+        chain: e.chain,
+        balance: newBal,
+        decimals: e.decimals,
+      };
+    });
+
+    const defaultBalances = oldBalanceList.map((e) => {
+      return utils.parseEther(e.balance);
+    });
+
+    const newBalances = newBalanceList.map((e) => {
+      return utils.parseEther(e.balance);
+    });
+
+    const activeChainBalance = oldBalanceList.find((e) => e.chainId === activeChainId);
+    const activeChainBalanceIndex = oldBalanceList.findIndex((e) => e.chainId === activeChainId);
+    if (activeChainBalance) {
+      const amountIn = utils.parseEther("1");
+      const priceImpactList = await Promise.all(
+        oldBalanceList
+          .filter((e) => e.chainId !== activeChainId)
+          .map(async (e, index) => {
+            const oldAmountOut = await getSwapRateFromVirutalAMM(
+              amountIn,
+              defaultBalances,
+              activeChainBalanceIndex,
+              index,
+              STABLE_SWAP_ADDR,
+              STABLE_SWAP_PROVIDER,
+            );
+
+            const newAmountOut = await getSwapRateFromVirutalAMM(
+              amountIn,
+              newBalances,
+              activeChainBalanceIndex,
+              index,
+              STABLE_SWAP_ADDR,
+              STABLE_SWAP_PROVIDER,
+            );
+
+            const priceImpactItem: PriceImpactEntry = {
+              chain: e.chain,
+              amountIn: utils.formatUnits(amountIn.toString(), 18),
+              oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
+              newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
+            };
+            return priceImpactItem;
+          }),
+      );
+      setPriceImpacts(priceImpactList);
+    }
+  };
+
   return (
     <>
       <Row gutter={16}>
@@ -566,11 +670,22 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             }}
           >
             <Form.Item label="Asset ID" name="assetId">
-              <Input />
+              <Input
+                value={assetId}
+                onChange={(e) => {
+                  setAssetId(e.target.value);
+                }}
+              />
             </Form.Item>
 
             <Form.Item label="Liquidity to Add" name="liquidityToAdd">
-              <Input />
+              <Input
+                value={liquidityAmount}
+                type="number"
+                onChange={(e) => {
+                  setLiquidityAmount(Number(e.target.value));
+                }}
+              />
             </Form.Item>
 
             <Form.Item label="Infinite Approval" name="infiniteApproval" valuePropName="checked">
@@ -578,9 +693,53 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button
+                type="primary"
+                htmlType="button"
+                style={{ margin: "2px" }}
+                onClick={async () => {
+                  await fetchPriceImpacts(liquidityAmount, assetId, network);
+                }}
+              >
+                Price Impact
+              </Button>
               <Button type="primary" htmlType="submit">
                 Add Liquidity
               </Button>
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Table
+                pagination={false}
+                columns={[
+                  {
+                    title: "Chain",
+                    dataIndex: "chain",
+                    key: "chain",
+                  },
+                  {
+                    title: "Asset",
+                    dataIndex: "token",
+                    key: "token",
+                  },
+                  {
+                    title: "AmountIn",
+                    dataIndex: "amountIn",
+                    key: "amountIn",
+                  },
+                  {
+                    title: "OldAmountOut",
+                    dataIndex: "oldAmountOut",
+                    key: "oldAmountOut",
+                  },
+                  {
+                    title: "NewAmountOut",
+                    dataIndex: "newAmountOut",
+                    key: "newAmountOut",
+                  },
+                ]}
+                dataSource={(priceImpacts ?? []).map((l, i) => ({ ...l, key: i }))}
+              />
             </Form.Item>
           </Form>
         </Col>
