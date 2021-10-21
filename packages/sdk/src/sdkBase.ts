@@ -556,7 +556,7 @@ export class NxtpSdkBase {
             const msg = "Invalid bid price: price impact is more than the slippage tolerance";
             this.logger.warn(msg, requestContext, methodContext, {
               signer,
-              lowerBound: lowerBound,
+              lowerBound: lowerBound.toString(),
               bidAmount: data.bid.amount,
               amtMinusGas: amtMinusGas.toString(),
               gasFeeInReceivingToken: data.gasFeeInReceivingToken,
