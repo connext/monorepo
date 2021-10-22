@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## 0.0.62
+
+- [sdk] fix exchange amount
+- [sdk] bump gas limit for Arbitrum
+- [router] fix exchange amount
+
 ## 0.0.61
 
 - [sdk] Add SDKBase class that does not use signer
