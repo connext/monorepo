@@ -21,7 +21,6 @@ import {
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
   getDeployedSubgraphUri,
-  calculateExchangeWad,
   delay,
   MetaTxTypes,
   Logger,
@@ -29,6 +28,7 @@ import {
   TransactionData,
   RequestContext,
   MethodContext,
+  calculateExchangeAmount,
 } from "@connext/nxtp-utils";
 
 import {
@@ -71,7 +71,6 @@ import {
   getExpiry,
   getMinExpiryBuffer,
   getMaxExpiryBuffer,
-  getDecimals,
   generateMessagingInbox,
   recoverAuctionBid,
   getFulfillTransactionHashToSign,
@@ -360,9 +359,6 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    const { provider: sendingProvider } = this.config.chainConfig[sendingChainId];
-    const { provider: receivingProvider } = this.config.chainConfig[receivingChainId];
-
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
     if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
@@ -538,18 +534,9 @@ export class NxtpSdkBase {
 
           // check if the price changes unfovorably by more than the slippage tolerance(percentage).
           const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-          const [inputDecimals, outputDecimals] = await Promise.all([
-            getDecimals(sendingAssetId, sendingProvider),
-            getDecimals(receivingAssetId, receivingProvider),
-          ]);
 
           const amtMinusGas = BigNumber.from(data.bid.amountReceived).sub(data.gasFeeInReceivingToken);
-          const lowerBound = calculateExchangeWad(
-            BigNumber.from(amtMinusGas),
-            inputDecimals,
-            lowerBoundExchangeRate,
-            outputDecimals,
-          );
+          const lowerBound = calculateExchangeAmount(amtMinusGas.toString(), lowerBoundExchangeRate).split(".")[0];
 
           // safe calculation if the amountReceived is greater than 4 decimals
           if (BigNumber.from(data.bid.amountReceived).lt(lowerBound)) {
