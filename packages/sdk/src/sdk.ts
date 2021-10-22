@@ -352,7 +352,7 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, relayerFee, useRelayers);
+    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
 
     if (useRelayers) {
       return { metaTxResponse: response.metaTxResponse };
