@@ -28,6 +28,16 @@ export class AuctionRateExceeded extends NxtpError {
   }
 }
 
+export class PriceImpactTooHigh extends NxtpError {
+  constructor(amountIn: string, amountOut: string, maxPriceImpact: number, context: any = {}) {
+    super(
+      `Price impact is too high. amountIn: ${amountIn}, amountOut: ${amountOut}, maxPriceImpact: ${maxPriceImpact}%`,
+      context,
+      "PriceImpactTooHigh",
+    );
+  }
+}
+
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
     super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name);

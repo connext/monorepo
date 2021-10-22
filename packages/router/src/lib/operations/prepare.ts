@@ -5,6 +5,7 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
+import { config } from "dotenv";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
@@ -36,7 +37,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // Validate InvariantData schema
@@ -106,6 +107,7 @@ export const prepare = async (
     chaindIdsForAMM[0].address,
     senderBalance,
     receiverBalance,
+    config.maxPriceImpact,
   );
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(

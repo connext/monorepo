@@ -6,6 +6,7 @@ import {
   getRateFromPercentage,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { PriceImpactTooHigh } from "../errors/auction";
 
 import { AmountInvalid } from "../errors/prepare";
 import { getSwapRateFromVirutalAMM } from "./shared";
@@ -75,6 +76,7 @@ export const getReceiverAmount = async (
   stableSwapAddress: string,
   senderBalance: BigNumber,
   receiverBalance: BigNumber,
+  maxPriceImpact: number,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
@@ -93,6 +95,13 @@ export const getReceiverAmount = async (
     stableSwapAddress,
   );
 
+  // check price impact
+  const deltaPrice = amountAfterSwapRate.gt(BigNumber.from(amount))
+    ? amountAfterSwapRate.sub(BigNumber.from(amount))
+    : BigNumber.from(amount).sub(amountAfterSwapRate);
+  if (deltaPrice > BigNumber.from(amount).mul(maxPriceImpact).div(100)) {
+    throw new PriceImpactTooHigh(amount, amountAfterSwapRate.toString(), maxPriceImpact);
+  }
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);

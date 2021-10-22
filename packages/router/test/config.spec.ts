@@ -45,7 +45,7 @@ describe("Config", () => {
     it("happy func", () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
-      expect(res).to.be.includes(5);
+      expect(res).to.be.includes(42161);
     });
   });
 

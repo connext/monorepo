@@ -11,6 +11,7 @@ import {
 } from "../../../src/lib/helpers";
 import { BigNumber } from "@ethersproject/bignumber";
 import { CHAIN_IDS_FOR_AMM } from "../../utils";
+import { PriceImpactTooHigh } from "../../../src/lib/errors/auction";
 
 describe("validExpiryBuffer", () => {
   it("should work", () => {
@@ -49,14 +50,24 @@ describe("getReceiverAmount", () => {
       "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
+      20,
     );
     expect(result).to.be.eq((9000 * 0.9995).toString().split(".")[0]);
+  });
+
+  it("should fail if price impact is too high", async () => {
+    const err = jsonifyError(new PriceImpactTooHigh("10000", "8995", 5) as any);
+    try {
+      await getReceiverAmount("10000", 1, 1, 1337, "0x0", BigNumber.from("100000"), BigNumber.from("100000"), 5);
+    } catch (e) {
+      expect(e.message).to.be.eq(err.message);
+    }
   });
 
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1, 1337, "0x0", BigNumber.from("100000"), BigNumber.from("100000"));
+      await getReceiverAmount("1.0", 1, 1, 1337, "0x0", BigNumber.from("100000"), BigNumber.from("100000"), 20);
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);

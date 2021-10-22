@@ -61,6 +61,7 @@ function App(): ReactElement | null {
       setChainData(json);
     };
     init();
+    connectMetamask();
   }, []);
 
   return (

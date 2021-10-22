@@ -220,6 +220,7 @@ export const newAuction = async (
     chaindIdsForAMM[0].address,
     senderLiquidity,
     receiverLiquidity,
+    config.maxPriceImpact,
   );
 
   // (TODO in what other scenarios would auction fail here? We should make sure
