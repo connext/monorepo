@@ -12,7 +12,14 @@ import {
 import interval from "interval-promise";
 
 import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
-import { BadNonce, TransactionReplaced, TransactionReverted, TimeoutError, TransactionServiceFailure, TransactionBackfilled } from "./error";
+import {
+  BadNonce,
+  TransactionReplaced,
+  TransactionReverted,
+  TimeoutError,
+  TransactionServiceFailure,
+  TransactionBackfilled,
+} from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -224,7 +231,10 @@ export class TransactionDispatch extends ChainRpcProvider {
    * passed in.
    * @returns object - containing nonce, backfill, and transactionCount.
    */
-  private async determineNonce(attemptedNonces: number[], error?: BadNonce): Promise<{ nonce: number; backfill: boolean; transactionCount: number }> {
+  private async determineNonce(
+    attemptedNonces: number[],
+    error?: BadNonce,
+  ): Promise<{ nonce: number; backfill: boolean; transactionCount: number }> {
     // Retrieve the latest mined transaction count.
     const result = await this.getTransactionCount("latest");
     if (result.isErr()) {
@@ -234,10 +244,13 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
     // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
-    let nonce = attemptedNonces.length > 0 ? attemptedNonces[attemptedNonces.length - 1] : Math.max(
-      this.nonce, // TODO: See below ... + 1 ?
-      transactionCount,
-    );
+    let nonce =
+      attemptedNonces.length > 0
+        ? attemptedNonces[attemptedNonces.length - 1]
+        : Math.max(
+            this.nonce, // TODO: See below ... + 1 ?
+            transactionCount,
+          );
     // If backfill conditions are met, then we should instead set the nonce to the backfill value.
     const backfill = transactionCount < this.lastReceivedTxCount;
     if (backfill) {
@@ -318,7 +331,10 @@ export class TransactionDispatch extends ChainRpcProvider {
         // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
         // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
         // still possible to revert due to a state change below.
-        const gas = await this.getGas(minTx, requestContext);
+        let gas = await this.getGas(minTx, requestContext);
+        if (this.chainId === 42161) {
+          gas = new Gas(gas.baseValue, BigNumber.from(2_000_000));
+        }
 
         // Get initial nonce.
         const attemptedNonces: number[] = [];
