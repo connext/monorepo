@@ -1,4 +1,4 @@
-import { providers, Signer, utils, BigNumber } from "ethers";
+import { providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -9,8 +9,6 @@ import {
   Logger,
   createLoggingContext,
   TransactionData,
-  RequestContext,
-  MethodContext,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -153,6 +151,11 @@ export class NxtpSdk {
    */
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     return this.sdkBase.getHistoricalTransactions();
+  }
+
+  public async estimateFulfillFee(txData: TransactionData, signatureForFee: string, relayerFee: string) {
+    const { requestContext, methodContext } = createLoggingContext("estimateFulfillFee");
+    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee, requestContext, methodContext);
   }
 
   /**
@@ -333,7 +336,7 @@ export class NxtpSdk {
       calculateRelayerFee = gasNeeded.toString();
     }
 
-    this.logger.info("Generating fulfill signature", requestContext, methodContext);
+    this.logger.info("Generating fulfill signature", requestContext, methodContext, { calculateRelayerFee });
     const signature = await signFulfillTransactionPayload(
       txData.transactionId,
       calculateRelayerFee,
