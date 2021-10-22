@@ -128,12 +128,18 @@ export class SdkAgent {
   ): Promise<SdkAgent> {
     // Get signer address for name
     const address = await signer.getAddress();
-    await signer.connect(chainProviders[chainId].provider)
+    logger.debug(`Connecting to chain provider`);
+
+    const connected = signer.connect(chainProviders[chainId].provider)
+
+    if(!connected.provider){
+      logger.debug(`Couldn't connect to provider for ${chainId}`);
+    }
 
     // Create sdk
     const sdk = new NxtpSdk({
       chainConfig: chainProviders,
-      signer,
+      signer: connected,
       natsUrl,
       authUrl,
       messaging,
