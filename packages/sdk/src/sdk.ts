@@ -1,4 +1,4 @@
-import { providers, Signer, utils, BigNumber } from "ethers";
+import { providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -8,9 +8,6 @@ import {
   jsonifyError,
   Logger,
   createLoggingContext,
-  TransactionData,
-  RequestContext,
-  MethodContext,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
