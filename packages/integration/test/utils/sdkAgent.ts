@@ -290,24 +290,34 @@ export class SdkAgent {
 
       try {
         // 1. Run the auction
-        while (!auction && auction_attempts < MAX_AUCTION_ATTEMPTS) {
+        while (!auction && auction_attempts <= MAX_AUCTION_ATTEMPTS) {
           auction_attempts++;
-          auction = await this.sdk.getTransferQuote(bid);
+          try {
+            auction = await this.sdk.getTransferQuote(bid);
+          }catch (e) {
+            this.logger.debug(`Auction error, retry`);
+          }
           this.logger.debug(
-            `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,
-            requestContext,
-            methodContext,
-            { auction: auction, txid: bid.transactionId },
+              `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,
+              requestContext,
+              methodContext,
+              { auction: auction, txid: bid.transactionId },
           );
         }
         // 2. Start the transfer
-        if (auction) {
-          const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
+        if (auction?.bid) {
           this.logger.debug(`Preparing Transfer`, requestContext, methodContext, {
-            txfr_info: prepareTxfr,
             txid: bid.transactionId,
           });
-        } else {
+          try{
+            const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
+            this.logger.debug(`Prepared xfr object S{prepareTxfr}`);
+          } catch (e) {
+            this.logger.debug(`Couldnt prepare transfer :(`, requestContext,
+                methodContext);
+          }
+
+        }else {
           this.logger.debug(`Couldn't get an auction response`, requestContext, methodContext, {
             txid: bid.transactionId,
           });
