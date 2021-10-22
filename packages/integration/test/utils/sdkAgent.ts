@@ -118,6 +118,7 @@ export class SdkAgent {
    * @returns
    */
   static async connect(
+    chainId: number,
     chainProviders: ChainConfig,
     signer: Signer,
     logger: Logger,
@@ -127,6 +128,7 @@ export class SdkAgent {
   ): Promise<SdkAgent> {
     // Get signer address for name
     const address = await signer.getAddress();
+    await signer.connect(chainProviders[chainId].provider)
 
     // Create sdk
     const sdk = new NxtpSdk({
