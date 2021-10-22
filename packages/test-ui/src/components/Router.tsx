@@ -52,6 +52,7 @@ type BalanceEntry = {
 type PriceImpactEntry = {
   chain: string;
   amountIn: string;
+  symbol: string;
   oldAmountOut: string;
   newAmountOut: string;
 };
@@ -450,7 +451,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
     const activeChainId = await signer?.getChainId();
     if (!activeChainId) return;
-    console.log("> fetchImpactPrice, symbol = ", getSymbolFromAssetId(assetId, activeChainId));
     const entries = (
       await Promise.all(
         getChains(_network).map(async (chainId) => {
@@ -471,8 +471,10 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       return {
         chainId: e.chainId,
         chain: e.chain,
+        assetId: e.assetId,
         balance: utils.formatUnits(e.balance, e.decimals),
         decimals: e.decimals,
+        symbol: e.symbol,
       };
     });
 
@@ -482,10 +484,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       return {
         chainId: e.chainId,
         chain: e.chain,
+        assetId: e.assetId,
         balance: newBal,
         decimals: e.decimals,
+        symbol: e.symbol,
       };
     });
+
+    console.log("============== > defaultBalances = ", oldBalanceList);
+    console.log("============== > newBalances = ", newBalanceList);
 
     const defaultBalances = oldBalanceList.map((e) => {
       return utils.parseEther(e.balance);
@@ -496,7 +503,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     });
 
     const activeChainBalance = oldBalanceList.find((e) => e.chainId === activeChainId);
-    const activeChainBalanceIndex = oldBalanceList.findIndex((e) => e.chainId === activeChainId);
+    const activeChainBalanceIndex = oldBalanceList.findIndex((e) => e.assetId === assetId);
     if (activeChainBalance) {
       const amountIn = utils.parseEther("1");
       const priceImpactList = await Promise.all(
@@ -524,9 +531,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             const priceImpactItem: PriceImpactEntry = {
               chain: e.chain,
               amountIn: utils.formatUnits(amountIn.toString(), 18),
+              symbol: e.symbol,
               oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
               newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
             };
+            console.log("> priceImpactItem, ", priceImpactItem);
             return priceImpactItem;
           }),
       );
@@ -719,8 +728,8 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
                   },
                   {
                     title: "Asset",
-                    dataIndex: "token",
-                    key: "token",
+                    dataIndex: "symbol",
+                    key: "symbol",
                   },
                   {
                     title: "AmountIn",

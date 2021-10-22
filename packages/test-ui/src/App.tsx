@@ -27,6 +27,7 @@ function App(): ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
   const [signer, setSigner] = useState<Signer>();
   const [chainData, setChainData] = useState<ChainData[]>([]);
+  const [account, setAccount] = useState(null);
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -37,6 +38,7 @@ function App(): ReactElement | null {
     try {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       console.log("accounts: ", accounts);
+      setAccount(accounts[0]);
       const provider = new providers.Web3Provider(ethereum);
       const _signer = provider.getSigner();
       const address = await _signer.getAddress();
@@ -53,6 +55,10 @@ function App(): ReactElement | null {
       console.error(e);
       throw e;
     }
+  };
+
+  const shorter = (str: string) => {
+    return str?.length > 8 ? str.slice(0, 6) + "..." + str.slice(-4) : str;
   };
 
   useEffect(() => {
@@ -72,7 +78,7 @@ function App(): ReactElement | null {
         </Col>
         <Col>
           <Button type="primary" onClick={connectMetamask} disabled={!!web3Provider}>
-            Connect Metamask
+            {account ? `${shorter(account || "")}` : "Connect Metamask"}
           </Button>
         </Col>
       </Row>
