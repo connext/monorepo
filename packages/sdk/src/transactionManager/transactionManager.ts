@@ -6,6 +6,7 @@ import {
   Logger,
   RequestContext,
   createLoggingContext,
+  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import { parseError } from "@connext/nxtp-txservice";
@@ -395,7 +396,11 @@ export class TransactionManager {
     }
 
     this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
-    const gasAmount = await this.calculateGasAmountForFulfill(chainId, fulfillParams);
+    const gasAmount = BigNumber.from(GAS_ESTIMATES.fulfill); // hardcode gas estimates for now
+    // TODO: this does not account for calldata. we need to figure out how to estimate that later
+    // issue is that we cannot estimate it in the auction request because the tx is not prepared yet
+    // however we might be able to work around this by directly estimating the callto with the calldata
+
     const { txData } = fulfillParams;
 
     const ethPriceInUsd = await getTokenPrice(
