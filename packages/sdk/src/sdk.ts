@@ -1,4 +1,4 @@
-import { providers, Signer, utils, BigNumber } from "ethers";
+import { providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -9,8 +9,6 @@ import {
   Logger,
   createLoggingContext,
   TransactionData,
-  RequestContext,
-  MethodContext,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -153,6 +151,11 @@ export class NxtpSdk {
    */
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     return this.sdkBase.getHistoricalTransactions();
+  }
+
+  public async estimateFulfillFee(txData: TransactionData, signatureForFee: string, relayerFee: string) {
+    const { requestContext, methodContext } = createLoggingContext("estimateFulfillFee");
+    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee, requestContext, methodContext);
   }
 
   /**
@@ -322,7 +325,8 @@ export class NxtpSdk {
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.estimateFulfillFee(txData, relayerFee, requestContext, methodContext);
+      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0", requestContext, methodContext);
+
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
         requestContext,
@@ -332,7 +336,7 @@ export class NxtpSdk {
       calculateRelayerFee = gasNeeded.toString();
     }
 
-    this.logger.info("Generating fulfill signature", requestContext, methodContext);
+    this.logger.info("Generating fulfill signature", requestContext, methodContext, { calculateRelayerFee });
     const signature = await signFulfillTransactionPayload(
       txData.transactionId,
       calculateRelayerFee,
@@ -352,7 +356,7 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, relayerFee, useRelayers);
+    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
 
     if (useRelayers) {
       return { metaTxResponse: response.metaTxResponse };
@@ -365,30 +369,6 @@ export class NxtpSdk {
     }
   }
 
-  public async estimateFulfillFee(
-    txData: TransactionData,
-    relayerFee: string,
-    requestContext: RequestContext,
-    methodContext: MethodContext,
-  ): Promise<BigNumber> {
-    const signatureForFee = await signFulfillTransactionPayload(
-      txData.transactionId,
-      relayerFee,
-      txData.receivingChainId,
-      txData.receivingChainTxManagerAddress,
-      this.config.signer,
-    );
-
-    const estimateFulfillFeeResponse = await this.sdkBase.estimateFulfillFee(
-      txData,
-      signatureForFee,
-      relayerFee,
-      requestContext,
-      methodContext,
-    );
-    return estimateFulfillFeeResponse;
-  }
-
   /**
    * Cancels the given transaction
    *
@@ -399,7 +379,6 @@ export class NxtpSdk {
    * @param chainId - Chain to cancel the transaction on
    * @returns A TransactionResponse when the transaction was submitted, not mined
    */
-
   public async cancel(cancelParams: CancelParams, chainId: number): Promise<providers.TransactionResponse> {
     const { requestContext, methodContext } = createLoggingContext(
       this.cancel.name,

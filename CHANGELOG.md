@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.63
+
+- [sdk] Fix relayer fee issue
+
 ## 0.0.62
 
 - [sdk] fix exchange amount
