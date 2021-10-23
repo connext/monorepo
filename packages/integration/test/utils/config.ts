@@ -27,6 +27,7 @@ type SwapPool = {
 type Config = {
   chainConfig: ChainConfig;
   mnemonic: string;
+  routers: string[];
   swapPools: SwapPool[];
   logLevel?: string;
   natsUrl?: string;
@@ -55,6 +56,7 @@ const DEFAULT_LOCAL_CONFIG = {
   logLevel: "info",
   network: "local",
   mnemonic: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+  routers: [],
   swapPools: [
     {
       name: "TEST",
@@ -89,6 +91,7 @@ export const getConfig = (useDefaultLocal = false): Config => {
     };
   });
   return {
+    routers: [],
     ...data,
     chainConfig,
   };
