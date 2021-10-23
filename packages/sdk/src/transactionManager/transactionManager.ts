@@ -142,7 +142,7 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
 
-    this.logger.debug("Starting Prepare transaction in TXManager class", requestContext, methodContext )
+    this.logger.debug("Starting Prepare transaction in TXManager class", requestContext, methodContext);
 
     const { provider, transactionManagerAddress } = this.chainConfig[chainId] ?? {};
     if (!provider || !transactionManagerAddress) {
@@ -186,6 +186,7 @@ export class TransactionManager {
       value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -238,6 +239,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -292,6 +294,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -344,6 +347,7 @@ export class TransactionManager {
         to: assetId,
         data,
         from: await this.signerAddress,
+        chainId,
       };
     } else {
       this.logger.info("Allowance sufficient", requestContext, methodContext, {
