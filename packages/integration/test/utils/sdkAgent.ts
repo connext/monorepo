@@ -31,7 +31,7 @@ import { Signer } from "ethers";
 import { Evt, VoidCtx } from "evt";
 import PriorityQueue from "p-queue";
 
-import { ChainConfig } from "./config";
+import { ChainConfig, getConfig } from "./config";
 
 type AddressField = { address: string };
 
@@ -131,9 +131,9 @@ export class SdkAgent {
     const address = await signer.getAddress();
     logger.debug(`Connecting to chain provider`);
 
-    const connected = signer.connect(chainProviders[chainId].provider)
+    const connected = signer.connect(chainProviders[chainId].provider);
 
-    if(!connected.provider){
+    if (!connected.provider) {
       logger.debug(`Couldn't connect to provider for ${chainId}`);
     }
 
@@ -276,6 +276,7 @@ export class SdkAgent {
         receivingAddress: this.address,
         expiry: Math.floor(Date.now() / 1000) + minExpiry + buffer, // Use min + 5m
         transactionId: getRandomBytes32(),
+        preferredRouters: getConfig().routers.length > 0 ? getConfig().routers : undefined,
         ...params,
       };
       const { requestContext, methodContext } = createLoggingContext(
@@ -295,14 +296,14 @@ export class SdkAgent {
           auction_attempts++;
           try {
             auction = await this.sdk.getTransferQuote(bid);
-          }catch (e) {
+          } catch (e) {
             this.logger.debug(`Auction error, retry`);
           }
           this.logger.debug(
-              `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,
-              requestContext,
-              methodContext,
-              { auction: auction, txid: bid.transactionId },
+            `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,
+            requestContext,
+            methodContext,
+            { auction: auction, txid: bid.transactionId },
           );
         }
         // 2. Start the transfer
@@ -310,15 +311,13 @@ export class SdkAgent {
           this.logger.debug(`Preparing Transfer`, requestContext, methodContext, {
             txid: bid.transactionId,
           });
-          try{
+          try {
             const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
             this.logger.debug(`Prepared xfr object S{prepareTxfr}`);
           } catch (e) {
-            this.logger.debug(`Couldnt prepare transfer :(`, requestContext,
-                methodContext);
+            this.logger.debug(`Couldnt prepare transfer :(`, requestContext, methodContext);
           }
-
-        }else {
+        } else {
           this.logger.debug(`Couldn't get an auction response`, requestContext, methodContext, {
             txid: bid.transactionId,
           });
