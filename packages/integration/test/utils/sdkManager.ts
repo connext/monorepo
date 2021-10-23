@@ -44,8 +44,8 @@ export class SdkManager {
     log: Logger,
     natsUrl?: string,
     authUrl?: string,
-    network?: string
-  ): Promise<SdkManager | undefined> {
+    network?: string,
+  ): Promise<SdkManager> {
     // Create onchain account manager with given number of wallets
     const onchain = new OnchainAccountManager(
       chainConfig,
@@ -54,9 +54,9 @@ export class SdkManager {
       log.child({ name: "OnchainAccountManager" }),
     );
     // TODO: this will be slow af
-    let agents:SdkAgent[] | undefined = undefined;
+    const agents: SdkAgent[] = [];
     for (const chain of Object.keys(chainConfig)) {
-      log.debug(`sending native token gift`)
+      log.debug(`sending native token gift`);
       await onchain.updateBalances(parseInt(chain));
 
       // await Promise.all(
@@ -66,26 +66,32 @@ export class SdkManager {
       // );
 
       // Create sdk agents
-      agents = await Promise.all(
+      agents.concat(
+        await Promise.all(
           Array(numberUsers)
-              .fill(0)
-              .map((_, idx) => {
-                log.debug("Wallet info", undefined, undefined, {idx, address: onchain.wallets[idx].address});
-                return SdkAgent.connect(parseInt(chain),onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl, network);
-              }),
+            .fill(0)
+            .map((_, idx) => {
+              log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
+              return SdkAgent.connect(
+                parseInt(chain),
+                onchain.chainProviders,
+                onchain.wallets[idx],
+                log,
+                natsUrl,
+                authUrl,
+                network,
+              );
+            }),
+        ),
       );
     }
 
     // Create manager
 
-    if(agents) {
-      const manager = new SdkManager(onchain, agents, log.child({name: "SdkManager"}));
-      // Setup manager listeners
-      manager.setupTransferListeners();
-      return manager;
-    }
-    return undefined;
-
+    const manager = new SdkManager(onchain, agents, log.child({ name: "SdkManager" }));
+    // Setup manager listeners
+    manager.setupTransferListeners();
+    return manager;
   }
 
   async giftAgentsOnchain(assetId: string, chainId: number) {
