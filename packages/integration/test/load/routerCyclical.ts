@@ -25,7 +25,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     new Logger({ level: config.logLevel ?? "info" }),
     config.natsUrl,
     config.authUrl,
-    config.network
+    // config.network
   );
   log.info({ agents: numberOfAgents }, "Created manager");
 
