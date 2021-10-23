@@ -45,7 +45,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const { assetId: receivingAssetId } = swap.assets.find((a) => a.chainId === receivingChainId)!;
 
   // Fund agents with tokens on sending + receiving chain
-  if(manager) {
+  if (manager) {
     log.info(`Gifting agents sending chain ${sendingChainId}`);
     await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
 
@@ -53,7 +53,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
 
     // Begin transfers
-    log.warn({duration, numberOfAgents}, "Beginning cyclical test");
+    log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
 
     const startTime = Date.now();
     const killSwitch = await manager.startCyclicalTransfers({
@@ -66,17 +66,16 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
 
     await new Promise((resolve) => {
       setTimeout(() => {
-        log.warn({duration, numberOfAgents, durationMs, startTime, now: Date.now()}, "Activating kill switch");
+        log.warn({ duration, numberOfAgents, durationMs, startTime, now: Date.now() }, "Activating kill switch");
         killSwitch();
         resolve(undefined);
       }, durationMs);
     });
 
-
     // Wait 90s for stragglers
     await delay(90 * 1000);
 
-    log.warn({duration, numberOfAgents}, "Test complete, printing summary");
+    log.warn({ duration, numberOfAgents }, "Test complete, printing summary");
 
     const summary = manager.getTransferSummary();
     log.error(summary, "Transfer summary");
@@ -89,4 +88,4 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   }
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "5"), parseInt(process.env.DURATION ?? "20"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "5"), parseInt(process.env.DURATION ?? "10"));
