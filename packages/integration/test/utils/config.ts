@@ -74,6 +74,7 @@ const DEFAULT_LOCAL_CONFIG = {
 export const getConfig = (useDefaultLocal = false): Config => {
   const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/load/config.json";
   const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
+  console.log(`Configuration Data \n ${data}`);
   const chainConfig: ChainConfig = {};
   Object.entries(data.chainConfig).map(([chainId, config]) => {
     const { providers: providerUrls, confirmations, ...rest } = config as any;
