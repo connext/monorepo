@@ -348,7 +348,7 @@ export class NxtpSdkBase {
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
-      preferredRouter: _preferredRouter,
+      preferredRouters: _preferredRouters,
       initiator,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
@@ -373,7 +373,7 @@ export class NxtpSdkBase {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
 
-    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
+    const preferredRouters = (_preferredRouters ?? []).map((a) => utils.getAddress(a));
 
     const blockTimestamp = await getTimestampInSeconds();
     const expiry = _expiry ?? getExpiry(blockTimestamp);
@@ -419,16 +419,16 @@ export class NxtpSdkBase {
         }
       }
 
-      if (preferredRouter) {
-        this.logger.warn("Waiting for preferred router", requestContext, methodContext, {
-          preferredRouter,
+      if (preferredRouters.length > 0) {
+        this.logger.warn("Waiting for preferred routers", requestContext, methodContext, {
+          preferredRouters,
         });
         try {
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
-            .pipe((data) => data.data?.bid.router === preferredRouter)
+            .pipe((data) => preferredRouters.includes(utils.getAddress(data.data?.bid.router ?? constants.AddressZero)))
             .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
           return resolve([result.data!]);
         } catch (e) {
