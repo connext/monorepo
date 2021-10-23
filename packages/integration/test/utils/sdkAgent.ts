@@ -297,7 +297,7 @@ export class SdkAgent {
           try {
             auction = await this.sdk.getTransferQuote(bid);
           } catch (e) {
-            this.logger.debug(`Auction error, retry`);
+            this.logger.warn(`Auction error, retry`, requestContext, methodContext, { error: e.message });
           }
           this.logger.debug(
             `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,

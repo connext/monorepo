@@ -66,24 +66,24 @@ export class SdkManager {
       // );
 
       // Create sdk agents
-      agents.concat(
-        await Promise.all(
-          Array(numberUsers)
-            .fill(0)
-            .map((_, idx) => {
-              log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
-              return SdkAgent.connect(
-                parseInt(chain),
-                onchain.chainProviders,
-                onchain.wallets[idx],
-                log,
-                natsUrl,
-                authUrl,
-                network,
-              );
-            }),
-        ),
+      const _agents = await Promise.all(
+        Array(numberUsers)
+          .fill(0)
+          .map(async (_, idx) => {
+            log.debug("Wallet info", undefined, undefined, { idx, address: onchain.wallets[idx].address });
+            const agent = await SdkAgent.connect(
+              parseInt(chain),
+              onchain.chainProviders,
+              onchain.wallets[idx],
+              log,
+              natsUrl,
+              authUrl,
+              network,
+            );
+            return agent;
+          }),
       );
+      agents.push(..._agents);
     }
 
     // Create manager
@@ -184,17 +184,20 @@ export class SdkManager {
   ): Promise<() => void> {
     // NOTE; we initiate all transactions serially because this isnt
     // a concurrency test. But we don't wait for them to complete
+    console.log("starting transfers for", this.agents.length);
     for (const agent of this.agents) {
       agent.establishCyclicalTransfers();
 
       const transactionId = getRandomBytes32();
       this.transactionInfo[transactionId] = { start: Date.now() };
 
+      console.log("********* starting crosschain transfer", transactionId);
       await agent.initiateCrosschainTransfer({
         transactionId,
         receivingAddress: agent.address,
         ...initialParams,
       });
+      console.log("********* started crosschain transfer");
     }
 
     const killSwitch = () => {
