@@ -44,6 +44,7 @@ export class SdkManager {
     log: Logger,
     natsUrl?: string,
     authUrl?: string,
+    network?: string
   ): Promise<SdkManager | undefined> {
     // Create onchain account manager with given number of wallets
     const onchain = new OnchainAccountManager(
@@ -70,7 +71,7 @@ export class SdkManager {
               .fill(0)
               .map((_, idx) => {
                 log.debug("Wallet info", undefined, undefined, {idx, address: onchain.wallets[idx].address});
-                return SdkAgent.connect(parseInt(chain),onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl);
+                return SdkAgent.connect(parseInt(chain),onchain.chainProviders, onchain.wallets[idx], log, natsUrl, authUrl, network);
               }),
       );
     }

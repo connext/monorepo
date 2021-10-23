@@ -124,6 +124,7 @@ export class SdkAgent {
     logger: Logger,
     natsUrl?: string,
     authUrl?: string,
+    network?: any,
     messaging?: UserNxtpNatsMessagingService,
   ): Promise<SdkAgent> {
     // Get signer address for name
@@ -144,7 +145,7 @@ export class SdkAgent {
       authUrl,
       messaging,
       logger: logger.child({ name: "Sdk" }),
-      network: "local",
+      network: network,
     });
     await sdk.connectMessaging();
     const agent = new SdkAgent(address, sdk);
