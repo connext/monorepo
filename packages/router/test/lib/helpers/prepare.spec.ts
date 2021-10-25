@@ -105,21 +105,22 @@ describe("getReceiverAmount", () => {
       "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
-      5,
+      20,
     );
     expect(result).to.be.eq(parseUnits("89955", 6).toString());
   });
 
   it("should work for decimals", async () => {
+    getSwapRateStub.resolves(parseEther("90000"));
     const result = await getReceiverAmount(
-      "104731245",
+      parseUnits("100000", 6).toString(),
       6,
       6,
       1337,
       "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
-      5,
+      20,
     );
     expect(() => BigNumber.from(result)).to.not.throw();
   });

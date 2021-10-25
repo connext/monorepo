@@ -101,7 +101,7 @@ export const getReceiverAmount = async (
   const deltaPrice = amountAfterSwapRate.gt(inputAmount)
     ? amountAfterSwapRate.sub(inputAmount)
     : BigNumber.from(inputAmount).sub(amountAfterSwapRate);
-  if (deltaPrice > inputAmount.mul(maxPriceImpact).div(100)) {
+  if (deltaPrice.gt(inputAmount.mul(maxPriceImpact).div(100))) {
     throw new PriceImpactTooHigh(inputAmount.toString(), amountAfterSwapRate.toString(), maxPriceImpact, {
       inputDecimals,
       outputDecimals,
