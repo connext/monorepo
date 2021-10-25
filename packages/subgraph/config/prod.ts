@@ -40,10 +40,8 @@ export const Networks = [
     network: "xdai",
     address: "0x115909BDcbaB21954bEb4ab65FC2aBEE9866fa93",
     startBlock: 18410655,
-  }
+  },
 ];
-
-export const xdai = ;
 
 /// TEST NETWORK
 
