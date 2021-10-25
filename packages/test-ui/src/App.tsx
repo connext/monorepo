@@ -57,17 +57,13 @@ function App(): ReactElement | null {
     }
   };
 
-  const shorter = (str: string) => {
-    return str?.length > 8 ? str.slice(0, 6) + "..." + str.slice(-4) : str;
-  };
-
   useEffect(() => {
     const init = async () => {
       const json = await utils.fetchJson("https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json");
       setChainData(json);
     };
     init();
-    connectMetamask();
+    // connectMetamask();
   }, []);
 
   return (
@@ -78,7 +74,7 @@ function App(): ReactElement | null {
         </Col>
         <Col>
           <Button type="primary" onClick={connectMetamask} disabled={!!web3Provider}>
-            {account ? `${shorter(account || "")}` : "Connect Metamask"}
+            {account ? `${account}` : "Connect Metamask"}
           </Button>
         </Col>
       </Row>

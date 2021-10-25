@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider, Menu, Dropdown } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 import { ChainData, ERC20Abi, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
@@ -64,6 +64,12 @@ const Networks = {
 } as const;
 type Network = keyof typeof Networks;
 
+enum LIQUIDITY_ACTION {
+  NONE,
+  ADD,
+  REMOVE,
+}
+
 const getLiquidityQuery = gql`
   query getLiquidity($router: ID!) {
     router(id: $router) {
@@ -84,13 +90,6 @@ const getSwapRateFromVirutalAMM = async (
   providerForAmm: providers.Provider,
 ): Promise<BigNumber> => {
   const contract = new Contract(stableSwapAddress, StableSwapArtifact.abi, providerForAmm);
-  console.log(
-    "balances",
-    balances.map((b) => b.toString()),
-  );
-  console.log("amountIn", amountIn.toString());
-  console.log("indexIn", indexIn);
-  console.log("indexOut", indexOut);
   const amountOut = await contract.onSwapGivenIn(amountIn, balances, indexIn, indexOut);
   return BigNumber.from(amountOut);
 };
@@ -100,20 +99,27 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
   const [routerAddress, setRouterAddress] = useState<string>("0x29A519e21d6A97cdB82270b69c98bAc6426CDCf9");
   const [balances, setBalances] = useState<BalanceEntry[]>();
-  const [priceImpacts, setPriceImpacts] = useState<PriceImpactEntry[]>();
+  const [priceImpactsOnAdd, setPriceImpactsOnAdd] = useState<PriceImpactEntry[]>();
+  const [priceImpactsOnRemove, setPriceImpactsOnRemove] = useState<PriceImpactEntry[]>();
   const [form] = Form.useForm();
   const [network, setNetwork] = useState<Network>(Networks.Mainnets);
-  const [addLiquidityBalances, setAddLiquidityBalances] = useState<(BalanceEntry & { basis: string })[]>([]);
-  const [liquidityAmount, setLiquidityAmount] = useState(0);
-  const [assetId, setAssetId] = useState("");
+  const [liquidityAmountToAdd, setLiquidityAmountToAdd] = useState(0);
+  const [liquidityAmountToRemove, setLiquidityAmountToRemove] = useState(0);
+  const [assetIdToAdd, setAssetIdToAdd] = useState("");
+  const [assetIdToRemove, setAssetIdToRemove] = useState("");
+  const [account, setAccount] = useState("");
 
-  const switchNetwork = (_network: Network) => {
-    if (_network === network) {
-      return;
+  useEffect(() => {
+    if (injectedProviderChainId) {
+      if (MAINNET_CHAINS.includes(injectedProviderChainId)) {
+        setNetwork(Networks.Mainnets);
+      } else if (TESTNET_CHAINS.includes(injectedProviderChainId)) {
+        setNetwork(Networks.Testnets);
+      } else if (LOCAL_CHAINS.includes(injectedProviderChainId)) {
+        setNetwork(Networks.Local);
+      }
     }
-    setNetwork(_network);
-    refreshBalances(_network);
-  };
+  }, [injectedProviderChainId]);
 
   const getChains = (_network?: Network): number[] => {
     const n = _network ?? network;
@@ -130,24 +136,14 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
   };
 
-  const menu = (
-    <Menu>
-      {Object.keys(Networks).map((k, idx) => {
-        return (
-          <Menu.Item key={idx} onClick={() => switchNetwork(k as Network)}>
-            {k}
-          </Menu.Item>
-        );
-      })}
-    </Menu>
-  );
-
   useEffect(() => {
     const init = async () => {
       if (!web3Provider || !signer) {
         return;
       }
       const { chainId } = await signer.provider!.getNetwork();
+      const signerAddress = await signer.getAddress();
+      setAccount(signerAddress);
       setInjectedProviderChainId(chainId);
       const _txManager = LOCAL_CHAINS.includes(chainId)
         ? { address: LOCAL_TRANSACTION_MANAGER, abi: TransactionManagerArtifact.abi }
@@ -198,120 +194,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     return { uri, data };
   };
 
-  const getSymbolFromAssetId = (assetId: string, chainId: number): string => {
-    const { data } = getSubgraphAndChainDataForChain(chainId);
-    if (!data) {
-      console.warn("No chaindata found for", injectedProviderChainId);
-      return assetId;
-    }
-    return (
-      data.assetId[getAddress(assetId)]?.symbol ??
-      data.assetId[assetId.toLowerCase()]?.symbol ??
-      data.assetId[assetId.toUpperCase()]?.symbol ??
-      assetId
-    );
-  };
-
-  const getBalancesAfterLiquidity = async (assetId: string, amountToAdd = "0") => {
-    if (!signer || !txManager) {
-      throw new Error("Needs signer");
-    }
-
-    if (!assetId || !utils.isAddress(assetId) || !amountToAdd) {
-      console.warn("bad inputs:", assetId, amountToAdd);
-      return;
-    }
-
-    const symbol = getSymbolFromAssetId(assetId, injectedProviderChainId!);
-
-    // Get pool balances via the router balances on all contracts
-    const totalLiquidity = (
-      await Promise.all(
-        getChains().map(async (c) => {
-          const balances = (await getBalancesFromSubgraph(c)) ?? [];
-          if (balances.length === 0) {
-            return undefined;
-          }
-          return balances;
-        }),
-      )
-    )
-      .flat()
-      .filter((x) => !!x);
-
-    // TODO: how to find pool on non-local chains?
-    const sendingAssetPool = totalLiquidity.filter(
-      (entry) => entry?.symbol.toLowerCase() === symbol.toLowerCase(),
-    ) as BalanceEntry[];
-    const sendingAssetBalanceIdx = sendingAssetPool.findIndex(
-      (entry) => entry?.symbol.toLowerCase() === symbol.toLowerCase() && injectedProviderChainId === entry.chainId,
-    );
-
-    const sendingAssetDecimals = sendingAssetPool[sendingAssetBalanceIdx]?.decimals ?? 18;
-    const amountToAddWei = utils.parseUnits(amountToAdd, sendingAssetDecimals);
-    const updated = amountToAddWei
-      .add(sendingAssetPool[sendingAssetBalanceIdx]?.balance ?? 0)
-      .mul(BigNumber.from(10).pow(18 - sendingAssetDecimals));
-
-    // Convert 1 of asset to others in pool
-    const balanceWithSendingAssetBasis = (
-      await Promise.all(
-        sendingAssetPool.map(async (entry, idx) => {
-          try {
-            if (idx === sendingAssetBalanceIdx) {
-              // hardcode
-              return {
-                ...entry,
-                basis: "1.0",
-              };
-            }
-
-            // TODO: how many chains?
-            const balances =
-              sendingAssetBalanceIdx === -1
-                ? [updated, constants.Zero]
-                : sendingAssetPool.map((e, idx) => {
-                    if (idx === sendingAssetBalanceIdx) {
-                      return updated;
-                    }
-                    const decimals = e.decimals ?? 18;
-                    return BigNumber.from(e?.balance ?? 0).mul(BigNumber.from(10).pow(18 - decimals));
-                  });
-
-            const amtIn = utils
-              .parseUnits("1", sendingAssetDecimals)
-              .mul(BigNumber.from(10).pow(18 - sendingAssetDecimals));
-
-            console.log("sendingAssetPool", sendingAssetPool);
-            console.log("sendingAssetBalanceIdx", sendingAssetBalanceIdx);
-            console.warn("test, amtIn gt balance in amtOut", amtIn.gt(balances[idx]));
-            console.warn("amtOut is 0", balances[idx].isZero());
-            const basis = await getSwapRateFromVirutalAMM(
-              amtIn,
-              balances,
-              Math.max(sendingAssetBalanceIdx, 0),
-              idx,
-              STABLE_SWAP_ADDR,
-              STABLE_SWAP_PROVIDER,
-            );
-            console.warn("basis", basis.toString());
-            return {
-              ...entry,
-              basis: utils.formatUnits(basis, entry?.decimals ?? 18),
-            };
-          } catch (e) {
-            console.warn(`failed to get basis on ${entry.chainId}:`, e);
-            return;
-          }
-        }),
-      )
-    ).filter((x) => !!x) as (BalanceEntry & { basis: string })[];
-
-    console.log("setting balances", balanceWithSendingAssetBasis);
-    setAddLiquidityBalances(balanceWithSendingAssetBasis);
-    return balanceWithSendingAssetBasis;
-  };
-
   const addLiquidity = async (assetId: string, liquidityToAdd: string, infiniteApprove: boolean): Promise<string> => {
     console.log("Add liquidity: ", routerAddress, assetId, liquidityToAdd, infiniteApprove);
     if (!signer || !txManager) {
@@ -321,7 +203,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     let value: BigNumber;
     let liquidityToAddWei: BigNumber;
-    const signerAddress = await signer.getAddress();
+    const signerAddress = account;
     const decimals = await getDecimals(assetId);
     if (assetId !== constants.AddressZero) {
       const token = new Contract(assetId, ERC20Abi, signer);
@@ -345,13 +227,42 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     console.log("value: ", value.toString());
     console.log("liquidityWei: ", liquidityToAddWei.toString());
 
-    const addLiquidity = await txManager.addLiquidityFor(liquidityToAddWei, assetId, routerAddress, {
+    const addLiquidityTx = await txManager.addLiquidityFor(liquidityToAddWei, assetId, routerAddress, {
       value,
       gasLimit: 250_000,
     });
-    console.log("addLiquidity tx: ", addLiquidity);
-    await addLiquidity.wait();
-    const liquidity = await getLiquidity(form.getFieldValue("assetId"));
+    console.log("addLiquidity tx: ", addLiquidityTx);
+    await addLiquidityTx.wait();
+    const liquidity = await getLiquidity(assetId);
+    return liquidity;
+  };
+
+  const removeLiquidity = async (assetId: string, liquidityToRemove: string): Promise<string> => {
+    console.log("Remove liquidity: ", routerAddress, assetId, liquidityToRemove);
+    if (!signer || !txManager) {
+      throw new Error("Needs signer");
+    } else if (!routerAddress) {
+      throw new Error("Needs router address");
+    }
+    let value: BigNumber;
+    let liquidityToRemoveWei: BigNumber;
+    const decimals = await getDecimals(assetId);
+    if (assetId !== constants.AddressZero) {
+      liquidityToRemoveWei = utils.parseUnits(liquidityToRemove, decimals);
+      value = constants.Zero;
+    } else {
+      value = utils.parseEther(liquidityToRemove);
+      liquidityToRemoveWei = value;
+    }
+    console.log("value: ", value.toString());
+    console.log("liquidityWei: ", liquidityToRemoveWei.toString());
+
+    const removeLiquidityTx = await txManager.removeLiquidity(liquidityToRemoveWei, assetId, routerAddress, {
+      gasLimit: 250_000,
+    });
+    console.log("removeLiquidity tx: ", removeLiquidityTx);
+    await removeLiquidityTx.wait();
+    const liquidity = await getLiquidity(assetId);
     return liquidity;
   };
 
@@ -379,9 +290,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress.toLowerCase() });
     const balanceEntries = (liquidity?.router?.assetBalances ?? []).map(
       ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
-        // console.log("chainId: ", chainId);
-        // console.log("id: ", id);
-        // console.log("amount: ", amount);
         const assetId = utils.getAddress(id.split("-")[0]);
         let decimals =
           data.assetId[getAddress(assetId)]?.decimals ??
@@ -389,7 +297,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           data.assetId[assetId.toUpperCase()]?.decimals;
         if (!decimals) {
           console.warn(`No decimals for asset ${assetId} on chain ${chainId}, using 18`);
-          // return;
           decimals = 18;
         }
         const chain = data.chain === "ETH" ? data.network : data.chain;
@@ -442,16 +349,19 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
   };
 
   // Fetches price impacts
-  const fetchPriceImpacts = async (liquidity: number, assetId: string, _network?: Network): Promise<void> => {
-    if (!isValidAddress(routerAddress)) {
-      return;
+  const fetchPriceImpacts = async (
+    liquidity: number,
+    assetId: string,
+    actionType: LIQUIDITY_ACTION,
+    _network?: Network,
+  ): Promise<void> => {
+    if (actionType == LIQUIDITY_ACTION.ADD) {
+      setPriceImpactsOnAdd([]);
+    } else if (actionType == LIQUIDITY_ACTION.REMOVE) {
+      setPriceImpactsOnRemove([]);
     }
 
-    setPriceImpacts([]);
-
-    const activeChainId = await signer?.getChainId();
-    if (!activeChainId) return;
-    const entries = (
+    let entries = (
       await Promise.all(
         getChains(_network).map(async (chainId) => {
           const balances = (await getBalancesFromSubgraph(chainId)) ?? [];
@@ -465,7 +375,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       .flat()
       .filter((x) => !!x) as unknown as BalanceEntry[];
 
-    console.log("> fetchPriceImpacts, entries = ", entries);
+    const activeEntry = entries.find((e) => e.assetId.toLocaleLowerCase() === assetId.toLocaleLowerCase());
+    if (!activeEntry) return;
+    const symbol = activeEntry.symbol.toLocaleLowerCase() == "xdai" ? "dai" : activeEntry.symbol.toLocaleLowerCase();
+    console.log("> fetchPriceImpacts, symbol = ", symbol);
+    console.log("entries = ", entries);
+
+    if (_network === Networks.Mainnets) {
+      entries = entries.filter((e) => e?.symbol.toLocaleLowerCase() === symbol.toLocaleLowerCase());
+    }
 
     const oldBalanceList = entries.map((e) => {
       return {
@@ -479,8 +397,15 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     });
 
     const newBalanceList = entries.map((e) => {
-      const defaultBal = Number(utils.formatUnits(e.balance, e.decimals));
-      const newBal = e.chainId === activeChainId ? (defaultBal + liquidity).toString() : defaultBal.toString();
+      const oldBal = Number(utils.formatUnits(e.balance, e.decimals));
+      const newBal =
+        e.chainId === injectedProviderChainId
+          ? actionType == LIQUIDITY_ACTION.ADD
+            ? (oldBal + liquidity).toString()
+            : actionType == LIQUIDITY_ACTION.REMOVE
+            ? (oldBal - liquidity).toString()
+            : oldBal.toString()
+          : oldBal.toString();
       return {
         chainId: e.chainId,
         chain: e.chain,
@@ -491,10 +416,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       };
     });
 
-    console.log("============== > defaultBalances = ", oldBalanceList);
-    console.log("============== > newBalances = ", newBalanceList);
-
-    const defaultBalances = oldBalanceList.map((e) => {
+    const oldBalances = oldBalanceList.map((e) => {
       return utils.parseEther(e.balance);
     });
 
@@ -502,44 +424,62 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       return utils.parseEther(e.balance);
     });
 
-    const activeChainBalance = oldBalanceList.find((e) => e.chainId === activeChainId);
-    const activeChainBalanceIndex = oldBalanceList.findIndex((e) => e.assetId === assetId);
+    const activeChainBalance = oldBalanceList.find((e) => e.chainId === injectedProviderChainId);
+    const activeChainBalanceIndex = oldBalanceList.findIndex(
+      (e) => e.assetId.toLocaleLowerCase() === assetId.toLocaleLowerCase(),
+    );
     if (activeChainBalance) {
       const amountIn = utils.parseEther("1");
       const priceImpactList = await Promise.all(
-        oldBalanceList
-          .filter((e) => e.chainId !== activeChainId)
-          .map(async (e, index) => {
-            const oldAmountOut = await getSwapRateFromVirutalAMM(
-              amountIn,
-              defaultBalances,
-              activeChainBalanceIndex,
-              index,
-              STABLE_SWAP_ADDR,
-              STABLE_SWAP_PROVIDER,
-            );
+        oldBalanceList.map(async (e, index) => {
+          let oldAmountOut = BigNumber.from(0);
+          let newAmountOut = BigNumber.from(0);
+          if (activeChainBalanceIndex !== index) {
+            try {
+              oldAmountOut = await getSwapRateFromVirutalAMM(
+                amountIn,
+                oldBalances,
+                activeChainBalanceIndex,
+                index,
+                STABLE_SWAP_ADDR,
+                STABLE_SWAP_PROVIDER,
+              );
 
-            const newAmountOut = await getSwapRateFromVirutalAMM(
-              amountIn,
-              newBalances,
-              activeChainBalanceIndex,
-              index,
-              STABLE_SWAP_ADDR,
-              STABLE_SWAP_PROVIDER,
-            );
+              newAmountOut = await getSwapRateFromVirutalAMM(
+                amountIn,
+                newBalances,
+                activeChainBalanceIndex,
+                index,
+                STABLE_SWAP_ADDR,
+                STABLE_SWAP_PROVIDER,
+              );
+            } catch (e) {
+              console.error("##################################### onSwapGiveIn Errror");
+              console.log(e);
+              console.log("index = ", index);
+              console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
+            }
+          } else {
+            oldAmountOut = amountIn;
+            newAmountOut = amountIn;
+          }
 
-            const priceImpactItem: PriceImpactEntry = {
-              chain: e.chain,
-              amountIn: utils.formatUnits(amountIn.toString(), 18),
-              symbol: e.symbol,
-              oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
-              newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
-            };
-            console.log("> priceImpactItem, ", priceImpactItem);
-            return priceImpactItem;
-          }),
+          const priceImpactItem: PriceImpactEntry = {
+            chain: e.chain,
+            amountIn: utils.formatUnits(amountIn.toString(), 18),
+            symbol: e.symbol,
+            oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
+            newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
+          };
+          console.log("> priceImpactItem, ", priceImpactItem);
+          return priceImpactItem;
+        }),
       );
-      setPriceImpacts(priceImpactList);
+      if (actionType == LIQUIDITY_ACTION.ADD) {
+        setPriceImpactsOnAdd(priceImpactList);
+      } else if (actionType == LIQUIDITY_ACTION.REMOVE) {
+        setPriceImpactsOnRemove(priceImpactList);
+      }
     }
   };
 
@@ -583,9 +523,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             <Button type="primary" onClick={() => refreshBalances()}>
               Reload
             </Button>
-            <Dropdown overlay={menu}>
-              <Button type="default">{network}</Button>
-            </Dropdown>
+            <Button type="default">{network}</Button>
           </Row>
         </Col>
       </Row>
@@ -647,15 +585,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
         <Col span={8}>
           <Typography.Title level={4}>Add Liquidity</Typography.Title>
         </Col>
-        <Col span={8}>
-          <Row>
-            {addLiquidityBalances.map((balance, idx) => {
-              return `(${balance.chainId}) ${balance.symbol} ${balance.basis.slice(0, 6)} ${
-                idx == addLiquidityBalances.length - 1 ? "" : "="
-              } \n`;
-            })}
-          </Row>
-        </Col>
       </Row>
       <Row gutter={16}>
         <Col span={16}>
@@ -664,35 +593,25 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            onFinish={({ assetId, liquidityToAdd, infiniteApproval }) => {
-              addLiquidity(assetId, liquidityToAdd, infiniteApproval);
-            }}
-            onFieldsChange={(changed, all) => {
-              const hasAsset = !!all.find((a) => (a.name as any[]).includes("assetId") && a.value != undefined);
-              if (changed.find((c) => (c.name as any[]).includes("amount") && hasAsset)) {
-                return;
-              }
-              getBalancesAfterLiquidity(
-                all.find((a) => (a.name as any[]).includes("assetId"))!.value,
-                changed.find((c) => (c.name as any[]).includes("liquidityToAdd"))?.value ?? "0",
-              ).catch((e) => console.warn("failed to update balances", e));
+            onFinish={({ assetIdToAdd, liquidityToAdd, infiniteApproval }) => {
+              addLiquidity(assetIdToAdd, liquidityToAdd, infiniteApproval);
             }}
           >
-            <Form.Item label="Asset ID" name="assetId">
+            <Form.Item label="Asset ID" name="assetIdToAdd">
               <Input
-                value={assetId}
+                value={assetIdToAdd}
                 onChange={(e) => {
-                  setAssetId(e.target.value);
+                  setAssetIdToAdd(e.target.value);
                 }}
               />
             </Form.Item>
 
             <Form.Item label="Liquidity to Add" name="liquidityToAdd">
               <Input
-                value={liquidityAmount}
+                value={liquidityAmountToAdd}
                 type="number"
                 onChange={(e) => {
-                  setLiquidityAmount(Number(e.target.value));
+                  setLiquidityAmountToAdd(Number(e.target.value));
                 }}
               />
             </Form.Item>
@@ -707,7 +626,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
                 htmlType="button"
                 style={{ margin: "2px" }}
                 onClick={async () => {
-                  await fetchPriceImpacts(liquidityAmount, assetId, network);
+                  await fetchPriceImpacts(liquidityAmountToAdd, assetIdToAdd, LIQUIDITY_ACTION.ADD, network);
                 }}
               >
                 Price Impact
@@ -747,12 +666,126 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
                     key: "newAmountOut",
                   },
                 ]}
-                dataSource={(priceImpacts ?? []).map((l, i) => ({ ...l, key: i }))}
+                dataSource={(priceImpactsOnAdd ?? []).map((l, i) => ({ ...l, key: i }))}
               />
             </Form.Item>
           </Form>
         </Col>
       </Row>
+
+      {account == routerAddress ? (
+        <>
+          <Divider />
+          <Row gutter={16}>
+            <Col span={3} />
+            <Col span={8}>
+              <Typography.Title level={4}>Remove Liquidity</Typography.Title>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={16}>
+              <Form
+                form={form}
+                name="basic"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                onFinish={({ assetIdToRemove, liquidityToRemove }) => {
+                  removeLiquidity(assetIdToRemove, liquidityToRemove);
+                }}
+              >
+                <Form.Item label="Asset ID" name="assetIdToRemove">
+                  <Input
+                    value={assetIdToRemove}
+                    onChange={(e) => {
+                      setAssetIdToRemove(e.target.value);
+                    }}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Liquidity to Remove" name="liquidityToRemove">
+                  <Input
+                    value={liquidityAmountToRemove}
+                    type="number"
+                    onChange={(e) => {
+                      setLiquidityAmountToRemove(Number(e.target.value));
+                    }}
+                  />
+                </Form.Item>
+
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button
+                    type="primary"
+                    htmlType="button"
+                    style={{ margin: "2px" }}
+                    onClick={async () => {
+                      const balanceToRemove = balances?.find((e) => e.assetId === assetIdToRemove);
+                      if (!balanceToRemove) {
+                        console.log("Need to fetch balances by clicking `reload`");
+                        return;
+                      }
+                      const liquidityAmount = Number(balanceToRemove.balance);
+                      console.log("liquidityAmount = ", liquidityAmount);
+                      console.log("liquidityAmountToRemove = ", liquidityAmountToRemove);
+                      if (liquidityAmount >= liquidityAmountToRemove) {
+                        await fetchPriceImpacts(
+                          liquidityAmountToRemove,
+                          assetIdToRemove,
+                          LIQUIDITY_ACTION.REMOVE,
+                          network,
+                        );
+                      } else {
+                        console.log(
+                          `Remove Liquidity Error, amount exceeds current liquidity, liquidity = ${liquidityAmount}, amountToRemove = ${assetIdToRemove}`,
+                        );
+                        setLiquidityAmountToRemove(0);
+                      }
+                    }}
+                  >
+                    Price Impact
+                  </Button>
+                  <Button type="primary" htmlType="submit">
+                    Remove Liquidity
+                  </Button>
+                </Form.Item>
+
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Table
+                    pagination={false}
+                    columns={[
+                      {
+                        title: "Chain",
+                        dataIndex: "chain",
+                        key: "chain",
+                      },
+                      {
+                        title: "Asset",
+                        dataIndex: "symbol",
+                        key: "symbol",
+                      },
+                      {
+                        title: "AmountIn",
+                        dataIndex: "amountIn",
+                        key: "amountIn",
+                      },
+                      {
+                        title: "OldAmountOut",
+                        dataIndex: "oldAmountOut",
+                        key: "oldAmountOut",
+                      },
+                      {
+                        title: "NewAmountOut",
+                        dataIndex: "newAmountOut",
+                        key: "newAmountOut",
+                      },
+                    ]}
+                    dataSource={(priceImpactsOnRemove ?? []).map((l, i) => ({ ...l, key: i }))}
+                  />
+                </Form.Item>
+              </Form>
+            </Col>
+          </Row>
+        </>
+      ) : null}
     </>
   );
 };
