@@ -78,13 +78,15 @@ import {
   ethereumRequest,
   encrypt,
 } from "./utils";
-import { Subgraph, SubgraphChainConfig, SubgraphEvent } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
+
+Evt.setDefaultMaxHandlers(250);
 
 /**
  * Used to make mocking easier
@@ -106,7 +108,7 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
-  private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
+  // private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
   constructor(
     private readonly config: {
@@ -250,10 +252,6 @@ export class NxtpSdkBase {
         this.auctionResponseEvt.post({ inbox, data, err });
       },
     );
-
-    await this.messaging.subscribeToMetaTxResponse((_from: string, inbox: string, data?: MetaTxResponse, err?: any) => {
-      this.metaTxResponseEvt.post({ inbox, data, err });
-    });
 
     await delay(1000);
     return token;
@@ -815,11 +813,9 @@ export class NxtpSdkBase {
       // send through messaging to metatx relayers
       const responseInbox = generateMessagingInbox();
 
-      const metaTxProm = this.metaTxResponseEvt
-        .pipe((data) => data.inbox === responseInbox)
-        .pipe((data) => !!data.data?.transactionHash)
-        .pipe((data) => !data.err)
-        .waitFor(META_TX_TIMEOUT);
+      const metaTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, META_TX_TIMEOUT, (data) => {
+        return data.txData.transactionId === params.txData.transactionId;
+      });
 
       const request = {
         type: MetaTxTypes.Fulfill,
@@ -837,12 +833,14 @@ export class NxtpSdkBase {
 
       try {
         const response = await metaTxProm;
-        const metaTxRes = response.data;
-        this.logger.info("Method complete", requestContext, methodContext, {
-          txHash: metaTxRes?.transactionHash,
-          chainId: metaTxRes?.chainId,
-        });
-        return { metaTxResponse: metaTxRes };
+        const ret = {
+          transactionHash: response.transactionHash,
+          chainId: response.txData.receivingChainId,
+        };
+        this.logger.info("Method complete", requestContext, methodContext, ret);
+        return {
+          metaTxResponse: ret,
+        };
       } catch (e) {
         throw e.message.includes("Evt timeout") ? new MetaTxTimeout(txData.transactionId, META_TX_TIMEOUT, request) : e;
       }
@@ -954,7 +952,6 @@ export class NxtpSdkBase {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
-    this.metaTxResponseEvt.detach();
     this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();
