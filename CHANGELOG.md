@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.64
+
+- [sdk] SDK gas limit fix
+
 ## 0.0.63
 
 - [sdk] Fix relayer fee issue
