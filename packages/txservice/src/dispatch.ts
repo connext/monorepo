@@ -333,7 +333,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         // still possible to revert due to a state change below.
         let gas = await this.getGas(minTx, requestContext);
         if (this.chainId === 42161) {
-          gas = new Gas(gas.baseValue, BigNumber.from(2_000_000));
+          gas = new Gas(gas.baseValue, BigNumber.from(10_000_000));
         }
 
         // Get initial nonce.
