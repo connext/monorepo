@@ -4,7 +4,6 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeAmount,
   getRateFromPercentage,
-  calculateExchangeWad,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { PriceImpactTooHigh } from "../errors/auction";

@@ -5,7 +5,6 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { config } from "dotenv";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
