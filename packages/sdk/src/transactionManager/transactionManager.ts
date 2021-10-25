@@ -31,7 +31,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
