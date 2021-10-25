@@ -1,5 +1,6 @@
 import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
+
 import {
   getOracleContractAddress,
   getPriceOracleInterface,

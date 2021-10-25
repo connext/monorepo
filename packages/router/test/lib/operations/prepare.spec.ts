@@ -2,11 +2,12 @@ import { SinonStub, stub } from "sinon";
 import { constants } from "ethers/lib/ethers";
 import {
   AuctionBid,
-  createRequestContext,
   expect,
   auctionBidMock,
   invariantDataMock,
   txReceiptMock,
+  createLoggingContext,
+  mkBytes32,
 } from "@connext/nxtp-utils";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
@@ -15,7 +16,7 @@ import { CHAIN_IDS_FOR_AMM, MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, ro
 import { getOperations } from "../../../src/lib/operations";
 import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
 
-const requestContext = createRequestContext("TEST");
+const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 
 let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], string>;
 let validExpiryStub: SinonStub<[expiry: number], boolean>;

@@ -64,17 +64,17 @@ export const getDecimals = async (assetId: string, provider: providers.FallbackP
 /**
  * Gets token price in usd.
  *
- * @param oralceAddress The price oracle address
+ * @param oracleAddress The price oracle address
  * @param tokenAddress The token address to get the price
  *
  * @returns price in usd by decimals 18.
  */
 export const getTokenPrice = async (
-  oralceAddress: string,
+  oracleAddress: string,
   tokenAddress: string,
   provider: providers.FallbackProvider,
 ): Promise<BigNumber> => {
-  const priceOracleContract = new Contract(oralceAddress, PriceOracleAbi, provider);
+  const priceOracleContract = new Contract(oracleAddress, PriceOracleAbi, provider);
   const tokenPriceInBigNum = await priceOracleContract.getTokenPrice(tokenAddress);
   return tokenPriceInBigNum;
 };

@@ -2,8 +2,9 @@ import {
   AuctionBid,
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
-  calculateExchangeWad,
+  calculateExchangeAmount,
   getRateFromPercentage,
+  calculateExchangeWad,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { PriceImpactTooHigh } from "../errors/auction";
@@ -104,10 +105,8 @@ export const getReceiverAmount = async (
   }
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
-  const receivingAmount = calculateExchangeWad(amountAfterSwapRate, outputDecimals, routerFeeRate, outputDecimals);
-
-  // TODO:  gas fee reimbursement
-  return receivingAmount.toString();
+  const receivingAmount = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
+  return receivingAmount.split(".")[0];
 };
 
 /**
