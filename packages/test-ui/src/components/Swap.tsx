@@ -6,7 +6,6 @@ import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction } from
 import {
   AuctionResponse,
   ChainData,
-  createLoggingContext,
   CrosschainTransaction,
   getRandomBytes32,
   Logger,
@@ -40,8 +39,6 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   const [historicalTransferTableColumns, setHistoricalTransferTableColumns] = useState<HistoricalTransaction[]>([]);
   const [selectedPoolIndex, setSelectedPoolIndex] = useState(0);
   const [userBalance, setUserBalance] = useState<BigNumber>();
-
-  const { requestContext, methodContext } = createLoggingContext("nxtp-test-ui");
 
   const [form] = Form.useForm();
 
@@ -97,12 +94,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 : undefined;
 
             try {
-              const gasAmountInBigNum = await _sdk?.estimateFulfillFee(
-                receivingTxData as TransactionData,
-                "0",
-                requestContext,
-                methodContext,
-              );
+              const gasAmountInBigNum = await _sdk?.estimateFulfillFee(receivingTxData as TransactionData, "0x", "0");
               gasAmount = utils.formatEther(gasAmountInBigNum);
             } catch (e) {
               console.log(e);
