@@ -1,0 +1,24 @@
+{
+  "name": "@connext/nxtp-sdk-server",
+  "description": "Client-side package server for interacting with the NXTP protocol for crosschain packages",
+  "author": "Connext",
+  "license": "UNLICENSED",
+  "main": "index.js",
+  "files": [
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@connext/nxtp-sdk": "workspace:*",
+    "fastify": "^3.22.1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.4",
+    "typescript": "^4.3.5"
+  }
+}
