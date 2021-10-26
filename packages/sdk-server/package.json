@@ -10,15 +10,25 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "lint": "eslint ./src --ext .ts --env node",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "purge": "yarn clean && rimraf ./node_modules"
   },
   "keywords": [],
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
-    "fastify": "^3.22.1"
+    "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.20.4",
+    "ethers": "^5.4.6",
+    "fastify": "^3.22.1",
+    "pino": "^6.13.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.4",
+    "@types/pino": "^6.3.11",
+    "pino-pretty": "^5.1.3",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.5"
   }
 }
