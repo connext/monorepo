@@ -1,0 +1,32 @@
+
+   
+@baseUrl = http://127.0.0.1:8080
+
+##############
+### ẂELCOME
+GET {{baseUrl}}
+
+
+##############
+### PLAY PING
+GET {{baseUrl}}/ping
+
+##############
+### GET ACTIVE TRANSACTIONS
+GET {{baseUrl}}/get-active-transactions
+
+##############
+### GET HISTORICAL TRANSACTIONS
+GET {{baseUrl}}/get-historical-transactions
+
+##############
+### POST TRANSFER QUOTE
+POST {{baseUrl}}/get-transfer-quote
+Content-Type: application/json
+
+{
+  "sendingChainId": 4,
+  "receivingChainId": 5,
+  ...
+}
+
