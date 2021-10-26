@@ -142,8 +142,6 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
 
-    this.logger.debug("Starting Prepare transaction in TXManager class", requestContext, methodContext);
-
     const { provider, transactionManagerAddress } = this.chainConfig[chainId] ?? {};
     if (!provider || !transactionManagerAddress) {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));

@@ -108,7 +108,6 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
-  // private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
   constructor(
     private readonly config: {
@@ -426,7 +425,7 @@ export class NxtpSdkBase {
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
-            .pipe((data) => preferredRouters.includes(utils.getAddress(data.data?.bid.router ?? constants.AddressZero)))
+            .pipe((data) => preferredRouters.includes(utils.getAddress((data.data as AuctionResponse).bid.router)))
             .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
           return resolve([result.data as AuctionResponse]);
         } catch (e) {
