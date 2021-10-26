@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.65
+
+- [router] Fix relayer fee threshold
+
 ## 0.0.64
 
 - [sdk] SDK gas limit fix
