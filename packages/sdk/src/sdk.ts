@@ -8,7 +8,7 @@ import {
   jsonifyError,
   Logger,
   createLoggingContext,
-  TransactionData,
+  encrypt,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -173,8 +173,20 @@ export class NxtpSdk {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
-    return this.sdkBase.getTransferQuote(params);
+  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<AuctionResponse> {
+    const user = await this.config.signer.getAddress();
+    const callData = params.callData ?? "0x";
+    let encryptedCallData = "0x";
+    if (callData !== "0x") {
+      try {
+        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
+        encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      } catch (e) {
+        throw new EncryptionError("public key encryption failed", jsonifyError(e));
+      }
+    }
+
+    return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
   }
 
   /**
