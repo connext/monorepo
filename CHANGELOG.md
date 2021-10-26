@@ -4,6 +4,26 @@
 
 - [sdk/router] Add fallback subgraph using multiple subgraph URIs
 
+## 0.0.64
+
+- [sdk] SDK gas limit fix
+
+## 0.0.63
+
+- [sdk] Fix relayer fee issue
+
+## 0.0.62
+
+- [sdk] fix exchange amount
+- [sdk] bump gas limit for Arbitrum
+- [router] fix exchange amount
+
+## 0.0.61
+
+- [sdk] Add SDKBase class that does not use signer
+- [contracts] Add PriceOracle to BSC
+- [sdk] Add way to bypass messaging signer
+
 ## 0.0.58
 
 - [subgraphs] Fix user typo

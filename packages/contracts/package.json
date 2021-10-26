@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.0.58",
+  "version": "0.0.64",
   "description": "",
   "scripts": {
     "test": "hardhat test",

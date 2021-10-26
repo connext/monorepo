@@ -1,6 +1,13 @@
 import { NxtpError, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
+export class NotEnoughAmount extends NxtpError {
+  cancellable = true;
+  constructor(context: any = {}) {
+    super(`Not enough amount for swap`, context, "NotEnoughAmount");
+  }
+}
+
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
   constructor(chainId: number, context: any = {}) {

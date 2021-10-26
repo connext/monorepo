@@ -20,6 +20,7 @@ import {
   ZeroValueBid,
   AuctionExpired,
   ParamsInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
@@ -205,6 +206,17 @@ export const newAuction = async (
   logger.info("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
+
+  if (amountReceivedInBigNum.lt(gasFeeInReceivingToken)) {
+    throw new NotEnoughAmount({
+      methodContext,
+      requestContext,
+      amount,
+      amountReceived: amountReceived,
+      gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    });
+  }
+
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
