@@ -80,13 +80,15 @@ export type CancelParams = {
 };
 
 // Events
-export type TransactionPreparedEvent = {
-  txData: TransactionData;
-  caller: string;
-  encryptedCallData: string;
-  encodedBid: string;
-  bidSignature: string;
-};
+export const TransactionPreparedEventSchema = Type.Object({
+  txData: TransactionDataSchema,
+  caller: Type.Optional(TAddress),
+  encryptedCallData: Type.String(),
+  encodedBid: Type.String(),
+  bidSignature: Type.String(),
+});
+
+export type TransactionPreparedEvent = Static<typeof TransactionPreparedEventSchema>;
 
 export type TransactionFulfilledEvent = {
   txData: TransactionData;
