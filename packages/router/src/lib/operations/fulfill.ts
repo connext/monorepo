@@ -82,7 +82,7 @@ export const fulfill = async (
         methodContext,
         requestContext,
         relayerFee: input.relayerFee,
-        relayerFeeLowerBound: relayerFeeLowerBound,
+        recvAmountLowerBound: recvAmountLowerBound.toString(),
         invariantData,
         input,
       });
