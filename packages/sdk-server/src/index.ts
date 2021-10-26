@@ -19,7 +19,6 @@ import { getConfig } from "./config";
 let sdkBaseInstance: NxtpSdkBase;
 const config = getConfig();
 
-const signer = new Wallet(config.mnemonic);
 const logger = new Logger({ name: "sdk-server", level: "info" });
 const server = fastify({ logger: logger instanceof pino, pluginTimeout: 300_000, disableRequestLogging: false });
 
@@ -45,6 +44,8 @@ server.listen(8080, (err, address) => {
 });
 
 server.addHook("onReady", async () => {
+  const signer = Wallet.fromMnemonic(config.mnemonic);
+
   sdkBaseInstance = new NxtpSdkBase({
     chainConfig: config.chainConfig,
     signerAddress: signer.getAddress(),
@@ -54,7 +55,11 @@ server.addHook("onReady", async () => {
     // messagingSigner,
     // skipPolling,
   });
+});
+
+server.get("/", async () => {
   console.log(`Server listening`);
+  return "welcome to connext!\n";
 });
 
 server.get("/ping", async () => {
@@ -62,6 +67,7 @@ server.get("/ping", async () => {
 });
 
 server.get(getActiveTransactions, async (request, response) => {
+  console.log(sdkBaseInstance);
   const res = await sdkBaseInstance.getActiveTransactions();
   return response.status(200).send(res);
 });
