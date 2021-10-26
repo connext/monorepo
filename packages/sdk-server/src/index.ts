@@ -1,10 +1,40 @@
 import fastify from "fastify";
+import { Wallet, providers, BigNumber } from "ethers";
+import pino from "pino";
+import { Type } from "@sinclair/typebox";
+import { NxtpSdkBase, CrossChainParams, CrossChainParamsSchema, CancelParams, CancelSchema } from "@connext/nxtp-sdk";
+import {
+  Logger,
+  AuctionResponse,
+  AuctionResponseSchema,
+  TransactionPreparedEvent,
+  TransactionPreparedEventSchema,
+  MetaTxResponse,
+  TransactionData,
+  TransactionDataSchema,
+} from "@connext/nxtp-utils";
 
-const server = fastify();
+import { getConfig } from "./config";
 
-server.get("/ping", async (request, reply) => {
-  return "pong\n";
-});
+let sdkBaseInstance: NxtpSdkBase;
+const config = getConfig();
+
+const signer = new Wallet(config.mnemonic);
+const logger = new Logger({ name: "sdk-server", level: "info" });
+const server = fastify({ logger: logger instanceof pino, pluginTimeout: 300_000, disableRequestLogging: false });
+
+/// REQUEST PATHS
+
+const getActiveTransactions = "/get-active-transactions";
+const getHistoricalTransactions = "/get-historical-transactions";
+const getTransferQuote = "/get-transfer-quote";
+const approveForPrepare = "/approve-for-prepare";
+const prepareTransfer = "/prepare-transfer";
+const fulfillTransfer = "/fulfill-transfer";
+const estimateFulfillFee = "/estimate-fulfill-fee";
+const cancel = "/cancel";
+
+/// REPLY PATHS
 
 server.listen(8080, (err, address) => {
   if (err) {
@@ -13,3 +43,154 @@ server.listen(8080, (err, address) => {
   }
   console.log(`Server listening at ${address}`);
 });
+
+server.addHook("onReady", async () => {
+  sdkBaseInstance = new NxtpSdkBase({
+    chainConfig: config.chainConfig,
+    signerAddress: signer.getAddress(),
+    network: config.network,
+    signer,
+    logger: logger,
+    // messagingSigner,
+    // skipPolling,
+  });
+  console.log(`Server listening`);
+});
+
+server.get("/ping", async () => {
+  return "pong\n";
+});
+
+server.get(getActiveTransactions, async (request, response) => {
+  const res = await sdkBaseInstance.getActiveTransactions();
+  return response.status(200).send(res);
+});
+
+server.get(getHistoricalTransactions, async (request, response) => {
+  const res = await sdkBaseInstance.getHistoricalTransactions();
+  return response.status(200).send(res);
+});
+
+server.post<{ Body: CrossChainParams; Reply: AuctionResponse }>(
+  getTransferQuote,
+  {
+    schema: {
+      body: CrossChainParamsSchema,
+      response: {
+        200: AuctionResponseSchema,
+      },
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.getTransferQuote(req);
+    return response.status(200).send(res);
+  },
+);
+
+server.post<{
+  Body: { transferParams: AuctionResponse; infiniteApprove?: boolean };
+  Reply: providers.TransactionRequest | undefined;
+}>(
+  approveForPrepare,
+  {
+    schema: {
+      body: { transferParams: AuctionResponseSchema, infiniteApprove: Type.Boolean() },
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.approveForPrepare(req.transferParams, req.infiniteApprove);
+    return response.status(200).send(res);
+  },
+);
+
+server.post<{
+  Body: AuctionResponse;
+  Reply: providers.TransactionRequest;
+}>(
+  prepareTransfer,
+  {
+    schema: {
+      body: AuctionResponseSchema,
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.prepareTransfer(req);
+    return response.status(200).send(res);
+  },
+);
+
+server.post<{
+  Body: {
+    params: Omit<TransactionPreparedEvent, "caller">;
+    fulfillSignature: string;
+    decryptedCallData: string;
+    relayerFee?: string;
+    useRelayers?: boolean;
+  };
+  Reply: { fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse };
+}>(
+  fulfillTransfer,
+  {
+    schema: {
+      body: {
+        params: TransactionPreparedEventSchema,
+        fulfillSignature: Type.String(),
+        decryptedCallData: Type.String(),
+        relayerFee: Type.Optional(Type.String()),
+        useRelayers: Type.Optional(Type.Boolean()),
+      },
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.fulfillTransfer(
+      req.params,
+      req.fulfillSignature,
+      req.decryptedCallData,
+      req.relayerFee,
+      req.useRelayers,
+    );
+    return response.status(200).send(res);
+  },
+);
+
+server.post<{
+  Body: { cancelParams: CancelParams; chainId: number };
+  Reply: providers.TransactionRequest;
+}>(
+  cancel,
+  {
+    schema: {
+      body: { cancelParams: CancelSchema, chainId: Type.Number() },
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.cancel(req.cancelParams, req.chainId);
+    return response.status(200).send(res);
+  },
+);
+
+server.post<{
+  Body: {
+    txData: TransactionData;
+    signatureForFee: string;
+    relayerFee: string;
+  };
+  Reply: BigNumber;
+}>(
+  estimateFulfillFee,
+  {
+    schema: {
+      body: { txData: TransactionDataSchema, signatureForFee: Type.String(), relayerFee: Type.String() },
+    },
+  },
+  async (request, response) => {
+    const { body: req } = request;
+    const res = await sdkBaseInstance.estimateFulfillFee(req.txData, req.signatureForFee, req.relayerFee);
+    return response.status(200).send(res);
+  },
+);
