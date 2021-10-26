@@ -361,16 +361,11 @@ export class NxtpSdkBase {
 
     const callTo = params.callTo ?? constants.AddressZero;
     const callData = params.callData ?? "0x";
-
-    let encryptedCallData = "0x";
     const callDataHash = utils.keccak256(callData);
-    if (callData !== "0x") {
-      try {
-        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
-        encryptedCallData = await encrypt(callData, encryptionPublicKey);
-      } catch (e) {
-        throw new EncryptionError("public key encryption failed", jsonifyError(e));
-      }
+
+    const encryptedCallData = "0x" ?? params.encryptedCallData;
+    if (callData !== "0x" && encryptedCallData == "0x") {
+      throw new EncryptionError("bad public key encryption");
     }
 
     if (!this.messaging.isConnected()) {
