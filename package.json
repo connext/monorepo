@@ -29,8 +29,8 @@
     "packages/utils"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/nxtp-server run lint --fix",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/nxtp-server run test",
+    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
