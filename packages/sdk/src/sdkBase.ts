@@ -411,7 +411,7 @@ export class NxtpSdkBase {
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
             .waitFor(AUCTION_TIMEOUT);
-          return resolve([result.data]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
@@ -428,7 +428,7 @@ export class NxtpSdkBase {
             .pipe((data) => !data.err)
             .pipe((data) => preferredRouters.includes(utils.getAddress(data.data?.bid.router ?? constants.AddressZero)))
             .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
-          return resolve([result.data]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
@@ -448,7 +448,7 @@ export class NxtpSdkBase {
           return true;
         })
         .attach((data) => {
-          bids.push(data.data);
+          bids.push(data.data as AuctionResponse);
         });
 
       setTimeout(async () => {
