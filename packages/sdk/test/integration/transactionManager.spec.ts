@@ -10,15 +10,13 @@ import {
   expect,
   Logger,
 } from "@connext/nxtp-utils";
-import { utils, constants, BigNumber } from "ethers";
+import { utils, constants } from "ethers";
 
 import {
-  Counter,
   TransactionManager as TransactionManagerTypechain,
   TestERC20,
 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import CounterArtifact from "@connext/nxtp-contracts/artifacts/contracts/test/Counter.sol/Counter.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
@@ -28,7 +26,7 @@ import {
   getDeployedPriceOracleContract,
   getDeployedChainIdsForGasFee,
 } from "../../src/transactionManager/transactionManager";
-import { ChainNotConfigured, PriceOracleNotConfigured } from "../../src/error";
+import { ChainNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
 
 const { AddressZero } = constants;
@@ -44,7 +42,7 @@ const createFixtureLoader = waffle.createFixtureLoader;
 describe("Transaction Manager", function () {
   const [wallet, router, user, receiver] = waffle.provider.getWallets();
 
-  const sendingChainId = 1337;
+  const sendingChainId = 31337;
   const receivingChainId = 1338;
   const routerFunds = "1000";
   const userFunds = "100";
@@ -55,9 +53,10 @@ describe("Transaction Manager", function () {
   let routerTransactionManager: TransactionManager;
   let transactionManager: TransactionManagerTypechain;
   let transactionManagerReceiverSide: TransactionManagerTypechain;
-  let counter: Counter;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
+
+  
 
   const getTransactionData = async (
     txOverrides: Partial<InvariantTransactionData> = {},
@@ -99,8 +98,6 @@ describe("Transaction Manager", function () {
       receivingChainId,
     );
 
-    counter = await deployContract<Counter>(CounterArtifact);
-
     tokenA = await deployContract<TestERC20>(TestERC20Artifact);
 
     tokenB = await deployContract<TestERC20>(TestERC20Artifact);
@@ -140,10 +137,12 @@ describe("Transaction Manager", function () {
         [sendingChainId]: {
           provider: user.provider,
           transactionManagerAddress: transactionManager.address,
+          priceOracleAddress: undefined,
         },
         [receivingChainId]: {
           provider: user.provider,
           transactionManagerAddress: transactionManagerReceiverSide.address,
+          priceOracleAddress: undefined,
         },
       },
       user.getAddress(),
@@ -155,10 +154,12 @@ describe("Transaction Manager", function () {
         [sendingChainId]: {
           provider: router.provider,
           transactionManagerAddress: transactionManager.address,
+          priceOracleAddress: undefined,
         },
         [receivingChainId]: {
           provider: router.provider,
           transactionManagerAddress: transactionManagerReceiverSide.address,
+          priceOracleAddress: undefined,
         },
       },
       router.getAddress(),
@@ -173,56 +174,34 @@ describe("Transaction Manager", function () {
   });
 
   describe("#getDeployedTransactionManagerContract", () => {
-    it("should undefined if no transaction manager", () => {
-      const res = getDeployedTransactionManagerContract(0);
-      expect(res).to.be.undefined;
-    });
-
-    it("happy func", () => {
-      const res = getDeployedTransactionManagerContract(4);
-      expect(res).to.be.ok;
-    });
-  });
-
-  describe("getDeployedTransactionManagerContract", () => {
-    it("happy case: returns undefined", async () => {
+    it("should return undefined if no transaction manager", async () => {
       const chainId = sendingChainId;
       const res = getDeployedTransactionManagerContract(chainId);
       expect(res).to.be.undefined;
     });
-    it("happy case", async () => {
-      const chainId = 5;
+
+    it("happy", async () => {
+      const chainId = 4;
       const res = getDeployedTransactionManagerContract(chainId);
       expect(res.address).to.be.a("string");
     });
   });
 
   describe("#getDeployedPriceOracleContract", () => {
-    it("should undefined if no transaction manager", () => {
+    it("should return undefined if no price oracle contract", () => {
       const res = getDeployedPriceOracleContract(0);
       expect(res).to.be.undefined;
     });
 
-    it("happy func", () => {
-      const res = getDeployedPriceOracleContract(4);
-      expect(res).to.be.ok;
-    });
-  });
-
-  describe("getDeployedPriceOracleContract", () => {
-    it("happy case: returns undefined", async () => {
-      const chainId = sendingChainId;
-      const res = getDeployedPriceOracleContract(chainId);
-      expect(res).to.be.undefined;
-    });
-    it("happy case", async () => {
+    it("happy", () => {
       const chainId = 4;
       const res = getDeployedPriceOracleContract(chainId);
+      expect(res).to.be.ok;
       expect(res.address).to.be.a("string");
     });
   });
 
-  describe("getDeployedChainIdsForGasFee", () => {
+  describe("#getDeployedChainIdsForGasFee", () => {
     it("happy case", async () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
@@ -244,7 +223,7 @@ describe("Transaction Manager", function () {
       );
     });
 
-    describe("prepare", () => {
+    describe("#prepare", () => {
       it("should error if unfamiliar chainId", async () => {
         const { transaction, record } = await getTransactionData();
         const InvalidChainId = 123;
@@ -270,7 +249,7 @@ describe("Transaction Manager", function () {
       });
     });
 
-    describe("cancel", () => {
+    describe("#cancel", () => {
       const relayerFee = "1";
 
       it("should error if unfamiliar chainId", async () => {
@@ -341,7 +320,7 @@ describe("Transaction Manager", function () {
       });
     });
 
-    describe("fulfill", () => {
+    describe("#fulfill", () => {
       const relayerFee = "1";
 
       it("should error if unfamiliar chainId", async () => {
@@ -406,7 +385,7 @@ describe("Transaction Manager", function () {
       });
     });
 
-    describe("approveTokensIfNeeded", () => {
+    describe("#approveTokensIfNeeded", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         await expect(
@@ -423,15 +402,15 @@ describe("Transaction Manager", function () {
       });
     });
 
-    describe.skip("establishListeners", () => {
+    describe.skip("#establishListeners", () => {
       it("happy case", async () => {});
     });
 
-    describe.skip("removeAllListeners", () => {
+    describe.skip("#removeAllListeners", () => {
       it.skip("happy case", async () => {});
     });
 
-    describe("getRouterLiquidity", () => {
+    describe("#getRouterLiquidity", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         await expect(
@@ -451,7 +430,7 @@ describe("Transaction Manager", function () {
       });
     });
 
-    describe("calculateGasInTokenForFullfill", () => {
+    describe("#calculateGasInTokenForFullfill", () => {
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         const { transaction, record } = await getTransactionData();

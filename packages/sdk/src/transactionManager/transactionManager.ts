@@ -31,7 +31,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
@@ -184,6 +184,7 @@ export class TransactionManager {
       value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -236,6 +237,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -290,6 +292,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -342,6 +345,7 @@ export class TransactionManager {
         to: assetId,
         data,
         from: await this.signerAddress,
+        chainId,
       };
     } else {
       this.logger.info("Allowance sufficient", requestContext, methodContext, {

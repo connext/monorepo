@@ -7,6 +7,7 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
+  delay,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
@@ -34,7 +35,7 @@ import {
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
-import { Subgraph } from "../../src/subgraph/subgraph";
+import { Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -43,6 +44,10 @@ const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const { AddressZero } = constants;
 const response = "connected";
+
+// NOTE: Tried importing the evt module Timeout error here, but the compiler throws.
+// For now, just mocking using the proper message string.
+const mockEvtTimeoutErr = (timeout: number) => new Error(`Evt timeout after ${timeout}ms`);
 
 describe("NxtpSdkBase", () => {
   let sdk: NxtpSdkBase;
@@ -306,19 +311,10 @@ describe("NxtpSdkBase", () => {
       expect(messaging.connect.callCount).to.be.eq(1);
     });
 
-    it("should fail if subscribeToMetaTxResponse fails", async () => {
-      messaging.subscribeToMetaTxResponse.rejects(new Error("fail"));
-
-      await expect(sdk.connectMessaging()).to.be.rejectedWith("fail");
-      expect(messaging.connect.callCount).to.be.eq(1);
-      expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
-    });
-
     it("should work", async () => {
       await sdk.connectMessaging();
       expect(messaging.connect.callCount).to.be.eq(1);
       expect(messaging.subscribeToAuctionResponse.callCount).to.be.eq(1);
-      expect(messaging.subscribeToMetaTxResponse.callCount).to.be.eq(1);
     });
   });
 
@@ -714,7 +710,7 @@ describe("NxtpSdkBase", () => {
     });
 
     describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
+      it("unknown sendingChainId", async () => {
         const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
         await expect(
           sdk.fulfillTransfer(
@@ -733,7 +729,7 @@ describe("NxtpSdkBase", () => {
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
 
-      it("unkown receivingChainId", async () => {
+      it("unknown receivingChainId", async () => {
         const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
 
         await expect(
@@ -756,14 +752,9 @@ describe("NxtpSdkBase", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
-      stub(sdkIndex, "META_TX_TIMEOUT").value(1_000);
+      stub(sdkIndex, "META_TX_TIMEOUT").value(100);
 
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          err: "Blahhh",
-        });
-      }, 200);
+      subgraph.waitFor.rejects(mockEvtTimeoutErr(100));
 
       await expect(
         sdk.fulfillTransfer(
@@ -779,7 +770,7 @@ describe("NxtpSdkBase", () => {
           "0",
           true,
         ),
-      ).to.be.rejectedWith(MetaTxTimeout.getMessage(1_000));
+      ).to.be.rejectedWith(MetaTxTimeout.getMessage(100));
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
@@ -787,15 +778,17 @@ describe("NxtpSdkBase", () => {
 
       const transactionHash = mkHash("0xc");
 
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: {
-            transactionHash,
-            chainId: sendingChainId,
+      subgraph.waitFor.resolves(
+        {
+          transactionHash,
+          txData: {
+            ...transaction,
+            ...record,
+            sendingChainId: receivingChainId,
+            receivingChainId: sendingChainId,
           },
-        });
-      }, 200);
+        } as any,
+      );
 
       const res = await sdk.fulfillTransfer(
         {
