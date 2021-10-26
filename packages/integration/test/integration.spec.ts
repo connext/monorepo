@@ -48,11 +48,11 @@ const fundedPk = "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44d
 const router = "0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6";
 
 const sugarDaddy = new Wallet(fundedPk);
-const MIN_ETH = utils.parseEther("0.5");
-const ETH_GIFT = utils.parseEther("1");
+const MIN_ETH = utils.parseEther("10");
+const ETH_GIFT = utils.parseEther("100");
 
-const MIN_TOKEN = utils.parseEther("5");
-const TOKEN_GIFT = utils.parseEther("10");
+const MIN_TOKEN = utils.parseEther("10");
+const TOKEN_GIFT = utils.parseEther("100");
 
 const txManagerSending = new Contract(
   txManagerAddressSending,
