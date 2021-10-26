@@ -31,7 +31,7 @@ import { Signer } from "ethers";
 import { Evt, VoidCtx } from "evt";
 import PriorityQueue from "p-queue";
 
-import { ChainConfig } from "./config";
+import { ChainConfig, getConfig } from "./config";
 
 type AddressField = { address: string };
 
@@ -99,13 +99,15 @@ const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & Ad
 export class SdkAgent {
   private cyclicalContext: VoidCtx | undefined;
 
-  private queue = new PriorityQueue({ concurrency: 1 });
-
   private readonly evts: { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } = createEvts();
 
   private readonly logger: Logger = new Logger({ name: "sdkAgent", level: "debug" });
 
-  private constructor(public readonly address: string, private readonly sdk: NxtpSdk) {}
+  private constructor(
+    public readonly address: string,
+    private readonly sdk: NxtpSdk,
+    private readonly queues: Record<number, PriorityQueue>,
+  ) {}
 
   /**
    * Creates a new agent
@@ -118,28 +120,42 @@ export class SdkAgent {
    * @returns
    */
   static async connect(
+    chainId: number,
     chainProviders: ChainConfig,
     signer: Signer,
     logger: Logger,
     natsUrl?: string,
     authUrl?: string,
+    network?: any,
     messaging?: UserNxtpNatsMessagingService,
   ): Promise<SdkAgent> {
     // Get signer address for name
     const address = await signer.getAddress();
+    logger.debug(`Connecting to chain provider`);
+
+    const connected = signer.connect(chainProviders[chainId].provider);
+
+    if (!connected.provider) {
+      logger.debug(`Couldn't connect to provider for ${chainId}`);
+    }
+
+    const queues: Record<number, PriorityQueue> = {};
+    Object.keys(chainProviders).map((chainId) => {
+      queues[parseInt(chainId)] = new PriorityQueue({ concurrency: 1 });
+    });
 
     // Create sdk
     const sdk = new NxtpSdk({
       chainConfig: chainProviders,
-      signer,
+      signer: connected,
       natsUrl,
       authUrl,
       messaging,
       logger: logger.child({ name: "Sdk" }),
-      network: "local",
+      network: network,
     });
     await sdk.connectMessaging();
-    const agent = new SdkAgent(address, sdk);
+    const agent = new SdkAgent(address, sdk, queues);
 
     // Parrot all events
     agent.setupListeners();
@@ -259,7 +275,10 @@ export class SdkAgent {
     params: Omit<CrossChainParams, "receivingAddress" | "expiry"> & { receivingAddress?: string },
   ): Promise<void> {
     this.logger.info("SDK Crosschain XFR Starting (adding to queue)", undefined, undefined, { params });
-    return this.queue.add(async () => {
+    if (!this.queues[params.sendingChainId]) {
+      throw new Error(`No queue found for ${params.sendingChainId}`);
+    }
+    const response = await this.queues[params.sendingChainId].add(async () => {
       const minExpiry = getMinExpiryBuffer(); // 36h in seconds
       const buffer = 5 * 60; // 5 min buffer
       // 0. Create bid
@@ -267,6 +286,7 @@ export class SdkAgent {
         receivingAddress: this.address,
         expiry: Math.floor(Date.now() / 1000) + minExpiry + buffer, // Use min + 5m
         transactionId: getRandomBytes32(),
+        preferredRouters: getConfig().routers.length > 0 ? getConfig().routers : undefined,
         ...params,
       };
       const { requestContext, methodContext } = createLoggingContext(
@@ -282,9 +302,13 @@ export class SdkAgent {
 
       try {
         // 1. Run the auction
-        while (!auction && auction_attempts < MAX_AUCTION_ATTEMPTS) {
+        while (!auction && auction_attempts <= MAX_AUCTION_ATTEMPTS) {
           auction_attempts++;
-          auction = await this.sdk.getTransferQuote(bid);
+          try {
+            auction = await this.sdk.getTransferQuote(bid);
+          } catch (e) {
+            this.logger.warn(`Auction error, retry`, requestContext, methodContext, { error: e.message });
+          }
           this.logger.debug(
             `Auction attempt ${auction_attempts} for TransactionID: ${bid.transactionId}`,
             requestContext,
@@ -293,12 +317,18 @@ export class SdkAgent {
           );
         }
         // 2. Start the transfer
-        if (auction) {
-          const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
+        if (auction?.bid) {
           this.logger.debug(`Preparing Transfer`, requestContext, methodContext, {
-            txfr_info: prepareTxfr,
             txid: bid.transactionId,
           });
+          try {
+            const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
+            this.logger.debug(`Prepared xfr object ${prepareTxfr}`);
+            const receipt = await prepareTxfr.prepareResponse.wait();
+            this.logger.debug("Prepare tx confirmed", requestContext, methodContext, { hash: receipt.transactionHash });
+          } catch (e) {
+            this.logger.warn(`Couldnt prepare transfer :(`, requestContext, methodContext, { error: e.message });
+          }
         } else {
           this.logger.debug(`Couldn't get an auction response`, requestContext, methodContext, {
             txid: bid.transactionId,
@@ -323,6 +353,7 @@ export class SdkAgent {
         process.exit(1);
       }
     });
+    return response;
   }
 
   // Listener methods

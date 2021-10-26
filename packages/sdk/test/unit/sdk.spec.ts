@@ -85,6 +85,7 @@ describe("NxtpSdk", () => {
     };
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TxResponse);
+    signer.connect.returns(signer);
     sdkBase = createStubInstance(NxtpSdkBase);
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
@@ -365,7 +366,7 @@ describe("NxtpSdk", () => {
 
   describe("#fulfillTransfer", () => {
     describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
+      it("unknown sendingChainId", async () => {
         const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
         await expect(
           sdk.fulfillTransfer({
@@ -378,7 +379,7 @@ describe("NxtpSdk", () => {
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
 
-      it("unkown receivingChainId", async () => {
+      it("unknown receivingChainId", async () => {
         const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
 
         await expect(

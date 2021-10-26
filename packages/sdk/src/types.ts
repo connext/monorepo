@@ -25,7 +25,7 @@ export const CrossChainParamsSchema = Type.Object({
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
   slippageTolerance: Type.Optional(Type.String()),
   dryRun: Type.Optional(Type.Boolean()),
-  preferredRouter: Type.Optional(TAddress),
+  preferredRouters: Type.Optional(Type.Array(TAddress)),
   initiator: Type.Optional(TAddress),
 });
 
