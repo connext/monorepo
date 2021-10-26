@@ -153,11 +153,6 @@ export class NxtpSdk {
     return this.sdkBase.getHistoricalTransactions();
   }
 
-  public async estimateFulfillFee(txData: TransactionData, signatureForFee: string, relayerFee: string) {
-    const { requestContext, methodContext } = createLoggingContext("estimateFulfillFee");
-    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee, requestContext, methodContext);
-  }
-
   /**
    * Fetches an estimated quote for a proposed crosschain transfer. Runs an auction to determine the `router` for a transaction and the estimated received value.
    *
@@ -325,7 +320,7 @@ export class NxtpSdk {
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0", requestContext, methodContext);
+      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0");
 
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
