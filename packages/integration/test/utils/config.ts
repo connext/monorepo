@@ -65,6 +65,13 @@ const DEFAULT_LOCAL_CONFIG = {
         { chainId: 1338, assetId: "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
       ],
     },
+    {
+      name: "TETH",
+      assets: [
+        { chainId: 1337, assetId: "0x0000000000000000000000000000000000000000" },
+        { chainId: 1338, assetId: "0x0000000000000000000000000000000000000000" },
+      ],
+    },
   ],
 };
 
