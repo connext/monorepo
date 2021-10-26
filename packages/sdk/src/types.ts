@@ -68,14 +68,15 @@ export type SdkBaseConfigParams = {
 };
 
 export const CrossChainParamsSchema = Type.Object({
-  callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
   sendingChainId: TChainId,
   sendingAssetId: TAddress,
   receivingChainId: TChainId,
   receivingAssetId: TAddress,
-  callTo: Type.Optional(TAddress),
   receivingAddress: TAddress,
   amount: TIntegerString,
+  callTo: Type.Optional(TAddress),
+  callData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*$/)),
+  encryptedCallData: Type.Optional(Type.String()),
   expiry: Type.Optional(Type.Number()),
   transactionId: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]{64}$/)),
   slippageTolerance: Type.Optional(Type.String()),
