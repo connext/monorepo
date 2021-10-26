@@ -76,13 +76,15 @@ import {
   ethereumRequest,
   encrypt,
 } from "./utils";
-import { Subgraph, SubgraphChainConfig, SubgraphEvent } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
+
+Evt.setDefaultMaxHandlers(250);
 
 /**
  * Used to make mocking easier
@@ -104,7 +106,6 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
-  private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
   constructor(private readonly config: SdkBaseConfigParams) {
     const { signerAddress, chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling } =
@@ -228,10 +229,6 @@ export class NxtpSdkBase {
       },
     );
 
-    await this.messaging.subscribeToMetaTxResponse((_from: string, inbox: string, data?: MetaTxResponse, err?: any) => {
-      this.metaTxResponseEvt.post({ inbox, data, err });
-    });
-
     await delay(1000);
     return token;
   }
@@ -325,7 +322,7 @@ export class NxtpSdkBase {
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
-      preferredRouter: _preferredRouter,
+      preferredRouters: _preferredRouters,
       initiator,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
@@ -350,7 +347,7 @@ export class NxtpSdkBase {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
 
-    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
+    const preferredRouters = (_preferredRouters ?? []).map((a) => utils.getAddress(a));
 
     const blockTimestamp = await getTimestampInSeconds();
     const expiry = _expiry ?? getExpiry(blockTimestamp);
@@ -390,24 +387,24 @@ export class NxtpSdkBase {
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
             .waitFor(AUCTION_TIMEOUT);
-          return resolve([result.data!]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
       }
 
-      if (preferredRouter) {
-        this.logger.warn("Waiting for preferred router", requestContext, methodContext, {
-          preferredRouter,
+      if (preferredRouters.length > 0) {
+        this.logger.warn("Waiting for preferred routers", requestContext, methodContext, {
+          preferredRouters,
         });
         try {
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
-            .pipe((data) => data.data?.bid.router === preferredRouter)
+            .pipe((data) => preferredRouters.includes(utils.getAddress((data.data as AuctionResponse).bid.router)))
             .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
-          return resolve([result.data!]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
@@ -427,7 +424,7 @@ export class NxtpSdkBase {
           return true;
         })
         .attach((data) => {
-          bids.push(data.data!);
+          bids.push(data.data as AuctionResponse);
         });
 
       setTimeout(async () => {
@@ -744,11 +741,9 @@ export class NxtpSdkBase {
       // send through messaging to metatx relayers
       const responseInbox = generateMessagingInbox();
 
-      const metaTxProm = this.metaTxResponseEvt
-        .pipe((data) => data.inbox === responseInbox)
-        .pipe((data) => !!data.data?.transactionHash)
-        .pipe((data) => !data.err)
-        .waitFor(META_TX_TIMEOUT);
+      const metaTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, META_TX_TIMEOUT, (data) => {
+        return data.txData.transactionId === params.txData.transactionId;
+      });
 
       const request = {
         type: MetaTxTypes.Fulfill,
@@ -766,12 +761,14 @@ export class NxtpSdkBase {
 
       try {
         const response = await metaTxProm;
-        const metaTxRes = response.data;
-        this.logger.info("Method complete", requestContext, methodContext, {
-          txHash: metaTxRes?.transactionHash,
-          chainId: metaTxRes?.chainId,
-        });
-        return { metaTxResponse: metaTxRes };
+        const ret = {
+          transactionHash: response.transactionHash,
+          chainId: response.txData.receivingChainId,
+        };
+        this.logger.info("Method complete", requestContext, methodContext, ret);
+        return {
+          metaTxResponse: ret,
+        };
       } catch (e) {
         throw e.message.includes("Evt timeout") ? new MetaTxTimeout(txData.transactionId, META_TX_TIMEOUT, request) : e;
       }
@@ -888,7 +885,6 @@ export class NxtpSdkBase {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
-    this.metaTxResponseEvt.detach();
     this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();

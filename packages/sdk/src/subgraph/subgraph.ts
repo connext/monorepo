@@ -425,7 +425,7 @@ export class Subgraph {
                   if (!active) {
                     this.logger.warn("Missing active sender tx", requestContext, methodContext, {
                       transactionId: invariant.transactionId,
-                      active: this.activeTxs.keys(),
+                      active: Array.from(this.activeTxs.keys()).toString(),
                     });
                   }
                   // if receiver is prepared, its a receiver prepared

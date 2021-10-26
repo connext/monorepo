@@ -256,7 +256,10 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
-    const prepareResponse = await this.config.signer.sendTransaction(prepareReq);
+    this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
+    const prepareResponse = await this.config.signer
+      .connect(this.config.chainConfig[sendingChainId].provider)
+      .sendTransaction(prepareReq);
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
         txData: {
@@ -307,8 +310,6 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    const signerAddress = await this.config.signer.getAddress();
-
     if (!this.config.chainConfig[txData.sendingChainId]) {
       throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
     }
@@ -316,6 +317,8 @@ export class NxtpSdk {
     if (!this.config.chainConfig[txData.receivingChainId]) {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
+
+    const signerAddress = await this.config.signer.getAddress();
 
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
@@ -357,7 +360,9 @@ export class NxtpSdk {
       return { metaTxResponse: response.metaTxResponse };
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await this.config.signer.sendTransaction(response.fulfillRequest!);
+      const fulfillResponse = await this.config.signer
+        .connect(this.config.chainConfig[txData.receivingChainId].provider)
+        .sendTransaction(response.fulfillRequest!);
 
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { fulfillResponse };
@@ -380,11 +385,16 @@ export class NxtpSdk {
       undefined,
       cancelParams.txData.transactionId,
     );
+    if (!this.config.chainConfig[chainId]) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
+    }
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
 
-    const cancelResponse = await this.config.signer.sendTransaction(cancelReq);
+    const cancelResponse = await this.config.signer
+      .connect(this.config.chainConfig[chainId].provider)
+      .sendTransaction(cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
     return cancelResponse;
   }
