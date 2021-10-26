@@ -15,7 +15,7 @@ export const getConfig = () => {
         ]),
       },
     },
-    mnemonic: "category matrix shine sense east large leave pony talk enrich orchard flip",
+    mnemonic: "<add mnemonic here>",
   };
   return config;
 };
