@@ -29,7 +29,7 @@ export class OnchainAccountManager {
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
     public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.001"),
-    private readonly USER_MIN_TOKEN = "0.001",
+    private readonly USER_MIN_TOKEN = "0.0001",
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
@@ -56,7 +56,6 @@ export class OnchainAccountManager {
 
     const funder = this.funder.connect(provider);
 
-    // Calculate amount of liquidity required for tests.
     try {
       const decimals = this.cachedDecimals[assetId] ? this.cachedDecimals[assetId] : await getDecimals(assetId, funder);
       this.cachedDecimals[assetId] = decimals;
@@ -123,11 +122,6 @@ export class OnchainAccountManager {
         const errors: Error[] = [];
         for (let i = 0; i < NUM_RETRIES; i++) {
           try {
-            const accountBalance = await getOnchainBalance(assetId, account, provider);
-            if (accountBalance.gte(toSend)) {
-              this.log.info("Account has sufficient balance", undefined, undefined, { account, assetId, chainId });
-              return { value: response, error: undefined };
-            }
             response = await sendGift(
               assetId,
               toSend.toString(),

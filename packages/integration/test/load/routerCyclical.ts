@@ -58,7 +58,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
 
     const provider = config.chainConfig[sendingChainId].provider;
     const decimals = await getDecimals(sendingAssetId, provider);
-    const amount = utils.parseUnits("0.01", decimals).toString();
+    const amount = utils.parseUnits("0.0001", decimals).toString();
 
     const startTime = Date.now();
     const killSwitch = await manager.startCyclicalTransfers({
