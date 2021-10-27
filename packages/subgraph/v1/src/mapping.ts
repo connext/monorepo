@@ -92,6 +92,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(56);
   } else if (network == "chapel") {
     chainId = BigInt.fromI32(97);
+  } else if (network == "xdai") {
+    chainId = BigInt.fromI32(100);
   } else if (network == "matic") {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {

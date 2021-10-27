@@ -31,7 +31,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
@@ -184,6 +184,7 @@ export class TransactionManager {
       value: txData.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -236,6 +237,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -290,6 +292,7 @@ export class TransactionManager {
       to: transactionManagerAddress,
       data,
       from: await this.signerAddress,
+      chainId,
     };
   }
 
@@ -342,6 +345,7 @@ export class TransactionManager {
         to: assetId,
         data,
         from: await this.signerAddress,
+        chainId,
       };
     } else {
       this.logger.info("Allowance sufficient", requestContext, methodContext, {
@@ -401,6 +405,14 @@ export class TransactionManager {
     // issue is that we cannot estimate it in the auction request because the tx is not prepared yet
     // however we might be able to work around this by directly estimating the callto with the calldata
 
+    let gasPrice = BigNumber.from(0);
+    try {
+      gasPrice = await provider.getGasPrice();
+    } catch (e) {
+      const sanitized = parseError(e);
+      throw sanitized;
+    }
+
     const { txData } = fulfillParams;
 
     const ethPriceInUsd = await getTokenPrice(
@@ -426,6 +438,7 @@ export class TransactionManager {
     const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
 
     const tokenAmount = gasAmount
+      .mul(gasPrice)
       .mul(ethPriceInUsd)
       .div(receivingTokenPriceInUsd)
       .div(BigNumber.from(10).pow(18 - outputDecimals));

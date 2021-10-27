@@ -9,6 +9,7 @@ import {
   Logger,
   createLoggingContext,
   TransactionData,
+  isNode,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -224,10 +225,14 @@ export class NxtpSdk {
     const encodedBid = encodeAuctionBid(bid);
 
     const signerAddr = await this.config.signer.getAddress();
+    let connectedSigner = this.config.signer;
+    if (isNode()) {
+      connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].provider);
+    }
 
     const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
     if (approveTxReq) {
-      const approveTx = await this.config.signer.sendTransaction(approveTxReq);
+      const approveTx = await connectedSigner.sendTransaction(approveTxReq);
       this.evts.SenderTokenApprovalSubmitted.post({
         assetId: sendingAssetId,
         chainId: sendingChainId,
@@ -261,7 +266,8 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
-    const prepareResponse = await this.config.signer.sendTransaction(prepareReq);
+    this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
+    const prepareResponse = await connectedSigner.sendTransaction(prepareReq);
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
         txData: {
@@ -312,14 +318,18 @@ export class NxtpSdk {
 
     const { txData, encryptedCallData } = params;
 
-    const signerAddress = await this.config.signer.getAddress();
-
     if (!this.config.chainConfig[txData.sendingChainId]) {
       throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
     }
 
     if (!this.config.chainConfig[txData.receivingChainId]) {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    const signerAddress = await this.config.signer.getAddress();
+    let connectedSigner = this.config.signer;
+    if (isNode()) {
+      connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
     }
 
     let calculateRelayerFee = relayerFee;
@@ -362,7 +372,7 @@ export class NxtpSdk {
       return { metaTxResponse: response.metaTxResponse };
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await this.config.signer.sendTransaction(response.fulfillRequest!);
+      const fulfillResponse = await connectedSigner.sendTransaction(response.fulfillRequest!);
 
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { fulfillResponse };
@@ -385,11 +395,18 @@ export class NxtpSdk {
       undefined,
       cancelParams.txData.transactionId,
     );
+    if (!this.config.chainConfig[chainId]) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
+    }
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
+    let connectedSigner = this.config.signer;
+    if (isNode()) {
+      connectedSigner = this.config.signer.connect(this.config.chainConfig[chainId].provider);
+    }
 
-    const cancelResponse = await this.config.signer.sendTransaction(cancelReq);
+    const cancelResponse = await connectedSigner.sendTransaction(cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
     return cancelResponse;
   }

@@ -1741,6 +1741,7 @@ __metadata:
     "@nomiclabs/hardhat-waffle": ^2.0.1
     "@openzeppelin/contracts": 4.2.0
     "@sinclair/typebox": ^0.20.4
+    "@tenderly/hardhat-tenderly": ^1.0.12
     "@typechain/ethers-v5": ^7.0.1
     "@typechain/hardhat": ^2.3.0
     "@types/chai": ^4.2.21
@@ -4152,6 +4153,19 @@ __metadata:
   dependencies:
     defer-to-connect: ^1.0.1
   checksum: a46ec854231194dd1ab924a5ea0d8f0afa2b7133754a3def099cc5749e34802d8668a7d7ee3583327048354b9dc621113843d8546387e06ff57e6763cbb558d9
+  languageName: node
+  linkType: hard
+
+"@tenderly/hardhat-tenderly@npm:^1.0.12":
+  version: 1.0.12
+  resolution: "@tenderly/hardhat-tenderly@npm:1.0.12"
+  dependencies:
+    axios: ^0.21.1
+    fs-extra: ^9.0.1
+    js-yaml: ^3.14.0
+  peerDependencies:
+    hardhat: ^2.0.3
+  checksum: ac0b6da0ff39fafd7d4a3fb8a20df657e8abcc97f18267484982d6aaed727fcff69b8f72513c3a84b16d09533273a5d01c63f36c870b5e5ef5fde5f69812e778
   languageName: node
   linkType: hard
 
@@ -16234,7 +16248,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.x, js-yaml@npm:^3.10.0, js-yaml@npm:^3.13.1":
+"js-yaml@npm:3.x, js-yaml@npm:^3.10.0, js-yaml@npm:^3.13.1, js-yaml@npm:^3.14.0":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
   dependencies:
