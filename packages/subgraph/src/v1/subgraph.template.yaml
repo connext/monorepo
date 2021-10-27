@@ -1,0 +1,37 @@
+specVersion: 0.0.2
+schema:
+  file: ./v1/schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: TransactionManager
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: TransactionManager
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityAdded
+        - LiquidityRemoved
+        - TransactionCancelled
+        - TransactionFulfilled
+        - TransactionPrepared
+      abis:
+        - name: TransactionManager
+          file: ./v1/abis/TransactionManager.json
+      eventHandlers:
+        - event: LiquidityAdded(indexed address,indexed address,uint256,address)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,address)
+          handler: handleLiquidityRemoved
+        - event: TransactionPrepared(indexed address,indexed address,indexed bytes32,(address,address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),address,((address,address,address,address,address,address,address,address,address,uint256,uint256,bytes32,bytes32),uint256,uint256,bytes,bytes,bytes,bytes))
+          handler: handleTransactionPrepared
+        - event: TransactionFulfilled(indexed address,indexed address,indexed bytes32,((address,address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),uint256,bytes,bytes,bytes),bool,bool,bytes,address)
+          handler: handleTransactionFulfilled
+        - event: TransactionCancelled(indexed address,indexed address,indexed bytes32,((address,address,address,address,address,address,address,address,address,bytes32,bytes32,uint256,uint256,uint256,uint256,uint256),bytes,bytes),address)
+          handler: handleTransactionCancelled
+      file: ./v1/mapping.ts
