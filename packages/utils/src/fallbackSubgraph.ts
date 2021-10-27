@@ -77,7 +77,6 @@ export class FallbackSubgraph<T extends SdkLike> {
   }
 
   public async sync(latestBlock: number): Promise<SubgraphSyncRecord[]> {
-    const { methodContext } = createLoggingContext(this.sync.name);
     // Using a Promise.all here to ensure we do our GetBlockNumber queries in parallel.
     await Promise.all(
       this.sdks.map(async (sdk, index) => {
@@ -88,7 +87,6 @@ export class FallbackSubgraph<T extends SdkLike> {
           try {
             const { _meta } = await sdk.client.GetBlockNumber();
             const syncedBlock = _meta.block.number ?? 0;
-            this.logger.debug("syncedBlock", undefined, methodContext, { syncedBlock });
             const synced = latestBlock - syncedBlock <= this.maxLag;
             this.sdks[index].record = {
               ...record,
@@ -111,16 +109,6 @@ export class FallbackSubgraph<T extends SdkLike> {
           latestBlock,
           lag: record.syncedBlock > 0 ? latestBlock - record.syncedBlock : record.lag,
         };
-        this.logger.error(
-          "Error getting block number with subgraph client.",
-          undefined,
-          methodContext,
-          jsonifyError(errors[0]),
-          {
-            chainId: this.chainId,
-            otherErrors: errors.slice(1),
-          },
-        );
       }),
     );
     return this.sdks.map((sdk) => sdk.record);

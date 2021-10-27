@@ -209,7 +209,6 @@ export class Subgraph {
 
     // For each chain, update subgraph sync status
     await this.updateSyncStatus();
-    
 
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
@@ -694,7 +693,7 @@ export class Subgraph {
    * Update the sync statuses of subgraph providers for each chain.
    * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
    */
-  private async updateSyncStatus() {
+  private async updateSyncStatus(): Promise<void> {
     await Promise.all(
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);

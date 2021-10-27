@@ -46,7 +46,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
   // get global context
   const { logger, txService, config } = getContext();
 
-  const { methodContext } = createLoggingContext("setSyncRecord", requestContext);
+  const { methodContext } = createLoggingContext(setSyncRecord.name, requestContext);
   let records: SubgraphSyncRecord[] = [{ synced: false, latestBlock: -1, syncedBlock: -1, lag: -1, uri: "" }];
   try {
     const sdks = getSdks();

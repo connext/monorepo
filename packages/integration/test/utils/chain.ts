@@ -1,3 +1,4 @@
+import { ERC20Abi } from "@connext/nxtp-utils";
 import { providers, BigNumber, Contract, constants, Wallet } from "ethers";
 
 export const TestTokenABI = [
@@ -13,6 +14,13 @@ export const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
+export const getDecimals = async (assetId: string, funder: Wallet) => {
+  if (assetId === constants.AddressZero) {
+    return 18;
+  }
+  return await new Contract(assetId, ERC20Abi, funder.provider).decimals();
+};
+
 export const getOnchainBalance = async (
   assetId: string,
   address: string,
@@ -25,18 +33,26 @@ export const getOnchainBalance = async (
 
 export const sendGift = async (
   assetId: string,
-  value: string,
-  recipient: string,
+  amount: string,
+  to: string,
   funder: Wallet,
   nonce?: number,
 ): Promise<providers.TransactionResponse> => {
-  const toSend = BigNumber.from(value);
-  if (toSend.eq(0)) {
+  const value = BigNumber.from(amount);
+  if (value.eq(0)) {
     throw new Error(`Cannot send gift of 0`);
   }
-  const tx =
-    assetId === constants.AddressZero
-      ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value), nonce })
-      : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value), { nonce });
-  return tx;
+  const chainId = await funder.getChainId();
+
+  console.log("sendTransaction", { to, value: value.toString(), nonce, chainId });
+  try {
+    return await funder.sendTransaction({ to, value, nonce, chainId });
+  } catch (e) {
+    console.log(nonce, "sendTransaction error:", e);
+    throw e;
+  }
+  // const tx =
+  //   assetId === constants.AddressZero
+  //     ? await funder.sendTransaction({ to: recipient, value: BigNumber.from(value), nonce })
+  //     : await new Contract(assetId, TestTokenABI, funder).mint(recipient, BigNumber.from(value), { nonce });
 };
