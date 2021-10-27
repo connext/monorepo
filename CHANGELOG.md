@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] Fix signer instantiation
+- [test-ui] Fix input params
+
 ## 0.0.65
 
 - [router] Fix relayer fee threshold
