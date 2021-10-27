@@ -93,4 +93,4 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   }
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "2"), parseInt(process.env.DURATION ?? "3"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "5"), parseInt(process.env.DURATION ?? "10"));
