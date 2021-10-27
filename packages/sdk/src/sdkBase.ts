@@ -73,8 +73,6 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   encodeAuctionBid,
-  ethereumRequest,
-  encrypt,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
