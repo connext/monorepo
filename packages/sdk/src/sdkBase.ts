@@ -319,6 +319,9 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       receivingAddress,
+      callTo: _callTo,
+      callData: _callData,
+      encryptedCallData: _encryptedCallData,
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
@@ -359,13 +362,14 @@ export class NxtpSdkBase {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
-    const callTo = params.callTo ?? constants.AddressZero;
-    const callData = params.callData ?? "0x";
+    const callTo = _callTo ?? constants.AddressZero;
+    const callData = _callData ?? "0x";
     const callDataHash = utils.keccak256(callData);
 
-    const encryptedCallData = "0x" ?? params.encryptedCallData;
-    if (callData !== "0x" && encryptedCallData == "0x") {
-      throw new EncryptionError("bad public key encryption");
+    const encryptedCallData = _encryptedCallData ?? "0x";
+
+    if (callData !== "0x" && encryptedCallData === "0x") {
+      throw new EncryptionError("bad public key encryption", undefined, { callData, encryptedCallData });
     }
 
     if (!this.messaging.isConnected()) {
