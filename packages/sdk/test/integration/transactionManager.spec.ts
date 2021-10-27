@@ -12,10 +12,7 @@ import {
 } from "@connext/nxtp-utils";
 import { utils, constants } from "ethers";
 
-import {
-  TransactionManager as TransactionManagerTypechain,
-  TestERC20,
-} from "@connext/nxtp-contracts/typechain";
+import { TransactionManager as TransactionManagerTypechain, TestERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
@@ -55,8 +52,6 @@ describe("Transaction Manager", function () {
   let transactionManagerReceiverSide: TransactionManagerTypechain;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
-
-  
 
   const getTransactionData = async (
     txOverrides: Partial<InvariantTransactionData> = {},
@@ -391,6 +386,12 @@ describe("Transaction Manager", function () {
         await expect(
           userTransactionManager.approveTokensIfNeeded(InvalidChainId, tokenA.address, "1"),
         ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
+      });
+
+      it("happy case: when allowance is suffice return undefined", async () => {
+        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "0");
+
+        expect(approveReq).to.be.undefined;
       });
 
       it("happy case", async () => {
