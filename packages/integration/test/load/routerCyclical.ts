@@ -1,7 +1,5 @@
 import { delay, Logger } from "@connext/nxtp-utils";
-import { utils } from "ethers";
 import pino from "pino";
-import { getDecimals } from "@connext/nxtp-sdk/src/utils";
 
 import { getConfig } from "../utils/config";
 import { SdkManager } from "../utils/sdkManager";
@@ -56,17 +54,13 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     // Begin transfers
     log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
 
-    const provider = config.chainConfig[sendingChainId].provider;
-    const decimals = await getDecimals(sendingAssetId, provider);
-    const amount = utils.parseUnits("0.0000001", decimals).toString();
-
     const startTime = Date.now();
     const killSwitch = await manager.startCyclicalTransfers({
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
       receivingChainId,
-      amount,
+      amount: "1",
     });
 
     await new Promise((resolve) => {

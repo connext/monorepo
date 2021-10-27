@@ -29,7 +29,7 @@ export class OnchainAccountManager {
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
     public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.001"),
-    private readonly USER_MIN_TOKEN = "0.01",
+    private readonly USER_MIN_TOKEN = "0.001",
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
@@ -103,7 +103,6 @@ export class OnchainAccountManager {
 
     // Check balance before sending
     const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
-    console.log("funderBalance", funderBalance.toString(), assetId);
     if (funderBalance.lt(toSend)) {
       throw new Error(
         `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
@@ -118,22 +117,42 @@ export class OnchainAccountManager {
     }
 
     // send gift
-    const _response = await funderQueue.add<Promise<{ value?: providers.TransactionResponse; error?: Error }>>(async (): Promise<{ value?: providers.TransactionResponse; error?: Error }> => {
-      let response: providers.TransactionResponse | undefined = undefined;
-      const errors: Error[] = [];
-      for (let i = 0; i < NUM_RETRIES; i++) {
-        try {
-          response = await sendGift(assetId, toSend.toString(), account, connectedFunder, this.funderNonces.get(chainId));
-          break;
-        } catch (e) {
-          errors.push(e);
+    const _response = await funderQueue.add<Promise<{ value?: providers.TransactionResponse; error?: Error }>>(
+      async (): Promise<{ value?: providers.TransactionResponse; error?: Error }> => {
+        let response: providers.TransactionResponse | undefined = undefined;
+        const errors: Error[] = [];
+        for (let i = 0; i < NUM_RETRIES; i++) {
+          try {
+            const accountBalance = await getOnchainBalance(assetId, account, provider);
+            if (accountBalance.gte(toSend)) {
+              this.log.info("Account has sufficient balance", undefined, undefined, { account, assetId, chainId });
+              return { value: response };
+            }
+            response = await sendGift(
+              assetId,
+              toSend.toString(),
+              account,
+              connectedFunder,
+              this.funderNonces.get(chainId),
+            );
+            break;
+          } catch (e) {
+            errors.push(e);
+          }
         }
-      }
-      if (response) {
-        this.funderNonces.set(chainId, response.nonce + 1);
-      }
-      return { value: response, error: !response ? new Error(`(${chainId}) Failed to send gift to ${account} after ${errors.length} attempts: ${errors[0].message}`) : undefined };
-    });
+        if (response) {
+          this.funderNonces.set(chainId, response.nonce + 1);
+        }
+        return {
+          value: response,
+          error: !response
+            ? new Error(
+                `(${chainId}) Failed to send gift to ${account} after ${errors.length} attempts: ${errors[0].message}`,
+              )
+            : undefined,
+        };
+      },
+    );
 
     if (!_response.value) {
       throw _response.error;
