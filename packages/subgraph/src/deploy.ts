@@ -48,13 +48,13 @@ const run = async () => {
     // return;
   }
 
-  const Networks: Network[] = JSON.parse(readFileSync(`./config/${configFile}.json`, "utf8"));
+  const networks: Network[] = JSON.parse(readFileSync(`./config/${configFile}.json`, "utf8"));
 
   let networksToDeploy: Network[] = [];
   if (cmdNetwork.toUpperCase() === "ALL") {
-    networksToDeploy = Networks;
+    networksToDeploy = networks;
   } else {
-    const res = Networks.find((e) => e.network.toUpperCase() === cmdNetwork.toUpperCase());
+    const res = networks.find((e) => e.network.toUpperCase() === cmdNetwork.toUpperCase());
     if (!res) {
       console.log("Network not found");
       return;
@@ -63,7 +63,7 @@ const run = async () => {
     networksToDeploy.push(res);
   }
 
-  const jsonFile: any = yamlToJson.load(readFileSync(`./${contractVersion}/subgraph.template.yaml`, "utf8"));
+  const jsonFile: any = yamlToJson.load(readFileSync(`./src/${contractVersion}/subgraph.template.yaml`, "utf8"));
 
   for (const n of networksToDeploy) {
     console.log(n);
