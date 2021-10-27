@@ -8,8 +8,8 @@ import {
   TransactionCancelled,
   TransactionFulfilled,
   TransactionPrepared,
-} from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../generated/schema";
+} from "../../generated/TransactionManager/TransactionManager";
+import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -92,8 +92,6 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(56);
   } else if (network == "chapel") {
     chainId = BigInt.fromI32(97);
-  } else if (network == "xdai") {
-    chainId = BigInt.fromI32(100);
   } else if (network == "matic") {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {
@@ -130,7 +128,6 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
-  transaction.initiator = event.params.txData.initiator;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
@@ -147,12 +144,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // TransactionPrepared specific
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactionHash = event.transaction.hash;
-  transaction.encryptedCallData = event.params.args.encryptedCallData.toHexString();
-  transaction.encodedBid = event.params.args.encodedBid.toHexString();
-  transaction.bidSignature = event.params.args.bidSignature;
+  transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
+  transaction.bidSignature = event.params.bidSignature;
 
   // Meta
-  transaction.prepareMeta = event.params.args.encodedMeta;
   transaction.status = "Prepared";
   transaction.chainId = chainId;
   transaction.preparedTimestamp = event.block.timestamp;
@@ -179,15 +174,13 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Fulfilled";
-  transaction!.relayerFee = event.params.args.relayerFee;
-  transaction!.signature = event.params.args.signature;
-  transaction!.callData = event.params.args.callData.toHexString();
+  transaction!.relayerFee = event.params.relayerFee;
+  transaction!.signature = event.params.signature;
+  transaction!.callData = event.params.callData.toHexString();
   transaction!.externalCallSuccess = event.params.success;
   transaction!.externalCallReturnData = event.params.returnData;
-  transaction!.externalCallIsContract = event.params.isContract;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
-  transaction!.fulfillMeta = event.params.args.encodedMeta;
   transaction!.fulfillTimestamp = event.block.timestamp;
 
   transaction!.save();
@@ -271,7 +264,6 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.status = "Cancelled";
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
-  transaction!.cancelMeta = event.params.args.encodedMeta;
   transaction!.cancelTimestamp = event.block.timestamp;
 
   transaction!.save();
