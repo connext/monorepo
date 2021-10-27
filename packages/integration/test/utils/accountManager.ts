@@ -126,7 +126,7 @@ export class OnchainAccountManager {
             const accountBalance = await getOnchainBalance(assetId, account, provider);
             if (accountBalance.gte(toSend)) {
               this.log.info("Account has sufficient balance", undefined, undefined, { account, assetId, chainId });
-              return { value: response };
+              return { value: response, error: undefined };
             }
             response = await sendGift(
               assetId,
@@ -155,17 +155,18 @@ export class OnchainAccountManager {
     );
 
     if (!_response.value) {
-      throw _response.error;
+      if (_response.error) {
+        throw _response.error;
+      }
+    } else {
+      const response = _response.value;
+      this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
+      const receipt = await response.wait();
+      this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
     }
-    const response = _response.value;
 
-    this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
-    const receipt = await response.wait();
-    this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
     // confirm balance
-    const final = await provider.getBalance(account);
-
-    return final;
+    return await provider.getBalance(account);
   }
 
   getCanonicalWallets(num: number): Wallet[] {
