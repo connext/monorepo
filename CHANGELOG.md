@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.66
+
 - [sdk] Fix signer instantiation
 - [test-ui] Fix input params
 
