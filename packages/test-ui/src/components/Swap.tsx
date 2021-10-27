@@ -730,7 +730,9 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                           receivingAssetId,
                           utils.parseEther(form.getFieldValue("amount")).toString(),
                           form.getFieldValue("receivingAddress"),
-                          form.getFieldValue("preferredRouters").split(","),
+                          form.getFieldValue("preferredRouters")
+                            ? form.getFieldValue("preferredRouters").split(",")
+                            : undefined,
                         );
                         form.setFieldsValue({
                           receivedAmount: utils.formatEther(response?.bid.amountReceived ?? constants.Zero),
