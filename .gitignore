@@ -28,5 +28,5 @@ ops/data
 packages/router/*config.json
 packages/router/chaindata.json
 
-packages/integration/ops/config/load/*config.json
+packages/integration/logs.json
 
