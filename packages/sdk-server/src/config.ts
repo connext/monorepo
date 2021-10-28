@@ -49,9 +49,9 @@ export const getConfig = (): SdkBaseConfigParams => {
 
   const serverConfig: NxtpSdkServerConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configFile.mnemonic,
-    messagingMnemonic: process.env.NXTP_MNEMONIC || configFile.mnemonic,
+    messagingMnemonic: process.env.NXTP_MESSAGING_MNEMONIC || configFile.messagingMnemonic,
     chainConfig: process.env.NXTP_CHAIN_CONFIG ? JSON.parse(process.env.NXTP_CHAIN_CONFIG) : configFile.chainConfig,
-    network: process.env.NETWORK || configFile.network,
+    network: process.env.NXTP_NETWORK || configFile.network,
     natsUrl: process.env.NXTP_NATS_URL || configFile.natsUrl,
     authUrl: process.env.NXTP_AUTH_URL || configFile.authUrl,
     logLevel: process.env.NXTP_LOG_LEVEL || configFile.logLevel || "info",
