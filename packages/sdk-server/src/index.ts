@@ -1,10 +1,9 @@
 import fastify from "fastify";
-import { Wallet, providers, BigNumber } from "ethers";
+import { providers, BigNumber } from "ethers";
 import pino from "pino";
 import { Type } from "@sinclair/typebox";
 import { NxtpSdkBase, CrossChainParams, CrossChainParamsSchema, CancelParams, CancelSchema } from "@connext/nxtp-sdk";
 import {
-  Logger,
   AuctionResponse,
   AuctionResponseSchema,
   TransactionPreparedEvent,
@@ -19,8 +18,7 @@ import { getConfig } from "./config";
 let sdkBaseInstance: NxtpSdkBase;
 const config = getConfig();
 
-const logger = new Logger({ name: "sdk-server", level: "info" });
-const server = fastify({ logger: logger instanceof pino, pluginTimeout: 300_000, disableRequestLogging: false });
+const server = fastify({ logger: config.logger instanceof pino, pluginTimeout: 300_000, disableRequestLogging: false });
 
 /// REQUEST PATHS
 
@@ -44,17 +42,7 @@ server.listen(8080, (err, address) => {
 });
 
 server.addHook("onReady", async () => {
-  const signer = Wallet.fromMnemonic(config.mnemonic);
-
-  sdkBaseInstance = new NxtpSdkBase({
-    chainConfig: config.chainConfig,
-    signerAddress: signer.getAddress(),
-    network: config.network,
-    signer,
-    logger: logger,
-    // messagingSigner,
-    // skipPolling,
-  });
+  sdkBaseInstance = new NxtpSdkBase(config);
 });
 
 server.get("/", async () => {
