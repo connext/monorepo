@@ -14,22 +14,28 @@ import {
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
 
-// export const SdkBaseChainConfigParams = Type.Record(
-//   Type.Number(),
-//   Type.Object({
-//     provider: Type.Any(providers.FallbackProvider),
-//     transactionManagerAddress: Type.Optional(Type.String()),
-//     priceOracleAddress: Type.Optional(Type.String()),
-//     subgraph: Type.Optional(Type.String()),
-//     subgraphSyncBuffer: Type.Optional(Type.Number()),
-//   }),
-// );
+export const SdkBaseChainConfigSchema = Type.Record(
+  Type.Number(),
+  Type.Object({
+    provider: Type.Any(providers.FallbackProvider),
+    transactionManagerAddress: Type.Optional(Type.String()),
+    priceOracleAddress: Type.Optional(Type.String()),
+    subgraph: Type.Optional(Type.String()),
+    subgraphSyncBuffer: Type.Optional(Type.Number()),
+  }),
+);
 
-// enum NetworkEnum {
-//   local,
-//   testnet,
-//   mainnet,
-// }
+export const LogLevelScehma = Type.Union([
+  Type.Literal("fatal"),
+  Type.Literal("error"),
+  Type.Literal("warn"),
+  Type.Literal("info"),
+  Type.Literal("debug"),
+  Type.Literal("trace"),
+  Type.Literal("silent"),
+]);
+
+export const NetworkSchema = Type.Union([Type.Literal("local"), Type.Literal("testnet"), Type.Literal("mainnet")]);
 
 // export const SdkBaseConfigSchema = Type.Object({
 //   chainConfig: SdkBaseChainConfigParams,
