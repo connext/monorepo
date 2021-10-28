@@ -370,6 +370,7 @@ export type AuctionBid = {
 export type AuctionResponse = {
   bid: AuctionBid;
   gasFeeInReceivingToken: string;
+  metaTxRelayerFee: string;
   bidSignature?: string; // not included in dry run
 };
 

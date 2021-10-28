@@ -1,4 +1,4 @@
-import { providers, Signer, utils } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -8,7 +8,6 @@ import {
   jsonifyError,
   Logger,
   createLoggingContext,
-  TransactionData,
   isNode,
 } from "@connext/nxtp-utils";
 
@@ -41,7 +40,7 @@ import { NxtpSdkBase } from "./sdkBase";
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const AUCTION_TIMEOUT = 30_000;
 export const META_TX_TIMEOUT = 300_000;
 
 /**
@@ -154,9 +153,114 @@ export class NxtpSdk {
     return this.sdkBase.getHistoricalTransactions();
   }
 
-  public async estimateFulfillFee(txData: TransactionData, signatureForFee: string, relayerFee: string) {
-    const { requestContext, methodContext } = createLoggingContext("estimateFulfillFee");
-    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee, requestContext, methodContext);
+  /**
+   * Gets gas fee in sending token for meta transaction
+   *
+   * @param sendingChainId The network id of sending chain
+   * @param sendingAssetId  The sending asset address
+   * @param receivingChainId  The network id of receiving chain
+   * @param receivingAssetId The receiving asset address
+   */
+  public async estimateMetaTxFeeInSendingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInSendingToken");
+    const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      true,
+      requestContext,
+      methodContext,
+    );
+    return gasInSendingToken;
+  }
+
+  /**
+   * Gets gas fee in receiving token for meta transaction
+   *
+   * @param sendingChainId The network id of sending chain
+   * @param sendingAssetId  The sending asset address
+   * @param receivingChainId  The network id of receiving chain
+   * @param receivingAssetId The receiving asset address
+   */
+  public async estimateMetaTxFeeInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInReceivingToken");
+    const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+    return gasInReceivingToken;
+  }
+
+  /**
+   * Gets gas fee in sending token for router transfer
+   *
+   * @param sendingChainId The network id of sending chain
+   * @param sendingAssetId  The sending asset address
+   * @param receivingChainId  The network id of receiving chain
+   * @param receivingAssetId The receiving asset address
+   */
+  public async estimateFeeForRouterTransferInSendingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInSendingToken");
+    const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      true,
+      requestContext,
+      methodContext,
+    );
+
+    return gasInSendingToken;
+  }
+
+  /**
+   * Gets gas fee in receiving token for router transfer
+   *
+   * @param sendingChainId The network id of sending chain
+   * @param sendingAssetId  The sending asset address
+   * @param receivingChainId  The network id of receiving chain
+   * @param receivingAssetId The receiving asset address
+   */
+  public async estimateFeeForRouterTransferInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInReceivingToken");
+    const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+
+    return gasInReceivingToken;
   }
 
   /**
@@ -335,7 +439,12 @@ export class NxtpSdk {
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0", requestContext, methodContext);
+      const gasNeeded = await this.estimateMetaTxFeeInReceivingToken(
+        txData.sendingChainId,
+        txData.sendingAssetId,
+        txData.receivingChainId,
+        txData.receivingAssetId,
+      );
 
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,

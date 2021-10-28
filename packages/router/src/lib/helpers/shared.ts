@@ -103,10 +103,6 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
-    console.log("gasLimitForFulfill = ", gasLimitForFulfill.toString());
-    console.log("gasPriceInReceivingChain = ", gasPriceInReceivingChain.toString());
-    console.log("ethPriceInReceivingChain = ", ethPriceInReceivingChain.toString());
-    console.log("receivingTokenPrice = ", receivingTokenPrice.toString());
     totalCost = totalCost.add(tokenAmountForGasFee);
   }
 

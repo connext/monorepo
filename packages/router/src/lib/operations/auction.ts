@@ -26,7 +26,7 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFeeInReceivingToken, calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -261,6 +261,13 @@ export const newAuction = async (
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
 
+  const metaTxRelayerFee = await calculateGasFeeInReceivingTokenForFulfill(
+    receivingAssetId,
+    receivingChainId,
+    outputDecimals,
+    requestContext,
+  );
+
   // - Create bid object
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
@@ -296,5 +303,6 @@ export const newAuction = async (
     bid,
     bidSignature: dryRun ? undefined : bidSignature,
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    metaTxRelayerFee: metaTxRelayerFee.toString(),
   };
 };
