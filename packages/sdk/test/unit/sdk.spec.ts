@@ -94,7 +94,6 @@ describe("NxtpSdk", () => {
     sdkBase.cancel.resolves(CancelReq);
 
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
     balanceStub = stub(utils, "getOnchainBalance");
@@ -105,6 +104,8 @@ describe("NxtpSdk", () => {
     signFulfillTransactionPayloadMock.resolves(sigMock);
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
+    ethereumRequestMock = stub(utils, "ethereumRequest");
+    encryptMock = stub(utils, "encrypt");
 
     stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");

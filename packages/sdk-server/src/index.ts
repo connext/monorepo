@@ -9,8 +9,6 @@ import {
   TransactionPreparedEvent,
   TransactionPreparedEventSchema,
   MetaTxResponse,
-  TransactionData,
-  TransactionDataSchema,
 } from "@connext/nxtp-utils";
 
 import { getConfig } from "./config";
@@ -28,7 +26,6 @@ const getTransferQuote = "/get-transfer-quote";
 const approveForPrepare = "/approve-for-prepare";
 const prepareTransfer = "/prepare-transfer";
 const fulfillTransfer = "/fulfill-transfer";
-const estimateFulfillFee = "/estimate-fulfill-fee";
 const cancel = "/cancel";
 
 /// REPLY PATHS
@@ -164,27 +161,6 @@ server.post<{
   async (request, response) => {
     const { body: req } = request;
     const res = await sdkBaseInstance.cancel(req.cancelParams, req.chainId);
-    return response.status(200).send(res);
-  },
-);
-
-server.post<{
-  Body: {
-    txData: TransactionData;
-    signatureForFee: string;
-    relayerFee: string;
-  };
-  Reply: BigNumber;
-}>(
-  estimateFulfillFee,
-  {
-    schema: {
-      body: { txData: TransactionDataSchema, signatureForFee: Type.String(), relayerFee: Type.String() },
-    },
-  },
-  async (request, response) => {
-    const { body: req } = request;
-    const res = await sdkBaseInstance.estimateFulfillFee(req.txData, req.signatureForFee, req.relayerFee);
     return response.status(200).send(res);
   },
 );
