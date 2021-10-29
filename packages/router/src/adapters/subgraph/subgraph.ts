@@ -103,7 +103,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
 
-  const routerAddress = wallet.address;
+  const routerAddress = await wallet.getAddress();
 
   // get local context
   const sdks = getSdks();
@@ -359,7 +359,7 @@ export const getTransactionForChain = async (
   const methodId = getUuid();
 
   const { wallet } = getContext();
-  const routerAddress = wallet.address;
+  const routerAddress = await wallet.getAddress();
 
   const sdks = getSdks();
   const sdk = sdks[chainId];
@@ -417,7 +417,8 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
 
-  const assetBalanceId = `${assetId.toLowerCase()}-${wallet.address.toLowerCase()}`;
+  const routerAddress = await wallet.getAddress();
+  const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
   const bal = await sdk.GetAssetBalance({ assetBalanceId });
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };
