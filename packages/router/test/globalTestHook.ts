@@ -40,7 +40,7 @@ export const mochaHooks = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
-      getSyncRecord: stub().returns({ synced: true, syncedBlock: 10000, latestBlock: 10000 }),
+      getSyncRecord: stub().returns([{ synced: true, syncedBlock: 10000, latestBlock: 10000, lag: 0, uri: "" }]),
     };
 
     contractWriterMock = {

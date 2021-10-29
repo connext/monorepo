@@ -24,7 +24,7 @@ export const configMock: NxtpRouterConfig = {
     1337: {
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xaaa"),
       priceOracleAddress: mkAddress("0x0"),
       minGas: "100",
@@ -36,7 +36,7 @@ export const configMock: NxtpRouterConfig = {
     1338: {
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xbbb"),
       priceOracleAddress: mkAddress("0x0"),
       minGas: "100",

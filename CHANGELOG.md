@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+
 ## 0.0.66
 
 - [sdk] Fix signer instantiation

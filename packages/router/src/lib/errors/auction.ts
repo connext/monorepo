@@ -1,7 +1,5 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { NxtpError, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-
-import { SubgraphSyncRecord } from "../entities";
 
 export class NotEnoughAmount extends NxtpError {
   cancellable = true;
@@ -42,11 +40,11 @@ export class ProvidersNotAvailable extends NxtpError {
 }
 
 export class SubgraphNotSynced extends NxtpError {
-  static getMessage(chainId: number, record: SubgraphSyncRecord) {
-    return `Subgraph on ${chainId} not synced. Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`;
+  static getMessage(chainId: number, records: SubgraphSyncRecord[]) {
+    return `Subgraph on ${chainId} not synced.` + records.map(record => `Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`).join("\n");
   }
-  constructor(chainId: number, record: SubgraphSyncRecord, context: any = {}) {
-    super(SubgraphNotSynced.getMessage(chainId, record), context, SubgraphNotSynced.name);
+  constructor(chainId: number, records: SubgraphSyncRecord[], context: any = {}) {
+    super(SubgraphNotSynced.getMessage(chainId, records), context, SubgraphNotSynced.name);
   }
 }
 
