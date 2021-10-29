@@ -1,4 +1,4 @@
-import { providers, Signer, utils } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -10,6 +10,7 @@ import {
   createLoggingContext,
   encrypt,
   isNode,
+  TransactionData,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -188,6 +189,14 @@ export class NxtpSdk {
     }
 
     return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
+  }
+
+  public async estimateFulfillFee(
+    txData: TransactionData,
+    signatureForFee: string,
+    relayerFee: string,
+  ): Promise<BigNumber> {
+    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee);
   }
 
   /**

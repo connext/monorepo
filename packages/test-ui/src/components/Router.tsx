@@ -270,44 +270,8 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col span={3} />
-        <Col span={16}>
-          <Table
-            pagination={false}
-            columns={[
-              {
-                title: "Chain",
-                dataIndex: "chain",
-                key: "chain",
-              },
-              {
-                title: "Asset",
-                dataIndex: "token",
-                key: "token",
-              },
-              {
-                title: "Asset ID",
-                dataIndex: "assetId",
-                key: "assetId",
-              },
-              {
-                title: "Balance",
-                dataIndex: "balance",
-                key: "balance",
-              },
-            ]}
-            dataSource={(balances ?? []).map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
-            footer={() => (
-              <div>
-                Total:{" "}
-                {(balances ?? []).map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b, 0) || "0"}
-              </div>
-            )}
-          />
-        </Col>
-      </Row>
       <Divider />
+
       <Row gutter={16}>
         <Col span={3} />
         <Col span={8}>
@@ -344,6 +308,46 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
               </Button>
             </Form.Item>
           </Form>
+        </Col>
+      </Row>
+
+      <Divider />
+
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={16}>
+          <Table
+            pagination={false}
+            columns={[
+              {
+                title: "Chain",
+                dataIndex: "chain",
+                key: "chain",
+              },
+              {
+                title: "Asset",
+                dataIndex: "token",
+                key: "token",
+              },
+              {
+                title: "Asset ID",
+                dataIndex: "assetId",
+                key: "assetId",
+              },
+              {
+                title: "Balance",
+                dataIndex: "balance",
+                key: "balance",
+              },
+            ]}
+            dataSource={(balances ?? []).map((l, i) => ({ ...l, token: l.symbol.toUpperCase(), key: i }))}
+            footer={() => (
+              <div>
+                Total:{" "}
+                {(balances ?? []).map((l) => (l.balance ? Number(l.balance) : 0)).reduce((a, b) => a + b, 0) || "0"}
+              </div>
+            )}
+          />
         </Col>
       </Row>
     </>
