@@ -93,7 +93,10 @@ export class NoSubgraph extends ConfigError {
  */
 export class ChainNotConfigured extends ConfigError {
   static getMessage(chainId: number, supported: string[]) {
-    return `No chain config found for ${chainId}, please check config. Configured: ${supported.map(Number).sort().join(",")}`;
+    return `No chain config found for ${chainId}, please check config. Configured: ${supported
+      .map(Number)
+      .sort()
+      .join(",")}`;
   }
   constructor(public readonly chainId: number, public readonly supported: string[], public readonly context: any = {}) {
     super(ChainNotConfigured.getMessage(chainId, supported), { chainId, supported, ...context }, ConfigError.type);
@@ -272,7 +275,7 @@ export class EncryptionError extends NxtpError {
 
   constructor(
     public readonly details: string,
-    public readonly error: NxtpErrorJson,
+    public readonly error?: NxtpErrorJson,
     public readonly context: any = {},
   ) {
     super(EncryptionError.getMessage(details), { encryptionError: error, ...context }, EncryptionError.type);

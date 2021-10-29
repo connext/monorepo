@@ -4,6 +4,11 @@
 
 - [sdk/router] Add fallback subgraph using multiple subgraph URIs
 
+## 0.0.66
+
+- [sdk] Fix signer instantiation
+- [test-ui] Fix input params
+
 ## 0.0.65
 
 - [router] Fix relayer fee threshold

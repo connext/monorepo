@@ -15,7 +15,8 @@ import { writeStatsToFile } from "../utils/reporting";
  */
 const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const config = getConfig();
-  const log = pino({ level: config.logLevel ?? "info" });
+  const log = pino({ level: "error" });
+  const amount = utils.parseEther("100").toString();
 
   const durationMs = duration * 60 * 1000;
   // Create manager
@@ -93,4 +94,4 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   }
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "5"), parseInt(process.env.DURATION ?? "10"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "1"), parseInt(process.env.DURATION ?? "10"));

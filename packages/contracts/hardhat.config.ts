@@ -18,6 +18,7 @@ import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
+import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
 
 dotEnvConfig();
@@ -75,7 +76,7 @@ const config: HardhatUserConfig = {
     mainnet: {
       accounts: { mnemonic },
       chainId: 1,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     },
     ropsten: {
       accounts: { mnemonic },
@@ -110,7 +111,7 @@ const config: HardhatUserConfig = {
     xdai: {
       accounts: { mnemonic },
       chainId: 100,
-      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.xdaichain.com/",
+      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
     },
     matic: {
       accounts: { mnemonic },
