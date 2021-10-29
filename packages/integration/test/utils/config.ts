@@ -26,6 +26,7 @@ type SwapPool = {
 
 type Config = {
   chainConfig: ChainConfig;
+  txsConfig: any;
   mnemonic: string;
   routers: string[];
   swapPools: SwapPool[];
@@ -77,7 +78,12 @@ export const getConfig = (useDefaultLocal = false): Config => {
   const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/load/config.json";
   const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
   const chainConfig: ChainConfig = {};
+  let txsConfig: any = {};
   Object.entries(data.chainConfig).map(([chainId, config]) => {
+    if (chainId === "all") {
+      txsConfig = config;
+      return;
+    }
     const { providers: providerUrls, confirmations, ...rest } = config as any;
     chainConfig[parseInt(chainId)] = {
       confirmations,
@@ -93,5 +99,6 @@ export const getConfig = (useDefaultLocal = false): Config => {
     routers: [],
     ...data,
     chainConfig,
+    txsConfig,
   };
 };

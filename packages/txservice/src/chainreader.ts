@@ -46,12 +46,7 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
-    const result = await this.getProvider(tx.chainId).readTransaction(tx);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(tx.chainId).readTransaction(tx);
   }
 
   /**
@@ -63,12 +58,7 @@ export class ChainReader {
    * specified address.
    */
   public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).getBalance(address);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getBalance(address);
   }
   /**
    * Get the current gas price for the chain for which this instance is servicing.
@@ -78,12 +68,7 @@ export class ChainReader {
    * @returns BigNumber representing the current gas price.
    */
   public async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).getGasPrice(requestContext);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getGasPrice(requestContext);
   }
 
   /**
@@ -94,12 +79,7 @@ export class ChainReader {
    * @returns number representing the decimals of the asset
    */
   public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
-    const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getDecimalsForAsset(assetId);
   }
 
   /**
@@ -109,12 +89,7 @@ export class ChainReader {
    * @returns number representing the current blocktime
    */
   public async getBlockTime(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockTime();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getBlockTime();
   }
 
   /**
@@ -124,12 +99,7 @@ export class ChainReader {
    * @returns number representing the current block
    */
   public async getBlockNumber(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockNumber();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getBlockNumber();
   }
 
   /**
@@ -139,12 +109,7 @@ export class ChainReader {
    * @returns number representing the current blocktime
    */
   public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
-    const result = await this.getProvider(chainId).getTransactionReceipt(hash);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getTransactionReceipt(hash);
   }
 
   /// HELPERS

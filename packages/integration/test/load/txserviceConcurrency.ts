@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
-import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { delay, getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { ChainConfig, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
+import { getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
@@ -91,6 +91,7 @@ const txserviceConcurrencyTest = async (
     new Logger({ level: config.logLevel ?? "debug" }),
     {
       chains,
+      ...config.txsConfig,
     },
     wallet,
   );
@@ -127,20 +128,20 @@ const txserviceConcurrencyTest = async (
   }
 
   /// MARK - SETUP EVENTS
-  txservice.attach(NxtpTxServiceEvents.TransactionSubmitted, (data) => {
-    logger.info("Got tx submitted event.", {
-      hashes: data.responses.map((r) => r.hash),
-      nonces: data.responses.map((r) => r.nonce),
-      chains: data.responses.map((r) => r.chainId),
-    });
-  });
+  // txservice.attach(NxtpTxServiceEvents.TransactionSubmitted, (data) => {
+  //   logger.info("Got tx submitted event.", {
+  //     hashes: data.responses.map((r) => r.hash),
+  //     nonces: data.responses.map((r) => r.nonce),
+  //     chains: data.responses.map((r) => r.chainId),
+  //   });
+  // });
 
-  txservice.attach(NxtpTxServiceEvents.TransactionConfirmed, (data) => {
-    logger.warn("Got tx confirmed event.", {
-      hash: data.receipt.transactionHash,
-      chain: data.receipt.confirmations,
-    });
-  });
+  // txservice.attach(NxtpTxServiceEvents.TransactionConfirmed, (data) => {
+  //   logger.warn("Got tx confirmed event.", {
+  //     hash: data.receipt.transactionHash,
+  //     chain: data.receipt.confirmations,
+  //   });
+  // });
 
   /// MARK - create task helper
   const sendTx = async (requestContext: RequestContext) => {
@@ -283,7 +284,7 @@ const txserviceConcurrencyTest = async (
 txserviceConcurrencyTest(
   parseInt(process.env.CONCURRENCY_MAX ?? "2000"),
   parseInt(process.env.CONCURRENCY_MIN ?? "500"),
-  parseInt(process.env.CONCURRENCY_STEP ?? "100"),
+  parseInt(process.env.CONCURRENCY_STEP ?? "500"),
   undefined,
   process.env.TOKEN_ADDRESS,
   process.env.CHAIN_ID,

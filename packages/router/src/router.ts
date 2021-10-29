@@ -63,19 +63,25 @@ export const makeRouter = async () => {
     });
     await context.messaging.connect();
     const chains: { [chainId: string]: ChainConfig } = {};
+    let txsConfig: any = {};
     Object.entries(context.config.chainConfig).forEach(([chainId, config]) => {
-      chains[chainId] = {
-        confirmations: config.confirmations,
-        providers: config.providers.map((url) => ({ url })),
-        gasStations: config.gasStations,
-        defaultInitialGas: config.defaultInitialGas,
-      } as ChainConfig;
+      if (chainId === "all") {
+        txsConfig = config;
+      } else {
+        chains[chainId] = {
+          confirmations: config.confirmations,
+          providers: config.providers.map((url) => ({ url })),
+          gasStations: config.gasStations,
+          defaultInitialGas: config.defaultInitialGas,
+        } as ChainConfig;
+      }
     });
     // TODO: txserviceconfig log level
     context.txService = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
       {
         chains,
+        ...txsConfig,
       },
       context.wallet,
     );

@@ -1,7 +1,6 @@
 import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { BigNumber, providers, utils, Wallet } from "ethers";
-import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
@@ -16,8 +15,16 @@ import {
   TransactionReverted,
   TransactionServiceFailure,
 } from "../src/error";
-import { Gas, Transaction } from "../src/types";
-import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "./constants";
+import { ChainRpcProvider } from "../src/provider";
+import { Gas, OnchainTransaction } from "../src/types";
+import {
+  makeChaiReadable,
+  TEST_FULL_TX,
+  TEST_SENDER_CHAIN_ID,
+  TEST_TX,
+  TEST_TX_RECEIPT,
+  TEST_TX_RESPONSE,
+} from "./constants";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -27,55 +34,49 @@ const ADDRESS = mkAddress("0xaaa");
 const OG_MAX_INFLIGHT_TRANSACTIONS = (TransactionDispatch as any).MAX_INFLIGHT_TRANSACTIONS;
 
 let signer: SinonStubbedInstance<Wallet>;
-let transaction: Transaction;
+let transaction: OnchainTransaction;
 let txDispatch: TransactionDispatch;
-let getAddressStub: SinonStub;
 let dispatchCallbacks: DispatchCallbacks;
 let context: RequestContext = {
   id: "",
   origin: "",
 };
 
-let getGas: SinonStub<any[], Gas>;
-let getTransactionCount: SinonStub<any[], number>;
-let determineNonce: SinonStub<any[], { nonce: number; backfill: boolean; transactionCount: number }>;
-let submit: SinonStub<any[], Promise<void>>;
-let mine: SinonStub<any[], Promise<void>>;
-let confirm: SinonStub<any[], Promise<void>>;
-let bump: SinonStub<any[], Promise<void>>;
-let fail: SinonStub<any[], Promise<void>>;
+let getGasPriceStub: SinonStub;
+let estimateGasStub: SinonStub;
+let getTransactionCountStub: SinonStub;
+let sendTransactionStub: SinonStub;
+let getAddressStub: SinonStub;
+let confirmTransactionStub: SinonStub;
+let determineNonceStub: SinonStub;
+let submitStub: SinonStub;
+let mineStub: SinonStub;
+let confirmStub: SinonStub;
+let bumpStub: SinonStub;
+let failStub: SinonStub;
 
-const stubDispatchMethods = (methods?: SinonStub[]): void => {
-  getGas = stub().callsFake(() => {
-    return new Gas(BigNumber.from(1), BigNumber.from(1));
-  });
-  determineNonce = stub().callsFake(() => {
+const stubAllDispatchMethods = (): void => {
+  determineNonceStub = stub(txDispatch as any, "determineNonce").callsFake(() => {
     const nonce = TEST_TX_RESPONSE.nonce;
     return { nonce, backfill: false, transactionCount: nonce };
   });
-  getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
-  submit = stub().resolves();
-  mine = stub().resolves();
-  confirm = stub().resolves();
-  bump = stub().resolves();
-  fail = stub().resolves();
-  // const methodsToStub = methods ?? [getGas, getTransactionCount, determineNonce, submit, mine, confirm, bump, fail];
-  (txDispatch as any).getGas = getGas;
-  (txDispatch as any).getTransactionCount = getTransactionCount;
-  (txDispatch as any).determineNonce = determineNonce;
-  (txDispatch as any).submit = submit;
-  (txDispatch as any).mine = mine;
-  (txDispatch as any).confirm = confirm;
-  (txDispatch as any).bump = bump;
-  (txDispatch as any).fail = fail;
+  getAddressStub = stub(txDispatch as any, "getAddress").resolves(signer.address);
+  sendTransactionStub = stub(txDispatch as any, "sendTransaction").returns(TEST_TX_RESPONSE);
+  getTransactionCountStub = stub(txDispatch as any, "getTransactionCount").resolves(TEST_TX_RESPONSE.nonce);
+  getGasPriceStub = stub(txDispatch as any, "getGasPrice").resolves(TEST_FULL_TX.gasPrice);
+  estimateGasStub = stub(txDispatch as any, "estimateGas").resolves(TEST_FULL_TX.gasLimit);
+  submitStub = stub(txDispatch as any, "submit").resolves();
+  mineStub = stub(txDispatch as any, "mine").resolves();
+  confirmStub = stub(txDispatch as any, "confirm").resolves();
+  bumpStub = stub(txDispatch as any, "bump").resolves();
+  failStub = stub(txDispatch as any, "fail").resolves();
+  confirmTransactionStub = stub(txDispatch, "confirmTransaction").resolves(txReceiptMock);
 };
 
 let fakeTransactionState: {
   didSubmit: boolean;
   didFinish: boolean;
 };
-
-let sendTransactionStub: SinonStub<any[], ResultAsync<providers.TransactionResponse, TransactionError>>;
 
 describe("TransactionDispatch", () => {
   beforeEach(async () => {
@@ -107,25 +108,28 @@ describe("TransactionDispatch", () => {
       gasStations: [],
     };
 
+    Sinon.stub((ChainRpcProvider.prototype as any), "syncProviders").resolves();
+
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
     txDispatch = new TransactionDispatch(
       logger,
       TEST_SENDER_CHAIN_ID,
       chainConfig,
-      DEFAULT_CONFIG,
+      { ...DEFAULT_CONFIG, debug_logRpcCalls: true, synchronizedMode: false },
       signer,
       dispatchCallbacks,
       false,
     );
-    getAddressStub = stub().resolves(ok(signer.address));
-    (txDispatch as any).getAddress = getAddressStub;
-    sendTransactionStub = stub().returns(okAsync(TEST_TX_RESPONSE));
-    (txDispatch as any).sendTransaction = sendTransactionStub;
+    // Disabling this as we obviously won't be using a real provider / block listener.
+    // (txDispatch as any).config.synchronizedMode = false;
+
+    // This will stub all dispatch methods. Methods below should be restored manually as needed.
+    stubAllDispatchMethods();
 
     context.id = getRandomBytes32();
     context.origin = "TransactionDispatchTest";
 
-    transaction = new Transaction(
+    transaction = new OnchainTransaction(
       context,
       TEST_TX,
       TEST_TX_RESPONSE.nonce,
@@ -136,11 +140,11 @@ describe("TransactionDispatch", () => {
       },
       "test_tx_uuid",
     );
-    Sinon.stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-    Sinon.stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
+    stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
+    stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
     (transaction as any).context = context;
     transaction.attempt = 0;
-    transaction.timestamp = undefined;
+    (transaction as any).timestamp = undefined;
     transaction.responses = [];
   });
 
@@ -150,9 +154,9 @@ describe("TransactionDispatch", () => {
   });
 
   describe("#mineLoop", () => {
-    let stubTx: Transaction;
+    let stubTx: OnchainTransaction;
     beforeEach(() => {
-      stubTx = new Transaction(
+      stubTx = new OnchainTransaction(
         context,
         {
           ...TEST_TX,
@@ -166,25 +170,24 @@ describe("TransactionDispatch", () => {
         },
         "1",
       );
-      stubDispatchMethods();
       (txDispatch as any).inflightBuffer = [stubTx];
     });
 
     it("should fail if there is a non-timeout tx error", async () => {
       stubTx.error = new TransactionServiceFailure("test error");
       await (txDispatch as any).mineLoop();
-      expect(fail).callCount(0);
+      expect(failStub).callCount(0);
     });
 
     it("should bump if times out during confirming", async () => {
-      mine.onCall(0).rejects(new TimeoutError());
-      mine.onCall(1).resolves();
+      mineStub.onCall(0).rejects(new TimeoutError());
+      mineStub.onCall(1).resolves();
       await (txDispatch as any).mineLoop();
-      expect(mine.callCount).to.eq(2);
-      expect(makeChaiReadable(mine.getCall(0).args[0])).to.deep.eq(makeChaiReadable(stubTx));
-      expect(makeChaiReadable(mine.getCall(1).args[0])).to.deep.eq(makeChaiReadable(stubTx));
-      expect(bump).to.have.been.calledOnceWithExactly(stubTx);
-      expect(submit).to.have.been.calledOnceWithExactly(stubTx);
+      expect(mineStub.callCount).to.eq(2);
+      expect(makeChaiReadable(mineStub.getCall(0).args[0])).to.deep.eq(makeChaiReadable(stubTx));
+      expect(makeChaiReadable(mineStub.getCall(1).args[0])).to.deep.eq(makeChaiReadable(stubTx));
+      expect(bumpStub).to.have.been.calledOnceWithExactly(stubTx);
+      expect(submitStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).minedBuffer.length).to.eq(1);
     });
 
@@ -193,29 +196,29 @@ describe("TransactionDispatch", () => {
       const stubTx2 = { ...stubTx, data: "0xb" };
       const stubTx3 = { ...stubTx, data: "0xc" };
       (txDispatch as any).inflightBuffer = [stubTx1, stubTx2, stubTx3];
-      mine.onCall(0).rejects(new TimeoutError());
-      mine.onCall(1).resolves();
-      mine.onCall(2).rejects(new TimeoutError());
-      mine.onCall(3).resolves();
-      mine.onCall(4).rejects(new TimeoutError());
-      mine.onCall(5).resolves();
+      mineStub.onCall(0).rejects(new TimeoutError());
+      mineStub.onCall(1).resolves();
+      mineStub.onCall(2).rejects(new TimeoutError());
+      mineStub.onCall(3).resolves();
+      mineStub.onCall(4).rejects(new TimeoutError());
+      mineStub.onCall(5).resolves();
       await (txDispatch as any).mineLoop();
 
       const readableStubTx1 = makeChaiReadable(stubTx1);
       const readableStubTx2 = makeChaiReadable(stubTx2);
       const readableStubTx3 = makeChaiReadable(stubTx3);
 
-      expect(mine.callCount).to.eq(6);
-      expect(mine).to.have.been.calledWithExactly(readableStubTx1);
-      expect(mine).to.have.been.calledWithExactly(readableStubTx2);
-      expect(mine).to.have.been.calledWithExactly(readableStubTx3);
+      expect(mineStub.callCount).to.eq(6);
+      expect(mineStub).to.have.been.calledWithExactly(readableStubTx1);
+      expect(mineStub).to.have.been.calledWithExactly(readableStubTx2);
+      expect(mineStub).to.have.been.calledWithExactly(readableStubTx3);
 
-      expect(bump).to.have.been.calledWithExactly(readableStubTx1);
-      expect(submit).to.have.been.calledWithExactly(readableStubTx1);
-      expect(bump).to.have.been.calledWithExactly(readableStubTx2);
-      expect(submit).to.have.been.calledWithExactly(readableStubTx2);
-      expect(bump).to.have.been.calledWithExactly(readableStubTx3);
-      expect(submit).to.have.been.calledWithExactly(readableStubTx3);
+      expect(bumpStub).to.have.been.calledWithExactly(readableStubTx1);
+      expect(submitStub).to.have.been.calledWithExactly(readableStubTx1);
+      expect(bumpStub).to.have.been.calledWithExactly(readableStubTx2);
+      expect(submitStub).to.have.been.calledWithExactly(readableStubTx2);
+      expect(bumpStub).to.have.been.calledWithExactly(readableStubTx3);
+      expect(submitStub).to.have.been.calledWithExactly(readableStubTx3);
 
       expect((txDispatch as any).minedBuffer.length).to.deep.eq(1);
     });
@@ -223,17 +226,17 @@ describe("TransactionDispatch", () => {
     it("should assign errors on tx resubmit", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
       (txDispatch as any).inflightBuffer = [stubTx1];
-      mine.rejects(new TimeoutError());
+      mineStub.rejects(new TimeoutError());
       const error = new Error("test");
-      submit.rejects(error);
+      submitStub.rejects(error);
       await (txDispatch as any).mineLoop();
 
       const readableStubTx = makeChaiReadable(stubTx1);
-      expect(mine).to.have.been.calledOnceWithExactly(readableStubTx);
-      expect(bump).to.have.been.calledOnceWithExactly(readableStubTx);
-      expect(submit).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(mineStub).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(bumpStub).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(submitStub).to.have.been.calledOnceWithExactly(readableStubTx);
       expect(stubTx1.error).to.eq(error);
-      expect(fail).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(failStub).to.have.been.calledOnceWithExactly(readableStubTx);
       // Should have taken tx out of the buffer, but not added to minedBuffer.
       expect((txDispatch as any).inflightBuffer).to.deep.eq([]);
       expect((txDispatch as any).minedBuffer).to.deep.eq([]);
@@ -241,17 +244,17 @@ describe("TransactionDispatch", () => {
 
     it("should catch top level error", async () => {
       const mineError = new Error("test mine error");
-      mine.rejects(mineError);
-      fail.rejects(new Error("test fail error"));
+      mineStub.rejects(mineError);
+      failStub.rejects(new Error("test fail error"));
       await expect((txDispatch as any).mineLoop()).to.not.be.rejected;
-      expect(mine.callCount).to.eq(1);
-      expect(fail.callCount).to.eq(1);
-      expect(fail.getCall(0).args[0].error).to.deep.eq(mineError);
+      expect(mineStub.callCount).to.eq(1);
+      expect(failStub.callCount).to.eq(1);
+      expect(failStub.getCall(0).args[0].error).to.deep.eq(mineError);
     });
 
     it("should mine a tx and remove it from the buffer", async () => {
       await (txDispatch as any).mineLoop();
-      expect(mine).to.have.been.calledOnceWithExactly(stubTx);
+      expect(mineStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).inflightBuffer.length).to.eq(0);
     });
   });
@@ -260,22 +263,21 @@ describe("TransactionDispatch", () => {
     let stubTx: any;
     beforeEach(() => {
       stubTx = {};
-      stubDispatchMethods();
       (txDispatch as any).minedBuffer = [stubTx];
     });
 
     it("should fail if confirming fails", async () => {
       const error = new Error("test error");
-      confirm.rejects(error);
+      confirmStub.rejects(error);
       await (txDispatch as any).confirmLoop();
       stubTx.error = error;
-      expect(fail).to.have.been.calledOnceWithExactly(stubTx);
+      expect(failStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).minedBuffer.length).to.eq(0);
     });
 
     it("should confirm tx and remove from buffer", async () => {
       await (txDispatch as any).confirmLoop();
-      expect(confirm).to.have.been.calledOnceWithExactly(stubTx);
+      expect(confirmStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).minedBuffer.length).to.eq(0);
     });
   });
@@ -285,21 +287,23 @@ describe("TransactionDispatch", () => {
     beforeEach(() => {
       (txDispatch as any).nonce = 0;
       (txDispatch as any).lastReceivedTxCount = -1;
-      getTransactionCount = stub().resolves(ok(TEST_TX_RESPONSE.nonce));
-      (txDispatch as any).getTransactionCount = getTransactionCount;
+      getTransactionCountStub = stub().resolves(TEST_TX_RESPONSE.nonce);
+      (txDispatch as any).getTransactionCount = getTransactionCountStub;
       attemptedNonces = [];
+      // Restore related method.
+      determineNonceStub.restore();
     });
 
     it("happy: first send, no error", async () => {
       const txCount = 20;
-      getTransactionCount.resolves(ok(txCount));
+      getTransactionCountStub.resolves(txCount);
       const { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
       expect(nonce).to.eq(txCount);
       expect(backfill).to.be.false;
       expect(transactionCount).to.eq(txCount);
       // should have called getTransactionCount (NOTE: we are temporarily calling it twice for debugging,
       // leaving this as a > 0 check for now).
-      expect(getTransactionCount.callCount > 0).to.be.true;
+      expect(getTransactionCountStub.callCount > 0).to.be.true;
       // This method should have modified the passed-in map.
       expect(attemptedNonces.includes(nonce)).to.be.true;
       // Should have also modified lastReceivedTxCount.
@@ -309,7 +313,7 @@ describe("TransactionDispatch", () => {
     it("should assign nonce based on higher value: transaction count or cached nonce", async () => {
       const txCount = 97;
       let localNonce = 3;
-      getTransactionCount.resolves(ok(txCount));
+      getTransactionCountStub.resolves(txCount);
       (txDispatch as any).nonce = localNonce;
       let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
       expect(nonce).to.eq(txCount);
@@ -332,7 +336,7 @@ describe("TransactionDispatch", () => {
       let backtrackTxCount = 91;
 
       // On initial attempt:
-      getTransactionCount.onCall(0).resolves(ok(backtrackTxCount));
+      getTransactionCountStub.onCall(0).resolves(backtrackTxCount);
       let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces);
       expect(nonce).to.eq(backtrackTxCount);
       expect(transactionCount).to.eq(backtrackTxCount);
@@ -342,7 +346,7 @@ describe("TransactionDispatch", () => {
       // On second, follow-up attempt, txcount backtracks further:
       const error = new BadNonce(BadNonce.reasons.NonceExpired);
       backtrackTxCount = 83;
-      getTransactionCount.onCall(1).resolves(ok(backtrackTxCount));
+      getTransactionCountStub.resolves(backtrackTxCount);
       ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces, error));
       expect(nonce).to.eq(backtrackTxCount);
       expect(transactionCount).to.eq(backtrackTxCount);
@@ -351,7 +355,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should throw if getTransactionCount fails", async () => {
-      getTransactionCount.resolves(err(new RpcError("fail")));
+      getTransactionCountStub.rejects(new RpcError("fail"));
       await expect((txDispatch as any).determineNonce(attemptedNonces)).to.be.rejectedWith("fail");
     });
 
@@ -361,7 +365,7 @@ describe("TransactionDispatch", () => {
       const replacementUnderpricedError = new BadNonce(BadNonce.reasons.ReplacementUnderpriced);
       let txCount = attemptedNonces[0];
       (txDispatch as any).lastReceivedTxCount = txCount;
-      getTransactionCount.resolves(ok(txCount));
+      getTransactionCountStub.resolves(txCount);
       const expectedNonce = attemptedNonces[attemptedNonces.length - 1] + 1;
 
       // Should increment by 1 for both of these.
@@ -393,7 +397,7 @@ describe("TransactionDispatch", () => {
       attemptedNonces = [localNonce];
       (txDispatch as any).lastReceivedTxCount = localNonce;
       txCount = 83;
-      getTransactionCount.resolves(ok(txCount));
+      getTransactionCountStub.resolves(txCount);
       ({ nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(
         attemptedNonces,
         nonceExpiredError,
@@ -409,7 +413,7 @@ describe("TransactionDispatch", () => {
       const error = new BadNonce(BadNonce.reasons.NonceIncorrect);
       const txCount = 37;
       (txDispatch as any).lastReceivedTxCount = txCount;
-      getTransactionCount.resolves(ok(txCount));
+      getTransactionCountStub.resolves(txCount);
 
       // Should not increment for this error, and instead just set it to the exact tx count.
       let { nonce, backfill, transactionCount } = await (txDispatch as any).determineNonce(attemptedNonces, error);
@@ -422,16 +426,14 @@ describe("TransactionDispatch", () => {
 
   describe("#send", () => {
     beforeEach(() => {
-      stubDispatchMethods();
-
       // Setting the state ahead of time so when we do reach the waiting portions of send, it will wrap up right away.
       // NOTE: State updating is usually relagated to the mine/confirm loops.
       fakeTransactionState.didSubmit = true;
       fakeTransactionState.didFinish = true;
 
-      submit.callsFake(async (transaction: Transaction) => {
-        Sinon.stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-        Sinon.stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
+      submitStub.callsFake(async (transaction: OnchainTransaction) => {
+        stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
+        stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
         transaction.responses = [TEST_TX_RESPONSE];
         transaction.receipt = TEST_TX_RECEIPT;
       });
@@ -442,11 +444,12 @@ describe("TransactionDispatch", () => {
       expect(makeChaiReadable(receipt)).to.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
 
       // should have called getGas
-      expect(getGas.callCount).to.eq(1);
-      expect(getGas.getCall(0).args[0]).to.deep.eq(TEST_TX);
+      expect(getGasPriceStub.callCount).to.eq(1);
+      expect(estimateGasStub.callCount).to.eq(1);
+      expect(estimateGasStub.getCall(0).args[0]).to.deep.eq(TEST_TX);
 
       // should have called submit (just once)
-      expect(submit.callCount).to.eq(1);
+      expect(submitStub.callCount).to.eq(1);
 
       // should push to inflight buffer
       expect((txDispatch as any).inflightBuffer.length).to.eq(1);
@@ -461,32 +464,32 @@ describe("TransactionDispatch", () => {
       // Async send
       const receipt = txDispatch.send(TEST_TX, context);
       // Make sure we havent called submit yet
-      expect(submit.callCount).to.eq(0);
+      expect(submitStub.callCount).to.eq(0);
       // Now that we've removed 1 spot from buffer, send should execute.
       (txDispatch as any).inflightBuffer.shift();
       expect(makeChaiReadable(await receipt)).to.be.deep.eq(makeChaiReadable(TEST_TX_RECEIPT));
-      expect(submit.callCount).to.eq(1);
+      expect(submitStub.callCount).to.eq(1);
     });
 
     it("should throw if getGas fails", async () => {
-      getGas.rejects(new RpcError("fail"));
+      getGasPriceStub.rejects(new RpcError("fail"));
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
     });
 
     it("should retrieve new nonce and retry after a badnonce error", async () => {
       const badNonceError = new BadNonce(BadNonce.reasons.NonceExpired);
-      submit.onCall(0).rejects(badNonceError);
-      submit.onCall(1).resolves();
+      submitStub.onCall(0).rejects(badNonceError);
+      submitStub.onCall(1).resolves();
       const txCount = 2;
       // Array to which we can push copies of argument to avoid mutex getting in the way of call validation.
       const attemptedNoncesArgPerCall: any[] = [];
-      determineNonce.onCall(0).callsFake((attemptedNonces: number[]) => {
+      determineNonceStub.onCall(0).callsFake((attemptedNonces: number[]) => {
         attemptedNoncesArgPerCall.push(Array.from(attemptedNonces));
         const nonce = txCount;
         attemptedNonces.push(nonce);
         return { nonce, backfill: false, transactionCount: txCount };
       });
-      determineNonce.onCall(1).callsFake((attemptedNonces: number[]) => {
+      determineNonceStub.onCall(1).callsFake((attemptedNonces: number[]) => {
         attemptedNoncesArgPerCall.push(Array.from(attemptedNonces));
         const nonce = txCount + 1;
         attemptedNonces.push(nonce);
@@ -494,19 +497,20 @@ describe("TransactionDispatch", () => {
       });
 
       await txDispatch.send(TEST_TX, context);
-      expect(submit.callCount).to.eq(3);
-      expect(submit.getCall(0).args[0].nonce).to.eq(2);
-      expect(submit.getCall(1).args[0].nonce).to.eq(3);
 
-      expect(determineNonce.callCount).to.eq(2);
+      expect(submitStub.callCount).to.eq(3);
+      expect(submitStub.getCall(0).args[0].nonce).to.eq(2);
+      expect(submitStub.getCall(1).args[0].nonce).to.eq(3);
+
+      expect(determineNonceStub.callCount).to.eq(2);
       expect(attemptedNoncesArgPerCall[0]).to.deep.eq([]);
-      expect(determineNonce.getCall(0).args[1]).to.eq(undefined);
+      expect(determineNonceStub.getCall(0).args[1]).to.eq(undefined);
       expect(attemptedNoncesArgPerCall[1]).to.deep.eq([2]);
-      expect(determineNonce.getCall(1).args[1]).to.eq(badNonceError);
+      expect(determineNonceStub.getCall(1).args[1]).to.eq(badNonceError);
     });
 
     it("should throw if a non-nonce error occurs", async () => {
-      submit.rejects(new TransactionReverted("fail"));
+      submitStub.rejects(new TransactionReverted("fail"));
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
     });
 
@@ -520,7 +524,9 @@ describe("TransactionDispatch", () => {
   });
 
   describe("#submit", () => {
-    beforeEach(() => {});
+    beforeEach(() => {
+      submitStub.restore();
+    });
 
     it("should throw if the transaction is already finished", async () => {
       fakeTransactionState.didFinish = true;
@@ -535,7 +541,7 @@ describe("TransactionDispatch", () => {
 
     it("should throw if sendTransaction errors", async () => {
       const error = new MaxBufferLengthError();
-      sendTransactionStub.returns(errAsync(error));
+      sendTransactionStub.rejects(error);
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(MaxBufferLengthError);
     });
 
@@ -545,17 +551,14 @@ describe("TransactionDispatch", () => {
       expect(dispatchCallbacks.onSubmit).to.be.calledOnceWithExactly(transaction);
       expect(transaction.responses.length).to.eq(1);
       expect(makeChaiReadable(transaction.responses[0])).to.deep.eq(makeChaiReadable(TEST_TX_RESPONSE));
-      expect(transaction.timestamp).to.not.eq(undefined);
       expect(transaction.attempt).to.eq(1);
     });
   });
 
   describe("#mine", () => {
-    let confirmTransaction: SinonStub;
     beforeEach(() => {
-      confirmTransaction = stub(txDispatch, "confirmTransaction");
-      confirmTransaction.returns(okAsync(txReceiptMock));
       fakeTransactionState.didSubmit = true;
+      mineStub.restore();
     });
 
     it("throws if tx did not submit", async () => {
@@ -564,18 +567,16 @@ describe("TransactionDispatch", () => {
     });
 
     it("throws if confirmTransaction errors with TransactionReplaced but no replacement exists", async () => {
-      confirmTransaction.returns(errAsync(new TransactionReplaced(undefined, undefined)));
+      confirmTransactionStub.rejects(new TransactionReplaced(undefined, undefined));
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
     });
 
     it("throws if confirmTransaction errors with TransactionReplaced but replacement is unrecognized", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(
-        errAsync(
-          new TransactionReplaced(
-            { ...TEST_TX_RECEIPT, transactionHash: "0x123456789" },
-            { ...TEST_TX_RESPONSE, hash: "0x123456789" },
-          ),
+      confirmTransactionStub.rejects(
+        new TransactionReplaced(
+          { ...TEST_TX_RECEIPT, transactionHash: "0x123456789" },
+          { ...TEST_TX_RESPONSE, hash: "0x123456789" },
         ),
       );
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionReplaced);
@@ -586,7 +587,7 @@ describe("TransactionDispatch", () => {
       const replacement = { ...TEST_TX_RESPONSE, hash: replacementHash };
       transaction.responses = [TEST_TX_RESPONSE, { ...TEST_TX_RESPONSE, hash: replacementHash }];
       const preTx = { ...transaction };
-      confirmTransaction.returns(errAsync(new TransactionReplaced(txReceiptMock, replacement)));
+      confirmTransactionStub.rejects(new TransactionReplaced(txReceiptMock, replacement));
 
       await (txDispatch as any).mine(transaction);
       expect(makeChaiReadable(transaction.receipt)).to.deep.eq(makeChaiReadable(txReceiptMock));
@@ -595,23 +596,14 @@ describe("TransactionDispatch", () => {
     it("throws if confirmTransaction errors with TransactionReverted", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
       const error = new TransactionReverted("test", txReceiptMock);
-      confirmTransaction.returns(errAsync(error));
+      confirmTransactionStub.rejects(error);
 
       await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(error);
     });
 
-    it("throws if confirmTransaction does not return receipt", async () => {
-      transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(okAsync(null));
-
-      await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
-        "Unable to obtain receipt: ethers responded with null",
-      );
-    });
-
     it("throws if confirmTransaction receipt status == 0", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
+      confirmTransactionStub.resolves({ ...txReceiptMock, status: 0 });
 
       await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
         "Transaction was reverted but TransactionReverted error was not thrown",
@@ -620,7 +612,7 @@ describe("TransactionDispatch", () => {
 
     it("throws if confirmTransaction confirmations < 1", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(okAsync({ ...txReceiptMock, confirmations: 0 }));
+      confirmTransactionStub.resolves({ ...txReceiptMock, confirmations: 0 });
 
       await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
         "Receipt did not have any confirmations, should have timed out",
@@ -637,23 +629,21 @@ describe("TransactionDispatch", () => {
   });
 
   describe("#confirm", () => {
-    let confirmTransaction: SinonStub;
     const testNumOfConfirmations = 10;
     beforeEach(() => {
-      confirmTransaction = stub(txDispatch, "confirmTransaction");
-      confirmTransaction.returns(
-        okAsync({
-          ...txReceiptMock,
-          confirmations: testNumOfConfirmations,
-        }),
-      );
+      confirmTransactionStub.resolves({
+        ...txReceiptMock,
+        confirmations: 10,
+      });
       fakeTransactionState.didSubmit = true;
       transaction.receipt = txReceiptMock;
+
+      confirmStub.restore();
     });
 
     it("happy", async () => {
       await (txDispatch as any).confirm(transaction);
-      expect(makeChaiReadable(confirmTransaction.getCall(0).args[0])).to.be.deep.eq(makeChaiReadable(transaction));
+      expect(makeChaiReadable(confirmTransactionStub.getCall(0).args[0])).to.be.deep.eq(makeChaiReadable(transaction));
       // Check to make sure we overwrote transaction receipt.
       expect(makeChaiReadable(transaction.receipt)).to.be.deep.eq(
         makeChaiReadable({
@@ -677,16 +667,9 @@ describe("TransactionDispatch", () => {
       );
     });
 
-    it("throws if confirmTransaction does not return receipt", async () => {
-      transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(okAsync(null));
-
-      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith("Transaction receipt was null");
-    });
-
     it("throws if confirmTransaction receipt status == 0", async () => {
       transaction.responses = [TEST_TX_RESPONSE];
-      confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
+      confirmTransactionStub.resolves({ ...txReceiptMock, status: 0 });
 
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
         "Transaction was reverted but TransactionReverted error was not thrown",
@@ -695,7 +678,7 @@ describe("TransactionDispatch", () => {
 
     it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
       const timeoutError = new TimeoutError("test");
-      confirmTransaction.returns(errAsync(timeoutError));
+      confirmTransactionStub.rejects(timeoutError);
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
         TransactionServiceFailure.reasons.NotEnoughConfirmations,
       );
@@ -706,18 +689,26 @@ describe("TransactionDispatch", () => {
     beforeEach(() => {
       (transaction as any).responses = [TEST_TX_RESPONSE];
       transaction.bumps = 0;
+
+      bumpStub.restore();
     });
 
-    it("should throw if reached MAX_ATTEMPTS", async () => {
-      transaction.attempt = Transaction.MAX_ATTEMPTS;
-      await expect(txDispatch.bump(transaction)).to.be.rejectedWith(
-        TransactionServiceFailure.reasons.MaxAttemptsReached,
-      );
+    it("shouldn't bump if we've reached maximum gas price", async () => {
+      const max = (txDispatch as any).config.gasMaximum;
+      transaction.gas.price = BigNumber.from(max);
+      // Valid state: we've sent off 2 transactions and bumped once.
+      (transaction as any).responses = [TEST_TX_RESPONSE, TEST_TX_RESPONSE];
+      transaction.bumps = 1;
+      // Should return without bumping; the transaction's gas price is already at the max.
+      await txDispatch.bump(transaction);
+      // Assuming it didn't bump, these values should stay the same.
+      expect(transaction.gas.price.toString()).to.be.eq(max);
+      expect(transaction.bumps).to.be.eq(1);
     });
 
-    it("should fail if getGasPrice fails", async () => {
-      txDispatch.getGasPrice = (_rc: RequestContext) => Promise.reject(new Error("fail")) as any;
-      await expect(txDispatch.bump(transaction)).to.be.rejectedWith("fail");
+    it("should procceed using gas price minimum from config if getGasPrice fails", async () => {
+      getGasPriceStub.rejects(new Error("fail"));
+      await txDispatch.bump(transaction);
     });
 
     it("shouldn't bump if a previous resubmit failed", async () => {
@@ -737,7 +728,7 @@ describe("TransactionDispatch", () => {
     it("happy: should bump updated price", async () => {
       const initial = BigNumber.from(10);
       (transaction as any).gas.price = BigNumber.from(5);
-      txDispatch.getGasPrice = (_rc: RequestContext) => okAsync(initial);
+      getGasPriceStub.resolves(initial);
       await txDispatch.bump(transaction);
       expect(transaction.gas.price.toNumber()).to.be.eq(13);
     });
@@ -745,13 +736,17 @@ describe("TransactionDispatch", () => {
     it("happy: should bump previous price if previous price > updated price", async () => {
       const initial = BigNumber.from(10);
       (transaction as any).gas.price = initial;
-      txDispatch.getGasPrice = (_rc: RequestContext) => okAsync(BigNumber.from(5));
+      getGasPriceStub.resolves(BigNumber.from(5));
       await txDispatch.bump(transaction);
       expect(transaction.gas.price.toNumber()).to.be.eq(13);
     });
   });
 
   describe("#fail", () => {
+    beforeEach(() => {
+      failStub.restore();
+    });
+
     it("happy: should execute the fail callback", async () => {
       let called = false;
       (txDispatch as any).callbacks.onFail = () => {
@@ -760,33 +755,6 @@ describe("TransactionDispatch", () => {
 
       await (txDispatch as any).fail(transaction);
       expect(called).to.be.true;
-    });
-  });
-
-  describe("#getGas", () => {
-    let gasPrice = utils.parseUnits("5", "gwei");
-    let gasLimit = BigNumber.from(21004);
-    beforeEach(() => {
-      (txDispatch as any).getGasPrice = stub().resolves(ok(gasPrice));
-      (txDispatch as any).estimateGas = stub().resolves(ok(gasLimit));
-    });
-
-    it("happy", async () => {
-      const gas = await (txDispatch as any).getGas();
-      expect(gas.price.toString()).to.eq(gasPrice.toString());
-      expect(gas.limit.toString()).to.eq(gasLimit.toString());
-    });
-
-    it("should throw if estimateGas throws", async () => {
-      const error = new TransactionReverted(TransactionReverted.reasons.CallException);
-      (txDispatch as any).estimateGas = stub().resolves(err(error));
-      await expect((txDispatch as any).getGas(transaction)).to.be.rejectedWith(error);
-    });
-
-    it("should throw if getGasPrice throws", async () => {
-      const error = new RpcError("fail");
-      (txDispatch as any).getGasPrice = stub().resolves(err(error));
-      await expect((txDispatch as any).getGas(transaction)).to.be.rejectedWith(error);
     });
   });
 });
