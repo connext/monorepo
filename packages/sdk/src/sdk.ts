@@ -8,7 +8,7 @@ import {
   jsonifyError,
   Logger,
   createLoggingContext,
-  TransactionData,
+  encrypt,
   isNode,
 } from "@connext/nxtp-utils";
 
@@ -154,11 +154,6 @@ export class NxtpSdk {
     return this.sdkBase.getHistoricalTransactions();
   }
 
-  public async estimateFulfillFee(txData: TransactionData, signatureForFee: string, relayerFee: string) {
-    const { requestContext, methodContext } = createLoggingContext("estimateFulfillFee");
-    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee, requestContext, methodContext);
-  }
-
   /**
    * Fetches an estimated quote for a proposed crosschain transfer. Runs an auction to determine the `router` for a transaction and the estimated received value.
    *
@@ -179,8 +174,20 @@ export class NxtpSdk {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
-    return this.sdkBase.getTransferQuote(params);
+  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<AuctionResponse> {
+    const user = await this.config.signer.getAddress();
+    const callData = params.callData ?? "0x";
+    let encryptedCallData = "0x";
+    if (callData !== "0x") {
+      try {
+        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
+        encryptedCallData = await encrypt(callData, encryptionPublicKey);
+      } catch (e) {
+        throw new EncryptionError("public key encryption failed", jsonifyError(e));
+      }
+    }
+
+    return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
   }
 
   /**
@@ -335,7 +342,7 @@ export class NxtpSdk {
     let calculateRelayerFee = relayerFee;
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0", requestContext, methodContext);
+      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0");
 
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,

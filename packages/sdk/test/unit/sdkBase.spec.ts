@@ -35,7 +35,7 @@ import {
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
-import { Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
+import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -59,8 +59,6 @@ describe("NxtpSdkBase", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
-  let ethereumRequestMock: SinonStub;
-  let encryptMock: SinonStub;
   let balanceStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
@@ -106,8 +104,6 @@ describe("NxtpSdkBase", () => {
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
-    ethereumRequestMock = stub(utils, "ethereumRequest");
-    encryptMock = stub(utils, "encrypt");
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
@@ -188,6 +184,7 @@ describe("NxtpSdkBase", () => {
     const transactionId = getRandomBytes32();
     const crossChainParams = {
       callData: EmptyBytes,
+      encryptedCallData: EmptyBytes,
       sendingChainId: sendingChainId,
       sendingAssetId: mkAddress("0xc"),
       receivingChainId: receivingChainId,
@@ -423,28 +420,6 @@ describe("NxtpSdkBase", () => {
       );
     });
 
-    it("should error if eth_getEncryptionPublicKey errors", async () => {
-      const callData = getRandomBytes32();
-      const { crossChainParams } = getMock({ callData });
-
-      ethereumRequestMock.throws(new Error("fails"));
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
-    });
-
-    it("should fail if encrypt fails", async () => {
-      const callData = getRandomBytes32();
-      const { crossChainParams } = getMock({ callData });
-
-      encryptMock.throws(new Error("fails"));
-
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
-    });
-
     it("should not include improperly signed bids", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
@@ -542,13 +517,14 @@ describe("NxtpSdkBase", () => {
 
     it("happy: should get a transfer quote with callData", async () => {
       const callData = getRandomBytes32();
-      const randomHash = keccak256(getRandomBytes32());
-      const { crossChainParams, auctionBid, bidSignature } = getMock({ callData });
+      const encryptedCallData = keccak256(getRandomBytes32());
+      const { crossChainParams, auctionBid, bidSignature } = getMock({
+        callData,
+        encryptedCallData,
+      });
 
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-      ethereumRequestMock.resolves(randomHash);
-      encryptMock.resolves(randomHash);
 
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
@@ -578,7 +554,7 @@ describe("NxtpSdkBase", () => {
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
       }, 150);
-      const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouter: auctionBid.router });
+      const res = await sdk.getTransferQuote({ ...crossChainParams, preferredRouters: [auctionBid.router] });
 
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);
@@ -778,17 +754,15 @@ describe("NxtpSdkBase", () => {
 
       const transactionHash = mkHash("0xc");
 
-      subgraph.waitFor.resolves(
-        {
-          transactionHash,
-          txData: {
-            ...transaction,
-            ...record,
-            sendingChainId: receivingChainId,
-            receivingChainId: sendingChainId,
-          },
-        } as any,
-      );
+      subgraph.waitFor.resolves({
+        transactionHash,
+        txData: {
+          ...transaction,
+          ...record,
+          sendingChainId: receivingChainId,
+          receivingChainId: sendingChainId,
+        },
+      } as any);
 
       const res = await sdk.fulfillTransfer(
         {

@@ -346,32 +346,36 @@ export const AuctionPayloadSchema = Type.Object({
 
 export type AuctionPayload = Static<typeof AuctionPayloadSchema>;
 
-export type AuctionBid = {
-  user: string;
-  router: string;
-  initiator: string;
-  sendingChainId: number;
-  sendingAssetId: string;
-  amount: string;
-  receivingChainId: number;
-  receivingAssetId: string;
-  amountReceived: string;
-  receivingAddress: string;
-  transactionId: string;
-  expiry: number;
-  callDataHash: string;
-  callTo: string;
-  encryptedCallData: string;
-  sendingChainTxManagerAddress: string;
-  receivingChainTxManagerAddress: string;
-  bidExpiry: number;
-};
+export const AuctionBidSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  initiator: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  amountReceived: TIntegerString,
+  receivingAddress: TAddress,
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  callTo: TAddress,
+  encryptedCallData: Type.RegEx(/^0x[a-fA-F0-9]*$/),
+  sendingChainTxManagerAddress: TAddress,
+  receivingChainTxManagerAddress: TAddress,
+  bidExpiry: Type.Number(),
+});
 
-export type AuctionResponse = {
-  bid: AuctionBid;
-  gasFeeInReceivingToken: string;
-  bidSignature?: string; // not included in dry run
-};
+export type AuctionBid = Static<typeof AuctionBidSchema>;
+
+export const AuctionResponseSchema = Type.Object({
+  bid: AuctionBidSchema,
+  gasFeeInReceivingToken: TIntegerString,
+  bidSignature: Type.Optional(Type.String()),
+});
+
+export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
 export const MetaTxTypes = {
   Fulfill: "Fulfill",
