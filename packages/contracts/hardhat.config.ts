@@ -18,6 +18,7 @@ import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
+import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
 
 dotEnvConfig();

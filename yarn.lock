@@ -1852,6 +1852,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/nxtp-sdk-server@workspace:packages/sdk-server":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-sdk-server@workspace:packages/sdk-server"
+  dependencies:
+    "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@sinclair/typebox": ^0.20.4
+    "@types/node": ^16.11.4
+    "@types/pino": ^6.3.11
+    ethers: ^5.4.6
+    fastify: ^3.22.1
+    pino: ^6.13.0
+    pino-pretty: ^5.1.3
+    rimraf: ^3.0.2
+    typescript: ^4.3.5
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-sdk@workspace:*, @connext/nxtp-sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-sdk@workspace:packages/sdk"
@@ -1899,9 +1917,15 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-cli": ^0.21.1
     "@graphprotocol/graph-ts": ^0.20.1
+    "@types/js-yaml": ^4
+    "@types/mustache": ^4.1.2
+    "@types/yaml": ^1
     ethers: ^5.4.6
+    js-yaml: ^4.1.0
     mustache: ^4.2.0
     sinon: ^11.1.2
+    ts-node: ^10.3.0
+    yaml: ^1.10.2
   languageName: unknown
   linkType: soft
 
@@ -2036,6 +2060,15 @@ __metadata:
   dependencies:
     "@cspotcode/source-map-consumer": 0.8.0
   checksum: eda5227576981f3a16bd1b0940f11bffe96a7dad36da6f2e5e3a8ee5b3ecb153359df08084684509adc63ffe12e14894b6f6f8f9423780895cf7cd9d66c8bbd6
+  languageName: node
+  linkType: hard
+
+"@cspotcode/source-map-support@npm:0.7.0":
+  version: 0.7.0
+  resolution: "@cspotcode/source-map-support@npm:0.7.0"
+  dependencies:
+    "@cspotcode/source-map-consumer": 0.8.0
+  checksum: 3a0093418424729e9ab0a0f032f16946cb1cd7659bdee7d017e564189a8447eda961e5f7bed370699e94d5228f3b8cd84cb366af5fd38518b2ce833c3e138cb6
   languageName: node
   linkType: hard
 
@@ -4470,7 +4503,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-yaml@npm:^4.0.0":
+"@types/js-yaml@npm:^4, @types/js-yaml@npm:^4.0.0":
   version: 4.0.3
   resolution: "@types/js-yaml@npm:4.0.3"
   checksum: 24c3afc2e9e656ccdabd3159a4d7fa6cc0ff54777627d29f699818938f791126d5e92f0bdd92ccffeed13c6f801c1cb2c60bb9adcf4b1d46c6843a3bf5abac1b
@@ -4571,6 +4604,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mustache@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "@types/mustache@npm:4.1.2"
+  checksum: 6dc61434e09d3b51cdc096c5f79ab9cb74609e9764eaa69c0ab367cfc2b1bda2cb65e420fb9ec8201376c046c9b1012017e704698f9dd7ac594277a307083b6e
+  languageName: node
+  linkType: hard
+
 "@types/node-fetch@npm:^2.5.5":
   version: 2.5.12
   resolution: "@types/node-fetch@npm:2.5.12"
@@ -4606,6 +4646,13 @@ __metadata:
   version: 14.17.12
   resolution: "@types/node@npm:14.17.12"
   checksum: 5fdad55934317c1cbaadbb57cf32e56bdda9f25bc3a3e3fef38579e2e4b96c15272918ec7631c26b8980756c57c4b29457ef33f10271a93843868ca01208e40e
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^16.11.4":
+  version: 16.11.4
+  resolution: "@types/node@npm:16.11.4"
+  checksum: 4182611dd4ae8d32a2f9c6a680f5c8ce0897cbe93fbc74a1351fe1507bd5e5dc53d323c2539cc06b98892486a2485a937a5ca1d106cc2d482f0ee22f8a72f146
   languageName: node
   linkType: hard
 
@@ -4864,6 +4911,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 38dee1bc2e480b610e44e9df92c76cae549a55491eee5454dd80d5c5039d6b7bf3f6884ffac5a72d0f638651cf3f2595b5cf172bea5e075c64f265256249e745
+  languageName: node
+  linkType: hard
+
+"@types/yaml@npm:^1":
+  version: 1.9.6
+  resolution: "@types/yaml@npm:1.9.6"
+  dependencies:
+    yaml: "*"
+  checksum: ac5a1a38a6527463071d65e48bdff53d29c70377e8a8175ff98a4c22d8a14909f0494837aa632d4437be206dbe73e8bf1616e0da7f1e1cbe75599782dc497365
   languageName: node
   linkType: hard
 
@@ -12207,6 +12263,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fastify@npm:^3.22.1":
+  version: 3.22.1
+  resolution: "fastify@npm:3.22.1"
+  dependencies:
+    "@fastify/ajv-compiler": ^1.0.0
+    abstract-logging: ^2.0.0
+    avvio: ^7.1.2
+    fast-json-stringify: ^2.5.2
+    fastify-error: ^0.3.0
+    fastify-warning: ^0.2.0
+    find-my-way: ^4.1.0
+    flatstr: ^1.0.12
+    light-my-request: ^4.2.0
+    pino: ^6.13.0
+    proxy-addr: ^2.0.7
+    rfdc: ^1.1.4
+    secure-json-parse: ^2.0.0
+    semver: ^7.3.2
+    tiny-lru: ^7.0.0
+  checksum: 77a2e4328e1a2faf8abb7be1818d65fe1f815b849cc5c1194697959702f37047a59bccfe256c7230cc18fea094222bc80df99563ec5765bb291b67b04f48538d
+  languageName: node
+  linkType: hard
+
 "fastq@npm:^1.6.0, fastq@npm:^1.6.1":
   version: 1.12.0
   resolution: "fastq@npm:1.12.0"
@@ -16229,7 +16308,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.1.0, js-yaml@npm:^4.0.0":
+"js-yaml@npm:4.1.0, js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
   version: 4.1.0
   resolution: "js-yaml@npm:4.1.0"
   dependencies:
@@ -26178,6 +26257,42 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"ts-node@npm:^10.3.0":
+  version: 10.3.0
+  resolution: "ts-node@npm:10.3.0"
+  dependencies:
+    "@cspotcode/source-map-support": 0.7.0
+    "@tsconfig/node10": ^1.0.7
+    "@tsconfig/node12": ^1.0.7
+    "@tsconfig/node14": ^1.0.0
+    "@tsconfig/node16": ^1.0.2
+    acorn: ^8.4.1
+    acorn-walk: ^8.1.1
+    arg: ^4.1.0
+    create-require: ^1.1.0
+    diff: ^4.0.1
+    make-error: ^1.1.1
+    yn: 3.1.1
+  peerDependencies:
+    "@swc/core": ">=1.2.50"
+    "@swc/wasm": ">=1.2.50"
+    "@types/node": "*"
+    typescript: ">=2.7"
+  peerDependenciesMeta:
+    "@swc/core":
+      optional: true
+    "@swc/wasm":
+      optional: true
+  bin:
+    ts-node: dist/bin.js
+    ts-node-cwd: dist/bin-cwd.js
+    ts-node-script: dist/bin-script.js
+    ts-node-transpile-only: dist/bin-transpile.js
+    ts-script: dist/bin-script-deprecated.js
+  checksum: 276f46c15bb751c4e7c86624436da7688ad401686122b0ac6c1ef11bc50ac5b448f6d7906337bca9fdacb598db133a06a10e95423f8945293a3c050f2aa459a2
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^9":
   version: 9.1.1
   resolution: "ts-node@npm:9.1.1"
@@ -28589,7 +28704,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"yaml@npm:^1.10.0, yaml@npm:^1.10.2, yaml@npm:^1.5.1, yaml@npm:^1.7.2":
+"yaml@npm:*, yaml@npm:^1.10.0, yaml@npm:^1.10.2, yaml@npm:^1.5.1, yaml@npm:^1.7.2":
   version: 1.10.2
   resolution: "yaml@npm:1.10.2"
   checksum: 8d72062ea3dbfd8fae3d6ddd5b741c2aeb5835a31b0719bf14fac71dd84adde0829763d6fbac46387309da00af1440194c796da5efc349b0baf9de39d82ae69e

@@ -388,6 +388,12 @@ describe("Transaction Manager", function () {
         ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
 
+      it("happy case: when allowance is suffice return undefined", async () => {
+        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "0");
+
+        expect(approveReq).to.be.undefined;
+      });
+
       it("happy case", async () => {
         const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
 
