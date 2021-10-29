@@ -905,9 +905,9 @@ export class NxtpSdkBase {
   /**
    * Estimates hardcoded fee for prepare transactions
    *
-   * @param chainId The network indentifier
-   * @param assetId The asset address
-   * @param decimals The asset decimals
+   * @param chainId - The network indentifier
+   * @param assetId - The asset address
+   * @param decimals - The asset decimals
    * @returns Gas fee for prepare in token
    */
   async estimateHardcodedFeeForPrepare(
@@ -946,9 +946,9 @@ export class NxtpSdkBase {
   /**
    * Estimates hardcoded fee for fulfill transactions
    *
-   * @param chainId The network indentifier
-   * @param assetId The asset address
-   * @param decimals The asset decimals
+   * @param chainId - The network indentifier
+   * @param assetId - The asset address
+   * @param decimals - The asset decimals
    * @returns Gas fee for fulfill in token
    */
   async estimateHardcodedFeeForFulfill(
@@ -989,11 +989,12 @@ export class NxtpSdkBase {
   /**
    * Estimates hardcoded fee for router transfer
    *
-   * @param sendingChainId
-   * @param sendingAssetId
-   * @param receivingChainId
-   * @param receivingAssetId
-   * @returns Gas fee for prepare and fulfill in token
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId  - The sending asset address
+   * @param receivingChainId  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @returns Gas fee for transfer in token
    */
   public async estimateFeeForRouterTransfer(
     sendingChainId: number,
@@ -1023,7 +1024,6 @@ export class NxtpSdkBase {
     }
     const assetId = inSendingToken ? sendingAssetId : receivingAssetId;
     const decimals = await getDecimals(assetId, provider);
-
     // TODO: We calculate gas fee for router transfer in sending token
     // if chainIdsForGasFee includes sending chain, calculate gas fee for fulfill transactions
     // if chainIdsForGasFee includes receiving chain, calculate gas fee for prepare transactions
@@ -1056,6 +1056,13 @@ export class NxtpSdkBase {
 
   /**
    * Estimates fee for meta transactions in token
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId  - The sending asset address
+   * @param receivingChainId  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @returns Gas fee for meta transactions in token
    */
   public async estimateFeeForMetaTx(
     sendingChainId: number,
@@ -1101,6 +1108,10 @@ export class NxtpSdkBase {
 
   /**
    * Gets gas price in target chain
+   *
+   * @param chainId The network identifier
+   *
+   * @returns Gas price in BigNumber
    */
   async getGasPrice(chainId: number): Promise<BigNumber> {
     const { provider } = this.config.chainConfig[chainId] ?? {};

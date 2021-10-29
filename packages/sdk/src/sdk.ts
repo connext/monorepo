@@ -156,10 +156,11 @@ export class NxtpSdk {
   /**
    * Gets gas fee in sending token for meta transaction
    *
-   * @param sendingChainId The network id of sending chain
-   * @param sendingAssetId  The sending asset address
-   * @param receivingChainId  The network id of receiving chain
-   * @param receivingAssetId The receiving asset address
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for meta transaction in sending token
    */
   public async estimateMetaTxFeeInSendingToken(
     sendingChainId: number,
@@ -183,10 +184,11 @@ export class NxtpSdk {
   /**
    * Gets gas fee in receiving token for meta transaction
    *
-   * @param sendingChainId The network id of sending chain
-   * @param sendingAssetId  The sending asset address
-   * @param receivingChainId  The network id of receiving chain
-   * @param receivingAssetId The receiving asset address
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for meta transaction in receiving token
    */
   public async estimateMetaTxFeeInReceivingToken(
     sendingChainId: number,
@@ -210,10 +212,11 @@ export class NxtpSdk {
   /**
    * Gets gas fee in sending token for router transfer
    *
-   * @param sendingChainId The network id of sending chain
-   * @param sendingAssetId  The sending asset address
-   * @param receivingChainId  The network id of receiving chain
-   * @param receivingAssetId The receiving asset address
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for router transfer in sending token
    */
   public async estimateFeeForRouterTransferInSendingToken(
     sendingChainId: number,
@@ -238,10 +241,11 @@ export class NxtpSdk {
   /**
    * Gets gas fee in receiving token for router transfer
    *
-   * @param sendingChainId The network id of sending chain
-   * @param sendingAssetId  The sending asset address
-   * @param receivingChainId  The network id of receiving chain
-   * @param receivingAssetId The receiving asset address
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for router transfer in receiving token
    */
   public async estimateFeeForRouterTransferInReceivingToken(
     sendingChainId: number,

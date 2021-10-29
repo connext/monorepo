@@ -49,7 +49,6 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
 
 /**
  * Returns the addresses where the price oracle contract is deployed to
- *
  */
 export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
