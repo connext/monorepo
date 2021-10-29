@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import { providers, BigNumber } from "ethers";
+import { providers } from "ethers";
 import pino from "pino";
 import { Type } from "@sinclair/typebox";
 import { NxtpSdkBase, CrossChainParams, CrossChainParamsSchema, CancelParams, CancelSchema } from "@connext/nxtp-sdk";
