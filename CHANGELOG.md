@@ -2,6 +2,17 @@
 
 ## Next Release
 
+## 0.0.68
+
+- [sdk] Fix build
+
+## 0.0.67
+
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+- [sdk-server] new sdk-server to interact with sdkBase on backend
+- [subgraph] update structure to handle multiple networks subgraph deployment
+- [integration] fix load testing
+
 ## 0.0.66
 
 - [sdk] Fix signer instantiation

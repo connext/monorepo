@@ -1,14 +1,14 @@
-import { Logger } from "@connext/nxtp-utils";
-import { BigNumber, constants, utils, Wallet } from "ethers";
+import { jsonifyError, Logger } from "@connext/nxtp-utils";
+import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import PriorityQueue from "p-queue";
 
-import { getOnchainBalance, sendGift } from "./chain";
+import { getDecimals, getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
 // const MINIMUM_FUNDING_MULTIPLE = 2;
 // const USER_MIN_ETH = utils.parseEther("0.2");
 // const USER_MIN_TOKEN = utils.parseEther("1000000");
-
+const NUM_RETRIES = 5;
 export class OnchainAccountManager {
   public readonly wallets: Wallet[] = [];
   walletsWSufficientBalance: number[] = [];
@@ -18,6 +18,8 @@ export class OnchainAccountManager {
   private readonly funderQueues: Map<number, PriorityQueue> = new Map();
 
   private readonly funderNonces: Map<number, number> = new Map();
+
+  private cachedDecimals: Record<string, number> = {};
 
   constructor(
     public readonly chainProviders: ChainConfig,
@@ -47,6 +49,20 @@ export class OnchainAccountManager {
     const wallets = this.getCanonicalWallets(this.num_users);
     const resultBalances: BigNumber[] = [];
 
+    const { provider } = this.chainProviders[chainId];
+    if (!provider) {
+      throw new Error(`Provider not configured for ${chainId}`);
+    }
+
+    const funder = this.funder.connect(provider);
+
+    try {
+      const decimals = this.cachedDecimals[assetId] ? this.cachedDecimals[assetId] : await getDecimals(assetId, funder);
+      this.cachedDecimals[assetId] = decimals;
+    } catch (e) {
+      this.log.error("Failed to get decimals!", undefined, undefined, jsonifyError(e), { chainId, assetId });
+    }
+
     await Promise.all(
       wallets.map(async (wallet) => {
         const res = await this.verifyAndReupAccountBalance(wallet.address, chainId, assetId);
@@ -67,8 +83,13 @@ export class OnchainAccountManager {
       throw new Error(`No queue found for ${chainId}`);
     }
 
+    const funder = this.funder.connect(provider);
+
+    const decimals = this.cachedDecimals[assetId] ? this.cachedDecimals[assetId] : await getDecimals(assetId, funder);
+    this.cachedDecimals[assetId] = decimals;
+
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? this.USER_MIN_TOKEN : this.USER_MIN_ETH;
+    const floor = isToken ? utils.parseUnits(this.USER_MIN_TOKEN.toString(), decimals) : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
@@ -79,44 +100,67 @@ export class OnchainAccountManager {
       ? floor.mul(this.MINIMUM_TOKEN_FUNDING_MULTIPLE)
       : floor.sub(initial).mul(this.MINIMUM_ETH_FUNDING_MULTIPLE);
 
-    if (!isToken) {
-      // Check balance before sending
-      const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
-      if (funderBalance.lt(toSend)) {
-        throw new Error(
-          `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
-            funderBalance,
-          )}, needs ${utils.formatEther(toSend)}`,
-        );
-      }
+    // Check balance before sending
+    const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
+    if (funderBalance.lt(toSend)) {
+      throw new Error(
+        `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
+          funderBalance,
+        )}, needs ${utils.formatEther(toSend)}`,
+      );
+    }
+
+    const connectedFunder = this.funder.connect(provider);
+    if (!this.funderNonces.get(chainId)) {
+      this.funderNonces.set(chainId, await connectedFunder.getTransactionCount("pending"));
     }
 
     // send gift
-    const response = await funderQueue.add(async () => {
-      this.log.debug("Sending gift", undefined, undefined, {
-        assetId,
-        to: account,
-        from: this.funder.address,
-        value: toSend.toString(),
-      });
-      const response = await sendGift(
-        assetId,
-        toSend.toString(),
-        account,
-        this.funder.connect(provider),
-        this.funderNonces.get(chainId),
-      );
-      this.funderNonces.set(chainId, response.nonce + 1);
-      return response;
-    });
+    const _response = await funderQueue.add<Promise<{ value?: providers.TransactionResponse; error?: Error }>>(
+      async (): Promise<{ value?: providers.TransactionResponse; error?: Error }> => {
+        let response: providers.TransactionResponse | undefined = undefined;
+        const errors: Error[] = [];
+        for (let i = 0; i < NUM_RETRIES; i++) {
+          try {
+            response = await sendGift(
+              assetId,
+              toSend.toString(),
+              account,
+              connectedFunder,
+              this.funderNonces.get(chainId),
+            );
+            break;
+          } catch (e) {
+            errors.push(e);
+          }
+        }
+        if (response) {
+          this.funderNonces.set(chainId, response.nonce + 1);
+        }
+        return {
+          value: response,
+          error: !response
+            ? new Error(
+                `(${chainId}) Failed to send gift to ${account} after ${errors.length} attempts: ${errors[0].message}`,
+              )
+            : undefined,
+        };
+      },
+    );
 
-    this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
-    const receipt = await response.wait();
-    this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
+    if (!_response.value) {
+      if (_response.error) {
+        throw _response.error;
+      }
+    } else {
+      const response = _response.value;
+      this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
+      const receipt = await response.wait();
+      this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
+    }
+
     // confirm balance
-    const final = await provider.getBalance(account);
-
-    return final;
+    return await provider.getBalance(account);
   }
 
   getCanonicalWallets(num: number): Wallet[] {
