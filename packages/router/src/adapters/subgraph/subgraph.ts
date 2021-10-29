@@ -427,6 +427,6 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
 
   const routerAddress = await wallet.getAddress();
   const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
-  const bal = await sdk.GetAssetBalance({ assetBalanceId });
+  const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };
