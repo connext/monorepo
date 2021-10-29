@@ -61,7 +61,7 @@ const { requestContext } = createLoggingContext("auctionRequestBinding", undefin
 
 describe("auctionRequestBinding", () => {
   beforeEach(async () => {
-    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123" });
+    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123", metaTxRelayerFee: "456" });
     stub(operations, "getOperations").returns({
       newAuction: newAuctionStub,
     } as any);
@@ -83,6 +83,7 @@ describe("auctionRequestBinding", () => {
       bid,
       bidSignature,
       gasFeeInReceivingToken: "123",
+      metaTxRelayerFee: "456",
     });
   });
 
