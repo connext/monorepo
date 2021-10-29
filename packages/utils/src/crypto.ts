@@ -1,4 +1,8 @@
 import { encrypt as libEncrypt } from "eth-sig-util";
+import { utils } from "ethers";
+import { arrayToBuffer, decompress, hexToBuffer, isDecompressed, utf8ToBuffer } from "eccrypto-js";
+
+import { isValidHexString } from "./hexStrings";
 
 declare const ethereum: any;
 // /**
@@ -19,4 +23,20 @@ export const ethereumRequest = async (method: string, params: string[]): Promise
     method,
     params,
   });
+};
+
+export const bufferify = (input: Uint8Array | Buffer | string): Buffer =>
+  typeof input === "string"
+    ? isValidHexString(input)
+      ? hexToBuffer(input)
+      : utf8ToBuffer(input)
+    : !Buffer.isBuffer(input)
+    ? arrayToBuffer(utils.arrayify(input))
+    : input;
+
+export const getAddressFromPublicKey = (publicKey: string): string => {
+  const buf = bufferify(publicKey);
+  return utils.getAddress(
+    utils.hexlify(utils.keccak256((isDecompressed(buf) ? buf : decompress(buf)).slice(1)).slice(12)),
+  );
 };
