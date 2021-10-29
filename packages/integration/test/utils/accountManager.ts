@@ -89,7 +89,7 @@ export class OnchainAccountManager {
     this.cachedDecimals[assetId] = decimals;
 
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? utils.parseUnits(this.USER_MIN_TOKEN, decimals) : this.USER_MIN_ETH;
+    const floor = isToken ? utils.parseUnits(this.USER_MIN_TOKEN.toString(), decimals) : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
