@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
+import { getAddress, keccak256 } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { NxtpSdk } from "../../src/sdk";
@@ -26,7 +27,6 @@ import {
   ChainNotConfigured,
   MetaTxTimeout,
 } from "../../src/error";
-import { getAddress } from "ethers/lib/utils";
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -47,9 +47,10 @@ describe("NxtpSdk", () => {
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
+  let ethereumRequestMock: SinonStub;
+  let encryptMock: SinonStub;
   let balanceStub: SinonStub;
   let sdkBase: SinonStubbedInstance<NxtpSdkBase>;
-  let ethereumRequestStub: SinonStub<[method: string, params: string[]], Promise<any>>;
   let transactionManagerStub: SinonStubbedInstance<TransactionManager>;
 
   let user: string = getAddress(mkAddress("0xa"));
@@ -83,6 +84,7 @@ describe("NxtpSdk", () => {
         priceOracleAddress: constants.AddressZero,
       },
     };
+
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TxResponse);
     signer.connect.returns(signer);
@@ -92,10 +94,11 @@ describe("NxtpSdk", () => {
     sdkBase.cancel.resolves(CancelReq);
     sdkBase.estimateFulfillFee.resolves(BigNumber.from(1));
 
+    encryptMock = stub(utils, "encrypt");
+    ethereumRequestMock = stub(utils, "ethereumRequest");
     stub(utils, "getDecimals").resolves(18);
     stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-    ethereumRequestStub = stub(utils, "ethereumRequest");
 
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
@@ -175,6 +178,7 @@ describe("NxtpSdk", () => {
     const transactionId = getRandomBytes32();
     const crossChainParams = {
       callData: EmptyBytes,
+      encryptedCallData: EmptyBytes,
       sendingChainId: sendingChainId,
       sendingAssetId: mkAddress("0xc"),
       receivingChainId: receivingChainId,
@@ -316,8 +320,32 @@ describe("NxtpSdk", () => {
   });
 
   describe("#getTransferQuote", () => {
+    it("should error if eth_getEncryptionPublicKey errors", async () => {
+      const callData = getRandomBytes32();
+      const { crossChainParams } = getMock({ callData });
+
+      ethereumRequestMock.throws(new Error("fails"));
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
+        EncryptionError.getMessage("public key encryption failed"),
+      );
+    });
+
+    it("should fail if encrypt fails", async () => {
+      const callData = getRandomBytes32();
+      const { crossChainParams } = getMock({ callData });
+
+      encryptMock.throws(new Error("fails"));
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
+        EncryptionError.getMessage("public key encryption failed"),
+      );
+    });
+
     it("happy: should get a transfer quote ", async () => {
       const { crossChainParams } = getMock();
+      const randomHash = keccak256(getRandomBytes32());
+      ethereumRequestMock.resolves(randomHash);
 
       await sdk.getTransferQuote(crossChainParams);
       expect(sdkBase.getTransferQuote).to.be.calledOnceWithExactly(crossChainParams);
@@ -371,7 +399,6 @@ describe("NxtpSdk", () => {
         await expect(
           sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -385,7 +412,6 @@ describe("NxtpSdk", () => {
         await expect(
           sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
-
             encryptedCallData: EmptyCallDataHash,
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
@@ -397,7 +423,7 @@ describe("NxtpSdk", () => {
     it("should error if signFulfillTransactionPayload errors", async () => {
       const { transaction, record } = await getTransactionData();
 
-      ethereumRequestStub.rejects("foo");
+      ethereumRequestMock.rejects("foo");
 
       await expect(
         sdk.fulfillTransfer({

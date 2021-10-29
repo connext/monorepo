@@ -5,6 +5,7 @@ import {
   getRandomBytes32,
   UserNxtpNatsMessagingService,
   PrepareParams,
+  TransactionPreparedEventSchema,
   TransactionPreparedEvent,
   AuctionResponse,
   InvariantTransactionData,
@@ -26,8 +27,6 @@ import {
   Logger,
   createLoggingContext,
   TransactionData,
-  RequestContext,
-  MethodContext,
   calculateExchangeAmount,
 } from "@connext/nxtp-utils";
 
@@ -55,11 +54,11 @@ import {
   getDeployedChainIdsForGasFee,
 } from "./transactionManager/transactionManager";
 import {
+  SdkBaseConfigParams,
   NxtpSdkEventPayloads,
   CrossChainParams,
   CrossChainParamsSchema,
   AuctionBidParamsSchema,
-  TransactionPrepareEventSchema,
   CancelSchema,
   HistoricalTransaction,
   SubgraphSyncRecord,
@@ -73,10 +72,7 @@ import {
   getMaxExpiryBuffer,
   generateMessagingInbox,
   recoverAuctionBid,
-  getFulfillTransactionHashToSign,
   encodeAuctionBid,
-  ethereumRequest,
-  encrypt,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -109,28 +105,7 @@ export class NxtpSdkBase {
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
 
-  constructor(
-    private readonly config: {
-      chainConfig: {
-        [chainId: number]: {
-          provider: providers.FallbackProvider;
-          transactionManagerAddress?: string;
-          priceOracleAddress?: string;
-          subgraph?: string;
-          subgraphSyncBuffer?: number;
-        };
-      };
-      signerAddress: Promise<string>;
-      signer?: Signer;
-      messagingSigner?: Signer;
-      logger?: Logger;
-      network?: "testnet" | "mainnet" | "local";
-      natsUrl?: string;
-      authUrl?: string;
-      messaging?: UserNxtpNatsMessagingService;
-      skipPolling?: boolean;
-    },
-  ) {
+  constructor(private readonly config: SdkBaseConfigParams) {
     const { signerAddress, chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling } =
       this.config;
 
@@ -342,6 +317,9 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       receivingAddress,
+      callTo: _callTo,
+      callData: _callData,
+      encryptedCallData: _encryptedCallData,
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
@@ -382,18 +360,14 @@ export class NxtpSdkBase {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
-    const callTo = params.callTo ?? constants.AddressZero;
-    const callData = params.callData ?? "0x";
-
-    let encryptedCallData = "0x";
+    const callTo = _callTo ?? constants.AddressZero;
+    const callData = _callData ?? "0x";
     const callDataHash = utils.keccak256(callData);
-    if (callData !== "0x") {
-      try {
-        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
-        encryptedCallData = await encrypt(callData, encryptionPublicKey);
-      } catch (e) {
-        throw new EncryptionError("public key encryption failed", jsonifyError(e));
-      }
+
+    const encryptedCallData = _encryptedCallData ?? "0x";
+
+    if (callData !== "0x" && encryptedCallData === "0x") {
+      throw new EncryptionError("bad public key encryption", undefined, { callData, encryptedCallData });
     }
 
     if (!this.messaging.isConnected()) {
@@ -708,54 +682,6 @@ export class NxtpSdkBase {
     return tx;
   }
 
-  public async getFulfillHashToSign(
-    params: Omit<TransactionPreparedEvent, "caller">,
-    relayerFee = "0",
-  ): Promise<string> {
-    const { requestContext, methodContext } = createLoggingContext(
-      this.getFulfillHashToSign.name,
-      undefined,
-      params.txData.transactionId,
-    );
-    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
-
-    // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
-    const valid = validate(params);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
-      });
-      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
-        validationError: msg,
-        params,
-      });
-      throw error;
-    }
-
-    const { txData } = params;
-
-    if (!this.config.chainConfig[txData.sendingChainId]) {
-      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[txData.receivingChainId]) {
-      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    this.logger.info("Generating fulfill payload", requestContext, methodContext);
-    const hash = getFulfillTransactionHashToSign(
-      txData.transactionId,
-      relayerFee,
-      txData.receivingChainId,
-      txData.receivingChainTxManagerAddress,
-    );
-
-    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
-    return hash;
-  }
-
   /**
    * Fulfills the transaction on the receiving chain.
    *
@@ -779,7 +705,7 @@ export class NxtpSdkBase {
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
 
     // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const validate = ajv.compile(TransactionPreparedEventSchema);
     const valid = validate(params);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
@@ -904,9 +830,14 @@ export class NxtpSdkBase {
     txData: TransactionData,
     signatureForFee: string,
     relayerFee: string,
-    requestContext: RequestContext,
-    methodContext: MethodContext,
   ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.estimateFulfillFee.name,
+      undefined,
+      txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { txData, signatureForFee, relayerFee });
+
     const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
       relayerFee,
       signature: signatureForFee,
