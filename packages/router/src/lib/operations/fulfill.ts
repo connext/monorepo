@@ -12,6 +12,7 @@ import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
 import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
+import { gelatoFulfill } from "../helpers/gelato";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -107,16 +108,28 @@ export const fulfill = async (
     }
   }
 
-  const receipt = await contractWriter.fulfill(
-    fulfillChain,
-    {
+  let receipt; 
+  if (config.chainConfig[fulfillChain].gelatoRelay){
+    const { taskId } = await gelatoFulfill(fulfillChain, {
       txData: { ...invariantData, amount, expiry, preparedBlockNumber },
       signature: signature,
       relayerFee: relayerFee,
       callData: callData,
-    },
-    requestContext,
-  );
-  logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
+    });
+    logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: taskId});
+  }
+  else {
+    receipt = await contractWriter.fulfill(
+      fulfillChain,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: signature,
+        relayerFee: relayerFee,
+        callData: callData,
+      },
+      requestContext,
+    );
+    logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
+ }
   return receipt;
 };

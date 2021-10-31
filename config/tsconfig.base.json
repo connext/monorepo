@@ -29,8 +29,8 @@
 
     // We want to be as strict as we can...
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "strict": true
+    "noImplicitReturns": false,
+    "strict": false
 
     // ...but you may want to disable some things if they cause pain.
     // These are common sources of pain:

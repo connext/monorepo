@@ -708,6 +708,56 @@ export class NxtpSdkBase {
     return tx;
   }
 
+  public async getFulfillHashToSign(
+    params: Omit<TransactionPreparedEvent, "caller">,
+    relayerFee = "0",
+  ): Promise<string> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.getFulfillHashToSign.name,
+      undefined,
+      params.txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
+
+    const transactionId = params.txData.transactionId;
+
+    // Validate params schema
+    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const valid = validate(params);
+    if (!valid) {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
+        transactionId: transactionId,
+      });
+      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        params,
+      });
+      throw error;
+    }
+
+    const { txData } = params;
+
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    this.logger.info("Generating fulfill payload", requestContext, methodContext);
+    const hash = getFulfillTransactionHashToSign(
+      txData.transactionId,
+      relayerFee,
+      txData.receivingChainId,
+      txData.receivingChainTxManagerAddress,
+    );
+
+    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
+    return hash;
+  }
+
   /**
    * Fulfills the transaction on the receiving chain.
    *
@@ -729,6 +779,7 @@ export class NxtpSdkBase {
       params.txData.transactionId,
     );
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
+    const transactionId = params.txData.transactionId;
 
     // Validate params schema
     const validate = ajv.compile(TransactionPreparedEventSchema);
@@ -736,7 +787,7 @@ export class NxtpSdkBase {
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
@@ -755,6 +806,8 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    console.log(this.config);
+    
     if (useRelayers) {
       this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
@@ -832,13 +885,15 @@ export class NxtpSdkBase {
     );
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
+    const transactionId = cancelParams.txData.transactionId;
+
     // Validate params schema
     const validate = ajv.compile(CancelSchema);
     const valid = validate(cancelParams);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("cancel", "CancelParams", msg, cancelParams, {
-        transactionId: cancelParams.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
