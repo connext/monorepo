@@ -36,6 +36,7 @@
     "graphql-request": "^3.5.0",
     "hyperid": "^2.3.1",
     "pino": "^6.13.0",
+    "secp256k1": "^4.0.2",
     "sinon-chai": "^3.7.0",
     "ts-natsutil": "^1.1.1"
   },
@@ -46,6 +47,7 @@
     "@types/eth-sig-util": "^2.1.1",
     "@types/mocha": "^9.0.0",
     "@types/pino": "^6.3.11",
+    "@types/secp256k1": "^4",
     "@types/sinon": "^10.0.2",
     "@types/sinon-chai": "^3.2.5",
     "mocha": "^9.0.3",
