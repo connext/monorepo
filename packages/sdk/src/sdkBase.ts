@@ -66,6 +66,7 @@ import {
   SubgraphSyncRecord,
   ActiveTransaction,
   CancelParams,
+  GetTransferQuote,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -83,7 +84,7 @@ import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 60_000;
+export const AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
 
 Evt.setDefaultMaxHandlers(250);
@@ -289,7 +290,7 @@ export class NxtpSdkBase {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
+  public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
     const transactionId = params.transactionId ?? getRandomBytes32();
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
@@ -377,6 +378,16 @@ export class NxtpSdkBase {
     if (!this.messaging.isConnected()) {
       await this.connectMessaging();
     }
+
+    const metaTxRelayerFee = await this.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      true,
+      requestContext,
+      methodContext,
+    );
 
     const inbox = generateMessagingInbox();
 
@@ -466,7 +477,7 @@ export class NxtpSdkBase {
         throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
       }
       if (dryRun) {
-        return auctionResponses[0];
+        return { ...auctionResponses[0], metaTxRelayerFee: metaTxRelayerFee.toString() };
       }
       const filtered: (AuctionResponse | string)[] = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
@@ -541,7 +552,7 @@ export class NxtpSdkBase {
       const chosen = valid.sort((a: AuctionResponse, b) => {
         return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
       })[0];
-      return chosen;
+      return { ...chosen, metaTxRelayerFee: metaTxRelayerFee.toString() };
     } catch (e) {
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,

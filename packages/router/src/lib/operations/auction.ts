@@ -261,13 +261,6 @@ export const newAuction = async (
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
 
-  const metaTxRelayerFee = await calculateGasFeeInReceivingTokenForFulfill(
-    receivingAssetId,
-    receivingChainId,
-    outputDecimals,
-    requestContext,
-  );
-
   // - Create bid object
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
@@ -303,6 +296,5 @@ export const newAuction = async (
     bid,
     bidSignature: dryRun ? undefined : bidSignature,
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
-    metaTxRelayerFee: metaTxRelayerFee.toString(),
   };
 };

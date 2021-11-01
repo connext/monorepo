@@ -33,6 +33,7 @@ import {
   SubgraphSyncRecord,
   ActiveTransaction,
   CancelParams,
+  GetTransferQuote,
 } from "./types";
 import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest } from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
@@ -287,7 +288,7 @@ export class NxtpSdk {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<AuctionResponse> {
+  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<GetTransferQuote> {
     const user = await this.config.signer.getAddress();
     const callData = params.callData ?? "0x";
     let encryptedCallData = "0x";

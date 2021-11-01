@@ -2,7 +2,7 @@
 import { useEffect, useState, ReactElement } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
-import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction } from "@connext/nxtp-sdk";
+import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction, GetTransferQuote } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
   ChainData,
@@ -293,7 +293,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     amount: string,
     receivingAddress: string,
     preferredRouters?: string[],
-  ): Promise<AuctionResponse | undefined> => {
+  ): Promise<GetTransferQuote | undefined> => {
     if (!sdk) {
       return;
     }
