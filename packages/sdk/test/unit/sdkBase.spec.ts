@@ -34,6 +34,7 @@ import {
   SubgraphsNotSynced,
   UnknownAuctionError,
   InvalidCallTo,
+  NoValidBids,
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
@@ -451,7 +452,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
@@ -466,7 +467,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
@@ -481,7 +482,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
