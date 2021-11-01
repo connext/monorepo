@@ -217,7 +217,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       console.log("allowance: ", allowance.toString());
 
       if (allowance.lt(liquidityToAddWei)) {
-        const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei, {
+        const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityToAddWei, {
           gasLimit: gasLimit,
         });
         console.log("approve tx: ", tx);
