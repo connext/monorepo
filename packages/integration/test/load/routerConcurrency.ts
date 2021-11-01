@@ -1,5 +1,7 @@
 import PriorityQueue from "p-queue";
 import { Logger } from "@connext/nxtp-utils";
+import { utils } from "ethers";
+import { getDecimals } from "@connext/nxtp-sdk/src/utils";
 
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
@@ -55,6 +57,10 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
   let concurrency = 0;
   const stats = [];
 
+  const provider = config.chainConfig[sendingChainId].provider;
+  const decimals = await getDecimals(sendingAssetId, provider);
+  const amountToSend = utils.parseUnits(AMOUNT_PER_TRANSFER, decimals);
+
   for (const _ of Array(maxConcurrency).fill(0)) {
     concurrency += 1;
     log.warn("Beginning concurrency test", undefined, undefined, { concurrency });
@@ -77,9 +83,9 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
           const balance = await getOnchainBalance(
             sendingAssetId,
             agent.address,
-            config.chainConfig[sendingChainId].provider,
+            provider,
           );
-          if (balance.lt(AMOUNT_PER_TRANSFER)) {
+          if (balance.lt(amountToSend)) {
             throw new Error(`Agent has insufficient funds of ${sendingAssetId}`);
           }
           // TODO: has to work with tokens!
@@ -89,7 +95,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
               sendingChainId,
               receivingAssetId,
               receivingChainId,
-              amount: AMOUNT_PER_TRANSFER,
+              amount: amountToSend.toString(),
             },
             TIMEOUT,
             agent,
