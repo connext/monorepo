@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.69
+
+- [sdk] Return fulfill fee from `getTransferQuote`
+
 ## 0.0.68
 
 - [sdk] Fix build
