@@ -26,8 +26,10 @@ import {
   MetaTxTypes,
   Logger,
   createLoggingContext,
-  TransactionData,
+  RequestContext,
+  MethodContext,
   calculateExchangeAmount,
+  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 
 import {
@@ -64,6 +66,7 @@ import {
   SubgraphSyncRecord,
   ActiveTransaction,
   CancelParams,
+  GetTransferQuote,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -73,6 +76,8 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   encodeAuctionBid,
+  getTokenPrice,
+  getDecimals,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -285,7 +290,7 @@ export class NxtpSdkBase {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams): Promise<AuctionResponse> {
+  public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
     const transactionId = params.transactionId ?? getRandomBytes32();
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
@@ -374,7 +379,18 @@ export class NxtpSdkBase {
       await this.connectMessaging();
     }
 
+    const metaTxRelayerFee = await this.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+
     const inbox = generateMessagingInbox();
+    let receivedBids: (AuctionResponse | string)[];
 
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
       if (dryRun) {
@@ -462,9 +478,9 @@ export class NxtpSdkBase {
         throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
       }
       if (dryRun) {
-        return auctionResponses[0];
+        return { ...auctionResponses[0], metaTxRelayerFee: metaTxRelayerFee.toString() };
       }
-      const filtered: (AuctionResponse | string)[] = await Promise.all(
+      receivedBids = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
           // validate bid
           // check router sig on bid
@@ -528,22 +544,25 @@ export class NxtpSdkBase {
           return data;
         }),
       );
-
-      const valid = filtered.filter((x) => typeof x !== "string") as AuctionResponse[];
-      const invalid = filtered.filter((x) => typeof x === "string") as string[];
-      if (valid.length === 0) {
-        throw new NoValidBids(transactionId, payload, invalid.join(","), auctionResponses);
-      }
-      const chosen = valid.sort((a: AuctionResponse, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
-      })[0];
-      return chosen;
     } catch (e) {
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,
       });
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
+
+    const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
+    const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
+
+    if (validBids.length === 0) {
+      throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
+    }
+
+    const chosen = validBids.sort((a: AuctionResponse, b) => {
+      return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+    })[0];
+
+    return { ...chosen, metaTxRelayerFee: metaTxRelayerFee.toString() };
   }
 
   public async approveForPrepare(
@@ -825,48 +844,230 @@ export class NxtpSdkBase {
     this.logger.info("Method complete", requestContext, methodContext, { cancelRequest });
     return cancelRequest;
   }
-
-  public async estimateFulfillFee(
-    txData: TransactionData,
-    signatureForFee: string,
-    relayerFee: string,
+  /**
+   * Estimates hardcoded fee for prepare transactions
+   *
+   * @param chainId - The network indentifier
+   * @param assetId - The asset address
+   * @param decimals - The asset decimals
+   * @returns Gas fee for prepare in token
+   */
+  async estimateHardcodedFeeForPrepare(
+    chainId: number,
+    assetId: string,
+    decimals: number,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
   ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext(
-      this.estimateFulfillFee.name,
-      undefined,
-      txData.transactionId,
-    );
-    this.logger.info("Method started", requestContext, methodContext, { txData, signatureForFee, relayerFee });
-
-    const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
-      relayerFee,
-      signature: signatureForFee,
-      txData: {
-        ...txData,
-        callDataHash: utils.keccak256("0x"),
-      },
-      callData: "0x",
+    this.logger.info("Calculate gas in token for prepare", requestContext, methodContext, {
+      chainId,
+      assetId,
+      decimals,
     });
 
-    if (gasNeeded.isZero()) {
-      const error = new InvalidParamStructure(
-        "calculateGasInToken",
-        "TransactionManager",
-        "Failed to calculate a gas fee in token",
-        {
-          relayerFee: relayerFee,
-          signatureForFee: signatureForFee,
-          txData: txData,
-          callDataHash: utils.keccak256("0x"),
-          callData: "0x",
-        },
-      );
-      this.logger.error("Failed to calculate gas in token", requestContext, methodContext, jsonifyError(error));
+    const { provider } = this.config.chainConfig[chainId] ?? {};
 
-      throw error;
+    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    let totalCost = constants.Zero;
+    if (priceOracleContract && priceOracleContract.address && provider) {
+      const priceOracleAddress = priceOracleContract.address;
+      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
+      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
+      const gasPrice = await this.getGasPrice(chainId);
+      const gasAmountInUsd = gasPrice.mul(gasLimitForPrepare).mul(ethPriceInUsd);
+      const tokenAmountForGasFee = tokenPriceInUsd.isZero()
+        ? constants.Zero
+        : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
+      totalCost = totalCost.add(tokenAmountForGasFee);
     }
 
-    return gasNeeded;
+    return totalCost;
+  }
+
+  /**
+   * Estimates hardcoded fee for fulfill transactions
+   *
+   * @param chainId - The network indentifier
+   * @param assetId - The asset address
+   * @param decimals - The asset decimals
+   * @returns Gas fee for fulfill in token
+   */
+  async estimateHardcodedFeeForFulfill(
+    chainId: number,
+    assetId: string,
+    decimals: number,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    this.logger.info("Calculate gas in token for fulfill", requestContext, methodContext, {
+      chainId,
+      assetId,
+      decimals,
+    });
+    const { provider } = this.config.chainConfig[chainId] ?? {};
+    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+    let totalCost = constants.Zero;
+    if (priceOracleContract && priceOracleContract.address && provider) {
+      const priceOracleAddress = priceOracleContract.address;
+      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
+      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
+      const gasPrice = await this.getGasPrice(chainId);
+      const gasAmountInUsd = gasPrice.mul(gasLimitForFulfill).mul(ethPriceInUsd);
+      const tokenAmountForGasFee = tokenPriceInUsd.isZero()
+        ? constants.Zero
+        : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
+      totalCost = totalCost.add(tokenAmountForGasFee);
+    }
+
+    this.logger.info("Calculated gas in token for fulfill", requestContext, methodContext, {
+      calculatedGas: totalCost,
+    });
+
+    return totalCost;
+  }
+
+  /**
+   * Estimates hardcoded fee for router transfer
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId  - The sending asset address
+   * @param receivingChainId  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @returns Gas fee for transfer in token
+   */
+  public async estimateFeeForRouterTransfer(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+    inSendingToken: boolean,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    this.logger.info("Calculate gas fee in token for router transfer", requestContext, methodContext, {
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+    });
+
+    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
+    const { provider } = inSendingToken
+      ? this.config.chainConfig[sendingChainId] ?? {}
+      : this.config.chainConfig[receivingChainId] ?? {};
+    if (!provider) {
+      throw new ChainNotConfigured(
+        inSendingToken ? sendingChainId : receivingChainId,
+        Object.keys(this.config.chainConfig),
+      );
+    }
+    const assetId = inSendingToken ? sendingAssetId : receivingAssetId;
+    const decimals = await getDecimals(assetId, provider);
+    // TODO: We calculate gas fee for router transfer in sending token
+    // if chainIdsForGasFee includes sending chain, calculate gas fee for fulfill transactions
+    // if chainIdsForGasFee includes receiving chain, calculate gas fee for prepare transactions
+    let totalCost = constants.Zero;
+    if (chainIdsForGasFee.includes(sendingChainId)) {
+      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
+        sendingChainId,
+        sendingAssetId,
+        decimals,
+        requestContext,
+        methodContext,
+      );
+
+      totalCost = totalCost.add(fulfillFee);
+    }
+
+    if (chainIdsForGasFee.includes(receivingChainId)) {
+      const prepareFee = await this.estimateHardcodedFeeForPrepare(
+        receivingChainId,
+        receivingAssetId,
+        decimals,
+        requestContext,
+        methodContext,
+      );
+
+      totalCost = totalCost.add(prepareFee);
+    }
+    return totalCost;
+  }
+
+  /**
+   * Estimates fee for meta transactions in token
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId  - The sending asset address
+   * @param receivingChainId  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @returns Gas fee for meta transactions in token
+   */
+  public async estimateFeeForMetaTx(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+    inSendingToken: boolean,
+    requestContext: RequestContext,
+    methodContext: MethodContext,
+  ): Promise<BigNumber> {
+    this.logger.info("Calculate gas fee in token for meta tranaction", requestContext, methodContext, {
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+    });
+
+    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
+    const { provider } = inSendingToken
+      ? this.config.chainConfig[sendingChainId] ?? {}
+      : this.config.chainConfig[receivingChainId] ?? {};
+    if (!provider) {
+      throw new ChainNotConfigured(
+        inSendingToken ? sendingChainId : receivingChainId,
+        Object.keys(this.config.chainConfig),
+      );
+    }
+    const assetId = inSendingToken ? sendingAssetId : receivingAssetId;
+    const decimals = await getDecimals(assetId, provider);
+    let totalCost = constants.Zero;
+    if (chainIdsForGasFee.includes(receivingChainId)) {
+      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
+        receivingChainId,
+        receivingAssetId,
+        decimals,
+        requestContext,
+        methodContext,
+      );
+      totalCost = totalCost.add(fulfillFee);
+    }
+    return totalCost;
+  }
+
+  /**
+   * Gets gas price in target chain
+   *
+   * @param chainId The network identifier
+   *
+   * @returns Gas price in BigNumber
+   */
+  async getGasPrice(chainId: number): Promise<BigNumber> {
+    const { provider } = this.config.chainConfig[chainId] ?? {};
+    if (!provider) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
+    }
+
+    // get gas price
+    let gasPrice = BigNumber.from(0);
+    try {
+      gasPrice = await provider.getGasPrice();
+    } catch (e) {}
+
+    return gasPrice;
   }
 
   /**
