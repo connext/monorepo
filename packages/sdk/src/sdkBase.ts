@@ -384,12 +384,13 @@ export class NxtpSdkBase {
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      true,
+      false,
       requestContext,
       methodContext,
     );
 
     const inbox = generateMessagingInbox();
+    let receivedBids: (AuctionResponse | string)[];
 
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
       if (dryRun) {
@@ -479,7 +480,7 @@ export class NxtpSdkBase {
       if (dryRun) {
         return { ...auctionResponses[0], metaTxRelayerFee: metaTxRelayerFee.toString() };
       }
-      const filtered: (AuctionResponse | string)[] = await Promise.all(
+      receivedBids = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
           // validate bid
           // check router sig on bid
@@ -543,22 +544,25 @@ export class NxtpSdkBase {
           return data;
         }),
       );
-
-      const valid = filtered.filter((x) => typeof x !== "string") as AuctionResponse[];
-      const invalid = filtered.filter((x) => typeof x === "string") as string[];
-      if (valid.length === 0) {
-        throw new NoValidBids(transactionId, payload, invalid.join(","), auctionResponses);
-      }
-      const chosen = valid.sort((a: AuctionResponse, b) => {
-        return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
-      })[0];
-      return { ...chosen, metaTxRelayerFee: metaTxRelayerFee.toString() };
     } catch (e) {
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,
       });
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
+
+    const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
+    const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
+
+    if (validBids.length === 0) {
+      throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
+    }
+
+    const chosen = validBids.sort((a: AuctionResponse, b) => {
+      return BigNumber.from(b.bid.amountReceived).gt(a.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+    })[0];
+
+    return { ...chosen, metaTxRelayerFee: metaTxRelayerFee.toString() };
   }
 
   public async approveForPrepare(

@@ -312,7 +312,7 @@ export class NoValidBids extends AuctionError {
     public readonly transactionId: string,
     public readonly auction: AuctionPayload,
     public readonly reasons: string,
-    public readonly auctionResponses: AuctionResponse[],
+    public readonly auctionResponses: (AuctionResponse | string)[],
     public readonly context: any = {},
   ) {
     super(
