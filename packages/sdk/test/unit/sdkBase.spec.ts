@@ -586,33 +586,27 @@ describe("NxtpSdkBase", () => {
   describe("#prepareTransfer", () => {
     describe("should error if invalid param", () => {
       it("invalid user", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock({}, { user: "abc" });
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { user: "abc" });
         await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
         ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage("prepareTransfer", "AuctionResponse"));
       });
     });
 
     describe("should error if invalid config", () => {
       it("unknown sendingChainId", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock(
-          {},
-          { sendingChainId: 1400 },
-        );
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { sendingChainId: 1400 });
 
         await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
 
       it("unknown receivingChainId", async () => {
-        const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock(
-          {},
-          { receivingChainId: 1400 },
-        );
+        const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { receivingChainId: 1400 });
 
         await expect(
-          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+          sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
       });
     });
@@ -630,39 +624,36 @@ describe("NxtpSdkBase", () => {
     });
 
     it("should error if bidSignature undefined", async () => {
-      const { auctionBid, gasFeeInReceivingToken, metaTxRelayerFee } = getMock({}, {}, "");
+      const { auctionBid, gasFeeInReceivingToken } = getMock({}, {}, "");
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
       await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined, gasFeeInReceivingToken, metaTxRelayerFee }),
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature: undefined, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith(InvalidBidSignature.getMessage(auctionBid.router, undefined, undefined));
     });
 
     it("should error if it callTo isn't deployed contract", async () => {
       const mockCallTo = getAddress(mkAddress("0xc"));
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock(
-        {},
-        { callTo: mockCallTo },
-      );
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({}, { callTo: mockCallTo });
 
       balanceStub.resolves(BigNumber.from(auctionBid.amount).add(1000));
       await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature: bidSignature, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith(InvalidCallTo.getMessage(mockCallTo));
     });
 
     it("should error if prepare errors", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.approveTokensIfNeeded.resolves(undefined);
       transactionManager.prepare.rejects(new Error("fail"));
       await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith("fail");
     });
 
     it("happy: start transfer", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
       balanceStub.resolves(BigNumber.from(auctionBid.amount));
 
       transactionManager.prepare.resolves(TxRequest);
@@ -671,7 +662,6 @@ describe("NxtpSdkBase", () => {
         bid: auctionBid,
         bidSignature,
         gasFeeInReceivingToken,
-        metaTxRelayerFee,
       });
       expect(res).to.deep.eq(TxRequest);
     });
