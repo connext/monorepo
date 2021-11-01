@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.0.63",
+  "version": "0.0.68",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
@@ -22,6 +22,7 @@
     "packages/integration",
     "packages/router",
     "packages/sdk",
+    "packages/sdk-server",
     "packages/subgraph",
     "packages/test-ui",
     "packages/txservice",

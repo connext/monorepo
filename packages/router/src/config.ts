@@ -122,7 +122,7 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
   defaultInitialGas: Type.Optional(TIntegerString),
-  subgraph: Type.String(),
+  subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
@@ -265,6 +265,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
   }
   const defaultConfirmations =
     crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
+
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     const chainRecommendedConfirmations =
@@ -302,11 +303,14 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     }
 
     if (!chainConfig.subgraph) {
-      const subgraph = getDeployedSubgraphUri(Number(chainId));
-      if (!subgraph) {
+      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId));
+      if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }
-      nxtpConfig.chainConfig[chainId].subgraph = subgraph;
+      nxtpConfig.chainConfig[chainId].subgraph = [defaultSubgraphUri];
+    } else if (typeof chainConfig.subgraph === "string") {
+      // Backwards compatibility for subgraph param - support for singular uri string.
+      chainConfig.subgraph = [chainConfig.subgraph];
     }
 
     if (!chainConfig.confirmations) {

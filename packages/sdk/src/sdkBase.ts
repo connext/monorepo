@@ -5,6 +5,7 @@ import {
   getRandomBytes32,
   UserNxtpNatsMessagingService,
   PrepareParams,
+  TransactionPreparedEventSchema,
   TransactionPreparedEvent,
   AuctionResponse,
   InvariantTransactionData,
@@ -26,8 +27,6 @@ import {
   Logger,
   createLoggingContext,
   TransactionData,
-  RequestContext,
-  MethodContext,
   calculateExchangeAmount,
 } from "@connext/nxtp-utils";
 
@@ -55,11 +54,11 @@ import {
   getDeployedChainIdsForGasFee,
 } from "./transactionManager/transactionManager";
 import {
+  SdkBaseConfigParams,
   NxtpSdkEventPayloads,
   CrossChainParams,
   CrossChainParamsSchema,
   AuctionBidParamsSchema,
-  TransactionPrepareEventSchema,
   CancelSchema,
   HistoricalTransaction,
   SubgraphSyncRecord,
@@ -73,18 +72,17 @@ import {
   getMaxExpiryBuffer,
   generateMessagingInbox,
   recoverAuctionBid,
-  getFulfillTransactionHashToSign,
   encodeAuctionBid,
-  ethereumRequest,
-  encrypt,
 } from "./utils";
-import { Subgraph, SubgraphChainConfig, SubgraphEvent } from "./subgraph/subgraph";
+import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
+
+Evt.setDefaultMaxHandlers(250);
 
 /**
  * Used to make mocking easier
@@ -106,30 +104,8 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
-  private readonly metaTxResponseEvt = createMessagingEvt<MetaTxResponse>();
 
-  constructor(
-    private readonly config: {
-      chainConfig: {
-        [chainId: number]: {
-          provider: providers.FallbackProvider;
-          transactionManagerAddress?: string;
-          priceOracleAddress?: string;
-          subgraph?: string;
-          subgraphSyncBuffer?: number;
-        };
-      };
-      signerAddress: Promise<string>;
-      signer?: Signer;
-      messagingSigner?: Signer;
-      logger?: Logger;
-      network?: "testnet" | "mainnet" | "local";
-      natsUrl?: string;
-      authUrl?: string;
-      messaging?: UserNxtpNatsMessagingService;
-      skipPolling?: boolean;
-    },
-  ) {
+  constructor(private readonly config: SdkBaseConfigParams) {
     const { signerAddress, chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling } =
       this.config;
 
@@ -251,10 +227,6 @@ export class NxtpSdkBase {
       },
     );
 
-    await this.messaging.subscribeToMetaTxResponse((_from: string, inbox: string, data?: MetaTxResponse, err?: any) => {
-      this.metaTxResponseEvt.post({ inbox, data, err });
-    });
-
     await delay(1000);
     return token;
   }
@@ -345,10 +317,13 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       receivingAddress,
+      callTo: _callTo,
+      callData: _callData,
+      encryptedCallData: _encryptedCallData,
       slippageTolerance = DEFAULT_SLIPPAGE_TOLERANCE,
       expiry: _expiry,
       dryRun,
-      preferredRouter: _preferredRouter,
+      preferredRouters: _preferredRouters,
       initiator,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
@@ -373,7 +348,7 @@ export class NxtpSdkBase {
       throw new InvalidSlippage(slippageTolerance, MIN_SLIPPAGE_TOLERANCE, MAX_SLIPPAGE_TOLERANCE);
     }
 
-    const preferredRouter = _preferredRouter ? utils.getAddress(_preferredRouter) : undefined;
+    const preferredRouters = (_preferredRouters ?? []).map((a) => utils.getAddress(a));
 
     const blockTimestamp = await getTimestampInSeconds();
     const expiry = _expiry ?? getExpiry(blockTimestamp);
@@ -385,18 +360,14 @@ export class NxtpSdkBase {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
-    const callTo = params.callTo ?? constants.AddressZero;
-    const callData = params.callData ?? "0x";
-
-    let encryptedCallData = "0x";
+    const callTo = _callTo ?? constants.AddressZero;
+    const callData = _callData ?? "0x";
     const callDataHash = utils.keccak256(callData);
-    if (callData !== "0x") {
-      try {
-        const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
-        encryptedCallData = await encrypt(callData, encryptionPublicKey);
-      } catch (e) {
-        throw new EncryptionError("public key encryption failed", jsonifyError(e));
-      }
+
+    const encryptedCallData = _encryptedCallData ?? "0x";
+
+    if (callData !== "0x" && encryptedCallData === "0x") {
+      throw new EncryptionError("bad public key encryption", undefined, { callData, encryptedCallData });
     }
 
     if (!this.messaging.isConnected()) {
@@ -413,24 +384,24 @@ export class NxtpSdkBase {
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
             .waitFor(AUCTION_TIMEOUT);
-          return resolve([result.data!]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
       }
 
-      if (preferredRouter) {
-        this.logger.warn("Waiting for preferred router", requestContext, methodContext, {
-          preferredRouter,
+      if (preferredRouters.length > 0) {
+        this.logger.warn("Waiting for preferred routers", requestContext, methodContext, {
+          preferredRouters,
         });
         try {
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
-            .pipe((data) => data.data?.bid.router === preferredRouter)
+            .pipe((data) => preferredRouters.includes(utils.getAddress((data.data as AuctionResponse).bid.router)))
             .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
-          return resolve([result.data!]);
+          return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
         }
@@ -450,7 +421,7 @@ export class NxtpSdkBase {
           return true;
         })
         .attach((data) => {
-          bids.push(data.data!);
+          bids.push(data.data as AuctionResponse);
         });
 
       setTimeout(async () => {
@@ -711,54 +682,6 @@ export class NxtpSdkBase {
     return tx;
   }
 
-  public async getFulfillHashToSign(
-    params: Omit<TransactionPreparedEvent, "caller">,
-    relayerFee = "0",
-  ): Promise<string> {
-    const { requestContext, methodContext } = createLoggingContext(
-      this.getFulfillHashToSign.name,
-      undefined,
-      params.txData.transactionId,
-    );
-    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
-
-    // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
-    const valid = validate(params);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
-      });
-      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
-        validationError: msg,
-        params,
-      });
-      throw error;
-    }
-
-    const { txData } = params;
-
-    if (!this.config.chainConfig[txData.sendingChainId]) {
-      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[txData.receivingChainId]) {
-      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    this.logger.info("Generating fulfill payload", requestContext, methodContext);
-    const hash = getFulfillTransactionHashToSign(
-      txData.transactionId,
-      relayerFee,
-      txData.receivingChainId,
-      txData.receivingChainTxManagerAddress,
-    );
-
-    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
-    return hash;
-  }
-
   /**
    * Fulfills the transaction on the receiving chain.
    *
@@ -782,7 +705,7 @@ export class NxtpSdkBase {
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
 
     // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const validate = ajv.compile(TransactionPreparedEventSchema);
     const valid = validate(params);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
@@ -815,11 +738,9 @@ export class NxtpSdkBase {
       // send through messaging to metatx relayers
       const responseInbox = generateMessagingInbox();
 
-      const metaTxProm = this.metaTxResponseEvt
-        .pipe((data) => data.inbox === responseInbox)
-        .pipe((data) => !!data.data?.transactionHash)
-        .pipe((data) => !data.err)
-        .waitFor(META_TX_TIMEOUT);
+      const metaTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, META_TX_TIMEOUT, (data) => {
+        return data.txData.transactionId === params.txData.transactionId;
+      });
 
       const request = {
         type: MetaTxTypes.Fulfill,
@@ -837,12 +758,14 @@ export class NxtpSdkBase {
 
       try {
         const response = await metaTxProm;
-        const metaTxRes = response.data;
-        this.logger.info("Method complete", requestContext, methodContext, {
-          txHash: metaTxRes?.transactionHash,
-          chainId: metaTxRes?.chainId,
-        });
-        return { metaTxResponse: metaTxRes };
+        const ret = {
+          transactionHash: response.transactionHash,
+          chainId: response.txData.receivingChainId,
+        };
+        this.logger.info("Method complete", requestContext, methodContext, ret);
+        return {
+          metaTxResponse: ret,
+        };
       } catch (e) {
         throw e.message.includes("Evt timeout") ? new MetaTxTimeout(txData.transactionId, META_TX_TIMEOUT, request) : e;
       }
@@ -907,9 +830,14 @@ export class NxtpSdkBase {
     txData: TransactionData,
     signatureForFee: string,
     relayerFee: string,
-    requestContext: RequestContext,
-    methodContext: MethodContext,
   ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.estimateFulfillFee.name,
+      undefined,
+      txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { txData, signatureForFee, relayerFee });
+
     const gasNeeded = await this.transactionManager.calculateGasInTokenForFullfil(txData.receivingChainId, {
       relayerFee,
       signature: signatureForFee,
@@ -954,7 +882,6 @@ export class NxtpSdkBase {
    * Turns off all listeners and disconnects messaging from the sdk
    */
   public removeAllListeners(): void {
-    this.metaTxResponseEvt.detach();
     this.auctionResponseEvt.detach();
     this.messaging.disconnect();
     this.subgraph.stopPolling();

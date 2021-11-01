@@ -60,7 +60,7 @@ export const prepareSanitationCheck = async (
   const { txService, logger } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(
-    cancelAndFullfillSanitationCheck.name,
+    prepareSanitationCheck.name,
     _requestContext,
     invariantTransactionData.transactionId,
   );
@@ -182,6 +182,7 @@ export const cancelAndFullfillSanitationCheck = async (
   );
   throw error;
 };
+
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
  *

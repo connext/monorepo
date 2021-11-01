@@ -2,6 +2,30 @@
 
 ## Next Release
 
+## 0.0.68
+
+- [sdk] Fix build
+
+## 0.0.67
+
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+- [sdk-server] new sdk-server to interact with sdkBase on backend
+- [subgraph] update structure to handle multiple networks subgraph deployment
+- [integration] fix load testing
+
+## 0.0.66
+
+- [sdk] Fix signer instantiation
+- [test-ui] Fix input params
+
+## 0.0.65
+
+- [router] Fix relayer fee threshold
+
+## 0.0.64
+
+- [sdk] SDK gas limit fix
+
 ## 0.0.63
 
 - [sdk] Fix relayer fee issue
