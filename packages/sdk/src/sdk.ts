@@ -305,14 +305,6 @@ export class NxtpSdk {
     return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
   }
 
-  public async estimateFulfillFee(
-    txData: TransactionData,
-    signatureForFee: string,
-    relayerFee: string,
-  ): Promise<BigNumber> {
-    return this.sdkBase.estimateFulfillFee(txData, signatureForFee, relayerFee);
-  }
-
   /**
    * Begins a crosschain transfer by calling `prepare` on the sending chain.
    *

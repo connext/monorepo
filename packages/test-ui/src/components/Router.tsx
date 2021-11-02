@@ -301,8 +301,9 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Add Liquidity
+              <Button type="primary" htmlType="submit" disabled={!injectedProviderChainId}>
+                Add Liquidity on{" "}
+                {injectedProviderChainId && chainData ? getChainName(injectedProviderChainId, chainData) : "..."}
               </Button>
             </Form.Item>
           </Form>
