@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [test-ui] Fixes for test-ui based on feedback
+
 ## 0.0.69
 
 - [sdk] Return fulfill fee from `getTransferQuote`
