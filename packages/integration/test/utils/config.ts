@@ -9,7 +9,7 @@ export type ChainConfig = {
     provider: providers.FallbackProvider;
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
-    subgraph?: string;
+    subgraph?: string | string[];
     gasStations: string[];
   };
 };

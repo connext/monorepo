@@ -134,13 +134,13 @@ describe("Subgraph", () => {
 
   const chainConfig = {
     [sendingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },
     },
     [receivingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },

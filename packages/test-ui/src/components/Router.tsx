@@ -108,6 +108,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     let value: BigNumber;
     let liquidityWei: BigNumber;
+    const chainId = await signer.getChainId();
+
+    // if arbitrum bump gas limit to 10M
+    const gasLimit = chainId === 42161 ? 10_000_000 : 250_000;
+
     const signerAddress = await signer.getAddress();
     const decimals = await getDecimals(assetId);
     if (assetId !== constants.AddressZero) {
@@ -115,9 +120,10 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       liquidityWei = utils.parseUnits(liquidityToAdd, decimals);
       const allowance = await token.allowance(signerAddress, txManager.address);
       console.log("allowance: ", allowance.toString());
+
       if (allowance.lt(liquidityWei)) {
         const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei, {
-          gasLimit: 250_000,
+          gasLimit: gasLimit,
         });
         console.log("approve tx: ", tx);
         await tx.wait();
@@ -133,7 +139,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     console.log("liquidityWei: ", liquidityWei.toString());
     const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, {
       value,
-      gasLimit: 250_000,
+      gasLimit: gasLimit,
     });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
