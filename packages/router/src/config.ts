@@ -262,7 +262,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }
-      nxtpConfig.chainConfig[chainId].subgraph = [defaultSubgraphUri];
+      nxtpConfig.chainConfig[chainId].subgraph = defaultSubgraphUri;
     } else if (typeof chainConfig.subgraph === "string") {
       // Backwards compatibility for subgraph param - support for singular uri string.
       chainConfig.subgraph = [chainConfig.subgraph];

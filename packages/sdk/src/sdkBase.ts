@@ -205,7 +205,7 @@ export class NxtpSdkBase {
         if (!subgraph) {
           subgraph = getDeployedSubgraphUri(chainId);
         }
-        if (!subgraph) {
+        if (!subgraph || subgraph.length === 0) {
           throw new NoSubgraph(chainId);
         }
         subgraphConfig[chainId] = {
