@@ -246,14 +246,14 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
     }
 
-    if (!chainConfig.minGas) {
+    if (chainConfig.minGas === undefined) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
-    if (!chainConfig.relayerFeeThreshold) {
+    if (chainConfig.relayerFeeThreshold === undefined) {
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (!chainConfig.allowFulfillRelay) {
+    if (chainConfig.allowFulfillRelay === undefined) {
       nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
     }
 
