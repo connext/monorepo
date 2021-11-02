@@ -4,15 +4,19 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
+  gelatoFulfill
 } from "@connext/nxtp-utils";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+
 import { providers, BigNumber } from "ethers";
+import { getContractAddress } from "../../adapters/contract/contract";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
 import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
-import { gelatoFulfill } from "../helpers/gelato";
+import { Interface } from "ethers/lib/utils";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -110,15 +114,21 @@ export const fulfill = async (
 
   let receipt; 
   if (config.chainConfig[fulfillChain].gelatoRelay){
-    const { taskId } = await gelatoFulfill(fulfillChain, {
-      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-      signature: signature,
-      relayerFee: relayerFee,
-      callData: callData,
-    });
+    const { taskId } = await gelatoFulfill(
+       fulfillChain,
+       getContractAddress(fulfillChain), 
+       new Interface(TransactionManagerArtifact.abi) ,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: signature,
+        relayerFee: relayerFee,
+        callData: callData,
+      }
+    );
     logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: taskId});
   }
   else {
+
     receipt = await contractWriter.fulfill(
       fulfillChain,
       {
@@ -129,6 +139,7 @@ export const fulfill = async (
       },
       requestContext,
     );
+    
     logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
  }
   return receipt;

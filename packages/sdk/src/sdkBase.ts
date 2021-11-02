@@ -30,7 +30,9 @@ import {
   MethodContext,
   calculateExchangeAmount,
   GAS_ESTIMATES,
+  gelatoFulfill,
 } from "@connext/nxtp-utils";
+import { Interface } from "ethers/lib/utils";
 
 import {
   NoTransactionManager,
@@ -80,6 +82,7 @@ import {
   getDecimals,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
+
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -772,6 +775,7 @@ export class NxtpSdkBase {
     decryptedCallData: string,
     relayerFee = "0",
     useRelayers = true,
+    useGelatoRelay = true
   ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -806,9 +810,23 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    console.log(this.config);
-    
-    if (useRelayers) {
+    if (useGelatoRelay){
+      this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
+      const deployedContract = getDeployedTransactionManagerContract(txData.receivingChainId);
+      const data = await gelatoFulfill(txData.receivingChainId,
+        deployedContract.address,
+        new Interface(deployedContract.abi),
+        {       
+        txData,
+        relayerFee,
+        signature: fulfillSignature,
+        callData: decryptedCallData,
+      });
+      this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId});
+
+      return data;
+    }
+    else if (useRelayers) {
       this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
         await this.connectMessaging();
