@@ -1,6 +1,5 @@
-import { Signer, providers, utils, Bytes, Wallet } from "ethers";
-import { getAddressFromPublicKey, isValidHexString } from "@connext/nxtp-utils";
-import { arrayToBuffer, concatBuffers, hexToBuffer, utf8ToBuffer } from "eccrypto-js";
+import { Signer, providers, utils, Bytes } from "ethers";
+import { getAddressFromPublicKey } from "@connext/nxtp-utils";
 
 import { signing, getPublicKey } from "./api";
 
