@@ -8,8 +8,8 @@ import {
   TransactionCancelled,
   TransactionFulfilled,
   TransactionPrepared,
-} from "../generated/TransactionManager/TransactionManager";
-import { Transaction, AssetBalance, Router, User, HourlyMetric } from "../generated/schema";
+} from "../../generated/TransactionManager/TransactionManager";
+import { Transaction, AssetBalance, Router, User, HourlyMetric, DayMetric } from "../../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -28,6 +28,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   let assetBalance = AssetBalance.load(assetBalanceId);
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
+    assetBalance.assetId = event.params.assetId;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
   }
@@ -70,7 +71,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     router.save();
   }
 
-  let user = User.load(event.params.txData.router.toHex());
+  let user = User.load(event.params.txData.user.toHex());
   if (user == null) {
     user = new User(event.params.txData.user.toHex());
     user.save();
@@ -127,7 +128,6 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   transaction.receivingChainTxManagerAddress = event.params.txData.receivingChainTxManagerAddress;
   transaction.user = user.id;
   transaction.router = router.id;
-  transaction.initiator = event.params.txData.initiator;
   transaction.sendingAssetId = event.params.txData.sendingAssetId;
   transaction.receivingAssetId = event.params.txData.receivingAssetId;
   transaction.sendingChainFallback = event.params.txData.sendingChainFallback;
@@ -144,12 +144,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // TransactionPrepared specific
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactionHash = event.transaction.hash;
-  transaction.encryptedCallData = event.params.args.encryptedCallData.toHexString();
-  transaction.encodedBid = event.params.args.encodedBid;
-  transaction.bidSignature = event.params.args.bidSignature;
+  transaction.encryptedCallData = event.params.encryptedCallData.toHexString();
+  transaction.bidSignature = event.params.bidSignature;
 
   // Meta
-  transaction.prepareMeta = event.params.args.encodedMeta;
   transaction.status = "Prepared";
   transaction.chainId = chainId;
   transaction.preparedTimestamp = event.block.timestamp;
@@ -176,15 +174,13 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
   transaction!.status = "Fulfilled";
-  transaction!.relayerFee = event.params.args.relayerFee;
-  transaction!.signature = event.params.args.signature;
-  transaction!.callData = event.params.args.callData.toHexString();
+  transaction!.relayerFee = event.params.relayerFee;
+  transaction!.signature = event.params.signature;
+  transaction!.callData = event.params.callData.toHexString();
   transaction!.externalCallSuccess = event.params.success;
   transaction!.externalCallReturnData = event.params.returnData;
-  transaction!.externalCallIsContract = event.params.isContract;
   transaction!.fulfillCaller = event.params.caller;
   transaction!.fulfillTransactionHash = event.transaction.hash;
-  transaction!.fulfillMeta = event.params.args.encodedMeta;
   transaction!.fulfillTimestamp = event.block.timestamp;
 
   transaction!.save();
@@ -195,6 +191,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.assetId = transaction.sendingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }
@@ -204,9 +201,12 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   // update metrics
   let timestamp = event.block.timestamp.toI32();
+
   let hour = timestamp / 3600; // rounded
-  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
   let hourStartTimestamp = hour * 3600;
+
+  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
+
   let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
   if (hourlyMetric === null) {
     hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
@@ -216,10 +216,28 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     hourlyMetric.liquidity = BigInt.fromI32(0);
     hourlyMetric.txCount = BigInt.fromI32(0);
   }
+
+  let day = timestamp / 86400; // rounded
+  let dayStartTimestamp = day * 86400;
+
+  let dayIDPerAsset = day.toString() + "-" + transaction.receivingAssetId.toHex();
+
+  let dayMetric = DayMetric.load(dayIDPerAsset.toString());
+  if (dayMetric === null) {
+    dayMetric = new DayMetric(dayIDPerAsset.toString());
+    dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
+    dayMetric.assetId = transaction.receivingAssetId.toHex();
+    dayMetric.volume = BigInt.fromI32(0);
+    dayMetric.txCount = BigInt.fromI32(0);
+  }
+
   // Only count volume on receiving chain
   if (transaction.chainId == transaction.receivingChainId) {
-    hourlyMetric.volume += transaction.amount;
-    hourlyMetric.txCount += BigInt.fromI32(1);
+    hourlyMetric.volume = hourlyMetric.volume.plus(transaction.amount);
+    hourlyMetric.txCount = hourlyMetric.txCount.plus(BigInt.fromI32(1));
+
+    dayMetric.volume = dayMetric.volume.plus(transaction.amount);
+    dayMetric.txCount = dayMetric.txCount.plus(BigInt.fromI32(1));
   } else if (transaction.chainId == transaction.sendingChainId) {
     // load assetBalance
     let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
@@ -229,7 +247,8 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     }
   }
 
-  hourlyMetric!.save();
+  hourlyMetric.save();
+  dayMetric.save();
 }
 
 /**
@@ -245,7 +264,6 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.status = "Cancelled";
   transaction!.cancelCaller = event.params.caller;
   transaction!.cancelTransactionHash = event.transaction.hash;
-  transaction!.cancelMeta = event.params.args.encodedMeta;
   transaction!.cancelTimestamp = event.block.timestamp;
 
   transaction!.save();
@@ -256,6 +274,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.assetId = transaction.receivingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }

@@ -1,8 +1,8 @@
-import { RequestContext } from "@connext/nxtp-utils";
+import { FallbackSubgraph, RequestContext, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { ActiveTransaction, SingleChainTransaction, SubgraphSyncRecord } from "../../lib/entities";
+import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
 import { getContext } from "../../router";
 
@@ -26,12 +26,12 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord>;
+  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
-const sdks: Record<number, Sdk> = {};
+const sdks: Record<number, FallbackSubgraph<Sdk>> = {};
 
-export const getSdks = (): Record<number, Sdk> => {
+export const getSdks = (): Record<number, FallbackSubgraph<Sdk>> => {
   if (Object.keys(sdks).length === 0) {
     throw new ContractReaderNotAvailableForChain(0);
   }
@@ -39,10 +39,12 @@ export const getSdks = (): Record<number, Sdk> => {
 };
 
 export const subgraphContractReader = (): ContractReader => {
-  const { config } = getContext();
-  Object.entries(config.chainConfig).forEach(([chainId, { subgraph }]) => {
-    const client = new GraphQLClient(subgraph);
-    sdks[parseInt(chainId)] = getSdk(client);
+  const { config, logger } = getContext();
+  Object.entries(config.chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer }]) => {
+    const chainIdNumber = parseInt(chainId);
+    const sdksWithClients = subgraph.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
+    const fallbackSubgraph = new FallbackSubgraph<Sdk>(logger, chainIdNumber, sdksWithClients, subgraphSyncBuffer);
+    sdks[chainIdNumber] = fallbackSubgraph;
   });
 
   return {

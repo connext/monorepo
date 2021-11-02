@@ -65,6 +65,18 @@ export class NoTransactionManager extends ConfigError {
 }
 
 /**
+ * @classdesc Thrown if no price oracle addr for chain
+ */
+export class NoPriceOracle extends ConfigError {
+  static getMessage(chainId: number) {
+    return `No price oracle found for ${chainId}, please provide override`;
+  }
+  constructor(public readonly chainId: number, public readonly context: any = {}) {
+    super(NoPriceOracle.getMessage(chainId), { chainId, ...context }, ConfigError.type);
+  }
+}
+
+/**
  * @classdesc Thrown if no subgraph addr for chain
  */
 export class NoSubgraph extends ConfigError {
@@ -81,10 +93,25 @@ export class NoSubgraph extends ConfigError {
  */
 export class ChainNotConfigured extends ConfigError {
   static getMessage(chainId: number, supported: string[]) {
-    return `No chain config found for ${chainId}, please check config. Configured: ${supported.join(",")}`;
+    return `No chain config found for ${chainId}, please check config. Configured: ${supported
+      .map(Number)
+      .sort()
+      .join(",")}`;
   }
   constructor(public readonly chainId: number, public readonly supported: string[], public readonly context: any = {}) {
     super(ChainNotConfigured.getMessage(chainId, supported), { chainId, supported, ...context }, ConfigError.type);
+  }
+}
+
+/**
+ * @classdesc Thrown if price oracle not configured
+ */
+export class PriceOracleNotConfigured extends ConfigError {
+  static getMessage(chainId: number, assetId: string) {
+    return `Price oracle not configured for asset ${assetId} on chain ${chainId}, please check config.`;
+  }
+  constructor(public readonly chainId: number, public readonly assetId: string, public readonly context: any = {}) {
+    super(PriceOracleNotConfigured.getMessage(chainId, assetId), { chainId, assetId, ...context }, ConfigError.type);
   }
 }
 
@@ -248,7 +275,7 @@ export class EncryptionError extends NxtpError {
 
   constructor(
     public readonly details: string,
-    public readonly error: NxtpErrorJson,
+    public readonly error?: NxtpErrorJson,
     public readonly context: any = {},
   ) {
     super(EncryptionError.getMessage(details), { encryptionError: error, ...context }, EncryptionError.type);
@@ -285,7 +312,7 @@ export class NoValidBids extends AuctionError {
     public readonly transactionId: string,
     public readonly auction: AuctionPayload,
     public readonly reasons: string,
-    public readonly auctionResponses: AuctionResponse[],
+    public readonly auctionResponses: (AuctionResponse | string)[],
     public readonly context: any = {},
   ) {
     super(

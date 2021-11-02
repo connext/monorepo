@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "0.0.56",
+  "version": "0.0.69",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "eslint": "^7.32.0",
     "eth-sig-util": "^2.5.3",
     "ethers": "^5.4.6",
+    "graphql-request": "^3.5.0",
     "hyperid": "^2.3.1",
     "pino": "^6.13.0",
     "sinon-chai": "^3.7.0",

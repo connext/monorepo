@@ -2,6 +2,66 @@
 
 ## Next Release
 
+- [router/sdk] Add subgraph fallbacks by default
+- [test-ui] Fixes for test-ui based on feedback
+
+## 0.0.69
+
+- [sdk] Return fulfill fee from `getTransferQuote`
+
+## 0.0.68
+
+- [sdk] Fix build
+
+## 0.0.67
+
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+- [sdk-server] new sdk-server to interact with sdkBase on backend
+- [subgraph] update structure to handle multiple networks subgraph deployment
+- [integration] fix load testing
+
+## 0.0.66
+
+- [sdk] Fix signer instantiation
+- [test-ui] Fix input params
+
+## 0.0.65
+
+- [router] Fix relayer fee threshold
+
+## 0.0.64
+
+- [sdk] SDK gas limit fix
+
+## 0.0.63
+
+- [sdk] Fix relayer fee issue
+
+## 0.0.62
+
+- [sdk] fix exchange amount
+- [sdk] bump gas limit for Arbitrum
+- [router] fix exchange amount
+
+## 0.0.61
+
+- [sdk] Add SDKBase class that does not use signer
+- [contracts] Add PriceOracle to BSC
+- [sdk] Add way to bypass messaging signer
+
+## 0.0.58
+
+- [subgraphs] Fix user typo
+- [txservice] Sync chain providers
+- [sdk] Estimate gas on fulfill for configured chains
+
+## 0.0.57
+
+- [txservice] Add nonce gap backfill in event that txcount backtracks
+- [txservice] Curb gas spikes
+- [sdk/router] Catch errors per chain in active tx subgraph poller
+- [router] Fix estimate gas bug
+
 ## 0.0.56
 
 - [subgraph] Use bware subgraph endpoints

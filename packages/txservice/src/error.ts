@@ -146,6 +146,18 @@ export class TimeoutError extends TransactionError {
   }
 }
 
+export class TransactionBackfilled extends TransactionError {
+  /**
+   * An error indicating that a transaction was replaced by a backfill, likely because it
+   * was unresponsive.
+   */
+  static readonly type = TransactionBackfilled.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Transaction was replaced by a backfill.", context, TransactionBackfilled.type);
+  }
+}
+
 export class UnpredictableGasLimit extends TransactionError {
   /**
    * An error that we get back from ethers when we try to do a gas estimate, but this

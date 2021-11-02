@@ -20,6 +20,7 @@ import {
   ZeroValueBid,
   AuctionExpired,
   ParamsInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
@@ -153,18 +154,18 @@ export const newAuction = async (
   }
 
   // Make sure subgraphs are synced
-  const receivingSyncRecord = await contractReader.getSyncRecord(receivingChainId, requestContext);
-  if (!receivingSyncRecord.synced) {
-    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecord, {
+  const receivingSyncRecords = await contractReader.getSyncRecord(receivingChainId, requestContext);
+  if (!receivingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecords, {
       methodContext,
       requestContext,
       transactionId,
     });
   }
 
-  const sendingSyncRecord = await contractReader.getSyncRecord(sendingChainId, requestContext);
-  if (!sendingSyncRecord.synced) {
-    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecord, {
+  const sendingSyncRecords = await contractReader.getSyncRecord(sendingChainId, requestContext);
+  if (!sendingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecords, {
       methodContext,
       requestContext,
       transactionId,
@@ -205,6 +206,17 @@ export const newAuction = async (
   logger.info("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
+
+  if (amountReceivedInBigNum.lt(gasFeeInReceivingToken)) {
+    throw new NotEnoughAmount({
+      methodContext,
+      requestContext,
+      amount,
+      amountReceived: amountReceived,
+      gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    });
+  }
+
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);

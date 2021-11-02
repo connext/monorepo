@@ -1,4 +1,10 @@
 {
-  "extends": "../../.nycrc.json",
-  "exclude": ["src/queries.ts", "src/error.ts", "test/**/*.ts"]
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "exclude": ["src/subgraph/queries.ts", "src/error.ts", "test/**/*.ts"],
+  "all": true,
+  "check-coverage": true,
+  "branches": 65,
+  "lines": 70,
+  "functions": 70,
+  "statements": 70
 }

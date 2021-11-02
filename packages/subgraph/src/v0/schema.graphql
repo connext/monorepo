@@ -2,6 +2,7 @@ type AssetBalance @entity {
   id: ID!
   amount: BigInt!
   router: Router!
+  assetId: Bytes!
 }
 
 # Router represents a router and its associated liquidity
@@ -29,7 +30,6 @@ type Transaction @entity {
   receivingChainTxManagerAddress: Bytes!
   user: User!
   router: Router!
-  initiator: Bytes!
   sendingAssetId: Bytes!
   receivingAssetId: Bytes!
   sendingChainFallback: Bytes!
@@ -46,28 +46,23 @@ type Transaction @entity {
   # TransactionPrepared
   encryptedCallData: String!
   prepareCaller: Bytes
-  bidSignature: Bytes!
-  encodedBid: Bytes!
+  bidSignature: Bytes
   prepareTransactionHash: Bytes!
-  prepareMeta: Bytes
 
   # TransactionFulfilled
   relayerFee: BigInt
   signature: Bytes
   callData: String
   externalCallSuccess: Boolean
-  externalCallIsContract: Boolean
   externalCallReturnData: Bytes
   fulfillCaller: Bytes
   fulfillTransactionHash: Bytes
-  fulfillMeta: Bytes
   fulfillTimestamp: BigInt
 
   # TransactionCancelled
   cancelCaller: Bytes
-  cancelTransactionHash: Bytes
-  cancelMeta: Bytes
   cancelTimestamp: BigInt
+  cancelTransactionHash: Bytes
 }
 
 # User entity keeps track of active user transactions
@@ -87,6 +82,19 @@ type HourlyMetric @entity {
   volume: BigInt!
   # hourly liquidity per asset
   liquidity: BigInt!
+  # hourly number of transactions per asset
+  txCount: BigInt!
+}
+
+type DayMetric @entity {
+  # unique hourly id per asset created by dividing timestamp by 86400 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  dayStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # hourly volume per asset
+  volume: BigInt!
   # hourly number of transactions per asset
   txCount: BigInt!
 }

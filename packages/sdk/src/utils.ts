@@ -1,14 +1,16 @@
-import { constants, providers, Contract } from "ethers";
+import { constants, providers, Contract, BigNumber } from "ethers";
 import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
   signFulfillTransactionPayload as _signFulfillTransactionPayload,
+  getFulfillTransactionHashToSign as _getFulfillTransactionHashToSign,
   ERC20Abi,
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
   encodeAuctionBid as _encodeAuctionBid,
   ethereumRequest as _ethereumRequest,
   encrypt as _encrypt,
+  PriceOracleAbi,
 } from "@connext/nxtp-utils";
 
 /**
@@ -59,12 +61,32 @@ export const getDecimals = async (assetId: string, provider: providers.FallbackP
   return decimals;
 };
 
+/**
+ * Gets token price in usd.
+ *
+ * @param oracleAddress The price oracle address
+ * @param tokenAddress The token address to get the price
+ *
+ * @returns price in usd by decimals 18.
+ */
+export const getTokenPrice = async (
+  oracleAddress: string,
+  tokenAddress: string,
+  provider: providers.FallbackProvider,
+): Promise<BigNumber> => {
+  const priceOracleContract = new Contract(oracleAddress, PriceOracleAbi, provider);
+  const tokenPriceInBigNum = await priceOracleContract.getTokenPrice(tokenAddress);
+  return tokenPriceInBigNum;
+};
+
 // FOR TEST MOCKING
 /**
  * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
  *
  */
 export const signFulfillTransactionPayload = _signFulfillTransactionPayload;
+
+export const getFulfillTransactionHashToSign = _getFulfillTransactionHashToSign;
 
 /**
  * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
