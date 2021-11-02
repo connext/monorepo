@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [router/sdk] Add subgraph fallbacks by default
 - [test-ui] Fixes for test-ui based on feedback
 
 ## 0.0.69
