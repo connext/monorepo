@@ -10,7 +10,6 @@ import {
   createLoggingContext,
   encrypt,
   isNode,
-  TransactionData,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
