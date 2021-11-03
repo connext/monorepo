@@ -114,7 +114,7 @@ describe("NxtpSdkBase", () => {
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
 
-    stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
+    stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
