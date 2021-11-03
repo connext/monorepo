@@ -127,7 +127,6 @@ export class Subgraph {
         const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
         const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
         const fallbackSubgraph = new FallbackSubgraph<Sdk>(
-          logger,
           cId,
           sdksWithClients,
           _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,

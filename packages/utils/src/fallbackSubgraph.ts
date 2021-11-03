@@ -1,6 +1,4 @@
-import { jsonifyError, NxtpError } from "./error";
-import { Logger } from "./logger";
-import { createLoggingContext } from "./request";
+import { NxtpError } from "./error";
 
 export type SubgraphSyncRecord = {
   uri: string;
@@ -63,14 +61,12 @@ export class FallbackSubgraph<T extends SdkLike> {
 
   /**
    *
-   * @param logger - Logger object used for logging errors/debugging.
    * @param chainId - Chain ID of the subgraphs.
    * @param sdks - SDK clients along with corresponding URIs used for each subgraph.
    * @param maxLag - Maximum lag value a subgraph can have before it's considered out of sync.
    * @param stallTimeout - the ms we wait until considering a subgraph RPC call to be a timeout.
    */
   constructor(
-    private readonly logger: Logger,
     private readonly chainId: number,
     // We use the URIs in sync records for reference in logging.
     sdks: { client: T; uri: string }[],
@@ -111,7 +107,6 @@ export class FallbackSubgraph<T extends SdkLike> {
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */
   public async request<Q>(method: (client: T) => Promise<Q>, syncRequired = false, minBlock?: number): Promise<Q> {
-    const { methodContext } = createLoggingContext(this.request.name);
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
       throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
@@ -140,19 +135,14 @@ export class FallbackSubgraph<T extends SdkLike> {
             }
           }),
           new Promise<Q>((_, reject) =>
-            setTimeout(() => reject(new NxtpError("Timeout", { errors })), this.stallTimeout),
+            setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout),
           ),
         ]);
       } catch (e) {
         errors.push(e);
       }
     }
-    const error = new NxtpError("Unable to handle request", { errors });
-    this.logger.error("Error calling method on subgraph client(s).", undefined, methodContext, jsonifyError(error), {
-      chainId: this.chainId,
-      errors,
-    });
-    throw error;
+    throw new NxtpError("Unable to handle request", { errors });
   }
 
   /**
