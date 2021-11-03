@@ -59,9 +59,9 @@ const from = mkAddress("0xfff");
 
 const { requestContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
-describe("auctionRequestBinding", () => {
+describe("#auctionRequestBinding", () => {
   beforeEach(async () => {
-    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123" });
+    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123", metaTxRelayerFee: "456" });
     stub(operations, "getOperations").returns({
       newAuction: newAuctionStub,
     } as any);

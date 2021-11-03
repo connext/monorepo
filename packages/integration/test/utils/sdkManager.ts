@@ -184,20 +184,17 @@ export class SdkManager {
   ): Promise<() => void> {
     // NOTE; we initiate all transactions serially because this isnt
     // a concurrency test. But we don't wait for them to complete
-    console.log("starting transfers for", this.agents.length);
     for (const agent of this.agents) {
       agent.establishCyclicalTransfers();
 
       const transactionId = getRandomBytes32();
       this.transactionInfo[transactionId] = { start: Date.now() };
 
-      console.log("********* starting crosschain transfer", transactionId);
       await agent.initiateCrosschainTransfer({
         transactionId,
         receivingAddress: agent.address,
         ...initialParams,
       });
-      console.log("********* started crosschain transfer");
     }
 
     const killSwitch = () => {
