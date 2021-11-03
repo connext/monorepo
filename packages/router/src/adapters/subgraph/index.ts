@@ -7,7 +7,7 @@ import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractRea
 import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
-import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncRecord } from "./subgraph";
+import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncRecords } from "./subgraph";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -26,7 +26,7 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-  getSyncRecord: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
+  getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
 const sdks: Record<number, FallbackSubgraph<Sdk>> = {};
@@ -51,6 +51,6 @@ export const subgraphContractReader = (): ContractReader => {
     getActiveTransactions,
     getTransactionForChain,
     getAssetBalance,
-    getSyncRecord,
+    getSyncRecords,
   };
 };

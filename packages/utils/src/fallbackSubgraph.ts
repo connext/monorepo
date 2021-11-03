@@ -49,6 +49,14 @@ export class FallbackSubgraph<T extends SdkLike> {
     return this.sdks.some((sdk) => sdk.record.synced);
   }
 
+  /**
+   * Returns boolean indicating whether we've synchronized the subgraphs at all (indicating
+   * whether the records are in fact representative).
+   */
+  public get hasSynced(): boolean {
+    return this.sdks.every((sdk) => sdk.record.syncedBlock === -1);
+  }
+
   public get records(): SubgraphSyncRecord[] {
     return this.getOrderedSdks().map((sdk) => sdk.record);
   }
@@ -73,8 +81,8 @@ export class FallbackSubgraph<T extends SdkLike> {
       client,
       record: {
         synced: false,
-        latestBlock: 0,
-        syncedBlock: 0,
+        latestBlock: -1,
+        syncedBlock: -1,
         // Setting maxLag + 1 as default to ensure we don't use the subgraph in this current state
         // by virtue of this metric (sync() must be called first).
         lag: this.maxLag + 1,
@@ -221,10 +229,7 @@ export class FallbackSubgraph<T extends SdkLike> {
     // 4. Average execution time, which is the average execution time of the last N calls.
     sdks.forEach((sdk) => {
       sdk.priority =
-        sdk.record.lag -
-        sdk.metrics.cps / FallbackSubgraph.MAX_CPS -
-        sdk.metrics.reliability +
-        sdk.metrics.avgExecTime;
+        sdk.record.lag - sdk.metrics.cps / FallbackSubgraph.MAX_CPS - sdk.metrics.reliability + sdk.metrics.avgExecTime;
     });
     return this.sdks.sort((sdk) => sdk.priority);
   }
