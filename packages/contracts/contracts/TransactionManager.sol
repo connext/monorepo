@@ -460,7 +460,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       receivingChainId: args.invariantData.receivingChainId,
       amount: amount,
       expiry: args.expiry,
-      preparedBlockNumber: block.number
+      preparedBlockNumber: block.number,
+      encodedConditionData: args.invariantData.encodedConditionData
     });
 
     emit TransactionPrepared(
@@ -749,21 +750,23 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     TransactionData calldata txData,
     bytes calldata unlockData,
     uint256 relayerFee,
-    uint256 chainId
+    uint256 _chainId
   ) internal returns (bool) {
     // Should be validated on this chain when prepared
     return IConditionInterpreter(
-      chainId == txData.sendingChainId ? txData.sendingChainCondition : txData.receivingChainCondition
-    ).shouldFulfill(txData, unlockData, relayerFee, chainId);
+      _chainId == txData.sendingChainId ? txData.sendingChainCondition : txData.receivingChainCondition
+    ).shouldFulfill(txData, unlockData, relayerFee, _chainId);
   }
 
   function validateCancelCondition(
     TransactionData calldata txData,
     bytes calldata unlockData,
-    uint256 chainId
+    uint256 _chainId
   ) internal returns (bool) {
     // Should only be evaluated on the receiving chain
-    return IConditionInterpreter(txData.receivingChainCondition).shouldCancel(txData, unlockData, chainId);
+    return IConditionInterpreter(
+      _chainId == txData.sendingChainId ? txData.sendingChainCondition : txData.receivingChainCondition
+    ).shouldCancel(txData, unlockData, _chainId);
   }
 
   /**
@@ -787,7 +790,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
       sendingChainId: txData.sendingChainId,
       receivingChainId: txData.receivingChainId,
       callDataHash: txData.callDataHash,
-      transactionId: txData.transactionId
+      transactionId: txData.transactionId,
+      encodedConditionData: txData.encodedConditionData
     });
     return keccak256(abi.encode(invariant));
   }

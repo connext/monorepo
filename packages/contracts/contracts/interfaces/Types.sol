@@ -20,6 +20,7 @@ struct InvariantTransactionData {
   uint256 receivingChainId;
   bytes32 callDataHash; // hashed to prevent free option
   bytes32 transactionId;
+  bytes encodedConditionData;
 }
 
 // Holds all data that varies between sending and receiving
@@ -46,6 +47,7 @@ struct TransactionData {
   address callTo;
   bytes32 callDataHash;
   bytes32 transactionId;
+  bytes encodedConditionData;
   uint256 sendingChainId;
   uint256 receivingChainId;
   uint256 amount;
