@@ -34,6 +34,8 @@ export const txReceiptMock = {
 } as unknown as providers.TransactionReceipt;
 
 export const invariantDataMock: InvariantTransactionData = {
+  receivingChainCondition: mkAddress("0xbb"),
+  sendingChainCondition: mkAddress("0xbb"),
   receivingChainTxManagerAddress: mkAddress("0xbb"),
   user: mkAddress("0xa"),
   router: mkAddress("0xb"),
@@ -47,6 +49,7 @@ export const invariantDataMock: InvariantTransactionData = {
   receivingChainId: 1338,
   callDataHash: mkBytes32("0xa"),
   transactionId: mkBytes32("0xb"),
+  encodedConditionData: mkBytes32("0xffff"),
 };
 
 export const variantDataMock: VariantTransactionData = {

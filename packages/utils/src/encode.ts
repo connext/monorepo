@@ -12,6 +12,8 @@ import { InvariantTransactionData, VariantTransactionData } from "./transactionM
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 export const InvariantTransactionDataEncoding = tidy(`tuple(
+  address receivingChainCondition,
+  address sendingChainCondition,
   address receivingChainTxManagerAddress,
   address user,
   address router,
@@ -24,7 +26,8 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   uint24 sendingChainId,
   uint24 receivingChainId,
   bytes32 callDataHash,
-  bytes32 transactionId
+  bytes32 transactionId,
+  bytes encodedConditionData
 )`);
 
 export const VariantTransactionDataEncoding = tidy(`tuple(

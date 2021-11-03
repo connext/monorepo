@@ -4,6 +4,8 @@ import { TIntegerString, TAddress, TChainId } from "./basic";
 
 // Used to include *all* info for both sending and receiving crosschain data
 export const InvariantTransactionDataSchema = Type.Object({
+  receivingChainCondition: TAddress,
+  sendingChainCondition: TAddress,
   receivingChainTxManagerAddress: TAddress,
   user: TAddress,
   router: TAddress,
@@ -17,6 +19,7 @@ export const InvariantTransactionDataSchema = Type.Object({
   receivingChainId: TChainId,
   callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
   transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  encodedConditionData: Type.RegEx(/^0x[a-fA-F0-9]*/),
 });
 
 // Direct matching of Contract types.
