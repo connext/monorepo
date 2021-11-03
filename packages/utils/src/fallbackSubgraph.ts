@@ -1,4 +1,4 @@
-import { jsonifyError } from "./error";
+import { jsonifyError, NxtpError } from "./error";
 import { Logger } from "./logger";
 import { createLoggingContext } from "./request";
 
@@ -12,15 +12,34 @@ export type SubgraphSyncRecord = {
 
 type SdkLike = { GetBlockNumber: () => Promise<any> };
 
+type CallMetric = {
+  timestamp: number;
+  execTime: number;
+  success: boolean;
+}
+
 type Sdk<T extends SdkLike> = {
   client: T;
   record: SubgraphSyncRecord;
+  priority: number;
+  metrics: {
+    calls: CallMetric[];
+    cps: number;
+    reliability: number;
+    avgExecTime: number;
+  }
 };
 
 /**
  * @classdesc A class that manages the sync status of multiple subgraphs as well as their corresponding SDKs.
  */
 export class FallbackSubgraph<T extends SdkLike> {
+  // Target maximum calls per second. Subgraphs can be called more than this per second, but it's
+  // considered not preferable.
+  private static MAX_CPS = 10;
+  // Target number of samples in the call metrics for each subgraph call.
+  private static readonly METRIC_WINDOW = 100;
+
   private readonly sdks: Sdk<T>[];
 
   /**
@@ -30,13 +49,25 @@ export class FallbackSubgraph<T extends SdkLike> {
     return this.sdks.some((sdk) => sdk.record.synced);
   }
 
+  public get records(): SubgraphSyncRecord[] {
+    return this.getOrderedSdks().map((sdk) => sdk.record);
+  }
+
+  /**
+   *
+   * @param logger - Logger object used for logging errors/debugging.
+   * @param chainId - Chain ID of the subgraphs.
+   * @param sdks - SDK clients along with corresponding URIs used for each subgraph.
+   * @param maxLag - Maximum lag value a subgraph can have before it's considered out of sync.
+   * @param stallTimeout - the ms we wait until considering a subgraph RPC call to be a timeout.
+   */
   constructor(
     private readonly logger: Logger,
     private readonly chainId: number,
     // We use the URIs in sync records for reference in logging.
     sdks: { client: T; uri: string }[],
-    // Subgraph is considered out of sync if it lags more than this many blocks behind the latest block.
     private readonly maxLag: number,
+    private readonly stallTimeout = 10_000,
   ) {
     this.sdks = sdks.map(({ client, uri }) => ({
       client,
@@ -51,6 +82,13 @@ export class FallbackSubgraph<T extends SdkLike> {
         // which ones are most in sync.
         uri: uri.replace("https://", "").split(".com")[0],
       },
+      priority: 0,
+      metrics: {
+        calls: [],
+        cps: 0,
+        reliability: 0,
+        avgExecTime: 0,
+      },
     }));
   }
 
@@ -64,37 +102,53 @@ export class FallbackSubgraph<T extends SdkLike> {
    * @returns A Promise of the generic type.
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */
-  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = true, minBlock?: number): Promise<Q> {
+  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = false, minBlock?: number): Promise<Q> {
     const { methodContext } = createLoggingContext(this.request.name);
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
       throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
     }
-    // Order the subgraphs by lag / how in-sync they are.
-    const ordered = this.sdks
-      .sort((sdk) => sdk.record.lag)
-      .filter((sdk) => (sdk.record.syncedBlock > (minBlock ?? 0) && syncRequired ? sdk.record.synced : true));
+    const ordered = this.getOrderedSdks(syncRequired, minBlock);
     const errors: Error[] = [];
-    // Starting with most in-sync, keep retrying the callback with each client.
-    for (let i = 0; i < ordered.length; i++) {
-      const sdk = ordered[i];
-      try {
-        return await method(sdk.client);
-      } catch (e) {
-        errors.push(e);
-      }
+    try {
+      return await Promise.race(
+        ordered
+          .map(async (sdk) => {
+            const startTime = Date.now();
+            let success = false;
+            try {
+              const result = await method(sdk.client);
+              success = true;
+              return result;
+            } catch (e) {
+              errors.push(e);
+              if (errors.length === ordered.length) {
+                // Throw the error if every other client has errored already.
+                throw e;
+              }
+            } finally {
+              sdk.metrics.calls.push({
+                timestamp: startTime,
+                execTime: Date.now() - startTime,
+                success,
+              });
+            }
+          })
+          .concat([new Promise((_, reject) => setTimeout(() => reject(new NxtpError("Timeout", { errors })), this.stallTimeout))]),
+      );
+    } catch (e) {
+      this.logger.error(
+        "Error calling method on subgraph client(s).",
+        undefined,
+        methodContext,
+        jsonifyError(e),
+        {
+          chainId: this.chainId,
+          otherErrors: errors,
+        },
+      );
+      throw e;
     }
-    this.logger.error(
-      "Error calling method on subgraph client(s).",
-      undefined,
-      methodContext,
-      jsonifyError(errors[0]),
-      {
-        chainId: this.chainId,
-        otherErrors: errors.slice(1),
-      },
-    );
-    throw errors[0];
   }
 
   /**
@@ -138,6 +192,44 @@ export class FallbackSubgraph<T extends SdkLike> {
         };
       }),
     );
-    return this.sdks.map((sdk) => sdk.record);
+    return this.records;
+  }
+
+  private getOrderedSdks(syncRequired = false, minBlock = 0): Sdk<T>[] {
+    const sdks = this.sdks.filter((sdk) =>
+      sdk.record.syncedBlock > minBlock && syncRequired ? sdk.record.synced : true,
+    );
+    // Compile metrics.
+    sdks.forEach((sdk) => {
+      // Get the last N calls (we will replace the calls property with the return value below).
+      const calls = sdk.metrics.calls.slice(-FallbackSubgraph.METRIC_WINDOW);
+      // Average calls per second over the window.
+      const windowStart = calls[0]?.timestamp ?? 0;
+      const windowEnd = calls[calls.length - 1]?.timestamp ?? 0;
+      const cps = calls.length / (windowEnd - windowStart);
+      // Average execution time for each call.
+      const avgExecTime = calls.reduce((sum, call) => sum + call.execTime, 0) / calls.length;
+      // Reliability is the ratio of successful calls to total calls.
+      const reliability = calls.filter((call) => call.success).length / calls.length;
+      sdk.metrics = {
+        calls,
+        cps,
+        avgExecTime,
+        reliability,
+      };
+    });
+    // Order the subgraphs based on these metrics:
+    // 1. Lag, which is the difference between the latest block and the subgraph's latest block.
+    // 2. CPS, which is the number of calls per second the subgraph has been making (averaged over last N calls).
+    // 3. Reliability, which is how often RPC calls to that subgraph are successful / total calls out of last N calls.
+    // 4. Average execution time, which is the average execution time of the last N calls.
+    sdks.forEach((sdk) => {
+      sdk.priority =
+        sdk.record.lag -
+        sdk.metrics.cps / FallbackSubgraph.MAX_CPS -
+        sdk.metrics.reliability * 2.0 +
+        sdk.metrics.avgExecTime;
+    });
+    return this.sdks.sort((sdk) => sdk.priority);
   }
 }

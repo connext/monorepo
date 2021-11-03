@@ -171,7 +171,7 @@ export class Subgraph {
   }
 
   getSyncStatus(chainId: number): SubgraphSyncRecord {
-    const record = this.syncStatus[chainId];
+    const record = this.sdks[chainId].records[0];
     return (
       record ?? {
         synced: false,
@@ -241,7 +241,6 @@ export class Subgraph {
 
         const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
           client.GetTransactions({ transactionIds: ids }),
-          false,
         );
         if (transactions.length === 0) {
           return;
@@ -567,7 +566,6 @@ export class Subgraph {
             userId: user,
             status: TransactionStatus.Fulfilled,
           }),
-          false,
         );
 
         // for each, break up receiving txs by chain
@@ -592,7 +590,6 @@ export class Subgraph {
               client.GetTransactions({
                 transactionIds: receiverTxs.map((tx) => tx.transactionId),
               }),
-              false,
             );
 
             return receiverTxs.map((receiverTx): HistoricalTransaction | undefined => {
@@ -663,7 +660,6 @@ export class Subgraph {
             userId: user,
             status: TransactionStatus.Cancelled,
           }),
-          false,
         );
 
         const cancelled = senderCancelled.map((tx): HistoricalTransaction | undefined => {
