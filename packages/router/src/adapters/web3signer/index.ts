@@ -1,4 +1,4 @@
-import { Signer, providers, utils, Bytes, Wallet } from "ethers";
+import { Signer, providers, utils, Bytes, BigNumber } from "ethers";
 import { getAddressFromPublicKey } from "@connext/nxtp-utils";
 
 import { signing, getPublicKey } from "./api";
@@ -45,14 +45,21 @@ export class Web3Signer extends Signer {
   }
 
   public async signTransaction(transaction: providers.TransactionRequest): Promise<string> {
-    const tx: utils.UnsignedTransaction = {
-      ...transaction,
-      nonce: Number(transaction.nonce),
+    const tx = await utils.resolveProperties(transaction);
+    const baseTx: utils.UnsignedTransaction = {
+      chainId: tx.chainId || undefined,
+      data: tx.data || undefined,
+      gasLimit: tx.gasLimit || undefined,
+      gasPrice: tx.gasPrice || undefined,
+      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
+      to: tx.to || undefined,
+      value: tx.value || undefined,
     };
-    const identifier = await getPublicKey(this.web3SignerUrl);
-    const digestBytes = utils.serializeTransaction(tx);
 
-    const response = await signing(this.web3SignerUrl, identifier, digestBytes);
-    return response;
+    const identifier = await getPublicKey(this.web3SignerUrl);
+    const digestBytes = utils.serializeTransaction(baseTx);
+
+    const signature = await signing(this.web3SignerUrl, identifier, digestBytes);
+    return utils.serializeTransaction(baseTx, signature);
   }
 }
