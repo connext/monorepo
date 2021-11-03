@@ -223,6 +223,23 @@ describe("ProposedOwnable.sol", () => {
     });
   });
 
+  describe.skip("isConditionOwnershipRenounced", () => {
+    it("should work if conditionOwnershipRenounced", async () => {});
+    it("should work if all ownership renounced", async () => {});
+  });
+
+  describe.skip("proposeConditionOwnershipRenunciation", () => {
+    it("should fail if it was already renounced", async () => {});
+    it("should work", async () => {});
+  });
+
+  describe.skip("renounceConditionOwnership", () => {
+    it("should fail if already renounced", async () => {});
+    it("should fail if cycle hasnt started (no proposal)", async () => {});
+    it("should fail if proposal window hasnt elapsed", async () => {});
+    it("should work", async () => {});
+  });
+
   describe("renounced", () => {
     it("should return false if owner is not renounced", async () => {
       expect(await proposedOwnable.renounced()).to.be.false;
