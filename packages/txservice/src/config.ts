@@ -155,7 +155,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   defaultConfirmationTimeout: 30_000,
   defaultConfirmationsRequired: 10,
 
-  synchronizedMode: true,
+  synchronizedMode: false,
   syncProvidersInterval: 5 * 60_000,
   maxProviderCPS: 4,
 

@@ -49,7 +49,7 @@ export class ChainRpcProvider {
   private cachedDecimals: Record<string, number> = {};
 
   // Cache of transient data (i.e. data that can change per block).
-  protected cache: ProviderCache<{ gasPrice: BigNumber; transactionCount: number }>;
+  private cache: ProviderCache<{ gasPrice: BigNumber; transactionCount: number }>;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
@@ -125,9 +125,7 @@ export class ChainRpcProvider {
       this.signer = undefined;
     }
 
-    // TODO: Make this configurable and not just based on number of providers.
-    this.synchronizedMode =
-      this.config.synchronizedMode !== undefined ? this.config.synchronizedMode : this.providers.length > 1;
+    this.synchronizedMode = this.config.synchronizedMode;
 
     // TODO: Make the ttl/btl values below configurable?
     this.cache = new ProviderCache<{ gasPrice: BigNumber; transactionCount: number }>(this.logger, {
