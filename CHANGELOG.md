@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.71
+
 - [router] Handle fulfill relay bugfix
 
 ## 0.0.70
