@@ -16,7 +16,7 @@ type CallMetric = {
   timestamp: number;
   execTime: number;
   success: boolean;
-}
+};
 
 type Sdk<T extends SdkLike> = {
   client: T;
@@ -27,7 +27,7 @@ type Sdk<T extends SdkLike> = {
     cps: number;
     reliability: number;
     avgExecTime: number;
-  }
+  };
 };
 
 /**
@@ -102,7 +102,7 @@ export class FallbackSubgraph<T extends SdkLike> {
    * @returns A Promise of the generic type.
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */
-  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = false, minBlock?: number): Promise<Q> {
+  public async request<Q>(method: (client: T) => Promise<Q>, syncRequired = false, minBlock?: number): Promise<Q> {
     const { methodContext } = createLoggingContext(this.request.name);
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
@@ -110,22 +110,19 @@ export class FallbackSubgraph<T extends SdkLike> {
     }
     const ordered = this.getOrderedSdks(syncRequired, minBlock);
     const errors: Error[] = [];
-    try {
-      return await Promise.race(
-        ordered
-          .map(async (sdk) => {
+    // Try each SDK client in order of priority.
+    for (const sdk of ordered) {
+      try {
+        return await Promise.race([
+          new Promise<Q>(async (resolve, reject) => {
             const startTime = Date.now();
             let success = false;
             try {
               const result = await method(sdk.client);
               success = true;
-              return result;
+              resolve(result);
             } catch (e) {
-              errors.push(e);
-              if (errors.length === ordered.length) {
-                // Throw the error if every other client has errored already.
-                throw e;
-              }
+              reject(e);
             } finally {
               sdk.metrics.calls.push({
                 timestamp: startTime,
@@ -133,22 +130,21 @@ export class FallbackSubgraph<T extends SdkLike> {
                 success,
               });
             }
-          })
-          .concat([new Promise((_, reject) => setTimeout(() => reject(new NxtpError("Timeout", { errors })), this.stallTimeout))]),
-      );
-    } catch (e) {
-      this.logger.error(
-        "Error calling method on subgraph client(s).",
-        undefined,
-        methodContext,
-        jsonifyError(e),
-        {
-          chainId: this.chainId,
-          otherErrors: errors,
-        },
-      );
-      throw e;
+          }),
+          new Promise<Q>((_, reject) =>
+            setTimeout(() => reject(new NxtpError("Timeout", { errors })), this.stallTimeout),
+          ),
+        ]);
+      } catch (e) {
+        errors.push(e);
+      }
     }
+    const error = new NxtpError("Unable to handle request", { errors });
+    this.logger.error("Error calling method on subgraph client(s).", undefined, methodContext, jsonifyError(error), {
+      chainId: this.chainId,
+      otherErrors: errors,
+    });
+    throw error;
   }
 
   /**
@@ -227,7 +223,7 @@ export class FallbackSubgraph<T extends SdkLike> {
       sdk.priority =
         sdk.record.lag -
         sdk.metrics.cps / FallbackSubgraph.MAX_CPS -
-        sdk.metrics.reliability * 2.0 +
+        sdk.metrics.reliability +
         sdk.metrics.avgExecTime;
     });
     return this.sdks.sort((sdk) => sdk.priority);
