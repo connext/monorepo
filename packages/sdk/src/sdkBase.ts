@@ -84,7 +84,7 @@ import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const AUCTION_TIMEOUT = 6_000;
+export const DEFAULT_AUCTION_TIMEOUT = 6_000;
 export const META_TX_TIMEOUT = 300_000;
 
 Evt.setDefaultMaxHandlers(250);
@@ -330,6 +330,8 @@ export class NxtpSdkBase {
       dryRun,
       preferredRouters: _preferredRouters,
       initiator,
+      auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
+      numAuctionResponsesQuorum,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
@@ -399,7 +401,7 @@ export class NxtpSdkBase {
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
-            .waitFor(AUCTION_TIMEOUT);
+            .waitFor(auctionWaitTimeMs);
           return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
@@ -416,7 +418,7 @@ export class NxtpSdkBase {
             .pipe((data) => !!data.data)
             .pipe((data) => !data.err)
             .pipe((data) => preferredRouters.includes(utils.getAddress((data.data as AuctionResponse).bid.router)))
-            .waitFor(AUCTION_TIMEOUT * 2); // wait extra for preferred router
+            .waitFor(auctionWaitTimeMs * 2); // wait extra for preferred router
           return resolve([result.data as AuctionResponse]);
         } catch (e) {
           return reject(e);
@@ -438,12 +440,17 @@ export class NxtpSdkBase {
         })
         .attach((data) => {
           bids.push(data.data as AuctionResponse);
+          if (numAuctionResponsesQuorum) {
+            if (bids.length >= numAuctionResponsesQuorum) {
+              return resolve(bids);
+            }
+          }
         });
 
       setTimeout(async () => {
         this.auctionResponseEvt.detach(auctionCtx);
         return resolve(bids);
-      }, AUCTION_TIMEOUT);
+      }, auctionWaitTimeMs);
     });
 
     const payload = {
@@ -464,7 +471,7 @@ export class NxtpSdkBase {
     };
     await this.messaging.publishAuctionRequest(payload, inbox);
 
-    this.logger.info(`Waiting up to ${AUCTION_TIMEOUT} ms for responses`, requestContext, methodContext, {
+    this.logger.info(`Waiting up to ${auctionWaitTimeMs} ms for responses`, requestContext, methodContext, {
       inbox,
     });
     try {
@@ -475,7 +482,7 @@ export class NxtpSdkBase {
         inbox,
       });
       if (auctionResponses.length === 0) {
-        throw new NoBids(AUCTION_TIMEOUT, transactionId, payload);
+        throw new NoBids(auctionWaitTimeMs, transactionId, payload);
       }
       if (dryRun) {
         return { ...auctionResponses[0], metaTxRelayerFee: metaTxRelayerFee.toString() };
