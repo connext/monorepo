@@ -14,7 +14,7 @@ import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
 import {
   getActiveTransactions,
   getAssetBalance,
-  getSyncRecord,
+  getSyncRecords,
   getTransactionForChain,
   sdkSenderTransactionToCrosschainTransaction,
 } from "../../../src/adapters/subgraph/subgraph";
@@ -94,11 +94,11 @@ describe("Subgraph Adapter", () => {
     ctxMock.config = config;
   });
 
-  describe("#getSyncRecord", () => {
+  describe("#getSyncRecords", () => {
     it("should work", async () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
       txServiceMock.getBlockNumber.resolves(10);
-      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         {
           synced: true,
           syncedBlock: 10,
@@ -143,7 +143,7 @@ describe("Subgraph Adapter", () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: testSyncedBlockNumber } } });
       txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         { synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
       ]);
     });
