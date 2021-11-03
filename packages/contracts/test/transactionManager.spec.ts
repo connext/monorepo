@@ -729,17 +729,54 @@ describe("TransactionManager", function () {
     });
   });
 
-  describe.skip("addCondition", () => {
-    it("should fail if not called by owner", async () => {});
-    it("should fail if the condition is already added", async () => {});
-    it("should work", async () => {});
+  describe("addCondition", () => {
+    it("should fail if not called by owner", async () => {
+      await expect(transactionManager.connect(other).addCondition(Wallet.createRandom().address)).to.be.revertedWith(
+        "#OO:029",
+      );
+    });
+
+    it("should fail if the condition is already added", async () => {
+      await expect(transactionManager.connect(wallet).addCondition(signatureInterpreter.address)).to.be.revertedWith(
+        "#AC:032",
+      );
+    });
+
+    it("should fail if the condition is not a contract", async () => {
+      await expect(transactionManager.connect(wallet).addCondition(Wallet.createRandom().address)).to.be.revertedWith(
+        "#AC:031",
+      );
+    });
+
+    it("should work", async () => {
+      const condition = signatureInterpreterReceiverSide.address;
+      const tx = await transactionManager.addCondition(condition, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "ConditionAdded", { caller: receipt.from, condition });
+      expect(await transactionManager.approvedConditions(condition)).to.be.true;
+    });
   });
 
-  describe.skip("removeCondition", () => {
-    it("should fail if not called by owner", async () => {});
-    it("should fail if the condition is already removed", async () => {});
-    it("should fail if the condition is not a contract", async () => {});
-    it("should work", async () => {});
+  describe("removeCondition", () => {
+    it("should fail if not called by owner", async () => {
+      await expect(transactionManager.connect(other).removeCondition(signatureInterpreter.address)).to.be.revertedWith(
+        "#OO:029",
+      );
+    });
+
+    it("should fail if the condition is already removed", async () => {
+      await expect(
+        transactionManager.removeCondition(signatureInterpreterReceiverSide.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith("#RC:033");
+    });
+
+    it("should work", async () => {
+      const condition = signatureInterpreter.address;
+      const tx = await transactionManager.removeCondition(condition, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "ConditionRemoved", { caller: receipt.from, condition });
+      expect(await transactionManager.approvedConditions(condition)).to.be.false;
+    });
   });
 
   describe("addLiquidity / addLiquidityFor", () => {
