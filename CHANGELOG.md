@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.70
+
 - [router] Handle fulfill relay
 - [router/sdk] Add subgraph fallbacks by default
 - [test-ui] Fixes for test-ui based on feedback
