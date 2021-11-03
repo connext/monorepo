@@ -646,6 +646,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
     params: any[],
     error?: { type: string; context: any },
   ) {
+    // Exec time should be measured in seconds, to two decimal points.
     const execTime = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
     this.execTimes.push(execTime);
     if (success) {
