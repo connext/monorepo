@@ -23,6 +23,7 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
     "assetOwnershipTimestamp()": FunctionFragment;
+    "c_0x3826e04d(bytes32)": FunctionFragment;
     "conditionOwnershipTimestamp()": FunctionFragment;
     "delay()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
@@ -50,6 +51,10 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "assetOwnershipTimestamp",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x3826e04d",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "conditionOwnershipTimestamp",
@@ -118,6 +123,10 @@ interface ProposedOwnableInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "assetOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x3826e04d",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -260,6 +269,11 @@ export class ProposedOwnable extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     conditionOwnershipTimestamp(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -324,6 +338,11 @@ export class ProposedOwnable extends BaseContract {
 
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  c_0x3826e04d(
+    c__0x3826e04d: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   conditionOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -381,6 +400,11 @@ export class ProposedOwnable extends BaseContract {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     conditionOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -471,6 +495,11 @@ export class ProposedOwnable extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     conditionOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -533,6 +562,11 @@ export class ProposedOwnable extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     assetOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

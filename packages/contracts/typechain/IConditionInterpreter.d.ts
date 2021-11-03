@@ -42,6 +42,7 @@ interface IConditionInterpreterInterface extends ethers.utils.Interface {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -69,6 +70,7 @@ interface IConditionInterpreterInterface extends ethers.utils.Interface {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -152,6 +154,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -159,7 +162,7 @@ export class IConditionInterpreter extends BaseContract {
         preparedBlockNumber: BigNumberish;
       },
       unlockData: BytesLike,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -178,6 +181,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -186,7 +190,7 @@ export class IConditionInterpreter extends BaseContract {
       },
       unlockData: BytesLike,
       relayerFee: BigNumberish,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -206,6 +210,7 @@ export class IConditionInterpreter extends BaseContract {
       callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
+      encodedConditionData: BytesLike;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
       amount: BigNumberish;
@@ -213,7 +218,7 @@ export class IConditionInterpreter extends BaseContract {
       preparedBlockNumber: BigNumberish;
     },
     unlockData: BytesLike,
-    chainId: BigNumberish,
+    transactionManagerChainId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -232,6 +237,7 @@ export class IConditionInterpreter extends BaseContract {
       callTo: string;
       callDataHash: BytesLike;
       transactionId: BytesLike;
+      encodedConditionData: BytesLike;
       sendingChainId: BigNumberish;
       receivingChainId: BigNumberish;
       amount: BigNumberish;
@@ -240,7 +246,7 @@ export class IConditionInterpreter extends BaseContract {
     },
     unlockData: BytesLike,
     relayerFee: BigNumberish,
-    chainId: BigNumberish,
+    transactionManagerChainId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -260,6 +266,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -267,7 +274,7 @@ export class IConditionInterpreter extends BaseContract {
         preparedBlockNumber: BigNumberish;
       },
       unlockData: BytesLike,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -286,6 +293,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -294,7 +302,7 @@ export class IConditionInterpreter extends BaseContract {
       },
       unlockData: BytesLike,
       relayerFee: BigNumberish,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -317,6 +325,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -324,7 +333,7 @@ export class IConditionInterpreter extends BaseContract {
         preparedBlockNumber: BigNumberish;
       },
       unlockData: BytesLike,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -343,6 +352,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -351,7 +361,7 @@ export class IConditionInterpreter extends BaseContract {
       },
       unlockData: BytesLike,
       relayerFee: BigNumberish,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -372,6 +382,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -379,7 +390,7 @@ export class IConditionInterpreter extends BaseContract {
         preparedBlockNumber: BigNumberish;
       },
       unlockData: BytesLike,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -398,6 +409,7 @@ export class IConditionInterpreter extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -406,7 +418,7 @@ export class IConditionInterpreter extends BaseContract {
       },
       unlockData: BytesLike,
       relayerFee: BigNumberish,
-      chainId: BigNumberish,
+      transactionManagerChainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

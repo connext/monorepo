@@ -277,6 +277,11 @@ const _abi = [
                 type: "bytes32",
               },
               {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
+              },
+              {
                 internalType: "uint256",
                 name: "sendingChainId",
                 type: "uint256",
@@ -421,6 +426,11 @@ const _abi = [
                 internalType: "bytes32",
                 name: "transactionId",
                 type: "bytes32",
+              },
+              {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
               },
               {
                 internalType: "uint256",
@@ -595,6 +605,11 @@ const _abi = [
             type: "bytes32",
           },
           {
+            internalType: "bytes",
+            name: "encodedConditionData",
+            type: "bytes",
+          },
+          {
             internalType: "uint256",
             name: "sendingChainId",
             type: "uint256",
@@ -709,6 +724,11 @@ const _abi = [
                 internalType: "bytes32",
                 name: "transactionId",
                 type: "bytes32",
+              },
+              {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
               },
             ],
             internalType: "struct InvariantTransactionData",
@@ -907,6 +927,11 @@ const _abi = [
                 type: "bytes32",
               },
               {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
+              },
+              {
                 internalType: "uint256",
                 name: "sendingChainId",
                 type: "uint256",
@@ -1022,6 +1047,11 @@ const _abi = [
             type: "bytes32",
           },
           {
+            internalType: "bytes",
+            name: "encodedConditionData",
+            type: "bytes",
+          },
+          {
             internalType: "uint256",
             name: "sendingChainId",
             type: "uint256",
@@ -1125,6 +1155,11 @@ const _abi = [
                 internalType: "bytes32",
                 name: "transactionId",
                 type: "bytes32",
+              },
+              {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
               },
               {
                 internalType: "uint256",
@@ -1250,6 +1285,11 @@ const _abi = [
             internalType: "bytes32",
             name: "transactionId",
             type: "bytes32",
+          },
+          {
+            internalType: "bytes",
+            name: "encodedConditionData",
+            type: "bytes",
           },
           {
             internalType: "uint256",
@@ -1392,6 +1432,11 @@ const _abi = [
                 name: "transactionId",
                 type: "bytes32",
               },
+              {
+                internalType: "bytes",
+                name: "encodedConditionData",
+                type: "bytes",
+              },
             ],
             internalType: "struct InvariantTransactionData",
             name: "invariantData",
@@ -1501,6 +1546,11 @@ const _abi = [
             internalType: "bytes32",
             name: "transactionId",
             type: "bytes32",
+          },
+          {
+            internalType: "bytes",
+            name: "encodedConditionData",
+            type: "bytes",
           },
           {
             internalType: "uint256",

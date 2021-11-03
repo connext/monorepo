@@ -34,6 +34,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "approvedConditions(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
     "assetOwnershipTimestamp()": FunctionFragment;
+    "c_0x3826e04d(bytes32)": FunctionFragment;
+    "c_0xd8190500(bytes32)": FunctionFragment;
     "cancel(tuple)": FunctionFragment;
     "conditionOwnershipTimestamp()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -109,6 +111,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "c_0x3826e04d",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0xd8190500",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "cancel",
     values: [
       {
@@ -126,6 +136,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -160,6 +171,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -218,6 +230,7 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
           receivingChainId: BigNumberish;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
         };
         amount: BigNumberish;
         expiry: BigNumberish;
@@ -335,6 +348,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "assetOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x3826e04d",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xd8190500",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
@@ -579,6 +600,16 @@ export class TransactionManager extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     cancel(
       args: {
         txData: {
@@ -595,6 +626,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -629,6 +661,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -679,6 +712,7 @@ export class TransactionManager extends BaseContract {
           receivingChainId: BigNumberish;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
         };
         amount: BigNumberish;
         expiry: BigNumberish;
@@ -809,6 +843,16 @@ export class TransactionManager extends BaseContract {
 
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  c_0x3826e04d(
+    c__0x3826e04d: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0xd8190500(
+    c__0xd8190500: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   cancel(
     args: {
       txData: {
@@ -825,6 +869,7 @@ export class TransactionManager extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -857,6 +902,7 @@ export class TransactionManager extends BaseContract {
         callTo: string;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
         sendingChainId: BigNumberish;
         receivingChainId: BigNumberish;
         amount: BigNumberish;
@@ -903,6 +949,7 @@ export class TransactionManager extends BaseContract {
         receivingChainId: BigNumberish;
         callDataHash: BytesLike;
         transactionId: BytesLike;
+        encodedConditionData: BytesLike;
       };
       amount: BigNumberish;
       expiry: BigNumberish;
@@ -1025,6 +1072,16 @@ export class TransactionManager extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     cancel(
       args: {
         txData: {
@@ -1041,6 +1098,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -1053,6 +1111,7 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -1085,6 +1144,7 @@ export class TransactionManager extends BaseContract {
         callTo: string;
         callDataHash: string;
         transactionId: string;
+        encodedConditionData: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
         amount: BigNumber;
@@ -1113,6 +1173,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -1127,6 +1188,7 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -1159,6 +1221,7 @@ export class TransactionManager extends BaseContract {
         callTo: string;
         callDataHash: string;
         transactionId: string;
+        encodedConditionData: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
         amount: BigNumber;
@@ -1199,6 +1262,7 @@ export class TransactionManager extends BaseContract {
           receivingChainId: BigNumberish;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
         };
         amount: BigNumberish;
         expiry: BigNumberish;
@@ -1210,6 +1274,7 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
+        string,
         string,
         string,
         string,
@@ -1242,6 +1307,7 @@ export class TransactionManager extends BaseContract {
         callTo: string;
         callDataHash: string;
         transactionId: string;
+        encodedConditionData: string;
         sendingChainId: BigNumber;
         receivingChainId: BigNumber;
         amount: BigNumber;
@@ -1440,6 +1506,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1459,6 +1526,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1482,6 +1550,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1501,6 +1570,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1531,6 +1601,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1550,6 +1621,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1573,6 +1645,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1592,6 +1665,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1634,6 +1708,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1653,6 +1728,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1678,6 +1754,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1697,6 +1774,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1732,6 +1810,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1751,6 +1830,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1776,6 +1856,7 @@ export class TransactionManager extends BaseContract {
             string,
             string,
             string,
+            string,
             BigNumber,
             BigNumber,
             BigNumber,
@@ -1795,6 +1876,7 @@ export class TransactionManager extends BaseContract {
             callTo: string;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
             sendingChainId: BigNumber;
             receivingChainId: BigNumber;
             amount: BigNumber;
@@ -1839,6 +1921,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1858,6 +1941,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: string;
           transactionId: string;
+          encodedConditionData: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
           amount: BigNumber;
@@ -1881,6 +1965,7 @@ export class TransactionManager extends BaseContract {
             BigNumber,
             BigNumber,
             string,
+            string,
             string
           ] & {
             receivingChainCondition: string;
@@ -1898,6 +1983,7 @@ export class TransactionManager extends BaseContract {
             receivingChainId: BigNumber;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
           },
           BigNumber,
           BigNumber,
@@ -1921,6 +2007,7 @@ export class TransactionManager extends BaseContract {
             BigNumber,
             BigNumber,
             string,
+            string,
             string
           ] & {
             receivingChainCondition: string;
@@ -1938,6 +2025,7 @@ export class TransactionManager extends BaseContract {
             receivingChainId: BigNumber;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
           };
           amount: BigNumber;
           expiry: BigNumber;
@@ -1965,6 +2053,7 @@ export class TransactionManager extends BaseContract {
           string,
           string,
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -1984,6 +2073,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: string;
           transactionId: string;
+          encodedConditionData: string;
           sendingChainId: BigNumber;
           receivingChainId: BigNumber;
           amount: BigNumber;
@@ -2007,6 +2097,7 @@ export class TransactionManager extends BaseContract {
             BigNumber,
             BigNumber,
             string,
+            string,
             string
           ] & {
             receivingChainCondition: string;
@@ -2024,6 +2115,7 @@ export class TransactionManager extends BaseContract {
             receivingChainId: BigNumber;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
           },
           BigNumber,
           BigNumber,
@@ -2047,6 +2139,7 @@ export class TransactionManager extends BaseContract {
             BigNumber,
             BigNumber,
             string,
+            string,
             string
           ] & {
             receivingChainCondition: string;
@@ -2064,6 +2157,7 @@ export class TransactionManager extends BaseContract {
             receivingChainId: BigNumber;
             callDataHash: string;
             transactionId: string;
+            encodedConditionData: string;
           };
           amount: BigNumber;
           expiry: BigNumber;
@@ -2127,6 +2221,16 @@ export class TransactionManager extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     cancel(
       args: {
         txData: {
@@ -2143,6 +2247,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -2175,6 +2280,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -2223,6 +2329,7 @@ export class TransactionManager extends BaseContract {
           receivingChainId: BigNumberish;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
         };
         amount: BigNumberish;
         expiry: BigNumberish;
@@ -2365,6 +2472,16 @@ export class TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    c_0x3826e04d(
+      c__0x3826e04d: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xd8190500(
+      c__0xd8190500: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     cancel(
       args: {
         txData: {
@@ -2381,6 +2498,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -2415,6 +2533,7 @@ export class TransactionManager extends BaseContract {
           callTo: string;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
           sendingChainId: BigNumberish;
           receivingChainId: BigNumberish;
           amount: BigNumberish;
@@ -2467,6 +2586,7 @@ export class TransactionManager extends BaseContract {
           receivingChainId: BigNumberish;
           callDataHash: BytesLike;
           transactionId: BytesLike;
+          encodedConditionData: BytesLike;
         };
         amount: BigNumberish;
         expiry: BigNumberish;
