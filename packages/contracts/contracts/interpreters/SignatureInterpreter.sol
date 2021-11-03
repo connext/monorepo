@@ -28,12 +28,16 @@ contract SignatureInterpreter is IConditionInterpreter {
     TransactionData calldata txData,
     bytes calldata unlockData,
     uint256 relayerFee,
-    uint256 chainId
+    uint256 transactionManagerChainId
   ) external pure override returns (bool) {
+    // Check chain-id is sensible
+    if (transactionManagerChainId != txData.sendingChainId) {
+      require(transactionManagerChainId == txData.receivingChainId, "#SI:012");
+    }
     address recovered = recoverFulfillSignature(
       txData.transactionId,
       relayerFee,
-      chainId,
+      txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       unlockData
     );
@@ -43,11 +47,16 @@ contract SignatureInterpreter is IConditionInterpreter {
   function shouldCancel(
     TransactionData calldata txData,
     bytes calldata unlockData,
-    uint256 chainId
+    uint256 transactionManagerChainId
   ) external pure override returns (bool) {
+     // Check chain-id is sensible
+    if (transactionManagerChainId != txData.sendingChainId) {
+      require(transactionManagerChainId == txData.receivingChainId, "#SI:012");
+    }
+
     address recovered = recoverCancelSignature(
       txData.transactionId,
-      chainId,
+      txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       unlockData
     );
