@@ -4,6 +4,7 @@ import {
   FallbackSubgraph,
   jsonifyError,
   Logger,
+  NxtpError,
   RequestContext,
   TransactionData,
   VariantTransactionData,
@@ -190,6 +191,16 @@ export class Subgraph {
   async getActiveTransactions(_requestContext?: RequestContext): Promise<ActiveTransaction[]> {
     const { requestContext, methodContext } = createLoggingContext(this.getActiveTransactions.name, _requestContext);
 
+    // For each chain, update subgraph sync status
+    await this.updateSyncStatus();
+    const inSyncChains: number[] = Object.entries(this.sdks).filter(([, sdk]) => sdk.inSync).map(([chainId]) => parseInt(chainId));
+    if (inSyncChains.length === 0) {
+      // If no chains are in-sync, return an empty array.
+      // TODO: Or throw an error - all chains out of sync?
+      this.logger.warn("Cannot get active transactions; all subgraphs for all chains are out of sync!", requestContext, methodContext);
+      return [];
+    }
+
     // Step 1: handle any already listed as active transactions.
     // This is important to make sure the events are properly emitted
     // when sdks remain online for the duration of the transaction.
@@ -200,6 +211,9 @@ export class Subgraph {
     // Get all ids organized in an object with keyed on their receiving chain id
     const idsBySendingChains: Record<string, string[]> = {};
     [...this.activeTxs.entries()].forEach(([id, tx]) => {
+      if (!inSyncChains.includes(tx.crosschainTx.invariant.sendingChainId)) {
+        return;
+      }
       if (!idsBySendingChains[tx.crosschainTx.invariant.sendingChainId]) {
         idsBySendingChains[tx.crosschainTx.invariant.sendingChainId] = [id];
       } else {
@@ -207,8 +221,7 @@ export class Subgraph {
       }
     });
 
-    // For each chain, update subgraph sync status
-    await this.updateSyncStatus();
+    
 
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
@@ -228,6 +241,7 @@ export class Subgraph {
 
         const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
           client.GetTransactions({ transactionIds: ids }),
+          false,
         );
         if (transactions.length === 0) {
           return;
@@ -243,6 +257,9 @@ export class Subgraph {
 
     // Get corresponding receiver transaction records
     nonPreparedSendingTxs.forEach((transaction) => {
+      if (!inSyncChains.includes(transaction.receivingChainId)) {
+        return;
+      }
       if (!correspondingReceiverTxIdsByChain[transaction.receivingChainId]) {
         correspondingReceiverTxIdsByChain[transaction.receivingChainId] = [transaction.transactionId];
       } else {
@@ -329,12 +346,11 @@ export class Subgraph {
 
     // Step 2: handle any not-listed active transactions (i.e. sdk has
     // gone offline at some point during the transactions)
-    const errors: Map<string, Error> = new Map();
+    const errors: Map<number, Error> = new Map();
     const txs = await Promise.all(
-      Object.keys(this.sdks).map(async (c) => {
+      inSyncChains.map(async (chainId) => {
         try {
           const user = (await this.userAddress).toLowerCase();
-          const chainId = parseInt(c);
           const subgraph = this.sdks[chainId];
 
           // get all sender prepared
@@ -505,21 +521,18 @@ export class Subgraph {
           const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
           return activeFlattened;
         } catch (e) {
-          errors.set(c, e);
+          errors.set(chainId, e);
           this.logger.error("Error getting active transactions", requestContext, methodContext, jsonifyError(e), {
-            chainId: c,
+            chainId,
           });
           return [];
         }
       }),
     );
 
-    if (errors.size === Object.keys(this.sdks).length) {
-      if (errors.size === 1) {
-        // Just throw the first error in the Map if there's only one chain supported.
-        throw errors.values().next().value;
-      }
-      throw new Error("Failed to get active transactions for all chains");
+    // Check to see if errors occurred for all chains (i.e. no active transactions were retrieved).
+    if (errors.size === inSyncChains.length) {
+      throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
     }
 
     const all = txs.flat();
@@ -554,6 +567,7 @@ export class Subgraph {
             userId: user,
             status: TransactionStatus.Fulfilled,
           }),
+          false,
         );
 
         // for each, break up receiving txs by chain
@@ -578,6 +592,7 @@ export class Subgraph {
               client.GetTransactions({
                 transactionIds: receiverTxs.map((tx) => tx.transactionId),
               }),
+              false,
             );
 
             return receiverTxs.map((receiverTx): HistoricalTransaction | undefined => {
@@ -648,6 +663,7 @@ export class Subgraph {
             userId: user,
             status: TransactionStatus.Cancelled,
           }),
+          false,
         );
 
         const cancelled = senderCancelled.map((tx): HistoricalTransaction | undefined => {

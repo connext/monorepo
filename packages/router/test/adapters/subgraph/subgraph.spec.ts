@@ -19,7 +19,7 @@ import {
   sdkSenderTransactionToCrosschainTransaction,
 } from "../../../src/adapters/subgraph/subgraph";
 import { CrosschainTransactionStatus } from "../../../src/lib/entities";
-import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
+import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../../src/lib/errors";
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 import { configMock, routerAddrMock } from "../../utils";
@@ -123,12 +123,17 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should fail if theres no chain config for that chain", async () => {
+      const testChainId = 9876;
       const _sdks = {
-        [9876]: sdks[sendingChainId],
+        [testChainId]: sdks[sendingChainId],
       };
       getSdkStub.returns(_sdks as any);
-
-      await expect(getActiveTransactions()).to.be.rejectedWith("No chain config");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const expectedErrMessage = (new NoChainConfig(testChainId)).message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
     });
 
     it("should return an empty array if the chain is unsynced", async () => {
@@ -154,9 +159,16 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should fail if GetSenderTransactions fails", async () => {
-      sdk.GetSenderTransactions.rejects(new Error("fail"));
+      const testError = new Error("fail");
+      sdk.GetSenderTransactions.rejects(testError);
 
-      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const testChainId = Object.keys(sdks)[0];
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
     });
 
     it("should fail if GetTransaction fails", async () => {
@@ -165,10 +177,16 @@ describe("Subgraph Adapter", () => {
           transactions: [{ ...transactionSubgraphMock, receivingChainId: sendingChainId }],
         },
       });
+      const testError = new Error("fail");
+      sdk.GetTransactions.rejects(testError);
 
-      sdk.GetTransactions.rejects(new Error("fail"));
-
-      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const testChainId = Object.keys(sdks)[0];
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
 
       expect(
         sdk.GetSenderTransactions.calledOnceWithExactly({

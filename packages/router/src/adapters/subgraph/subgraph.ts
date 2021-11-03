@@ -4,6 +4,7 @@ import {
   getNtpTimeSeconds,
   getUuid,
   jsonifyError,
+  NxtpError,
   RequestContext,
   SubgraphSyncRecord,
   VariantTransactionData,
@@ -334,11 +335,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
     }),
   );
   if (errors.size === Object.keys(sdks).length) {
-    if (errors.size === 1) {
-      // Just throw the first error in the Map if there's only one chain supported.
-      throw errors.values().next().value;
-    }
-    throw new Error("Failed to get active transactions for all chains");
+    throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
   }
   const flattened = allChains.filter((x) => !!x).flat();
   return flattened;

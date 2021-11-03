@@ -17,8 +17,18 @@ type Sdk<T extends SdkLike> = {
   record: SubgraphSyncRecord;
 };
 
+/**
+ * @classdesc A class that manages the sync status of multiple subgraphs as well as their corresponding SDKs.
+ */
 export class FallbackSubgraph<T extends SdkLike> {
   private readonly sdks: Sdk<T>[];
+
+  /**
+   * Returns boolean representing whether at least one available subgraph is in sync.
+   */
+  public get inSync(): boolean {
+    return this.sdks.some((sdk) => sdk.record.synced);
+  }
 
   constructor(
     private readonly logger: Logger,
@@ -44,15 +54,26 @@ export class FallbackSubgraph<T extends SdkLike> {
     }));
   }
 
-  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = false, minBlock?: number): Promise<Q> {
-    const { methodContext } = createLoggingContext(this.sync.name);
+  /**
+   * Make an SDK request using the fallback subgraph wrapper.
+   *
+   * @param method - anonymous callback function that takes an SdkLike client and executes a subgraph sdk method.
+   * @param syncRequired - whether it's required for the subgraphs to be in-sync for this call, or if we can tolerate
+   *  them being out of sync.
+   * @param minBlock - minimum block number for the subgraphs to be in-sync to for this call.
+   * @returns A Promise of the generic type.
+   * @throws Error if the subgraphs are out of sync (and syncRequired is true).
+   */
+  public async request<Q>(method: (client: T) => Promise<any>, syncRequired = true, minBlock?: number): Promise<Q> {
+    const { methodContext } = createLoggingContext(this.request.name);
+    // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
+    if (syncRequired && !this.inSync) {
+      throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
+    }
     // Order the subgraphs by lag / how in-sync they are.
     const ordered = this.sdks
       .sort((sdk) => sdk.record.lag)
       .filter((sdk) => (sdk.record.syncedBlock > (minBlock ?? 0) && syncRequired ? sdk.record.synced : true));
-    if (ordered.every((sdk) => !sdk.record.synced)) {
-      throw new Error(`All subgraphs out of sync! Cannot handle active transactions for chain ${this.chainId}`);
-    }
     const errors: Error[] = [];
     // Starting with most in-sync, keep retrying the callback with each client.
     for (let i = 0; i < ordered.length; i++) {
@@ -76,6 +97,12 @@ export class FallbackSubgraph<T extends SdkLike> {
     throw errors[0];
   }
 
+  /**
+   * Check synchronized status of all subgraphs, and update metrics.
+   *
+   * @param latestBlock - current latest block number according to RPC providers.
+   * @returns Subgraph sync records for each subgraph.
+   */
   public async sync(latestBlock: number): Promise<SubgraphSyncRecord[]> {
     // Using a Promise.all here to ensure we do our GetBlockNumber queries in parallel.
     await Promise.all(
