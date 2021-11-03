@@ -256,11 +256,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
+
     if (!chainConfig.relayerFeeThreshold) {
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (!chainConfig.allowFulfillRelay) {
+    if (chainConfig.allowFulfillRelay === undefined || chainConfig.allowFulfillRelay === null) {
       nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
     }
 
@@ -269,7 +270,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }
-      nxtpConfig.chainConfig[chainId].subgraph = [defaultSubgraphUri];
+      nxtpConfig.chainConfig[chainId].subgraph = defaultSubgraphUri;
     } else if (typeof chainConfig.subgraph === "string") {
       // Backwards compatibility for subgraph param - support for singular uri string.
       chainConfig.subgraph = [chainConfig.subgraph];

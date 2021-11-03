@@ -430,39 +430,5 @@ describe("Transaction Manager", function () {
         expect(res.toString()).to.be.eq(routerFunds);
       });
     });
-
-    describe("#calculateGasInTokenForFullfill", () => {
-      it("should error if unfamiliar chainId", async () => {
-        const InvalidChainId = 123;
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(
-          transaction,
-          record,
-          user,
-          transactionManager,
-          userTransactionManager,
-        );
-
-        const signature = await signFulfillTransactionPayload(
-          transaction.transactionId,
-          "0",
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const fulfillParams: FulfillParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
-          relayerFee: "0",
-          signature: signature,
-          callData: EmptyBytes,
-        };
-        await expect(
-          userTransactionManager.calculateGasInTokenForFullfil(InvalidChainId, fulfillParams),
-        ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
-      });
-    });
   });
 });

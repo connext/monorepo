@@ -1,4 +1,4 @@
-import { BigNumber, constants, providers, Contract } from "ethers";
+import { BigNumber, constants, providers } from "ethers";
 import {
   PrepareParams,
   CancelParams,
@@ -6,17 +6,14 @@ import {
   Logger,
   RequestContext,
   createLoggingContext,
-  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
-import { parseError } from "@connext/nxtp-txservice";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import { Interface } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-import { ChainNotConfigured, PriceOracleNotConfigured } from "../error";
-import { getDecimals, getTokenPrice } from "../utils";
+import { ChainNotConfigured } from "../error";
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -52,7 +49,6 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
 
 /**
  * Returns the addresses where the price oracle contract is deployed to
- *
  */
 export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
@@ -375,123 +371,5 @@ export class TransactionManager {
     const [balance] = this.txManagerInterface.decodeFunctionResult("routerBalances", encoded);
 
     return BigNumber.from(balance);
-  }
-
-  /**
-   * Calculates gas amount in receiving token
-   *
-   * @param chainId - The receiving chain you want to check gas price on
-   * @param fulfillParams - The parameters for fulfill transactions
-   */
-  async calculateGasInTokenForFullfil(
-    chainId: number,
-    fulfillParams: FulfillParams,
-    _requestContext?: RequestContext<string>,
-  ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext(
-      "TransactionManager.calculateGasInToken",
-      _requestContext,
-      fulfillParams.txData.transactionId,
-    );
-
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
-
-    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
-    const gasAmount = BigNumber.from(GAS_ESTIMATES.fulfill); // hardcode gas estimates for now
-    // TODO: this does not account for calldata. we need to figure out how to estimate that later
-    // issue is that we cannot estimate it in the auction request because the tx is not prepared yet
-    // however we might be able to work around this by directly estimating the callto with the calldata
-
-    let gasPrice = BigNumber.from(0);
-    try {
-      gasPrice = await provider.getGasPrice();
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
-
-    const { txData } = fulfillParams;
-
-    const ethPriceInUsd = await getTokenPrice(
-      this.chainConfig[chainId]?.priceOracleAddress,
-      constants.AddressZero,
-      provider,
-    );
-
-    if (ethPriceInUsd.isZero()) {
-      throw new PriceOracleNotConfigured(chainId, constants.AddressZero);
-    }
-
-    const receivingTokenPriceInUsd = await getTokenPrice(
-      this.chainConfig[chainId]?.priceOracleAddress,
-      txData.receivingAssetId,
-      provider,
-    );
-
-    if (receivingTokenPriceInUsd.isZero()) {
-      throw new PriceOracleNotConfigured(chainId, txData.receivingAssetId);
-    }
-
-    const outputDecimals = await getDecimals(txData.receivingAssetId, provider);
-
-    const tokenAmount = gasAmount
-      .mul(gasPrice)
-      .mul(ethPriceInUsd)
-      .div(receivingTokenPriceInUsd)
-      .div(BigNumber.from(10).pow(18 - outputDecimals));
-
-    return tokenAmount;
-  }
-
-  /**
-   * Calculates gas amount for fulfill tranactions
-   *
-   * @param chainId The network identifier
-   * @param fulfillParams The params used for fulfill transactions
-   */
-  async calculateGasAmountForFulfill(chainId: number, fulfillParams: FulfillParams): Promise<BigNumber> {
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
-
-    const transactionManager = new Contract(
-      transactionManagerAddress,
-      TransactionManagerArtifact.abi,
-      provider,
-    ) as TTransactionManager;
-
-    const { txData, relayerFee, signature, callData } = fulfillParams;
-
-    const contractArgs = {
-      txData,
-      relayerFee,
-      signature,
-      callData,
-      encodedMeta: "0x",
-    };
-
-    // get gas limit
-    let gasLimit = BigNumber.from(0);
-    try {
-      gasLimit = await transactionManager.estimateGas.fulfill(contractArgs);
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
-
-    // get gas price
-    let gasPrice = BigNumber.from(0);
-    try {
-      gasPrice = await provider.getGasPrice();
-    } catch (e) {
-      const sanitized = parseError(e);
-      throw sanitized;
-    }
-
-    return gasLimit.mul(gasPrice);
   }
 }
