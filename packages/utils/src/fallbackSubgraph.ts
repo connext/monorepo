@@ -142,7 +142,7 @@ export class FallbackSubgraph<T extends SdkLike> {
     const error = new NxtpError("Unable to handle request", { errors });
     this.logger.error("Error calling method on subgraph client(s).", undefined, methodContext, jsonifyError(error), {
       chainId: this.chainId,
-      otherErrors: errors,
+      errors,
     });
     throw error;
   }
