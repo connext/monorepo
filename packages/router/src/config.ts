@@ -94,7 +94,7 @@ export const TChainConfig = Type.Object({
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
-  subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
+  subgraphSyncBuffer: Type.Number({ minimum: MIN_SUBGRAPH_SYNC_BUFFER }), // If subgraph is out of sync by this number, will not process actions
 });
 
 export const TSwapPool = Type.Object({
