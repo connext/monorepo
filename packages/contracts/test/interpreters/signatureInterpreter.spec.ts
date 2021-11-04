@@ -127,7 +127,7 @@ describe("SignatureInterpreter.sol", () => {
         txData.receivingChainTxManagerAddress,
         user,
       );
-      await expect(signatureInterpreter.shouldFulfill(txData, signature, "0", 1)).revertedWith("#SI:012");
+      await expect(signatureInterpreter.shouldCancel(txData, signature, 1)).revertedWith("#SI:012");
     });
 
     it("should return true if user signed", async () => {
