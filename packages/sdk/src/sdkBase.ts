@@ -208,6 +208,8 @@ export class NxtpSdkBase {
         if (!subgraph || subgraph.length === 0) {
           throw new NoSubgraph(chainId);
         }
+        // Ensure subgraph is configured properly; may be a CSV env string or an array of subgraph urls.
+        subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
         subgraphConfig[chainId] = {
           subgraph,
           provider,
