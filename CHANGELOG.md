@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [contracts] Include `remove-router` hardhat task
 - [sdk] SDK supports string `subgraph` in config
 
 ## 0.0.73
