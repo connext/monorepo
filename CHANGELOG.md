@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] SDK supports string `subgraph` in config
+
 ## 0.0.73
 
 - [contracts] Deploy to mainnet
