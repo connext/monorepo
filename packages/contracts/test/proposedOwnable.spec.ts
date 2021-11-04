@@ -49,6 +49,16 @@ describe("ProposedOwnable.sol", () => {
     return receipt;
   };
 
+  const proposeConditionOwnershipRenunciation = async () => {
+    // Propose new owner
+    const tx = await proposedOwnable.connect(wallet).proposeConditionOwnershipRenunciation();
+    const receipt: providers.TransactionReceipt = await tx.wait();
+    const block = await ethers.provider.getBlock(receipt.blockNumber);
+    assertReceiptEvent(receipt, "ConditionOwnershipRenunciationProposed", { timestamp: block.timestamp });
+    expect(await proposedOwnable.conditionOwnershipTimestamp()).to.be.eq(block.timestamp);
+    return receipt;
+  };
+
   const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
     await transferOwnershipOnContract(newOwner, caller, proposedOwnable, wallet);
   };
@@ -77,6 +87,20 @@ describe("ProposedOwnable.sol", () => {
     const receipt = await tx.wait();
     assertReceiptEvent(receipt, "RouterOwnershipRenounced", { renounced: true });
     expect(await proposedOwnable.routerOwnershipTimestamp()).to.be.eq(constants.Zero);
+  };
+
+  const renounceConditionOwnership = async () => {
+    await proposeConditionOwnershipRenunciation();
+
+    // Advance block time
+    const eightDays = 8 * 24 * 60 * 60;
+    const { timestamp } = await ethers.provider.getBlock("latest");
+    await setBlockTime(timestamp + eightDays);
+
+    const tx = await proposedOwnable.connect(wallet).renounceConditionOwnership();
+    const receipt = await tx.wait();
+    assertReceiptEvent(receipt, "ConditionOwnershipRenounced", { renounced: true });
+    expect(await proposedOwnable.conditionOwnershipTimestamp()).to.be.eq(constants.Zero);
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -223,21 +247,54 @@ describe("ProposedOwnable.sol", () => {
     });
   });
 
-  describe.skip("isConditionOwnershipRenounced", () => {
-    it("should work if conditionOwnershipRenounced", async () => {});
-    it("should work if all ownership renounced", async () => {});
+  describe("isConditionOwnershipRenounced", () => {
+    it("should work if conditionOwnershipRenounced", async () => {
+      expect(await proposedOwnable.isConditionOwnershipRenounced()).to.be.false;
+      await renounceConditionOwnership();
+      expect(await proposedOwnable.isConditionOwnershipRenounced()).to.be.true;
+    });
+
+    it("should work if all ownership renounced", async () => {
+      await transferOwnership(constants.AddressZero, wallet);
+      expect(await proposedOwnable.isConditionOwnershipRenounced()).to.be.true;
+    });
   });
 
-  describe.skip("proposeConditionOwnershipRenunciation", () => {
-    it("should fail if it was already renounced", async () => {});
-    it("should work", async () => {});
+  describe("proposeConditionOwnershipRenunciation", () => {
+    it("should fail if it was already renounced", async () => {
+      await renounceConditionOwnership();
+      await expect(proposeConditionOwnershipRenunciation()).to.be.revertedWith("#PCOR:038");
+    });
+
+    it("should fail if not called by owner", async () => {
+      await expect(proposedOwnable.connect(other).proposeConditionOwnershipRenunciation()).to.be.revertedWith(
+        "#OO:029",
+      );
+    });
+
+    it("should work", async () => {
+      await proposeConditionOwnershipRenunciation();
+    });
   });
 
-  describe.skip("renounceConditionOwnership", () => {
-    it("should fail if already renounced", async () => {});
-    it("should fail if cycle hasnt started (no proposal)", async () => {});
-    it("should fail if proposal window hasnt elapsed", async () => {});
-    it("should work", async () => {});
+  describe("renounceConditionOwnership", () => {
+    it("should fail if already renounced", async () => {
+      await renounceConditionOwnership();
+      await expect(proposedOwnable.connect(wallet).renounceConditionOwnership()).to.be.revertedWith("#RCO:038");
+    });
+
+    it("should fail if cycle hasnt started (no proposal)", async () => {
+      await expect(proposedOwnable.connect(wallet).renounceConditionOwnership()).to.be.revertedWith("#RCO:037");
+    });
+
+    it("should fail if proposal window hasnt elapsed", async () => {
+      await proposeConditionOwnershipRenunciation();
+      await expect(proposedOwnable.connect(wallet).renounceConditionOwnership()).to.be.revertedWith("#RCO:030");
+    });
+
+    it("should work", async () => {
+      await renounceConditionOwnership();
+    });
   });
 
   describe("renounced", () => {
