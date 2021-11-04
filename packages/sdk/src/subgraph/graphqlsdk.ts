@@ -1001,7 +1001,7 @@ export type GetSenderTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetSenderTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetSenderTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, encodedConditionData: any, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetReceiverTransactionsQueryVariables = Exact<{
   userId: Scalars['String'];
@@ -1010,21 +1010,21 @@ export type GetReceiverTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetReceiverTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetReceiverTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, encodedConditionData: any, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetTransactionQueryVariables = Exact<{
   transactionId: Scalars['ID'];
 }>;
 
 
-export type GetTransactionQuery = { __typename?: 'Query', transaction?: Maybe<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetTransactionQuery = { __typename?: 'Query', transaction?: Maybe<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, encodedConditionData: any, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
 }>;
 
 
-export type GetTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, encodedConditionData: any, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1072,6 +1072,11 @@ export const GetSenderTransactionsDocument = gql`
     prepareTransactionHash
     fulfillTransactionHash
     cancelTransactionHash
+    encodedConditionData
+    fulfillUnlockData
+    cancelUnlockData
+    sendingChainCondition
+    receivingChainCondition
   }
 }
     `;
@@ -1115,8 +1120,8 @@ export const GetReceiverTransactionsDocument = gql`
     prepareTransactionHash
     fulfillTransactionHash
     cancelTransactionHash
+    encodedConditionData
     fulfillUnlockData
-    cancelUnlockData
     cancelUnlockData
     sendingChainCondition
     receivingChainCondition
@@ -1162,7 +1167,7 @@ export const GetTransactionDocument = gql`
     cancelTransactionHash
     fulfillUnlockData
     cancelUnlockData
-    cancelUnlockData
+    encodedConditionData
     sendingChainCondition
     receivingChainCondition
   }
@@ -1207,7 +1212,7 @@ export const GetTransactionsDocument = gql`
     fulfillTransactionHash
     cancelTransactionHash
     fulfillUnlockData
-    cancelUnlockData
+    encodedConditionData
     cancelUnlockData
     sendingChainCondition
     receivingChainCondition

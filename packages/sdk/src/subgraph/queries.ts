@@ -40,6 +40,11 @@ export const getSenderTransactionsQuery = gql`
       prepareTransactionHash
       fulfillTransactionHash
       cancelTransactionHash
+      encodedConditionData
+      fulfillUnlockData
+      cancelUnlockData
+      sendingChainCondition
+      receivingChainCondition
     }
   }
 `;
@@ -84,8 +89,8 @@ export const getReceiverTransactionsQuery = gql`
       prepareTransactionHash
       fulfillTransactionHash
       cancelTransactionHash
+      encodedConditionData
       fulfillUnlockData
-      cancelUnlockData
       cancelUnlockData
       sendingChainCondition
       receivingChainCondition
@@ -133,7 +138,7 @@ export const getTransactionByIdQuery = gql`
       cancelTransactionHash
       fulfillUnlockData
       cancelUnlockData
-      cancelUnlockData
+      encodedConditionData
       sendingChainCondition
       receivingChainCondition
     }
@@ -179,7 +184,7 @@ export const getTransactionsByIdsQuery = gql`
       fulfillTransactionHash
       cancelTransactionHash
       fulfillUnlockData
-      cancelUnlockData
+      encodedConditionData
       cancelUnlockData
       sendingChainCondition
       receivingChainCondition
