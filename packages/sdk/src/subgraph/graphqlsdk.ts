@@ -25,6 +25,7 @@ export type AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   router: Router;
+  assetId: Scalars['Bytes'];
 };
 
 export type AssetBalance_Filter = {
@@ -58,12 +59,19 @@ export type AssetBalance_Filter = {
   router_not_starts_with?: Maybe<Scalars['String']>;
   router_ends_with?: Maybe<Scalars['String']>;
   router_not_ends_with?: Maybe<Scalars['String']>;
+  assetId?: Maybe<Scalars['Bytes']>;
+  assetId_not?: Maybe<Scalars['Bytes']>;
+  assetId_in?: Maybe<Array<Scalars['Bytes']>>;
+  assetId_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  assetId_contains?: Maybe<Scalars['Bytes']>;
+  assetId_not_contains?: Maybe<Scalars['Bytes']>;
 };
 
 export enum AssetBalance_OrderBy {
   Id = 'id',
   Amount = 'amount',
-  Router = 'router'
+  Router = 'router',
+  AssetId = 'assetId'
 }
 
 
@@ -73,6 +81,148 @@ export type Block_Height = {
   number?: Maybe<Scalars['Int']>;
 };
 
+
+export type DayMetric = {
+  __typename?: 'DayMetric';
+  id: Scalars['ID'];
+  dayStartTimestamp: Scalars['BigInt'];
+  assetId: Scalars['String'];
+  volume: Scalars['BigInt'];
+  txCount: Scalars['BigInt'];
+};
+
+export type DayMetric_Filter = {
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_gt?: Maybe<Scalars['ID']>;
+  id_lt?: Maybe<Scalars['ID']>;
+  id_gte?: Maybe<Scalars['ID']>;
+  id_lte?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Scalars['ID']>>;
+  id_not_in?: Maybe<Array<Scalars['ID']>>;
+  dayStartTimestamp?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_not?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_gt?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_lt?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_gte?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_lte?: Maybe<Scalars['BigInt']>;
+  dayStartTimestamp_in?: Maybe<Array<Scalars['BigInt']>>;
+  dayStartTimestamp_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  assetId?: Maybe<Scalars['String']>;
+  assetId_not?: Maybe<Scalars['String']>;
+  assetId_gt?: Maybe<Scalars['String']>;
+  assetId_lt?: Maybe<Scalars['String']>;
+  assetId_gte?: Maybe<Scalars['String']>;
+  assetId_lte?: Maybe<Scalars['String']>;
+  assetId_in?: Maybe<Array<Scalars['String']>>;
+  assetId_not_in?: Maybe<Array<Scalars['String']>>;
+  assetId_contains?: Maybe<Scalars['String']>;
+  assetId_not_contains?: Maybe<Scalars['String']>;
+  assetId_starts_with?: Maybe<Scalars['String']>;
+  assetId_not_starts_with?: Maybe<Scalars['String']>;
+  assetId_ends_with?: Maybe<Scalars['String']>;
+  assetId_not_ends_with?: Maybe<Scalars['String']>;
+  volume?: Maybe<Scalars['BigInt']>;
+  volume_not?: Maybe<Scalars['BigInt']>;
+  volume_gt?: Maybe<Scalars['BigInt']>;
+  volume_lt?: Maybe<Scalars['BigInt']>;
+  volume_gte?: Maybe<Scalars['BigInt']>;
+  volume_lte?: Maybe<Scalars['BigInt']>;
+  volume_in?: Maybe<Array<Scalars['BigInt']>>;
+  volume_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  txCount?: Maybe<Scalars['BigInt']>;
+  txCount_not?: Maybe<Scalars['BigInt']>;
+  txCount_gt?: Maybe<Scalars['BigInt']>;
+  txCount_lt?: Maybe<Scalars['BigInt']>;
+  txCount_gte?: Maybe<Scalars['BigInt']>;
+  txCount_lte?: Maybe<Scalars['BigInt']>;
+  txCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  txCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+};
+
+export enum DayMetric_OrderBy {
+  Id = 'id',
+  DayStartTimestamp = 'dayStartTimestamp',
+  AssetId = 'assetId',
+  Volume = 'volume',
+  TxCount = 'txCount'
+}
+
+export type HourlyMetric = {
+  __typename?: 'HourlyMetric';
+  id: Scalars['ID'];
+  hourStartTimestamp: Scalars['BigInt'];
+  assetId: Scalars['String'];
+  volume: Scalars['BigInt'];
+  liquidity: Scalars['BigInt'];
+  txCount: Scalars['BigInt'];
+};
+
+export type HourlyMetric_Filter = {
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_gt?: Maybe<Scalars['ID']>;
+  id_lt?: Maybe<Scalars['ID']>;
+  id_gte?: Maybe<Scalars['ID']>;
+  id_lte?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Scalars['ID']>>;
+  id_not_in?: Maybe<Array<Scalars['ID']>>;
+  hourStartTimestamp?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_not?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_gt?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_lt?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_gte?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_lte?: Maybe<Scalars['BigInt']>;
+  hourStartTimestamp_in?: Maybe<Array<Scalars['BigInt']>>;
+  hourStartTimestamp_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  assetId?: Maybe<Scalars['String']>;
+  assetId_not?: Maybe<Scalars['String']>;
+  assetId_gt?: Maybe<Scalars['String']>;
+  assetId_lt?: Maybe<Scalars['String']>;
+  assetId_gte?: Maybe<Scalars['String']>;
+  assetId_lte?: Maybe<Scalars['String']>;
+  assetId_in?: Maybe<Array<Scalars['String']>>;
+  assetId_not_in?: Maybe<Array<Scalars['String']>>;
+  assetId_contains?: Maybe<Scalars['String']>;
+  assetId_not_contains?: Maybe<Scalars['String']>;
+  assetId_starts_with?: Maybe<Scalars['String']>;
+  assetId_not_starts_with?: Maybe<Scalars['String']>;
+  assetId_ends_with?: Maybe<Scalars['String']>;
+  assetId_not_ends_with?: Maybe<Scalars['String']>;
+  volume?: Maybe<Scalars['BigInt']>;
+  volume_not?: Maybe<Scalars['BigInt']>;
+  volume_gt?: Maybe<Scalars['BigInt']>;
+  volume_lt?: Maybe<Scalars['BigInt']>;
+  volume_gte?: Maybe<Scalars['BigInt']>;
+  volume_lte?: Maybe<Scalars['BigInt']>;
+  volume_in?: Maybe<Array<Scalars['BigInt']>>;
+  volume_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  liquidity?: Maybe<Scalars['BigInt']>;
+  liquidity_not?: Maybe<Scalars['BigInt']>;
+  liquidity_gt?: Maybe<Scalars['BigInt']>;
+  liquidity_lt?: Maybe<Scalars['BigInt']>;
+  liquidity_gte?: Maybe<Scalars['BigInt']>;
+  liquidity_lte?: Maybe<Scalars['BigInt']>;
+  liquidity_in?: Maybe<Array<Scalars['BigInt']>>;
+  liquidity_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  txCount?: Maybe<Scalars['BigInt']>;
+  txCount_not?: Maybe<Scalars['BigInt']>;
+  txCount_gt?: Maybe<Scalars['BigInt']>;
+  txCount_lt?: Maybe<Scalars['BigInt']>;
+  txCount_gte?: Maybe<Scalars['BigInt']>;
+  txCount_lte?: Maybe<Scalars['BigInt']>;
+  txCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  txCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+};
+
+export enum HourlyMetric_OrderBy {
+  Id = 'id',
+  HourStartTimestamp = 'hourStartTimestamp',
+  AssetId = 'assetId',
+  Volume = 'volume',
+  Liquidity = 'liquidity',
+  TxCount = 'txCount'
+}
 
 export enum OrderDirection {
   Asc = 'asc',
@@ -89,6 +239,10 @@ export type Query = {
   transactions: Array<Transaction>;
   user?: Maybe<User>;
   users: Array<User>;
+  hourlyMetric?: Maybe<HourlyMetric>;
+  hourlyMetrics: Array<HourlyMetric>;
+  dayMetric?: Maybe<DayMetric>;
+  dayMetrics: Array<DayMetric>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -158,6 +312,38 @@ export type QueryUsersArgs = {
 };
 
 
+export type QueryHourlyMetricArgs = {
+  id: Scalars['ID'];
+  block?: Maybe<Block_Height>;
+};
+
+
+export type QueryHourlyMetricsArgs = {
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<HourlyMetric_OrderBy>;
+  orderDirection?: Maybe<OrderDirection>;
+  where?: Maybe<HourlyMetric_Filter>;
+  block?: Maybe<Block_Height>;
+};
+
+
+export type QueryDayMetricArgs = {
+  id: Scalars['ID'];
+  block?: Maybe<Block_Height>;
+};
+
+
+export type QueryDayMetricsArgs = {
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<DayMetric_OrderBy>;
+  orderDirection?: Maybe<OrderDirection>;
+  where?: Maybe<DayMetric_Filter>;
+  block?: Maybe<Block_Height>;
+};
+
+
 export type Query_MetaArgs = {
   block?: Maybe<Block_Height>;
 };
@@ -214,6 +400,10 @@ export type Subscription = {
   transactions: Array<Transaction>;
   user?: Maybe<User>;
   users: Array<User>;
+  hourlyMetric?: Maybe<HourlyMetric>;
+  hourlyMetrics: Array<HourlyMetric>;
+  dayMetric?: Maybe<DayMetric>;
+  dayMetrics: Array<DayMetric>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -283,6 +473,38 @@ export type SubscriptionUsersArgs = {
 };
 
 
+export type SubscriptionHourlyMetricArgs = {
+  id: Scalars['ID'];
+  block?: Maybe<Block_Height>;
+};
+
+
+export type SubscriptionHourlyMetricsArgs = {
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<HourlyMetric_OrderBy>;
+  orderDirection?: Maybe<OrderDirection>;
+  where?: Maybe<HourlyMetric_Filter>;
+  block?: Maybe<Block_Height>;
+};
+
+
+export type SubscriptionDayMetricArgs = {
+  id: Scalars['ID'];
+  block?: Maybe<Block_Height>;
+};
+
+
+export type SubscriptionDayMetricsArgs = {
+  skip?: Maybe<Scalars['Int']>;
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<DayMetric_OrderBy>;
+  orderDirection?: Maybe<OrderDirection>;
+  where?: Maybe<DayMetric_Filter>;
+  block?: Maybe<Block_Height>;
+};
+
+
 export type Subscription_MetaArgs = {
   block?: Maybe<Block_Height>;
 };
@@ -293,6 +515,8 @@ export type Transaction = {
   status: TransactionStatus;
   chainId: Scalars['BigInt'];
   preparedTimestamp: Scalars['BigInt'];
+  receivingChainCondition: Scalars['Bytes'];
+  sendingChainCondition: Scalars['Bytes'];
   receivingChainTxManagerAddress: Scalars['Bytes'];
   user: User;
   router: Router;
@@ -309,14 +533,15 @@ export type Transaction = {
   amount: Scalars['BigInt'];
   expiry: Scalars['BigInt'];
   preparedBlockNumber: Scalars['BigInt'];
+  encodedConditionData: Scalars['Bytes'];
   encryptedCallData: Scalars['String'];
   prepareCaller?: Maybe<Scalars['Bytes']>;
   bidSignature: Scalars['Bytes'];
-  encodedBid: Scalars['Bytes'];
+  encodedBid: Scalars['String'];
   prepareTransactionHash: Scalars['Bytes'];
   prepareMeta?: Maybe<Scalars['Bytes']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
-  signature?: Maybe<Scalars['Bytes']>;
+  fulfillUnlockData?: Maybe<Scalars['Bytes']>;
   callData?: Maybe<Scalars['String']>;
   externalCallSuccess?: Maybe<Scalars['Boolean']>;
   externalCallIsContract?: Maybe<Scalars['Boolean']>;
@@ -324,9 +549,12 @@ export type Transaction = {
   fulfillCaller?: Maybe<Scalars['Bytes']>;
   fulfillTransactionHash?: Maybe<Scalars['Bytes']>;
   fulfillMeta?: Maybe<Scalars['Bytes']>;
+  fulfillTimestamp?: Maybe<Scalars['BigInt']>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
   cancelTransactionHash?: Maybe<Scalars['Bytes']>;
   cancelMeta?: Maybe<Scalars['Bytes']>;
+  cancelTimestamp?: Maybe<Scalars['BigInt']>;
+  cancelUnlockData?: Maybe<Scalars['Bytes']>;
 };
 
 export enum TransactionStatus {
@@ -362,6 +590,18 @@ export type Transaction_Filter = {
   preparedTimestamp_lte?: Maybe<Scalars['BigInt']>;
   preparedTimestamp_in?: Maybe<Array<Scalars['BigInt']>>;
   preparedTimestamp_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingChainCondition?: Maybe<Scalars['Bytes']>;
+  receivingChainCondition_not?: Maybe<Scalars['Bytes']>;
+  receivingChainCondition_in?: Maybe<Array<Scalars['Bytes']>>;
+  receivingChainCondition_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  receivingChainCondition_contains?: Maybe<Scalars['Bytes']>;
+  receivingChainCondition_not_contains?: Maybe<Scalars['Bytes']>;
+  sendingChainCondition?: Maybe<Scalars['Bytes']>;
+  sendingChainCondition_not?: Maybe<Scalars['Bytes']>;
+  sendingChainCondition_in?: Maybe<Array<Scalars['Bytes']>>;
+  sendingChainCondition_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  sendingChainCondition_contains?: Maybe<Scalars['Bytes']>;
+  sendingChainCondition_not_contains?: Maybe<Scalars['Bytes']>;
   receivingChainTxManagerAddress?: Maybe<Scalars['Bytes']>;
   receivingChainTxManagerAddress_not?: Maybe<Scalars['Bytes']>;
   receivingChainTxManagerAddress_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -484,6 +724,12 @@ export type Transaction_Filter = {
   preparedBlockNumber_lte?: Maybe<Scalars['BigInt']>;
   preparedBlockNumber_in?: Maybe<Array<Scalars['BigInt']>>;
   preparedBlockNumber_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  encodedConditionData?: Maybe<Scalars['Bytes']>;
+  encodedConditionData_not?: Maybe<Scalars['Bytes']>;
+  encodedConditionData_in?: Maybe<Array<Scalars['Bytes']>>;
+  encodedConditionData_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  encodedConditionData_contains?: Maybe<Scalars['Bytes']>;
+  encodedConditionData_not_contains?: Maybe<Scalars['Bytes']>;
   encryptedCallData?: Maybe<Scalars['String']>;
   encryptedCallData_not?: Maybe<Scalars['String']>;
   encryptedCallData_gt?: Maybe<Scalars['String']>;
@@ -510,12 +756,20 @@ export type Transaction_Filter = {
   bidSignature_not_in?: Maybe<Array<Scalars['Bytes']>>;
   bidSignature_contains?: Maybe<Scalars['Bytes']>;
   bidSignature_not_contains?: Maybe<Scalars['Bytes']>;
-  encodedBid?: Maybe<Scalars['Bytes']>;
-  encodedBid_not?: Maybe<Scalars['Bytes']>;
-  encodedBid_in?: Maybe<Array<Scalars['Bytes']>>;
-  encodedBid_not_in?: Maybe<Array<Scalars['Bytes']>>;
-  encodedBid_contains?: Maybe<Scalars['Bytes']>;
-  encodedBid_not_contains?: Maybe<Scalars['Bytes']>;
+  encodedBid?: Maybe<Scalars['String']>;
+  encodedBid_not?: Maybe<Scalars['String']>;
+  encodedBid_gt?: Maybe<Scalars['String']>;
+  encodedBid_lt?: Maybe<Scalars['String']>;
+  encodedBid_gte?: Maybe<Scalars['String']>;
+  encodedBid_lte?: Maybe<Scalars['String']>;
+  encodedBid_in?: Maybe<Array<Scalars['String']>>;
+  encodedBid_not_in?: Maybe<Array<Scalars['String']>>;
+  encodedBid_contains?: Maybe<Scalars['String']>;
+  encodedBid_not_contains?: Maybe<Scalars['String']>;
+  encodedBid_starts_with?: Maybe<Scalars['String']>;
+  encodedBid_not_starts_with?: Maybe<Scalars['String']>;
+  encodedBid_ends_with?: Maybe<Scalars['String']>;
+  encodedBid_not_ends_with?: Maybe<Scalars['String']>;
   prepareTransactionHash?: Maybe<Scalars['Bytes']>;
   prepareTransactionHash_not?: Maybe<Scalars['Bytes']>;
   prepareTransactionHash_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -536,12 +790,12 @@ export type Transaction_Filter = {
   relayerFee_lte?: Maybe<Scalars['BigInt']>;
   relayerFee_in?: Maybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: Maybe<Array<Scalars['BigInt']>>;
-  signature?: Maybe<Scalars['Bytes']>;
-  signature_not?: Maybe<Scalars['Bytes']>;
-  signature_in?: Maybe<Array<Scalars['Bytes']>>;
-  signature_not_in?: Maybe<Array<Scalars['Bytes']>>;
-  signature_contains?: Maybe<Scalars['Bytes']>;
-  signature_not_contains?: Maybe<Scalars['Bytes']>;
+  fulfillUnlockData?: Maybe<Scalars['Bytes']>;
+  fulfillUnlockData_not?: Maybe<Scalars['Bytes']>;
+  fulfillUnlockData_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillUnlockData_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  fulfillUnlockData_contains?: Maybe<Scalars['Bytes']>;
+  fulfillUnlockData_not_contains?: Maybe<Scalars['Bytes']>;
   callData?: Maybe<Scalars['String']>;
   callData_not?: Maybe<Scalars['String']>;
   callData_gt?: Maybe<Scalars['String']>;
@@ -588,6 +842,14 @@ export type Transaction_Filter = {
   fulfillMeta_not_in?: Maybe<Array<Scalars['Bytes']>>;
   fulfillMeta_contains?: Maybe<Scalars['Bytes']>;
   fulfillMeta_not_contains?: Maybe<Scalars['Bytes']>;
+  fulfillTimestamp?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_not?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_gt?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_lt?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_gte?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_lte?: Maybe<Scalars['BigInt']>;
+  fulfillTimestamp_in?: Maybe<Array<Scalars['BigInt']>>;
+  fulfillTimestamp_not_in?: Maybe<Array<Scalars['BigInt']>>;
   cancelCaller?: Maybe<Scalars['Bytes']>;
   cancelCaller_not?: Maybe<Scalars['Bytes']>;
   cancelCaller_in?: Maybe<Array<Scalars['Bytes']>>;
@@ -606,6 +868,20 @@ export type Transaction_Filter = {
   cancelMeta_not_in?: Maybe<Array<Scalars['Bytes']>>;
   cancelMeta_contains?: Maybe<Scalars['Bytes']>;
   cancelMeta_not_contains?: Maybe<Scalars['Bytes']>;
+  cancelTimestamp?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_not?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_gt?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_lt?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_gte?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_lte?: Maybe<Scalars['BigInt']>;
+  cancelTimestamp_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelTimestamp_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelUnlockData?: Maybe<Scalars['Bytes']>;
+  cancelUnlockData_not?: Maybe<Scalars['Bytes']>;
+  cancelUnlockData_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelUnlockData_not_in?: Maybe<Array<Scalars['Bytes']>>;
+  cancelUnlockData_contains?: Maybe<Scalars['Bytes']>;
+  cancelUnlockData_not_contains?: Maybe<Scalars['Bytes']>;
 };
 
 export enum Transaction_OrderBy {
@@ -613,6 +889,8 @@ export enum Transaction_OrderBy {
   Status = 'status',
   ChainId = 'chainId',
   PreparedTimestamp = 'preparedTimestamp',
+  ReceivingChainCondition = 'receivingChainCondition',
+  SendingChainCondition = 'sendingChainCondition',
   ReceivingChainTxManagerAddress = 'receivingChainTxManagerAddress',
   User = 'user',
   Router = 'router',
@@ -629,6 +907,7 @@ export enum Transaction_OrderBy {
   Amount = 'amount',
   Expiry = 'expiry',
   PreparedBlockNumber = 'preparedBlockNumber',
+  EncodedConditionData = 'encodedConditionData',
   EncryptedCallData = 'encryptedCallData',
   PrepareCaller = 'prepareCaller',
   BidSignature = 'bidSignature',
@@ -636,7 +915,7 @@ export enum Transaction_OrderBy {
   PrepareTransactionHash = 'prepareTransactionHash',
   PrepareMeta = 'prepareMeta',
   RelayerFee = 'relayerFee',
-  Signature = 'signature',
+  FulfillUnlockData = 'fulfillUnlockData',
   CallData = 'callData',
   ExternalCallSuccess = 'externalCallSuccess',
   ExternalCallIsContract = 'externalCallIsContract',
@@ -644,9 +923,12 @@ export enum Transaction_OrderBy {
   FulfillCaller = 'fulfillCaller',
   FulfillTransactionHash = 'fulfillTransactionHash',
   FulfillMeta = 'fulfillMeta',
+  FulfillTimestamp = 'fulfillTimestamp',
   CancelCaller = 'cancelCaller',
   CancelTransactionHash = 'cancelTransactionHash',
-  CancelMeta = 'cancelMeta'
+  CancelMeta = 'cancelMeta',
+  CancelTimestamp = 'cancelTimestamp',
+  CancelUnlockData = 'cancelUnlockData'
 }
 
 export type User = {
@@ -719,7 +1001,7 @@ export type GetSenderTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetSenderTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetSenderTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetReceiverTransactionsQueryVariables = Exact<{
   userId: Scalars['String'];
@@ -728,21 +1010,21 @@ export type GetReceiverTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetReceiverTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetReceiverTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetTransactionQueryVariables = Exact<{
   transactionId: Scalars['ID'];
 }>;
 
 
-export type GetTransactionQuery = { __typename?: 'Query', transaction?: Maybe<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetTransactionQuery = { __typename?: 'Query', transaction?: Maybe<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetTransactionsQueryVariables = Exact<{
   transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
 }>;
 
 
-export type GetTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: any, bidSignature: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+export type GetTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, preparedTimestamp: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, encryptedCallData: string, encodedBid: string, bidSignature: any, relayerFee?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, fulfillUnlockData?: Maybe<any>, cancelUnlockData?: Maybe<any>, sendingChainCondition: any, receivingChainCondition: any, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -833,6 +1115,11 @@ export const GetReceiverTransactionsDocument = gql`
     prepareTransactionHash
     fulfillTransactionHash
     cancelTransactionHash
+    fulfillUnlockData
+    cancelUnlockData
+    cancelUnlockData
+    sendingChainCondition
+    receivingChainCondition
   }
 }
     `;
@@ -867,13 +1154,17 @@ export const GetTransactionDocument = gql`
     encodedBid
     bidSignature
     relayerFee
-    signature
     prepareCaller
     fulfillCaller
     cancelCaller
     prepareTransactionHash
     fulfillTransactionHash
     cancelTransactionHash
+    fulfillUnlockData
+    cancelUnlockData
+    cancelUnlockData
+    sendingChainCondition
+    receivingChainCondition
   }
 }
     `;
@@ -908,7 +1199,6 @@ export const GetTransactionsDocument = gql`
     encodedBid
     bidSignature
     relayerFee
-    signature
     callData
     prepareCaller
     fulfillCaller
@@ -916,6 +1206,11 @@ export const GetTransactionsDocument = gql`
     prepareTransactionHash
     fulfillTransactionHash
     cancelTransactionHash
+    fulfillUnlockData
+    cancelUnlockData
+    cancelUnlockData
+    sendingChainCondition
+    receivingChainCondition
   }
 }
     `;

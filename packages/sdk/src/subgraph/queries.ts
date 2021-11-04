@@ -84,6 +84,11 @@ export const getReceiverTransactionsQuery = gql`
       prepareTransactionHash
       fulfillTransactionHash
       cancelTransactionHash
+      fulfillUnlockData
+      cancelUnlockData
+      cancelUnlockData
+      sendingChainCondition
+      receivingChainCondition
     }
   }
 `;
@@ -120,13 +125,17 @@ export const getTransactionByIdQuery = gql`
       encodedBid
       bidSignature
       relayerFee
-      signature
       prepareCaller
       fulfillCaller
       cancelCaller
       prepareTransactionHash
       fulfillTransactionHash
       cancelTransactionHash
+      fulfillUnlockData
+      cancelUnlockData
+      cancelUnlockData
+      sendingChainCondition
+      receivingChainCondition
     }
   }
 `;
@@ -162,7 +171,6 @@ export const getTransactionsByIdsQuery = gql`
       encodedBid
       bidSignature
       relayerFee
-      signature
       callData
       prepareCaller
       fulfillCaller
@@ -170,6 +178,11 @@ export const getTransactionsByIdsQuery = gql`
       prepareTransactionHash
       fulfillTransactionHash
       cancelTransactionHash
+      fulfillUnlockData
+      cancelUnlockData
+      cancelUnlockData
+      sendingChainCondition
+      receivingChainCondition
     }
   }
 `;
