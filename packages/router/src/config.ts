@@ -94,7 +94,7 @@ export const TChainConfig = Type.Object({
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
-  subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
+  subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
 });
 
 export const TSwapPool = Type.Object({
@@ -249,11 +249,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
+
     if (!chainConfig.relayerFeeThreshold) {
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (!chainConfig.allowFulfillRelay) {
+    if (chainConfig.allowFulfillRelay === undefined || chainConfig.allowFulfillRelay === null) {
       nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
     }
 
@@ -272,7 +273,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
     }
 
-    if (!chainConfig.subgraphSyncBuffer) {
+    if (!chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0) {
       const syncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
       nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
         syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min

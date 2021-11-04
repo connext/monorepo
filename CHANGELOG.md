@@ -2,6 +2,21 @@
 
 ## Next Release
 
+## 0.0.73
+
+- [contracts] Deploy to mainnet
+
+## 0.0.72
+
+- [router/sdk] Fix fallback subgraph
+
+## 0.0.71
+
+- [router] Handle fulfill relay bugfix
+
+## 0.0.70
+
+- [router] Handle fulfill relay
 - [router/sdk] Add subgraph fallbacks by default
 - [test-ui] Fixes for test-ui based on feedback
 
