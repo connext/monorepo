@@ -16,12 +16,6 @@ export const routerAddrMock = mkAddress("0xb");
 export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;
 export const BID_EXPIRY = 123401;
-export const CHAIN_IDS_FOR_AMM = [
-  {
-    chainId: 1337,
-    address: "0x0",
-  },
-];
 
 export const configMock: NxtpRouterConfig = {
   adminToken: "foo",

@@ -17,7 +17,6 @@ import {
   SenderChainDataInvalid,
   BidExpiryInvalid,
 } from "../errors";
-import { NotExistVirtuallAMM } from "../errors/contracts";
 import {
   decodeAuctionBid,
   getNtpTimeSeconds,
@@ -27,7 +26,7 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
-import { getChainIdsForAMM, calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
@@ -90,20 +89,10 @@ export const prepare = async (
     txService.getBalance(invariantData.receivingChainId, wallet.address),
   ]);
 
-  const chaindIdsForAMM = getChainIdsForAMM();
-  if (chaindIdsForAMM.length == 0) {
-    throw new NotExistVirtuallAMM({
-      methodContext,
-      requestContext,
-    });
-  }
-
   let receiverAmount = await getReceiverAmount(
     senderAmount,
     inputDecimals,
     outputDecimals,
-    chaindIdsForAMM[0].chainId,
-    chaindIdsForAMM[0].address,
     senderBalance,
     receiverBalance,
     config.maxPriceImpact,

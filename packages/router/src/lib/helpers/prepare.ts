@@ -9,7 +9,6 @@ import { BigNumber } from "ethers";
 import { PriceImpactTooHigh } from "../errors/auction";
 
 import { AmountInvalid } from "../errors/prepare";
-import { getSwapRateFromVirutalAMM } from "./shared";
 
 const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
@@ -34,29 +33,18 @@ export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExp
  * Returns the swapRate
  *
  * @param TODO
- * @returns The swapRate, determined by the AMM
+ * @returns The swapRate, determined by the stableSwap
  *
  * @remarks
- * TODO: getSwapRate using AMM
+ * TODO: getSwapRate using stableSwap
  */
 export const getSwapRate = async (
-  chainIdForAMM: number,
   amount: BigNumber,
   balances: BigNumber[],
   indexIn: number,
   indexOut: number,
-  stableSwapAddress: string,
 ): Promise<BigNumber> => {
-  const amountOut = await getSwapRateFromVirutalAMM(
-    chainIdForAMM,
-    amount,
-    balances,
-    indexIn,
-    indexOut,
-    stableSwapAddress,
-  );
-
-  return amountOut;
+  return amount;
 };
 
 /**
@@ -72,8 +60,6 @@ export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
   outputDecimals: number,
-  chainIdForAMM: number,
-  stableSwapAddress: string,
   senderBalance: BigNumber,
   receiverBalance: BigNumber,
   maxPriceImpact: number,
@@ -87,14 +73,7 @@ export const getReceiverAmount = async (
   const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - inputDecimals));
   const balances: BigNumber[] = [convertedSenderBalance, convertedReceiverBalance];
   // 1. swap rate from AMM
-  const amountAfterSwapRate = await getSwapRate(
-    chainIdForAMM,
-    BigNumber.from(inputAmount),
-    balances,
-    0,
-    1,
-    stableSwapAddress,
-  );
+  const amountAfterSwapRate = await getSwapRate(BigNumber.from(inputAmount), balances, 0, 1);
 
   // check price impact
   const deltaPrice = amountAfterSwapRate.gt(inputAmount)

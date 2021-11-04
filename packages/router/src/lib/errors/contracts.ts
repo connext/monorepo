@@ -5,9 +5,3 @@ export class NotExistPriceOracle extends NxtpError {
     super(`Price Oracle doesn't exist for chain ${chainId}`, context, "NotExistPriceOracle");
   }
 }
-
-export class NotExistVirtuallAMM extends NxtpError {
-  constructor(context: any = {}) {
-    super(`Virtual AMM contract doesn't exist`, context, "NotExistPriceOracle");
-  }
-}

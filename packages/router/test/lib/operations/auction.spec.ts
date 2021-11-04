@@ -48,8 +48,6 @@ describe("Auction Operation", () => {
 
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
 
-      stub(SharedHelperFns, "getChainIdsForAMM").returns(CHAIN_IDS_FOR_AMM);
-
       getChainIdForGasFeeStub = stub(SharedHelperFns, "getChainIdForGasFee").returns([1337]);
     });
 

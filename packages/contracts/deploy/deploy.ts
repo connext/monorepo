@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { parseEther, parseUnits } from "@ethersproject/units";
 
 const TEST_ROUTERS = [
   "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // live testnet router
@@ -13,11 +12,8 @@ const SKIP_SETUP = [1, 56, 250, 137, 100, 42161, 43114];
 const WRAPPED_ETH_MAP = new Map();
 WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
-WRAPPED_ETH_MAP.set("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"); // goerli WETH
 WRAPPED_ETH_MAP.set("56", "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"); // Binance Smart Chain WBNB
 WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // arbitrum WETH
-
-const VIRTUAL_AMM_CHAINS = [4, 5, 1337, 1338];
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -63,17 +59,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
-  }
-
-  if (VIRTUAL_AMM_CHAINS.includes(parseInt(chainId))) {
-    console.log("Deploying stable swap contracts to configured chain");
-    const res = await hre.deployments.deploy("StableSwap", {
-      from: deployer,
-      log: true,
-      args: [parseUnits("5000", 0)],
-    });
-
-    console.log(`Deployed AMM. address: ${res.address}, txhash: ${res.transactionHash}, chainId: ${chainId}`);
   }
 };
 export default func;

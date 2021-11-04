@@ -26,8 +26,7 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken, getChainIdsForAMM } from "../helpers/shared";
-import { NotExistVirtuallAMM } from "../errors/contracts";
+import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -205,20 +204,11 @@ export const newAuction = async (
   });
 
   // getting the swap rate from the receiver side config
-  const chaindIdsForAMM = getChainIdsForAMM();
-  logger.info("ChainIds for AMM", requestContext, methodContext, { chaindIdsForAMM });
-  if (chaindIdsForAMM.length == 0) {
-    throw new NotExistVirtuallAMM({
-      methodContext,
-      requestContext,
-    });
-  }
+
   let amountReceived = await getReceiverAmount(
     amount,
     inputDecimals,
     outputDecimals,
-    chaindIdsForAMM[0].chainId,
-    chaindIdsForAMM[0].address,
     senderLiquidity,
     receiverLiquidity,
     config.maxPriceImpact,

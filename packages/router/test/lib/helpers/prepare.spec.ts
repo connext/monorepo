@@ -11,8 +11,6 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../../../src/lib/helpers";
-import { BigNumber } from "@ethersproject/bignumber";
-import { CHAIN_IDS_FOR_AMM } from "../../utils";
 import { PriceImpactTooHigh } from "../../../src/lib/errors/auction";
 
 describe("validExpiryBuffer", () => {
@@ -40,8 +38,6 @@ let getSwapRateStub: SinonStub;
 describe("getReceiverAmount", () => {
   beforeEach(() => {
     getSwapRateStub = stub(PrepareHelperFns, "getSwapRate").resolves(BigNumber.from("90000"));
-
-    stub(SharedHelperFns, "getChainIdsForAMM").returns(CHAIN_IDS_FOR_AMM);
   });
 
   it("should work", async () => {
@@ -50,8 +46,6 @@ describe("getReceiverAmount", () => {
       parseEther("10000").toString(),
       18,
       18,
-      1337,
-      "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
       20,
@@ -69,8 +63,6 @@ describe("getReceiverAmount", () => {
         parseEther("10000").toString(),
         18,
         18,
-        1337,
-        "0x0",
         BigNumber.from("100000"),
         BigNumber.from("100000"),
         5,
@@ -86,8 +78,6 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 6).toString(),
       6,
       18,
-      1337,
-      "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
       20,
@@ -101,8 +91,6 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 18).toString(),
       18,
       6,
-      1337,
-      "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
       20,
@@ -116,8 +104,6 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 6).toString(),
       6,
       6,
-      1337,
-      "0x0",
       BigNumber.from("100000"),
       BigNumber.from("100000"),
       20,
@@ -128,7 +114,7 @@ describe("getReceiverAmount", () => {
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1, 1337, "0x0", BigNumber.from("100000"), BigNumber.from("100000"), 20);
+      await getReceiverAmount("1.0", 1, 1, BigNumber.from("100000"), BigNumber.from("100000"), 20);
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);
