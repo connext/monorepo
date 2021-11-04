@@ -34,6 +34,8 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
     "approvedConditions(address)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
     "assetOwnershipTimestamp()": FunctionFragment;
+    "c_0x0e7e5b53(bytes32)": FunctionFragment;
+    "c_0x909b1861(bytes32)": FunctionFragment;
     "cancel(tuple)": FunctionFragment;
     "conditionOwnershipTimestamp()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -107,6 +109,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "assetOwnershipTimestamp",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x0e7e5b53",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x909b1861",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "cancel",
@@ -338,6 +348,14 @@ interface TransactionManagerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "assetOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x0e7e5b53",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x909b1861",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
@@ -582,6 +600,16 @@ export class TransactionManager extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    c_0x0e7e5b53(
+      c__0x0e7e5b53: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0x909b1861(
+      c__0x909b1861: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     cancel(
       args: {
         txData: {
@@ -815,6 +843,16 @@ export class TransactionManager extends BaseContract {
 
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  c_0x0e7e5b53(
+    c__0x0e7e5b53: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0x909b1861(
+    c__0x909b1861: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   cancel(
     args: {
       txData: {
@@ -1033,6 +1071,16 @@ export class TransactionManager extends BaseContract {
     approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    c_0x0e7e5b53(
+      c__0x0e7e5b53: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0x909b1861(
+      c__0x909b1861: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     cancel(
       args: {
@@ -2173,6 +2221,16 @@ export class TransactionManager extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0x0e7e5b53(
+      c__0x0e7e5b53: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0x909b1861(
+      c__0x909b1861: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     cancel(
       args: {
         txData: {
@@ -2411,6 +2469,16 @@ export class TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     assetOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0x0e7e5b53(
+      c__0x0e7e5b53: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0x909b1861(
+      c__0x909b1861: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
