@@ -1,5 +1,11 @@
 [
   {
+    "subgraphName": "connext/nxtp-mainnet",
+    "network": "mainnet",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 13548432
+  },
+  {
     "subgraphName": "connext/nxtp-arbitrum-one",
     "network": "arbitrum-one",
     "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
