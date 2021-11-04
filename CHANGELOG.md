@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.72
+
+- [router/sdk] Fix fallback subgraph
+
 ## 0.0.71
 
 - [router] Handle fulfill relay bugfix

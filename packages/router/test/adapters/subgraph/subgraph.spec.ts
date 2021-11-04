@@ -8,18 +8,18 @@ import {
   txDataMock,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
 import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
 import {
   getActiveTransactions,
   getAssetBalance,
-  getSyncRecord,
+  getSyncRecords,
   getTransactionForChain,
   sdkSenderTransactionToCrosschainTransaction,
 } from "../../../src/adapters/subgraph/subgraph";
 import { CrosschainTransactionStatus } from "../../../src/lib/entities";
-import { ContractReaderNotAvailableForChain } from "../../../src/lib/errors";
+import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../../src/lib/errors";
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 import { configMock, routerAddrMock } from "../../utils";
@@ -38,6 +38,9 @@ let fallbackSubgraph: SinonStubbedInstance<FallbackSubgraph<SdkMock>>;
 let sdk: SdkMock;
 
 let getSdkStub: SinonStub;
+
+let mockSyncRecords: SubgraphSyncRecord[];
+let mockHasSynced = true;
 
 const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 const TEST_SUBGRAPH_MAX_LAG = 10;
@@ -71,7 +74,7 @@ describe("Subgraph Adapter", () => {
         const { _meta } = await sdk.GetBlockNumber();
         const syncedBlock = _meta?.block.number ?? 0;
         const synced = latestBlock - syncedBlock <= TEST_SUBGRAPH_MAX_LAG;
-        return [
+        mockSyncRecords = [
           {
             synced,
             latestBlock,
@@ -80,8 +83,14 @@ describe("Subgraph Adapter", () => {
             uri: "",
           },
         ];
+        return mockSyncRecords;
       }),
     });
+    Sinon.stub(fallbackSubgraph, "inSync").get(() => true);
+    mockHasSynced = true;
+    Sinon.stub(fallbackSubgraph, "hasSynced").get(() => mockHasSynced);
+    mockSyncRecords = undefined;
+    Sinon.stub(fallbackSubgraph, "records").get(() => mockSyncRecords);
 
     sdks = {
       [sendingChainId]: fallbackSubgraph,
@@ -94,11 +103,12 @@ describe("Subgraph Adapter", () => {
     ctxMock.config = config;
   });
 
-  describe("#getSyncRecord", () => {
+  describe("#getSyncRecords", () => {
     it("should work", async () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
       txServiceMock.getBlockNumber.resolves(10);
-      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
+      mockHasSynced = false;
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         {
           synced: true,
           syncedBlock: 10,
@@ -123,12 +133,17 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should fail if theres no chain config for that chain", async () => {
+      const testChainId = 9876;
       const _sdks = {
-        [9876]: sdks[sendingChainId],
+        [testChainId]: sdks[sendingChainId],
       };
       getSdkStub.returns(_sdks as any);
-
-      await expect(getActiveTransactions()).to.be.rejectedWith("No chain config");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const expectedErrMessage = (new NoChainConfig(testChainId)).message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
     });
 
     it("should return an empty array if the chain is unsynced", async () => {
@@ -138,7 +153,7 @@ describe("Subgraph Adapter", () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: testSyncedBlockNumber } } });
       txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(await getSyncRecord(sendingChainId)).to.be.deep.eq([
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         { synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
       ]);
     });
@@ -154,9 +169,16 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should fail if GetSenderTransactions fails", async () => {
-      sdk.GetSenderTransactions.rejects(new Error("fail"));
+      const testError = new Error("fail");
+      sdk.GetSenderTransactions.rejects(testError);
 
-      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const testChainId = Object.keys(sdks)[0];
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
     });
 
     it("should fail if GetTransaction fails", async () => {
@@ -165,10 +187,16 @@ describe("Subgraph Adapter", () => {
           transactions: [{ ...transactionSubgraphMock, receivingChainId: sendingChainId }],
         },
       });
+      const testError = new Error("fail");
+      sdk.GetTransactions.rejects(testError);
 
-      sdk.GetTransactions.rejects(new Error("fail"));
-
-      await expect(getActiveTransactions()).to.be.rejectedWith("fail");
+      try {
+        await getActiveTransactions(requestContextMock);
+      } catch (e) {
+        const testChainId = Object.keys(sdks)[0];
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
 
       expect(
         sdk.GetSenderTransactions.calledOnceWithExactly({

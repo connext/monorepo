@@ -4,6 +4,7 @@ import {
   FallbackSubgraph,
   jsonifyError,
   Logger,
+  NxtpError,
   RequestContext,
   TransactionData,
   VariantTransactionData,
@@ -126,7 +127,6 @@ export class Subgraph {
         const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
         const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
         const fallbackSubgraph = new FallbackSubgraph<Sdk>(
-          logger,
           cId,
           sdksWithClients,
           _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
@@ -170,7 +170,7 @@ export class Subgraph {
   }
 
   getSyncStatus(chainId: number): SubgraphSyncRecord {
-    const record = this.syncStatus[chainId];
+    const record = this.sdks[chainId].records[0];
     return (
       record ?? {
         synced: false,
@@ -206,9 +206,6 @@ export class Subgraph {
         idsBySendingChains[tx.crosschainTx.invariant.sendingChainId].push(id);
       }
     });
-
-    // For each chain, update subgraph sync status
-    await this.updateSyncStatus();
 
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
@@ -249,6 +246,9 @@ export class Subgraph {
         correspondingReceiverTxIdsByChain[transaction.receivingChainId].push(transaction.transactionId);
       }
     });
+
+    // For each chain, update subgraph sync status
+    await this.updateSyncStatus();
 
     const correspondingReceiverTxs: any[] = [];
     await Promise.all(
@@ -329,12 +329,12 @@ export class Subgraph {
 
     // Step 2: handle any not-listed active transactions (i.e. sdk has
     // gone offline at some point during the transactions)
-    const errors: Map<string, Error> = new Map();
+    const errors: Map<number, Error> = new Map();
     const txs = await Promise.all(
       Object.keys(this.sdks).map(async (c) => {
+        const chainId = parseInt(c);
         try {
           const user = (await this.userAddress).toLowerCase();
-          const chainId = parseInt(c);
           const subgraph = this.sdks[chainId];
 
           // get all sender prepared
@@ -505,21 +505,18 @@ export class Subgraph {
           const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
           return activeFlattened;
         } catch (e) {
-          errors.set(c, e);
+          errors.set(chainId, e);
           this.logger.error("Error getting active transactions", requestContext, methodContext, jsonifyError(e), {
-            chainId: c,
+            chainId,
           });
           return [];
         }
       }),
     );
 
+    // Check to see if errors occurred for all chains (i.e. no active transactions were retrieved).
     if (errors.size === Object.keys(this.sdks).length) {
-      if (errors.size === 1) {
-        // Just throw the first error in the Map if there's only one chain supported.
-        throw errors.values().next().value;
-      }
-      throw new Error("Failed to get active transactions for all chains");
+      throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
     }
 
     const all = txs.flat();
