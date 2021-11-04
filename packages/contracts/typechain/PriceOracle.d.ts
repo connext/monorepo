@@ -20,15 +20,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface PriceOracleInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x71fbecd4(bytes32)": FunctionFragment;
     "getTokenPrice(address)": FunctionFragment;
     "isPriceOracle()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x71fbecd4",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "getTokenPrice",
     values: [string]
@@ -38,10 +33,6 @@ interface PriceOracleInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "c_0x71fbecd4",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getTokenPrice",
     data: BytesLike
@@ -98,11 +89,6 @@ export class PriceOracle extends BaseContract {
   interface: PriceOracleInterface;
 
   functions: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     getTokenPrice(
       token: string,
       overrides?: CallOverrides
@@ -111,21 +97,11 @@ export class PriceOracle extends BaseContract {
     isPriceOracle(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  c_0x71fbecd4(
-    c__0x71fbecd4: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   getTokenPrice(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   isPriceOracle(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     getTokenPrice(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<boolean>;
@@ -134,22 +110,12 @@ export class PriceOracle extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getTokenPrice(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getTokenPrice(
       token: string,
       overrides?: CallOverrides
