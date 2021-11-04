@@ -9,6 +9,7 @@
  */
 export const getDeployedSubgraphUri = (chainId: number): string[] => {
   switch (chainId) {
+    // testnets
     case 3:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten"];
     case 4:
@@ -17,15 +18,23 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"];
     case 42:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan"];
+    case 69:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan"];
+    case 97:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel"];
+    case 80001:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai"];
+    case 421611:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby"];
+
+    // mainnets
+    case 1:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet"];
     case 56:
       return [
         "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-bsc",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc",
       ];
-    case 69:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan"];
-    case 97:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel"];
     case 100:
       return [
         "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-xdai",
@@ -51,10 +60,6 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
         "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-avalanche",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche",
       ];
-    case 80001:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai"];
-    case 421611:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby"];
     default:
       return [];
   }
