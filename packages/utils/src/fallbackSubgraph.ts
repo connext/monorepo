@@ -129,7 +129,8 @@ export class FallbackSubgraph<T extends SdkLike> {
             } finally {
               sdk.metrics.calls.push({
                 timestamp: startTime,
-                execTime: Date.now() - startTime,
+                // Exec time is measured in seconds.
+                execTime: (Date.now() - startTime) / 1000,
                 success,
               });
             }

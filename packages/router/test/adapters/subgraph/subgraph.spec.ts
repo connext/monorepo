@@ -8,7 +8,7 @@ import {
   txDataMock,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
 import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
 import {
@@ -38,6 +38,9 @@ let fallbackSubgraph: SinonStubbedInstance<FallbackSubgraph<SdkMock>>;
 let sdk: SdkMock;
 
 let getSdkStub: SinonStub;
+
+let mockSyncRecords: SubgraphSyncRecord[];
+let mockHasSynced = true;
 
 const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 const TEST_SUBGRAPH_MAX_LAG = 10;
@@ -71,7 +74,7 @@ describe("Subgraph Adapter", () => {
         const { _meta } = await sdk.GetBlockNumber();
         const syncedBlock = _meta?.block.number ?? 0;
         const synced = latestBlock - syncedBlock <= TEST_SUBGRAPH_MAX_LAG;
-        return [
+        mockSyncRecords = [
           {
             synced,
             latestBlock,
@@ -80,8 +83,14 @@ describe("Subgraph Adapter", () => {
             uri: "",
           },
         ];
+        return mockSyncRecords;
       }),
     });
+    Sinon.stub(fallbackSubgraph, "inSync").get(() => true);
+    mockHasSynced = true;
+    Sinon.stub(fallbackSubgraph, "hasSynced").get(() => mockHasSynced);
+    mockSyncRecords = undefined;
+    Sinon.stub(fallbackSubgraph, "records").get(() => mockSyncRecords);
 
     sdks = {
       [sendingChainId]: fallbackSubgraph,
@@ -98,6 +107,7 @@ describe("Subgraph Adapter", () => {
     it("should work", async () => {
       sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
       txServiceMock.getBlockNumber.resolves(10);
+      mockHasSynced = false;
       expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         {
           synced: true,
