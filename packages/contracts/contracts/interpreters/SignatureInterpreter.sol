@@ -34,14 +34,14 @@ contract SignatureInterpreter is IConditionInterpreter {
     if (transactionManagerChainId != txData.sendingChainId) {
       require(transactionManagerChainId == txData.receivingChainId, "#SI:012");
     }
-    address recovered = recoverFulfillSignature(
+
+    return recoverFulfillSignature(
       txData.transactionId,
       relayerFee,
       txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       unlockData
-    );
-    return recovered == txData.user;
+    ) == txData.user;
   }
 
   function shouldCancel(
@@ -54,13 +54,12 @@ contract SignatureInterpreter is IConditionInterpreter {
       require(transactionManagerChainId == txData.receivingChainId, "#SI:012");
     }
 
-    address recovered = recoverCancelSignature(
+    return recoverCancelSignature(
       txData.transactionId,
       txData.receivingChainId,
       txData.receivingChainTxManagerAddress,
       unlockData
-    );
-    return recovered == txData.user;
+    ) == txData.user;
   }
 
    /// @notice Recovers the signer from the signature provided by the user
