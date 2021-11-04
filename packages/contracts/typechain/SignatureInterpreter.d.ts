@@ -20,15 +20,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface SignatureInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x75ad0c4c(bytes32)": FunctionFragment;
     "shouldCancel(tuple,bytes,uint256)": FunctionFragment;
     "shouldFulfill(tuple,bytes,uint256,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x75ad0c4c",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "shouldCancel",
     values: [
@@ -88,10 +83,6 @@ interface SignatureInterpreterInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x75ad0c4c",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "shouldCancel",
     data: BytesLike
   ): Result;
@@ -147,11 +138,6 @@ export class SignatureInterpreter extends BaseContract {
   interface: SignatureInterpreterInterface;
 
   functions: {
-    c_0x75ad0c4c(
-      c__0x75ad0c4c: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     shouldCancel(
       txData: {
         receivingChainCondition: string;
@@ -207,11 +193,6 @@ export class SignatureInterpreter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
-
-  c_0x75ad0c4c(
-    c__0x75ad0c4c: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
 
   shouldCancel(
     txData: {
@@ -269,11 +250,6 @@ export class SignatureInterpreter extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    c_0x75ad0c4c(
-      c__0x75ad0c4c: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     shouldCancel(
       txData: {
         receivingChainCondition: string;
@@ -333,11 +309,6 @@ export class SignatureInterpreter extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x75ad0c4c(
-      c__0x75ad0c4c: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     shouldCancel(
       txData: {
         receivingChainCondition: string;
@@ -395,11 +366,6 @@ export class SignatureInterpreter extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x75ad0c4c(
-      c__0x75ad0c4c: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     shouldCancel(
       txData: {
         receivingChainCondition: string;

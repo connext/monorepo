@@ -141,19 +141,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "c__0x909b1861",
-        type: "bytes32",
-      },
-    ],
-    name: "c_0x909b1861",
-    outputs: [],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "conditionOwnershipTimestamp",
     outputs: [
