@@ -4,7 +4,8 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  gelatoFulfill
+  gelatoFulfill,
+  isChainSupportedByGelato
 } from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
@@ -113,7 +114,7 @@ export const fulfill = async (
   }
 
   let receipt; 
-  if (config.chainConfig[fulfillChain].gelatoRelay){
+  if (config.chainConfig[fulfillChain].gelatoRelay && isChainSupportedByGelato(fulfillChain)){
     const { taskId } = await gelatoFulfill(
        fulfillChain,
        getContractAddress(fulfillChain), 

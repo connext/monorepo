@@ -9,6 +9,7 @@ const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 const CHAIN_ID = {
   RINKEBY: 4,
   GOERLI: 5,
+  BSC: 56,
   MATIC: 137,
   FANTOM: 250,
 };
@@ -16,6 +17,7 @@ const CHAIN_ID = {
 const endpoints = {
   [CHAIN_ID.RINKEBY]: "https://relay.rinkeby.fra.gelato.digital/relay",
   [CHAIN_ID.GOERLI]: "https://relay.goerli.fra.gelato.digital/relay",
+  [CHAIN_ID.BSC]: "https://relay.bsc.fra.gelato.digital/relay",
   [CHAIN_ID.MATIC]: "https://relay.matic.fra.gelato.digital/relay",
   [CHAIN_ID.FANTOM]: "https://relay.fantom.fra.gelato.digital/relay",
 }; 
@@ -45,4 +47,8 @@ const gelatoFulfill = async (chainId: number, address: string, abi: Interface, f
   return ret;
 };
 
-export { gelatoFulfill };
+const isChainSupportedByGelato = (chainId: number) => {
+   return Object.values(CHAIN_ID).indexOf(chainId) != -1;
+};
+
+export { gelatoFulfill, isChainSupportedByGelato };

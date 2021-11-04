@@ -32,6 +32,7 @@ import {
   GAS_ESTIMATES,
   gelatoFulfill,
   getFulfillTransactionHashToSign,
+  isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 
@@ -811,7 +812,7 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (useGelatoRelay){
+    if (useGelatoRelay && isChainSupportedByGelato(txData.receivingChainId)){
       this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
       const deployedContract = getDeployedTransactionManagerContract(txData.receivingChainId);
       const data = await gelatoFulfill(txData.receivingChainId,
@@ -827,7 +828,8 @@ export class NxtpSdkBase {
 
       return data;
     }
-    else if (useRelayers) {
+    
+    if (useRelayers) {
       this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
         await this.connectMessaging();
