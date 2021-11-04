@@ -31,6 +31,7 @@ import {
   calculateExchangeAmount,
   GAS_ESTIMATES,
   gelatoFulfill,
+  getFulfillTransactionHashToSign,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 
@@ -725,7 +726,7 @@ export class NxtpSdkBase {
     const transactionId = params.txData.transactionId;
 
     // Validate params schema
-    const validate = ajv.compile(TransactionPrepareEventSchema);
+    const validate = ajv.compile(TransactionPreparedEventSchema);
     const valid = validate(params);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
