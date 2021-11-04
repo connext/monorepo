@@ -75,7 +75,7 @@ describe("Auction Operation", () => {
 
     it("should error if sending subgraph is out of sync", async () => {
       const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
-      (contractReaderMock.getSyncRecord as SinonStub).onCall(0).returns(records);
+      (contractReaderMock.getSyncRecords as SinonStub).onCall(0).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
         SubgraphNotSynced.getMessage(auctionPayload.receivingChainId, records),
       );
@@ -83,7 +83,7 @@ describe("Auction Operation", () => {
 
     it("should error if receiving subgraph is out of sync", async () => {
       const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
-      (contractReaderMock.getSyncRecord as SinonStub).onCall(1).returns(records);
+      (contractReaderMock.getSyncRecords as SinonStub).onCall(1).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
         SubgraphNotSynced.getMessage(auctionPayload.sendingChainId, records),
       );
