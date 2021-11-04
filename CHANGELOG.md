@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.73
+
+- [contracts] Deploy to mainnet
+
 ## 0.0.72
 
 - [router/sdk] Fix fallback subgraph
