@@ -114,6 +114,9 @@ export const cancelAndFullfillSanitationCheck = async (
     receivingChainId: transactionData.receivingChainId,
     callDataHash: transactionData.callDataHash,
     transactionId: transactionData.transactionId,
+    sendingChainCondition: transactionData.sendingChainCondition,
+    receivingChainCondition: transactionData.receivingChainCondition,
+    encodedConditionData: transactionData.encodedConditionData,
   });
   const expectedVariantDigest = getVariantTransactionDigest({
     amount: transactionData.amount,
@@ -244,14 +247,14 @@ export const fulfill = async (
   const { logger, txService, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext);
 
-  const { txData, relayerFee, signature, callData } = fulfillParams;
+  const { txData, relayerFee, unlockData, callData } = fulfillParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
 
   await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [
-    { txData, relayerFee, signature, callData, encodedMeta: "0x" },
+    { txData, relayerFee, unlockData, callData, encodedMeta: "0x" },
   ]);
 
   return await txService.sendTx(
@@ -276,13 +279,13 @@ export const cancel = async (
   const { logger, txService, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext, { cancelParams });
 
-  const { txData, signature } = cancelParams;
+  const { txData, unlockData } = cancelParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
 
   await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [{ txData, signature, encodedMeta: "0x" }]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [{ txData, unlockData, encodedMeta: "0x" }]);
 
   return await txService.sendTx(
     {

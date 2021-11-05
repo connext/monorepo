@@ -48,7 +48,7 @@ export const fulfill = async (
     });
   }
 
-  const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
+  const { unlockData, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
 
   const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
 
@@ -72,7 +72,7 @@ export const fulfill = async (
     }
 
     // Send to tx service
-    logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
+    logger.info("Sending fulfill tx", requestContext, methodContext, { unlockData, side });
 
     let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[
       invariantData.receivingAssetId
@@ -111,9 +111,9 @@ export const fulfill = async (
     fulfillChain,
     {
       txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-      signature: signature,
-      relayerFee: relayerFee,
-      callData: callData,
+      unlockData,
+      relayerFee,
+      callData,
     },
     requestContext,
   );

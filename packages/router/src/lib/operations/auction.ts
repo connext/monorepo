@@ -71,6 +71,9 @@ export const newAuction = async (
     receivingAddress,
     dryRun,
     initiator,
+    sendingChainCondition,
+    receivingChainCondition,
+    encodedConditionData,
   } = data;
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
@@ -282,6 +285,9 @@ export const newAuction = async (
     sendingChainTxManagerAddress: sendingConfig.transactionManagerAddress,
     receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
     bidExpiry,
+    sendingChainCondition,
+    receivingChainCondition,
+    encodedConditionData,
   };
   logger.info("Generated bid", requestContext, methodContext, { bid });
 

@@ -27,7 +27,7 @@ export type PreparePayload = {
 export type CancelPayload = Record<string, never>;
 
 export type FulfillPayload = {
-  signature: string;
+  unlockData: string;
   relayerFee: string;
   callData: string;
 };
@@ -59,6 +59,6 @@ export type SingleChainTransaction = {
   encryptedCallData: string;
   encodedBid: string;
   bidSignature: string;
-  signature?: string; // only there when fulfilled or cancelled
+  unlockData?: string; // only there when fulfilled or cancelled
   relayerFee?: string; // only there when fulfilled or cancelled
 };

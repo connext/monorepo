@@ -62,7 +62,7 @@ export const metaTxRequestBinding = async (
     return;
   }
 
-  const { txData, callData, relayerFee, signature }: MetaTxFulfillPayload = data.data;
+  const { txData, callData, relayerFee, unlockData }: MetaTxFulfillPayload = data.data;
   if (chainId !== txData.receivingChainId) {
     logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
       chainId,
@@ -97,12 +97,15 @@ export const metaTxRequestBinding = async (
         callDataHash: txData.callDataHash,
         callTo: txData.callTo,
         transactionId: txData.transactionId,
+        encodedConditionData: txData.encodedConditionData,
+        sendingChainCondition: txData.sendingChainCondition,
+        receivingChainCondition: txData.receivingChainCondition,
       },
       {
         amount: txData.amount,
         expiry: txData.expiry,
         preparedBlockNumber: txData.preparedBlockNumber,
-        signature,
+        unlockData,
         relayerFee,
         callData,
         side: "receiver",

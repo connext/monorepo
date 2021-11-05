@@ -75,6 +75,9 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
 export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
   return {
     invariant: {
+      sendingChainCondition: sdkSendingTransaction.sendingChainCondition,
+      receivingChainCondition: sdkSendingTransaction.receivingChainCondition,
+      encodedConditionData: sdkSendingTransaction.encodedConditionData,
       receivingChainTxManagerAddress: sdkSendingTransaction.receivingChainTxManagerAddress,
       user: sdkSendingTransaction.user.id,
       initiator: sdkSendingTransaction.initiator,
@@ -135,7 +138,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             allReceiverExpired: jsonifyError(allReceiverExpired as any),
           });
         }
-        
+
         // get all sender prepared txs
         const allSenderPrepared = await sdk.request<GetSenderTransactionsQuery>((client) =>
           client.GetSenderTransactions({
@@ -295,7 +298,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   receiving,
                 },
                 payload: {
-                  signature: correspondingReceiverTx?.signature,
+                  unlockData: correspondingReceiverTx?.fulfillUnlockData,
                   relayerFee: correspondingReceiverTx?.relayerFee,
                   callData: correspondingReceiverTx?.callData,
                   receiverFulfilledHash: correspondingReceiverTx?.fulfillTransactionHash,
@@ -400,11 +403,14 @@ export const getTransactionForChain = async (
           amount: transaction.amount,
           expiry: Number(transaction.expiry),
           preparedBlockNumber: Number(transaction.preparedBlockNumber),
+          sendingChainCondition: transaction.sendingChainCondition,
+          receivingChainCondition: transaction.receivingChainCondition,
+          encodedConditionData: transaction.encodedConditionData,
         },
         encryptedCallData: transaction.encryptedCallData,
         encodedBid: transaction.encodedBid,
         bidSignature: transaction.bidSignature,
-        signature: transaction.signature,
+        unlockData: transaction.fulfillUnlockData,
         relayerFee: transaction.relayerFee,
       }
     : undefined;

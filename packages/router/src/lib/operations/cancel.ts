@@ -79,7 +79,7 @@ export const cancel = async (
     cancelChain,
     {
       txData: { ...invariantData, amount, preparedBlockNumber, expiry },
-      signature: "0x",
+      unlockData: "0x",
     },
     requestContext,
   );

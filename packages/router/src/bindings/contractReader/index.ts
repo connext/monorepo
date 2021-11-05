@@ -71,7 +71,7 @@ export const bindContractReader = async () => {
       const records = await contractReader.getSyncRecords(Number(chainId));
       const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
       handlingTracker.forEach((value, key) => {
-      if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
           logger.debug("Deleting Tracker Record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
@@ -293,7 +293,7 @@ export const handleSingle = async (
           amount: _transaction.crosschainTx.sending.amount,
           expiry: _transaction.crosschainTx.sending.expiry,
           preparedBlockNumber: _transaction.crosschainTx.sending.preparedBlockNumber,
-          signature: fulfillPayload.signature,
+          unlockData: fulfillPayload.unlockData,
           callData: fulfillPayload.callData,
           relayerFee: fulfillPayload.relayerFee,
           side: "sender",
