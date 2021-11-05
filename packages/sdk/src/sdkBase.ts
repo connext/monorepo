@@ -30,7 +30,11 @@ import {
   MethodContext,
   calculateExchangeAmount,
   GAS_ESTIMATES,
+  gelatoFulfill,
+  getFulfillTransactionHashToSign,
+  isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
+import { Interface } from "ethers/lib/utils";
 
 import {
   NoTransactionManager,
@@ -80,6 +84,7 @@ import {
   getDecimals,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
+
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -710,27 +715,18 @@ export class NxtpSdkBase {
     return tx;
   }
 
-  /**
-   * Fulfills the transaction on the receiving chain.
-   *
-   * @param params - The `TransactionPrepared` event payload from the receiving chain
-   * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
-   * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
-   * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
-   */
-  public async fulfillTransfer(
+  public async getFulfillHashToSign(
     params: Omit<TransactionPreparedEvent, "caller">,
-    fulfillSignature: string,
-    decryptedCallData: string,
     relayerFee = "0",
-    useRelayers = true,
-  ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
+  ): Promise<string> {
     const { requestContext, methodContext } = createLoggingContext(
-      this.fulfillTransfer.name,
+      this.getFulfillHashToSign.name,
       undefined,
       params.txData.transactionId,
     );
-    this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
+    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
+
+    const transactionId = params.txData.transactionId;
 
     // Validate params schema
     const validate = ajv.compile(TransactionPreparedEventSchema);
@@ -738,7 +734,7 @@ export class NxtpSdkBase {
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
@@ -757,6 +753,84 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
+    this.logger.info("Generating fulfill payload", requestContext, methodContext);
+    const hash = getFulfillTransactionHashToSign(
+      txData.transactionId,
+      relayerFee,
+      txData.receivingChainId,
+      txData.receivingChainTxManagerAddress,
+    );
+
+    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
+    return hash;
+  }
+
+  /**
+   * Fulfills the transaction on the receiving chain.
+   *
+   * @param params - The `TransactionPrepared` event payload from the receiving chain
+   * @param relayerFee - (optional) The fee paid to relayers. Comes out of the transaction amount the router prepared with. Defaults to 0
+   * @param useRelayers - (optional) If true, will use a realyer to submit the fulfill transaction
+   * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
+   */
+  public async fulfillTransfer(
+    params: Omit<TransactionPreparedEvent, "caller">,
+    fulfillSignature: string,
+    decryptedCallData: string,
+    relayerFee = "0",
+    useRelayers = true,
+    useGelatoRelay = true
+  ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.fulfillTransfer.name,
+      undefined,
+      params.txData.transactionId,
+    );
+    this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
+    const transactionId = params.txData.transactionId;
+
+    // Validate params schema
+    const validate = ajv.compile(TransactionPreparedEventSchema);
+    const valid = validate(params);
+    if (!valid) {
+      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
+      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
+        transactionId: transactionId,
+      });
+      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
+        validationError: msg,
+        params,
+      });
+      throw error;
+    }
+
+    const { txData } = params;
+
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (useGelatoRelay && isChainSupportedByGelato(txData.receivingChainId)){
+      this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
+      const deployedContract = getDeployedTransactionManagerContract(txData.receivingChainId);
+      const data = await gelatoFulfill(txData.receivingChainId,
+        deployedContract.address,
+        new Interface(deployedContract.abi),
+        {       
+        txData,
+        relayerFee,
+        signature: fulfillSignature,
+        callData: decryptedCallData,
+      });
+      this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId});
+
+      return data;
+    }
+    
     if (useRelayers) {
       this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
@@ -834,13 +908,15 @@ export class NxtpSdkBase {
     );
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
+    const transactionId = cancelParams.txData.transactionId;
+
     // Validate params schema
     const validate = ajv.compile(CancelSchema);
     const valid = validate(cancelParams);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("cancel", "CancelParams", msg, cancelParams, {
-        transactionId: cancelParams.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,

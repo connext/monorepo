@@ -40,7 +40,7 @@ module.exports = {
 
     // Clean up unused vars before committing, but this is too onerous during dev.
     "@typescript-eslint/no-unused-vars": "warn",
-
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn",
     "@typescript-eslint/no-var-requires": ["off"],
     "@typescript-eslint/no-empty-interface": ["off"],
     "@typescript-eslint/ban-ts-ignore": ["off"],
