@@ -56,7 +56,7 @@ export const makeRouter = async () => {
       name: context.wallet.address,
     });
     context.logger.info("Config generated", requestContext, methodContext, {
-      config: { ...context.config, mnemonic: "......." },
+      config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
     context.messaging = new RouterNxtpNatsMessagingService({
       signer: context.wallet,
