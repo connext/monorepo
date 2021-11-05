@@ -428,6 +428,7 @@ export class NxtpSdk {
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
     useRelayers = true,
+    useGelatoRelay = false,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -490,7 +491,14 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
+    const response = await this.sdkBase.fulfillTransfer(
+      params,
+      signature,
+      callData,
+      calculateRelayerFee,
+      useRelayers,
+      useGelatoRelay,
+    );
 
     if (useRelayers) {
       return { metaTxResponse: response.metaTxResponse };
