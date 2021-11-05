@@ -427,8 +427,8 @@ export class NxtpSdk {
    */
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
-    relayerFee = "0",
     useRelayers = true,
+    useGelatoRelay = false,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -453,7 +453,7 @@ export class NxtpSdk {
       connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
     }
 
-    let calculateRelayerFee = relayerFee;
+    let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
       const gasNeeded = await this.estimateMetaTxFeeInReceivingToken(
@@ -491,7 +491,14 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
+    const response = await this.sdkBase.fulfillTransfer(
+      params,
+      signature,
+      callData,
+      calculateRelayerFee,
+      useRelayers,
+      useGelatoRelay,
+    );
 
     if (useRelayers) {
       return { metaTxResponse: response.metaTxResponse };
