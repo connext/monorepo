@@ -87,21 +87,4 @@ describe("Web3Signer", () => {
       expect(apiStub.sign.callCount).to.eq(1);
     });
   });
-
-  // it("should run", async () => {
-  //   const web3Signer = new Web3Signer("http://0.0.0.0:9000");
-
-  //   const message = "hello";
-
-  //   const signerAddress = await web3Signer.getAddress();
-  //   const response = await web3Signer.signMessage(message);
-
-  //   // console.log(response);
-
-  //   const wallet = Wallet.fromMnemonic("<mnemonic goes here>");
-  //   const cRes = await wallet.signMessage(message);
-
-  //   expect(signerAddress).to.be.eq(wallet.address);
-  //   expect(response).to.be.eq(cRes);
-  // });
 });
