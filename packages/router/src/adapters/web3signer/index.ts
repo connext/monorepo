@@ -14,7 +14,11 @@ export class Web3Signer extends Signer {
     if (typeof message === "string") {
       message = utils.toUtf8Bytes(message);
     }
-    return utils.concat([utils.toUtf8Bytes(Web3Signer.MESSAGE_PREFIX), utils.toUtf8Bytes(String(message.length)), message]);
+    return utils.concat([
+      utils.toUtf8Bytes(Web3Signer.MESSAGE_PREFIX),
+      utils.toUtf8Bytes(String(message.length)),
+      message,
+    ]);
   }
 
   public address?: string;
@@ -30,7 +34,7 @@ export class Web3Signer extends Signer {
 
   public connect(provider: providers.Provider): Web3Signer {
     this.provider = provider;
-    return this;
+    return new Web3Signer(this.web3SignerUrl, provider);
   }
 
   public async getAddress(): Promise<string> {
