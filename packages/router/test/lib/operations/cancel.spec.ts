@@ -37,7 +37,7 @@ describe("Cancel Sender Operation", () => {
             expiry: cancelInputMock.expiry,
             preparedBlockNumber: cancelInputMock.preparedBlockNumber,
           },
-          signature: "0x",
+          unlockData: "0x",
         },
         requestContext,
       );
@@ -58,7 +58,7 @@ describe("Cancel Sender Operation", () => {
             expiry: cancelInputMock.expiry,
             preparedBlockNumber: cancelInputMock.preparedBlockNumber,
           },
-          signature: "0x",
+          unlockData: "0x",
         },
         requestContext,
       );

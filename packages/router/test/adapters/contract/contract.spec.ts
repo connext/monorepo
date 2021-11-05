@@ -66,7 +66,7 @@ describe("Contract Adapter", () => {
         {
           txData: fulfillParamsMock.txData,
           relayerFee: fulfillParamsMock.relayerFee,
-          signature: fulfillParamsMock.signature,
+          unlockData: fulfillParamsMock.unlockData,
           callData: fulfillParamsMock.callData,
           encodedMeta: "0x",
         },
@@ -83,7 +83,7 @@ describe("Contract Adapter", () => {
       expect(interfaceMock.encodeFunctionData).calledOnceWith("cancel", [
         {
           txData: cancelParamsMock.txData,
-          signature: cancelParamsMock.signature,
+          unlockData: cancelParamsMock.unlockData,
           encodedMeta: "0x",
         },
       ]);

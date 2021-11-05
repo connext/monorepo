@@ -27,6 +27,9 @@ const auctionPayload: AuctionPayload = {
   callDataHash: mkBytes32("0xb"),
   callTo: mkAddress("0xe"),
   dryRun: false,
+  sendingChainCondition: mkAddress("0xeee"),
+  receivingChainCondition: mkAddress("0xfff"),
+  encodedConditionData: "0x",
 };
 
 let getReceiverAmountStub: SinonStub;
@@ -132,6 +135,9 @@ describe("Auction Operation", () => {
         sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
           configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+        sendingChainCondition: auctionPayload.sendingChainCondition,
+        receivingChainCondition: auctionPayload.receivingChainCondition,
+        encodedConditionData: auctionPayload.encodedConditionData,
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
@@ -168,6 +174,9 @@ describe("Auction Operation", () => {
         sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
           configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+        sendingChainCondition: auctionPayload.sendingChainCondition,
+        receivingChainCondition: auctionPayload.receivingChainCondition,
+        encodedConditionData: auctionPayload.encodedConditionData,
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
@@ -204,6 +213,9 @@ describe("Auction Operation", () => {
         sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
           configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+        sendingChainCondition: auctionPayload.sendingChainCondition,
+        receivingChainCondition: auctionPayload.receivingChainCondition,
+        encodedConditionData: auctionPayload.encodedConditionData,
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
@@ -239,6 +251,9 @@ describe("Auction Operation", () => {
         sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
           configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+        sendingChainCondition: auctionPayload.sendingChainCondition,
+        receivingChainCondition: auctionPayload.receivingChainCondition,
+        encodedConditionData: auctionPayload.encodedConditionData,
       });
 
       expect(bid.bidSignature).to.eq(sigMock);
@@ -269,6 +284,9 @@ describe("Auction Operation", () => {
         sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
         receivingChainTxManagerAddress:
           configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
+        sendingChainCondition: auctionPayload.sendingChainCondition,
+        receivingChainCondition: auctionPayload.receivingChainCondition,
+        encodedConditionData: auctionPayload.encodedConditionData,
       });
 
       expect(bid.bidSignature).to.eq(sigMock);

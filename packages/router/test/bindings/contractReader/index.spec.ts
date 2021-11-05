@@ -177,7 +177,7 @@ describe("Contract Reader Binding", () => {
         amount: fulfill.crosschainTx.sending.amount,
         expiry: fulfill.crosschainTx.sending.expiry,
         preparedBlockNumber: fulfill.crosschainTx.sending.preparedBlockNumber,
-        signature: fulfill.payload.signature,
+        unlockData: fulfill.payload.unlockData,
         callData: fulfill.payload.callData,
         relayerFee: fulfill.payload.relayerFee,
         side: "sender",

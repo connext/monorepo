@@ -75,7 +75,7 @@ export const fulfillInputMock: FulfillInput = {
   amount: variantDataMock.amount,
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
-  signature: "0xabcd",
+  unlockData: "0xabcd",
   relayerFee: "10",
   callData: "0xbaa",
   side: "receiver",
@@ -111,7 +111,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
   payload: {
     callData: "0x",
     relayerFee: "100000",
-    signature: "0xabc",
+    unlockData: "0xabc",
     receiverFulfilledHash: mkBytes32("0xa"),
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
@@ -119,7 +119,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
 
 export const singleChainTransactionMock: SingleChainTransaction = {
   bidSignature: "0xdbc",
-  signature: "0xfee",
+  unlockData: "0xfee",
   relayerFee: "100000",
   encodedBid: "0xdef",
   encryptedCallData: "0xabc",

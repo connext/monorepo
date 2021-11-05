@@ -18,7 +18,7 @@ describe("Fulfill Receiver Operation", () => {
     });
 
     it("should error if prepare input validation fails", async () => {
-      const _fulfillInputMock = { ...fulfillInputMock, signature: "abc" };
+      const _fulfillInputMock = { ...fulfillInputMock, unlockData: "abc" };
       await expect(fulfill(invariantDataMock, _fulfillInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Params invalid",
       );
@@ -51,7 +51,7 @@ describe("Fulfill Receiver Operation", () => {
         invariantDataMock.sendingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
-          signature: fulfillInputMock.signature,
+          unlockData: fulfillInputMock.unlockData,
           callData: fulfillInputMock.callData,
           txData: {
             ...invariantDataMock,
@@ -72,7 +72,7 @@ describe("Fulfill Receiver Operation", () => {
         invariantDataMock.receivingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
-          signature: fulfillInputMock.signature,
+          unlockData: fulfillInputMock.unlockData,
           callData: fulfillInputMock.callData,
           txData: {
             ...invariantDataMock,
