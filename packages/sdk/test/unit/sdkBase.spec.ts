@@ -832,7 +832,7 @@ describe("NxtpSdkBase", () => {
       expect(res.metaTxResponse.chainId).to.be.eq(receivingChainId);
     });
 
-    it.only("should error if gelator relay fails", async () => {
+    it("should error if gelator relay fails", async () => {
       const { transaction, record } = await getTransactionData();
       gelatoFulfill.resolves({ taskId: undefined });
 
