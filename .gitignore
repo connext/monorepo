@@ -31,4 +31,3 @@ packages/router/chaindata.json
 packages/sdk-server/*config.json
 packages/integration/logs.json
 packages/integration/ops/config/load/config.json
-packages/integration/ops/config/router/*.yaml
