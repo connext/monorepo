@@ -803,7 +803,7 @@ export class NxtpSdkBase {
         {
           txData,
           relayerFee,
-          signature: fulfillSignature,
+          unlockData,
           callData: decryptedCallData,
         },
       );
