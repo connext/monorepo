@@ -31,10 +31,10 @@ import {
   calculateExchangeAmount,
   GAS_ESTIMATES,
   gelatoFulfill,
-  getFulfillTransactionHashToSign,
   isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
+import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
   NoTransactionManager,
@@ -84,7 +84,6 @@ import {
   getDecimals,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
-
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -715,56 +714,6 @@ export class NxtpSdkBase {
     return tx;
   }
 
-  public async getFulfillHashToSign(
-    params: Omit<TransactionPreparedEvent, "caller">,
-    relayerFee = "0",
-  ): Promise<string> {
-    const { requestContext, methodContext } = createLoggingContext(
-      this.getFulfillHashToSign.name,
-      undefined,
-      params.txData.transactionId,
-    );
-    this.logger.info("Method started", requestContext, methodContext, { params, relayerFee });
-
-    const transactionId = params.txData.transactionId;
-
-    // Validate params schema
-    const validate = ajv.compile(TransactionPreparedEventSchema);
-    const valid = validate(params);
-    if (!valid) {
-      const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
-      const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: transactionId,
-      });
-      this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
-        validationError: msg,
-        params,
-      });
-      throw error;
-    }
-
-    const { txData } = params;
-
-    if (!this.config.chainConfig[txData.sendingChainId]) {
-      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!this.config.chainConfig[txData.receivingChainId]) {
-      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    this.logger.info("Generating fulfill payload", requestContext, methodContext);
-    const hash = getFulfillTransactionHashToSign(
-      txData.transactionId,
-      relayerFee,
-      txData.receivingChainId,
-      txData.receivingChainTxManagerAddress,
-    );
-
-    this.logger.info("Generated fulfill payload", requestContext, methodContext, { hash });
-    return hash;
-  }
-
   /**
    * Fulfills the transaction on the receiving chain.
    *
@@ -779,7 +728,7 @@ export class NxtpSdkBase {
     decryptedCallData: string,
     relayerFee = "0",
     useRelayers = true,
-    useGelatoRelay = true
+    useGelatoRelay = false,
   ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -814,23 +763,25 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (useGelatoRelay && isChainSupportedByGelato(txData.receivingChainId)){
+    if (useGelatoRelay && isChainSupportedByGelato(txData.receivingChainId)) {
       this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
-      const deployedContract = getDeployedTransactionManagerContract(txData.receivingChainId);
-      const data = await gelatoFulfill(txData.receivingChainId,
-        deployedContract.address,
-        new Interface(deployedContract.abi),
-        {       
-        txData,
-        relayerFee,
-        signature: fulfillSignature,
-        callData: decryptedCallData,
-      });
-      this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId});
+      const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
+      const data = await gelatoFulfill(
+        txData.receivingChainId,
+        deployedContract,
+        new Interface(TransactionManagerAbi),
+        {
+          txData,
+          relayerFee,
+          signature: fulfillSignature,
+          callData: decryptedCallData,
+        },
+      );
+      this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId });
 
       return data;
     }
-    
+
     if (useRelayers) {
       this.logger.info("Fulfilling using relayers", requestContext, methodContext);
       if (!this.messaging.isConnected()) {
