@@ -104,6 +104,9 @@ export const transactionSubgraphMock: any = {
   callTo: txDataMock.callTo,
   transactionId: txDataMock.transactionId,
   preparedBlockNumber: txDataMock.preparedBlockNumber,
+  sendingChainCondition: txDataMock.sendingChainCondition,
+  receivingChainCondition: txDataMock.receivingChainCondition,
+  encodedConditionData: txDataMock.encodedConditionData,
 };
 
 export const senderPrepareDataMock: TransactionPreparedEvent = {
@@ -119,7 +122,7 @@ export const receiverFulfillDataMock: TransactionFulfilledEvent = {
   caller: mkAddress("0xf"),
   relayerFee: "5678",
   callData: "0x",
-  signature: mkSig("0xeee"),
+  unlockData: mkSig("0xeee"),
 };
 
 export const requestContextMock: RequestContext = {

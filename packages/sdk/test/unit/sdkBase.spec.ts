@@ -72,6 +72,8 @@ describe("NxtpSdkBase", () => {
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
+  let signatureInterpreterAddressSendingChain: string = mkAddress("0xeee");
+  let signatureInterpreterAddressReceivingChain: string = mkAddress("0xfff");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
@@ -87,11 +89,13 @@ describe("NxtpSdkBase", () => {
         provider: provider1337,
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
+        signatureInterpreterAddress: signatureInterpreterAddressSendingChain,
       },
       [receivingChainId]: {
         provider: provider1338,
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
+        signatureInterpreterAddress: signatureInterpreterAddressReceivingChain,
       },
     };
     signer = createStubInstance(Wallet);
@@ -174,6 +178,9 @@ describe("NxtpSdkBase", () => {
       transactionId: getRandomBytes32(),
       sendingChainId,
       receivingChainId,
+      sendingChainCondition: mkAddress("0xaaa"),
+      receivingChainCondition: mkAddress("0xaaa"),
+      encodedConditionData: "0x",
       ...txOverrides,
     };
 
@@ -202,7 +209,7 @@ describe("NxtpSdkBase", () => {
     metaTxRelayerFee: string;
   } => {
     const transactionId = getRandomBytes32();
-    const crossChainParams = {
+    const crossChainParams: CrossChainParams = {
       callData: EmptyBytes,
       encryptedCallData: EmptyBytes,
       sendingChainId: sendingChainId,
@@ -214,6 +221,8 @@ describe("NxtpSdkBase", () => {
       amount: "1000000",
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId,
+      sendingChainCondition: signatureInterpreterAddressSendingChain,
+      receivingChainCondition: signatureInterpreterAddressReceivingChain,
       ...crossChainParamsOverrides,
     };
 
@@ -236,6 +245,9 @@ describe("NxtpSdkBase", () => {
       sendingChainTxManagerAddress,
       receivingChainTxManagerAddress,
       bidExpiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
+      sendingChainCondition: signatureInterpreterAddressSendingChain,
+      receivingChainCondition: signatureInterpreterAddressReceivingChain,
+      encodedConditionData: "0x",
       ...auctionBidOverrides,
     };
 
@@ -274,6 +286,12 @@ describe("NxtpSdkBase", () => {
         [sendingChainId]: {
           provider: provider1337,
           transactionManagerAddress: sendingChainTxManagerAddress,
+          signatureInterpreterAddress: signatureInterpreterAddressSendingChain,
+        },
+        [receivingChainId]: {
+          provider: provider1338,
+          transactionManagerAddress: receivingChainTxManagerAddress,
+          signatureInterpreterAddress: signatureInterpreterAddressReceivingChain,
         },
       };
       expect(
@@ -861,7 +879,7 @@ describe("NxtpSdkBase", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              signature: "",
+              unlockData: "",
             },
             sendingChainId,
           ),
@@ -874,7 +892,7 @@ describe("NxtpSdkBase", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              signature: EmptyCallDataHash,
+              unlockData: EmptyCallDataHash,
             },
             sendingChainId,
           ),
@@ -888,7 +906,7 @@ describe("NxtpSdkBase", () => {
           sdk.cancel(
             {
               txData: { ...transaction, ...record },
-              signature: "",
+              unlockData: "",
             },
             sendingChainId,
           ),
@@ -904,7 +922,7 @@ describe("NxtpSdkBase", () => {
         sdk.cancel(
           {
             txData: { ...transaction, ...record },
-            signature: EmptyCallDataHash,
+            unlockData: EmptyCallDataHash,
           },
           sendingChainId,
         ),
@@ -919,7 +937,7 @@ describe("NxtpSdkBase", () => {
       const res = await sdk.cancel(
         {
           txData: { ...transaction, ...record },
-          signature: EmptyCallDataHash,
+          unlockData: EmptyCallDataHash,
         },
         sendingChainId,
       );

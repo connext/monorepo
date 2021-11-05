@@ -322,7 +322,7 @@ export class Subgraph {
             expiry: receiving!.expiry,
             preparedBlockNumber: receiving!.preparedBlockNumber,
           },
-          signature: match.signature,
+          unlockData: match.signature,
           relayerFee: match.relayerFee,
           callData: match.callData,
           caller: match.fulfillCaller,
@@ -463,7 +463,7 @@ export class Subgraph {
                 if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
                   const tx = {
                     txData: convertTransactionToTxData(correspondingReceiverTx),
-                    signature: correspondingReceiverTx.fulfillUnlockData,
+                    unlockData: correspondingReceiverTx.fulfillUnlockData,
                     relayerFee: correspondingReceiverTx.relayerFee,
                     callData: correspondingReceiverTx.callData!,
                     caller: correspondingReceiverTx.fulfillCaller,

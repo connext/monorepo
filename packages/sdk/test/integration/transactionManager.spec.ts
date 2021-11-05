@@ -12,9 +12,14 @@ import {
 } from "@connext/nxtp-utils";
 import { utils, constants } from "ethers";
 
-import { TransactionManager as TransactionManagerTypechain, TestERC20 } from "@connext/nxtp-contracts/typechain";
+import {
+  TransactionManager as TransactionManagerTypechain,
+  TestERC20,
+  SignatureInterpreter,
+} from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
+import SignatureInterpreterArtifact from "@connext/nxtp-contracts/artifacts/contracts/interpreters/SignatureInterpreter.sol/SignatureInterpreter.json";
 
 import { approveTokens, addPrivileges, prepareAndAssert } from "../helper";
 import {
@@ -50,6 +55,8 @@ describe("Transaction Manager", function () {
   let routerTransactionManager: TransactionManager;
   let transactionManager: TransactionManagerTypechain;
   let transactionManagerReceiverSide: TransactionManagerTypechain;
+  let signatureInterpreter: SignatureInterpreter;
+  let signatureInterpreterReceiverSide: SignatureInterpreter;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
 
@@ -57,7 +64,7 @@ describe("Transaction Manager", function () {
     txOverrides: Partial<InvariantTransactionData> = {},
     recordOverrides: Partial<VariantTransactionData> = {},
   ): Promise<{ transaction: InvariantTransactionData; record: VariantTransactionData }> => {
-    const transaction = {
+    const transaction: InvariantTransactionData = {
       receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
       initiator: user.address,
@@ -71,6 +78,9 @@ describe("Transaction Manager", function () {
       transactionId: getRandomBytes32(),
       sendingChainId: (await transactionManager.getChainId()).toNumber(),
       receivingChainId: (await transactionManagerReceiverSide.getChainId()).toNumber(),
+      receivingChainCondition: signatureInterpreterReceiverSide.address,
+      sendingChainCondition: signatureInterpreter.address,
+      encodedConditionData: "0x",
       ...txOverrides,
     };
 
@@ -93,6 +103,10 @@ describe("Transaction Manager", function () {
       receivingChainId,
     );
 
+    signatureInterpreter = await deployContract<SignatureInterpreter>(SignatureInterpreterArtifact);
+
+    signatureInterpreterReceiverSide = await deployContract<SignatureInterpreter>(SignatureInterpreterArtifact);
+
     tokenA = await deployContract<TestERC20>(TestERC20Artifact);
 
     tokenB = await deployContract<TestERC20>(TestERC20Artifact);
@@ -109,12 +123,18 @@ describe("Transaction Manager", function () {
   beforeEach(async () => {
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
-    await addPrivileges(transactionManager, [router.address], [AddressZero, tokenA.address, tokenB.address]);
+    await addPrivileges(
+      transactionManager,
+      [router.address],
+      [AddressZero, tokenA.address, tokenB.address],
+      [signatureInterpreter.address],
+    );
 
     await addPrivileges(
       transactionManagerReceiverSide,
       [router.address],
       [AddressZero, tokenA.address, tokenB.address],
+      [signatureInterpreterReceiverSide.address],
     );
 
     await tokenB.connect(wallet).transfer(router.address, routerFunds);
@@ -240,6 +260,7 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const { transaction, record } = await getTransactionData();
         await approveTokens(transactionManager.address, record.amount, user, tokenA);
+        console.log("approved");
         await prepareAndAssert(transaction, record, user, transactionManager, userTransactionManager);
       });
     });
@@ -270,7 +291,7 @@ describe("Transaction Manager", function () {
         const cancelParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
           relayerFee: relayerFee,
-          signature: signature,
+          unlockData: signature,
         };
 
         await setBlockTime(+record.expiry + 1_000);
@@ -302,7 +323,7 @@ describe("Transaction Manager", function () {
         const cancelParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
           relayerFee: relayerFee,
-          signature: signature,
+          unlockData: signature,
         };
 
         await setBlockTime(+record.expiry + 1_000);
@@ -342,7 +363,7 @@ describe("Transaction Manager", function () {
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
           relayerFee: relayerFee,
-          signature: signature,
+          unlockData: signature,
           callData: EmptyBytes,
         };
 
@@ -371,7 +392,7 @@ describe("Transaction Manager", function () {
         const fulfillParams: FulfillParams = {
           txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
           relayerFee: relayerFee,
-          signature: signature,
+          unlockData: signature,
           callData: EmptyBytes,
         };
         const res = await routerTransactionManager.fulfill(transaction.sendingChainId, fulfillParams);

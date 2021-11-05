@@ -56,6 +56,7 @@ export type SdkBaseChainConfigParams = {
   [chainId: number]: {
     provider: providers.FallbackProvider;
     transactionManagerAddress?: string;
+    signatureInterpreterAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string | string[];
     subgraphSyncBuffer?: number;

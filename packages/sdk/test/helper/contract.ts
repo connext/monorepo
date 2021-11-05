@@ -59,7 +59,12 @@ export const fixture = async (deployer: Wallet, sendingChainId, receivingChainId
   return { transactionManager, transactionManagerReceiverSide, counter, tokenA, tokenB };
 };
 
-export const addPrivileges = async (tm: TransactionManagerTypechain, routers: string[], assets: string[]) => {
+export const addPrivileges = async (
+  tm: TransactionManagerTypechain,
+  routers: string[],
+  assets: string[],
+  conditions: string[],
+) => {
   for (const router of routers) {
     const tx = await tm.addRouter(router);
     await tx.wait();
@@ -70,6 +75,12 @@ export const addPrivileges = async (tm: TransactionManagerTypechain, routers: st
     const tx = await tm.addAssetId(assetId);
     await tx.wait();
     expect(await tm.approvedAssets(assetId)).to.be.true;
+  }
+
+  for (const condition of conditions) {
+    const tx = await tm.addCondition(condition);
+    await tx.wait();
+    expect(await tm.approvedConditions(condition)).to.be.true;
   }
 };
 

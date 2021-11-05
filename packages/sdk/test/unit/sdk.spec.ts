@@ -60,6 +60,8 @@ describe("NxtpSdk", () => {
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
   let priceOracleAddress: string = mkAddress("0xccc");
+  let signatureInterpreterAddressSendingChain: string = mkAddress("0xeee");
+  let signatureInterpreterAddressReceivingChain: string = mkAddress("0xfff");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
@@ -76,12 +78,14 @@ describe("NxtpSdk", () => {
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
         priceOracleAddress: constants.AddressZero,
+        signatureInterpreterAddress: signatureInterpreterAddressSendingChain,
       },
       [receivingChainId]: {
         provider: provider1338,
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
         priceOracleAddress: constants.AddressZero,
+        signatureInterpreterAddress: signatureInterpreterAddressReceivingChain,
       },
     };
 
@@ -146,6 +150,9 @@ describe("NxtpSdk", () => {
       transactionId: getRandomBytes32(),
       sendingChainId,
       receivingChainId,
+      receivingChainCondition: mkAddress("0xaaaaa"),
+      sendingChainCondition: mkAddress("0xbbbb"),
+      encodedConditionData: "0x",
       ...txOverrides,
     };
 
@@ -189,8 +196,11 @@ describe("NxtpSdk", () => {
       ...crossChainParamsOverrides,
     };
 
-    const auctionBid = {
+    const auctionBid: AuctionBid = {
       user,
+      sendingChainCondition: mkAddress("0xaaa"),
+      receivingChainCondition: mkAddress("0xaaa"),
+      encodedConditionData: "0x",
       router,
       initiator: user,
       sendingChainId,
@@ -251,6 +261,7 @@ describe("NxtpSdk", () => {
           provider: provider1337,
           transactionManagerAddress: sendingChainTxManagerAddress,
           priceOracleAddress: priceOracleAddress,
+          signatureInterpreterAddress: signatureInterpreterAddressSendingChain,
         },
       };
 
@@ -278,11 +289,13 @@ describe("NxtpSdk", () => {
           provider: provider1337,
           subgraph: "http://example.com",
           priceOracleAddress: priceOracleAddress,
+          signatureInterpreterAddress: signatureInterpreterAddressSendingChain,
         },
         [5]: {
           provider: provider1338,
           subgraph: "http://example.com",
           priceOracleAddress: priceOracleAddress,
+          signatureInterpreterAddress: signatureInterpreterAddressReceivingChain,
         },
       };
       const instance = new NxtpSdk({

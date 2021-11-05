@@ -95,7 +95,7 @@ export type TransactionPreparedEvent = Static<typeof TransactionPreparedEventSch
 
 export type TransactionFulfilledEvent = {
   txData: TransactionData;
-  signature: string;
+  unlockData: string;
   relayerFee: string;
   callData: string;
   caller: string;

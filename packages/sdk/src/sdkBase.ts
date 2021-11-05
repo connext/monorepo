@@ -156,6 +156,7 @@ export class NxtpSdkBase {
         provider: providers.FallbackProvider;
         transactionManagerAddress: string;
         priceOracleAddress: string;
+        signatureInterpreterAddress: string;
       }
     > = {};
 
@@ -171,19 +172,17 @@ export class NxtpSdkBase {
         {
           provider,
           transactionManagerAddress: _transactionManagerAddress,
+          signatureInterpreterAddress: _signatureInterpreterAddress,
           priceOracleAddress: _priceOracleAddress,
           subgraph: _subgraph,
           subgraphSyncBuffer,
         },
       ]) => {
         const chainId = parseInt(_chainId);
-        let transactionManagerAddress = _transactionManagerAddress;
+        const transactionManagerAddress =
+          _transactionManagerAddress ?? getDeployedTransactionManagerContract(chainId)?.address;
         if (!transactionManagerAddress) {
-          const res = getDeployedTransactionManagerContract(chainId);
-          if (!res || !res.address) {
-            throw new NoTransactionManager(chainId);
-          }
-          transactionManagerAddress = res.address;
+          throw new NoTransactionManager(chainId);
         }
 
         let priceOracleAddress = _priceOracleAddress;
@@ -197,10 +196,17 @@ export class NxtpSdkBase {
           priceOracleAddress = res.address;
         }
 
+        const signatureInterpreterAddress =
+          _signatureInterpreterAddress ?? getDeployedSignatureInterpreter(chainId)?.address;
+        if (!signatureInterpreterAddress) {
+          throw new DefaultInterpreterNotDeployed(chainId);
+        }
+
         txManagerConfig[chainId] = {
           provider,
           transactionManagerAddress,
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
+          signatureInterpreterAddress,
         };
 
         let subgraph = _subgraph;

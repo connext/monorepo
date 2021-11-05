@@ -33,6 +33,9 @@ const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): Transac
     amount,
     preparedBlockNumber,
     initiator,
+    sendingChainCondition,
+    receivingChainCondition,
+    encodedConditionData,
   } = mocked;
 
   return {
@@ -52,6 +55,9 @@ const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): Transac
     amount: amount.toString(),
     expiry,
     preparedBlockNumber: preparedBlockNumber.toNumber(),
+    sendingChainCondition,
+    receivingChainCondition,
+    encodedConditionData,
   };
 };
 
@@ -76,6 +82,9 @@ const convertMockedToActiveTransaction = (
     receivingChainId,
     callDataHash,
     transactionId,
+    sendingChainCondition,
+    receivingChainCondition,
+    encodedConditionData,
   } = mockedSending;
   return {
     status,
@@ -98,6 +107,9 @@ const convertMockedToActiveTransaction = (
         receivingChainId,
         callDataHash,
         transactionId,
+        sendingChainCondition,
+        receivingChainCondition,
+        encodedConditionData,
       },
       sending: {
         amount: mockedSending.amount.toString(),
@@ -178,6 +190,9 @@ describe("Subgraph", () => {
       bidSignature: EmptyCallDataHash,
       encodedBid: EmptyCallDataHash,
       prepareTransactionHash: EmptyCallDataHash,
+      sendingChainCondition: mkAddress("0xeee"),
+      receivingChainCondition: mkAddress("0xfff"),
+      encodedConditionData: "0x",
       ...overrides,
     };
     return transaction;
@@ -417,7 +432,7 @@ describe("Subgraph", () => {
           txData: { ...active.crosschainTx.invariant, ...active.crosschainTx.receiving },
           caller: subgraphSending.fulfillCaller,
           transactionHash: subgraphSending.fulfillTransactionHash,
-          signature: subgraphSending.signature,
+          unlockData: subgraphSending.fulfillUnlockData,
           relayerFee: subgraphSending.relayerFee,
           callData: subgraphSending.callData,
         });
@@ -715,6 +730,9 @@ describe("Subgraph", () => {
               callDataHash: transactionSubgraphMock.callDataHash,
               transactionId: transactionSubgraphMock.transactionId,
               receivingChainTxManagerAddress: transactionSubgraphMock.receivingChainTxManagerAddress,
+              sendingChainCondition: transactionSubgraphMock.sendingChainCondition,
+              receivingChainCondition: transactionSubgraphMock.receivingChainCondition,
+              encodedConditionData: transactionSubgraphMock.encodedConditionData,
             },
             sending: {
               amount: transactionSubgraphMock.amount,
@@ -756,6 +774,9 @@ describe("Subgraph", () => {
               callDataHash: transactionSubgraphMock.callDataHash,
               transactionId: transactionSubgraphMock.transactionId,
               receivingChainTxManagerAddress: transactionSubgraphMock.receivingChainTxManagerAddress,
+              sendingChainCondition: transactionSubgraphMock.sendingChainCondition,
+              receivingChainCondition: transactionSubgraphMock.receivingChainCondition,
+              encodedConditionData: transactionSubgraphMock.encodedConditionData,
             },
             sending: {
               amount: transactionSubgraphMock.amount,
