@@ -12,6 +12,23 @@ import {
   encrypt as _encrypt,
   PriceOracleAbi,
 } from "@connext/nxtp-utils";
+import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+
+/**
+ * Returns the address of the `SignatureInterpreter` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedSignatureInterpreter = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.SignatureInterpreter;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
 
 /**
  * Utility to convert the number of hours into seconds

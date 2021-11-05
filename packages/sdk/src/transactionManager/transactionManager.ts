@@ -6,6 +6,7 @@ import {
   Logger,
   RequestContext,
   createLoggingContext,
+  InvariantTransactionData,
 } from "@connext/nxtp-utils";
 import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -145,7 +146,9 @@ export class TransactionManager {
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-    const invariantData = {
+    const invariantData: InvariantTransactionData = {
+      sendingChainCondition: txData.sendingChainCondition,
+      receivingChainCondition: txData.receivingChainCondition,
       receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
       user: txData.user,
       router: txData.router,
@@ -159,6 +162,7 @@ export class TransactionManager {
       receivingChainId: txData.receivingChainId,
       callDataHash: txData.callDataHash,
       transactionId: txData.transactionId,
+      encodedConditionData: txData.encodedConditionData,
     };
 
     const data = this.txManagerInterface.encodeFunctionData("prepare", [
@@ -215,14 +219,14 @@ export class TransactionManager {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const { txData, signature } = cancelParams;
+    const { txData, unlockData } = cancelParams;
 
     this.logger.info("Cancel transaction created", requestContext, methodContext);
 
     const data = this.txManagerInterface.encodeFunctionData("cancel", [
       {
         txData,
-        signature,
+        unlockData,
         encodedMeta: "0x",
       },
     ]);
@@ -270,13 +274,13 @@ export class TransactionManager {
       throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
     }
 
-    const { txData, relayerFee, signature, callData } = fulfillParams;
+    const { txData, relayerFee, unlockData, callData } = fulfillParams;
 
     const data = this.txManagerInterface.encodeFunctionData("fulfill", [
       {
         txData,
         relayerFee,
-        signature,
+        unlockData,
         callData,
         encodedMeta: "0x",
       },

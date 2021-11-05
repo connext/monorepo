@@ -342,6 +342,9 @@ export const AuctionPayloadSchema = Type.Object({
   callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
   callTo: TAddress,
   dryRun: Type.Boolean(),
+  receivingChainCondition: TAddress,
+  sendingChainCondition: TAddress,
+  encodedConditionData: Type.RegEx(/^0x[a-fA-F0-9]*/),
 });
 
 export type AuctionPayload = Static<typeof AuctionPayloadSchema>;
@@ -365,6 +368,9 @@ export const AuctionBidSchema = Type.Object({
   sendingChainTxManagerAddress: TAddress,
   receivingChainTxManagerAddress: TAddress,
   bidExpiry: Type.Number(),
+  receivingChainCondition: TAddress,
+  sendingChainCondition: TAddress,
+  encodedConditionData: Type.RegEx(/^0x[a-fA-F0-9]*/),
 });
 
 export type AuctionBid = Static<typeof AuctionBidSchema>;

@@ -77,6 +77,9 @@ export const auctionBidMock: AuctionBid = {
   encryptedCallData: "0x",
   amountReceived: "120",
   bidExpiry: 123457,
+  encodedConditionData: invariantDataMock.encodedConditionData,
+  receivingChainCondition: invariantDataMock.receivingChainCondition,
+  sendingChainCondition: invariantDataMock.sendingChainCondition,
 };
 
 export const txDataMock: TransactionData = {
@@ -136,13 +139,13 @@ export const prepareParamsMock: PrepareParams = {
 export const fulfillParamsMock: FulfillParams = {
   txData: txDataMock,
   relayerFee: "5678",
-  signature: mkSig("0xeee"),
+  unlockData: mkSig("0xeee"),
   callData: "0x",
 };
 
 export const cancelParamsMock: CancelParams = {
   txData: txDataMock,
-  signature: mkSig("0xeee"),
+  unlockData: mkSig("0xeee"),
 };
 
 export const sigMock = "0xabcdef1c";

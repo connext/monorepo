@@ -142,7 +142,10 @@ export const AuctionBidEncoding = tidy(`tuple(
   bytes encryptedCallData,
   address sendingChainTxManagerAddress,
   address receivingChainTxManagerAddress,
-  uint256 bidExpiry
+  uint256 bidExpiry,
+  address receivingChainCondition,
+  address sendingChainCondition,
+  bytes encodedConditionData
 )`);
 
 /**
@@ -181,5 +184,8 @@ export const decodeAuctionBid = (data: string): AuctionBid => {
     expiry: decoded.expiry.toNumber(),
     receivingChainTxManagerAddress: decoded.receivingChainTxManagerAddress,
     sendingChainTxManagerAddress: decoded.sendingChainTxManagerAddress,
+    receivingChainCondition: decoded.receivingChainCondition,
+    sendingChainCondition: decoded.sendingChainCondition,
+    encodedConditionData: decoded.encodedConditionData,
   };
 };

@@ -104,6 +104,18 @@ export class ChainNotConfigured extends ConfigError {
 }
 
 /**
+ * @classdesc Thrown if chain not found in config
+ */
+export class DefaultInterpreterNotDeployed extends ConfigError {
+  static getMessage(chainId: number) {
+    return `No default interpreter found for ${chainId}`;
+  }
+  constructor(public readonly chainId: number, public readonly context: any = {}) {
+    super(DefaultInterpreterNotDeployed.getMessage(chainId), { chainId, ...context }, ConfigError.type);
+  }
+}
+
+/**
  * @classdesc Thrown if price oracle not configured
  */
 export class PriceOracleNotConfigured extends ConfigError {

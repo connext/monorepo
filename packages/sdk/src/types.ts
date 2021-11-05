@@ -92,6 +92,9 @@ export const CrossChainParamsSchema = Type.Object({
   initiator: Type.Optional(TAddress),
   auctionWaitTimeMs: Type.Optional(Type.Number()),
   numAuctionResponsesQuorum: Type.Optional(Type.Number()),
+  receivingChainCondition: Type.Optional(TAddress),
+  sendingChainCondition: Type.Optional(TAddress),
+  encodedConditionData: Type.Optional(Type.RegEx(/^0x[a-fA-F0-9]*/)),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
@@ -127,7 +130,7 @@ export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
 
 export const CancelSchema = Type.Object({
   txData: TransactionDataSchema,
-  signature: Type.String(),
+  unlockData: Type.String(),
 });
 
 export type CancelParams = Static<typeof CancelSchema>;

@@ -48,6 +48,7 @@ import {
   SubgraphsNotSynced,
   NoPriceOracle,
   InvalidParamStructure,
+  DefaultInterpreterNotDeployed,
 } from "./error";
 import {
   TransactionManager,
@@ -78,6 +79,7 @@ import {
   encodeAuctionBid,
   getTokenPrice,
   getDecimals,
+  getDeployedSignatureInterpreter,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -334,6 +336,9 @@ export class NxtpSdkBase {
       initiator,
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
+      encodedConditionData: _encodedConditionData,
+      sendingChainCondition: _sendingChainCondition,
+      receivingChainCondition: _receivingChainCondition,
     } = params;
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
@@ -369,6 +374,17 @@ export class NxtpSdkBase {
       throw new InvalidExpiry(expiry, getMinExpiryBuffer(), getMaxExpiryBuffer(), blockTimestamp);
     }
 
+    // Assign defaults
+    const sendingChainCondition = _sendingChainCondition ?? getDeployedSignatureInterpreter(sendingChainId)?.address;
+    if (!sendingChainCondition) {
+      throw new DefaultInterpreterNotDeployed(sendingChainId);
+    }
+    const receivingChainCondition =
+      _receivingChainCondition ?? getDeployedSignatureInterpreter(receivingChainId)?.address;
+    if (!receivingChainCondition) {
+      throw new DefaultInterpreterNotDeployed(sendingChainId);
+    }
+    const encodedConditionData = _encodedConditionData ?? "0x";
     const callTo = _callTo ?? constants.AddressZero;
     const callData = _callData ?? "0x";
     const callDataHash = utils.keccak256(callData);
@@ -470,6 +486,9 @@ export class NxtpSdkBase {
       expiry,
       transactionId,
       dryRun: !!dryRun,
+      encodedConditionData,
+      sendingChainCondition,
+      receivingChainCondition,
     };
     await this.messaging.publishAuctionRequest(payload, inbox);
 
@@ -684,6 +703,8 @@ export class NxtpSdkBase {
 
     // Prepare sender side tx
     const txData: InvariantTransactionData = {
+      receivingChainCondition: "",
+      sendingChainCondition: "",
       receivingChainTxManagerAddress: this.transactionManager.getTransactionManagerAddress(receivingChainId)!,
       user,
       router,
@@ -697,6 +718,7 @@ export class NxtpSdkBase {
       receivingChainId,
       callDataHash,
       transactionId,
+      encodedConditionData: "",
     };
     const params: PrepareParams = {
       txData,
@@ -720,7 +742,7 @@ export class NxtpSdkBase {
    */
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
-    fulfillSignature: string,
+    unlockData: string,
     decryptedCallData: string,
     relayerFee = "0",
     useRelayers = true,
@@ -777,7 +799,7 @@ export class NxtpSdkBase {
         chainId: txData.receivingChainId,
         data: {
           relayerFee,
-          signature: fulfillSignature,
+          unlockData,
           txData,
           callData: decryptedCallData,
         },
@@ -804,7 +826,7 @@ export class NxtpSdkBase {
         {
           callData: decryptedCallData,
           relayerFee,
-          signature: fulfillSignature,
+          unlockData,
           txData,
         },
         requestContext,

@@ -42,6 +42,8 @@ import {
  */
 export const convertTransactionToTxData = (transaction: any): TransactionData => {
   return {
+    sendingChainCondition: transaction.sendingChainCondition,
+    receivingChainCondition: transaction.receivingChainCondition,
     receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
     user: transaction.user.id,
     initiator: transaction.initiator,
@@ -58,6 +60,7 @@ export const convertTransactionToTxData = (transaction: any): TransactionData =>
     callTo: transaction.callTo,
     transactionId: transaction.transactionId,
     preparedBlockNumber: parseInt(transaction.preparedBlockNumber),
+    encodedConditionData: transaction.encodedConditionData,
   };
 };
 
@@ -460,7 +463,7 @@ export class Subgraph {
                 if (correspondingReceiverTx.status === TransactionStatus.Fulfilled) {
                   const tx = {
                     txData: convertTransactionToTxData(correspondingReceiverTx),
-                    signature: correspondingReceiverTx.signature,
+                    signature: correspondingReceiverTx.fulfillUnlockData,
                     relayerFee: correspondingReceiverTx.relayerFee,
                     callData: correspondingReceiverTx.callData!,
                     caller: correspondingReceiverTx.fulfillCaller,
@@ -596,6 +599,8 @@ export class Subgraph {
                 preparedTimestamp: correspondingSenderTx.preparedTimestamp,
                 crosschainTx: {
                   invariant: {
+                    sendingChainCondition: receiverTx.sendingChainCondition,
+                    receivingChainCondition: receiverTx.receivingChainCondition,
                     user,
                     router: receiverTx.router.id,
                     initiator: receiverTx.initiator,
@@ -609,6 +614,7 @@ export class Subgraph {
                     callDataHash: receiverTx.callDataHash,
                     transactionId: receiverTx.transactionId,
                     receivingChainTxManagerAddress: receiverTx.receivingChainTxManagerAddress,
+                    encodedConditionData: receiverTx.encodedConditionData,
                   },
                   sending: {
                     amount: correspondingSenderTx.amount,
@@ -653,6 +659,8 @@ export class Subgraph {
             preparedTimestamp: tx.preparedTimestamp,
             crosschainTx: {
               invariant: {
+                sendingChainCondition: tx.sendingChainCondition,
+                receivingChainCondition: tx.receivingChainCondition,
                 user,
                 initiator: tx.initiator,
                 router: tx.router.id,
@@ -666,6 +674,7 @@ export class Subgraph {
                 callDataHash: tx.callDataHash,
                 transactionId: tx.transactionId,
                 receivingChainTxManagerAddress: tx.receivingChainTxManagerAddress,
+                encodedConditionData: tx.encodedConditionData,
               },
               sending: {
                 amount: tx.amount,

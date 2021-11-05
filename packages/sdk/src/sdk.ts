@@ -342,6 +342,9 @@ export class NxtpSdk {
       callTo,
       transactionId,
       initiator,
+      sendingChainCondition,
+      receivingChainCondition,
+      encodedConditionData,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
 
@@ -393,6 +396,9 @@ export class NxtpSdk {
       prepareParams: {
         txData: {
           receivingChainTxManagerAddress: "",
+          sendingChainCondition,
+          receivingChainCondition,
+          encodedConditionData,
           user,
           router,
           initiator,

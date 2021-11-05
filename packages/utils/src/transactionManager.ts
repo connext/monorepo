@@ -73,13 +73,13 @@ export type PrepareParams = {
 export type FulfillParams = {
   txData: TransactionData;
   relayerFee: string;
-  signature: string;
+  unlockData: string;
   callData: string;
 };
 
 export type CancelParams = {
   txData: TransactionData;
-  signature: string;
+  unlockData: string;
 };
 
 // Events
