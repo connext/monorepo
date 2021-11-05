@@ -353,7 +353,7 @@ describe("NxtpSdk", () => {
 
   describe("#prepareTransfer", () => {
     it("should error if approve transaction reverts", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
       const TxResponseMock = JSON.parse(JSON.stringify(TxResponse));
       const TxReceiptMock = JSON.parse(JSON.stringify(TxReceipt));
@@ -364,14 +364,14 @@ describe("NxtpSdk", () => {
       signer.sendTransaction.resolves(TxResponseMock);
 
       await expect(
-        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee }),
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
       ).to.eventually.be.rejectedWith(
         SubmitError.getMessage(user, "approve", auctionBid.sendingAssetId, auctionBid.sendingChainId),
       );
     });
 
     it("happy: prepare transfer with suffice approval", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
       sdkBase.approveForPrepare.resolves(undefined);
 
@@ -379,20 +379,18 @@ describe("NxtpSdk", () => {
         bid: auctionBid,
         bidSignature,
         gasFeeInReceivingToken,
-        metaTxRelayerFee,
       });
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(PrepareReq);
       expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
 
     it("happy: prepare transfer with approval ", async () => {
-      const { auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee } = getMock();
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
       const res = await sdk.prepareTransfer({
         bid: auctionBid,
         bidSignature,
         gasFeeInReceivingToken,
-        metaTxRelayerFee,
       });
 
       expect(signer.sendTransaction).to.be.calledWithExactly(ApproveReq);
@@ -474,7 +472,7 @@ describe("NxtpSdk", () => {
       const mockTransactionHash = getRandomBytes32();
       const mockMetaTxResponse = {
         transactionHash: mockTransactionHash,
-        chainId: transaction.chainId,
+        chainId: transaction.receivingChainId,
       };
       sdkBase.fulfillTransfer.resolves({ metaTxResponse: mockMetaTxResponse });
 
@@ -505,7 +503,7 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         },
-        "0",
+        false,
         false,
       );
 
