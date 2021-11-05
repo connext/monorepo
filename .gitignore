@@ -31,3 +31,5 @@ packages/router/chaindata.json
 packages/sdk-server/*config.json
 packages/integration/logs.json
 packages/integration/ops/config/load/config.json
+packages/integration/ops/config/router/*.yaml
+!packages/integration/ops/config/router/web3Signer_keyFile_test.yaml
