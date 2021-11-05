@@ -50,6 +50,7 @@ import {
   SubgraphsNotSynced,
   NoPriceOracle,
   InvalidParamStructure,
+  RelayFailed,
 } from "./error";
 import {
   TransactionManager,
@@ -778,7 +779,11 @@ export class NxtpSdkBase {
         },
       );
       this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId });
+
       console.log("****** data: ", data);
+      if (!data.taskId) {
+        throw new RelayFailed(transactionId, txData.receivingChainId);
+      }
 
       return {
         metaTxResponse: { transactionHash: data.taskId, chainId: txData.receivingChainId },

@@ -33,6 +33,7 @@ import {
   UnknownAuctionError,
   InvalidCallTo,
   NoValidBids,
+  RelayFailed,
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
@@ -63,6 +64,7 @@ describe("NxtpSdkBase", () => {
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
+  let gelatoFulfill: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -114,7 +116,7 @@ describe("NxtpSdkBase", () => {
 
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
-    stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
+    gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
     stub(utils, "isChainSupportedByGelato").returns(true);
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
@@ -828,6 +830,28 @@ describe("NxtpSdkBase", () => {
 
       expect(res.metaTxResponse.transactionHash).to.be.eq("foo");
       expect(res.metaTxResponse.chainId).to.be.eq(receivingChainId);
+    });
+
+    it.only("should error if gelator relay fails", async () => {
+      const { transaction, record } = await getTransactionData();
+      gelatoFulfill.resolves({ taskId: undefined });
+
+      await expect(
+        sdk.fulfillTransfer(
+          {
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          },
+          "0x",
+          "0x",
+          "0",
+          true,
+          true,
+        ),
+      ).to.be.rejectedWith(RelayFailed);
     });
 
     it("should error if finish transfer => useRelayers:false, fulfill errors", async () => {

@@ -53,6 +53,13 @@ export abstract class SubgraphError extends NxtpError {
 }
 
 /**
+ * @classdesc Abstract error class during fulfill.
+ */
+export abstract class FulfillError extends NxtpError {
+  static readonly type = FulfillError.name;
+}
+
+/**
  * @classdesc Thrown if no tx manager addr for chain
  */
 export class NoTransactionManager extends ConfigError {
@@ -455,6 +462,29 @@ export class SubgraphsNotSynced extends SubgraphError {
         ...context,
       },
       SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when subgraphs are not synced
+ */
+export class RelayFailed extends FulfillError {
+  static getMessage(transactionId: string, chainId: number) {
+    return `Relay failed! transactionId: ${transactionId}, chainId: ${chainId}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      RelayFailed.getMessage(transactionId, chainId),
+      {
+        ...context,
+      },
+      FulfillError.type,
     );
   }
 }
