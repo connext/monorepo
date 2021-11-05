@@ -55,13 +55,19 @@ export class Web3Signer extends Signer {
   public async signTransaction(transaction: providers.TransactionRequest): Promise<string> {
     const tx = await utils.resolveProperties(transaction);
     const baseTx: utils.UnsignedTransaction = {
-      chainId: tx.chainId || undefined,
-      data: tx.data || undefined,
+      to: tx.to || undefined,
+      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
       gasLimit: tx.gasLimit || undefined,
       gasPrice: tx.gasPrice || undefined,
-      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
-      to: tx.to || undefined,
+      data: tx.data || undefined,
       value: tx.value || undefined,
+      chainId: tx.chainId || undefined,
+      type: tx.type || undefined,
+      // EIP-2930; Type 1 & EIP-1559; Type 2
+      accessList: tx.accessList || undefined,
+      // EIP-1559; Type 2
+      maxPriorityFeePerGas: tx.maxPriorityFeePerGas || undefined,
+      maxFeePerGas: tx.maxFeePerGas || undefined,
     };
 
     const identifier = await this.api.getPublicKey();
