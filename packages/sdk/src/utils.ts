@@ -11,6 +11,8 @@ import {
   ethereumRequest as _ethereumRequest,
   encrypt as _encrypt,
   PriceOracleAbi,
+  gelatoFulfill as _gelatoFulfill,
+  isChainSupportedByGelato as _isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 
 /**
@@ -80,34 +82,14 @@ export const getTokenPrice = async (
 };
 
 // FOR TEST MOCKING
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- */
 export const signFulfillTransactionPayload = _signFulfillTransactionPayload;
 
 export const getFulfillTransactionHashToSign = _getFulfillTransactionHashToSign;
 
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- */
 export const generateMessagingInbox = _generateMessagingInbox;
 
-/**
- * This is only here to make it easier for sinon mocks to happen in the tests. Otherwise, this is a very dumb thing.
- *
- */
 export const recoverAuctionBid = _recoverAuctionBid;
 
-/**
- * Gets the current timestamp. Uses the latest block.timestamp instead of a
- * local clock to avoid issues with time when router is validating
- *
- * @remarks User should use the timestamp on the chain they are preparing on (sending chain)
- *
- * @returns Timestamp on latest block in seconds
- */
 export const getTimestampInSeconds = getNtpTimeSeconds;
 
 export const getOnchainBalance = _getOnchainBalance;
@@ -117,3 +99,7 @@ export const encodeAuctionBid = _encodeAuctionBid;
 export const ethereumRequest = _ethereumRequest;
 
 export const encrypt = _encrypt;
+
+export const gelatoFulfill = _gelatoFulfill;
+
+export const isChainSupportedByGelato = _isChainSupportedByGelato;
