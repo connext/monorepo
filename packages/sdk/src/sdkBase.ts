@@ -31,6 +31,8 @@ import {
   calculateExchangeAmount,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
+import { Interface } from "ethers/lib/utils";
+import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
 import {
   NoTransactionManager,
@@ -49,6 +51,7 @@ import {
   NoPriceOracle,
   InvalidParamStructure,
   DefaultInterpreterNotDeployed,
+  RelayFailed,
 } from "./error";
 import {
   TransactionManager,
@@ -78,8 +81,10 @@ import {
   recoverAuctionBid,
   encodeAuctionBid,
   getTokenPrice,
+  gelatoFulfill,
   getDecimals,
   getDeployedSignatureInterpreter,
+  isChainSupportedByGelato,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -184,6 +189,7 @@ export class NxtpSdkBase {
         if (!transactionManagerAddress) {
           throw new NoTransactionManager(chainId);
         }
+        this.config.chainConfig[chainId].transactionManagerAddress = transactionManagerAddress;
 
         let priceOracleAddress = _priceOracleAddress;
         const chainIdsForGasFee = getDeployedChainIdsForGasFee();
@@ -752,6 +758,7 @@ export class NxtpSdkBase {
     decryptedCallData: string,
     relayerFee = "0",
     useRelayers = true,
+    useGelatoRelay = false,
   ): Promise<{ fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -759,6 +766,7 @@ export class NxtpSdkBase {
       params.txData.transactionId,
     );
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
+    const transactionId = params.txData.transactionId;
 
     // Validate params schema
     const validate = ajv.compile(TransactionPreparedEventSchema);
@@ -766,7 +774,7 @@ export class NxtpSdkBase {
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("fulfillTransfer", "TransactionPrepareEventParams", msg, params, {
-        transactionId: params.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,
@@ -783,6 +791,32 @@ export class NxtpSdkBase {
 
     if (!this.config.chainConfig[txData.receivingChainId]) {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (useGelatoRelay && isChainSupportedByGelato(txData.receivingChainId)) {
+      this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
+      const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
+      const data = await gelatoFulfill(
+        txData.receivingChainId,
+        deployedContract,
+        new Interface(TransactionManagerAbi),
+        {
+          txData,
+          relayerFee,
+          signature: fulfillSignature,
+          callData: decryptedCallData,
+        },
+      );
+      this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId });
+
+      console.log("****** data: ", data);
+      if (!data.taskId) {
+        throw new RelayFailed(transactionId, txData.receivingChainId);
+      }
+
+      return {
+        metaTxResponse: { transactionHash: data.taskId, chainId: txData.receivingChainId },
+      };
     }
 
     if (useRelayers) {
@@ -862,13 +896,15 @@ export class NxtpSdkBase {
     );
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
+    const transactionId = cancelParams.txData.transactionId;
+
     // Validate params schema
     const validate = ajv.compile(CancelSchema);
     const valid = validate(cancelParams);
     if (!valid) {
       const msg = (validate.errors ?? []).map((err) => `${err.instancePath} - ${err.message}`).join(",");
       const error = new InvalidParamStructure("cancel", "CancelParams", msg, cancelParams, {
-        transactionId: cancelParams.txData.transactionId,
+        transactionId: transactionId,
       });
       this.logger.error("Invalid Params", requestContext, methodContext, jsonifyError(error), {
         validationError: msg,

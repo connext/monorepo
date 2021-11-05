@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 
-export default task("add-router", "Add a router")
-  .addParam("router", "The router's address to add")
+export default task("remove-router", "Remove a router")
+  .addParam("router", "The router's address to remove")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
   .setAction(async ({ router, txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
@@ -18,15 +18,14 @@ export default task("add-router", "Add a router")
 
     const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
     const approved = await txManager.approvedRouters(router);
-    if (approved) {
-      console.log("approved, no need to add");
+    if (!approved) {
+      console.log("not approved, no need to remove");
       return;
     }
-
-    const tx = await txManager.addRouter(router, { from: namedAccounts.deployer });
-    console.log("addRouter tx: ", tx);
+    const tx = await txManager.removeRouter(router, { from: namedAccounts.deployer });
+    console.log("removeRouter tx: ", tx);
     const receipt = await tx.wait();
-    console.log("addRouter tx mined: ", receipt.transactionHash);
+    console.log("removeRouter tx mined: ", receipt.transactionHash);
 
     const isRouterApproved = await txManager.approvedRouters(router);
     console.log("isRouterApproved: ", isRouterApproved);

@@ -20,6 +20,7 @@ import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
 import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
+import "./src/tasks/removeRouter";
 
 dotEnvConfig();
 
