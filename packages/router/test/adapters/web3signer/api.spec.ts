@@ -43,16 +43,6 @@ describe("Web3SignerApi", () => {
     });
   });
 
-  describe("#reload", () => {
-    it("happy", async () => {
-      const result = await web3SignerApi.reload();
-      expect(result).to.deep.eq(mockResponseValue.data[0]);
-      expect(axiosPostStub.callCount).to.eq(1);
-      const expectedUrl = (web3SignerApi as any).formatUrl((Web3SignerApi as any).ENDPOINTS.RELOAD);
-      expect(axiosPostStub.getCall(0).args).to.deep.eq([expectedUrl]);
-    });
-  });
-
   describe("#getServerStatus", () => {
     it("happy", async () => {
       const result = await web3SignerApi.getServerStatus();
@@ -61,7 +51,6 @@ describe("Web3SignerApi", () => {
       const expectedUrl = (web3SignerApi as any).formatUrl((Web3SignerApi as any).ENDPOINTS.SERVER_STATUS);
       expect(axiosGetStub.getCall(0).args).to.deep.eq([expectedUrl]);
     });
-    
   });
 
   describe("#getPublicKey", () => {
@@ -85,7 +74,7 @@ describe("Web3SignerApi", () => {
     });
 
     it("should handle identifier", () => {
-      const testIdentifier = "test-identifier"
+      const testIdentifier = "test-identifier";
       const testUrl = getRandomBytes32() + "test-fake-url";
       (web3SignerApi as any).url = testUrl;
       const testEndpoint = "test-endpoint";
@@ -93,5 +82,5 @@ describe("Web3SignerApi", () => {
       const formattedUrl = (web3SignerApi as any).formatUrl(testEndpoint, testIdentifier);
       expect(formattedUrl).to.eq(expectedUrl);
     });
-  })
+  });
 });

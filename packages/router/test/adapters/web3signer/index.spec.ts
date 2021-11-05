@@ -66,7 +66,7 @@ describe("Web3Signer", () => {
     });
   });
 
-  describe("#signTransaction", () => {
+  describe.skip("#signTransaction", () => {
     it("happy", async () => {
       // TODO: Can't seem to stub/overwrite ethers utils, so just going to emulate target functionality here.
       const wallet = Wallet.createRandom();
