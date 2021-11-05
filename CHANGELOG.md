@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [router] Add support for web3signer
 - [contracts] Include `remove-router` hardhat task
 - [sdk] SDK supports string `subgraph` in config
 

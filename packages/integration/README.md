@@ -92,4 +92,24 @@ Make sure you put a similarly structured config in your `packages/integration/op
 
 Then run the tests using the appropriate script. For example, to run the router concurrency tests, use:
 
-`yarn workspace @connext/nxtp-integration concurrency:router`
+```
+yarn workspace @connext/nxtp-integration concurrency:router
+```
+
+### Running Web3Signer locally and testing integration
+
+Web3Signer is used to securely host private keys for signing transactions. (see: https://docs.web3signer.consensys.net/en/latest/)
+
+A sample key file is provided in ops/config/router/. To create a docker container to host web3signer locally, use:
+
+```
+yarn workspace @connext/nxtp-integration docker:web3signer:up
+```
+
+To run the router with this test integration instance of web3signer, add to the router config:
+
+```
+"web3SignerUrl": "http://0.0.0.0:9000"
+```
+
+Remove the "mnemonic" entry from the config if you have one. Make sure the docker instance is running and web3signer is reachable.
