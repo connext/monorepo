@@ -7,7 +7,6 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  delay,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
@@ -23,7 +22,6 @@ import { EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
 import { Evt } from "evt";
 import {
   ChainNotConfigured,
-  EncryptionError,
   InvalidBidSignature,
   InvalidExpiry,
   InvalidParamStructure,
@@ -58,8 +56,8 @@ describe("NxtpSdkBase", () => {
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
   let subgraph: SinonStubbedInstance<Subgraph>;
   let transactionManager: SinonStubbedInstance<TransactionManager>;
-  let getDeployedChainIdsForGasFeeStub;
-  let getDeployedPriceOracleContractStub;
+  let getDeployedChainIdsForGasFeeStub: SinonStub;
+  let getDeployedPriceOracleContractStub: SinonStub;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
@@ -116,6 +114,8 @@ describe("NxtpSdkBase", () => {
 
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
+    stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
+    stub(utils, "isChainSupportedByGelato").returns(true);
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -806,6 +806,28 @@ describe("NxtpSdkBase", () => {
 
       expect(res.metaTxResponse.transactionHash).to.be.eq(transactionHash);
       expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
+    });
+
+    it("happy: finish transfer => useGelatoRelay:true", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      const res = await sdk.fulfillTransfer(
+        {
+          txData: { ...transaction, ...record },
+
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        },
+        "0x",
+        "0x",
+        "0",
+        true,
+        true,
+      );
+
+      expect(res.metaTxResponse.transactionHash).to.be.eq("foo");
+      expect(res.metaTxResponse.chainId).to.be.eq(receivingChainId);
     });
 
     it("should error if finish transfer => useRelayers:false, fulfill errors", async () => {

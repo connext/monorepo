@@ -30,8 +30,6 @@ import {
   MethodContext,
   calculateExchangeAmount,
   GAS_ESTIMATES,
-  gelatoFulfill,
-  isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -81,7 +79,9 @@ import {
   recoverAuctionBid,
   encodeAuctionBid,
   getTokenPrice,
+  gelatoFulfill,
   getDecimals,
+  isChainSupportedByGelato,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -778,8 +778,11 @@ export class NxtpSdkBase {
         },
       );
       this.logger.info("Method completed using Gelato Relayer", requestContext, methodContext, { taskId: data.taskId });
+      console.log("****** data: ", data);
 
-      return data;
+      return {
+        metaTxResponse: { transactionHash: data.taskId, chainId: txData.receivingChainId },
+      };
     }
 
     if (useRelayers) {
