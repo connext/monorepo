@@ -1,24 +1,50 @@
 import axios, { AxiosResponse } from "axios";
 import { Bytes } from "ethers";
 
-export const signing = async (web3HostedUrl: string, identifier: string, data: string | Bytes) => {
-  const response: AxiosResponse<string> = await axios.post(`${web3HostedUrl}/api/v1/eth1/sign/${identifier}`, {
-    data,
-  });
-  return response.data;
-};
+// TODO: This class might benefit from some error handling / logging and response sanitization logic.
+/**
+ * Simple class for wrapping axios calls to the web3signer API.
+ */
+export class Web3SignerApi {
+  private static ENDPOINTS = {
+    SIGN: "api/v1/eth1/sign",
+    RELOAD: "reload",
+    SERVER_STATUS: "upcheck",
+    PUBLIC_KEY: "api/v1/eth1/publicKeys",
+  };
 
-export const reload = async (web3HostedUrl: string) => {
-  const response: AxiosResponse<string> = await axios.post(`${web3HostedUrl}/reload`);
-  return response.data[0];
-};
+  constructor(private readonly url: string) {}
 
-export const getServerStatus = async (web3HostedUrl: string) => {
-  const response: AxiosResponse<string> = await axios.get(`${web3HostedUrl}/upcheck`);
-  return response.data[0];
-};
+  public async sign(identifier: string, data: string | Bytes): Promise<string> {
+    const response: AxiosResponse<string> = await axios.post(this.formatUrl(Web3SignerApi.ENDPOINTS.SIGN, identifier), {
+      data,
+    });
+    return response.data;
+  }
 
-export const getPublicKey = async (web3HostedUrl: string) => {
-  const response: AxiosResponse<string> = await axios.get(`${web3HostedUrl}/api/v1/eth1/publicKeys`);
-  return response.data[0];
-};
+  public async reload() {
+    const response: AxiosResponse<string> = await axios.post(this.formatUrl(Web3SignerApi.ENDPOINTS.RELOAD));
+    return response.data[0];
+  }
+
+  public async getServerStatus() {
+    const response: AxiosResponse<string> = await axios.get(this.formatUrl(Web3SignerApi.ENDPOINTS.SERVER_STATUS));
+    return response.data[0];
+  }
+
+  public async getPublicKey() {
+    const response: AxiosResponse<string> = await axios.get(this.formatUrl(Web3SignerApi.ENDPOINTS.PUBLIC_KEY));
+    return response.data[0];
+  }
+
+  private formatUrl(
+    endpoint: typeof Web3SignerApi.ENDPOINTS[keyof typeof Web3SignerApi.ENDPOINTS],
+    identifier?: string,
+  ): string {
+    let url = `${this.url}/${endpoint}`;
+    if (identifier) {
+      url += `/${identifier}`;
+    }
+    return url;
+  }
+}
