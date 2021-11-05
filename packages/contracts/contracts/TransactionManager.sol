@@ -746,6 +746,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   }
 
 
+  /**
+   * @notice Calls external condition interpreter to detemine if the unlock 
+   *         data is valid
+   * @param txData Transaction to fulfill
+   * @param unlockData Unlock data provided by payee
+   * @param relayerFee Potential fee for relayer
+   * @param _chainId Chain of this transaction manager
+   */
   function validateFulfillCondition(
     TransactionData calldata txData,
     bytes calldata unlockData,
@@ -758,6 +766,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     ).shouldFulfill(txData, unlockData, relayerFee, _chainId);
   }
 
+  /**
+   * @notice Calls external condition interpreter to detemine if the unlock 
+   *         data is valid
+   * @param txData Transaction to cancel
+   * @param unlockData Unlock data provided by payee
+   * @param _chainId Chain of this transaction manager
+   */
   function validateCancelCondition(
     TransactionData calldata txData,
     bytes calldata unlockData,

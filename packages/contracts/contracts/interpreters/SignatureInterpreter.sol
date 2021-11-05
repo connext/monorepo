@@ -24,6 +24,13 @@ contract SignatureInterpreter is IConditionInterpreter {
     address receivingChainTxManagerAddress; // For domain separation
   }
 
+  /** 
+   * @notice Returns true if the user signed the data correctly on fulfill
+   * @param txData Transaction data struct
+   * @param unlockData Data provided by payee to evaluate
+   * @param relayerFee Fee provided to relayer
+   * @param transactionManagerChainId Recognized chainId of tx manager
+   */
   function shouldFulfill(
     TransactionData calldata txData,
     bytes calldata unlockData,
@@ -44,6 +51,12 @@ contract SignatureInterpreter is IConditionInterpreter {
     ) == txData.user;
   }
 
+  /** 
+   * @notice Returns true if the user signed the data correctly on cancel
+   * @param txData Transaction data struct
+   * @param unlockData Data provided by payee to evaluate
+   * @param transactionManagerChainId Recognized chainId of tx manager
+   */
   function shouldCancel(
     TransactionData calldata txData,
     bytes calldata unlockData,
@@ -62,9 +75,14 @@ contract SignatureInterpreter is IConditionInterpreter {
     ) == txData.user;
   }
 
-   /// @notice Recovers the signer from the signature provided by the user
-  /// @param transactionId Transaction identifier of tx being recovered
-  /// @param signature The signature you are recovering the signer from
+  /** 
+   * @notice Recovers the signer from the signature provided by the user
+   * @param transactionId Transaction identifier of tx being recovered
+   * @param receivingChainId Chain id of receiving chain of tx
+   * @param receivingChainTxManagerAddress Address of tx manager on receiving 
+   *        chain of tx
+   * @param signature The signature you are recovering the signer from
+   */
   function recoverCancelSignature(
     bytes32 transactionId,
     uint256 receivingChainId,
@@ -88,6 +106,9 @@ contract SignatureInterpreter is IConditionInterpreter {
     * @param transactionId Transaction identifier of tx being recovered
     * @param relayerFee The fee paid to the relayer for submitting the
     *                   tx on behalf of the user.
+    * @param receivingChainId Chain id of receiving chain of tx
+    * @param receivingChainTxManagerAddress Address of tx manager on receiving 
+    *        chain of tx
     * @param signature The signature you are recovering the signer from
     */
   function recoverFulfillSignature(
