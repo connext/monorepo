@@ -30,13 +30,15 @@ export const metaTxRequestBinding = async (
     data?.data?.txData.transactionId,
   );
   if (err || !data) {
-    logger.error("Error in metatx request", requestContext, methodContext, err, { data });
+    logger.error("Error in metatx request", requestContext, methodContext, err, {
+      data,
+    });
     return;
   }
 
   // On every metatx request (i.e. user wants router to fulfill for them)
   // route to metatx handler
-  logger.info("Got metatx", requestContext, methodContext, { data });
+  logger.debug("Got metatx", requestContext, methodContext, { data });
   const { chainId } = data;
 
   const chainConfig = config.chainConfig[chainId];
@@ -78,7 +80,7 @@ export const metaTxRequestBinding = async (
   }
   handlingTracker.set(txData.transactionId, data.type);
 
-  logger.info("Handling fulfill request", requestContext, methodContext);
+  logger.debug("Handling fulfill request", requestContext, methodContext);
   try {
     const tx = await fulfill(
       {

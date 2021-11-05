@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, MetaTxFulfillPayload } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, MetaTxFulfillPayload, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 
@@ -11,41 +11,51 @@ export const bindMessaging = async () => {
   // Setup Messaging Service events
 
   // <from>.auction.<fromChain>.<fromAsset>.<toChain>.<toAsset>
-  await messaging.subscribeToAuctionRequest(async (from, inbox, data, err) => {
+  await messaging.subscribeToAuctionRequest(async (from, inbox, data, e) => {
     const { requestContext, methodContext } = createLoggingContext(
       "subscribeToAuctionRequest",
       undefined,
       data?.transactionId,
     );
     try {
-      await auctionRequestBinding(from, inbox, data, err, requestContext);
-    } catch (e) {
-      logger.error("Error subscribing to auction request", requestContext, methodContext, jsonifyError(e));
+      await auctionRequestBinding(from, inbox, data, e, requestContext);
+    } catch (err) {
+      logger[(err as NxtpError).level ?? "error"](
+        "Error subscribing to auction request",
+        requestContext,
+        methodContext,
+        jsonifyError(err),
+      );
     }
   });
 
   // <from>.metatx
-  await messaging.subscribeToMetaTxRequest(async (from, inbox, data, err) => {
+  await messaging.subscribeToMetaTxRequest(async (from, inbox, data, e) => {
     const { requestContext, methodContext } = createLoggingContext(
       "subscribeToMetaTxRequest",
       undefined,
       (data?.data as MetaTxFulfillPayload)?.txData?.transactionId,
     );
 
-    if (err) {
-      logger.error("Error in metatx request", requestContext, methodContext, err, { data });
+    if (e) {
+      logger.error("Error in metatx request", requestContext, methodContext, e, { data });
       return;
     }
 
     if (!data) {
-      logger.error("No data in metatx request", requestContext, methodContext, err);
+      logger.error("No data in metatx request", requestContext, methodContext, e);
       return;
     }
 
     try {
-      await metaTxRequestBinding(from, inbox, data, err, requestContext);
+      await metaTxRequestBinding(from, inbox, data, e, requestContext);
     } catch (err) {
-      logger.error("Error executing metatx request", requestContext, methodContext, jsonifyError(err));
+      logger[(err as NxtpError).level ?? "error"](
+        "Error executing metatx request",
+        requestContext,
+        methodContext,
+        jsonifyError(err),
+      );
     }
   });
 };

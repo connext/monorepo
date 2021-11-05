@@ -35,13 +35,16 @@ export class AuctionRateExceeded extends NxtpError {
 
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
-    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name);
+    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name, "debug");
   }
 }
 
 export class SubgraphNotSynced extends NxtpError {
   static getMessage(chainId: number, records: SubgraphSyncRecord[]) {
-    return `Subgraph on ${chainId} not synced.` + records.map(record => `Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`).join("\n");
+    return (
+      `Subgraph on ${chainId} not synced.` +
+      records.map((record) => `Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`).join("\n")
+    );
   }
   constructor(chainId: number, records: SubgraphSyncRecord[], context: any = {}) {
     super(SubgraphNotSynced.getMessage(chainId, records), context, SubgraphNotSynced.name);

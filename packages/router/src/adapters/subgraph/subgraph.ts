@@ -4,6 +4,7 @@ import {
   getNtpTimeSeconds,
   getUuid,
   jsonifyError,
+  NxtpError,
   RequestContext,
   SubgraphSyncRecord,
   VariantTransactionData,
@@ -30,16 +31,15 @@ import {
 
 import { getSdks } from ".";
 
-const synced: Record<number, SubgraphSyncRecord[]> = {};
-
-export const getSyncRecord = async (
+export const getSyncRecords = async (
   chainId: number,
   _requestContext?: RequestContext,
 ): Promise<SubgraphSyncRecord[]> => {
-  const { requestContext } = createLoggingContext(getSyncRecord.name, _requestContext);
+  const { requestContext } = createLoggingContext(getSyncRecords.name, _requestContext);
 
-  const records = synced[chainId];
-  return records ?? (await setSyncRecord(chainId, requestContext));
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+  return sdk.hasSynced ? sdk.records : await setSyncRecord(chainId, requestContext);
 };
 
 const setSyncRecord = async (chainId: number, requestContext: RequestContext): Promise<SubgraphSyncRecord[]> => {
@@ -248,7 +248,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
             if (!receiving) {
               // if not synced, cancel
-              const receiverSynced = getSyncRecord(invariant.receivingChainId);
+              const receiverSynced = getSyncRecords(invariant.receivingChainId);
               if (!receiverSynced) {
                 return {
                   crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
@@ -334,11 +334,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
     }),
   );
   if (errors.size === Object.keys(sdks).length) {
-    if (errors.size === 1) {
-      // Just throw the first error in the Map if there's only one chain supported.
-      throw errors.values().next().value;
-    }
-    throw new Error("Failed to get active transactions for all chains");
+    throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
   }
   const flattened = allChains.filter((x) => !!x).flat();
   return flattened;

@@ -2,6 +2,21 @@
 
 ## Next Release
 
+- [contracts] Include `remove-router` hardhat task
+- [sdk] SDK supports string `subgraph` in config
+
+## 0.0.73
+
+- [contracts] Deploy to mainnet
+
+## 0.0.72
+
+- [router/sdk] Fix fallback subgraph
+
+## 0.0.71
+
+- [router] Handle fulfill relay bugfix
+
 ## 0.0.70
 
 - [router] Handle fulfill relay

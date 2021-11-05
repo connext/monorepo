@@ -13,7 +13,13 @@ import {
 } from "@connext/nxtp-utils";
 
 import { chainConfig, swapConfig } from "../constants";
-import { getBalance, getChainName, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
+import {
+  getBalance,
+  getChainName,
+  getDecimalsForAsset,
+  getExplorerLinkForTx,
+  mintTokens as _mintTokens,
+} from "../utils";
 import { chainProviders } from "../App";
 
 const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
@@ -719,21 +725,46 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                         if (!sendingAssetId || !receivingAssetId) {
                           throw new Error("Configuration doesn't support selected swap");
                         }
-                        const response = await getTransferQuote(
-                          parseInt(form.getFieldValue("sendingChain")),
+                        const sendingChainId = parseInt(form.getFieldValue("sendingChain"));
+                        const receivingChainId = parseInt(form.getFieldValue("receivingChain"));
+
+                        const sendingDecimals = await getDecimalsForAsset(
                           sendingAssetId,
-                          parseInt(form.getFieldValue("receivingChain")),
+                          sendingChainId,
+                          web3Provider!,
+                          chainData,
+                        );
+                        const receivingDecimals = await getDecimalsForAsset(
                           receivingAssetId,
-                          utils.parseEther(form.getFieldValue("amount")).toString(),
+                          receivingChainId,
+                          chainProviders[receivingChainId].provider,
+                          chainData,
+                        );
+
+                        const response = await getTransferQuote(
+                          sendingChainId,
+                          sendingAssetId,
+                          receivingChainId,
+                          receivingAssetId,
+                          utils.parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
                           form.getFieldValue("receivingAddress"),
                           form.getFieldValue("preferredRouters")
                             ? form.getFieldValue("preferredRouters").split(",")
                             : undefined,
                         );
                         form.setFieldsValue({
-                          receivedAmount: utils.formatEther(response?.bid.amountReceived ?? constants.Zero),
-                          gasFeeAmount: utils.formatEther(response?.gasFeeInReceivingToken ?? constants.Zero),
-                          metaTxFeeInRouter: utils.formatEther(response?.metaTxRelayerFee ?? constants.Zero),
+                          receivedAmount: utils.formatUnits(
+                            response?.bid.amountReceived ?? constants.Zero,
+                            receivingDecimals,
+                          ),
+                          gasFeeAmount: utils.formatUnits(
+                            response?.gasFeeInReceivingToken ?? constants.Zero,
+                            receivingDecimals,
+                          ),
+                          metaTxFeeInRouter: utils.formatUnits(
+                            response?.metaTxRelayerFee ?? constants.Zero,
+                            receivingDecimals,
+                          ),
                         });
                       }}
                     >
@@ -796,7 +827,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
                       if (transferFeeInSendingToken && metaTxFeeInSendingToken) {
                         form.setFieldsValue({
-                          trasnferFeeInSDK: utils.formatEther(transferFeeInSendingToken),
+                          transferFeeInSDK: utils.formatEther(transferFeeInSendingToken),
                           metaTxFeeInSDK: utils.formatEther(metaTxFeeInSendingToken),
                         });
                       }
@@ -806,7 +837,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                   </Button>
                 )}
               </Form.Item>
-              <Form.Item label="Transfer Fee (SDK)" name="trasnferFeeInSDK">
+              <Form.Item label="Transfer Fee (SDK)" name="transferFeeInSDK">
                 <Input disabled placeholder="..." />
               </Form.Item>
 

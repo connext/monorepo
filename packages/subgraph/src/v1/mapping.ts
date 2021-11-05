@@ -80,7 +80,9 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   // try to get chainId from the mapping
   let network = dataSource.network();
   let chainId: BigInt;
-  if (network == "ropsten") {
+  if (network == "mainnet") {
+    chainId = BigInt.fromI32(1);
+  } else if (network == "ropsten") {
     chainId = BigInt.fromI32(3);
   } else if (network == "rinkeby") {
     chainId = BigInt.fromI32(4);

@@ -68,7 +68,7 @@ export const bindContractReader = async () => {
     // subgraph buffer
     // remove records only iff transaction handled mined block is synced with respective chain subgraph
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
-      const records = await contractReader.getSyncRecord(Number(chainId));
+      const records = await contractReader.getSyncRecords(Number(chainId));
       const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
       handlingTracker.forEach((value, key) => {
       if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
