@@ -8,7 +8,6 @@ import { Bytes } from "ethers";
 export class Web3SignerApi {
   private static ENDPOINTS = {
     SIGN: "api/v1/eth1/sign",
-    RELOAD: "reload",
     SERVER_STATUS: "upcheck",
     PUBLIC_KEY: "api/v1/eth1/publicKeys",
   };
@@ -20,11 +19,6 @@ export class Web3SignerApi {
       data,
     });
     return response.data;
-  }
-
-  public async reload() {
-    const response: AxiosResponse<string> = await axios.post(this.formatUrl(Web3SignerApi.ENDPOINTS.RELOAD));
-    return response.data[0];
   }
 
   public async getServerStatus() {
