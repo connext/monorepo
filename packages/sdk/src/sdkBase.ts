@@ -188,6 +188,7 @@ export class NxtpSdkBase {
           }
           transactionManagerAddress = res.address;
         }
+        this.config.chainConfig[chainId].transactionManagerAddress = transactionManagerAddress;
 
         let priceOracleAddress = _priceOracleAddress;
         const chainIdsForGasFee = getDeployedChainIdsForGasFee();
