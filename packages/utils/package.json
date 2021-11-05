@@ -26,6 +26,7 @@
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.1",
+    "bignumber.js": "^9.0.1",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
     "chai-subset": "^1.6.0",
