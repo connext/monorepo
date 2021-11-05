@@ -36,6 +36,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
+  await hre.deployments.deploy("SignatureInterpreter", {
+    from: deployer,
+    args: [chainId],
+    log: true,
+  });
+
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
     await hre.deployments.deploy("ConnextPriceOracle", {
@@ -57,6 +63,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     for (const router of TEST_ROUTERS) {
       await hre.run("setup-test-router", { router });
     }
+
+    console.log(`Adding signature interpreter on:`, chainId);
+    await hre.run("setup");
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
   }

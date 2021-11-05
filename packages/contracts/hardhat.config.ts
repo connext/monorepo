@@ -12,6 +12,8 @@ import { HardhatUserConfig } from "hardhat/types";
 import "./src/tasks/addRouter";
 import "./src/tasks/addAsset";
 import "./src/tasks/addLiquidity";
+import "./src/tasks/addCondition";
+import "./src/tasks/removeRouter";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
 import "./src/tasks/getChainId";
@@ -20,7 +22,6 @@ import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
 import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
-import "./src/tasks/removeRouter";
 
 dotEnvConfig();
 

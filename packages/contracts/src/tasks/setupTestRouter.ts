@@ -2,12 +2,19 @@ import { task } from "hardhat/config";
 
 export default task("setup-test-router", "Add router and test assets")
   .addParam("router", "Router address")
+  .addOptionalParam("signatureInterpreter", "Override signature interpreter")
   .addOptionalParam("assetId", "Override token address")
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
   .setAction(
     async (
-      { assetId: _assetId, router, txManagerAddress: _txManagerAddress, amount: _amount },
+      {
+        assetId: _assetId,
+        router,
+        txManagerAddress: _txManagerAddress,
+        amount: _amount,
+        signatureInterpreter: _signatureInterpreter,
+      },
       { deployments, getNamedAccounts, ethers, run },
     ) => {
       console.log("router: ", router);
@@ -15,23 +22,17 @@ export default task("setup-test-router", "Add router and test assets")
       const namedAccounts = await getNamedAccounts();
       console.log("namedAccounts: ", namedAccounts);
 
-      let txManagerAddress = _txManagerAddress;
-      if (!txManagerAddress) {
-        const txManagerDeployment = await deployments.get("TransactionManager");
-        txManagerAddress = txManagerDeployment.address;
-      }
+      const txManagerAddress = _txManagerAddress ?? (await deployments.get("TransactionManager")).address;
       console.log("txManagerAddress: ", txManagerAddress);
 
-      let assetId = _assetId;
-      if (!_assetId) {
-        const assetIdDeployment = await deployments.get("TestERC20");
-        assetId = assetIdDeployment.address;
-      }
+      const assetId = _assetId ?? (await deployments.get("TestERC20")).address;
+      console.log("assetId:", assetId);
 
-      let amount = _amount;
-      if (!amount) {
-        amount = "2500000000000000000000000";
-      }
+      const signatureInterpreter = _signatureInterpreter ?? (await deployments.get("SignatureInterpreter")).address;
+      console.log("signatureInterpreter:", signatureInterpreter);
+
+      const amount = _amount ?? "2500000000000000000000000";
+      console.log("amount:", amount);
 
       const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
 
@@ -48,6 +49,13 @@ export default task("setup-test-router", "Add router and test assets")
         await run("add-asset", { assetId, txManagerAddress });
       }
       console.log("Asset approved");
+
+      const isConditionApproved = await txManager.approvedConditions(signatureInterpreter);
+      console.log("isConditionApproved: ", isConditionApproved);
+      if (!isConditionApproved) {
+        await run("add-condition", { condition: signatureInterpreter, txManagerAddress });
+      }
+      console.log("Condition approved");
 
       if (assetId !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", assetId);

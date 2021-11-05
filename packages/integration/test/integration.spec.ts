@@ -25,6 +25,9 @@ const erc20Address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;
 
+const signatureInterpreterAddressSending = "";
+const signatureInterpreterAddressReceiving = signatureInterpreterAddressSending;
+
 const SENDING_CHAIN = 1337;
 const RECEIVING_CHAIN = 1338;
 
@@ -35,6 +38,7 @@ const chainProviders = {
     ]),
     transactionManagerAddress: txManagerAddressSending,
     subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
+    signatureInterpreterAddress: signatureInterpreterAddressSending,
   },
   [RECEIVING_CHAIN]: {
     provider: new providers.FallbackProvider([
@@ -42,6 +46,7 @@ const chainProviders = {
     ]),
     transactionManagerAddress: txManagerAddressReceiving,
     subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
+    signatureInterpreterAddress: signatureInterpreterAddressReceiving,
   },
 };
 
