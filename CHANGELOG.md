@@ -2,6 +2,9 @@
 
 ## Next Release
 
+## 0.0.74
+
+- [sdk] Integrate Gelato for fulfill relaying
 - [contracts] Include `remove-router` hardhat task
 - [sdk] SDK supports string `subgraph` in config
 
