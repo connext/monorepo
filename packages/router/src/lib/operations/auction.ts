@@ -172,11 +172,23 @@ export const newAuction = async (
     });
   }
 
-  const allowedSwap = config.swapPools.find(
-    (pool) =>
+  let allowedSwapPool;
+  let sendingChainIdx;
+  let receivingChainIdx;
+  const allowedSwap = config.swapPools.find((pool) => {
+    const existSwap =
       pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
-  );
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId);
+    allowedSwapPool = pool.assets;
+    sendingChainIdx = pool.assets.findIndex(
+      (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
+    );
+    receivingChainIdx = pool.assets.find(
+      (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
+    );
+
+    return existSwap;
+  });
   if (!allowedSwap) {
     throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
       methodContext,

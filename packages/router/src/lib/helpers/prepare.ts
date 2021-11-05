@@ -50,7 +50,13 @@ export const getSwapRate = async (
 /**
  * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
  *
- * @param amount The amount of the transaction on the sending chain
+ * @param amount - The amount of the transaction on the sending chain.
+ * @param sendingDecimals - The decimals of sending asset.
+ * @param receivingDecimals - The decimals of receiving asset.
+ * @param routerBalances - Router balances on all the chains in decimals 18.
+ * @param sendingIdx - The index of sending asset among router balances.
+ * @param receivingIdx - The index of receiving asset among router balances.
+ * @param maxPriceImpact - Max price impact.
  * @returns The amount, less fees as determined by the swapRate
  *
  * @remarks
@@ -58,22 +64,20 @@ export const getSwapRate = async (
  */
 export const getReceiverAmount = async (
   amount: string,
-  inputDecimals: number,
-  outputDecimals: number,
-  senderBalance: BigNumber,
-  receiverBalance: BigNumber,
+  sendingDecimals: number,
+  receivingDecimals: number,
+  routerBalances: BigNumber[],
+  sendingIdx: number,
+  receivingIdx: number,
   maxPriceImpact: number,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
 
-  const convertedSenderBalance = senderBalance.mul(BigNumber.from(10).pow(18 - inputDecimals));
-  const convertedReceiverBalance = receiverBalance.mul(BigNumber.from(10).pow(18 - outputDecimals));
-  const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - inputDecimals));
-  const balances: BigNumber[] = [convertedSenderBalance, convertedReceiverBalance];
+  const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - sendingDecimals));
   // 1. swap rate from AMM
-  const amountAfterSwapRate = await getSwapRate(BigNumber.from(inputAmount), balances, 0, 1);
+  const amountAfterSwapRate = await getSwapRate(BigNumber.from(inputAmount), routerBalances, sendingIdx, receivingIdx);
 
   // check price impact
   const deltaPrice = amountAfterSwapRate.gt(inputAmount)
@@ -81,12 +85,12 @@ export const getReceiverAmount = async (
     : BigNumber.from(inputAmount).sub(amountAfterSwapRate);
   if (deltaPrice.gt(inputAmount.mul(maxPriceImpact).div(100))) {
     throw new PriceImpactTooHigh(inputAmount.toString(), amountAfterSwapRate.toString(), maxPriceImpact, {
-      inputDecimals,
-      outputDecimals,
+      sendingDecimals,
+      receivingDecimals,
     });
   }
   // 2. flat fee by Router
-  const outputAmount = amountAfterSwapRate.div(BigNumber.from(10).pow(18 - outputDecimals));
+  const outputAmount = amountAfterSwapRate.div(BigNumber.from(10).pow(18 - receivingDecimals));
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   const receivingAmount = calculateExchangeAmount(outputAmount.toString(), routerFeeRate);
   return receivingAmount.split(".")[0];
