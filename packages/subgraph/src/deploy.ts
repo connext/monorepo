@@ -1,7 +1,6 @@
 import yamlToJson from "js-yaml";
 import YAML from "yaml";
 import { readFileSync, writeFileSync } from "fs";
-import { safeJsonStringify } from "@connext/nxtp-utils";
 import { exec as _exec } from "child_process";
 import util from "util";
 
@@ -74,7 +73,7 @@ const run = async () => {
     jsonFile.dataSources[0].source.startBlock = n.startBlock;
 
     const doc = new YAML.Document();
-    const obj = JSON.parse(safeJsonStringify(jsonFile));
+    const obj = JSON.parse(JSON.stringify(jsonFile));
     doc.contents = obj;
     writeFileSync("./subgraph.yaml", doc.toString());
 
