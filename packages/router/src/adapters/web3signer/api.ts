@@ -1,3 +1,4 @@
+import { NxtpError } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 import { Bytes } from "ethers";
 
@@ -15,19 +16,25 @@ export class Web3SignerApi {
   constructor(private readonly url: string) {}
 
   public async sign(identifier: string, data: string | Bytes): Promise<string> {
-    const response: AxiosResponse<string> = await axios.post(this.formatUrl(Web3SignerApi.ENDPOINTS.SIGN, identifier), {
+    const endpoint = Web3SignerApi.ENDPOINTS.SIGN;
+    let response: AxiosResponse<string> = await axios.post(this.formatUrl(endpoint, identifier), {
       data,
     });
+    response = this.sanitizeResponse(response, endpoint);
     return response.data;
   }
 
-  public async getServerStatus() {
-    const response: AxiosResponse<string> = await axios.get(this.formatUrl(Web3SignerApi.ENDPOINTS.SERVER_STATUS));
+  public async getServerStatus(): Promise<string> {
+    const endpoint = Web3SignerApi.ENDPOINTS.SERVER_STATUS;
+    let response: AxiosResponse<string> = await axios.get(this.formatUrl(endpoint));
+    response = this.sanitizeResponse(response, endpoint);
     return response.data[0];
   }
 
-  public async getPublicKey() {
-    const response: AxiosResponse<string> = await axios.get(this.formatUrl(Web3SignerApi.ENDPOINTS.PUBLIC_KEY));
+  public async getPublicKey(): Promise<string> {
+    const endpoint = Web3SignerApi.ENDPOINTS.PUBLIC_KEY;
+    let response: AxiosResponse<string> = await axios.get(this.formatUrl(endpoint));
+    response = this.sanitizeResponse(response, endpoint);
     return response.data[0];
   }
 
@@ -40,5 +47,22 @@ export class Web3SignerApi {
       url += `/${identifier}`;
     }
     return url;
+  }
+
+  private sanitizeResponse(
+    response: AxiosResponse<string>,
+    endpoint: typeof Web3SignerApi.ENDPOINTS[keyof typeof Web3SignerApi.ENDPOINTS],
+  ): AxiosResponse<string> {
+    console.log("RESPONSE", response);
+    if (!response || !response.data || response.data.length === 0) {
+      throw new NxtpError(
+        "Received bad response from web3signer instance; make sure your key file is configured correctly.",
+        {
+          response,
+          endpoint,
+        },
+      );
+    }
+    return response;
   }
 }
