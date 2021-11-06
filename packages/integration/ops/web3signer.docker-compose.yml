@@ -4,7 +4,7 @@ services:
   router:
     container_name: web3signer-test
     image: "consensys/web3signer:develop"
-    command: "--key-store-path=/home/node/router/ --swagger-ui-enabled=true --http-host-allowlist=0.0.0.0 --http-listen-host=0.0.0.0 --http-listen-port=9000 --logging=DEBUG eth1"
+    command: "--key-store-path=/home/node/router/ --swagger-ui-enabled=true --http-host-allowlist=0.0.0.0 --http-listen-host=0.0.0.0 --http-listen-port=9000 eth1"
     ports:
       - 9000:9000
     volumes:
