@@ -20,7 +20,7 @@
     "docker:messaging:down": "docker-compose -f ops/messaging.docker-compose.yml down",
     "docker:router:up": "docker-compose -f ops/router.docker-compose.yml up -d",
     "docker:router:down": "docker-compose -f ops/router.docker-compose.yml down",
-    "docker:web3signer:up": "docker-compose -f ops/web3signer.docker-compose.yml up -d",
+    "docker:web3signer:up": "docker-compose -f ops/web3signer.docker-compose.yml up -d --verbose",
     "docker:web3signer:down": "docker-compose -f ops/web3signer.docker-compose.yml down",
     "docker:services:up": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/web3signer.docker-compose.yml up -d",
     "docker:services:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/web3signer.docker-compose.yml down",
