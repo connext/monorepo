@@ -36,6 +36,12 @@
     "startBlock": 19835794
   },
   {
+    "subgraphName": "connext/nxtp-moonriver",
+    "network": "moonriver",
+    "address": "0x373ba9aa0f48b27A977F73423039E6dE341a0C7C",
+    "startBlock": 863864
+  },
+  {
     "subgraphName": "connext/nxtp-xdai",
     "network": "xdai",
     "address": "0x115909BDcbaB21954bEb4ab65FC2aBEE9866fa93",
