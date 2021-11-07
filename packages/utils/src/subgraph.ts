@@ -29,35 +29,43 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
 
     // mainnets
     case 1:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet"];
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet",
+      ];
     case 56:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-bsc",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc",
       ];
     case 100:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-xdai",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai",
       ];
     case 137:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-matic",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
       ];
     case 250:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-fantom",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+      ];
+    case 1285:
+      return [
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-moonriver",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-moonriver",
       ];
     case 42161:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-arbitrum-one",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
       ];
     case 43114:
       return [
-        "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-avalanche",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche",
       ];
     default:
