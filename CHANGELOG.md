@@ -4,6 +4,10 @@
 
 - [router] Add support for web3signer
 
+## 0.0.75
+
+- [contracts] Moonriver deployment
+
 ## 0.0.74
 
 - [sdk] Integrate Gelato for fulfill relaying

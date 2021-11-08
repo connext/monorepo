@@ -1,5 +1,5 @@
 {
-  "version": "0.0.74",
+  "version": "0.0.75",
   "name": "@connext/nxtp-subgraph",
   "license": "UNLICENSED",
   "scripts": {
@@ -27,7 +27,6 @@
     "generated"
   ],
   "dependencies": {
-    "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.4.6",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
