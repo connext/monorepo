@@ -8,6 +8,7 @@ import {
   txReceiptMock,
   createLoggingContext,
   mkBytes32,
+  mkAddress,
 } from "@connext/nxtp-utils";
 
 import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
@@ -83,6 +84,13 @@ describe("Prepare Receiver Operation", () => {
       validBidExpiryStub.returns(false);
       await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Bid expiry",
+      );
+    });
+
+    it("should error if swap is invalid", async () => {
+      const _invariantDataMock = { ...invariantDataMock, receivingAssetId: mkAddress("0xf") };
+      await expect(prepare(_invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
+        "swap not allowed",
       );
     });
 

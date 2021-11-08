@@ -54,7 +54,7 @@ export const configMock: NxtpRouterConfig = {
       name: "TEST",
       assets: [
         { assetId: mkAddress("0xc"), chainId: 1337 },
-        { assetId: mkAddress("0xf"), chainId: 1338 },
+        { assetId: mkAddress("0xd"), chainId: 1338 },
       ],
     },
   ],
