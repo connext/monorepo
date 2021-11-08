@@ -49,6 +49,7 @@ import {
   NoPriceOracle,
   InvalidParamStructure,
   FulfillTimeout,
+  RelayFailed,
 } from "./error";
 import {
   TransactionManager,
@@ -773,18 +774,36 @@ export class NxtpSdkBase {
       if (isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
         const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
-        const data = await gelatoFulfill(
-          txData.receivingChainId,
-          deployedContract,
-          new Interface(TransactionManagerAbi),
-          {
-            txData,
-            relayerFee,
-            signature: fulfillSignature,
-            callData: decryptedCallData,
-          },
-        );
-        this.logger.info("Submitted using Gelato Relayer", requestContext, methodContext, { data });
+        let gelatoSuccess = false;
+        for (let ii = 0; ii < 3; ii++) {
+          try {
+            const data = await gelatoFulfill(
+              txData.receivingChainId,
+              deployedContract,
+              new Interface(TransactionManagerAbi),
+              {
+                txData,
+                relayerFee,
+                signature: fulfillSignature,
+                callData: decryptedCallData,
+              },
+            );
+            if (!data.taskId) {
+              throw new Error("No taskId returned");
+            }
+            this.logger.info("Submitted using Gelato Relayer", requestContext, methodContext, { data });
+            gelatoSuccess = true;
+            break;
+          } catch (err) {
+            this.logger.error("Error using Gelato Relayer", requestContext, methodContext, jsonifyError(err), {
+              attemptNum: ii + 1,
+            });
+            await delay(1000);
+          }
+          if (!gelatoSuccess) {
+            throw new RelayFailed(transactionId, txData.receivingChainId, { requestContext, methodContext });
+          }
+        }
       } else {
         this.logger.info("Fulfilling using relayers", requestContext, methodContext);
         if (!this.messaging.isConnected()) {
