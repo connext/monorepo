@@ -216,6 +216,7 @@ describe("Integration", () => {
   const test = async (sendingAssetId: string, receivingAssetId: string) => {
     let quote: AuctionResponse;
     try {
+      await userSdk.getActiveTransactions();
       quote = await userSdk.getTransferQuote({
         amount: utils.parseEther("1").toString(),
         receivingAssetId,
