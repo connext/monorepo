@@ -4,7 +4,6 @@ import {
   UserNxtpNatsMessagingService,
   TransactionPreparedEvent,
   AuctionResponse,
-  MetaTxResponse,
   jsonifyError,
   Logger,
   createLoggingContext,
@@ -428,8 +427,7 @@ export class NxtpSdk {
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
     useRelayers = true,
-    useGelatoRelay = false,
-  ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
+  ): Promise<{ transactionHash: string }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
       undefined,
@@ -491,23 +489,16 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(
-      params,
-      signature,
-      callData,
-      calculateRelayerFee,
-      useRelayers,
-      useGelatoRelay,
-    );
+    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
 
     if (useRelayers) {
-      return { metaTxResponse: response.metaTxResponse };
+      return { transactionHash: response.transactionResponse!.transactionHash };
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await connectedSigner.sendTransaction(response.fulfillRequest!);
+      const fulfillResponse = await connectedSigner.sendTransaction(response.transactionRequest!);
 
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
-      return { fulfillResponse };
+      return { transactionHash: fulfillResponse.hash };
     }
   }
 
