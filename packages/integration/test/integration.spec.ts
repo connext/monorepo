@@ -240,19 +240,10 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    const fulfillEventPromise = userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
-
-    const finishRes = await userSdk.fulfillTransfer(event, utils.parseEther("0.00001").toString());
+    const finishRes = await userSdk.fulfillTransfer(event, true);
     console.info("fullfill Transfer at receiver side", finishRes);
 
-    expect(finishRes.metaTxResponse).to.be.ok;
-    const fulfillEvent = await fulfillEventPromise;
-    console.info("fullfill Event", fulfillEvent);
-    expect(fulfillEvent).to.be.ok;
+    expect(finishRes.transactionHash).to.be.ok;
   };
 
   beforeEach(async () => {
