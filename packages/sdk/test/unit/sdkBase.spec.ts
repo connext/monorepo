@@ -7,13 +7,14 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  delay,
+  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
+import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
 
 import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdkBase";
@@ -21,7 +22,6 @@ import { EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
 import { Evt } from "evt";
 import {
   ChainNotConfigured,
-  EncryptionError,
   InvalidBidSignature,
   InvalidExpiry,
   InvalidParamStructure,
@@ -32,6 +32,8 @@ import {
   SubgraphsNotSynced,
   UnknownAuctionError,
   InvalidCallTo,
+  NoValidBids,
+  RelayFailed,
 } from "../../src/error";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
@@ -55,11 +57,14 @@ describe("NxtpSdkBase", () => {
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
   let subgraph: SinonStubbedInstance<Subgraph>;
   let transactionManager: SinonStubbedInstance<TransactionManager>;
+  let getDeployedChainIdsForGasFeeStub: SinonStub;
+  let getDeployedPriceOracleContractStub: SinonStub;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
   let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
+  let gelatoFulfill: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -96,7 +101,10 @@ describe("NxtpSdkBase", () => {
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getDecimals").resolves(18);
+    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(21));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+    provider1337.getGasPrice.resolves(BigNumber.from(10).pow(9));
+    provider1338.getGasPrice.resolves(BigNumber.from(10).pow(9));
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
@@ -106,8 +114,10 @@ describe("NxtpSdkBase", () => {
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
 
-    stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
+    stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
+    gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
+    stub(utils, "isChainSupportedByGelato").returns(true);
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -130,6 +140,16 @@ describe("NxtpSdkBase", () => {
     (sdk as any).messaging = messaging;
 
     messaging.connect.resolves(response);
+
+    getDeployedChainIdsForGasFeeStub = stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([
+      sendingChainId,
+      receivingChainId,
+    ]);
+
+    getDeployedPriceOracleContractStub = stub(TransactionManagerHelperFns, "getDeployedPriceOracleContract").returns({
+      address: "0x0",
+      abi: "",
+    });
   });
 
   afterEach(() => {
@@ -175,11 +195,13 @@ describe("NxtpSdkBase", () => {
     auctionBidOverrides: Partial<AuctionBid> = {},
     _bidSignature: string = EmptyCallDataHash,
     _gasFeeInReceivingToken = "0",
+    _metaTxRelayerFe = "0",
   ): {
     crossChainParams: CrossChainParams;
     auctionBid: AuctionBid;
     bidSignature: string;
     gasFeeInReceivingToken: string;
+    metaTxRelayerFee: string;
   } => {
     const transactionId = getRandomBytes32();
     const crossChainParams = {
@@ -221,8 +243,9 @@ describe("NxtpSdkBase", () => {
 
     const bidSignature = _bidSignature;
     const gasFeeInReceivingToken = _gasFeeInReceivingToken;
+    const metaTxRelayerFee = _metaTxRelayerFe;
 
-    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken };
+    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee };
   };
 
   describe("#constructor", () => {
@@ -248,6 +271,7 @@ describe("NxtpSdkBase", () => {
     });
 
     it("should error if subgraph doesn't exist for chainId", async () => {
+      getDeployedChainIdsForGasFeeStub.returns([sendingChainId, receivingChainId]);
       const _chainConfig = {
         [sendingChainId]: {
           provider: provider1337,
@@ -430,7 +454,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
@@ -445,7 +469,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
@@ -460,7 +484,7 @@ describe("NxtpSdkBase", () => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(auctionBid.transactionId),
+        NoValidBids.getMessage(auctionBid.transactionId),
       );
     });
 
@@ -636,7 +660,11 @@ describe("NxtpSdkBase", () => {
 
       transactionManager.prepare.resolves(TxRequest);
 
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
+      const res = await sdk.prepareTransfer({
+        bid: auctionBid,
+        bidSignature,
+        gasFeeInReceivingToken,
+      });
       expect(res).to.deep.eq(TxRequest);
     });
   });
@@ -782,6 +810,50 @@ describe("NxtpSdkBase", () => {
       expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
     });
 
+    it("happy: finish transfer => useGelatoRelay:true", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      const res = await sdk.fulfillTransfer(
+        {
+          txData: { ...transaction, ...record },
+
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        },
+        "0x",
+        "0x",
+        "0",
+        true,
+        true,
+      );
+
+      expect(res.metaTxResponse.transactionHash).to.be.eq("foo");
+      expect(res.metaTxResponse.chainId).to.be.eq(receivingChainId);
+    });
+
+    it("should error if gelator relay fails", async () => {
+      const { transaction, record } = await getTransactionData();
+      gelatoFulfill.resolves({ taskId: undefined });
+
+      await expect(
+        sdk.fulfillTransfer(
+          {
+            txData: { ...transaction, ...record },
+
+            encryptedCallData: EmptyCallDataHash,
+            encodedBid: EmptyCallDataHash,
+            bidSignature: EmptyCallDataHash,
+          },
+          "0x",
+          "0x",
+          "0",
+          true,
+          true,
+        ),
+      ).to.be.rejectedWith(RelayFailed);
+    });
+
     it("should error if finish transfer => useRelayers:false, fulfill errors", async () => {
       const { transaction, record } = await getTransactionData();
 
@@ -899,6 +971,154 @@ describe("NxtpSdkBase", () => {
       );
 
       expect(res).to.deep.eq(TxRequest);
+    });
+  });
+
+  describe("#estimateHardcodedFeeForPrepare", () => {
+    it("happy: should return valid price if price oracle is configured", async () => {
+      const { crossChainParams } = getMock();
+
+      const result = await sdk.estimateHardcodedFeeForPrepare(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        18,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.prepare).mul("1000000000"));
+    });
+
+    it("happy: should return zero price if price oracle isn't configured", async () => {
+      getDeployedPriceOracleContractStub.returns({ address: null, abi: null });
+      const { crossChainParams } = getMock();
+
+      const result = await sdk.estimateHardcodedFeeForPrepare(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        18,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(BigNumber.from("0"));
+    });
+  });
+
+  describe("#estimateHardcodedFeeForFulfill", () => {
+    it("happy: should return valid price if price oracle is configured", async () => {
+      const { crossChainParams } = getMock();
+
+      const result = await sdk.estimateHardcodedFeeForFulfill(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        18,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000"));
+    });
+    it("happy: should return zero price if price oracle isn't configured", async () => {
+      getDeployedPriceOracleContractStub.returns({ address: null, abi: null });
+      const { crossChainParams } = getMock();
+
+      const result = await sdk.estimateHardcodedFeeForFulfill(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        18,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(BigNumber.from("0"));
+    });
+  });
+
+  describe("#estimateFeeForRouterTransfer", () => {
+    it("happy: should return valid price if price oracle is configured", async () => {
+      const { crossChainParams } = getMock();
+      const result = await sdk.estimateFeeForRouterTransfer(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+        true,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(
+        BigNumber.from(GAS_ESTIMATES.fulfill).add(BigNumber.from(GAS_ESTIMATES.prepare)).mul("1000000000"),
+      );
+    });
+    it("happy: should return zero price if price oracle isn't configured", async () => {
+      const { crossChainParams } = getMock();
+      getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
+      const result = await sdk.estimateFeeForRouterTransfer(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+        true,
+        null,
+        null,
+      );
+      expect(result).to.be.eq("0");
+    });
+    it("should error for non configured chains", async () => {
+      await expect(
+        sdk.estimateFeeForRouterTransfer(111, "0x0", 222, "0x0", true, null, null),
+      ).to.eventually.rejectedWith(ChainNotConfigured.getMessage(111, supportedChains));
+    });
+  });
+
+  describe("#estimateFeeForMetaTx", () => {
+    it("happy: should return valid price if price oracle is configured", async () => {
+      const { crossChainParams } = getMock();
+      const result = await sdk.estimateFeeForMetaTx(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+        true,
+        null,
+        null,
+      );
+
+      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000"));
+    });
+    it("happy: should return zero price if price oracle isn't configured", async () => {
+      const { crossChainParams } = getMock();
+      getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
+      const result = await sdk.estimateFeeForMetaTx(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+        true,
+        null,
+        null,
+      );
+      expect(result).to.be.eq("0");
+    });
+    it("should error for non configured chains", async () => {
+      await expect(sdk.estimateFeeForMetaTx(111, "0x0", 222, "0x0", true, null, null)).to.eventually.rejectedWith(
+        ChainNotConfigured.getMessage(111, supportedChains),
+      );
+    });
+  });
+
+  describe("#getGasPrice", () => {
+    it("should work for configured chain", async () => {
+      const result = await sdk.getGasPrice(sendingChainId);
+      expect(result).to.be.eq(BigNumber.from("1000000000"));
+    });
+
+    it("should error for non-configured chain", async () => {
+      await expect(sdk.getGasPrice(11111)).eventually.be.rejectedWith(
+        ChainNotConfigured.getMessage(11111, supportedChains),
+      );
     });
   });
 

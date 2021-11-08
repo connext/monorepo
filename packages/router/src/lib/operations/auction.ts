@@ -154,7 +154,7 @@ export const newAuction = async (
   }
 
   // Make sure subgraphs are synced
-  const receivingSyncRecords = await contractReader.getSyncRecord(receivingChainId, requestContext);
+  const receivingSyncRecords = await contractReader.getSyncRecords(receivingChainId, requestContext);
   if (!receivingSyncRecords.some((record) => record.synced)) {
     throw new SubgraphNotSynced(receivingChainId, receivingSyncRecords, {
       methodContext,
@@ -163,7 +163,7 @@ export const newAuction = async (
     });
   }
 
-  const sendingSyncRecords = await contractReader.getSyncRecord(sendingChainId, requestContext);
+  const sendingSyncRecords = await contractReader.getSyncRecords(sendingChainId, requestContext);
   if (!sendingSyncRecords.some((record) => record.synced)) {
     throw new SubgraphNotSynced(sendingChainId, sendingSyncRecords, {
       methodContext,

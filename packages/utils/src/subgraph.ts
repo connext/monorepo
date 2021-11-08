@@ -7,43 +7,68 @@
  * @remarks
  * Currently only returns URIs for hosted subgraphs
  */
-export const getDeployedSubgraphUri = (chainId: number): string | undefined => {
+export const getDeployedSubgraphUri = (chainId: number): string[] => {
   switch (chainId) {
+    // testnets
     case 3:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten"];
     case 4:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby"];
     case 5:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"];
     case 42:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan";
-    case 56:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-bsc";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan"];
     case 69:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan"];
     case 97:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel";
-    case 100:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-xdai";
-    case 137:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-matic";
-    case 250:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-fantom";
-    case 42161:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-arbitrum-one";
-    case 43114:
-      // return "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche";
-      return "https://connext-nxtp-subgraph.eu-central-1.bwarelabs.app/subgraphs/name/connext/nxtp-avalanche";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel"];
     case 80001:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai"];
     case 421611:
-      return "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby";
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby"];
+
+    // mainnets
+    case 1:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet",
+      ];
+    case 56:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc",
+      ];
+    case 100:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai",
+      ];
+    case 137:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+      ];
+    case 250:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+      ];
+    case 1285:
+      return [
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-moonriver",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-moonriver",
+      ];
+    case 42161:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+      ];
+    case 43114:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche",
+      ];
     default:
-      return undefined;
+      return [];
   }
 };

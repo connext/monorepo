@@ -92,14 +92,8 @@ describe("NxtpSdk", () => {
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
     sdkBase.cancel.resolves(CancelReq);
-    sdkBase.estimateFulfillFee.resolves(BigNumber.from(1));
 
-    encryptMock = stub(utils, "encrypt");
-    ethereumRequestMock = stub(utils, "ethereumRequest");
-    stub(utils, "getDecimals").resolves(18);
-    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(18));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
     balanceStub = stub(utils, "getOnchainBalance");
@@ -110,6 +104,8 @@ describe("NxtpSdk", () => {
     signFulfillTransactionPayloadMock.resolves(sigMock);
     recoverAuctionBidMock = stub(utils, "recoverAuctionBid");
     recoverAuctionBidMock.returns(router);
+    ethereumRequestMock = stub(utils, "ethereumRequest");
+    encryptMock = stub(utils, "encrypt");
 
     stub(sdkIndex, "AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
@@ -169,11 +165,13 @@ describe("NxtpSdk", () => {
     auctionBidOverrides: Partial<AuctionBid> = {},
     _bidSignature: string = EmptyCallDataHash,
     _gasFeeInReceivingToken = "0",
+    _metaTxRelayerFee = "0",
   ): {
     crossChainParams: CrossChainParams;
     auctionBid: AuctionBid;
     bidSignature: string;
     gasFeeInReceivingToken: string;
+    metaTxRelayerFee: string;
   } => {
     const transactionId = getRandomBytes32();
     const crossChainParams = {
@@ -215,8 +213,9 @@ describe("NxtpSdk", () => {
 
     const bidSignature = _bidSignature;
     const gasFeeInReceivingToken = _gasFeeInReceivingToken;
+    const metaTxRelayerFee = _metaTxRelayerFee;
 
-    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken };
+    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee };
   };
 
   describe("#constructor", () => {
@@ -376,7 +375,11 @@ describe("NxtpSdk", () => {
 
       sdkBase.approveForPrepare.resolves(undefined);
 
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
+      const res = await sdk.prepareTransfer({
+        bid: auctionBid,
+        bidSignature,
+        gasFeeInReceivingToken,
+      });
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(PrepareReq);
       expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
@@ -384,7 +387,11 @@ describe("NxtpSdk", () => {
     it("happy: prepare transfer with approval ", async () => {
       const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
 
-      const res = await sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken });
+      const res = await sdk.prepareTransfer({
+        bid: auctionBid,
+        bidSignature,
+        gasFeeInReceivingToken,
+      });
 
       expect(signer.sendTransaction).to.be.calledWithExactly(ApproveReq);
       expect(signer.sendTransaction).to.be.calledWithExactly(PrepareReq);
@@ -408,7 +415,6 @@ describe("NxtpSdk", () => {
 
       it("unknown receivingChainId", async () => {
         const { transaction, record } = await getTransactionData({ receivingChainId: 1400 });
-
         await expect(
           sdk.fulfillTransfer({
             txData: { ...transaction, ...record },
@@ -421,6 +427,8 @@ describe("NxtpSdk", () => {
     });
 
     it("should error if signFulfillTransactionPayload errors", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
       const { transaction, record } = await getTransactionData();
 
       ethereumRequestMock.rejects("foo");
@@ -436,8 +444,9 @@ describe("NxtpSdk", () => {
     });
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
       const { transaction, record } = await getTransactionData();
-      transactionManagerStub.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
       sdkBase.fulfillTransfer.throws(new MetaTxTimeout(transaction.transactionId, 1_000, {} as any));
 
       try {
@@ -455,13 +464,15 @@ describe("NxtpSdk", () => {
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
+
       const { transaction, record } = await getTransactionData();
-      transactionManagerStub.calculateGasInTokenForFullfil.resolves(BigNumber.from(10).pow(15)); // 0.001 ether
 
       const mockTransactionHash = getRandomBytes32();
       const mockMetaTxResponse = {
         transactionHash: mockTransactionHash,
-        chainId: transaction.chainId,
+        chainId: transaction.receivingChainId,
       };
       sdkBase.fulfillTransfer.resolves({ metaTxResponse: mockMetaTxResponse });
 
@@ -477,6 +488,9 @@ describe("NxtpSdk", () => {
     });
 
     it("happy: finish transfer => useRelayers:false", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
+
       const { transaction, record } = await getTransactionData();
 
       sdkBase.fulfillTransfer.resolves({ fulfillRequest: FulfillReq });
@@ -489,13 +503,77 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         },
-        "0",
+        false,
         false,
       );
 
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(FulfillReq);
       expect(res.fulfillResponse).to.be.eq(TxResponse);
       expect(res.metaTxResponse).to.be.undefined;
+    });
+  });
+
+  describe("#estimateMetaTxFeeInSendingToken", () => {
+    it("happy: should work", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      const { crossChainParams } = getMock();
+
+      const res = await sdk.estimateMetaTxFeeInSendingToken(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+      );
+
+      expect(res).to.be.eq("1");
+    });
+  });
+
+  describe("#estimateMetaTxFeeInReceivingToken", () => {
+    it("happy: should work", async () => {
+      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
+      const { crossChainParams } = getMock();
+
+      const res = await sdk.estimateMetaTxFeeInReceivingToken(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+      );
+
+      expect(res).to.be.eq("1");
+    });
+  });
+
+  describe("#estimateFeeForRouterTransferInSendingToken", () => {
+    it("happy: should work", async () => {
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
+      const { crossChainParams } = getMock();
+
+      const res = await sdk.estimateFeeForRouterTransferInSendingToken(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+      );
+
+      expect(res).to.be.eq("1");
+    });
+  });
+
+  describe("#estimateFeeForRouterTransferInReceivingToken", () => {
+    it("happy: should work", async () => {
+      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
+      const { crossChainParams } = getMock();
+
+      const res = await sdk.estimateFeeForRouterTransferInReceivingToken(
+        crossChainParams.sendingChainId,
+        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
+        crossChainParams.receivingAssetId,
+      );
+
+      expect(res).to.be.eq("1");
     });
   });
 

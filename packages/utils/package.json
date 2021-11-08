@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "0.0.68",
+  "version": "0.0.75",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",

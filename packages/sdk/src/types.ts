@@ -10,6 +10,7 @@ import {
   TransactionCancelledEvent,
   CrosschainTransaction,
   UserNxtpNatsMessagingService,
+  AuctionResponseSchema,
 } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
@@ -89,9 +90,17 @@ export const CrossChainParamsSchema = Type.Object({
   dryRun: Type.Optional(Type.Boolean()),
   preferredRouters: Type.Optional(Type.Array(TAddress)),
   initiator: Type.Optional(TAddress),
+  auctionWaitTimeMs: Type.Optional(Type.Number()),
+  numAuctionResponsesQuorum: Type.Optional(Type.Number()),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
+
+export const GetTransferQuoteSchema = Type.Intersect([
+  AuctionResponseSchema,
+  Type.Object({ metaTxRelayerFee: TIntegerString }),
+]);
+export type GetTransferQuote = Static<typeof GetTransferQuoteSchema>;
 
 export const AuctionBidParamsSchema = Type.Object({
   user: TAddress,

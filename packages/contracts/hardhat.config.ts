@@ -20,6 +20,7 @@ import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
 import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
+import "./src/tasks/removeRouter";
 
 dotEnvConfig();
 
@@ -122,6 +123,12 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 250,
       url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
+    },
+    moonriver: {
+      accounts: { mnemonic },
+      chainId: 1285,
+      url: "https://rpc.moonriver.moonbeam.network",
+      gasPrice: 5000000000,
     },
     mbase: {
       accounts: { mnemonic },

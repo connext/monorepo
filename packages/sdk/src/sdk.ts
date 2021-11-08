@@ -1,4 +1,4 @@
-import { providers, Signer, utils } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -33,6 +33,7 @@ import {
   SubgraphSyncRecord,
   ActiveTransaction,
   CancelParams,
+  GetTransferQuote,
 } from "./types";
 import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest } from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
@@ -153,6 +154,119 @@ export class NxtpSdk {
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     return this.sdkBase.getHistoricalTransactions();
   }
+  /**
+   * Gets gas fee in sending token for meta transaction
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for meta transaction in sending token
+   */
+  public async estimateMetaTxFeeInSendingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInSendingToken");
+    const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      true,
+      requestContext,
+      methodContext,
+    );
+    return gasInSendingToken;
+  }
+
+  /**
+   * Gets gas fee in receiving token for meta transaction
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for meta transaction in receiving token
+   */
+  public async estimateMetaTxFeeInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInReceivingToken");
+    const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+    return gasInReceivingToken;
+  }
+
+  /**
+   * Gets gas fee in sending token for router transfer
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for router transfer in sending token
+   */
+  public async estimateFeeForRouterTransferInSendingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInSendingToken");
+    const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      true,
+      requestContext,
+      methodContext,
+    );
+
+    return gasInSendingToken;
+  }
+
+  /**
+   * Gets gas fee in receiving token for router transfer
+   *
+   * @param sendingChainId - The network id of sending chain
+   * @param sendingAssetId - The sending asset address
+   * @param receivingChainId - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address
+   * @returns Gas fee for router transfer in receiving token
+   */
+  public async estimateFeeForRouterTransferInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInReceivingToken");
+    const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+
+    return gasInReceivingToken;
+  }
 
   /**
    * Fetches an estimated quote for a proposed crosschain transfer. Runs an auction to determine the `router` for a transaction and the estimated received value.
@@ -174,7 +288,7 @@ export class NxtpSdk {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<AuctionResponse> {
+  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<GetTransferQuote> {
     const user = await this.config.signer.getAddress();
     const callData = params.callData ?? "0x";
     let encryptedCallData = "0x";
@@ -313,8 +427,8 @@ export class NxtpSdk {
    */
   public async fulfillTransfer(
     params: Omit<TransactionPreparedEvent, "caller">,
-    relayerFee = "0",
     useRelayers = true,
+    useGelatoRelay = false,
   ): Promise<{ fulfillResponse?: providers.TransactionResponse; metaTxResponse?: MetaTxResponse }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.fulfillTransfer.name,
@@ -339,11 +453,15 @@ export class NxtpSdk {
       connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
     }
 
-    let calculateRelayerFee = relayerFee;
+    let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.sdkBase.estimateFulfillFee(txData, "0x", "0");
-
+      const gasNeeded = await this.estimateMetaTxFeeInReceivingToken(
+        txData.sendingChainId,
+        txData.sendingAssetId,
+        txData.receivingChainId,
+        txData.receivingAssetId,
+      );
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
         requestContext,
@@ -373,7 +491,14 @@ export class NxtpSdk {
         throw new EncryptionError("decryption failed", jsonifyError(e));
       }
     }
-    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
+    const response = await this.sdkBase.fulfillTransfer(
+      params,
+      signature,
+      callData,
+      calculateRelayerFee,
+      useRelayers,
+      useGelatoRelay,
+    );
 
     if (useRelayers) {
       return { metaTxResponse: response.metaTxResponse };

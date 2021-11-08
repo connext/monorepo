@@ -21,7 +21,7 @@ export const fulfill = async (
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
   const { logger, contractWriter, config, chainData, txService } = getContext();
-  logger.info("Method start", requestContext, methodContext, { invariantData, input });
+  logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
@@ -50,9 +50,6 @@ export const fulfill = async (
 
   const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
 
-  // Send to tx service
-  logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
-
   const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
 
   if (!config.chainConfig[fulfillChain]) {
@@ -63,7 +60,7 @@ export const fulfill = async (
   if (fulfillChain === invariantData.receivingChainId) {
     const relayerFeeLowerBound = config.chainConfig[fulfillChain].relayerFeeThreshold;
     const allowFulfillRelay = config.chainConfig[fulfillChain].allowFulfillRelay;
-    if (!allowFulfillRelay && BigNumber.from(relayerFee).gt(0)) {
+    if (!allowFulfillRelay) {
       throw new NotAllowedFulfillRelay(fulfillChain, {
         methodContext,
         requestContext,
@@ -73,6 +70,9 @@ export const fulfill = async (
         input,
       });
     }
+
+    // Send to tx service
+    logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
 
     let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[
       invariantData.receivingAssetId

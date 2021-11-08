@@ -6,7 +6,6 @@ import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 import { getAddress } from "ethers/lib/utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 
 // Stable swap addresses
@@ -14,8 +13,10 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 // 1337: 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC
 
 // TODO: get from config/utils
-// router: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
+// Stable swap on rinkeby
 const AMPLIFICATION = "85";
+
+// router: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 
 type RouterProps = {
   web3Provider?: providers.Web3Provider;
@@ -75,13 +76,13 @@ const getLiquidityQuery = gql`
   }
 `;
 
-const getSwapRateFromStableMath = (
+const getSwapRateFromStableMath = async (
   amountIn: BigNumber,
   balances: BigNumber[],
   indexIn: number,
   indexOut: number,
-): BigNumber => {
-  const amountOut = getAmountsOut(
+): Promise<BigNumber> => {
+  const amountOut = await getAmountsOut(
     AMPLIFICATION,
     balances.map((balance) => balance.toString()),
     indexIn,
@@ -433,35 +434,37 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     );
     if (activeChainBalance) {
       const amountIn = utils.parseEther("1");
-      const priceImpactList = oldBalanceList.map((e, index) => {
-        let oldAmountOut = BigNumber.from(0);
-        let newAmountOut = BigNumber.from(0);
-        if (activeChainBalanceIndex !== index) {
-          try {
-            oldAmountOut = getSwapRateFromStableMath(amountIn, oldBalances, activeChainBalanceIndex, index);
+      const priceImpactList = await Promise.all(
+        oldBalanceList.map(async (e, index) => {
+          let oldAmountOut = BigNumber.from(0);
+          let newAmountOut = BigNumber.from(0);
+          if (activeChainBalanceIndex !== index) {
+            try {
+              oldAmountOut = await getSwapRateFromStableMath(amountIn, oldBalances, activeChainBalanceIndex, index);
 
-            newAmountOut = getSwapRateFromStableMath(amountIn, newBalances, activeChainBalanceIndex, index);
-          } catch (e) {
-            console.error("##################################### onSwapGiveIn Errror");
-            console.log(e);
-            console.log("index = ", index);
-            console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
+              newAmountOut = await getSwapRateFromStableMath(amountIn, newBalances, activeChainBalanceIndex, index);
+            } catch (e) {
+              console.error("##################################### onSwapGiveIn Errror");
+              console.log(e);
+              console.log("index = ", index);
+              console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
+            }
+          } else {
+            oldAmountOut = amountIn;
+            newAmountOut = amountIn;
           }
-        } else {
-          oldAmountOut = amountIn;
-          newAmountOut = amountIn;
-        }
 
-        const priceImpactItem: PriceImpactEntry = {
-          chain: e.chain,
-          amountIn: utils.formatUnits(amountIn.toString(), 18),
-          symbol: e.symbol,
-          oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
-          newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
-        };
-        console.log("> priceImpactItem, ", priceImpactItem);
-        return priceImpactItem;
-      });
+          const priceImpactItem: PriceImpactEntry = {
+            chain: e.chain,
+            amountIn: utils.formatUnits(amountIn.toString(), 18),
+            symbol: e.symbol,
+            oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
+            newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
+          };
+          console.log("> priceImpactItem, ", priceImpactItem);
+          return priceImpactItem;
+        }),
+      );
       if (actionType == LIQUIDITY_ACTION.ADD) {
         setPriceImpactsOnAdd(priceImpactList);
       } else if (actionType == LIQUIDITY_ACTION.REMOVE) {

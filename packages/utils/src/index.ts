@@ -21,4 +21,5 @@ export * from "./chainData";
 export * from "./time";
 export * from "./gasEstimates";
 export * from "./fallbackSubgraph";
+export * from "./gelato";
 export * from "./stableMath";
