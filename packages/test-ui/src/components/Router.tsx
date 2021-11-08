@@ -6,6 +6,7 @@ import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 import { getAddress } from "ethers/lib/utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 
 // Stable swap addresses
@@ -76,13 +77,13 @@ const getLiquidityQuery = gql`
   }
 `;
 
-const getSwapRateFromStableMath = async (
+const getSwapRateFromStableMath = (
   amountIn: BigNumber,
   balances: BigNumber[],
   indexIn: number,
   indexOut: number,
-): Promise<BigNumber> => {
-  const amountOut = await getAmountsOut(
+): BigNumber => {
+  const amountOut = getAmountsOut(
     AMPLIFICATION,
     balances.map((balance) => balance.toString()),
     indexIn,
@@ -186,7 +187,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
         },
       };
     } else {
-      uri = getDeployedSubgraphUri(chainId);
+      uri = getDeployedSubgraphUri(chainId)[0];
       data = chainData?.find((c) => c.chainId === chainId);
     }
     return { uri, data };
@@ -434,37 +435,35 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     );
     if (activeChainBalance) {
       const amountIn = utils.parseEther("1");
-      const priceImpactList = await Promise.all(
-        oldBalanceList.map(async (e, index) => {
-          let oldAmountOut = BigNumber.from(0);
-          let newAmountOut = BigNumber.from(0);
-          if (activeChainBalanceIndex !== index) {
-            try {
-              oldAmountOut = await getSwapRateFromStableMath(amountIn, oldBalances, activeChainBalanceIndex, index);
+      const priceImpactList = oldBalanceList.map((e, index) => {
+        let oldAmountOut = BigNumber.from(0);
+        let newAmountOut = BigNumber.from(0);
+        if (activeChainBalanceIndex !== index) {
+          try {
+            oldAmountOut = getSwapRateFromStableMath(amountIn, oldBalances, activeChainBalanceIndex, index);
 
-              newAmountOut = await getSwapRateFromStableMath(amountIn, newBalances, activeChainBalanceIndex, index);
-            } catch (e) {
-              console.error("##################################### onSwapGiveIn Errror");
-              console.log(e);
-              console.log("index = ", index);
-              console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
-            }
-          } else {
-            oldAmountOut = amountIn;
-            newAmountOut = amountIn;
+            newAmountOut = getSwapRateFromStableMath(amountIn, newBalances, activeChainBalanceIndex, index);
+          } catch (e) {
+            console.error("##################################### onSwapGiveIn Errror");
+            console.log(e);
+            console.log("index = ", index);
+            console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
           }
+        } else {
+          oldAmountOut = amountIn;
+          newAmountOut = amountIn;
+        }
 
-          const priceImpactItem: PriceImpactEntry = {
-            chain: e.chain,
-            amountIn: utils.formatUnits(amountIn.toString(), 18),
-            symbol: e.symbol,
-            oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
-            newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
-          };
-          console.log("> priceImpactItem, ", priceImpactItem);
-          return priceImpactItem;
-        }),
-      );
+        const priceImpactItem: PriceImpactEntry = {
+          chain: e.chain,
+          amountIn: utils.formatUnits(amountIn.toString(), 18),
+          symbol: e.symbol,
+          oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
+          newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
+        };
+        console.log("> priceImpactItem, ", priceImpactItem);
+        return priceImpactItem;
+      });
       if (actionType == LIQUIDITY_ACTION.ADD) {
         setPriceImpactsOnAdd(priceImpactList);
       } else if (actionType == LIQUIDITY_ACTION.REMOVE) {

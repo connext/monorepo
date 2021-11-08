@@ -215,7 +215,7 @@ export const newAuction = async (
   );
 
   logger.info("Got balances of router", requestContext, methodContext, {
-    routerBalances,
+    routerBalances: routerBalances.map((balance) => balance.toString()),
   });
 
   const [senderBalance, receiverBalance] = await Promise.all([

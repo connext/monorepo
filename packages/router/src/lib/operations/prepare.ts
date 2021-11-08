@@ -111,6 +111,19 @@ export const prepare = async (
     }
   });
 
+  if (sendingChainIdx == -1 || receivingChainIdx == -1) {
+    throw new SwapInvalid(
+      invariantData.sendingChainId,
+      invariantData.sendingAssetId,
+      invariantData.receivingChainId,
+      invariantData.receivingAssetId,
+      {
+        methodContext,
+        requestContext,
+      },
+    );
+  }
+
   const swapPool = config.swapPools[swapPoolIndex];
   const routerBalances = await Promise.all(
     swapPool.assets.map(async (asset) => {
