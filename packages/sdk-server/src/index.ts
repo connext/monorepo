@@ -121,7 +121,7 @@ server.post<{
     relayerFee?: string;
     useRelayers?: boolean;
   };
-  Reply: { fulfillRequest?: providers.TransactionRequest; metaTxResponse?: MetaTxResponse };
+  Reply: { transactionRequest?: providers.TransactionRequest; transactionResponse?: MetaTxResponse };
 }>(
   fulfillTransfer,
   {

@@ -12,7 +12,7 @@ import {
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
 
-import { InvalidTxStatus } from "../error";
+import { InvalidTxStatus, PollingNotActive } from "../error";
 import {
   SenderTransactionPreparedPayload,
   SenderTransactionCancelledPayload,
@@ -773,6 +773,9 @@ export class Subgraph {
     timeout: number,
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
   ): Promise<SubgraphEventPayloads[T]> {
+    if (!this.pollingLoop) {
+      throw new PollingNotActive();
+    }
     return this.evts[event].pipe(filter).waitFor(timeout) as Promise<SubgraphEventPayloads[T]>;
   }
 }
