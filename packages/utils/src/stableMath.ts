@@ -8,7 +8,7 @@ const BIG_TEN = new BigNumber(10)
 
 // Computes the invariant given the current balances, using the Newton-Raphson approximation.
 // The amplification parameter equals: A n^(n-1)
-export const _calculateInvariant = (
+const _calculateInvariant = (
   amplificationParameter: BigNumber,
   balances: BigNumber[]
 ) :BigNumber => {
@@ -23,28 +23,24 @@ export const _calculateInvariant = (
     // D(n+1) = D(n) - (f(Dn)/f'(Dn)) = (AnnS + nDp)Dn / [(Ann-1)Dn + (n+1)Dp]
     // We support rounding up or down.
 
-    let sum = BIG_ZERO;
     let numTokens = balances.length;
-    for (let i = 0; i < numTokens; i++) {
-        sum = sum.plus(balances[i])
-    }
-   
+    const sum: BigNumber = balances.reduce((prev, curr) => prev.plus(curr), BIG_ZERO)
+    
     if (sum.isEqualTo(0)) {
         return BIG_ZERO;
     }
 
-    let Dprev = BIG_ZERO;  // Dn
-    let D = sum;    // Dn+1
+    let Dprev: BigNumber = BIG_ZERO;  // Dn
+    let D: BigNumber = sum;          // Dn+1
     let Ann = new BigNumber(amplificationParameter).times(numTokens);  // An
     
     for (let i = 0; i < 255; i++) {
-        let D_P = D;
-
         // calculate derivative of f(D)
+        let D_P = D;
         for(let j = 0; j < numTokens; j++) {
           D_P = D_P.multipliedBy(D).dividedBy(new BigNumber(balances[j]).times(numTokens));
         }
-       
+        
         Dprev = D;
         
         //D = (Ann * sum + D_P * numTokens) * D / ((Ann - 1) * D + (numTokens + 1) * D_P)
@@ -52,14 +48,9 @@ export const _calculateInvariant = (
         let temp2 = ((Ann.minus(BIG_ONE)).multipliedBy(Dprev)).plus(D_P.times(numTokens + 1))
         D = temp1.multipliedBy(Dprev).dividedBy(temp2)
         
-        if (D.gt(Dprev)) {
-          if (D.minus(Dprev).lte(BIG_ONE)) {
-            break;
-          }
-        } else {
-          if(Dprev.minus(D).lte(BIG_ONE)) {
-            break;
-          }
+
+        if (D.minus(Dprev).abs().lte(BIG_ONE)) {
+          break;
         }
     }
 
@@ -69,7 +60,7 @@ export const _calculateInvariant = (
 
 // This function calculates the balance of a given token (tokenIndex)
 // given all the other balances and the invariant
-export const _getTokenBalanceGivenInvariantAndAllOtherBalances = (
+const _getTokenBalanceGivenInvariantAndAllOtherBalances = (
   amp: BigNumber,
   balances: BigNumber[],
   invariant: BigNumber,
@@ -103,14 +94,8 @@ export const _getTokenBalanceGivenInvariantAndAllOtherBalances = (
     y_prev = y
     y = (y.pow(2).plus(c)).div((y.multipliedBy(2)).plus(b).minus(invariant))
     
-    if (y.gt(y_prev)) {  
-      if(y.minus(y_prev).lte(BIG_ZERO)) {
-        break
-      }
-    } else {
-      if(y_prev.minus(y).lte(BIG_ZERO)) {
-        break
-      }
+    if (y.minus(y_prev).abs().lte(BIG_ONE)) {
+      break;
     }
   }
   
@@ -146,21 +131,21 @@ export const getAmountsOut = (
   // P = product of final balances but y                                                                       //
   **************************************************************************************************************/
   
-  let convertedBalances = balances.map((balance) => new BigNumber(balance))
+  const convertedBalances = balances.map((balance) => new BigNumber(balance))
   const convertedAmp = new BigNumber(amp)
 
   const lastInvariant = _calculateInvariant(convertedAmp, convertedBalances);
 
   convertedBalances[tokenIndexIn] = convertedBalances[tokenIndexIn].plus(tokenAmountIn);
 
-  let finalBalanceOut: BigNumber = _getTokenBalanceGivenInvariantAndAllOtherBalances(
+  const finalBalanceOut: BigNumber = _getTokenBalanceGivenInvariantAndAllOtherBalances(
     convertedAmp,
     convertedBalances,
     lastInvariant,
     tokenIndexOut
   );
 
-  return convertedBalances[tokenIndexOut].minus(finalBalanceOut).minus(BIG_ONE).toString();
+  return convertedBalances[tokenIndexOut].minus(finalBalanceOut).minus(BIG_ONE).toFixed(0).toString();
 }
 
 
@@ -191,19 +176,19 @@ export const getAmountsIn = (
   // S = sum of final balances but x                                                                           //
   // P = product of final balances but x                                                                       //
   **************************************************************************************************************/
-  let convertedBalances = balances.map((balance) => new BigNumber(balance))
+  const convertedBalances = balances.map((balance) => new BigNumber(balance))
   const convertedAmp = new BigNumber(amp)
 
   const lastInvariant = _calculateInvariant(convertedAmp, convertedBalances);
 
   convertedBalances[tokenIndexOut] = convertedBalances[tokenIndexOut].plus(tokenAmountOut);
 
-  let finalBalanceIn: BigNumber = _getTokenBalanceGivenInvariantAndAllOtherBalances(
+  const finalBalanceIn: BigNumber = _getTokenBalanceGivenInvariantAndAllOtherBalances(
     convertedAmp,
     convertedBalances,
     lastInvariant,
     tokenIndexIn
   );
 
-  return finalBalanceIn.minus(convertedBalances[tokenIndexIn]).plus(BIG_ONE).toString();
+  return finalBalanceIn.minus(convertedBalances[tokenIndexIn]).plus(BIG_ONE).toFixed(0).toString();
 }
