@@ -63,6 +63,7 @@ export class SwapInvalid extends NxtpError {
       `${sendingChainId},${sendingAssetId}->${receivingChainId},${receivingAssetId} swap not allowed`,
       { ...context, sendingChainId, sendingAssetId, receivingChainId, receivingAssetId },
       "SwapInvalid",
+      "debug",
     );
   }
 }

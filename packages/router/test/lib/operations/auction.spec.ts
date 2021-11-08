@@ -61,18 +61,6 @@ describe("Auction Operation", () => {
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Not enough liquidity");
     });
 
-    it("should error if no providers for sending chain", async () => {
-      await expect(newAuction({ ...auctionPayload, sendingChainId: 1234 }, requestContext)).to.be.rejectedWith(
-        "Providers not available",
-      );
-    });
-
-    it("should error if no providers for receiving chain", async () => {
-      await expect(newAuction({ ...auctionPayload, receivingChainId: 1234 }, requestContext)).to.be.rejectedWith(
-        "Providers not available",
-      );
-    });
-
     it("should error if sending subgraph is out of sync", async () => {
       const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
       (contractReaderMock.getSyncRecords as SinonStub).onCall(0).returns(records);
