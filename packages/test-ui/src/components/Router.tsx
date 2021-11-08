@@ -1,12 +1,11 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getAmountsOut, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 import { getAddress } from "ethers/lib/utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/amm/StableSwap.sol/StableSwap.json";
 
 import { getChainName, getExplorerLinkForAddress } from "../utils";
 
@@ -15,13 +14,8 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 // 1337: 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC
 
 // TODO: get from config/utils
-// Stable swap on rinkeby
-const STABLE_SWAP_ADDR = "0x94aae89Cdf66D555605160e1AB59E2CC160468d1";
-const STABLE_SWAP_PROVIDER = new providers.JsonRpcProvider(
-  "https://rinkeby.infura.io/v3/c787a0397d9f4c0db9d28dec3a231c1e",
-);
-
 // router: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
+const AMPLIFICATION = "85";
 
 type RouterProps = {
   web3Provider?: providers.Web3Provider;
@@ -81,16 +75,19 @@ const getLiquidityQuery = gql`
   }
 `;
 
-const getSwapRateFromVirutalAMM = async (
+const getSwapRateFromStableMath = (
   amountIn: BigNumber,
   balances: BigNumber[],
   indexIn: number,
   indexOut: number,
-  stableSwapAddress: string,
-  providerForAmm: providers.Provider,
-): Promise<BigNumber> => {
-  const contract = new Contract(stableSwapAddress, StableSwapArtifact.abi, providerForAmm);
-  const amountOut = await contract.onSwapGivenIn(amountIn, balances, indexIn, indexOut);
+): BigNumber => {
+  const amountOut = getAmountsOut(
+    AMPLIFICATION,
+    balances.map((balance) => balance.toString()),
+    indexIn,
+    indexOut,
+    amountIn.toString(),
+  );
   return BigNumber.from(amountOut);
 };
 
@@ -436,51 +433,35 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     );
     if (activeChainBalance) {
       const amountIn = utils.parseEther("1");
-      const priceImpactList = await Promise.all(
-        oldBalanceList.map(async (e, index) => {
-          let oldAmountOut = BigNumber.from(0);
-          let newAmountOut = BigNumber.from(0);
-          if (activeChainBalanceIndex !== index) {
-            try {
-              oldAmountOut = await getSwapRateFromVirutalAMM(
-                amountIn,
-                oldBalances,
-                activeChainBalanceIndex,
-                index,
-                STABLE_SWAP_ADDR,
-                STABLE_SWAP_PROVIDER,
-              );
+      const priceImpactList = oldBalanceList.map((e, index) => {
+        let oldAmountOut = BigNumber.from(0);
+        let newAmountOut = BigNumber.from(0);
+        if (activeChainBalanceIndex !== index) {
+          try {
+            oldAmountOut = getSwapRateFromStableMath(amountIn, oldBalances, activeChainBalanceIndex, index);
 
-              newAmountOut = await getSwapRateFromVirutalAMM(
-                amountIn,
-                newBalances,
-                activeChainBalanceIndex,
-                index,
-                STABLE_SWAP_ADDR,
-                STABLE_SWAP_PROVIDER,
-              );
-            } catch (e) {
-              console.error("##################################### onSwapGiveIn Errror");
-              console.log(e);
-              console.log("index = ", index);
-              console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
-            }
-          } else {
-            oldAmountOut = amountIn;
-            newAmountOut = amountIn;
+            newAmountOut = getSwapRateFromStableMath(amountIn, newBalances, activeChainBalanceIndex, index);
+          } catch (e) {
+            console.error("##################################### onSwapGiveIn Errror");
+            console.log(e);
+            console.log("index = ", index);
+            console.log("activeChainBalanceIndex = ", activeChainBalanceIndex);
           }
+        } else {
+          oldAmountOut = amountIn;
+          newAmountOut = amountIn;
+        }
 
-          const priceImpactItem: PriceImpactEntry = {
-            chain: e.chain,
-            amountIn: utils.formatUnits(amountIn.toString(), 18),
-            symbol: e.symbol,
-            oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
-            newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
-          };
-          console.log("> priceImpactItem, ", priceImpactItem);
-          return priceImpactItem;
-        }),
-      );
+        const priceImpactItem: PriceImpactEntry = {
+          chain: e.chain,
+          amountIn: utils.formatUnits(amountIn.toString(), 18),
+          symbol: e.symbol,
+          oldAmountOut: utils.formatUnits(oldAmountOut.toString(), 18),
+          newAmountOut: utils.formatUnits(newAmountOut.toString(), 18),
+        };
+        console.log("> priceImpactItem, ", priceImpactItem);
+        return priceImpactItem;
+      });
       if (actionType == LIQUIDITY_ACTION.ADD) {
         setPriceImpactsOnAdd(priceImpactList);
       } else if (actionType == LIQUIDITY_ACTION.REMOVE) {

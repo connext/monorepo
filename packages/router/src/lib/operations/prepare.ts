@@ -6,6 +6,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
+import { getAddress } from "ethers/lib/utils";
 
 import { getContext } from "../../router";
 import { PrepareInput, PrepareInputSchema } from "../entities";
@@ -16,6 +17,7 @@ import {
   NotEnoughLiquidity,
   SenderChainDataInvalid,
   BidExpiryInvalid,
+  SwapInvalid,
 } from "../errors";
 import {
   decodeAuctionBid,
@@ -35,7 +37,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config, chainData } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // Validate InvariantData schema
@@ -77,24 +79,73 @@ export const prepare = async (
     throw new SenderChainDataInvalid({ methodContext, requestContext });
   }
 
-  const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
+  let sendingChainIdx: number = -1;
+  let receivingChainIdx: number = -1;
+  let swapPoolIndex: number = -1;
+  config.swapPools.find((pool, index) => {
+    const existSwap =
+      pool.assets.find(
+        (a) =>
+          getAddress(a.assetId) === getAddress(invariantData.sendingAssetId) &&
+          a.chainId === invariantData.sendingChainId,
+      ) &&
+      pool.assets.find(
+        (a) =>
+          getAddress(a.assetId) === getAddress(invariantData.receivingAssetId) &&
+          a.chainId === invariantData.receivingChainId,
+      );
 
-  const outputDecimals = await txService.getDecimalsForAsset(
-    invariantData.receivingChainId,
-    invariantData.receivingAssetId,
+    if (existSwap) {
+      sendingChainIdx = pool.assets.findIndex(
+        (a) =>
+          getAddress(a.assetId) === getAddress(invariantData.sendingAssetId) &&
+          a.chainId === invariantData.sendingChainId,
+      );
+
+      receivingChainIdx = pool.assets.findIndex(
+        (a) =>
+          getAddress(a.assetId) === getAddress(invariantData.receivingAssetId) &&
+          a.chainId === invariantData.receivingChainId,
+      );
+      swapPoolIndex = index;
+    }
+  });
+
+  const swapPool = config.swapPools[swapPoolIndex];
+  const routerBalances = await Promise.all(
+    swapPool.assets.map(async (asset) => {
+      const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
+      let assetDecimals = chainData.get(asset.chainId.toString())?.assetId[asset.assetId]?.decimals;
+      if (!assetDecimals) {
+        assetDecimals = await txService.getDecimalsForAsset(asset.chainId, asset.assetId);
+      }
+      // convert asset liquidity into 18 decimal value.
+      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
+      return res;
+    }),
   );
 
-  const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(invariantData.sendingChainId, wallet.address),
-    txService.getBalance(invariantData.receivingChainId, wallet.address),
-  ]);
+  let inputDecimals = chainData.get(invariantData.sendingChainId.toString())?.assetId[invariantData.sendingAssetId]
+    ?.decimals;
+  if (!inputDecimals) {
+    inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
+  }
+  let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[invariantData.receivingAssetId]
+    ?.decimals;
+  if (!outputDecimals) {
+    outputDecimals = await txService.getDecimalsForAsset(
+      invariantData.receivingChainId,
+      invariantData.receivingAssetId,
+    );
+  }
 
   let receiverAmount = await getReceiverAmount(
     senderAmount,
     inputDecimals,
     outputDecimals,
-    senderBalance,
-    receiverBalance,
+    routerBalances,
+    sendingChainIdx,
+    receivingChainIdx,
     config.maxPriceImpact,
   );
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);

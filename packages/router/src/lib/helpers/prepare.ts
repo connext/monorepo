@@ -4,6 +4,7 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   calculateExchangeAmount,
   getRateFromPercentage,
+  getAmountsOut,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { PriceImpactTooHigh } from "../errors/auction";
@@ -14,6 +15,7 @@ const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
+const AMPLIFICATION = "85";
 
 /**
  * Determine if expiry is valid
@@ -44,7 +46,14 @@ export const getSwapRate = async (
   indexIn: number,
   indexOut: number,
 ): Promise<BigNumber> => {
-  return amount;
+  const amountOut = getAmountsOut(
+    AMPLIFICATION,
+    balances.map((balance) => balance.toString()),
+    indexIn,
+    indexOut,
+    amount.toString(),
+  );
+  return BigNumber.from(amountOut);
 };
 
 /**
@@ -76,7 +85,7 @@ export const getReceiverAmount = async (
   }
 
   const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - sendingDecimals));
-  // 1. swap rate from AMM
+  // 1. swap rate from stableMath
   const amountAfterSwapRate = await getSwapRate(BigNumber.from(inputAmount), routerBalances, sendingIdx, receivingIdx);
 
   // check price impact

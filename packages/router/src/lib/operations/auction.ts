@@ -172,20 +172,24 @@ export const newAuction = async (
     });
   }
 
-  let allowedSwapPool;
-  let sendingChainIdx;
-  let receivingChainIdx;
-  const allowedSwap = config.swapPools.find((pool) => {
+  let sendingChainIdx: number = -1;
+  let receivingChainIdx: number = -1;
+  let swapPoolIndex: number = -1;
+  const allowedSwap = config.swapPools.find((pool, index) => {
     const existSwap =
       pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
       pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId);
-    allowedSwapPool = pool.assets;
-    sendingChainIdx = pool.assets.findIndex(
-      (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
-    );
-    receivingChainIdx = pool.assets.find(
-      (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
-    );
+
+    if (existSwap) {
+      sendingChainIdx = pool.assets.findIndex(
+        (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
+      );
+
+      receivingChainIdx = pool.assets.findIndex(
+        (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
+      );
+      swapPoolIndex = index;
+    }
 
     return existSwap;
   });
@@ -195,6 +199,24 @@ export const newAuction = async (
       requestContext,
     });
   }
+
+  const swapPool = config.swapPools[swapPoolIndex];
+  const routerBalances = await Promise.all(
+    swapPool.assets.map(async (asset) => {
+      const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
+      let assetDecimals = chainData.get(asset.chainId.toString())?.assetId[asset.assetId]?.decimals;
+      if (!assetDecimals) {
+        assetDecimals = await txService.getDecimalsForAsset(asset.chainId, asset.assetId);
+      }
+      // convert asset liquidity into 18 decimal value.
+      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
+      return res;
+    }),
+  );
+
+  logger.info("Got balances of router", requestContext, methodContext, {
+    routerBalances,
+  });
 
   const [senderBalance, receiverBalance] = await Promise.all([
     txService.getBalance(sendingChainId, wallet.address),
@@ -221,8 +243,9 @@ export const newAuction = async (
     amount,
     inputDecimals,
     outputDecimals,
-    senderLiquidity,
-    receiverLiquidity,
+    routerBalances,
+    sendingChainIdx,
+    receivingChainIdx,
     config.maxPriceImpact,
   );
 

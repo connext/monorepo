@@ -46,8 +46,9 @@ describe("getReceiverAmount", () => {
       parseEther("10000").toString(),
       18,
       18,
-      BigNumber.from("100000"),
-      BigNumber.from("100000"),
+      [BigNumber.from("100000"), BigNumber.from("100000")],
+      0,
+      1,
       20,
     );
     expect(result).to.be.eq("8995500000000000000000");
@@ -63,8 +64,9 @@ describe("getReceiverAmount", () => {
         parseEther("10000").toString(),
         18,
         18,
-        BigNumber.from("100000"),
-        BigNumber.from("100000"),
+        [BigNumber.from("100000"), BigNumber.from("100000")],
+        0,
+        1,
         5,
       );
     } catch (e) {
@@ -78,8 +80,9 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 6).toString(),
       6,
       18,
-      BigNumber.from("100000"),
-      BigNumber.from("100000"),
+      [BigNumber.from("100000"), BigNumber.from("100000")],
+      0,
+      1,
       20,
     );
     expect(result).to.be.eq(parseEther("89955").toString());
@@ -91,8 +94,9 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 18).toString(),
       18,
       6,
-      BigNumber.from("100000"),
-      BigNumber.from("100000"),
+      [BigNumber.from("100000"), BigNumber.from("100000")],
+      0,
+      1,
       20,
     );
     expect(result).to.be.eq(parseUnits("89955", 6).toString());
@@ -104,8 +108,9 @@ describe("getReceiverAmount", () => {
       parseUnits("100000", 6).toString(),
       6,
       6,
-      BigNumber.from("100000"),
-      BigNumber.from("100000"),
+      [BigNumber.from("100000"), BigNumber.from("100000")],
+      0,
+      1,
       20,
     );
     expect(() => BigNumber.from(result)).to.not.throw();
@@ -114,7 +119,7 @@ describe("getReceiverAmount", () => {
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1, BigNumber.from("100000"), BigNumber.from("100000"), 20);
+      await getReceiverAmount("1.0", 1, 1, [BigNumber.from("100000"), BigNumber.from("100000")], 0, 1, 20);
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);
