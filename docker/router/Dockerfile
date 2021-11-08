@@ -37,7 +37,7 @@ COPY .eslintignore ./
 COPY .eslintrc.js ./
 
 # ----- Lint, test and build -----
-RUN yarn build:all
+# RUN yarn build:all
 
 # ----- Bundle the app for deployment -----
 ARG APP_NAME
