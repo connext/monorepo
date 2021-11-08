@@ -95,6 +95,18 @@ export const newAuction = async (
     });
   }
 
+  const allowedSwap = config.swapPools.find(
+    (pool) =>
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
+  );
+  if (!allowedSwap) {
+    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
+      methodContext,
+      requestContext,
+    });
+  }
+
   const currentTime = await getNtpTimeSeconds();
 
   // Validate request limit
@@ -169,18 +181,6 @@ export const newAuction = async (
       methodContext,
       requestContext,
       transactionId,
-    });
-  }
-
-  const allowedSwap = config.swapPools.find(
-    (pool) =>
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
-  );
-  if (!allowedSwap) {
-    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
-      methodContext,
-      requestContext,
     });
   }
 

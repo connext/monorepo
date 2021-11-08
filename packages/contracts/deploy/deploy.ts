@@ -34,6 +34,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     from: deployer,
     args: [chainId],
     log: true,
+    deterministicDeployment: true,
   });
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
@@ -42,6 +43,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer,
       args: [WRAPPED_ETH_MAP.get(chainId)],
       log: true,
+      deterministicDeployment: true,
     });
   }
 
@@ -50,6 +52,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await hre.deployments.deploy("TestERC20", {
       from: deployer,
       log: true,
+      deterministicDeployment: true,
     });
 
     console.log("Setting up test routers on chain", chainId);
