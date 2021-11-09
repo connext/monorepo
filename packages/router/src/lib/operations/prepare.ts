@@ -66,10 +66,11 @@ export const prepare = async (
   const bid = decodeAuctionBid(encodedBid);
   logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
+  const routerAddress = await wallet.getAddress();
   const recovered = recoverAuctionBid(bid, bidSignature);
-  if (recovered !== wallet.address) {
+  if (recovered !== routerAddress) {
     // cancellable error
-    throw new AuctionSignerInvalid(wallet.address, recovered, { methodContext, requestContext });
+    throw new AuctionSignerInvalid(routerAddress, recovered, { methodContext, requestContext });
   }
 
   if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {

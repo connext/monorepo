@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  signer:
+    container_name: web3signer-test
+    image: "consensys/web3signer:develop"
+    command: "--key-store-path=/web3signer/ --swagger-ui-enabled=true --http-host-allowlist=0.0.0.0,172.17.0.1 --http-listen-host=0.0.0.0 --http-listen-port=9000 eth1"
+    ports:
+      - 9000:9000
+    volumes:
+      - ./config/web3signer/web3signer_keyFile_test.yaml:/web3signer/web3signer_keyFile_test.yaml
+    networks:
+      - nxtp-test
+
+networks:
+  nxtp-test:

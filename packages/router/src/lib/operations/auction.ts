@@ -108,6 +108,7 @@ export const newAuction = async (
   }
 
   const currentTime = await getNtpTimeSeconds();
+  const routerAddress = await wallet.getAddress();
 
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
@@ -234,8 +235,8 @@ export const newAuction = async (
   }
 
   const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
+    txService.getBalance(sendingChainId, routerAddress),
+    txService.getBalance(receivingChainId, routerAddress),
   ]);
   logger.info("Got balances", requestContext, methodContext, {
     senderBalance: senderBalance.toString(),
@@ -265,7 +266,7 @@ export const newAuction = async (
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
     user,
-    router: wallet.address,
+    router: routerAddress,
     initiator,
     sendingChainId,
     sendingAssetId,
