@@ -11,6 +11,7 @@ const CHAIN_ID = {
   BSC: 56,
   MATIC: 137,
   FANTOM: 250,
+  AVALANCHE: 43114,
 };
 
 const endpoints = {
@@ -19,6 +20,7 @@ const endpoints = {
   [CHAIN_ID.BSC]: "https://relay.bsc.fra.gelato.digital/relay",
   [CHAIN_ID.MATIC]: "https://relay.matic.fra.gelato.digital/relay",
   [CHAIN_ID.FANTOM]: "https://relay.fantom.fra.gelato.digital/relay",
+  [CHAIN_ID.AVALANCHE]: "https://relay.avalanche.fra.gelato.digital/relay",
 };
 
 const sendFulfill = async (
