@@ -354,7 +354,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       return;
     }
 
-    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData }, true, false);
+    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData }, true, true);
     console.log("finish: ", finish);
     if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
       setActiveTransferTableColumns(
