@@ -25,7 +25,7 @@ import {
   NoTransactionManager,
   NoSubgraph,
   ChainNotConfigured,
-  MetaTxTimeout,
+  FulfillTimeout,
 } from "../../src/error";
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
@@ -447,20 +447,19 @@ describe("NxtpSdk", () => {
       sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
       sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
       const { transaction, record } = await getTransactionData();
-      sdkBase.fulfillTransfer.throws(new MetaTxTimeout(transaction.transactionId, 1_000, {} as any));
+      sdkBase.fulfillTransfer.throws(
+        new FulfillTimeout(transaction.transactionId, 1_000, transaction.receivingChainId, {} as any),
+      );
 
-      try {
-        await sdk.fulfillTransfer({
+      await expect(
+        sdk.fulfillTransfer({
           txData: { ...transaction, ...record },
 
           encryptedCallData: EmptyCallDataHash,
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
-        });
-        expect("Should have errored").to.be.undefined;
-      } catch (e) {
-        expect(e.message).to.be.eq(MetaTxTimeout.getMessage(1_000));
-      }
+        }),
+      ).to.eventually.be.rejectedWith(FulfillTimeout.getMessage(1_000, transaction.receivingChainId));
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
@@ -474,7 +473,7 @@ describe("NxtpSdk", () => {
         transactionHash: mockTransactionHash,
         chainId: transaction.receivingChainId,
       };
-      sdkBase.fulfillTransfer.resolves({ metaTxResponse: mockMetaTxResponse });
+      sdkBase.fulfillTransfer.resolves({ transactionResponse: mockMetaTxResponse });
 
       const res = await sdk.fulfillTransfer({
         txData: { ...transaction, ...record },
@@ -483,8 +482,7 @@ describe("NxtpSdk", () => {
         bidSignature: EmptyCallDataHash,
       });
 
-      expect(res.metaTxResponse).to.deep.eq(mockMetaTxResponse);
-      expect(res.fulfillResponse).to.be.undefined;
+      expect(res).to.deep.eq({ transactionHash: mockTransactionHash });
     });
 
     it("happy: finish transfer => useRelayers:false", async () => {
@@ -493,7 +491,7 @@ describe("NxtpSdk", () => {
 
       const { transaction, record } = await getTransactionData();
 
-      sdkBase.fulfillTransfer.resolves({ fulfillRequest: FulfillReq });
+      sdkBase.fulfillTransfer.resolves({ transactionRequest: FulfillReq });
 
       const res = await sdk.fulfillTransfer(
         {
@@ -504,12 +502,10 @@ describe("NxtpSdk", () => {
           bidSignature: EmptyCallDataHash,
         },
         false,
-        false,
       );
 
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(FulfillReq);
-      expect(res.fulfillResponse).to.be.eq(TxResponse);
-      expect(res.metaTxResponse).to.be.undefined;
+      expect(res.transactionHash).to.be.eq(TxResponse.hash);
     });
   });
 

@@ -26,7 +26,7 @@ import {
   InvalidExpiry,
   InvalidParamStructure,
   InvalidSlippage,
-  MetaTxTimeout,
+  FulfillTimeout,
   NoSubgraph,
   NoTransactionManager,
   SubgraphsNotSynced,
@@ -65,6 +65,7 @@ describe("NxtpSdkBase", () => {
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
   let gelatoFulfill: SinonStub;
+  let isChainSupportedByGelatoStub: SinonStub;
 
   let user: string = getAddress(mkAddress("0xa"));
   let router: string = getAddress(mkAddress("0xb"));
@@ -117,7 +118,7 @@ describe("NxtpSdkBase", () => {
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
     stub(utils, "generateMessagingInbox").returns("inbox");
     gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
-    stub(utils, "isChainSupportedByGelato").returns(true);
+    isChainSupportedByGelatoStub = stub(utils, "isChainSupportedByGelato").returns(true);
 
     signFulfillTransactionPayloadMock.resolves(EmptyCallDataHash);
 
@@ -756,7 +757,7 @@ describe("NxtpSdkBase", () => {
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
       const { transaction, record } = await getTransactionData();
-      stub(sdkIndex, "META_TX_TIMEOUT").value(100);
+      stub(sdkIndex, "FULFILL_TIMEOUT").value(100);
 
       subgraph.waitFor.rejects(mockEvtTimeoutErr(100));
 
@@ -774,11 +775,13 @@ describe("NxtpSdkBase", () => {
           "0",
           true,
         ),
-      ).to.be.rejectedWith(MetaTxTimeout.getMessage(100));
+      ).to.be.rejectedWith(FulfillTimeout.getMessage(100, transaction.receivingChainId));
     });
 
-    it("happy: finish transfer => useRelayers:true", async () => {
+    it("happy: finish transfer => useRelayers:true no gelato", async () => {
       const { transaction, record } = await getTransactionData();
+
+      isChainSupportedByGelatoStub.returns(false);
 
       const transactionHash = mkHash("0xc");
 
@@ -806,12 +809,23 @@ describe("NxtpSdkBase", () => {
         true,
       );
 
-      expect(res.metaTxResponse.transactionHash).to.be.eq(transactionHash);
-      expect(res.metaTxResponse.chainId).to.be.eq(sendingChainId);
+      expect(res.transactionResponse.transactionHash).to.be.eq(transactionHash);
+      expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
     it("happy: finish transfer => useGelatoRelay:true", async () => {
       const { transaction, record } = await getTransactionData();
+
+      const transactionHash = mkHash("0xc");
+      subgraph.waitFor.resolves({
+        transactionHash,
+        txData: {
+          ...transaction,
+          ...record,
+          sendingChainId: receivingChainId,
+          receivingChainId: sendingChainId,
+        },
+      } as any);
 
       const res = await sdk.fulfillTransfer(
         {
@@ -825,14 +839,13 @@ describe("NxtpSdkBase", () => {
         "0x",
         "0",
         true,
-        true,
       );
 
-      expect(res.metaTxResponse.transactionHash).to.be.eq("foo");
-      expect(res.metaTxResponse.chainId).to.be.eq(receivingChainId);
+      expect(res.transactionResponse.transactionHash).to.be.eq(transactionHash);
+      expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
-    it("should error if gelator relay fails", async () => {
+    it("should error if gelato relay fails", async () => {
       const { transaction, record } = await getTransactionData();
       gelatoFulfill.resolves({ taskId: undefined });
 
@@ -848,7 +861,6 @@ describe("NxtpSdkBase", () => {
           "0x",
           "0x",
           "0",
-          true,
           true,
         ),
       ).to.be.rejectedWith(RelayFailed);
@@ -894,7 +906,7 @@ describe("NxtpSdkBase", () => {
         "0",
         false,
       );
-      expect(res.fulfillRequest).to.deep.eq(TxRequest);
+      expect(res.transactionRequest).to.deep.eq(TxRequest);
     });
   });
 
