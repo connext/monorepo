@@ -121,7 +121,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   natsUrl: Type.String(),
   authUrl: Type.String(),
-  mnemonic: Type.String(),
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
@@ -188,6 +189,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     authUrl,
     natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
@@ -224,6 +226,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
+
+  if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
+    throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
+  }
+
   const defaultConfirmations =
     crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
 

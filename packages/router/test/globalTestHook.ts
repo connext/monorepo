@@ -25,6 +25,7 @@ export const mochaHooks = {
   async beforeEach() {
     const walletMock = createStubInstance(Wallet);
     (walletMock as any).address = routerAddrMock; // need to do this differently bc the function doesnt exist on the interface
+    walletMock.getAddress.resolves(routerAddrMock);
     walletMock.signMessage.resolves(sigMock);
 
     txServiceMock = createStubInstance(TransactionService);

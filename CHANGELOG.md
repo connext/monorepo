@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Add support for web3signer
+
 ## 0.0.75
 
 - [contracts] Moonriver deployment

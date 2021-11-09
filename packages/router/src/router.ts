@@ -16,10 +16,11 @@ import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
 import { bindMetrics } from "./bindings/metrics";
+import { Web3Signer } from "./adapters/web3signer";
 
 export type Context = {
   config: NxtpRouterConfig;
-  wallet: Wallet;
+  wallet: Wallet | Web3Signer;
   logger: Logger;
   messaging: RouterNxtpNatsMessagingService;
   txService: TransactionService;
@@ -47,13 +48,15 @@ export const makeRouter = async () => {
     }
     context.chainData = chainData;
     context.config = await getConfig();
-    context.wallet = Wallet.fromMnemonic(context.config.mnemonic);
+    context.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
     context.logger = new Logger({
       level: context.config.logLevel,
       name: context.wallet.address,
     });
     context.logger.info("Config generated", requestContext, methodContext, {
-      config: { ...context.config, mnemonic: "......." },
+      config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
     context.messaging = new RouterNxtpNatsMessagingService({
       signer: context.wallet,

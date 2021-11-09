@@ -96,6 +96,7 @@ export const newAuction = async (
   }
 
   const currentTime = await getNtpTimeSeconds();
+  const routerAddress = await wallet.getAddress();
 
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
@@ -216,15 +217,8 @@ export const newAuction = async (
 
   logger.info("Got balances of router", requestContext, methodContext, {
     routerBalances: routerBalances.map((balance) => balance.toString()),
-  });
-
-  const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
-  ]);
-  logger.info("Got balances", requestContext, methodContext, {
-    senderBalance: senderBalance.toString(),
-    receiverBalance: receiverBalance.toString(),
+    sendingChainIdx,
+    receivingChainIdx,
   });
 
   const [senderLiquidity, receiverLiquidity] = await Promise.all([
@@ -232,7 +226,7 @@ export const newAuction = async (
     contractReader.getAssetBalance(receivingAssetId, receivingChainId),
   ]);
 
-  logger.info("Got asset balance", requestContext, methodContext, {
+  logger.info("Got asset liquidity", requestContext, methodContext, {
     senderLiquidity: senderLiquidity.toString(),
     receiverLiquidity: receiverLiquidity.toString(),
   });
@@ -293,6 +287,15 @@ export const newAuction = async (
     });
   }
 
+  const [senderBalance, receiverBalance] = await Promise.all([
+    txService.getBalance(sendingChainId, routerAddress),
+    txService.getBalance(receivingChainId, routerAddress),
+  ]);
+  logger.info("Got balances", requestContext, methodContext, {
+    senderBalance: senderBalance.toString(),
+    receiverBalance: receiverBalance.toString(),
+  });
+
   // Log if gas is low, but above min
   const LOW_GAS = parseEther("0.1");
   if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
@@ -316,7 +319,7 @@ export const newAuction = async (
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
     user,
-    router: wallet.address,
+    router: routerAddress,
     initiator,
     sendingChainId,
     sendingAssetId,

@@ -319,7 +319,7 @@ export const removeLiquidity = async (
   logger.info("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
 
   if (!recipientAddress) {
-    recipientAddress = wallet.address;
+    recipientAddress = await wallet.getAddress();
   }
 
   const nxtpContractAddress = getContractAddress(chainId);
