@@ -18,8 +18,6 @@
   "natsUrl": "nats://172.17.0.1:4222",
   "authUrl": "http://172.17.0.1:5040",
   "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
-  "stableSwapChainId": 1337,
-  "stableSwapAddress": "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
   "swapPools": [
     {
       "name": "TEST",
