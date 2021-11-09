@@ -2,7 +2,11 @@
 
 ## Next Release
 
-- [router] Add support for web3signer
+## 0.0.76
+
+- [router] New Web3signer support
+- [router] Fix logging level
+- [sdk] fulfill response
 
 ## 0.0.75
 
