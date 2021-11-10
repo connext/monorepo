@@ -380,7 +380,7 @@ describe("NxtpSdk", () => {
         bidSignature,
         gasFeeInReceivingToken,
       });
-      expect(signer.sendTransaction).to.be.calledOnceWithExactly(PrepareReq);
+      expect(signer.sendTransaction).to.be.calledOnceWithExactly({ ...PrepareReq, gasLimit: undefined });
       expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
 
@@ -393,8 +393,8 @@ describe("NxtpSdk", () => {
         gasFeeInReceivingToken,
       });
 
-      expect(signer.sendTransaction).to.be.calledWithExactly(ApproveReq);
-      expect(signer.sendTransaction).to.be.calledWithExactly(PrepareReq);
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...ApproveReq, gasLimit: undefined });
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...PrepareReq, gasLimit: undefined });
       expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
   });
