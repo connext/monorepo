@@ -312,7 +312,7 @@ export class Subgraph {
         // Post to receiver transaction fulfilled evt
         const { invariant, receiving } = record.crosschainTx;
         this.evts.ReceiverTransactionFulfilled.post({
-          transactionHash: match.fulfillTranssactionHash,
+          transactionHash: match.fulfillTransactionHash,
           txData: {
             ...invariant,
             amount: receiving!.amount,
