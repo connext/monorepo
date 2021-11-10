@@ -10,7 +10,7 @@
     "1338": {
       "providers": ["http://chain-1338:8546"],
       "confirmations": 1,
-      "subgraph": "http://graph-node-1338:9010/subgraphs/name/connext/nxtp",
+      "subgraph": "http://graph-node-1338:8010/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
