@@ -100,6 +100,11 @@ const config: HardhatUserConfig = {
       chainId: 42,
       url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
+    "optimism-kovan": {
+      accounts: { mnemonic },
+      chainId: 69,
+      url: "https://kovan.optimism.io",
+    },
     bsc: {
       accounts: { mnemonic },
       chainId: 56,

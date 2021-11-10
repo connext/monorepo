@@ -66,10 +66,10 @@
     "startBlock": 27487044
   },
   {
-    "subgraphName": "connext/nxtp-optimism-kovan",
+    "subgraphName": "connext/nxtp-optimism-kovan-v1",
     "network": "optimism-kovan",
-    "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
-    "startBlock": 1004816
+    "address": "0x1C2fdf1f8Da5FA4eb31a9F131827439e8292d7B9",
+    "startBlock": 43931
   },
   {
     "subgraphName": "connext/nxtp-rinkeby",

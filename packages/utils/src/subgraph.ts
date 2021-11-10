@@ -19,7 +19,7 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
     case 42:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan"];
     case 69:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan"];
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan-v1"];
     case 97:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel"];
     case 80001:
