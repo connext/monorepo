@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.0.77
+
+- [ci] Fix 0.0.76 build
+- [utils] Add extra gas reimbursement for fulfill for Gelato relayers
+
 ## 0.0.76
 
 - [router] New Web3signer support
