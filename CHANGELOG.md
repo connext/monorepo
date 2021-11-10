@@ -4,6 +4,7 @@
 
 ## 0.0.77
 
+- [sdk] Hardcode gas limit for Arbitrum
 - [ci] Fix 0.0.76 build
 - [utils] Add extra gas reimbursement for fulfill for Gelato relayers
 
