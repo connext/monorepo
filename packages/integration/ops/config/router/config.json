@@ -4,13 +4,13 @@
     "1337": {
       "providers": ["http://chain-1337:8545"],
       "confirmations": 1,
-      "subgraph": "http://graph-node-1337:8010/subgraphs/name/connext/nxtp",
+      "subgraph": "http://graph-node-1337:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
-      "providers": ["http://chain-1338:8546"],
+      "providers": ["http://chain-1338:8545"],
       "confirmations": 1,
-      "subgraph": "http://graph-node-1338:8010/subgraphs/name/connext/nxtp",
+      "subgraph": "http://graph-node-1338:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
