@@ -53,7 +53,6 @@ export class Web3SignerApi {
     response: AxiosResponse<string>,
     endpoint: typeof Web3SignerApi.ENDPOINTS[keyof typeof Web3SignerApi.ENDPOINTS],
   ): AxiosResponse<string> {
-    console.log("RESPONSE", response);
     if (!response || !response.data || response.data.length === 0) {
       throw new NxtpError(
         "Received bad response from web3signer instance; make sure your key file is configured correctly.",
