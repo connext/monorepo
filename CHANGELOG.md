@@ -7,6 +7,7 @@
 - [sdk] Hardcode gas limit for Arbitrum
 - [ci] Fix 0.0.76 build
 - [utils] Add extra gas reimbursement for fulfill for Gelato relayers
+- [utils] Fix subgraph hasSynced logic
 
 ## 0.0.76
 
