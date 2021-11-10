@@ -41,7 +41,7 @@ export const newAuction = async (
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
-  logger.info("Method context", requestContext, methodContext, { data });
+  logger.info("Method started", requestContext, methodContext, { data });
 
   // Validate params
   const validateInput = ajv.compile(AuctionPayloadSchema);
