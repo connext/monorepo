@@ -20,10 +20,7 @@ import {
  * @param chainId
  * @returns Gas Limit
  */
-export const getGasLimit = (chainId: number): number | undefined => {
-  if (chainId === 42161) {
-    return 10_000_000;
-  }
+export const getGasLimit = (): number | undefined => {
   return undefined;
 };
 
