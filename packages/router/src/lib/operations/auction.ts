@@ -41,7 +41,7 @@ export const newAuction = async (
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
-  logger.info("Method started", requestContext, methodContext, { data });
+  logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
   const validateInput = ajv.compile(AuctionPayloadSchema);
@@ -147,7 +147,7 @@ export const newAuction = async (
   if (!outputDecimals) {
     outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
   }
-  logger.info("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
+  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
@@ -204,7 +204,7 @@ export const newAuction = async (
     outputDecimals,
     requestContext,
   );
-  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+  logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
 
@@ -221,7 +221,7 @@ export const newAuction = async (
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, {
       methodContext,
@@ -238,7 +238,7 @@ export const newAuction = async (
     txService.getBalance(sendingChainId, routerAddress),
     txService.getBalance(receivingChainId, routerAddress),
   ]);
-  logger.info("Got balances", requestContext, methodContext, {
+  logger.debug("Got balances", requestContext, methodContext, {
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });
