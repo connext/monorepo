@@ -20,7 +20,7 @@ import {
  * @param chainId
  * @returns Gas Limit
  */
-export const getGasLimit = (): number | undefined => {
+export const getGasLimit = (_chainId: number): number | undefined => {
   return undefined;
 };
 
