@@ -134,7 +134,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for prepare transactions if receivingChain is fee chain.
       // amountReceived = amount.sub(prepareGasFee)
-      const expectedReceiverAmount = "99991342000000000000";
+      const expectedReceiverAmount = "99989500000000000000";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
