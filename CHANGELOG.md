@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.79
+
 - [utils] Bump gas estimate
 - [sdk] Remove hardcoded arbitrum gas limit
 
