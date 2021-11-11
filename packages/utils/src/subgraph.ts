@@ -51,7 +51,7 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
     case 250:
       return [
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom",
-        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom",
       ];
     case 1285:
       return [
@@ -61,7 +61,7 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
     case 42161:
       return [
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one",
-        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one",
       ];
     case 43114:
       return [
