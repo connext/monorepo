@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Enforce minimum subgraph sync buffer
+
 ## 0.0.79
 
 - [utils] Bump gas estimate
