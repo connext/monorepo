@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [utils] Bump gas estimate
+- [sdk] Remove hardcoded arbitrum gas limit
+
 ## 0.0.78
 
 - [utils] Fix subgraph hasSynced logic
