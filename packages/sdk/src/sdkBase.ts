@@ -29,6 +29,7 @@ import {
   MethodContext,
   calculateExchangeAmount,
   GAS_ESTIMATES,
+  getMetaTxBuffer,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -1104,7 +1105,7 @@ export class NxtpSdkBase {
       );
       totalCost = totalCost.add(fulfillFee);
     }
-    return totalCost;
+    return totalCost + totalCost.mul(getMetaTxBuffer()).div(100);
   }
 
   /**

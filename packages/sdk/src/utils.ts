@@ -64,6 +64,15 @@ export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); //
  */
 export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
 
+/**
+ * Gets metaTxBuffer in percentage
+ *
+ * @returns Percentage value to be added
+ */
+export const getMetaTxBuffer = () => {
+  return 10; // 10%
+};
+
 export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
   if (assetId === constants.AddressZero) {
     return 18;
