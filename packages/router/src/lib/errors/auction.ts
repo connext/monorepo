@@ -34,6 +34,7 @@ export class AuctionRateExceeded extends NxtpError {
 }
 
 export class PriceImpactTooHigh extends NxtpError {
+  cancellable = true;
   constructor(amountIn: string, amountOut: string, maxPriceImpact: number, context: any = {}) {
     super(
       `Price impact is too high. amountIn: ${amountIn}, amountOut: ${amountOut}, maxPriceImpact: ${maxPriceImpact}%`,
@@ -62,6 +63,7 @@ export class SubgraphNotSynced extends NxtpError {
 }
 
 export class SwapInvalid extends NxtpError {
+  cancellable = true;
   constructor(
     sendingChainId: number,
     sendingAssetId: string,

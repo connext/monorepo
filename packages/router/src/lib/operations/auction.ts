@@ -26,7 +26,7 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFeeInReceivingToken, getDecimalsForAsset, getSwapIdxList } from "../helpers/shared";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -126,15 +126,8 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  let inputDecimals = chainData.get(sendingChainId.toString())?.assetId[sendingAssetId]?.decimals;
-  if (!inputDecimals) {
-    inputDecimals = await txService.getDecimalsForAsset(sendingChainId, sendingAssetId);
-  }
-
-  let outputDecimals = chainData.get(receivingChainId.toString())?.assetId[receivingAssetId]?.decimals;
-  if (!outputDecimals) {
-    outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
-  }
+  const inputDecimals = await getDecimalsForAsset(sendingChainId, sendingAssetId);
+  const outputDecimals = await getDecimalsForAsset(receivingChainId, receivingAssetId);
   logger.info("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
@@ -173,50 +166,30 @@ export const newAuction = async (
     });
   }
 
-  let sendingChainIdx: number = -1;
-  let receivingChainIdx: number = -1;
-  let swapPoolIndex: number = -1;
-  const allowedSwap = config.swapPools.find((pool, index) => {
-    const existSwap =
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId);
+  const { sendingChainIdx, receivingChainIdx, swapPoolIdx } = getSwapIdxList(
+    sendingChainId,
+    sendingAssetId,
+    receivingChainId,
+    receivingAssetId,
+    requestContext,
+    methodContext,
+  );
 
-    if (existSwap) {
-      sendingChainIdx = pool.assets.findIndex(
-        (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
-      );
-
-      receivingChainIdx = pool.assets.findIndex(
-        (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
-      );
-      swapPoolIndex = index;
-    }
-
-    return existSwap;
-  });
-  if (!allowedSwap) {
-    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
-      methodContext,
-      requestContext,
-    });
-  }
-
-  const swapPool = config.swapPools[swapPoolIndex];
-  const routerBalances = await Promise.all(
+  const swapPool = config.swapPools[swapPoolIdx];
+  // Gets router balances in ether to get swap amount using stableMath.
+  // StableMath requires all the balances to have the same units. that's why.
+  const routerBalancesInEther = await Promise.all(
     swapPool.assets.map(async (asset) => {
       const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
-      let assetDecimals = chainData.get(asset.chainId.toString())?.assetId[asset.assetId]?.decimals;
-      if (!assetDecimals) {
-        assetDecimals = await txService.getDecimalsForAsset(asset.chainId, asset.assetId);
-      }
+      let assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
       // convert asset liquidity into 18 decimal value.
       const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
       return res;
     }),
   );
 
-  logger.info("Got balances of router", requestContext, methodContext, {
-    routerBalances: routerBalances.map((balance) => balance.toString()),
+  logger.info("Got balances of router with 18 decimals", requestContext, methodContext, {
+    routerBalances: routerBalancesInEther.map((balance) => balance.toString()),
     sendingChainIdx,
     receivingChainIdx,
   });
@@ -237,10 +210,11 @@ export const newAuction = async (
     amount,
     inputDecimals,
     outputDecimals,
-    routerBalances,
+    routerBalancesInEther,
     sendingChainIdx,
     receivingChainIdx,
     config.maxPriceImpact,
+    config.amplification,
   );
 
   // (TODO in what other scenarios would auction fail here? We should make sure

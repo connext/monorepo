@@ -7,6 +7,7 @@ import {
   getAmountsOut,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { getContext } from "../../router";
 import { PriceImpactTooHigh } from "../errors/auction";
 
 import { AmountInvalid } from "../errors/prepare";
@@ -15,7 +16,6 @@ const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;
-const AMPLIFICATION = "85";
 
 /**
  * Determine if expiry is valid
@@ -32,22 +32,23 @@ export const validExpiryBuffer = (buffer: number) => buffer > ONE_DAY_IN_SECONDS
 export const validBidExpiry = (bidExpiry: number, currentTime: number) => bidExpiry > currentTime;
 
 /**
- * Returns the swapRate
+ * Returns the swapAmount
  *
  * @param TODO
- * @returns The swapRate, determined by the stableSwap
+ * @returns The swapAmount, determined by the stableSwap
  *
  * @remarks
- * TODO: getSwapRate using stableSwap
+ * TODO: getSwapAmount using stableSwap
  */
-export const getSwapRate = async (
+export const getSwapAmount = async (
   amount: BigNumber,
   balances: BigNumber[],
   indexIn: number,
   indexOut: number,
+  amplification: number,
 ): Promise<BigNumber> => {
   const amountOut = getAmountsOut(
-    AMPLIFICATION,
+    amplification.toString(),
     balances.map((balance) => balance.toString()),
     indexIn,
     indexOut,
@@ -79,27 +80,32 @@ export const getReceiverAmount = async (
   sendingIdx: number,
   receivingIdx: number,
   maxPriceImpact: number,
+  amplification: number,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
 
   const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - sendingDecimals));
-  // 1. swap rate from stableMath
-  const amountAfterSwapRate = await getSwapRate(BigNumber.from(inputAmount), routerBalances, sendingIdx, receivingIdx);
+  // 1. swap amount from stableMath
+  const amountAfterSwap = await getSwapAmount(
+    BigNumber.from(inputAmount),
+    routerBalances,
+    sendingIdx,
+    receivingIdx,
+    amplification,
+  );
 
   // check price impact
-  const deltaPrice = amountAfterSwapRate.gt(inputAmount)
-    ? amountAfterSwapRate.sub(inputAmount)
-    : BigNumber.from(inputAmount).sub(amountAfterSwapRate);
+  const deltaPrice = amountAfterSwap.sub(inputAmount).abs();
   if (deltaPrice.gt(inputAmount.mul(maxPriceImpact).div(100))) {
-    throw new PriceImpactTooHigh(inputAmount.toString(), amountAfterSwapRate.toString(), maxPriceImpact, {
+    throw new PriceImpactTooHigh(inputAmount.toString(), amountAfterSwap.toString(), maxPriceImpact, {
       sendingDecimals,
       receivingDecimals,
     });
   }
   // 2. flat fee by Router
-  const outputAmount = amountAfterSwapRate.div(BigNumber.from(10).pow(18 - receivingDecimals));
+  const outputAmount = amountAfterSwap.div(BigNumber.from(10).pow(18 - receivingDecimals));
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
   const receivingAmount = calculateExchangeAmount(outputAmount.toString(), routerFeeRate);
   return receivingAmount.split(".")[0];

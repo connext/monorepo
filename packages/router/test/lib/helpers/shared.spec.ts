@@ -1,12 +1,16 @@
-import { expect } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, expect, jsonifyError, mkAddress } from "@connext/nxtp-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import Sinon, { stub } from "sinon";
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
-import { getChainIdForGasFee, getGasPrice, getTokenPrice } from "../../../src/lib/helpers/shared";
+import { getChainIdForGasFee, getGasPrice, getSwapIdxList, getTokenPrice } from "../../../src/lib/helpers/shared";
 import { txServiceMock } from "../../globalTestHook";
 
 import * as ContractHelperFns from "../../../src/adapters/contract/contract";
 import { constants } from "ethers";
+import { SwapInvalid } from "../../../src/lib/errors";
+
+const requestContext = createRequestContext("TEST");
+const methodContext = createMethodContext("TEST");
 
 describe("getNtpTimeSeconds", () => {
   it("should work", async () => {
@@ -41,5 +45,43 @@ describe("getChainIdsForGasFee", () => {
     expect(result).to.be.includes(4);
     expect(result).to.be.includes(56);
     expect(result).to.be.includes(42161);
+  });
+});
+
+describe("getSwapIdxList", () => {
+  it("should work", async () => {
+    const result = await getSwapIdxList(1337, mkAddress("0xc"), 1338, mkAddress("0xd"), requestContext, methodContext);
+    expect(result.sendingChainIdx).to.be.eq(0);
+    expect(result.receivingChainIdx).to.be.eq(1);
+    expect(result.swapPoolIdx).to.be.eq(0);
+  });
+
+  it("should error if allowed swap not found", async () => {
+    const sendingChainId = 1;
+    const sendingAssetId = mkAddress("0xc");
+    const receivingChainId = 2;
+    const receivingAssetId = mkAddress("0xd");
+
+    const err = jsonifyError(
+      new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
+        methodContext,
+        requestContext,
+        sendingChainIdx: 0,
+        receivingChainIdx: 1,
+        swapPoolIdx: 0,
+      }) as any,
+    );
+    try {
+      await getSwapIdxList(
+        sendingChainId,
+        sendingAssetId,
+        receivingChainId,
+        receivingAssetId,
+        requestContext,
+        methodContext,
+      );
+    } catch (e) {
+      expect(e.message).to.be.eq(err.message);
+    }
   });
 });

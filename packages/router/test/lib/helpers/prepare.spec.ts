@@ -13,6 +13,7 @@ import {
 } from "../../../src/lib/helpers";
 import { PriceImpactTooHigh } from "../../../src/lib/errors/auction";
 
+const amplification = 85;
 describe("validExpiryBuffer", () => {
   it("should work", () => {
     const valid = 3600 * 24 + 300;
@@ -34,14 +35,14 @@ describe("validBidExpiry", () => {
   });
 });
 
-let getSwapRateStub: SinonStub;
+let getSwapAmountStub: SinonStub;
 describe("getReceiverAmount", () => {
   beforeEach(() => {
-    getSwapRateStub = stub(PrepareHelperFns, "getSwapRate").resolves(BigNumber.from("90000"));
+    getSwapAmountStub = stub(PrepareHelperFns, "getSwapAmount").resolves(BigNumber.from("90000"));
   });
 
   it("should work", async () => {
-    getSwapRateStub.resolves(parseEther("9000"));
+    getSwapAmountStub.resolves(parseEther("9000"));
     const result = await getReceiverAmount(
       parseEther("10000").toString(),
       18,
@@ -50,12 +51,13 @@ describe("getReceiverAmount", () => {
       0,
       1,
       20,
+      amplification,
     );
     expect(result).to.be.eq("8995500000000000000000");
   });
 
   it("should fail if price impact is too high", async () => {
-    getSwapRateStub.resolves(parseEther("9000"));
+    getSwapAmountStub.resolves(parseEther("9000"));
     const err = jsonifyError(
       new PriceImpactTooHigh(parseEther("10000").toString(), parseEther("9000").toString(), 5) as any,
     );
@@ -68,6 +70,7 @@ describe("getReceiverAmount", () => {
         0,
         1,
         5,
+        amplification,
       );
     } catch (e) {
       expect(e.message).to.be.eq(err.message);
@@ -75,7 +78,7 @@ describe("getReceiverAmount", () => {
   });
 
   it("should work for 6 to 18", async () => {
-    getSwapRateStub.resolves(parseEther("90000"));
+    getSwapAmountStub.resolves(parseEther("90000"));
     const result = await getReceiverAmount(
       parseUnits("100000", 6).toString(),
       6,
@@ -84,12 +87,13 @@ describe("getReceiverAmount", () => {
       0,
       1,
       20,
+      amplification,
     );
     expect(result).to.be.eq(parseEther("89955").toString());
   });
 
   it("should work for 18 to 6", async () => {
-    getSwapRateStub.resolves(parseEther("90000"));
+    getSwapAmountStub.resolves(parseEther("90000"));
     const result = await getReceiverAmount(
       parseUnits("100000", 18).toString(),
       18,
@@ -98,12 +102,13 @@ describe("getReceiverAmount", () => {
       0,
       1,
       20,
+      amplification,
     );
     expect(result).to.be.eq(parseUnits("89955", 6).toString());
   });
 
   it("should work for decimals", async () => {
-    getSwapRateStub.resolves(parseEther("90000"));
+    getSwapAmountStub.resolves(parseEther("90000"));
     const result = await getReceiverAmount(
       parseUnits("100000", 6).toString(),
       6,
@@ -112,6 +117,7 @@ describe("getReceiverAmount", () => {
       0,
       1,
       20,
+      amplification,
     );
     expect(() => BigNumber.from(result)).to.not.throw();
   });
@@ -119,7 +125,16 @@ describe("getReceiverAmount", () => {
   it("should fail if its a decimal string", async () => {
     const err = jsonifyError(new AmountInvalid("1.0") as any);
     try {
-      await getReceiverAmount("1.0", 1, 1, [BigNumber.from("100000"), BigNumber.from("100000")], 0, 1, 20);
+      await getReceiverAmount(
+        "1.0",
+        1,
+        1,
+        [BigNumber.from("100000"), BigNumber.from("100000")],
+        0,
+        1,
+        20,
+        amplification,
+      );
       expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.be.eq(err.message);

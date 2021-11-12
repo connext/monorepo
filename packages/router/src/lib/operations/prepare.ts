@@ -28,7 +28,7 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFeeInReceivingToken, getDecimalsForAsset, getSwapIdxList } from "../helpers/shared";
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
@@ -80,87 +80,40 @@ export const prepare = async (
     throw new SenderChainDataInvalid({ methodContext, requestContext });
   }
 
-  let sendingChainIdx: number = -1;
-  let receivingChainIdx: number = -1;
-  let swapPoolIndex: number = -1;
-  config.swapPools.find((pool, index) => {
-    const existSwap =
-      pool.assets.find(
-        (a) =>
-          getAddress(a.assetId) === getAddress(invariantData.sendingAssetId) &&
-          a.chainId === invariantData.sendingChainId,
-      ) &&
-      pool.assets.find(
-        (a) =>
-          getAddress(a.assetId) === getAddress(invariantData.receivingAssetId) &&
-          a.chainId === invariantData.receivingChainId,
-      );
+  const { sendingChainIdx, receivingChainIdx, swapPoolIdx } = getSwapIdxList(
+    invariantData.sendingChainId,
+    invariantData.sendingAssetId,
+    invariantData.receivingChainId,
+    invariantData.receivingAssetId,
+    requestContext,
+    methodContext,
+  );
 
-    if (existSwap) {
-      sendingChainIdx = pool.assets.findIndex(
-        (a) =>
-          getAddress(a.assetId) === getAddress(invariantData.sendingAssetId) &&
-          a.chainId === invariantData.sendingChainId,
-      );
-
-      receivingChainIdx = pool.assets.findIndex(
-        (a) =>
-          getAddress(a.assetId) === getAddress(invariantData.receivingAssetId) &&
-          a.chainId === invariantData.receivingChainId,
-      );
-      swapPoolIndex = index;
-    }
-  });
-
-  if (sendingChainIdx == -1 || receivingChainIdx == -1) {
-    throw new SwapInvalid(
-      invariantData.sendingChainId,
-      invariantData.sendingAssetId,
-      invariantData.receivingChainId,
-      invariantData.receivingAssetId,
-      {
-        methodContext,
-        requestContext,
-      },
-    );
-  }
-
-  const swapPool = config.swapPools[swapPoolIndex];
-  const routerBalances = await Promise.all(
+  const swapPool = config.swapPools[swapPoolIdx];
+  // Gets router balances in ether to get swap amount using stableMath.
+  // StableMath requires all the balances to have the same units. that's why.
+  const routerBalancesInEther = await Promise.all(
     swapPool.assets.map(async (asset) => {
       const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
-      let assetDecimals = chainData.get(asset.chainId.toString())?.assetId[asset.assetId]?.decimals;
-      if (!assetDecimals) {
-        assetDecimals = await txService.getDecimalsForAsset(asset.chainId, asset.assetId);
-      }
+      const assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
       // convert asset liquidity into 18 decimal value.
       const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
       return res;
     }),
   );
 
-  let inputDecimals = chainData.get(invariantData.sendingChainId.toString())?.assetId[invariantData.sendingAssetId]
-    ?.decimals;
-  if (!inputDecimals) {
-    inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
-  }
-  let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[invariantData.receivingAssetId]
-    ?.decimals;
-  if (!outputDecimals) {
-    outputDecimals = await txService.getDecimalsForAsset(
-      invariantData.receivingChainId,
-      invariantData.receivingAssetId,
-    );
-  }
+  const inputDecimals = await getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
+  const outputDecimals = await getDecimalsForAsset(invariantData.receivingChainId, invariantData.receivingAssetId);
 
   let receiverAmount = await getReceiverAmount(
     senderAmount,
     inputDecimals,
     outputDecimals,
-    routerBalances,
+    routerBalancesInEther,
     sendingChainIdx,
     receivingChainIdx,
     config.maxPriceImpact,
+    config.amplification,
   );
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(

@@ -1,9 +1,17 @@
-import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
+import {
+  getNtpTimeSeconds as _getNtpTimeSeconds,
+  RequestContext,
+  GAS_ESTIMATES,
+  MethodContext,
+} from "@connext/nxtp-utils";
+import { getAddress } from "@ethersproject/address";
 import { BigNumber, constants } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
+import { SwapValidInput } from "../entities";
+import { SwapInvalid } from "../errors";
 
 /**
  * Helper to allow easy mocking
@@ -151,4 +159,69 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
  */
 export const getChainIdForGasFee = (): number[] => {
   return getDeployedChainIdsForGasFee();
+};
+
+/**
+ * Gets decimals of asset.
+ */
+export const getDecimalsForAsset = async (chainId: number, assetId: string): Promise<number> => {
+  const { chainData, txService } = getContext();
+  let decimals = chainData.get(chainId.toString())?.assetId[assetId]?.decimals;
+  if (!decimals) {
+    decimals = await txService.getDecimalsForAsset(chainId, assetId);
+  }
+  return decimals;
+};
+
+/**
+ * Gets sendingChainIdx, receivingChainIdx and swapPoolIdx
+ *
+ * @returns {sendingChainIdx: number, receivingChainIdx: number, swapPoolIdx: number}
+ */
+export const getSwapIdxList = (
+  sendingChainId: number,
+  sendingAssetId: string,
+  receivingChainId: number,
+  receivingAssetId: string,
+  requestContext: RequestContext,
+  methodContext: MethodContext,
+): SwapValidInput => {
+  const { config } = getContext();
+
+  let sendingChainIdx: number = -1;
+  let receivingChainIdx: number = -1;
+  let swapPoolIdx: number = -1;
+  const allowedSwap = config.swapPools.find((pool, index) => {
+    const existSwap =
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId);
+
+    if (existSwap) {
+      sendingChainIdx = pool.assets.findIndex(
+        (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
+      );
+
+      receivingChainIdx = pool.assets.findIndex(
+        (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
+      );
+      swapPoolIdx = index;
+    }
+
+    return existSwap;
+  });
+  if (!allowedSwap || sendingChainIdx == -1 || receivingChainIdx == -1 || swapPoolIdx == -1) {
+    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
+      methodContext,
+      requestContext,
+      sendingChainIdx,
+      receivingChainIdx,
+      swapPoolIdx,
+    });
+  }
+
+  return {
+    sendingChainIdx,
+    receivingChainIdx,
+    swapPoolIdx,
+  };
 };
