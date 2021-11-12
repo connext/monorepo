@@ -7,7 +7,6 @@ import {
   getAmountsOut,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { getContext } from "../../router";
 import { PriceImpactTooHigh } from "../errors/auction";
 
 import { AmountInvalid } from "../errors/prepare";

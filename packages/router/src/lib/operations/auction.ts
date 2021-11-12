@@ -8,7 +8,7 @@ import {
   createLoggingContext,
   AuctionResponse,
 } from "@connext/nxtp-utils";
-import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
+import { formatEther, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
@@ -16,7 +16,6 @@ import {
   NotEnoughGas,
   NotEnoughLiquidity,
   ProvidersNotAvailable,
-  SwapInvalid,
   ZeroValueBid,
   AuctionExpired,
   ParamsInvalid,
@@ -40,7 +39,7 @@ export const newAuction = async (
     receivingChainId: data.receivingChainId,
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData } = getContext();
+  const { logger, config, contractReader, txService, wallet } = getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params

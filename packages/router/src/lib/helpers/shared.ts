@@ -4,8 +4,8 @@ import {
   GAS_ESTIMATES,
   MethodContext,
 } from "@connext/nxtp-utils";
-import { getAddress } from "@ethersproject/address";
 import { BigNumber, constants } from "ethers";
+import { getAddress } from "ethers/lib/utils";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getDeployedChainIdsForGasFee } from "../../config";
