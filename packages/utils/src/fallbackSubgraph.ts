@@ -76,7 +76,7 @@ export class FallbackSubgraph<T extends SdkLike> {
     this.sdks = sdks.map(({ client, uri }) => ({
       client,
       record: {
-        synced: false,
+        synced: true,
         latestBlock: -1,
         syncedBlock: -1,
         // Setting maxLag + 1 as default to ensure we don't use the subgraph in this current state
