@@ -41,7 +41,7 @@ export const newAuction = async (
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
-  logger.info("Method context", requestContext, methodContext, { data });
+  logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
   const validateInput = ajv.compile(AuctionPayloadSchema);
@@ -128,7 +128,7 @@ export const newAuction = async (
   // TODO: will need to track this offchain
   const inputDecimals = await getDecimalsForAsset(sendingChainId, sendingAssetId);
   const outputDecimals = await getDecimalsForAsset(receivingChainId, receivingAssetId);
-  logger.info("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
+  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
@@ -233,7 +233,7 @@ export const newAuction = async (
     outputDecimals,
     requestContext,
   );
-  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+  logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
 
@@ -265,7 +265,7 @@ export const newAuction = async (
     txService.getBalance(sendingChainId, routerAddress),
     txService.getBalance(receivingChainId, routerAddress),
   ]);
-  logger.info("Got balances", requestContext, methodContext, {
+  logger.debug("Got balances", requestContext, methodContext, {
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });

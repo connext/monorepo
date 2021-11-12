@@ -290,11 +290,12 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
     }
 
-    if (!chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0) {
-      const syncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
-      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
-        syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min
-    }
+    const syncBuffer =
+      !chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0
+        ? (chainRecommendedConfirmations ?? 1) * 3
+        : chainConfig.subgraphSyncBuffer;
+    // 25 blocks minimum.
+    nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = Math.max(syncBuffer, MIN_SUBGRAPH_SYNC_BUFFER);
 
     const addedStations = nxtpConfig.chainConfig[chainId].gasStations ?? [];
     nxtpConfig.chainConfig[chainId].gasStations = addedStations.concat(chainRecommendedGasStations);

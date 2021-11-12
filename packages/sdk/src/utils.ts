@@ -16,6 +16,15 @@ import {
 } from "@connext/nxtp-utils";
 
 /**
+ * Get gas limit if it's hardcoded for some chains
+ * @param chainId
+ * @returns Gas Limit
+ */
+export const getGasLimit = (_chainId: number): number | undefined => {
+  return undefined;
+};
+
+/**
  * Utility to convert the number of hours into seconds
  *
  * @param hours - Number of hours to convert

@@ -2,7 +2,28 @@
 
 ## Next Release
 
-- [router] Add support for web3signer
+- [utils] Enforce minimum subgraph sync buffer
+
+## 0.0.79
+
+- [utils] Bump gas estimate
+- [sdk] Remove hardcoded arbitrum gas limit
+
+## 0.0.78
+
+- [utils] Fix subgraph hasSynced logic
+
+## 0.0.77
+
+- [sdk] Hardcode gas limit for Arbitrum
+- [ci] Fix 0.0.76 build
+- [utils] Add extra gas reimbursement for fulfill for Gelato relayers
+
+## 0.0.76
+
+- [router] New Web3signer support
+- [router] Fix logging level
+- [sdk] fulfill response
 
 ## 0.0.75
 

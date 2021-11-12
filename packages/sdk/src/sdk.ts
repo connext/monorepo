@@ -34,7 +34,7 @@ import {
   CancelParams,
   GetTransferQuote,
 } from "./types";
-import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest } from "./utils";
+import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest, getGasLimit } from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 import { NxtpSdkBase } from "./sdkBase";
 
@@ -351,8 +351,9 @@ export class NxtpSdk {
     }
 
     const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
+    const gasLimit = getGasLimit(receivingChainId);
     if (approveTxReq) {
-      const approveTx = await connectedSigner.sendTransaction(approveTxReq);
+      const approveTx = await connectedSigner.sendTransaction({ ...approveTxReq, gasLimit });
       this.evts.SenderTokenApprovalSubmitted.post({
         assetId: sendingAssetId,
         chainId: sendingChainId,
@@ -387,7 +388,7 @@ export class NxtpSdk {
     // Prepare sender side tx
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
     this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
-    const prepareResponse = await connectedSigner.sendTransaction(prepareReq);
+    const prepareResponse = await connectedSigner.sendTransaction({ ...prepareReq, gasLimit });
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
         txData: {

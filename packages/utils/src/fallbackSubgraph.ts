@@ -52,7 +52,7 @@ export class FallbackSubgraph<T extends SdkLike> {
    * whether the records are in fact representative).
    */
   public get hasSynced(): boolean {
-    return this.sdks.every((sdk) => sdk.record.syncedBlock === -1);
+    return this.sdks.some((sdk) => sdk.record.syncedBlock !== -1 && sdk.record.latestBlock !== -1);
   }
 
   public get records(): SubgraphSyncRecord[] {
