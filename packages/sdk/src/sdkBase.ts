@@ -75,6 +75,7 @@ import {
   getExpiry,
   getMinExpiryBuffer,
   getMaxExpiryBuffer,
+  getMetaTxBuffer,
   generateMessagingInbox,
   recoverAuctionBid,
   encodeAuctionBid,
@@ -1104,7 +1105,7 @@ export class NxtpSdkBase {
       );
       totalCost = totalCost.add(fulfillFee);
     }
-    return totalCost;
+    return totalCost.add(totalCost.mul(getMetaTxBuffer()).div(100));
   }
 
   /**
