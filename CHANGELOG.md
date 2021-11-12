@@ -3,6 +3,7 @@
 ## Next Release
 
 - [utils] Enforce minimum subgraph sync buffer
+- [utils] Subgraph starts as synced
 
 ## 0.0.79
 
