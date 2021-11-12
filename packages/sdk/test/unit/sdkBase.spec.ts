@@ -1099,7 +1099,10 @@ describe("NxtpSdkBase", () => {
       );
 
       expect(result).to.be.eq(
-        BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000").mul(utils.getMetaTxBuffer()).div(100),
+        BigNumber.from(GAS_ESTIMATES.fulfill)
+          .mul("1000000000")
+          .mul(utils.getMetaTxBuffer() + 100)
+          .div(100),
       );
     });
     it("happy: should return zero price if price oracle isn't configured", async () => {
