@@ -20,10 +20,7 @@ import {
  * @param chainId
  * @returns Gas Limit
  */
-export const getGasLimit = (chainId: number): number | undefined => {
-  if (chainId === 42161) {
-    return 10_000_000;
-  }
+export const getGasLimit = (_chainId: number): number | undefined => {
   return undefined;
 };
 
@@ -66,6 +63,15 @@ export const getMinExpiryBuffer = () => daysToSeconds(2) + hoursToSeconds(1); //
  * @returns Equivalent of 4 days
  */
 export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
+
+/**
+ * Gets metaTxBuffer in percentage
+ *
+ * @returns Percentage value to be added
+ */
+export const getMetaTxBuffer = () => {
+  return 10; // 10%
+};
 
 export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
   if (assetId === constants.AddressZero) {

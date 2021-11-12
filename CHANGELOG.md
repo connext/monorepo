@@ -2,6 +2,18 @@
 
 ## Next Release
 
+- [sdk] Gelato support for Arbitrum
+
+## 0.0.80
+
+- [utils] Enforce minimum subgraph sync buffer
+- [utils] Subgraph starts as synced
+
+## 0.0.79
+
+- [utils] Bump gas estimate
+- [sdk] Remove hardcoded arbitrum gas limit
+
 ## 0.0.78
 
 - [utils] Fix subgraph hasSynced logic
