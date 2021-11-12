@@ -1098,7 +1098,9 @@ describe("NxtpSdkBase", () => {
         null,
       );
 
-      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000"));
+      expect(result).to.be.eq(
+        BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000").mul(utils.getMetaTxBuffer()).div(100),
+      );
     });
     it("happy: should return zero price if price oracle isn't configured", async () => {
       const { crossChainParams } = getMock();
