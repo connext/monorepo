@@ -95,6 +95,11 @@ const config: HardhatUserConfig = {
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
+    optimism: {
+      accounts: { mnemonic },
+      chainId: 10,
+      url: "https://mainnet.optimism.io",
+    },
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
