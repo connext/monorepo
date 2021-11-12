@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Gelato support for Arbitrum
+
 ## 0.0.80
 
 - [utils] Enforce minimum subgraph sync buffer
