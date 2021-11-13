@@ -1755,8 +1755,8 @@ __metadata:
     eslint: ^7.32.0
     ethereum-waffle: ^3.4.0
     ethers: ^5.4.6
-    hardhat: ^2.6.2
-    hardhat-deploy: ^0.9.1
+    hardhat: ^2.6.8
+    hardhat-deploy: ^0.9.6
     hardhat-gas-reporter: ^1.0.4
     rimraf: ^3.0.2
     sinclair: ^0.2.0
@@ -1902,7 +1902,7 @@ __metadata:
     graphql: ^15.5.1
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.5
-    hardhat: ^2.6.2
+    hardhat: ^2.6.8
     mocha: ^9.0.3
     nyc: ^15.1.0
     pino: ^6.13.0
@@ -4017,17 +4017,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solidity-parser/parser@npm:^0.11.0":
-  version: 0.11.1
-  resolution: "@solidity-parser/parser@npm:0.11.1"
-  checksum: 0a172138cffa3de4594f6b74d815c7a1e8f5cc3a89bb72441f05a79d72c312913b0fac0591b19a9d84ccd12a3a52067b5121b6e5023ed5264a516ee50804d830
-  languageName: node
-  linkType: hard
-
 "@solidity-parser/parser@npm:^0.12.0":
   version: 0.12.2
   resolution: "@solidity-parser/parser@npm:0.12.2"
   checksum: 63f0296606e96c74252452bb48a4d3a4a09185413cd259bd6b1e601c9614115bef5afb3aff11d791584772cca622cad53eefc221667a094fb009215fdd265981
+  languageName: node
+  linkType: hard
+
+"@solidity-parser/parser@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@solidity-parser/parser@npm:0.14.0"
+  dependencies:
+    antlr4ts: ^0.5.0-alpha.4
+  checksum: 13f000a8f403f3345b1d587d00f873af627768e7a13037e953eccbf41ee99f4e65e3e058f378ee2dc110a790e8beadc18c954b7169c6ef8b4b999ec200cc24d2
   languageName: node
   linkType: hard
 
@@ -5803,6 +5805,15 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 9182245765e049bbc1148b6d9e4be81f4c4f43839649c7cddecda7a80b7293d4d52b8f4d2580f427ac2c99d096b6c206be81078dd53f7111dcd3a94502e8e2e2
+  languageName: node
+  linkType: hard
+
+"antlr4ts@npm:^0.5.0-alpha.4":
+  version: 0.5.0-dev
+  resolution: "antlr4ts@npm:0.5.0-dev"
+  dependencies:
+    source-map-support: ^0.5.16
+  checksum: 0f206ef5ef5793456de66545a1bf6d8d52343bc6c6689d941cc16ea3f0b6b18a7710b4cc3946a61d021fda51f93b89adcd7c5d7fe249ea1739b0459e7a85b42c
   languageName: node
   linkType: hard
 
@@ -13661,15 +13672,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.9.1":
-  version: 0.9.1
-  resolution: "hardhat-deploy@npm:0.9.1"
+"hardhat-deploy@npm:^0.9.6":
+  version: 0.9.6
+  resolution: "hardhat-deploy@npm:0.9.6"
   dependencies:
     "@ethersproject/abi": ^5.4.0
     "@ethersproject/abstract-signer": ^5.4.1
     "@ethersproject/address": ^5.4.0
     "@ethersproject/bignumber": ^5.4.1
     "@ethersproject/bytes": ^5.4.0
+    "@ethersproject/constants": ^5.4.0
     "@ethersproject/contracts": ^5.4.1
     "@ethersproject/providers": ^5.4.4
     "@ethersproject/solidity": ^5.4.0
@@ -13689,7 +13701,7 @@ fsevents@~2.1.1:
   peerDependencies:
     "@ethersproject/hardware-wallets": ^5.0.14
     hardhat: ^2.0.0
-  checksum: ae2bfc9c5eddc29e94389f20494ffaa2c56866bf74985b115db7b5f686851abf169fdf35adb4a0f2e5ebc0736817ea171bc0eec46a2c34c26b4c9149f0745d79
+  checksum: 31b1651d15fd6bbcf3c2f7cefc2d50d651506bb868a949df7a6ff90d5fb45b75bbe496fa5e41eaa75a1e6e183c75eadab9f03ebf24804ff89752aa637450e740
   languageName: node
   linkType: hard
 
@@ -13705,9 +13717,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "hardhat@npm:2.6.2"
+"hardhat@npm:^2.6.8":
+  version: 2.6.8
+  resolution: "hardhat@npm:2.6.8"
   dependencies:
     "@ethereumjs/block": ^3.4.0
     "@ethereumjs/blockchain": ^5.4.0
@@ -13716,7 +13728,7 @@ fsevents@~2.1.1:
     "@ethereumjs/vm": ^5.5.2
     "@ethersproject/abi": ^5.1.2
     "@sentry/node": ^5.18.1
-    "@solidity-parser/parser": ^0.11.0
+    "@solidity-parser/parser": ^0.14.0
     "@types/bn.js": ^5.1.0
     "@types/lru-cache": ^5.1.0
     abort-controller: ^3.0.0
@@ -13758,7 +13770,7 @@ fsevents@~2.1.1:
     ws: ^7.4.6
   bin:
     hardhat: internal/cli/cli.js
-  checksum: 5f3855e5c1ee89d49edd2d84f65f578e16b7b7880f06567f43382fc0ecb3a2cf505e0da705dc95c42fd371cde4c9eaa9448993e92f27a0ed8e7eeaa140becef9
+  checksum: bd459ca394fb81bbf479904fe791d9432f02e37e0b4e48071587ae0483005526c6a989e2407c545a41d1106941cadbc1f4f668e32e11146df35d1c487352ea54
   languageName: node
   linkType: hard
 
@@ -24799,6 +24811,16 @@ resolve@^2.0.0-next.3:
     buffer-from: ^1.0.0
     source-map: ^0.6.0
   checksum: 59d4efaae97755155b078413ecba63517e3ef054cc7ab767bbd30e6f3054be2ae8e8f5cce7eef53b7eb93e98fe27a58dd8f5e7abfb13144ba420ddaf5267bbb2
+  languageName: node
+  linkType: hard
+
+"source-map-support@npm:^0.5.16":
+  version: 0.5.20
+  resolution: "source-map-support@npm:0.5.20"
+  dependencies:
+    buffer-from: ^1.0.0
+    source-map: ^0.6.0
+  checksum: 2c5821ee94732b2ddbb1e1d9e61ed76ef00f72415fa686ab96d5f5c711789d55424866fa7d6c493beea380e44418053d86ec490b82c101008eac311463da84a9
   languageName: node
   linkType: hard
 
