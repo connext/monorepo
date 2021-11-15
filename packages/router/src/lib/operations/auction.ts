@@ -181,8 +181,9 @@ export const newAuction = async (
     swapPool.assets.map(async (asset) => {
       const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
       let assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
-      // convert asset liquidity into 18 decimal value.
-      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
+      let poolWeight = config.chainConfig[asset.chainId].weight;
+      // convert asset liquidity into 18 decimal value and multiply its weight.
+      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals)).mul(BigNumber.from(poolWeight));
       return res;
     }),
   );

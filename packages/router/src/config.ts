@@ -30,6 +30,7 @@ const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_MAX_PRICE_IMPACT = 10; // max price impact in percentage
 const DEFAULT_AMPLIFICATION = 85; // default amplification for stable math
+const DEFAULT_WEIGHT = 1; // default weight for vAMM
 
 dotenvConfig();
 
@@ -92,6 +93,7 @@ export const TChainConfig = Type.Object({
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
+  weight: Type.Number({ minimum: 1 }),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
@@ -265,6 +267,10 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
+    }
+
+    if (!chainConfig.weight) {
+      nxtpConfig.chainConfig[chainId].weight = DEFAULT_WEIGHT;
     }
 
     if (!chainConfig.relayerFeeThreshold) {

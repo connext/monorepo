@@ -32,6 +32,7 @@ export const configMock: NxtpRouterConfig = {
       allowFulfillRelay: true,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      weight: 1,
     },
     1338: {
       confirmations: 1,
@@ -44,6 +45,7 @@ export const configMock: NxtpRouterConfig = {
       allowFulfillRelay: true,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      weight: 1,
     },
   },
   mnemonic: "hello world",
