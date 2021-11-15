@@ -10,6 +10,7 @@
     "purge": "yarn clean && rimraf ./node_modules",
     "deploy": "ts-node ./src/deploy.ts",
     "deploy:v0": "yarn deploy v0 v0",
+    "deploy:v1-lite": "yarn deploy v1-lite v1-lite",
     "deploy:prod": "yarn deploy v1 prod",
     "deploy:staging": "yarn deploy v1 staging",
     "prepare:local": "yarn deploy v1 local mainnet",
