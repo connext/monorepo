@@ -49,14 +49,12 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("Got active transactions", requestContext, methodContext, {
-          transactions: transactions.length,
-        });
-        logger.debug("Got active transactions", requestContext, methodContext, {
-          transactions,
-        });
-        logger.debug("handling tracker", requestContext, methodContext, {
+        logger.info("active and handling tracker", requestContext, methodContext, {
+          transactionsLength: transactions.length,
           handlingTrackerLength: handlingTracker.size,
+        });
+        logger.debug("active and handling tracker details", requestContext, methodContext, {
+          transactions: transactions,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -71,7 +69,7 @@ export const bindContractReader = async () => {
       const records = await contractReader.getSyncRecords(Number(chainId));
       const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
       handlingTracker.forEach((value, key) => {
-      if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
           logger.debug("Deleting Tracker Record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
