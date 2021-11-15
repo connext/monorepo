@@ -238,6 +238,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     dayMetric.assetId = transaction.receivingAssetId.toHex();
     dayMetric.volume = BigInt.fromI32(0);
     dayMetric.txCount = BigInt.fromI32(0);
+    dayMetric.sendingTxCount = BigInt.fromI32(0);
   }
 
   // Only count volume on receiving chain
@@ -251,9 +252,12 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     // load assetBalance
     let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
+
     if (hourlyMetric.liquidity < assetBalance.amount) {
       hourlyMetric.liquidity = assetBalance.amount;
     }
+
+    dayMetric.sendingTxCount = dayMetric.sendingTxCount.plus(BigInt.fromI32(1));
   }
 
   hourlyMetric.save();
