@@ -210,6 +210,7 @@ export const handleSingle = async (
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
+        return;
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
