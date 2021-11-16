@@ -213,7 +213,7 @@ describe("Integration", () => {
     }
   };
 
-  const test = async (sendingAssetId: string, receivingAssetId: string) => {
+  const test = async (sendingAssetId: string, receivingAssetId: string, actualAmount?: boolean) => {
     let quote: AuctionResponse;
     try {
       await userSdk.getActiveTransactions();
@@ -233,7 +233,11 @@ describe("Integration", () => {
 
     expect(quote.bid).to.be.ok;
     expect(quote.bidSignature).to.be.ok;
-    const res = await userSdk.prepareTransfer(quote!);
+    const res = await userSdk.prepareTransfer(
+      quote!,
+      false,
+      actualAmount ? BigNumber.from(quote.bid.amount).sub(utils.parseEther("0.1")).toString() : undefined,
+    );
     expect(res.prepareResponse.hash).to.be.ok;
     const event = await userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,
@@ -286,6 +290,17 @@ describe("Integration", () => {
     await setupTest(sendingAssetId, receivingAssetId);
 
     await test(sendingAssetId, receivingAssetId);
+  });
+
+  it.only("should send ERC20 tokens, prepare with optional actualAmount param", async function () {
+    this.timeout(120_000);
+
+    const sendingAssetId = erc20Address;
+    const receivingAssetId = erc20Address;
+
+    await setupTest(sendingAssetId, receivingAssetId);
+
+    await test(sendingAssetId, receivingAssetId, true);
   });
 
   it("should send Native tokens", async function () {
