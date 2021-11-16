@@ -105,8 +105,27 @@ export const prepare = async (
     invariantData.receivingChainId,
   );
   if (routerBalance.lt(receiverAmount)) {
-    // cancellable error
-    throw new NotEnoughLiquidity(invariantData.receivingChainId, { methodContext, requestContext });
+    // double check balance on chain
+    const onChainBalance = await contractWriter.getRouterBalance(
+      invariantData.receivingChainId,
+      invariantData.router,
+      invariantData.receivingAssetId,
+    );
+    if (onChainBalance.lt(receiverAmount)) {
+      // cancellable error
+      throw new NotEnoughLiquidity(
+        invariantData.receivingChainId,
+        invariantData.receivingAssetId,
+        onChainBalance.toString(),
+        receiverAmount.toString(),
+        { methodContext, requestContext },
+      );
+    } else {
+      logger.error("Router balance is different onchain vs subgraph", requestContext, methodContext, undefined, {
+        onChainBalance: onChainBalance.toString(),
+        subgraphBalance: routerBalance.toString(),
+      });
+    }
   }
 
   // Handle the expiries.
