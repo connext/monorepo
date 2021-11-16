@@ -10,7 +10,7 @@ import {
   TransactionData,
   jsonifyError,
 } from "@connext/nxtp-utils";
-import { constants, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
@@ -312,7 +312,7 @@ export const removeLiquidity = async (
   recipientAddress: string | undefined,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(removeLiquidity.name);
+  const { methodContext } = createLoggingContext(removeLiquidity.name, requestContext);
 
   const { logger, txService, wallet } = getContext();
 
@@ -339,4 +339,18 @@ export const removeLiquidity = async (
     },
     requestContext,
   );
+};
+
+export const getRouterBalance = async (chainId: number, router: string, assetId: string): Promise<BigNumber> => {
+  const { txService } = getContext();
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const encodedData = getTxManagerInterface().encodeFunctionData("routerBalances", [router, assetId]);
+  const ret = await txService.readTx({
+    to: nxtpContractAddress,
+    data: encodedData,
+    chainId,
+  });
+  return BigNumber.from(ret);
 };
