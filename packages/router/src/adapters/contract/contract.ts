@@ -156,7 +156,7 @@ export const sanitationCheck = async (
         data: encodeVariantTransactionData,
       });
 
-      if (receivingChainVariantTransactionDigest === variantTransactionDigest) {
+      if (receivingChainVariantTransactionDigest === HashZero) {
         // cancel is allowed when no transaction is prepared
         return;
       } else {
