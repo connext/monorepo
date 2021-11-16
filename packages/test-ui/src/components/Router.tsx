@@ -17,7 +17,7 @@ const decimals: Record<string, number> = {};
 
 const TESTNET_CHAINS = [421611, 97, 43113, 5, 42, 80001, 4, 3];
 
-const MAINNET_CHAINS = [56, 100, 137, 250, 1285, 42161, 43114];
+const MAINNET_CHAINS = [10, 56, 100, 137, 250, 1285, 42161, 43114];
 
 type BalanceEntry = {
   chain: string;
