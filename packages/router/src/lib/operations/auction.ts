@@ -223,14 +223,9 @@ export const newAuction = async (
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
       requestContext,
-      balance: balance.toString(),
-      amountReceived: amountReceived.toString(),
-      amount,
-      receivingAssetId,
-      receivingChainId,
     });
   }
 

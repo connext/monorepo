@@ -88,6 +88,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(4);
   } else if (network == "goerli") {
     chainId = BigInt.fromI32(5);
+  } else if (network == "optimism") {
+    chainId = BigInt.fromI32(10);
   } else if (network == "kovan") {
     chainId = BigInt.fromI32(42);
   } else if (network == "bsc") {

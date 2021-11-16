@@ -33,6 +33,8 @@ export const getDeployedSubgraphUri = (chainId: number): string[] => {
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet",
       ];
+    case 10:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism"];
     case 56:
       return [
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc",
