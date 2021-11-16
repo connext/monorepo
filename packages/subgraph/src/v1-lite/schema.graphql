@@ -76,33 +76,3 @@ type User @entity {
   id: ID!
   transactions: [Transaction!]! @derivedFrom(field: "user")
 }
-
-type HourlyMetric @entity {
-  # unique hourly id per asset created by dividing timestamp by 3600 and concatenating assetId
-  id: ID!
-  # timestamp rounded down to nearest hour
-  hourStartTimestamp: BigInt!
-  # assetId
-  assetId: String!
-  # hourly volume per asset
-  volume: BigInt!
-  # hourly liquidity per asset
-  liquidity: BigInt!
-  # hourly number of transactions per asset
-  txCount: BigInt!
-}
-
-type DayMetric @entity {
-  # unique hourly id per asset created by dividing timestamp by 86400 and concatenating assetId
-  id: ID!
-  # timestamp rounded down to nearest hour
-  dayStartTimestamp: BigInt!
-  # assetId
-  assetId: String!
-  # day volume per asset
-  volume: BigInt!
-  # day number of transactions per asset
-  txCount: BigInt!
-  # day number of sending transactions from the chain per asset
-  sendingTxCount: BigInt!
-}

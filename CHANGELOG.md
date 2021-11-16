@@ -3,6 +3,9 @@
 ## Next Release
 
 - [sdk] Gelato support for Arbitrum
+- [subgraph] subgraph lite for routers and sdk
+- [subgraph] add sending tx count for explorer
+- [router] update active transactions logs!minor
 
 ## 0.0.80
 
