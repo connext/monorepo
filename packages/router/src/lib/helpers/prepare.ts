@@ -80,20 +80,25 @@ export const getReceiverAmount = async (
   receivingIdx: number,
   maxPriceImpact: number,
   amplification: number,
+  allowedVAMM: boolean,
 ): Promise<string> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
 
   const inputAmount = BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - sendingDecimals));
-  // 1. swap amount from stableMath
-  const amountAfterSwap = await getSwapAmount(
-    BigNumber.from(inputAmount),
-    routerBalances,
-    sendingIdx,
-    receivingIdx,
-    amplification,
-  );
+  // Swaps amount from stableMath if allowedVAMM is true, if not, swap amount = inputAmount
+  let amountAfterSwap = BigNumber.from(inputAmount);
+  if (allowedVAMM) {
+    console.log("> prepare.ts, allowedVAMM");
+    amountAfterSwap = await getSwapAmount(
+      BigNumber.from(inputAmount),
+      routerBalances,
+      sendingIdx,
+      receivingIdx,
+      amplification,
+    );
+  }
 
   // check price impact
   const deltaPrice = amountAfterSwap.sub(inputAmount).abs();

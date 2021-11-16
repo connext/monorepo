@@ -102,7 +102,7 @@ export const prepare = async (
 
   const inputDecimals = await getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
   const outputDecimals = await getDecimalsForAsset(invariantData.receivingChainId, invariantData.receivingAssetId);
-
+  const allowedVAMM = config.allowedVAMM;
   let receiverAmount = await getReceiverAmount(
     senderAmount,
     inputDecimals,
@@ -112,6 +112,7 @@ export const prepare = async (
     receivingChainIdx,
     config.maxPriceImpact,
     config.amplification,
+    allowedVAMM,
   );
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(

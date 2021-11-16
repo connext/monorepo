@@ -52,6 +52,7 @@ describe("getReceiverAmount", () => {
       1,
       20,
       amplification,
+      true,
     );
     expect(result).to.be.eq("8995500000000000000000");
   });
@@ -71,6 +72,7 @@ describe("getReceiverAmount", () => {
         1,
         5,
         amplification,
+        true,
       );
     } catch (e) {
       expect(e.message).to.be.eq(err.message);
@@ -88,6 +90,7 @@ describe("getReceiverAmount", () => {
       1,
       20,
       amplification,
+      true,
     );
     expect(result).to.be.eq(parseEther("89955").toString());
   });
@@ -103,6 +106,7 @@ describe("getReceiverAmount", () => {
       1,
       20,
       amplification,
+      true,
     );
     expect(result).to.be.eq(parseUnits("89955", 6).toString());
   });
@@ -118,6 +122,7 @@ describe("getReceiverAmount", () => {
       1,
       20,
       amplification,
+      true,
     );
     expect(() => BigNumber.from(result)).to.not.throw();
   });
@@ -134,6 +139,7 @@ describe("getReceiverAmount", () => {
         1,
         20,
         amplification,
+        true,
       );
       expect(false).to.be.true;
     } catch (e) {

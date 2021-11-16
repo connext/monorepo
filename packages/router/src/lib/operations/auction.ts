@@ -204,8 +204,8 @@ export const newAuction = async (
     receiverLiquidity: receiverLiquidity.toString(),
   });
 
-  // getting the swap rate from the receiver side config
-
+  const allowedVAMM = config.allowedVAMM;
+  // getting the swap amount from the receiver side config
   let amountReceived = await getReceiverAmount(
     amount,
     inputDecimals,
@@ -215,6 +215,7 @@ export const newAuction = async (
     receivingChainIdx,
     config.maxPriceImpact,
     config.amplification,
+    allowedVAMM,
   );
 
   // (TODO in what other scenarios would auction fail here? We should make sure

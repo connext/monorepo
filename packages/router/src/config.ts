@@ -132,6 +132,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   requestLimit: Type.Number(),
   maxPriceImpact: Type.Number({ minimum: 1, maximum: 100 }),
   amplification: Type.Number({ minimum: 1 }),
+  allowedVAMM: Type.Boolean(),
   cleanUpMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
@@ -218,6 +219,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       DEFAULT_MAX_PRICE_IMPACT,
     amplification:
       process.env.AMPLIFICATION || configJson.amplification || configFile.amplification || DEFAULT_AMPLIFICATION,
+    allowedVAMM: process.env.ALLOWED_VAMM || configJson.allowedVAMM || configFile.allowedVAMM || false,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
