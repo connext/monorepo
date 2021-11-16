@@ -125,6 +125,15 @@ export const AuctionBidParamsSchema = Type.Object({
 
 export type AuctionBidParams = Static<typeof AuctionBidParamsSchema>;
 
+export const ApproveSchema = Type.Object({
+  sendingAssetId: TAddress,
+  sendingChainId: TChainId,
+  amount: TIntegerString,
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+});
+
+export type ApproveParams = Static<typeof ApproveSchema>;
+
 export const CancelSchema = Type.Object({
   txData: TransactionDataSchema,
   signature: Type.String(),
