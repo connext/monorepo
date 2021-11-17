@@ -82,7 +82,8 @@ export class ChainReader {
     if (result.isErr()) {
       throw result.error;
     } else {
-      return result.value;
+      // bump gas price
+      return result.value.mul(120).div(100);
     }
   }
 
