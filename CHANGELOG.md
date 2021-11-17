@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## 0.0.82
+
+- [router] add time-delay for sender cancellations
+
+## 0.0.81
+
 - [sdk] Gelato support for Arbitrum
 - [subgraph] subgraph lite for routers and sdk
 - [subgraph] add sending tx count for explorer
