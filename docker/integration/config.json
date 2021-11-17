@@ -23,8 +23,13 @@
         { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
         { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
       ]
+    },
+    {
+      "name": "NATIVE",
+      "assets": [
+        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
+        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
+      ]
     }
   ]
 }
-
-
