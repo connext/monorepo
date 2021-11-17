@@ -49,14 +49,12 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("Got active transactions", requestContext, methodContext, {
-          transactions: transactions.length,
-        });
-        logger.debug("Got active transactions", requestContext, methodContext, {
-          transactions,
-        });
-        logger.debug("handling tracker", requestContext, methodContext, {
+        logger.info("active and handling tracker", requestContext, methodContext, {
+          transactionsLength: transactions.length,
           handlingTrackerLength: handlingTracker.size,
+        });
+        logger.debug("active and handling tracker details", requestContext, methodContext, {
+          transactions: transactions,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -68,14 +66,15 @@ export const bindContractReader = async () => {
     // subgraph buffer
     // remove records only iff transaction handled mined block is synced with respective chain subgraph
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
-      const record = await contractReader.getSyncRecord(Number(chainId));
+      const records = await contractReader.getSyncRecords(Number(chainId));
+      const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
       handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= record.syncedBlock) {
+        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
           logger.debug("Deleting Tracker Record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
             blockNumber: value.blockNumber,
-            syncedBlock: record.syncedBlock,
+            syncedBlock: highestSyncedBlock,
           });
           handlingTracker.delete(key);
         }
@@ -211,6 +210,7 @@ export const handleSingle = async (
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
+        return;
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,

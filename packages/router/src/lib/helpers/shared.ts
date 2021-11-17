@@ -15,6 +15,7 @@ export const getNtpTimeSeconds = async () => {
 /**
  * Helper to calculate router gas fee in token
  *
+ * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
@@ -43,9 +44,11 @@ export const calculateGasFeeInReceivingToken = async (
 
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    const ethPriceInSendingChain = await getTokenPrice(sendingChainId, constants.AddressZero, requestContext);
-    const receivingTokenPrice = await getTokenPrice(sendingChainId, sendingAssetId, requestContext);
-    const gasPriceInSendingChain = await getGasPrice(sendingChainId, requestContext);
+    const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
+      getTokenPrice(sendingChainId, constants.AddressZero, requestContext),
+      getTokenPrice(sendingChainId, sendingAssetId, requestContext),
+      getGasPrice(sendingChainId, requestContext),
+    ]);
 
     const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
@@ -57,9 +60,11 @@ export const calculateGasFeeInReceivingToken = async (
 
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-    const ethPriceInReceivingChain = await getTokenPrice(receivingChainId, constants.AddressZero, requestContext);
-    const receivingTokenPrice = await getTokenPrice(receivingChainId, receivingAssetId, requestContext);
-    const gasPriceInReceivingChain = await getGasPrice(receivingChainId, requestContext);
+    const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
+      getTokenPrice(receivingChainId, constants.AddressZero, requestContext),
+      getTokenPrice(receivingChainId, receivingAssetId, requestContext),
+      getGasPrice(receivingChainId, requestContext),
+    ]);
 
     const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
@@ -71,6 +76,45 @@ export const calculateGasFeeInReceivingToken = async (
 
   return totalCost;
 };
+
+/**
+ * Helper to calculate router gas fee in token for meta transaction
+ *
+ * @param receivingAssetId The asset address on destination chain
+ * @param receivingChainId The destination chain Id
+ * @param outputDecimals Decimal number of receiving asset
+ * @param requestContext Request context instance
+ */
+export const calculateGasFeeInReceivingTokenForFulfill = async (
+  receivingAssetId: string,
+  receivingChainId: number,
+  outputDecimals: number,
+  requestContext: RequestContext,
+): Promise<BigNumber> => {
+  const chaindIdsForGasFee = getChainIdForGasFee();
+
+  if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
+  let totalCost = constants.Zero;
+
+  if (chaindIdsForGasFee.includes(receivingChainId)) {
+    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+    const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
+      getTokenPrice(receivingChainId, constants.AddressZero, requestContext),
+      getTokenPrice(receivingChainId, receivingAssetId, requestContext),
+      getGasPrice(receivingChainId, requestContext),
+    ]);
+
+    const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForFulfill).mul(ethPriceInReceivingChain);
+    const tokenAmountForGasFee = receivingTokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    totalCost = totalCost.add(tokenAmountForGasFee);
+  }
+
+  return totalCost;
+};
+
 /**
  * Gets token price in usd from price oracle
  *

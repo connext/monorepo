@@ -3,7 +3,6 @@ import {
   AuctionPayload,
   AuctionResponse,
   jsonifyError,
-  MetaTxPayload,
   NxtpError,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
@@ -53,6 +52,13 @@ export abstract class SubgraphError extends NxtpError {
 }
 
 /**
+ * @classdesc Abstract error class during fulfill.
+ */
+export abstract class FulfillError extends NxtpError {
+  static readonly type = FulfillError.name;
+}
+
+/**
  * @classdesc Thrown if no tx manager addr for chain
  */
 export class NoTransactionManager extends ConfigError {
@@ -93,7 +99,10 @@ export class NoSubgraph extends ConfigError {
  */
 export class ChainNotConfigured extends ConfigError {
   static getMessage(chainId: number, supported: string[]) {
-    return `No chain config found for ${chainId}, please check config. Configured: ${supported.map(Number).sort().join(",")}`;
+    return `No chain config found for ${chainId}, please check config. Configured: ${supported
+      .map(Number)
+      .sort()
+      .join(",")}`;
   }
   constructor(public readonly chainId: number, public readonly supported: string[], public readonly context: any = {}) {
     super(ChainNotConfigured.getMessage(chainId, supported), { chainId, supported, ...context }, ConfigError.type);
@@ -272,7 +281,7 @@ export class EncryptionError extends NxtpError {
 
   constructor(
     public readonly details: string,
-    public readonly error: NxtpErrorJson,
+    public readonly error?: NxtpErrorJson,
     public readonly context: any = {},
   ) {
     super(EncryptionError.getMessage(details), { encryptionError: error, ...context }, EncryptionError.type);
@@ -309,7 +318,7 @@ export class NoValidBids extends AuctionError {
     public readonly transactionId: string,
     public readonly auction: AuctionPayload,
     public readonly reasons: string,
-    public readonly auctionResponses: AuctionResponse[],
+    public readonly auctionResponses: (AuctionResponse | string)[],
     public readonly context: any = {},
   ) {
     super(
@@ -338,33 +347,6 @@ export class UnknownAuctionError extends AuctionError {
       UnknownAuctionError.getMessage(transactionId),
       { transactionId, auction, auctionError: error, ...context },
       AuctionError.type,
-    );
-  }
-}
-
-/**
- * @classdesc Thrown when no responses to meta tx request in some timeframe
- */
-export class MetaTxTimeout extends RelayerError {
-  static getMessage(timeout: number) {
-    return `No relayer responses within ${timeout}ms`;
-  }
-
-  constructor(
-    public readonly transactionId: string,
-    public readonly timeout: number,
-    public readonly request: MetaTxPayload<any>,
-    public readonly context: any = {},
-  ) {
-    super(
-      MetaTxTimeout.getMessage(timeout),
-      {
-        transactionId,
-        timeout,
-        request,
-        ...context,
-      },
-      RelayerError.type,
     );
   }
 }
@@ -452,6 +434,74 @@ export class SubgraphsNotSynced extends SubgraphError {
         ...context,
       },
       SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when polling is not active
+ */
+export class PollingNotActive extends SubgraphError {
+  static getMessage() {
+    return `Subgraph polling not active`;
+  }
+
+  constructor(public readonly context: any = {}) {
+    super(
+      PollingNotActive.getMessage(),
+      {
+        ...context,
+      },
+      SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when subgraphs are not synced
+ */
+export class RelayFailed extends FulfillError {
+  static getMessage(transactionId: string, chainId: number) {
+    return `Relay failed! transactionId: ${transactionId}, chainId: ${chainId}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      RelayFailed.getMessage(transactionId, chainId),
+      {
+        ...context,
+      },
+      FulfillError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when no responses to meta tx request in some timeframe
+ */
+export class FulfillTimeout extends FulfillError {
+  static getMessage(timeout: number, chainId: number) {
+    return `No fulfill response responses within ${timeout}ms on chain ${chainId}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly timeout: number,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      FulfillTimeout.getMessage(timeout, chainId),
+      {
+        transactionId,
+        timeout,
+        ...context,
+      },
+      FulfillError.type,
     );
   }
 }

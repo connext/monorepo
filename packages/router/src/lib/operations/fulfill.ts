@@ -11,6 +11,7 @@ import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
+import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -19,8 +20,8 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config } = getContext();
-  logger.info("Method start", requestContext, methodContext, { invariantData, input });
+  const { logger, contractWriter, config, chainData, txService } = getContext();
+  logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
@@ -49,9 +50,6 @@ export const fulfill = async (
 
   const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
 
-  // Send to tx service
-  logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
-
   const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
 
   if (!config.chainConfig[fulfillChain]) {
@@ -62,7 +60,7 @@ export const fulfill = async (
   if (fulfillChain === invariantData.receivingChainId) {
     const relayerFeeLowerBound = config.chainConfig[fulfillChain].relayerFeeThreshold;
     const allowFulfillRelay = config.chainConfig[fulfillChain].allowFulfillRelay;
-    if (!allowFulfillRelay && BigNumber.from(relayerFee).gt(0)) {
+    if (!allowFulfillRelay) {
       throw new NotAllowedFulfillRelay(fulfillChain, {
         methodContext,
         requestContext,
@@ -73,9 +71,29 @@ export const fulfill = async (
       });
     }
 
-    const recvAmountLowerBound = BigNumber.from(amount)
-      .mul(100 - relayerFeeLowerBound)
-      .div(100);
+    // Send to tx service
+    logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
+
+    let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[
+      invariantData.receivingAssetId
+    ]?.decimals;
+    if (!outputDecimals) {
+      outputDecimals = await txService.getDecimalsForAsset(
+        invariantData.receivingChainId,
+        invariantData.receivingAssetId,
+      );
+    }
+    logger.info("Got output decimals", requestContext, methodContext, { outputDecimals });
+    const expectedFulfillFee = await calculateGasFeeInReceivingTokenForFulfill(
+      invariantData.receivingAssetId,
+      invariantData.receivingChainId,
+      outputDecimals,
+      requestContext,
+    );
+    logger.info("Expected Fulfill fee in router side", requestContext, methodContext, {
+      expectedFulfillFee: expectedFulfillFee.toString(),
+    });
+    const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
 
     if (BigNumber.from(amount).sub(input.relayerFee).lt(recvAmountLowerBound)) {
       throw new NotEnoughRelayerFee(fulfillChain, {

@@ -17,7 +17,7 @@ const decimals: Record<string, number> = {};
 
 const TESTNET_CHAINS = [421611, 97, 43113, 5, 42, 80001, 4, 3];
 
-const MAINNET_CHAINS = [56, 100, 137, 250, 42161, 43114];
+const MAINNET_CHAINS = [10, 56, 100, 137, 250, 1285, 42161, 43114];
 
 type BalanceEntry = {
   chain: string;
@@ -108,6 +108,11 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     let value: BigNumber;
     let liquidityWei: BigNumber;
+    const chainId = await signer.getChainId();
+
+    // if arbitrum bump gas limit to 10M
+    const gasLimit = chainId === 42161 ? 10_000_000 : 250_000;
+
     const signerAddress = await signer.getAddress();
     const decimals = await getDecimals(assetId);
     if (assetId !== constants.AddressZero) {
@@ -115,9 +120,10 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
       liquidityWei = utils.parseUnits(liquidityToAdd, decimals);
       const allowance = await token.allowance(signerAddress, txManager.address);
       console.log("allowance: ", allowance.toString());
+
       if (allowance.lt(liquidityWei)) {
         const tx = await token.approve(txManager.address, infiniteApprove ? constants.MaxUint256 : liquidityWei, {
-          gasLimit: 250_000,
+          gasLimit: gasLimit,
         });
         console.log("approve tx: ", tx);
         await tx.wait();
@@ -133,7 +139,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     console.log("liquidityWei: ", liquidityWei.toString());
     const addLiquidity = await txManager.addLiquidityFor(liquidityWei, assetId, routerAddress, {
       value,
-      gasLimit: 250_000,
+      gasLimit: gasLimit,
     });
     console.log("addLiquidity tx: ", addLiquidity);
     await addLiquidity.wait();
@@ -151,7 +157,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
     const entries = await Promise.all(
       (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
-        const uri = getDeployedSubgraphUri(chainId);
+        const uri = getDeployedSubgraphUri(chainId)[0];
         if (!uri) {
           console.error("Subgraph not available for chain: ", chainId);
           return;
@@ -238,21 +244,13 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           <Typography.Title level={2}>Manage Liquidity</Typography.Title>
         </Col>
       </Row>
+
       <Divider />
+
       <Row gutter={16}>
         <Col span={3} />
-        <Col span={12}>
-          <Typography.Title level={4}>Router Balances</Typography.Title>
-        </Col>
-        <Col span={4}>
-          <Row justify="space-around">
-            <Button type="primary" onClick={() => refreshBalances()}>
-              Reload
-            </Button>
-            <Dropdown overlay={menu}>
-              <Button type="default">{network}</Button>
-            </Dropdown>
-          </Row>
+        <Col span={8}>
+          <Typography.Title level={4}>Choose Router</Typography.Title>
         </Col>
       </Row>
       <Row gutter={16}>
@@ -267,6 +265,67 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
             }}
             value={routerAddress}
           />
+        </Col>
+      </Row>
+
+      <Divider />
+
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={8}>
+          <Typography.Title level={4}>Add Liquidity</Typography.Title>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col span={16}>
+          <Form
+            form={form}
+            name="basic"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            onFinish={({ assetId, liquidityToAdd, infiniteApproval }) => {
+              addLiquidity(assetId, liquidityToAdd, infiniteApproval);
+            }}
+            onFieldsChange={() => {}}
+          >
+            <Form.Item label="Asset ID" name="assetId">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Liquidity to Add" name="liquidityToAdd">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Infinite Approval" name="infiniteApproval" valuePropName="checked">
+              <Checkbox></Checkbox>
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button type="primary" htmlType="submit" disabled={!injectedProviderChainId}>
+                Add Liquidity on{" "}
+                {injectedProviderChainId && chainData ? getChainName(injectedProviderChainId, chainData) : "..."}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Col>
+      </Row>
+
+      <Divider />
+
+      <Row gutter={16}>
+        <Col span={3} />
+        <Col span={12}>
+          <Typography.Title level={4}>Router Balances</Typography.Title>
+        </Col>
+        <Col span={4}>
+          <Row justify="space-around">
+            <Button type="primary" onClick={() => refreshBalances()}>
+              Reload
+            </Button>
+            <Dropdown overlay={menu}>
+              <Button type="default">{network}</Button>
+            </Dropdown>
+          </Row>
         </Col>
       </Row>
 
@@ -305,45 +364,6 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
               </div>
             )}
           />
-        </Col>
-      </Row>
-      <Divider />
-      <Row gutter={16}>
-        <Col span={3} />
-        <Col span={8}>
-          <Typography.Title level={4}>Add Liquidity</Typography.Title>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={16}>
-          <Form
-            form={form}
-            name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            onFinish={({ assetId, liquidityToAdd, infiniteApproval }) => {
-              addLiquidity(assetId, liquidityToAdd, infiniteApproval);
-            }}
-            onFieldsChange={() => {}}
-          >
-            <Form.Item label="Asset ID" name="assetId">
-              <Input />
-            </Form.Item>
-
-            <Form.Item label="Liquidity to Add" name="liquidityToAdd">
-              <Input />
-            </Form.Item>
-
-            <Form.Item label="Infinite Approval" name="infiniteApproval" valuePropName="checked">
-              <Checkbox></Checkbox>
-            </Form.Item>
-
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Add Liquidity
-              </Button>
-            </Form.Item>
-          </Form>
         </Col>
       </Row>
     </>

@@ -28,7 +28,7 @@ export const bindFastify = () =>
 
     server.get("/config", async () => {
       return {
-        signerAddress: wallet.address,
+        signerAddress: await wallet.getAddress(),
       };
     });
 

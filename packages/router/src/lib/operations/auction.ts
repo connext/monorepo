@@ -41,7 +41,7 @@ export const newAuction = async (
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
-  logger.info("Method context", requestContext, methodContext, { data });
+  logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
   const validateInput = ajv.compile(AuctionPayloadSchema);
@@ -95,7 +95,20 @@ export const newAuction = async (
     });
   }
 
+  const allowedSwap = config.swapPools.find(
+    (pool) =>
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
+  );
+  if (!allowedSwap) {
+    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
+      methodContext,
+      requestContext,
+    });
+  }
+
   const currentTime = await getNtpTimeSeconds();
+  const routerAddress = await wallet.getAddress();
 
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
@@ -134,7 +147,7 @@ export const newAuction = async (
   if (!outputDecimals) {
     outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
   }
-  logger.info("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
+  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
@@ -154,33 +167,21 @@ export const newAuction = async (
   }
 
   // Make sure subgraphs are synced
-  const receivingSyncRecord = await contractReader.getSyncRecord(receivingChainId, requestContext);
-  if (!receivingSyncRecord.synced) {
-    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecord, {
+  const receivingSyncRecords = await contractReader.getSyncRecords(receivingChainId, requestContext);
+  if (!receivingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecords, {
       methodContext,
       requestContext,
       transactionId,
     });
   }
 
-  const sendingSyncRecord = await contractReader.getSyncRecord(sendingChainId, requestContext);
-  if (!sendingSyncRecord.synced) {
-    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecord, {
+  const sendingSyncRecords = await contractReader.getSyncRecords(sendingChainId, requestContext);
+  if (!sendingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecords, {
       methodContext,
       requestContext,
       transactionId,
-    });
-  }
-
-  const allowedSwap = config.swapPools.find(
-    (pool) =>
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
-  );
-  if (!allowedSwap) {
-    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
-      methodContext,
-      requestContext,
     });
   }
 
@@ -203,7 +204,7 @@ export const newAuction = async (
     outputDecimals,
     requestContext,
   );
-  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+  logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
 
@@ -220,24 +221,19 @@ export const newAuction = async (
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
       requestContext,
-      balance: balance.toString(),
-      amountReceived: amountReceived.toString(),
-      amount,
-      receivingAssetId,
-      receivingChainId,
     });
   }
 
   const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
+    txService.getBalance(sendingChainId, routerAddress),
+    txService.getBalance(receivingChainId, routerAddress),
   ]);
-  logger.info("Got balances", requestContext, methodContext, {
+  logger.debug("Got balances", requestContext, methodContext, {
     senderBalance: senderBalance.toString(),
     receiverBalance: receiverBalance.toString(),
   });
@@ -265,7 +261,7 @@ export const newAuction = async (
   const bidExpiry = getBidExpiry(currentTime);
   const bid: AuctionBid = {
     user,
-    router: wallet.address,
+    router: routerAddress,
     initiator,
     sendingChainId,
     sendingAssetId,

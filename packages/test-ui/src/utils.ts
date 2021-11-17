@@ -49,3 +49,18 @@ export const getExplorerLinkForAddress = (address: string, chainId: number, chai
   const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
   return explorer ? `${explorer}/address/${address}` : "#";
 };
+
+export const getDecimalsForAsset = async (
+  assetId: string,
+  chainId: number,
+  provider: providers.Provider,
+  chainData: ChainData[],
+): Promise<number> => {
+  const chainInfo = chainData.find((data) => data.chainId === chainId);
+  const decimals = chainInfo?.assetId[assetId]?.decimals;
+  if (decimals) {
+    return decimals;
+  }
+  const contract = new Contract(assetId, TestTokenABI, provider);
+  return await contract.decimals();
+};

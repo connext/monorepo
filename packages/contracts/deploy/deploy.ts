@@ -8,13 +8,15 @@ const TEST_ROUTERS = [
   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", // local router
 ];
 
-const SKIP_SETUP = [1, 56, 250, 137, 100, 42161, 43114];
+const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 1285, 42161, 43114];
 const WRAPPED_ETH_MAP = new Map();
 WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
-WRAPPED_ETH_MAP.set("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"); // goerli WETH
 WRAPPED_ETH_MAP.set("56", "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"); // Binance Smart Chain WBNB
+WRAPPED_ETH_MAP.set("137", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"); // polygon WMATIC
+WRAPPED_ETH_MAP.set("250", "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83"); // fantom WFTM
 WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // arbitrum WETH
+WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
 
 /**
  * Hardhat task defining the contract deployments for nxtp

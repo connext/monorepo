@@ -18,7 +18,9 @@ import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
+import "./src/tasks/setDexPrice";
 import "./src/tasks/decodeInputData";
+import "./src/tasks/removeRouter";
 
 dotEnvConfig();
 
@@ -75,7 +77,8 @@ const config: HardhatUserConfig = {
     mainnet: {
       accounts: { mnemonic },
       chainId: 1,
-      url: urlOverride || "http://localhost:8545",
+      url: urlOverride || process.env.ETH_PROVIDER_URL || "https://cloudflare-eth.com",
+      gasPrice: 10000000000,
     },
     ropsten: {
       accounts: { mnemonic },
@@ -92,10 +95,20 @@ const config: HardhatUserConfig = {
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
+    optimism: {
+      accounts: { mnemonic },
+      chainId: 10,
+      url: "https://mainnet.optimism.io",
+    },
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
       url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
+    },
+    "optimism-kovan": {
+      accounts: { mnemonic },
+      chainId: 69,
+      url: "https://kovan.optimism.io",
     },
     bsc: {
       accounts: { mnemonic },
@@ -110,7 +123,7 @@ const config: HardhatUserConfig = {
     xdai: {
       accounts: { mnemonic },
       chainId: 100,
-      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.xdaichain.com/",
+      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
     },
     matic: {
       accounts: { mnemonic },
@@ -121,6 +134,12 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 250,
       url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
+    },
+    moonriver: {
+      accounts: { mnemonic },
+      chainId: 1285,
+      url: "https://rpc.moonriver.moonbeam.network",
+      gasPrice: 5000000000,
     },
     mbase: {
       accounts: { mnemonic },

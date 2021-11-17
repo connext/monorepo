@@ -134,13 +134,13 @@ describe("Subgraph", () => {
 
   const chainConfig = {
     [sendingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },
     },
     [receivingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },
@@ -235,10 +235,16 @@ describe("Subgraph", () => {
             getMockTransaction({ transactionId }),
           ),
         );
+        const testError = new Error("test");
+        sdkStub.GetTransactions.onFirstCall().rejects(testError);
 
-        sdkStub.GetTransactions.onFirstCall().rejects(new Error("fail"));
+        try {
+          await subgraph.getActiveTransactions();
+        } catch (e) {
+          const expectedErrMessage = testError.message;
+          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+        }
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
         expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
       });
 
@@ -253,9 +259,16 @@ describe("Subgraph", () => {
         sdkStub.GetTransactions.onFirstCall().resolves({
           transactions: [subgraphSending],
         });
-        sdkStub.GetTransactions.onSecondCall().rejects(new Error("fail"));
+        const testError = new Error("test");
+        sdkStub.GetTransactions.onSecondCall().rejects(testError);
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        try {
+          await subgraph.getActiveTransactions();
+        } catch (e) {
+          const expectedErrMessage = testError.message;
+          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+        }
+
         expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
         expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
       });
@@ -631,22 +644,42 @@ describe("Subgraph", () => {
 
   describe("getHistoricalTransactions", async () => {
     it("should fail if GetReceiverTransactions fails", async () => {
-      sdkStub.GetReceiverTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetReceiverTransactions.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should fail if GetTransactions fails", async () => {
       sdkStub.GetReceiverTransactions.resolves({ transactions: [transactionSubgraphMock] });
-      sdkStub.GetTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetTransactions.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should fail if GetSenderTransactions fails", async () => {
-      sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetSenderTransactions.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        const chainErrors = e.context.errors;
+        const sendingChainErrors = chainErrors.get(sendingChainId).context.errors;
+        expect(sendingChainErrors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should ignore transactions without matching sender side tx", async () => {

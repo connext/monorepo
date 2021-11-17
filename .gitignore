@@ -28,5 +28,8 @@ ops/data
 packages/router/*config.json
 packages/router/chaindata.json
 
-packages/integration/ops/config/load/*config.json
-
+packages/sdk-server/*config.json
+packages/integration/logs.json
+packages/integration/ops/config/load/config.json
+packages/integration/ops/config/router/*.yaml
+!packages/integration/ops/config/router/web3signer_keyFile_test.yaml

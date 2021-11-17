@@ -87,14 +87,14 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
   defaultInitialGas: Type.Optional(TIntegerString),
-  subgraph: Type.String(),
+  subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
-  subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
+  subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
 });
 
 export const TSwapPool = Type.Object({
@@ -121,7 +121,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   natsUrl: Type.String(),
   authUrl: Type.String(),
-  mnemonic: Type.String(),
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
@@ -187,6 +188,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     authUrl,
     natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
@@ -218,8 +220,14 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
+
+  if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
+    throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
+  }
+
   const defaultConfirmations =
     crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
+
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
     const chainRecommendedConfirmations =
@@ -248,31 +256,36 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
+
     if (!chainConfig.relayerFeeThreshold) {
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (!chainConfig.allowFulfillRelay) {
+    if (chainConfig.allowFulfillRelay === undefined || chainConfig.allowFulfillRelay === null) {
       nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
     }
 
     if (!chainConfig.subgraph) {
-      const subgraph = getDeployedSubgraphUri(Number(chainId));
-      if (!subgraph) {
+      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId));
+      if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }
-      nxtpConfig.chainConfig[chainId].subgraph = subgraph;
+      nxtpConfig.chainConfig[chainId].subgraph = defaultSubgraphUri;
+    } else if (typeof chainConfig.subgraph === "string") {
+      // Backwards compatibility for subgraph param - support for singular uri string.
+      chainConfig.subgraph = [chainConfig.subgraph];
     }
 
     if (!chainConfig.confirmations) {
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
     }
 
-    if (!chainConfig.subgraphSyncBuffer) {
-      const syncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
-      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
-        syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min
-    }
+    const syncBuffer =
+      !chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0
+        ? (chainRecommendedConfirmations ?? 1) * 3
+        : chainConfig.subgraphSyncBuffer;
+    // 25 blocks minimum.
+    nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = Math.max(syncBuffer, MIN_SUBGRAPH_SYNC_BUFFER);
 
     const addedStations = nxtpConfig.chainConfig[chainId].gasStations ?? [];
     nxtpConfig.chainConfig[chainId].gasStations = addedStations.concat(chainRecommendedGasStations);

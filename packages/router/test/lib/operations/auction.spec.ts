@@ -61,31 +61,19 @@ describe("Auction Operation", () => {
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Not enough liquidity");
     });
 
-    it("should error if no providers for sending chain", async () => {
-      await expect(newAuction({ ...auctionPayload, sendingChainId: 1234 }, requestContext)).to.be.rejectedWith(
-        "Providers not available",
-      );
-    });
-
-    it("should error if no providers for receiving chain", async () => {
-      await expect(newAuction({ ...auctionPayload, receivingChainId: 1234 }, requestContext)).to.be.rejectedWith(
-        "Providers not available",
-      );
-    });
-
     it("should error if sending subgraph is out of sync", async () => {
-      const record = { synced: false, latestBlock: 0, syncedBlock: 0 };
-      (contractReaderMock.getSyncRecord as SinonStub).onCall(0).returns(record);
+      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
+      (contractReaderMock.getSyncRecords as SinonStub).onCall(0).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
-        SubgraphNotSynced.getMessage(auctionPayload.receivingChainId, record),
+        SubgraphNotSynced.getMessage(auctionPayload.receivingChainId, records),
       );
     });
 
     it("should error if receiving subgraph is out of sync", async () => {
-      const record = { synced: false, latestBlock: 0, syncedBlock: 0 };
-      (contractReaderMock.getSyncRecord as SinonStub).onCall(1).returns(record);
+      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
+      (contractReaderMock.getSyncRecords as SinonStub).onCall(1).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
-        SubgraphNotSynced.getMessage(auctionPayload.sendingChainId, record),
+        SubgraphNotSynced.getMessage(auctionPayload.sendingChainId, records),
       );
     });
 
@@ -110,7 +98,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for fulfill transactions if sendingChain is fee chain.
       // amountReceived = amount.sub(fulfillGasFee)
-      const expectedReceiverAmount = "99989650500000000000";
+      const expectedReceiverAmount = "99987400000000000000";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -146,7 +134,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for prepare transactions if receivingChain is fee chain.
       // amountReceived = amount.sub(prepareGasFee)
-      const expectedReceiverAmount = "99991342000000000000";
+      const expectedReceiverAmount = "99988800000000000000";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -182,7 +170,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains.
       // amountReceived = amount.sub(prepareGasFee).sub(fulfillGasFee)
-      const expectedReceiverAmount = "99980992500000000000";
+      const expectedReceiverAmount = "99976200000000000000";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,

@@ -1,7 +1,5 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { NxtpError, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-
-import { SubgraphSyncRecord } from "../entities";
 
 export class NotEnoughAmount extends NxtpError {
   cancellable = true;
@@ -12,8 +10,12 @@ export class NotEnoughAmount extends NxtpError {
 
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
-  constructor(chainId: number, context: any = {}) {
-    super(`Not enough liquidity for chainId ${chainId}`, context, "NotEnoughLiquidity");
+  constructor(chainId: number, assetId: string, balance: string, required: string, context: any = {}) {
+    super(
+      `Not enough liquidity for chainId ${chainId}, assetId: ${assetId}, balance: ${balance}, ${required}`,
+      context,
+      "NotEnoughLiquidity",
+    );
   }
 }
 
@@ -37,16 +39,19 @@ export class AuctionRateExceeded extends NxtpError {
 
 export class ProvidersNotAvailable extends NxtpError {
   constructor(chainIds: number[], context: any = {}) {
-    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name);
+    super(`Providers not available for chainIds ${chainIds.join(",")}`, context, ProvidersNotAvailable.name, "debug");
   }
 }
 
 export class SubgraphNotSynced extends NxtpError {
-  static getMessage(chainId: number, record: SubgraphSyncRecord) {
-    return `Subgraph on ${chainId} not synced. Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`;
+  static getMessage(chainId: number, records: SubgraphSyncRecord[]) {
+    return (
+      `Subgraph on ${chainId} not synced.` +
+      records.map((record) => `Synced block: ${record.syncedBlock}, latest: ${record.latestBlock}`).join("\n")
+    );
   }
-  constructor(chainId: number, record: SubgraphSyncRecord, context: any = {}) {
-    super(SubgraphNotSynced.getMessage(chainId, record), context, SubgraphNotSynced.name);
+  constructor(chainId: number, records: SubgraphSyncRecord[], context: any = {}) {
+    super(SubgraphNotSynced.getMessage(chainId, records), context, SubgraphNotSynced.name);
   }
 }
 
@@ -62,6 +67,7 @@ export class SwapInvalid extends NxtpError {
       `${sendingChainId},${sendingAssetId}->${receivingChainId},${receivingAssetId} swap not allowed`,
       { ...context, sendingChainId, sendingAssetId, receivingChainId, receivingAssetId },
       "SwapInvalid",
+      "debug",
     );
   }
 }

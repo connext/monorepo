@@ -2,6 +2,89 @@
 
 ## Next Release
 
+- [sdk] Gelato support for Arbitrum
+- [subgraph] subgraph lite for routers and sdk
+- [subgraph] add sending tx count for explorer
+- [router] update active transactions logs!minor
+
+## 0.0.80
+
+- [utils] Enforce minimum subgraph sync buffer
+- [utils] Subgraph starts as synced
+
+## 0.0.79
+
+- [utils] Bump gas estimate
+- [sdk] Remove hardcoded arbitrum gas limit
+
+## 0.0.78
+
+- [utils] Fix subgraph hasSynced logic
+
+## 0.0.77
+
+- [sdk] Hardcode gas limit for Arbitrum
+- [ci] Fix 0.0.76 build
+- [utils] Add extra gas reimbursement for fulfill for Gelato relayers
+
+## 0.0.76
+
+- [router] New Web3signer support
+- [router] Fix logging level
+- [sdk] fulfill response
+
+## 0.0.75
+
+- [contracts] Moonriver deployment
+
+## 0.0.74
+
+- [sdk] Integrate Gelato for fulfill relaying
+- [contracts] Include `remove-router` hardhat task
+- [sdk] SDK supports string `subgraph` in config
+
+## 0.0.73
+
+- [contracts] Deploy to mainnet
+
+## 0.0.72
+
+- [router/sdk] Fix fallback subgraph
+
+## 0.0.71
+
+- [router] Handle fulfill relay bugfix
+
+## 0.0.70
+
+- [router] Handle fulfill relay
+- [router/sdk] Add subgraph fallbacks by default
+- [test-ui] Fixes for test-ui based on feedback
+
+## 0.0.69
+
+- [sdk] Return fulfill fee from `getTransferQuote`
+
+## 0.0.68
+
+- [sdk] Fix build
+
+## 0.0.67
+
+- [sdk/router] Add fallback subgraph using multiple subgraph URIs
+- [sdk-server] new sdk-server to interact with sdkBase on backend
+- [subgraph] update structure to handle multiple networks subgraph deployment
+- [integration] fix load testing
+
+## 0.0.66
+
+- [sdk] Fix signer instantiation
+- [test-ui] Fix input params
+
+## 0.0.65
+
+- [router] Fix relayer fee threshold
+
 ## 0.0.64
 
 - [sdk] SDK gas limit fix

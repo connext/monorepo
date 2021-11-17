@@ -1,13 +1,5 @@
-import {
-  AuctionPayload,
-  createLoggingContext,
-  jsonifyError,
-  NxtpError,
-  NxtpErrorJson,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { AuctionPayload, createLoggingContext, NxtpErrorJson, RequestContext } from "@connext/nxtp-utils";
 
-import { ProvidersNotAvailable } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 import { attemptedAuction } from "../metrics";
@@ -27,14 +19,9 @@ export const auctionRequestBinding = async (
     data?.transactionId,
   );
   if (err) {
-    if (err.type === ProvidersNotAvailable.name) {
-      logger.debug("No provider configured", requestContext, methodContext, {
-        data,
-        err: jsonifyError(err as NxtpError),
-      });
-    } else {
-      logger.error("Error in auction request", requestContext, methodContext, err, { data });
-    }
+    logger.error("Error in auction request", requestContext, methodContext, err, {
+      data,
+    });
     return;
   }
   if (!data) {
@@ -43,7 +30,7 @@ export const auctionRequestBinding = async (
   }
 
   // On every new auction broadcast, route to the new auction handler
-  logger.info("Received auction request", requestContext, methodContext);
+  logger.debug("Received auction request", requestContext, methodContext);
   const { bid, bidSignature, gasFeeInReceivingToken } = await newAuction(data, requestContext);
 
   await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature, gasFeeInReceivingToken });
@@ -53,5 +40,5 @@ export const auctionRequestBinding = async (
     sendingChainId: bid.sendingChainId,
     receivingChainId: bid.receivingChainId,
   });
-  logger.info("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
+  logger.debug("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
 };

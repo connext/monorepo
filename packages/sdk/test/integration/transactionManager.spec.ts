@@ -12,10 +12,7 @@ import {
 } from "@connext/nxtp-utils";
 import { utils, constants } from "ethers";
 
-import {
-  TransactionManager as TransactionManagerTypechain,
-  TestERC20,
-} from "@connext/nxtp-contracts/typechain";
+import { TransactionManager as TransactionManagerTypechain, TestERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import TestERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 
@@ -55,8 +52,6 @@ describe("Transaction Manager", function () {
   let transactionManagerReceiverSide: TransactionManagerTypechain;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
-
-  
 
   const getTransactionData = async (
     txOverrides: Partial<InvariantTransactionData> = {},
@@ -393,6 +388,12 @@ describe("Transaction Manager", function () {
         ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
 
+      it("happy case: when allowance is suffice return undefined", async () => {
+        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "0");
+
+        expect(approveReq).to.be.undefined;
+      });
+
       it("happy case", async () => {
         const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "1");
 
@@ -427,40 +428,6 @@ describe("Transaction Manager", function () {
       it("happy case", async () => {
         const res = await routerTransactionManager.getRouterLiquidity(receivingChainId, router.address, tokenB.address);
         expect(res.toString()).to.be.eq(routerFunds);
-      });
-    });
-
-    describe("#calculateGasInTokenForFullfill", () => {
-      it("should error if unfamiliar chainId", async () => {
-        const InvalidChainId = 123;
-        const { transaction, record } = await getTransactionData();
-
-        await approveTokens(transactionManager.address, record.amount, user, tokenA);
-        const { blockNumber } = await prepareAndAssert(
-          transaction,
-          record,
-          user,
-          transactionManager,
-          userTransactionManager,
-        );
-
-        const signature = await signFulfillTransactionPayload(
-          transaction.transactionId,
-          "0",
-          transaction.receivingChainId,
-          transaction.receivingChainTxManagerAddress,
-          user,
-        );
-
-        const fulfillParams: FulfillParams = {
-          txData: { ...transaction, ...record, preparedBlockNumber: blockNumber },
-          relayerFee: "0",
-          signature: signature,
-          callData: EmptyBytes,
-        };
-        await expect(
-          userTransactionManager.calculateGasInTokenForFullfil(InvalidChainId, fulfillParams),
-        ).to.be.rejectedWith(ChainNotConfigured.getMessage(InvalidChainId, supportedChains));
       });
     });
   });

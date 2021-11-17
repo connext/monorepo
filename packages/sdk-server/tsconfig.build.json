@@ -1,0 +1,16 @@
+{
+  "references": [
+    {
+      "path": "../sdk/tsconfig.build.json"
+    }
+  ],
+  "extends": "../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["test/**/*.ts"]
+}

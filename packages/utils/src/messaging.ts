@@ -85,7 +85,7 @@ export class NatsBasicMessagingService {
   private connection: INatsService | undefined;
   private log: Logger;
 
-  private authUrl?: string;
+  private authUrl: string;
   private bearerToken?: string;
   private natsUrl?: string;
   protected signer: Signer;
@@ -151,7 +151,7 @@ export class NatsBasicMessagingService {
     if (bearerToken) {
       this.bearerToken = bearerToken;
     } else if (!this.bearerToken) {
-      const token = await getBearerToken(this.authUrl!, this.signer)();
+      const token = await getBearerToken(this.authUrl, this.signer)();
       this.bearerToken = token;
     }
     // TODO: #155 fail fast w sensible error message if bearer token is invalid #446
@@ -205,6 +205,7 @@ export class NatsBasicMessagingService {
     this.assertConnected();
     const toPublish = safeJsonStringify(data);
     this.log.debug(`Publishing`, requestContext, methodContext, { subject, data });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.connection!.publish(subject, toPublish);
   }
 
@@ -225,6 +226,7 @@ export class NatsBasicMessagingService {
     const { requestContext, methodContext } = createLoggingContext(this.request.name, _requestContext);
     this.assertConnected();
     this.log.debug(`Requesting`, requestContext, methodContext, { subject, data });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const response = await this.connection!.request(subject, timeout, JSON.stringify(data));
     this.log.debug(`Request returned`, requestContext, methodContext, { subject, response });
     return response;
@@ -243,6 +245,7 @@ export class NatsBasicMessagingService {
   ): Promise<void> {
     const { requestContext, methodContext } = createLoggingContext(this.subscribe.name, _requestContext);
     this.assertConnected();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.connection!.subscribe(subject, (msg: any, err?: any): void => {
       const parsedMsg = typeof msg === `string` ? JSON.parse(msg) : msg;
       const parsedData = typeof msg.data === `string` ? JSON.parse(msg.data) : msg.data;
@@ -261,6 +264,7 @@ export class NatsBasicMessagingService {
     this.assertConnected();
     const unsubscribeFrom = this.getSubjectsToUnsubscribeFrom(subject);
     unsubscribeFrom.forEach((sub) => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       this.connection!.unsubscribe(sub);
     });
   }
@@ -269,6 +273,7 @@ export class NatsBasicMessagingService {
    * Flushes the messaging connection
    */
   public async flush(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     await this.connection!.flush();
   }
 
@@ -281,6 +286,7 @@ export class NatsBasicMessagingService {
    */
   protected getSubjectsToUnsubscribeFrom(subject: string): string[] {
     // must account for wildcards
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const subscribedTo = this.connection!.getSubscribedSubjects();
     const unsubscribeFrom: string[] = [];
 
@@ -346,32 +352,36 @@ export const AuctionPayloadSchema = Type.Object({
 
 export type AuctionPayload = Static<typeof AuctionPayloadSchema>;
 
-export type AuctionBid = {
-  user: string;
-  router: string;
-  initiator: string;
-  sendingChainId: number;
-  sendingAssetId: string;
-  amount: string;
-  receivingChainId: number;
-  receivingAssetId: string;
-  amountReceived: string;
-  receivingAddress: string;
-  transactionId: string;
-  expiry: number;
-  callDataHash: string;
-  callTo: string;
-  encryptedCallData: string;
-  sendingChainTxManagerAddress: string;
-  receivingChainTxManagerAddress: string;
-  bidExpiry: number;
-};
+export const AuctionBidSchema = Type.Object({
+  user: TAddress,
+  router: TAddress,
+  initiator: TAddress,
+  sendingChainId: TChainId,
+  sendingAssetId: TAddress,
+  amount: TIntegerString,
+  receivingChainId: TChainId,
+  receivingAssetId: TAddress,
+  amountReceived: TIntegerString,
+  receivingAddress: TAddress,
+  transactionId: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  expiry: Type.Number(),
+  callDataHash: Type.RegEx(/^0x[a-fA-F0-9]{64}$/),
+  callTo: TAddress,
+  encryptedCallData: Type.RegEx(/^0x[a-fA-F0-9]*$/),
+  sendingChainTxManagerAddress: TAddress,
+  receivingChainTxManagerAddress: TAddress,
+  bidExpiry: Type.Number(),
+});
 
-export type AuctionResponse = {
-  bid: AuctionBid;
-  gasFeeInReceivingToken: string;
-  bidSignature?: string; // not included in dry run
-};
+export type AuctionBid = Static<typeof AuctionBidSchema>;
+
+export const AuctionResponseSchema = Type.Object({
+  bid: AuctionBidSchema,
+  gasFeeInReceivingToken: TIntegerString,
+  bidSignature: Type.Optional(Type.String()),
+});
+
+export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
 export const MetaTxTypes = {
   Fulfill: "Fulfill",
@@ -502,6 +512,7 @@ export class NatsNxtpMessagingService extends NatsBasicMessagingService {
           });
           return handler(from, "ERROR", msg?.data?.data, err);
         }
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         return handler(from, msg.data.responseInbox!, msg?.data?.data, err);
       },
       requestContext,

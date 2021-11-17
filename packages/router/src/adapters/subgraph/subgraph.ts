@@ -4,7 +4,9 @@ import {
   getNtpTimeSeconds,
   getUuid,
   jsonifyError,
+  NxtpError,
   RequestContext,
+  SubgraphSyncRecord,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
@@ -16,20 +18,58 @@ import {
   SingleChainTransaction,
   CrosschainTransactionStatus,
   CancelPayload,
-  SubgraphSyncRecord,
 } from "../../lib/entities";
 
-import { TransactionStatus as SdkTransactionStatus } from "./graphqlsdk";
+import {
+  GetAssetBalanceQuery,
+  GetReceiverTransactionsQuery,
+  GetSenderTransactionsQuery,
+  GetTransactionQuery,
+  GetTransactionsQuery,
+  TransactionStatus as SdkTransactionStatus,
+} from "./graphqlsdk";
 
 import { getSdks } from ".";
 
-const synced: Record<number, SubgraphSyncRecord> = {};
+export const getSyncRecords = async (
+  chainId: number,
+  _requestContext?: RequestContext,
+): Promise<SubgraphSyncRecord[]> => {
+  const { requestContext } = createLoggingContext(getSyncRecords.name, _requestContext);
 
-export const getSyncRecord = async (chainId: number, _requestContext?: RequestContext): Promise<SubgraphSyncRecord> => {
-  const { requestContext } = createLoggingContext(getSyncRecord.name, _requestContext);
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+  return sdk.hasSynced ? sdk.records : await setSyncRecord(chainId, requestContext);
+};
 
-  const record = synced[chainId];
-  return record ?? (await setSyncRecord(chainId, requestContext));
+const setSyncRecord = async (chainId: number, requestContext: RequestContext): Promise<SubgraphSyncRecord[]> => {
+  // get global context
+  const { logger, txService, config } = getContext();
+
+  const { methodContext } = createLoggingContext(setSyncRecord.name, requestContext);
+  let records: SubgraphSyncRecord[] = [{ synced: false, latestBlock: -1, syncedBlock: -1, lag: -1, uri: "" }];
+  try {
+    const sdks = getSdks();
+    const sdk = sdks[chainId];
+
+    const chainConfig = config.chainConfig[chainId];
+    if (!chainConfig || !sdk) {
+      throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
+    }
+
+    const latestBlock = await txService.getBlockNumber(chainId);
+    records = await sdk.sync(latestBlock);
+    logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
+      chainId,
+      latestBlock,
+      records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
+    });
+  } catch (e) {
+    logger.error(`Error getting sync records for chain ${chainId}`, requestContext, methodContext, jsonifyError(e), {
+      chainId,
+    });
+  }
+  return records;
 };
 
 export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransaction: any): CrosschainTransaction => {
@@ -57,53 +97,13 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
   };
 };
 
-const setSyncRecord = async (chainId: number, requestContext: RequestContext) => {
-  // get global context
-  const { logger, txService, config } = getContext();
-
-  const { methodContext } = createLoggingContext("setSyncRecord", requestContext);
-  try {
-    const sdks = getSdks();
-    const sdk = sdks[chainId];
-
-    const chainConfig = config.chainConfig[chainId];
-    if (!chainConfig || !sdk) {
-      throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
-    }
-    const allowUnsynced = chainConfig.subgraphSyncBuffer;
-
-    logger.debug("Getting sync record", requestContext, methodContext, { chainId });
-    const realBlockNumber = await txService.getBlockNumber(chainId);
-    const { _meta } = await sdk.GetBlockNumber();
-    const subgraphBlockNumber = _meta?.block.number ?? 0;
-    let record: SubgraphSyncRecord;
-    if (realBlockNumber - subgraphBlockNumber > allowUnsynced) {
-      logger.warn("SUBGRAPH IS OUT OF SYNC", requestContext, methodContext, {
-        realBlockNumber,
-        subgraphBlockNumber,
-        chainId,
-      });
-      record = { synced: false, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-    } else {
-      record = { synced: true, latestBlock: realBlockNumber, syncedBlock: subgraphBlockNumber };
-    }
-    synced[chainId] = record;
-    return record;
-  } catch (e) {
-    logger.error(`Error getting sync status for chain`, requestContext, methodContext, jsonifyError(e), {
-      chainId,
-    });
-    return { synced: false, latestBlock: 0, syncedBlock: 0 };
-  }
-};
-
 export const getActiveTransactions = async (_requestContext?: RequestContext): Promise<ActiveTransaction<any>[]> => {
   // get global context
   const { wallet, logger, config } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
 
-  const routerAddress = wallet.address;
+  const routerAddress = await wallet.getAddress();
 
   // get local context
   const sdks = getSdks();
@@ -112,34 +112,38 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
     Object.entries(sdks).map(async ([cId, sdk]) => {
       try {
         const chainId = parseInt(cId);
-
         const chainConfig = config.chainConfig[chainId];
         if (!chainConfig) {
           throw new NoChainConfig(chainId);
         }
 
-        const allReceiverExpired = await sdk.GetReceiverTransactions({
-          routerId: routerAddress.toLowerCase(),
-          receivingChainId: chainId,
-          status: SdkTransactionStatus.Prepared,
-          expiry_lt: Math.floor(Date.now() / 1000),
-        });
+        // update synced status
+        await setSyncRecord(chainId, requestContext);
 
-        logger.debug("Got receiver expired", requestContext, methodContext, {
-          chainId,
-          allReceiverExpired: jsonifyError(allReceiverExpired as any),
-        });
+        // get all receiver expired txs
+        const allReceiverExpired = await sdk.request<GetReceiverTransactionsQuery>((client) =>
+          client.GetReceiverTransactions({
+            routerId: routerAddress.toLowerCase(),
+            receivingChainId: chainId,
+            status: SdkTransactionStatus.Prepared,
+            expiry_lt: Math.floor(Date.now() / 1000),
+          }),
+        );
+        if ((allReceiverExpired.router?.transactions.length ?? 0) > 0) {
+          logger.debug("Got receiver expired", requestContext, methodContext, {
+            chainId,
+            allReceiverExpired: jsonifyError(allReceiverExpired as any),
+          });
+        }
 
         // get all sender prepared txs
-        const allSenderPrepared = await sdk.GetSenderTransactions({
-          routerId: routerAddress.toLowerCase(),
-          sendingChainId: chainId,
-          status: SdkTransactionStatus.Prepared,
-        });
-
-        // check synced status
-        const record = await setSyncRecord(chainId, requestContext);
-        logger.debug("Got sync record", requestContext, methodContext, { chainId, record });
+        const allSenderPrepared = await sdk.request<GetSenderTransactionsQuery>((client) =>
+          client.GetSenderTransactions({
+            routerId: routerAddress.toLowerCase(),
+            sendingChainId: chainId,
+            status: SdkTransactionStatus.Prepared,
+          }),
+        );
 
         // create list of txIds for each receiving chain
         const receivingChains: Record<string, string[]> = {};
@@ -193,7 +197,9 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
               );
               return [];
             }
-            const query = await _sdk.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) });
+            const query = await _sdk.request<GetTransactionsQuery>((client) =>
+              client.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) }),
+            );
             return query.transactions;
           }),
         );
@@ -242,7 +248,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
             if (!receiving) {
               // if not synced, cancel
-              const receiverSynced = getSyncRecord(invariant.receivingChainId);
+              const receiverSynced = getSyncRecords(invariant.receivingChainId);
               if (!receiverSynced) {
                 return {
                   crosschainTx: sdkSenderTransactionToCrosschainTransaction(senderTx),
@@ -268,7 +274,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
 
             // we have a receiver tx at this point
             // if expired, return
-            if (currentTime > receiving.expiry && correspondingReceiverTx!.status === SdkTransactionStatus.Prepared) {
+            if (currentTime > receiving.expiry && correspondingReceiverTx?.status === SdkTransactionStatus.Prepared) {
               return {
                 crosschainTx: {
                   invariant,
@@ -280,7 +286,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
               } as ActiveTransaction<"ReceiverExpired">;
             }
 
-            if (correspondingReceiverTx!.status === SdkTransactionStatus.Fulfilled) {
+            if (correspondingReceiverTx?.status === SdkTransactionStatus.Fulfilled) {
               // receiver fulfilled
               return {
                 crosschainTx: {
@@ -289,15 +295,15 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   receiving,
                 },
                 payload: {
-                  signature: correspondingReceiverTx!.signature,
-                  relayerFee: correspondingReceiverTx!.relayerFee,
-                  callData: correspondingReceiverTx!.callData!,
-                  receiverFulfilledHash: correspondingReceiverTx!.fulfillTransactionHash,
+                  signature: correspondingReceiverTx?.signature,
+                  relayerFee: correspondingReceiverTx?.relayerFee,
+                  callData: correspondingReceiverTx?.callData,
+                  receiverFulfilledHash: correspondingReceiverTx?.fulfillTransactionHash,
                 },
                 status: CrosschainTransactionStatus.ReceiverFulfilled,
               } as ActiveTransaction<"ReceiverFulfilled">;
             }
-            if (correspondingReceiverTx!.status === SdkTransactionStatus.Cancelled) {
+            if (correspondingReceiverTx?.status === SdkTransactionStatus.Cancelled) {
               // receiver cancelled
               return {
                 crosschainTx: {
@@ -328,11 +334,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
     }),
   );
   if (errors.size === Object.keys(sdks).length) {
-    if (errors.size === 1) {
-      // Just throw the first error in the Map if there's only one chain supported.
-      throw errors.values().next().value;
-    }
-    throw new Error("Failed to get active transactions for all chains");
+    throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
   }
   const flattened = allChains.filter((x) => !!x).flat();
   return flattened;
@@ -359,16 +361,18 @@ export const getTransactionForChain = async (
   const methodId = getUuid();
 
   const { wallet } = getContext();
-  const routerAddress = wallet.address;
+  const routerAddress = await wallet.getAddress();
 
   const sdks = getSdks();
   const sdk = sdks[chainId];
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
-  const tx = await sdk.GetTransaction({
-    transactionId: `${transactionId.toLowerCase()}-${user.toLowerCase()}-${routerAddress.toLowerCase()}`,
-  });
+  const tx = await sdk.request<GetTransactionQuery>((client) =>
+    client.GetTransaction({
+      transactionId: `${transactionId.toLowerCase()}-${user.toLowerCase()}-${routerAddress.toLowerCase()}`,
+    }),
+  );
 
   if (!tx.transaction) {
     return undefined;
@@ -417,7 +421,8 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
 
-  const assetBalanceId = `${assetId.toLowerCase()}-${wallet.address.toLowerCase()}`;
-  const bal = await sdk.GetAssetBalance({ assetBalanceId });
+  const routerAddress = await wallet.getAddress();
+  const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
+  const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };

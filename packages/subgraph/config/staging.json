@@ -1,0 +1,44 @@
+[
+  {
+    "subgraphName": "connext/nxtp-arbitrum-one-staging",
+    "network": "arbitrum-one",
+    "address": "0xF293D5d599c046681AB28c1Bc7927Fff859c67A7",
+    "startBlock": 244433
+  },
+  {
+    "subgraphName": "connext/nxtp-bsc-staging",
+    "network": "bsc",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 10370113
+  },
+  {
+    "subgraphName": "connext/nxtp-fantom-staging",
+    "network": "fantom",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 15584609
+  },
+  {
+    "subgraphName": "connext/nxtp-matic-staging",
+    "network": "matic",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 18421338
+  },
+  {
+    "subgraphName": "connext/nxtp-xdai-staging",
+    "network": "xdai",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 17774514
+  },
+  {
+    "subgraphName": "connext/nxtp-goerli-staging",
+    "network": "goerli",
+    "address": "0xD22dB9ad317A09384a86f310c973CDc350Bb510E",
+    "startBlock": 5336026
+  },
+  {
+    "subgraphName": "connext/nxtp-rinkeby-staging",
+    "network": "rinkeby",
+    "address": "0xe71678794fff8846bFF855f716b0Ce9d9a78E844",
+    "startBlock": 8970584
+  }
+]

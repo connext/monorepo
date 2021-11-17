@@ -7,7 +7,6 @@ export {
   PreparePayload,
   FulfillPayload,
   CancelPayload,
-  SubgraphSyncRecord,
 } from "./contractReader";
 
 export { PrepareInput, PrepareInputSchema } from "./prepare";

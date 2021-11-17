@@ -25,6 +25,7 @@ export const mochaHooks = {
   async beforeEach() {
     const walletMock = createStubInstance(Wallet);
     (walletMock as any).address = routerAddrMock; // need to do this differently bc the function doesnt exist on the interface
+    walletMock.getAddress.resolves(routerAddrMock);
     walletMock.signMessage.resolves(sigMock);
 
     txServiceMock = createStubInstance(TransactionService);
@@ -40,7 +41,7 @@ export const mochaHooks = {
       getActiveTransactions: stub().resolves([activeTransactionPrepareMock, activeTransactionFulfillMock]),
       getAssetBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
-      getSyncRecord: stub().returns({ synced: true, syncedBlock: 10000, latestBlock: 10000 }),
+      getSyncRecords: stub().returns([{ synced: true, syncedBlock: 10000, latestBlock: 10000, lag: 0, uri: "" }]),
     };
 
     contractWriterMock = {
@@ -48,6 +49,7 @@ export const mochaHooks = {
       fulfill: stub().resolves(txReceiptMock),
       prepare: stub().resolves(txReceiptMock),
       removeLiquidity: stub().resolves(txReceiptMock),
+      getRouterBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
     };
 
     ctxMock = {
