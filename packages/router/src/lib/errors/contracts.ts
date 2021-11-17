@@ -5,3 +5,13 @@ export class NotExistPriceOracle extends NxtpError {
     super(`Price Oracle doesn't exist for chain ${chainId}`, context, "NotExistPriceOracle");
   }
 }
+
+export class SanitationCheckFailed extends NxtpError {
+  constructor(sanitationType: string, transactionId: string, chainId: number, context: any = {}) {
+    super(
+      `Sanitation check failed for ${sanitationType} for chain ${chainId}, txId: ${transactionId} THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      context,
+      "SanitationCheckFailed",
+    );
+  }
+}
