@@ -13,6 +13,8 @@ import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
+export const SENDER_PREPARE_BUFFER_TIME = 60 * 5; // 5 mins
+
 export const cancel = async (
   invariantData: InvariantTransactionData,
   input: CancelInput,
@@ -20,7 +22,7 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter, contractReader } = getContext();
+  const { logger, contractWriter, contractReader, txService } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -65,6 +67,16 @@ export const cancel = async (
         requestContext,
         methodContext,
         existing,
+        currentTime,
+      });
+    }
+
+    const preparedBlock = await txService.getBlock(invariantData.sendingChainId, preparedBlockNumber);
+    if (preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME < currentTime) {
+      throw new ReceiverTxExists(invariantData.transactionId, invariantData.receivingChainId, {
+        requestContext,
+        methodContext,
+        preparedBlock,
         currentTime,
       });
     }
