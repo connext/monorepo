@@ -574,7 +574,7 @@ export class NxtpSdkBase {
     }
 
     const chosen = validBids.sort((a: AuctionResponse, b) => {
-      return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1; // TODO: #142 check this logic
+      return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
 
     return { ...chosen, metaTxRelayerFee: metaTxRelayerFee.toString() };
