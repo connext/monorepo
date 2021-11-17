@@ -3,6 +3,7 @@ import {
   createRequestContext,
   delay,
   jsonifyError,
+  RequestContext,
   RequestContextWithTransactionId,
   safeJsonStringify,
 } from "@connext/nxtp-utils";
@@ -43,8 +44,8 @@ export const handlingTracker: Map<string, Tracker> = new Map();
 
 export const bindContractReader = async () => {
   const { contractReader, logger, config } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("bindContractReader");
   setInterval(async () => {
+    const { requestContext, methodContext } = createLoggingContext("bindContractReader");
     let transactions: ActiveTransaction<any>[] = [];
     try {
       transactions = await contractReader.getActiveTransactions();
@@ -81,16 +82,21 @@ export const bindContractReader = async () => {
       });
     });
 
-    await handleActiveTransactions(transactions);
+    await handleActiveTransactions(transactions, requestContext);
   }, getLoopInterval());
 };
 
-export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
+export const handleActiveTransactions = async (
+  transactions: ActiveTransaction<any>[],
+  _requestContext?: RequestContext,
+) => {
   const { logger } = getContext();
   for (const transaction of transactions) {
     const { requestContext, methodContext } = createLoggingContext(
       handleActiveTransactions.name,
-      undefined,
+      typeof _requestContext === "object"
+        ? { ..._requestContext, transactionId: transaction.crosschainTx.invariant.transactionId }
+        : undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
 
