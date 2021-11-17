@@ -134,6 +134,24 @@ export class ChainReader {
   }
 
   /**
+   * Gets a block
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns block representing the specified
+   */
+  public async getBlock(
+    chainId: number,
+    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
+  ): Promise<providers.Block> {
+    const result = await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
    * Gets a trsanction receipt by hash
    *
    * @param chainId - The ID of the chain for which this call is related.

@@ -306,15 +306,11 @@ export class ChainRpcProvider {
       } else if (gasStations.length > 0 && gasPrice) {
         // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
         const providerQuote = await this.provider.getGasPrice();
-        this.logger.debug("Retrieved gas prices",
-          requestContext,
-          methodContext,
-          {
-            chainId: this.chainId,
-            gasStationQuote: gasPrice,
-            providerQuote,
-          }
-        );
+        this.logger.debug("Retrieved gas prices", requestContext, methodContext, {
+          chainId: this.chainId,
+          gasStationQuote: gasPrice,
+          providerQuote,
+        });
       }
 
       // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
@@ -345,7 +341,11 @@ export class ChainRpcProvider {
       }
 
       let hitMaximum = false;
-      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 100 && this.lastUsedGasPrice !== undefined) {
+      if (
+        gasPriceMaxIncreaseScalar !== undefined &&
+        gasPriceMaxIncreaseScalar > 100 &&
+        this.lastUsedGasPrice !== undefined
+      ) {
         // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
         const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
         if (gasPrice.gt(max)) {
@@ -414,6 +414,20 @@ export class ChainRpcProvider {
     return this.resultWrapper<number>(false, async () => {
       const block = await this.provider.getBlock("latest");
       return block.timestamp;
+    });
+  }
+
+  /**
+   * Gets the current block number.
+   *
+   * @returns A number representing the current block number.
+   */
+  public getBlock(
+    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
+  ): ResultAsync<providers.Block, TransactionError> {
+    return this.resultWrapper<providers.Block>(false, async () => {
+      const block = await this.provider.getBlock(blockHashOrBlockTag);
+      return block;
     });
   }
 

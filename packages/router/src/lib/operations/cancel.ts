@@ -12,6 +12,10 @@ import { getContext } from "../../router";
 import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { SenderTxTooNew } from "../errors/cancel";
+
+export const SENDER_PREPARE_BUFFER_TIME = 60 * 13; // 13 mins (780s)
+// bsc has 3s block time, is often given 250 lag blocks
 
 export const cancel = async (
   invariantData: InvariantTransactionData,
@@ -20,7 +24,7 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter, contractReader } = getContext();
+  const { logger, contractWriter, contractReader, txService } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -67,6 +71,23 @@ export const cancel = async (
         existing,
         currentTime,
       });
+    }
+
+    // prepare at 1000, 1000 > 2000 - 750
+    const preparedBlock = await txService.getBlock(invariantData.sendingChainId, preparedBlockNumber);
+    if (currentTime < preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME) {
+      throw new SenderTxTooNew(
+        invariantData.transactionId,
+        invariantData.sendingChainId,
+        preparedBlock.timestamp,
+        currentTime,
+        {
+          requestContext,
+          methodContext,
+          preparedBlock,
+          currentTime,
+        },
+      );
     }
   } else {
     cancelChain = invariantData.receivingChainId;
