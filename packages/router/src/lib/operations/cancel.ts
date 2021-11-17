@@ -12,6 +12,7 @@ import { getContext } from "../../router";
 import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { SenderTxTooNew } from "../errors/cancel";
 
 export const SENDER_PREPARE_BUFFER_TIME = 60 * 5; // 5 mins
 
@@ -73,12 +74,18 @@ export const cancel = async (
 
     const preparedBlock = await txService.getBlock(invariantData.sendingChainId, preparedBlockNumber);
     if (preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME < currentTime) {
-      throw new ReceiverTxExists(invariantData.transactionId, invariantData.receivingChainId, {
-        requestContext,
-        methodContext,
-        preparedBlock,
+      throw new SenderTxTooNew(
+        invariantData.transactionId,
+        invariantData.receivingChainId,
+        preparedBlock.timestamp,
         currentTime,
-      });
+        {
+          requestContext,
+          methodContext,
+          preparedBlock,
+          currentTime,
+        },
+      );
     }
   } else {
     cancelChain = invariantData.receivingChainId;
