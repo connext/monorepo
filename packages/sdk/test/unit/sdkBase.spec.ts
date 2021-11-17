@@ -584,6 +584,32 @@ describe("NxtpSdkBase", () => {
       expect(res.bid).to.be.eq(auctionBid);
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
+
+    it("happy: should sort multiple transfer quotes", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100000" }, gasFeeInReceivingToken: "0" },
+        });
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100002" }, gasFeeInReceivingToken: "0" },
+        });
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100004" }, gasFeeInReceivingToken: "0" },
+        });
+      }, 100);
+      const res = await sdk.getTransferQuote(crossChainParams);
+
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100004" });
+      expect(res.bidSignature).to.be.eq(bidSignature);
+    });
   });
 
   describe("#prepareTransfer", () => {
