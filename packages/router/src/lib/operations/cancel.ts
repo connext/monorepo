@@ -14,7 +14,8 @@ import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 import { SenderTxTooNew } from "../errors/cancel";
 
-export const SENDER_PREPARE_BUFFER_TIME = 60 * 5; // 5 mins
+export const SENDER_PREPARE_BUFFER_TIME = 60 * 13; // 13 mins (780s)
+// bsc has 3s block time, is often given 250 lag blocks
 
 export const cancel = async (
   invariantData: InvariantTransactionData,
