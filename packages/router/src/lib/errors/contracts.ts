@@ -9,7 +9,7 @@ export class NotExistPriceOracle extends NxtpError {
 export class SanitationCheckFailed extends NxtpError {
   constructor(sanitationType: string, transactionId: string, chainId: number, context: any = {}) {
     super(
-      `Sanitation check failed for ${sanitationType} for chain ${chainId}, txId: ${transactionId} THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      `Sanitation check failed for ${sanitationType} for chain ${chainId}, txId: ${transactionId}, tx is already on chain`,
       context,
       "SanitationCheckFailed",
     );
