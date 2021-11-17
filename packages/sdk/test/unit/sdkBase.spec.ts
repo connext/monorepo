@@ -585,7 +585,7 @@ describe("NxtpSdkBase", () => {
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
 
-    it.only("happy: should sort multiple transfer quotes", async () => {
+    it("happy: should sort multiple transfer quotes", async () => {
       const { crossChainParams, auctionBid, bidSignature } = getMock();
 
       recoverAuctionBidMock.returns(auctionBid.router);
