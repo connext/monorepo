@@ -128,7 +128,7 @@ const config: HardhatUserConfig = {
     matic: {
       accounts: { mnemonic },
       chainId: 137,
-      url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://matic-mainnet.chainstacklabs.com",
+      url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://polygon-rpc.com",
     },
     ftm: {
       accounts: { mnemonic },
