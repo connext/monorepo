@@ -12,6 +12,7 @@ export class SanitationCheckFailed extends NxtpError {
       `Sanitation check failed for ${sanitationType} for chain ${chainId}, txId: ${transactionId}, tx is already on chain`,
       context,
       "SanitationCheckFailed",
+      "info",
     );
   }
 }
