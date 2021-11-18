@@ -96,11 +96,17 @@ export const handleActiveTransactions = async (
     // check if transactionId is already handled for respective chainId
     if (
       handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
-      transaction.status === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status
+      (transaction.status === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status ||
+        handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status === "Processing")
     ) {
       logger.debug("Already handling transaction", requestContext, methodContext, { status: transaction.status });
       continue;
     }
+
+    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
+      status: "Processing",
+      chainId,
+    });
 
     handleSingle(transaction, requestContext)
       .then((result) => {
