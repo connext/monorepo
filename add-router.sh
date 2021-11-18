@@ -26,7 +26,7 @@ then
   chains=("ropsten" "rinkeby" "goerli" "kovan" "chapel" "mumbai" "arbitrum-rinkeby" "fuji" "optimism-kovan" "mbase")
 elif [ "$network" = "mainnets" ]
 then
-  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet" "moonriver", "optimism")
+  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet" "moonriver" "optimism")
 else
   echo "Network must be 'testnets' or 'mainnets'"
   exit 1
