@@ -337,7 +337,7 @@ export class ChainRpcProvider {
       }
 
       // If the gas price is less than the gas minimum, bump it up to minimum.
-      if (NO_GAS_MIN_CHAIN_IDS.includes(this.chainId)) {
+      if (!NO_GAS_MIN_CHAIN_IDS.includes(this.chainId)) {
         const min = BigNumber.from(gasMinimum);
         if (gasPrice.lt(min)) {
           gasPrice = min;
