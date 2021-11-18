@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.84
+
 - [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
 - [txservice] Remove min gas enforcement for optimism
 - [router] Ensure handling tracker is pruned properly
