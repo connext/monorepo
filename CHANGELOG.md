@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.83
+
 - [router] Track handling transactions by status over block
 
 ## 0.0.82
