@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
+
 ## 0.0.83
 
 - [router] Track handling transactions by status over block
