@@ -43,7 +43,7 @@ export const getLoopInterval = () => LOOP_INTERVAL;
 export const handlingTracker: Map<string, Tracker> = new Map();
 
 export const bindContractReader = async () => {
-  const { contractReader, logger, config } = getContext();
+  const { contractReader, logger } = getContext();
   setInterval(async () => {
     const { requestContext, methodContext } = createLoggingContext("bindContractReader");
     let transactions: ActiveTransaction<any>[] = [];
@@ -64,25 +64,7 @@ export const bindContractReader = async () => {
       return;
     }
 
-    // subgraph buffer
-    // remove records only iff transaction handled mined block is synced with respective chain subgraph
-    Object.entries(config.chainConfig).forEach(async ([chainId]) => {
-      const records = await contractReader.getSyncRecords(Number(chainId));
-      const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
-      handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
-          logger.debug("Deleting Tracker Record", requestContext, methodContext, {
-            transactionId: key,
-            chainId: chainId,
-            blockNumber: value.blockNumber,
-            syncedBlock: highestSyncedBlock,
-          });
-          handlingTracker.delete(key);
-        }
-      });
-    });
-
-    await handleActiveTransactions(transactions, requestContext);
+    await handleActiveTransactions(transactions);
   }, getLoopInterval());
 };
 
@@ -114,16 +96,11 @@ export const handleActiveTransactions = async (
     // check if transactionId is already handled for respective chainId
     if (
       handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
-      chainId === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.chainId
+      transaction.status === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status
     ) {
-      logger.debug("Already handling transaction", requestContext, methodContext);
+      logger.debug("Already handling transaction", requestContext, methodContext, { status: transaction.status });
       continue;
     }
-
-    handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-      blockNumber: -1,
-      chainId,
-    });
 
     handleSingle(transaction, requestContext)
       .then((result) => {
@@ -131,7 +108,7 @@ export const handleActiveTransactions = async (
 
         if (result && result.blockNumber) {
           handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-            blockNumber: result.blockNumber,
+            status: transaction.status,
             chainId,
           });
         } else {

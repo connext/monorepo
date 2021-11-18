@@ -2,9 +2,11 @@
 
 ## Next Release
 
+- [router] Track handling transactions by status over block
+
 ## 0.0.82
 
-- [router] add time-delay for sender cancellations
+- [router] Add time-delay for sender cancellations
 
 ## 0.0.81
 
