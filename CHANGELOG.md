@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [txservice] Remove min gas enforcement for optimism
+- [router] Ensure handling tracker is pruned properly
+
 ## 0.0.83
 
 - [router] Track handling transactions by status over block
