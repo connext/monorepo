@@ -17,7 +17,7 @@ then
   exit 1;
 fi
 
-echo "Deploying $deployment to $network..."
+echo "Adding $router to $network..."
 
 # Network names must match whats in the packages/contracts/hardhat.config.ts
 # to be used correctly.
@@ -26,7 +26,7 @@ then
   chains=("ropsten" "rinkeby" "goerli" "kovan" "chapel" "mumbai" "arbitrum-rinkeby" "fuji" "optimism-kovan" "mbase")
 elif [ "$network" = "mainnets" ]
 then
-  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet" "moonriver")
+  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet" "moonriver", "optimism")
 else
   echo "Network must be 'testnets' or 'mainnets'"
   exit 1
