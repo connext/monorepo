@@ -38,6 +38,13 @@ export const prepare = async (
   const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
+  // HOTFIX: add sanitation check before cancellable validation
+  await contractWriter.sanitationCheck(
+    invariantData.receivingChainId,
+    { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
+    "prepare",
+  );
+
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);

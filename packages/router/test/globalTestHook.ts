@@ -50,6 +50,7 @@ export const mochaHooks = {
       prepare: stub().resolves(txReceiptMock),
       removeLiquidity: stub().resolves(txReceiptMock),
       getRouterBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
+      sanitationCheck: stub().resolves(),
     };
 
     ctxMock = {
