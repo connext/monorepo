@@ -63,7 +63,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
       const address = await signer.getAddress();
 
-      const _balance = await getUserBalance(sendingChain, signer);
+      const _balance = await getUserBalance(
+        typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain),
+        signer,
+      );
       console.log("_balance: ", _balance);
       setUserBalance(_balance);
       form.setFieldsValue({ receivingAddress: address });
@@ -238,17 +241,20 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     init();
   }, [web3Provider, signer]);
 
-  const getUserBalance = async (chainId: number, _signer: Signer) => {
+  const getUserBalance = async (_chainId: number, _signer: Signer) => {
+    if (_chainId === 0) {
+      return BigNumber.from(0);
+    }
     const address = await _signer.getAddress();
-    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[chainId];
+    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[_chainId];
     console.log("sendingAssetId: ", sendingAssetId);
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
     }
-    if (!chainProviders || !chainProviders[chainId]) {
-      throw new Error("No config for chainId");
+    if (!chainProviders || !chainProviders[_chainId]) {
+      throw new Error(`No config for chainId: ${_chainId}. Supported: ${Object.keys(chainProviders).toString()}`);
     }
-    const _balance = await getBalance(address, sendingAssetId, chainProviders[chainId].provider);
+    const _balance = await getBalance(address, sendingAssetId, chainProviders[_chainId].provider);
     return _balance;
   };
 
@@ -601,7 +607,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             console.error("No signer available");
                             return;
                           }
-                          const _balance = await getUserBalance(val as number, signer);
+                          const _balance = await getUserBalance(
+                            typeof val === "number" ? val : parseInt(val as string),
+                            signer,
+                          );
                           setUserBalance(_balance);
                         }}
                       >
