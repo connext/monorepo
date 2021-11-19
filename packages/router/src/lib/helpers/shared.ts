@@ -4,8 +4,7 @@ import {
   GAS_ESTIMATES,
   getChainData,
 } from "@connext/nxtp-utils";
-import { getAddress } from "@ethersproject/address";
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getDeployedChainIdsForGasFee } from "../../config";
@@ -28,7 +27,7 @@ export const getMainnetEquivalent = async (
   }
   const chain = chainData.get(chainId.toString())!;
   const equiv =
-    chain.assetId[getAddress(assetId)] ??
+    chain.assetId[utils.getAddress(assetId)] ??
     chain.assetId[assetId.toLowerCase()] ??
     chain.assetId[assetId.toUpperCase()] ??
     chain.assetId[assetId];
@@ -36,7 +35,7 @@ export const getMainnetEquivalent = async (
   if (!equiv || !equiv.mainnetEquivalent || !equiv.decimals) {
     throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
   }
-  return { address: getAddress(equiv.mainnetEquivalent), decimals: equiv.decimals };
+  return { address: utils.getAddress(equiv.mainnetEquivalent), decimals: equiv.decimals };
 };
 
 /**
