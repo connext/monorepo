@@ -18,22 +18,25 @@ export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
 
-export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
+export const getMainnetEquivalent = async (
+  assetId: string,
+  chainId: number,
+): Promise<{ address: string; decimals: number }> => {
   const chainData = await getChainData();
   if (!chainData || !chainData.has(chainId.toString())) {
     throw new Error(`No chain data found for ${chainId}`);
   }
   const chain = chainData.get(chainId.toString())!;
   const equiv =
-    chain.assetId[getAddress(assetId)]?.mainnetEquivalent ??
-    chain.assetId[assetId.toLowerCase()]?.mainnetEquivalent ??
-    chain.assetId[assetId.toUpperCase()]?.mainnetEquivalent ??
-    chain.assetId[assetId]?.mainnetEquivalent;
+    chain.assetId[getAddress(assetId)] ??
+    chain.assetId[assetId.toLowerCase()] ??
+    chain.assetId[assetId.toUpperCase()] ??
+    chain.assetId[assetId];
 
-  if (!equiv) {
+  if (!equiv || !equiv.mainnetEquivalent || !equiv.decimals) {
     throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
   }
-  return getAddress(equiv);
+  return { address: getAddress(equiv.mainnetEquivalent), decimals: equiv.decimals };
 };
 
 /**
@@ -43,7 +46,7 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
- * @param outputDecimals Decimal number of receiving asset
+ * @param _outputDecimals Decimal number of receiving asset
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (
@@ -51,7 +54,7 @@ export const calculateGasFeeInReceivingToken = async (
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
-  outputDecimals: number,
+  _outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   // NOTE: hardcoding in optimism to allow for fees before oracle can be
@@ -74,9 +77,15 @@ export const calculateGasFeeInReceivingToken = async (
   const tokenPricingReceivingChain = receivingChainId === 10 ? 1 : receivingChainId;
 
   const tokenPricingAssetIdSendingChain =
-    sendingChainId === 10 ? await getMainnetEquivalent(sendingAssetId, sendingChainId) : sendingAssetId;
+    sendingChainId === 10 ? (await getMainnetEquivalent(sendingAssetId, sendingChainId)).address : sendingAssetId;
   const tokenPricingAssetIdReceivingChain =
-    receivingChainId === 10 ? await getMainnetEquivalent(receivingAssetId, receivingChainId) : receivingAssetId;
+    receivingChainId === 10
+      ? (await getMainnetEquivalent(receivingAssetId, receivingChainId)).address
+      : receivingAssetId;
+  const outputDecimals =
+    receivingChainId === 10
+      ? (await getMainnetEquivalent(receivingAssetId, receivingChainId)).decimals
+      : _outputDecimals;
 
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
