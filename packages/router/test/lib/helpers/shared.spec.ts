@@ -47,8 +47,7 @@ describe("getChainIdsForGasFee", () => {
 describe("getMainnetEquivalent", () => {
   it("should work", async () => {
     const result = await shared.getMainnetEquivalent(constants.AddressZero, 100);
-    expect(result.address).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
-    expect(result.decimals).to.be.eq(18);
+    expect(result).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
   });
 });
 

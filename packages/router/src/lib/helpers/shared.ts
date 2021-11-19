@@ -10,6 +10,8 @@ import { getOracleContractAddress, getPriceOracleInterface } from "../../adapter
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
+const NO_ORACLE_CHAINS = [10];
+
 /**
  * Helper to allow easy mocking
  */
@@ -17,10 +19,13 @@ export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
 
-export const getMainnetEquivalent = async (
-  assetId: string,
-  chainId: number,
-): Promise<{ address: string; decimals: number }> => {
+/**
+ * Returns the mainnet equivalent of the given asset on the given chain.
+ * @param assetId Address you want mainnet equivalent of
+ * @param chainId Chain your asset lives on
+ * @returns Address of equivalent asset on mainnet
+ */
+export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
   const chainData = await getChainData();
   if (!chainData || !chainData.has(chainId.toString())) {
     throw new Error(`No chain data found for ${chainId}`);
@@ -32,10 +37,24 @@ export const getMainnetEquivalent = async (
     chain.assetId[assetId.toUpperCase()] ??
     chain.assetId[assetId];
 
-  if (!equiv || !equiv.mainnetEquivalent || !equiv.decimals) {
+  if (!equiv || !equiv.mainnetEquivalent) {
     throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
   }
-  return { address: utils.getAddress(equiv.mainnetEquivalent), decimals: equiv.decimals };
+  return utils.getAddress(equiv.mainnetEquivalent);
+};
+
+/**
+ * Returns the decimals of mainnet equivalent of the given asset on the given chain.
+ * @param assetId Address you want mainnet equivalent of
+ * @param chainId Chain your asset lives on
+ * @returns Decimals of equivalent asset on mainnet
+ */
+export const getMainnetDecimals = async (assetId: string, chainId: number): Promise<number> => {
+  const mainnet = await getMainnetEquivalent(assetId, chainId);
+
+  const { txService } = getContext();
+  const decimals = await txService.getDecimalsForAsset(1, mainnet);
+  return decimals;
 };
 
 /**
@@ -72,19 +91,18 @@ export const calculateGasFeeInReceivingToken = async (
 
   // NOTE: to handle optimism gas fees before oracle is deployed, use mainnet
   // oracle token pricing and optimism gas price
-  const tokenPricingSendingChain = sendingChainId === 10 ? 1 : sendingChainId;
-  const tokenPricingReceivingChain = receivingChainId === 10 ? 1 : receivingChainId;
+  const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
+  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
 
-  const tokenPricingAssetIdSendingChain =
-    sendingChainId === 10 ? (await getMainnetEquivalent(sendingAssetId, sendingChainId)).address : sendingAssetId;
-  const tokenPricingAssetIdReceivingChain =
-    receivingChainId === 10
-      ? (await getMainnetEquivalent(receivingAssetId, receivingChainId)).address
-      : receivingAssetId;
-  const outputDecimals =
-    receivingChainId === 10
-      ? (await getMainnetEquivalent(receivingAssetId, receivingChainId)).decimals
-      : _outputDecimals;
+  const tokenPricingAssetIdSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId)
+    ? await getMainnetEquivalent(sendingAssetId, sendingChainId)
+    : sendingAssetId;
+  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
+    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
+    : receivingAssetId;
+  const outputDecimals = NO_ORACLE_CHAINS.includes(receivingChainId)
+    ? await getMainnetDecimals(receivingAssetId, receivingChainId)
+    : _outputDecimals;
 
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
@@ -133,7 +151,8 @@ export const calculateGasFeeInReceivingToken = async (
     totalCost = totalCost.add(tokenAmountForGasFee);
   }
 
-  return totalCost;
+  // convert back to the intended decimals
+  return totalCost.div(BigNumber.from(10).pow(18 - _outputDecimals));
 };
 
 /**
