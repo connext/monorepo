@@ -1,4 +1,10 @@
-import { getNtpTimeSeconds as _getNtpTimeSeconds, RequestContext, GAS_ESTIMATES } from "@connext/nxtp-utils";
+import {
+  getNtpTimeSeconds as _getNtpTimeSeconds,
+  RequestContext,
+  GAS_ESTIMATES,
+  getChainData,
+} from "@connext/nxtp-utils";
+import { getAddress } from "@ethersproject/address";
 import { BigNumber, constants } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
@@ -10,6 +16,24 @@ import { getContext } from "../../router";
  */
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
+};
+
+const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
+  const chainData = await getChainData();
+  if (!chainData || !chainData.has(chainId.toString())) {
+    throw new Error(`No chain data found for ${chainId}`);
+  }
+  const chain = chainData.get(chainId.toString())!;
+  const equiv =
+    chain.assetId[getAddress(assetId)]?.mainnetEquivalent ??
+    chain.assetId[assetId.toLowerCase()]?.mainnetEquivalent ??
+    chain.assetId[assetId.toUpperCase()]?.mainnetEquivalent ??
+    chain.assetId[assetId]?.mainnetEquivalent;
+
+  if (!equiv) {
+    throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
+  }
+  return getAddress(equiv);
 };
 
 /**
@@ -30,7 +54,9 @@ export const calculateGasFeeInReceivingToken = async (
   outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const chaindIdsForGasFee = getChainIdForGasFee();
+  // NOTE: hardcoding in optimism to allow for fees before oracle can be
+  // properly deployed
+  const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
 
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
@@ -42,15 +68,31 @@ export const calculateGasFeeInReceivingToken = async (
   // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
   // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
 
+  // NOTE: to handle optimism gas fees before oracle is deployed, use mainnet
+  // oracle token pricing and optimism gas price
+  const tokenPricingSendingChain = sendingChainId === 10 ? 1 : sendingChainId;
+  const tokenPricingReceivingChain = receivingChainId === 10 ? 1 : receivingChainId;
+
+  const tokenPricingAssetIdSendingChain =
+    sendingChainId === 10 ? await getMainnetEquivalent(sendingAssetId, sendingChainId) : sendingAssetId;
+  const tokenPricingAssetIdReceivingChain =
+    receivingChainId === 10 ? await getMainnetEquivalent(receivingAssetId, receivingChainId) : receivingAssetId;
+
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
     const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
-      getTokenPrice(sendingChainId, constants.AddressZero, requestContext),
-      getTokenPrice(sendingChainId, sendingAssetId, requestContext),
+      getTokenPrice(tokenPricingSendingChain, constants.AddressZero, requestContext),
+      getTokenPrice(tokenPricingSendingChain, tokenPricingAssetIdSendingChain, requestContext),
       getGasPrice(sendingChainId, requestContext),
     ]);
 
-    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (sendingChainId === 10) {
+      const gasPriceMainnet = await getGasPrice(1, requestContext);
+      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.fulfillL1).mul(ethPriceInSendingChain);
+    }
+    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain).add(l1GasInUsd);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
@@ -61,12 +103,21 @@ export const calculateGasFeeInReceivingToken = async (
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
     const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-      getTokenPrice(receivingChainId, constants.AddressZero, requestContext),
-      getTokenPrice(receivingChainId, receivingAssetId, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, constants.AddressZero, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, tokenPricingAssetIdReceivingChain, requestContext),
       getGasPrice(receivingChainId, requestContext),
     ]);
 
-    const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (receivingChainId === 10) {
+      const gasPriceMainnet = await getGasPrice(1, requestContext);
+      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
+    }
+    const gasAmountInUsd = gasPriceInReceivingChain
+      .mul(gasLimitForPrepare)
+      .mul(ethPriceInReceivingChain)
+      .add(l1GasInUsd);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
