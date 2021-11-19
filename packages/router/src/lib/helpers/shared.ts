@@ -18,7 +18,7 @@ export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
 
-const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
+export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
   const chainData = await getChainData();
   if (!chainData || !chainData.has(chainId.toString())) {
     throw new Error(`No chain data found for ${chainId}`);
