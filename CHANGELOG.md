@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [router] Add optimism fees using mainnet pricing
+- [test-ui] Minor error fixes
+
 ## 0.0.84
 
 - [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
