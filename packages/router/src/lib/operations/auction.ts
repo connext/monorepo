@@ -191,16 +191,6 @@ export const newAuction = async (
     receivingChainIdx,
   });
 
-  const [senderLiquidity, receiverLiquidity] = await Promise.all([
-    contractReader.getAssetBalance(sendingAssetId, sendingChainId),
-    contractReader.getAssetBalance(receivingAssetId, receivingChainId),
-  ]);
-
-  logger.info("Got asset liquidity", requestContext, methodContext, {
-    senderLiquidity: senderLiquidity.toString(),
-    receiverLiquidity: receiverLiquidity.toString(),
-  });
-
   const allowedVAMM = config.allowedVAMM;
   // getting the swap amount from the receiver side config
   let amountReceived = await getReceiverAmount(
@@ -247,15 +237,12 @@ export const newAuction = async (
 
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
-  if (receiverLiquidity.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
+  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  if (balance.lt(amountReceived)) {
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
       requestContext,
-      balance: receiverLiquidity.toString(),
-      amountReceived: amountReceived.toString(),
-      amount,
-      receivingAssetId,
-      receivingChainId,
     });
   }
 

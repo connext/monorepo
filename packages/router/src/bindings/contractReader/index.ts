@@ -51,14 +51,12 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("Got active transactions", requestContext, methodContext, {
-          transactions: transactions.length,
-        });
-        logger.debug("Got active transactions", requestContext, methodContext, {
-          transactions,
-        });
-        logger.debug("handling tracker", requestContext, methodContext, {
+        logger.info("active and handling tracker", requestContext, methodContext, {
+          transactionsLength: transactions.length,
           handlingTrackerLength: handlingTracker.size,
+        });
+        logger.debug("active and handling tracker details", requestContext, methodContext, {
+          transactions: transactions,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -234,6 +232,7 @@ export const handleSingle = async (
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
+        return;
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,

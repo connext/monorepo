@@ -10,8 +10,12 @@ export class NotEnoughAmount extends NxtpError {
 
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
-  constructor(chainId: number, context: any = {}) {
-    super(`Not enough liquidity for chainId ${chainId}`, context, "NotEnoughLiquidity");
+  constructor(chainId: number, assetId: string, balance: string, required: string, context: any = {}) {
+    super(
+      `Not enough liquidity for chainId ${chainId}, assetId: ${assetId}, balance: ${balance}, ${required}`,
+      context,
+      "NotEnoughLiquidity",
+    );
   }
 }
 

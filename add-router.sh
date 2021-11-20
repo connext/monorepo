@@ -23,10 +23,10 @@ echo "Deploying $deployment to $network..."
 # to be used correctly.
 if [ "$network" = "testnets" ]
 then
-  chains=("ropsten" "rinkeby" "goerli" "kovan" "chapel" "mumbai" "arbitrum-rinkeby" "fuji" "optimism-kovan" "moonriver" "mbase")
+  chains=("ropsten" "rinkeby" "goerli" "kovan" "chapel" "mumbai" "arbitrum-rinkeby" "fuji" "optimism-kovan" "mbase")
 elif [ "$network" = "mainnets" ]
 then
-  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet")
+  chains=("xdai" "bsc" "ftm" "matic" "arbitrum-one" "avalanche" "mainnet" "moonriver")
 else
   echo "Network must be 'testnets' or 'mainnets'"
   exit 1

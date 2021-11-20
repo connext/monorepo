@@ -1,5 +1,5 @@
 {
-  "version": "0.0.79",
+  "version": "0.0.81",
   "name": "@connext/nxtp-subgraph",
   "license": "UNLICENSED",
   "scripts": {
@@ -10,9 +10,11 @@
     "purge": "yarn clean && rimraf ./node_modules",
     "deploy": "ts-node ./src/deploy.ts",
     "deploy:v0": "yarn deploy v0 v0",
-    "deploy:prod": "yarn deploy v1 prod",
-    "deploy:staging": "yarn deploy v1 staging",
-    "prepare:local": "yarn deploy v1 local mainnet",
+    "deploy:v1-analytics": "yarn deploy v1-analytics v1-analytics",
+    "deploy:v1-runtime": "yarn deploy v1-runtime v1-runtime",
+    "deploy:prod": "yarn deploy v1-analytics prod",
+    "deploy:staging": "yarn deploy v1-analytics staging",
+    "prepare:local": "yarn deploy v1-analytics local mainnet",
     "create-local-bsc": "graph create --node http://18.220.212.104:8020/ connext/nxtp-bsc",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
     "remove-local-1337": "graph remove --node http://localhost:8020/ connext/nxtp",

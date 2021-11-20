@@ -60,8 +60,14 @@ describe("Prepare Receiver Operation", () => {
       );
     });
 
+    it("should not error if router liquidity is too low but onchain is okay", async () => {
+      (contractReaderMock.getAssetBalance as SinonStub).resolves(constants.One);
+      await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.ok;
+    });
+
     it("should error if router liquidity is too low", async () => {
       (contractReaderMock.getAssetBalance as SinonStub).resolves(constants.One);
+      (contractWriterMock.getRouterBalance as SinonStub).resolves(constants.One);
       await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Not enough liquidity",
       );

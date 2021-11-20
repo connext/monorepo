@@ -99,8 +99,10 @@ type DayMetric @entity {
   dayStartTimestamp: BigInt!
   # assetId
   assetId: String!
-  # hourly volume per asset
+  # day volume per asset
   volume: BigInt!
-  # hourly number of transactions per asset
+  # day number of transactions per asset
   txCount: BigInt!
+  # day number of sending transactions from the chain per asset
+  sendingTxCount: BigInt!
 }

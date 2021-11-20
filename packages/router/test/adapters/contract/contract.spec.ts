@@ -32,8 +32,7 @@ describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
-    stub(ContractFns, "prepareSanitationCheck").resolves();
-    stub(ContractFns, "cancelAndFullfillSanitationCheck").resolves();
+    stub(ContractFns, "sanitationCheck").resolves();
     stub(ContractFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
   });
 
