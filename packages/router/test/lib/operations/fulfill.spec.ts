@@ -3,6 +3,8 @@ import { createRequestContext, invariantDataMock, txReceiptMock, expect } from "
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
 import { fulfillInputMock } from "../../utils";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
+import { stub } from "sinon";
 
 const requestContext = createRequestContext("TEST");
 
@@ -10,6 +12,9 @@ const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
   describe("#fulfillReceiver", () => {
+    beforeEach(() => {
+      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
+    });
     it("should error if invariant data validation fails", async () => {
       const _invariantDataMock = { ...invariantDataMock, user: "abc" };
       await expect(fulfill(_invariantDataMock, fulfillInputMock, requestContext)).to.eventually.be.rejectedWith(

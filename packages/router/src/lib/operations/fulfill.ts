@@ -11,7 +11,7 @@ import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
-import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
+import { calculateGasFeeInReceivingTokenForFulfill, getDecimalsForAsset } from "../helpers/shared";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -74,15 +74,7 @@ export const fulfill = async (
     // Send to tx service
     logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
 
-    let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[
-      invariantData.receivingAssetId
-    ]?.decimals;
-    if (!outputDecimals) {
-      outputDecimals = await txService.getDecimalsForAsset(
-        invariantData.receivingChainId,
-        invariantData.receivingAssetId,
-      );
-    }
+    let outputDecimals = await getDecimalsForAsset(invariantData.receivingChainId, invariantData.receivingAssetId);
     logger.info("Got output decimals", requestContext, methodContext, { outputDecimals });
     const expectedFulfillFee = await calculateGasFeeInReceivingTokenForFulfill(
       invariantData.receivingAssetId,

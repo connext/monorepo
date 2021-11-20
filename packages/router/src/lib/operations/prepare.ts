@@ -6,6 +6,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
+import { pendingLiquidityMap } from "../../bindings/contractReader";
 
 import { getContext } from "../../router";
 import { PrepareInput, PrepareInputSchema } from "../entities";
@@ -26,7 +27,12 @@ import {
   validBidExpiry,
   validExpiryBuffer,
 } from "../helpers";
-import { calculateGasFeeInReceivingToken, getDecimalsForAsset, getSwapIdxList } from "../helpers/shared";
+import {
+  calculateGasFeeInReceivingToken,
+  getDecimalsForAsset,
+  getRouterBalancesFromSwapPool,
+  getSwapIdxList,
+} from "../helpers/shared";
 
 export const prepare = async (
   invariantData: InvariantTransactionData,
@@ -90,15 +96,7 @@ export const prepare = async (
   const swapPool = config.swapPools[swapPoolIdx];
   // Gets router balances in ether to get swap amount using stableMath.
   // StableMath requires all the balances to have the same units. that's why.
-  const routerBalancesInEther = await Promise.all(
-    swapPool.assets.map(async (asset) => {
-      const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
-      const assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
-      // convert asset liquidity into 18 decimal value.
-      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
-      return res;
-    }),
-  );
+  const routerBalancesInEther = await getRouterBalancesFromSwapPool(swapPool, pendingLiquidityMap);
 
   const inputDecimals = await getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
   const outputDecimals = await getDecimalsForAsset(invariantData.receivingChainId, invariantData.receivingAssetId);

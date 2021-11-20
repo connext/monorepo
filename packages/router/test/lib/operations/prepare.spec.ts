@@ -31,6 +31,7 @@ describe("Prepare Receiver Operation", () => {
     beforeEach(() => {
       stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
+      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
       validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);

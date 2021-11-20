@@ -25,7 +25,13 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken, getDecimalsForAsset, getSwapIdxList } from "../helpers/shared";
+import {
+  calculateGasFeeInReceivingToken,
+  getDecimalsForAsset,
+  getRouterBalancesFromSwapPool,
+  getSwapIdxList,
+} from "../helpers/shared";
+import { pendingLiquidityMap } from "../../bindings/contractReader";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -177,16 +183,7 @@ export const newAuction = async (
   const swapPool = config.swapPools[swapPoolIdx];
   // Gets router balances in ether to get swap amount using stableMath.
   // StableMath requires all the balances to have the same units. that's why.
-  const routerBalancesInEther = await Promise.all(
-    swapPool.assets.map(async (asset) => {
-      const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
-      let assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
-      let poolWeight = config.chainConfig[asset.chainId].weight;
-      // convert asset liquidity into 18 decimal value and multiply its weight.
-      const res = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals)).mul(BigNumber.from(poolWeight));
-      return res;
-    }),
-  );
+  const routerBalancesInEther = await getRouterBalancesFromSwapPool(swapPool, pendingLiquidityMap);
 
   logger.info("Got balances of router with 18 decimals", requestContext, methodContext, {
     routerBalances: routerBalancesInEther.map((balance) => balance.toString()),

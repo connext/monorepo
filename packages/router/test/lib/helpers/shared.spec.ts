@@ -2,12 +2,20 @@ import { createMethodContext, createRequestContext, expect, jsonifyError, mkAddr
 import { BigNumber } from "@ethersproject/bignumber";
 import Sinon, { stub } from "sinon";
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
-import { getChainIdForGasFee, getGasPrice, getSwapIdxList, getTokenPrice } from "../../../src/lib/helpers/shared";
+import {
+  getChainIdForGasFee,
+  getGasPrice,
+  getRouterBalancesFromSwapPool,
+  getSwapIdxList,
+  getTokenPrice,
+} from "../../../src/lib/helpers/shared";
 import { txServiceMock } from "../../globalTestHook";
 
 import * as ContractHelperFns from "../../../src/adapters/contract/contract";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { constants } from "ethers";
 import { SwapInvalid } from "../../../src/lib/errors";
+import { configMock } from "../../utils";
 
 const requestContext = createRequestContext("TEST");
 const methodContext = createMethodContext("TEST");
@@ -83,5 +91,19 @@ describe("getSwapIdxList", () => {
     } catch (e) {
       expect(e.message).to.be.eq(err.message);
     }
+  });
+});
+
+describe("getRouterBalancesFromSwapPool", () => {
+  beforeEach(() => {
+    stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
+  });
+  it("should work", async () => {
+    const pendingLiquidityMap: Map<number, BigNumber> = new Map();
+    pendingLiquidityMap.set(1337, BigNumber.from("1000000000000000"));
+
+    const result = await getRouterBalancesFromSwapPool(configMock.swapPools[0], pendingLiquidityMap);
+    expect(result[0].toString()).to.be.eq("10001001000000000000000");
+    expect(result[1].toString()).to.be.eq("10001000000000000000000");
   });
 });

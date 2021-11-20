@@ -8,7 +8,7 @@ import { BigNumber, constants } from "ethers";
 import { getAddress } from "ethers/lib/utils";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
-import { getDeployedChainIdsForGasFee } from "../../config";
+import { getDeployedChainIdsForGasFee, NxtpRouterSwapPool } from "../../config";
 import { getContext } from "../../router";
 import { SwapValidInput } from "../entities";
 import { SwapInvalid } from "../errors";
@@ -224,4 +224,36 @@ export const getSwapIdxList = (
     receivingChainIdx,
     swapPoolIdx,
   };
+};
+
+/**
+ * Gets router balances from swap pool for each chain.
+ *
+ * @param swapPool - The swap pool config of router
+ * @param pendingLiquidityMap - The sendingChain funds locked in `prepare` transactions
+ */
+export const getRouterBalancesFromSwapPool = async (
+  swapPool: NxtpRouterSwapPool,
+  pendingLiquidityMap: Map<number, BigNumber>,
+): Promise<BigNumber[]> => {
+  const { contractReader, config } = getContext();
+  const routerBalancesInEther = await Promise.all(
+    swapPool.assets.map(async (asset) => {
+      const assetLiquidity = await contractReader.getAssetBalance(asset.assetId, asset.chainId);
+      let assetDecimals = await getDecimalsForAsset(asset.chainId, asset.assetId);
+      let poolWeight = config.chainConfig[asset.chainId].weight;
+      // convert asset liquidity into 18 decimal value.
+      const assetBalanceFromSubgraph = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
+      let pendingBalance = pendingLiquidityMap.get(asset.chainId);
+      if (!pendingBalance) {
+        pendingBalance = BigNumber.from(0);
+      }
+
+      // multiply pool weight
+      const res = assetBalanceFromSubgraph.add(pendingBalance).mul(BigNumber.from(poolWeight));
+      return res;
+    }),
+  );
+
+  return routerBalancesInEther;
 };

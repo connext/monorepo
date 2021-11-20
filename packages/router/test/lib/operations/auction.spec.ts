@@ -46,6 +46,8 @@ describe("Auction Operation", () => {
 
       stub(SharedHelperFns, "getGasPrice").resolves(BigNumber.from("100000000000"));
 
+      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
+
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
 
       getChainIdForGasFeeStub = stub(SharedHelperFns, "getChainIdForGasFee").returns([1337]);

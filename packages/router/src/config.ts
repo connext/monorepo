@@ -110,6 +110,8 @@ export const TSwapPool = Type.Object({
   ),
 });
 
+export type NxtpRouterSwapPool = Static<typeof TSwapPool>;
+
 export const NxtpRouterConfigSchema = Type.Object({
   adminToken: Type.String(),
   chainConfig: Type.Record(TIntegerString, TChainConfig),
