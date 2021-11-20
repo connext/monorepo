@@ -82,7 +82,8 @@ export class ChainReader {
     if (result.isErr()) {
       throw result.error;
     } else {
-      return result.value;
+      // bump gas price
+      return result.value.mul(120).div(100);
     }
   }
 
@@ -125,6 +126,24 @@ export class ChainReader {
    */
   public async getBlockNumber(chainId: number): Promise<number> {
     const result = await this.getProvider(chainId).getBlockNumber();
+    if (result.isErr()) {
+      throw result.error;
+    } else {
+      return result.value;
+    }
+  }
+
+  /**
+   * Gets a block
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns block representing the specified
+   */
+  public async getBlock(
+    chainId: number,
+    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
+  ): Promise<providers.Block> {
+    const result = await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
     if (result.isErr()) {
       throw result.error;
     } else {

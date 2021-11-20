@@ -1,17 +1,19 @@
 import {
   getNtpTimeSeconds as _getNtpTimeSeconds,
   RequestContext,
-  GAS_ESTIMATES,
   MethodContext,
+  GAS_ESTIMATES,
+  getChainData,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
-import { getAddress } from "ethers/lib/utils";
+import { BigNumber, constants, utils } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getDeployedChainIdsForGasFee, NxtpRouterSwapPool } from "../../config";
 import { getContext } from "../../router";
 import { SwapValidInput } from "../entities";
 import { SwapInvalid } from "../errors";
+
+const NO_ORACLE_CHAINS = [10];
 
 /**
  * Helper to allow easy mocking
@@ -21,13 +23,51 @@ export const getNtpTimeSeconds = async () => {
 };
 
 /**
+ * Returns the mainnet equivalent of the given asset on the given chain.
+ * @param assetId Address you want mainnet equivalent of
+ * @param chainId Chain your asset lives on
+ * @returns Address of equivalent asset on mainnet
+ */
+export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
+  const chainData = await getChainData();
+  if (!chainData || !chainData.has(chainId.toString())) {
+    throw new Error(`No chain data found for ${chainId}`);
+  }
+  const chain = chainData.get(chainId.toString())!;
+  const equiv =
+    chain.assetId[utils.getAddress(assetId)] ??
+    chain.assetId[assetId.toLowerCase()] ??
+    chain.assetId[assetId.toUpperCase()] ??
+    chain.assetId[assetId];
+
+  if (!equiv || !equiv.mainnetEquivalent) {
+    throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
+  }
+  return utils.getAddress(equiv.mainnetEquivalent);
+};
+
+/**
+ * Returns the decimals of mainnet equivalent of the given asset on the given chain.
+ * @param assetId Address you want mainnet equivalent of
+ * @param chainId Chain your asset lives on
+ * @returns Decimals of equivalent asset on mainnet
+ */
+export const getMainnetDecimals = async (assetId: string, chainId: number): Promise<number> => {
+  const mainnet = await getMainnetEquivalent(assetId, chainId);
+
+  const { txService } = getContext();
+  const decimals = await txService.getDecimalsForAsset(1, mainnet);
+  return decimals;
+};
+
+/**
  * Helper to calculate router gas fee in token
  *
  * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
- * @param outputDecimals Decimal number of receiving asset
+ * @param _outputDecimals Decimal number of receiving asset
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (
@@ -35,10 +75,12 @@ export const calculateGasFeeInReceivingToken = async (
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
-  outputDecimals: number,
+  _outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const chaindIdsForGasFee = getChainIdForGasFee();
+  // NOTE: hardcoding in optimism to allow for fees before oracle can be
+  // properly deployed
+  const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
 
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
@@ -50,15 +92,36 @@ export const calculateGasFeeInReceivingToken = async (
   // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
   // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
 
+  // NOTE: to handle optimism gas fees before oracle is deployed, use mainnet
+  // oracle token pricing and optimism gas price
+  const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
+  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
+
+  const tokenPricingAssetIdSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId)
+    ? await getMainnetEquivalent(sendingAssetId, sendingChainId)
+    : sendingAssetId;
+  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
+    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
+    : receivingAssetId;
+  const outputDecimals = NO_ORACLE_CHAINS.includes(receivingChainId)
+    ? await getMainnetDecimals(receivingAssetId, receivingChainId)
+    : _outputDecimals;
+
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
     const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
-      getTokenPrice(sendingChainId, constants.AddressZero, requestContext),
-      getTokenPrice(sendingChainId, sendingAssetId, requestContext),
+      getTokenPrice(tokenPricingSendingChain, constants.AddressZero, requestContext),
+      getTokenPrice(tokenPricingSendingChain, tokenPricingAssetIdSendingChain, requestContext),
       getGasPrice(sendingChainId, requestContext),
     ]);
 
-    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (sendingChainId === 10) {
+      const gasPriceMainnet = await getGasPrice(1, requestContext);
+      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.fulfillL1).mul(ethPriceInSendingChain);
+    }
+    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain).add(l1GasInUsd);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
@@ -69,12 +132,21 @@ export const calculateGasFeeInReceivingToken = async (
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
     const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-      getTokenPrice(receivingChainId, constants.AddressZero, requestContext),
-      getTokenPrice(receivingChainId, receivingAssetId, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, constants.AddressZero, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, tokenPricingAssetIdReceivingChain, requestContext),
       getGasPrice(receivingChainId, requestContext),
     ]);
 
-    const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForPrepare).mul(ethPriceInReceivingChain);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (receivingChainId === 10) {
+      const gasPriceMainnet = await getGasPrice(1, requestContext);
+      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
+    }
+    const gasAmountInUsd = gasPriceInReceivingChain
+      .mul(gasLimitForPrepare)
+      .mul(ethPriceInReceivingChain)
+      .add(l1GasInUsd);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
@@ -82,7 +154,8 @@ export const calculateGasFeeInReceivingToken = async (
     totalCost = totalCost.add(tokenAmountForGasFee);
   }
 
-  return totalCost;
+  // convert back to the intended decimals
+  return totalCost.div(BigNumber.from(10).pow(18 - _outputDecimals));
 };
 
 /**
@@ -193,16 +266,20 @@ export const getSwapIdxList = (
   let swapPoolIdx: number = -1;
   const allowedSwap = config.swapPools.find((pool, index) => {
     const existSwap =
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId);
+      pool.assets.find(
+        (a) => utils.getAddress(a.assetId) === utils.getAddress(sendingAssetId) && a.chainId === sendingChainId,
+      ) &&
+      pool.assets.find(
+        (a) => utils.getAddress(a.assetId) === utils.getAddress(receivingAssetId) && a.chainId === receivingChainId,
+      );
 
     if (existSwap) {
       sendingChainIdx = pool.assets.findIndex(
-        (a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId,
+        (a) => utils.getAddress(a.assetId) === utils.getAddress(sendingAssetId) && a.chainId === sendingChainId,
       );
 
       receivingChainIdx = pool.assets.findIndex(
-        (a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId,
+        (a) => utils.getAddress(a.assetId) === utils.getAddress(receivingAssetId) && a.chainId === receivingChainId,
       );
       swapPoolIdx = index;
     }

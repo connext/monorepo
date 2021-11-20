@@ -3,6 +3,7 @@ import {
   createRequestContext,
   delay,
   jsonifyError,
+  RequestContext,
   RequestContextWithTransactionId,
   safeJsonStringify,
 } from "@connext/nxtp-utils";
@@ -44,9 +45,9 @@ export const handlingTracker: Map<string, Tracker> = new Map();
 export const pendingLiquidityMap: Map<number, BigNumber> = new Map();
 
 export const bindContractReader = async () => {
-  const { contractReader, logger, config } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("bindContractReader");
+  const { contractReader, logger } = getContext();
   setInterval(async () => {
+    const { requestContext, methodContext } = createLoggingContext("bindContractReader");
     let transactions: ActiveTransaction<any>[] = [];
     try {
       transactions = await contractReader.getActiveTransactions();
@@ -65,29 +66,14 @@ export const bindContractReader = async () => {
       return;
     }
 
-    // subgraph buffer
-    // remove records only iff transaction handled mined block is synced with respective chain subgraph
-    Object.entries(config.chainConfig).forEach(async ([chainId]) => {
-      const records = await contractReader.getSyncRecords(Number(chainId));
-      const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
-      handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
-          logger.debug("Deleting Tracker Record", requestContext, methodContext, {
-            transactionId: key,
-            chainId: chainId,
-            blockNumber: value.blockNumber,
-            syncedBlock: highestSyncedBlock,
-          });
-          handlingTracker.delete(key);
-        }
-      });
-    });
-
     await handleActiveTransactions(transactions);
   }, getLoopInterval());
 };
 
-export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
+export const handleActiveTransactions = async (
+  transactions: ActiveTransaction<any>[],
+  _requestContext?: RequestContext,
+) => {
   const { logger } = getContext();
 
   // reset liquidity map in each loop
@@ -96,7 +82,9 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
   for (const transaction of transactions) {
     const { requestContext, methodContext } = createLoggingContext(
       handleActiveTransactions.name,
-      undefined,
+      typeof _requestContext === "object"
+        ? { ..._requestContext, transactionId: transaction.crosschainTx.invariant.transactionId }
+        : undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
 
@@ -114,14 +102,15 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
     // check if transactionId is already handled for respective chainId
     if (
       handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
-      chainId === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.chainId
+      (transaction.status === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status ||
+        handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status === "Processing")
     ) {
-      logger.debug("Already handling transaction", requestContext, methodContext);
+      logger.debug("Already handling transaction", requestContext, methodContext, { status: transaction.status });
       continue;
     }
 
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-      blockNumber: -1,
+      status: "Processing",
       chainId,
     });
 
@@ -131,7 +120,7 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
 
         if (result && result.blockNumber) {
           handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-            blockNumber: result.blockNumber,
+            status: transaction.status,
             chainId,
           });
         } else {

@@ -7,7 +7,6 @@ import {
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
   TransactionData,
-  jsonifyError,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
@@ -20,7 +19,7 @@ import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/Con
 
 import { getContext } from "../../router";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
-import { NotExistPriceOracle } from "../../lib/errors/contracts";
+import { NotExistPriceOracle, SanitationCheckFailed } from "../../lib/errors/contracts";
 
 const { HashZero } = constants;
 
@@ -53,7 +52,7 @@ export const sanitationCheck = async (
   functionCall: "prepare" | "fulfill" | "cancel",
   _requestContext?: RequestContext<string>,
 ) => {
-  const { txService, logger, contractReader } = getContext();
+  const { txService, contractReader } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(
     sanitationCheck.name,
@@ -92,15 +91,11 @@ export const sanitationCheck = async (
   if (functionCall === "prepare") {
     // variantTransactionDigest exist then transaction is already prepared
     if (variantTransactionDigest !== HashZero) {
-      const error = new Error("Transaction is already prepared");
-      logger.error(
-        `FAILED ${functionCall} sanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
         requestContext,
         methodContext,
-        jsonifyError(error),
-        { transactionData, chainId },
-      );
-      throw error;
+        variantTransactionDigest,
+      });
     }
   } else {
     const expectedVariantDigest = getVariantTransactionDigest({
@@ -116,15 +111,11 @@ export const sanitationCheck = async (
 
     // transaction should be prepared before fulfill
     if (variantTransactionDigest === HashZero) {
-      const error = new Error("Transaction isn't prepared yet");
-      logger.error(
-        `FAILED ${functionCall} sanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
         requestContext,
         methodContext,
-        jsonifyError(error),
-        { transactionData, chainId },
-      );
-      throw error;
+        variantTransactionDigest,
+      });
     }
 
     // transaction is already fulfilled
@@ -136,15 +127,12 @@ export const sanitationCheck = async (
     });
 
     if (variantTransactionDigest === fulfilledOrCancelledVariant) {
-      const error = new Error("Transaction is already fulfilled or canceled");
-      logger.error(
-        `FAILED ${functionCall} sanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
         requestContext,
         methodContext,
-        jsonifyError(error),
-        { transactionData, chainId },
-      );
-      throw error;
+        variantTransactionDigest,
+        fulfilledOrCancelledVariant,
+      });
     }
 
     if (functionCall === "cancel" && chainId === transactionData.sendingChainId) {
@@ -170,15 +158,10 @@ export const sanitationCheck = async (
           // cancel is allowed when transaction is cancelled on receiving chain
           return;
         } else {
-          const error = new Error("TransactionStatus from receiving chain subgraph isn't Cancelled");
-          logger.error(
-            `FAILED ${functionCall} sanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
+          throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
             requestContext,
             methodContext,
-            jsonifyError(error),
-            { transactionData, chainId, receivingChainTransaction },
-          );
-          throw error;
+          });
         }
       }
     }
@@ -213,8 +196,6 @@ export const prepare = async (
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
-
-  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
 
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
     {

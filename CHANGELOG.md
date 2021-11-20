@@ -2,6 +2,25 @@
 
 ## Next Release
 
+- [router] Add optimism fees using mainnet pricing
+- [test-ui] Minor error fixes
+
+## 0.0.84
+
+- [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
+- [txservice] Remove min gas enforcement for optimism
+- [router] Ensure handling tracker is pruned properly
+
+## 0.0.83
+
+- [router] Track handling transactions by status over block
+
+## 0.0.82
+
+- [router] Add time-delay for sender cancellations
+
+## 0.0.81
+
 - [sdk] Gelato support for Arbitrum
 - [subgraph] subgraph lite for routers and sdk
 - [subgraph] add sending tx count for explorer
