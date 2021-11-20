@@ -90,7 +90,6 @@ export const getReceiverAmount = async (
   // Swaps amount from stableMath if allowedVAMM is true, if not, swap amount = inputAmount
   let amountAfterSwap = BigNumber.from(inputAmount);
   if (allowedVAMM) {
-    console.log("> prepare.ts, allowedVAMM");
     amountAfterSwap = await getSwapAmount(
       BigNumber.from(inputAmount),
       routerBalances,
