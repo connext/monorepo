@@ -73,7 +73,7 @@ export const calculateGasFeeInReceivingToken = async (
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
-  _outputDecimals: number,
+  outputDecimals: number,
   _requestContext: RequestContext,
 ): Promise<BigNumber> => {
   const { logger } = getContext();
@@ -83,7 +83,7 @@ export const calculateGasFeeInReceivingToken = async (
     sendingAssetId,
     receivingAssetId,
     receivingChainId,
-    outputDecimals: _outputDecimals,
+    outputDecimals,
   });
   // NOTE: hardcoding in optimism to allow for fees before oracle can be
   // properly deployed
@@ -110,9 +110,6 @@ export const calculateGasFeeInReceivingToken = async (
   const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
     ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
     : receivingAssetId;
-  const outputDecimals = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetDecimals(receivingAssetId, receivingChainId)
-    : _outputDecimals;
 
   logger.info("Getting token prices", requestContext, methodContext, {
     tokenPricingSendingChain,
