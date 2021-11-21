@@ -184,7 +184,7 @@ export const calculateGasFeeInReceivingToken = async (
   }
 
   // convert back to the intended decimals
-  return totalCost.div(BigNumber.from(10).pow(18 - _outputDecimals));
+  return totalCost;
 };
 
 /**
