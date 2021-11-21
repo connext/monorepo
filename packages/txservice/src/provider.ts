@@ -190,6 +190,7 @@ export class ChainRpcProvider {
           error,
           chainId: this.chainId,
           urls: this._providers.map((p) => p.connection.url),
+          tx,
         });
       }
     });
