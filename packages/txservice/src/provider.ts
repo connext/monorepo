@@ -186,7 +186,11 @@ export class ChainRpcProvider {
       try {
         return await this.signer!.call(tx);
       } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, {
+          error,
+          chainId: this.chainId,
+          urls: this._providers.map((p) => p.connection.url),
+        });
       }
     });
   }
