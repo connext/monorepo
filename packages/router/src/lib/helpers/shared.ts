@@ -75,7 +75,7 @@ export const calculateGasFeeInReceivingToken = async (
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
-  _outputDecimals: number,
+  outputDecimals: number,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   // NOTE: hardcoding in optimism to allow for fees before oracle can be
@@ -103,9 +103,6 @@ export const calculateGasFeeInReceivingToken = async (
   const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
     ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
     : receivingAssetId;
-  const outputDecimals = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetDecimals(receivingAssetId, receivingChainId)
-    : _outputDecimals;
 
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
@@ -125,7 +122,6 @@ export const calculateGasFeeInReceivingToken = async (
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
     totalCost = totalCost.add(tokenAmountForGasFee);
   }
 
@@ -143,6 +139,7 @@ export const calculateGasFeeInReceivingToken = async (
       const gasPriceMainnet = await getGasPrice(1, requestContext);
       l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
     }
+
     const gasAmountInUsd = gasPriceInReceivingChain
       .mul(gasLimitForPrepare)
       .mul(ethPriceInReceivingChain)
@@ -155,7 +152,8 @@ export const calculateGasFeeInReceivingToken = async (
   }
 
   // convert back to the intended decimals
-  return totalCost.div(BigNumber.from(10).pow(18 - _outputDecimals));
+  // return totalCost.div(BigNumber.from(10).pow(18 - _outputDecimals));
+  return totalCost;
 };
 
 /**
