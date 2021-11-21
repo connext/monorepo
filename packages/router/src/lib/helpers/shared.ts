@@ -173,7 +173,7 @@ export const calculateGasFeeInReceivingToken = async (
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     totalCost = totalCost.add(tokenAmountForGasFee);
-    logger.info("Calculated cost on sending chain", requestContext, methodContext, {
+    logger.info("Calculated cost on receiving chain", requestContext, methodContext, {
       totalCost: totalCost.toString(),
       tokenAmountForGasFee: tokenAmountForGasFee.toString(),
       l1GasInUsd: l1GasInUsd.toString(),
