@@ -184,9 +184,14 @@ export class ChainRpcProvider {
   public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(true, async () => {
       try {
-        return await this.signer!.call(tx);
+        return await this.provider.call(tx);
       } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, {
+          error,
+          chainId: this.chainId,
+          urls: this._providers.map((p) => p.connection.url),
+          tx,
+        });
       }
     });
   }

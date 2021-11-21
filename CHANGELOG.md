@@ -4,6 +4,10 @@
 
 - [router] Add optimism fees using mainnet pricing
 - [test-ui] Minor error fixes
+- [router] Remove fees decimal conversion
+- [txservice] `readTransaction` should use provider not signer
+- [router] Improve logs and error contexts
+- [router] Handle null case for getBlock
 
 ## 0.0.84
 
