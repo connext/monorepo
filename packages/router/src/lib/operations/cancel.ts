@@ -79,7 +79,7 @@ export const cancel = async (
       throw new SenderTxTooNew(
         invariantData.transactionId,
         invariantData.sendingChainId,
-        preparedBlock.timestamp,
+        preparedBlock?.timestamp ?? 0,
         currentTime,
         {
           requestContext,
