@@ -75,7 +75,7 @@ export const cancel = async (
 
     // prepare at 1000, 1000 > 2000 - 750
     const preparedBlock = await txService.getBlock(invariantData.sendingChainId, preparedBlockNumber);
-    if (currentTime < preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME) {
+    if (!preparedBlock || currentTime < preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME) {
       throw new SenderTxTooNew(
         invariantData.transactionId,
         invariantData.sendingChainId,
