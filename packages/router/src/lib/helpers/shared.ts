@@ -3,6 +3,7 @@ import {
   RequestContext,
   GAS_ESTIMATES,
   getChainData,
+  createLoggingContext,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -73,8 +74,17 @@ export const calculateGasFeeInReceivingToken = async (
   receivingAssetId: string,
   receivingChainId: number,
   _outputDecimals: number,
-  requestContext: RequestContext,
+  _requestContext: RequestContext,
 ): Promise<BigNumber> => {
+  const { logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(calculateGasFeeInReceivingToken.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext, {
+    sendingChainId,
+    sendingAssetId,
+    receivingAssetId,
+    receivingChainId,
+    outputDecimals: _outputDecimals,
+  });
   // NOTE: hardcoding in optimism to allow for fees before oracle can be
   // properly deployed
   const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
@@ -104,6 +114,13 @@ export const calculateGasFeeInReceivingToken = async (
     ? await getMainnetDecimals(receivingAssetId, receivingChainId)
     : _outputDecimals;
 
+  logger.info("Getting token prices", requestContext, methodContext, {
+    tokenPricingSendingChain,
+    tokenPricingReceivingChain,
+    tokenPricingAssetIdSendingChain,
+    tokenPricingAssetIdReceivingChain,
+    outputDecimals,
+  });
   if (chaindIdsForGasFee.includes(sendingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
     const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
@@ -124,6 +141,13 @@ export const calculateGasFeeInReceivingToken = async (
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     totalCost = totalCost.add(tokenAmountForGasFee);
+    logger.info("Calculated cost on sending chain", requestContext, methodContext, {
+      totalCost: totalCost.toString(),
+      l1GasInUsd: l1GasInUsd.toString(),
+      ethPriceInSendingChain: ethPriceInSendingChain.toString(),
+      receivingTokenPrice: receivingTokenPrice.toString(),
+      gasPriceInSendingChain: gasPriceInSendingChain.toString(),
+    });
   }
 
   if (chaindIdsForGasFee.includes(receivingChainId)) {
@@ -149,6 +173,14 @@ export const calculateGasFeeInReceivingToken = async (
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
 
     totalCost = totalCost.add(tokenAmountForGasFee);
+    logger.info("Calculated cost on sending chain", requestContext, methodContext, {
+      totalCost: totalCost.toString(),
+      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+      l1GasInUsd: l1GasInUsd.toString(),
+      ethPriceInSendingChain: ethPriceInReceivingChain.toString(),
+      receivingTokenPrice: receivingTokenPrice.toString(),
+      gasPriceInSendingChain: gasPriceInReceivingChain.toString(),
+    });
   }
 
   // convert back to the intended decimals
