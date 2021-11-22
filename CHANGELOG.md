@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.0.85
+
 - [router] Add optimism fees using mainnet pricing
 - [test-ui] Minor error fixes
 - [router] Remove fees decimal conversion
