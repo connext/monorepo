@@ -29,6 +29,10 @@ import {
   MethodContext,
   calculateExchangeAmount,
   GAS_ESTIMATES,
+  getReceiverAmount,
+  ChainData,
+  getChainData,
+  getDecimalsForAsset,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -110,6 +114,7 @@ export class NxtpSdkBase {
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
+  private readonly chainData: Promise<Map<string, ChainData> | undefined>;
 
   // Keep messaging evts separate from the evt container that has things
   // attached to it
@@ -229,6 +234,7 @@ export class NxtpSdkBase {
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
     this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.chainData = getChainData();
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -276,6 +282,70 @@ export class NxtpSdkBase {
    */
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     return this.subgraph.getHistoricalTransactions();
+  }
+
+  public async getEstimateReceiverAmount(params: {
+    amount: string;
+    sendingChainId: number;
+    sendingAssetId: string;
+    receivingChainId: number;
+    receivingAssetId: string;
+  }) {
+    const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
+
+    const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
+    const chainData = await this.chainData;
+    if (chainData) {
+      throw new Error("Could not get chain data");
+    }
+
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    if (!sendingChainProvider) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    if (!receivingChainProvider) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    // validate that assets/chains are supported and there is enough liquidity
+    const inputDecimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, chainData!);
+
+    const outputDecimals = await getDecimalsForAsset(
+      receivingAssetId,
+      receivingChainId,
+      receivingChainProvider,
+      chainData!,
+    );
+
+    this.logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
+
+    const receiverAmount = getReceiverAmount(amount, inputDecimals, outputDecimals);
+
+    console.log(receiverAmount);
+
+    // const gasLimitReceiverPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    // const gasLimitReceiverFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+
+    // const gasLimitSenderFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
+
+    // const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    // const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    // let totalCost = constants.Zero;
+    // if (priceOracleContract && priceOracleContract.address && provider) {
+    //   const priceOracleAddress = priceOracleContract.address;
+    //   const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
+    //   const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
+    //   const gasPrice = await this.getGasPrice(chainId);
+    //   const gasAmountInUsd = gasPrice.mul(gasLimitForPrepare).mul(ethPriceInUsd);
+    //   const tokenAmountForGasFee = tokenPriceInUsd.isZero()
+    //     ? constants.Zero
+    //     : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
+    //   totalCost = totalCost.add(tokenAmountForGasFee);
+    // }
+
+    // return totalCost;
   }
 
   /**
