@@ -1,3 +1,5 @@
+import { ChainData } from "./chainData";
+
 /**
  * Gets hosted subgraph for applicable chains
  *
@@ -7,7 +9,13 @@
  * @remarks
  * Currently only returns URIs for hosted subgraphs
  */
-export const getDeployedSubgraphUri = (chainId: number): string[] => {
+export const getDeployedSubgraphUri = (chainId: number, chainData: Map<string, ChainData> | undefined): string[] => {
+  if (chainData) {
+    const subgraph = chainData?.get(chainId.toString())?.subgraph;
+    if (subgraph) {
+      return subgraph;
+    }
+  }
   switch (chainId) {
     // testnets
     case 3:
