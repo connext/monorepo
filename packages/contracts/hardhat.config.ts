@@ -19,6 +19,7 @@ import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
 import "./src/tasks/setDexPrice";
+import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
 
