@@ -196,25 +196,57 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   receivingAssetId: string,
   receivingChainId: number,
   outputDecimals: number,
-  requestContext: RequestContext,
+  _requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const chaindIdsForGasFee = getChainIdForGasFee();
+  const { logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(calculateGasFeeInReceivingToken.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext, {
+    receivingAssetId,
+    receivingChainId,
+    outputDecimals,
+  });
+  const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
 
   if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
   let totalCost = constants.Zero;
 
+  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
+
+  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
+    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
+    : receivingAssetId;
+
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
     const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-      getTokenPrice(receivingChainId, constants.AddressZero, requestContext),
-      getTokenPrice(receivingChainId, receivingAssetId, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, constants.AddressZero, requestContext),
+      getTokenPrice(tokenPricingReceivingChain, tokenPricingAssetIdReceivingChain, requestContext),
       getGasPrice(receivingChainId, requestContext),
     ]);
 
-    const gasAmountInUsd = gasPriceInReceivingChain.mul(gasLimitForFulfill).mul(ethPriceInReceivingChain);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (receivingChainId === 10) {
+      const gasPriceMainnet = await getGasPrice(1, requestContext);
+      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
+    }
+
+    const gasAmountInUsd = gasPriceInReceivingChain
+      .mul(gasLimitForFulfill)
+      .mul(ethPriceInReceivingChain)
+      .add(l1GasInUsd);
     const tokenAmountForGasFee = receivingTokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
+
+    logger.info("Calculated cost on receiving chain for fulfill", requestContext, methodContext, {
+      totalCost: totalCost.toString(),
+      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+      l1GasInUsd: l1GasInUsd.toString(),
+      ethPriceInReceivingChain: ethPriceInReceivingChain.toString(),
+      receivingTokenPrice: receivingTokenPrice.toString(),
+      gasPriceInReceivingChain: gasPriceInReceivingChain.toString(),
+    });
 
     totalCost = totalCost.add(tokenAmountForGasFee);
   }
