@@ -45,7 +45,7 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-runtime"];
     case 56:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
       ];
     case 100:
