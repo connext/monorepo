@@ -9,7 +9,7 @@ import { ChainData } from "./chainData";
  * @remarks
  * Currently only returns URIs for hosted subgraphs
  */
-export const getDeployedSubgraphUri = (chainId: number, chainData: Map<string, ChainData> | undefined): string[] => {
+export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, ChainData>): string[] => {
   if (chainData) {
     const subgraph = chainData?.get(chainId.toString())?.subgraph;
     if (subgraph) {
