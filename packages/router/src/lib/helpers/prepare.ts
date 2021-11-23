@@ -41,7 +41,7 @@ export const getReceiverAmount = async (
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
-  return await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  return await _getReceiverAmount(amount, inputDecimals, outputDecimals);
 };
 
 /**
