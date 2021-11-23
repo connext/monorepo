@@ -160,7 +160,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     const entries = await Promise.all(
       (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
         const uri = getDeployedSubgraphUri(chainId, _chainData);
-        if (!uri) {
+        if (!uri || uri.length === 0) {
           console.error("Subgraph not available for chain: ", chainId);
           return;
         }
