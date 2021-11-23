@@ -4,6 +4,8 @@
 
 ## 0.0.86
 
+- [contracts] Add artifacts to package
+
 ## 0.0.85
 
 - [router] Add optimism fees using mainnet pricing
