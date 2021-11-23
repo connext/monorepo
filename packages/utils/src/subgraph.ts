@@ -38,29 +38,29 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
     // mainnets
     case 1:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet-v1-runtime",
       ];
     case 10:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-runtime"];
     case 56:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
       ];
     case 100:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
       ];
     case 137:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic-v1-runtime",
       ];
     case 250:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-v1-runtime",
       ];
     case 1285:
@@ -70,12 +70,12 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
       ];
     case 42161:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
       ];
     case 43114:
       return [
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche-v1-runtime",
       ];
     default:
