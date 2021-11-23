@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.87
+
+- [contracts] Add deploy script to package
+
 ## 0.0.86
 
 - [contracts] Add artifacts to package
