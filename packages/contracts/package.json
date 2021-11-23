@@ -23,7 +23,8 @@
     "typechain",
     "artifacts",
     "deployments.json",
-    "contracts"
+    "contracts",
+    "deploy"
   ],
   "author": "Connext",
   "license": "ISC",
