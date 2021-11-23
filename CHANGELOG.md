@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.88
+
+- [utils] Update default subgraph URIs
+
 ## 0.0.87
 
 - [contracts] Add deploy script to package
