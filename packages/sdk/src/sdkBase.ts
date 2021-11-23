@@ -326,6 +326,28 @@ export class NxtpSdkBase {
     console.log(receiverAmount);
 
     // calculate gas fee
+    const gasFeeInReceivingTokenForRouterTransfer = await this.estimateFeeForRouterTransfer(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+
+    const gasFeeInReceivingTokenForMetaTx = await this.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      false,
+      requestContext,
+      methodContext,
+    );
+
+    const totalGasFeeInReceivingToken = gasFeeInReceivingTokenForRouterTransfer.add(gasFeeInReceivingTokenForMetaTx);
+    console.log(totalGasFeeInReceivingToken.toString());
   }
 
   /**
