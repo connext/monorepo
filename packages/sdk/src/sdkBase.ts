@@ -325,27 +325,7 @@ export class NxtpSdkBase {
 
     console.log(receiverAmount);
 
-    // const gasLimitReceiverPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-    // const gasLimitReceiverFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-
-    // const gasLimitSenderFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-
-    // const priceOracleContract = getDeployedPriceOracleContract(chainId);
-    // const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-    // let totalCost = constants.Zero;
-    // if (priceOracleContract && priceOracleContract.address && provider) {
-    //   const priceOracleAddress = priceOracleContract.address;
-    //   const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
-    //   const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
-    //   const gasPrice = await this.getGasPrice(chainId);
-    //   const gasAmountInUsd = gasPrice.mul(gasLimitForPrepare).mul(ethPriceInUsd);
-    //   const tokenAmountForGasFee = tokenPriceInUsd.isZero()
-    //     ? constants.Zero
-    //     : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
-    //   totalCost = totalCost.add(tokenAmountForGasFee);
-    // }
-
-    // return totalCost;
+    // calculate gas fee
   }
 
   /**
