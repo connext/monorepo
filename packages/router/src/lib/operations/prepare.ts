@@ -92,7 +92,7 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  let receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  let { receivingAmount: receiverAmount } = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
     invariantData.sendingAssetId,

@@ -37,7 +37,7 @@ export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
   outputDecimals: number,
-): Promise<string> => {
+): Promise<{ receivingAmount: string; routerFee: string; amountAfterSwapRate: string }> => {
   if (amount.includes(".")) {
     throw new AmountInvalid(amount);
   }
