@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.89
+
+- [router] Fix handling tracker
+
 ## 0.0.88
 
 - [utils] Update default subgraph URIs
