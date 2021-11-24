@@ -59,7 +59,6 @@ describe("NxtpSdkBase", () => {
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
   let subgraph: SinonStubbedInstance<Subgraph>;
   let transactionManager: SinonStubbedInstance<TransactionManager>;
-  let chainData: SinonStub;
   let getDeployedChainIdsForGasFeeStub: SinonStub;
   let getDeployedPriceOracleContractStub: SinonStub;
   let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
@@ -1090,7 +1089,7 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
@@ -1107,16 +1106,11 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
       expect(result).to.be.eq("0");
-    });
-    it("should error for non configured chains", async () => {
-      await expect(
-        sdk.estimateFeeForRouterTransfer(111, "0x0", 222, "0x0", true, null, null),
-      ).to.eventually.rejectedWith(ChainNotConfigured.getMessage(111, supportedChains));
     });
   });
 
@@ -1128,7 +1122,7 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
@@ -1148,16 +1142,11 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
       expect(result).to.be.eq("0");
-    });
-    it("should error for non configured chains", async () => {
-      await expect(sdk.estimateFeeForMetaTx(111, "0x0", 222, "0x0", true, null, null)).to.eventually.rejectedWith(
-        ChainNotConfigured.getMessage(111, supportedChains),
-      );
     });
   });
 
