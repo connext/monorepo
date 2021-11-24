@@ -19,6 +19,7 @@ import {
   CrosschainTransactionStatus,
   CancelPayload,
 } from "../../lib/entities";
+import { handlingTracker } from "../../bindings/contractReader";
 
 import {
   GetAssetBalanceQuery,
@@ -30,7 +31,6 @@ import {
 } from "./graphqlsdk";
 
 import { getSdks } from ".";
-import { handlingTracker } from "../../bindings/contractReader";
 
 export const getSyncRecords = async (
   chainId: number,
