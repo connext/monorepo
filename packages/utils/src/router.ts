@@ -31,13 +31,18 @@ export const getReceiverAmount = async (
   amount: string,
   inputDecimals: number,
   outputDecimals: number,
-): Promise<string> => {
+): Promise<{ receivingAmount: string; routerFee: string; amountAfterSwapRate: string }> => {
   // 1. swap rate from AMM
   const swapRate = await getSwapRate();
   const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
 
   // 2. flat fee by Router
   const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
-  const receivingAmount = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
-  return receivingAmount.split(".")[0];
+  const receivingAmountFloat = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
+
+  const receivingAmount = receivingAmountFloat.split(".")[0];
+
+  const routerFee = amountAfterSwapRate.sub(receivingAmount);
+
+  return { receivingAmount, routerFee: routerFee.toString(), amountAfterSwapRate: amountAfterSwapRate.toString() };
 };
