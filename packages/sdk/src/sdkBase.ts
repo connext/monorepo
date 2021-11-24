@@ -326,23 +326,9 @@ export class NxtpSdkBase {
     );
 
     // calculate gas fee
-    const receiverPrepareFee = await this.estimateHardcodedFeeForPrepare(
-      receivingChainId,
-      receivingAssetId,
-      outputDecimals,
-      requestContext,
-      methodContext,
-    );
-
-    const senderFulfillFee = await this.estimateHardcodedFeeForFulfill(
+    const gasFee = await this.estimateFeeForRouterTransfer(
       sendingChainId,
       sendingAssetId,
-      outputDecimals,
-      requestContext,
-      methodContext,
-    );
-
-    const relayerFee = await this.estimateHardcodedFeeForFulfill(
       receivingChainId,
       receivingAssetId,
       outputDecimals,
@@ -350,7 +336,16 @@ export class NxtpSdkBase {
       methodContext,
     );
 
-    const gasFee = receiverPrepareFee.add(senderFulfillFee);
+    const relayerFee = await this.estimateFeeForMetaTx(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      requestContext,
+      methodContext,
+    );
+
     const totalFee = gasFee.add(relayerFee).add(routerFee);
 
     return {
@@ -1095,7 +1090,7 @@ export class NxtpSdkBase {
     sendingAssetId: string,
     receivingChainId: number,
     receivingAssetId: string,
-    inSendingToken: boolean,
+    outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
@@ -1106,20 +1101,7 @@ export class NxtpSdkBase {
       receivingAssetId,
     });
 
-    const chainData = await this.chainData;
     const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-    const { provider } = inSendingToken
-      ? this.config.chainConfig[sendingChainId] ?? {}
-      : this.config.chainConfig[receivingChainId] ?? {};
-    if (!provider) {
-      throw new ChainNotConfigured(
-        inSendingToken ? sendingChainId : receivingChainId,
-        Object.keys(this.config.chainConfig),
-      );
-    }
-    const chainId = inSendingToken ? sendingChainId : receivingChainId;
-    const assetId = inSendingToken ? sendingAssetId : receivingAssetId;
-    const decimals = await getDecimalsForAsset(assetId, chainId, provider, chainData);
     // TODO: We calculate gas fee for router transfer in sending token
     // if chainIdsForGasFee includes sending chain, calculate gas fee for fulfill transactions
     // if chainIdsForGasFee includes receiving chain, calculate gas fee for prepare transactions
@@ -1128,7 +1110,7 @@ export class NxtpSdkBase {
       const fulfillFee = await this.estimateHardcodedFeeForFulfill(
         sendingChainId,
         sendingAssetId,
-        decimals,
+        outputDecimals,
         requestContext,
         methodContext,
       );
@@ -1140,7 +1122,7 @@ export class NxtpSdkBase {
       const prepareFee = await this.estimateHardcodedFeeForPrepare(
         receivingChainId,
         receivingAssetId,
-        decimals,
+        outputDecimals,
         requestContext,
         methodContext,
       );
@@ -1165,7 +1147,7 @@ export class NxtpSdkBase {
     sendingAssetId: string,
     receivingChainId: number,
     receivingAssetId: string,
-    inSendingToken: boolean,
+    outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
@@ -1176,26 +1158,14 @@ export class NxtpSdkBase {
       receivingAssetId,
     });
 
-    const chainData = await this.chainData;
     const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-    const { provider } = inSendingToken
-      ? this.config.chainConfig[sendingChainId] ?? {}
-      : this.config.chainConfig[receivingChainId] ?? {};
-    if (!provider) {
-      throw new ChainNotConfigured(
-        inSendingToken ? sendingChainId : receivingChainId,
-        Object.keys(this.config.chainConfig),
-      );
-    }
-    const chainId = inSendingToken ? sendingChainId : receivingChainId;
-    const assetId = inSendingToken ? sendingAssetId : receivingAssetId;
-    const decimals = await getDecimalsForAsset(assetId, chainId, provider, chainData);
+
     let totalCost = constants.Zero;
     if (chainIdsForGasFee.includes(receivingChainId)) {
       const fulfillFee = await this.estimateHardcodedFeeForFulfill(
         receivingChainId,
         receivingAssetId,
-        decimals,
+        outputDecimals,
         requestContext,
         methodContext,
       );
