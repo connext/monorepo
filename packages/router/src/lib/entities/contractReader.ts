@@ -6,6 +6,7 @@ export const CrosschainTransactionStatus = {
   SenderPrepared: "SenderPrepared",
   SenderExpired: "SenderExpired",
   ReceiverNotConfigured: "ReceiverNotConfigured",
+  ReceiverPrepared: "ReceiverPrepared",
   ReceiverFulfilled: "ReceiverFulfilled",
   ReceiverCancelled: "ReceiverCancelled",
   ReceiverExpired: "ReceiverExpired",
@@ -38,6 +39,9 @@ export type CrosschainTransactionPayload = {
   };
   [CrosschainTransactionStatus.SenderExpired]: Record<string, never>;
   [CrosschainTransactionStatus.ReceiverNotConfigured]: Record<string, never>;
+  [CrosschainTransactionStatus.ReceiverPrepared]: PreparePayload & {
+    receiverPreparedHash: string;
+  };
   [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
     receiverFulfilledHash: string;
   };
