@@ -1,10 +1,9 @@
-import { constants, providers, Contract, BigNumber } from "ethers";
+import { providers, Contract, BigNumber } from "ethers";
 import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
   signFulfillTransactionPayload as _signFulfillTransactionPayload,
   getFulfillTransactionHashToSign as _getFulfillTransactionHashToSign,
-  ERC20Abi,
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
   encodeAuctionBid as _encodeAuctionBid,

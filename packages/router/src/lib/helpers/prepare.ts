@@ -4,6 +4,7 @@ import {
   decodeAuctionBid as _decodeAuctionBid,
   getReceiverAmount as _getReceiverAmount,
 } from "@connext/nxtp-utils";
+
 import { AmountInvalid } from "../errors/prepare";
 
 const EXPIRY_DECREMENT = 3600 * 24;
