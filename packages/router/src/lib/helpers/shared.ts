@@ -11,7 +11,7 @@ import { getOracleContractAddress, getPriceOracleInterface } from "../../adapter
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
-const NO_ORACLE_CHAINS = [10];
+const NO_ORACLE_CHAINS: number[] = [];
 
 /**
  * Helper to allow easy mocking
@@ -85,9 +85,8 @@ export const calculateGasFeeInReceivingToken = async (
     receivingChainId,
     outputDecimals,
   });
-  // NOTE: hardcoding in optimism to allow for fees before oracle can be
-  // properly deployed
-  const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
+
+  const chaindIdsForGasFee = getChainIdForGasFee();
 
   if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
     return constants.Zero;
@@ -205,7 +204,7 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
     receivingChainId,
     outputDecimals,
   });
-  const chaindIdsForGasFee = [...getChainIdForGasFee(), 10];
+  const chaindIdsForGasFee = getChainIdForGasFee();
 
   if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
   let totalCost = constants.Zero;
