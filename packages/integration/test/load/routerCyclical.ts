@@ -1,7 +1,6 @@
-import { delay, Logger } from "@connext/nxtp-utils";
+import { delay, Logger, getChainData, getDecimalsForAsset } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 import pino from "pino";
-import { getDecimals } from "@connext/nxtp-sdk/src/utils";
 
 import { getConfig } from "../utils/config";
 import { SdkManager } from "../utils/sdkManager";
@@ -16,7 +15,7 @@ import { writeStatsToFile } from "../utils/reporting";
 const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const config = getConfig();
   const log = pino({ level: "error" });
-  const amount = utils.parseEther("100").toString();
+  // const amount = utils.parseEther("100").toString();
 
   const durationMs = duration * 60 * 1000;
   // Create manager
@@ -58,7 +57,8 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
 
     const provider = config.chainConfig[sendingChainId].provider;
-    const decimals = await getDecimals(sendingAssetId, provider);
+    const chainData = await getChainData();
+    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
     const amount = utils.parseUnits("0.0001", decimals).toString();
 
     const startTime = Date.now();
