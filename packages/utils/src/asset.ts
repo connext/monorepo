@@ -17,12 +17,14 @@ export const getDecimalsForAsset = async (
   assetId: string,
   chainId: number,
   provider: providers.Provider,
-  chainData: Map<string, ChainData>,
+  chainData?: Map<string, ChainData>,
 ): Promise<number> => {
-  const chainInfo = chainData.get(chainId.toString());
-  const decimals = chainInfo?.assetId[assetId]?.decimals;
-  if (decimals) {
-    return decimals;
+  if (chainData) {
+    const chainInfo = chainData.get(chainId.toString());
+    const decimals = chainInfo?.assetId[assetId]?.decimals;
+    if (decimals) {
+      return decimals;
+    }
   }
   const contract = new Contract(assetId, ERC20Abi, provider);
   return await contract.decimals();
