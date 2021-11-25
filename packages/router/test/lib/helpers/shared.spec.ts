@@ -184,9 +184,10 @@ describe("getRouterBalancesFromSwapPool", () => {
     stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
   });
   it("should work", async () => {
-    const pendingLiquidityMap: Map<number, BigNumber> = new Map();
-    pendingLiquidityMap.set(1337, BigNumber.from("1000000000000000"));
-
+    const pendingLiquidityMap: Map<string, BigNumber> = new Map();
+    const chainId = 1337;
+    const assetId = mkAddress("0xc");
+    pendingLiquidityMap.set(chainId.toString().concat("-").concat(assetId), BigNumber.from("1000000000000000"));
     const result = await shared.getRouterBalancesFromSwapPool(configMock.swapPools[0], pendingLiquidityMap);
     expect(result[0].toString()).to.be.eq("10001001000000000000000");
     expect(result[1].toString()).to.be.eq("10001000000000000000000");

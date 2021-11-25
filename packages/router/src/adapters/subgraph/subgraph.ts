@@ -121,19 +121,17 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         // update synced status
         await setSyncRecord(chainId, requestContext);
 
-        // get all receiver expired txs
-        const allReceiverExpired = await sdk.request<GetReceiverTransactionsQuery>((client) =>
+        // get all receiver prepared txs
+        const allReceiverPrepared = await sdk.request<GetReceiverTransactionsQuery>((client) =>
           client.GetReceiverTransactions({
             routerId: routerAddress.toLowerCase(),
             receivingChainId: chainId,
             status: SdkTransactionStatus.Prepared,
-            expiry_lt: Math.floor(Date.now() / 1000),
           }),
         );
-        if ((allReceiverExpired.router?.transactions.length ?? 0) > 0) {
-          logger.debug("Got receiver expired", requestContext, methodContext, {
+        if ((allReceiverPrepared.router?.transactions.length ?? 0) > 0) {
+          logger.debug("Got receiver prepared", requestContext, methodContext, {
             chainId,
-            allReceiverExpired: jsonifyError(allReceiverExpired as any),
           });
         }
 
@@ -206,7 +204,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         );
         const correspondingReceiverTxs = queries.flat();
 
-        allReceiverExpired.router?.transactions.forEach((receiverTx) => {
+        allReceiverPrepared.router?.transactions.forEach((receiverTx) => {
           const tx = correspondingReceiverTxs.find((tx) => tx.transactionId === receiverTx.transactionId);
           if (tx) {
             return;
@@ -274,17 +272,28 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             }
 
             // we have a receiver tx at this point
-            // if expired, return
-            if (currentTime > receiving.expiry && correspondingReceiverTx?.status === SdkTransactionStatus.Prepared) {
-              return {
-                crosschainTx: {
-                  invariant,
-                  sending,
-                  receiving,
-                },
-                payload: {},
-                status: CrosschainTransactionStatus.ReceiverExpired,
-              } as ActiveTransaction<"ReceiverExpired">;
+            if (correspondingReceiverTx?.status === SdkTransactionStatus.Prepared) {
+              if (currentTime > receiving.expiry) {
+                return {
+                  crosschainTx: {
+                    invariant,
+                    sending,
+                    receiving,
+                  },
+                  payload: {},
+                  status: CrosschainTransactionStatus.ReceiverExpired,
+                } as ActiveTransaction<"ReceiverExpired">;
+              } else {
+                return {
+                  crosschainTx: {
+                    invariant,
+                    sending,
+                    receiving,
+                  },
+                  payload: {},
+                  status: CrosschainTransactionStatus.ReceiverPrepared,
+                } as ActiveTransaction<"ReceiverPrepared">;
+              }
             }
 
             if (correspondingReceiverTx?.status === SdkTransactionStatus.Fulfilled) {

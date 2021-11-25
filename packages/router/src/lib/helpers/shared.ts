@@ -305,11 +305,11 @@ export const getSwapIdxList = (
  * Gets router balances from swap pool for each chain.
  *
  * @param swapPool - The swap pool config of router
- * @param pendingLiquidityMap - The sendingChain funds locked in `prepare` transactions
+ * @param liquidityMap - The funds locked up in `prepare` transactions
  */
 export const getRouterBalancesFromSwapPool = async (
   swapPool: NxtpRouterSwapPool,
-  pendingLiquidityMap: Map<number, BigNumber>,
+  liquidityMap: Map<string, BigNumber>,
 ): Promise<BigNumber[]> => {
   const { contractReader, config } = getContext();
   const routerBalancesInEther = await Promise.all(
@@ -319,7 +319,7 @@ export const getRouterBalancesFromSwapPool = async (
       let poolWeight = config.chainConfig[asset.chainId].weight;
       // convert asset liquidity into 18 decimal value.
       const assetBalanceFromSubgraph = assetLiquidity.mul(BigNumber.from(10).pow(18 - assetDecimals));
-      let pendingBalance = pendingLiquidityMap.get(asset.chainId);
+      let pendingBalance = liquidityMap.get(asset.chainId.toString().concat("-").concat(asset.assetId));
       if (!pendingBalance) {
         pendingBalance = BigNumber.from(0);
       }

@@ -36,13 +36,12 @@ import {
   senderFulfilled,
   totalTransferredVolume,
 } from "../metrics";
-import { getDecimalsForAsset } from "../../lib/helpers/shared";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();
-export const pendingLiquidityMap: Map<number, BigNumber> = new Map();
+export let pendingLiquidityMap: Map<string, BigNumber> = new Map();
 
 export const bindContractReader = async () => {
   const { contractReader, logger } = getContext();
@@ -76,8 +75,45 @@ export const handleActiveTransactions = async (
 ) => {
   const { logger } = getContext();
 
-  // reset liquidity map in each loop
+  const tmpLiquidityMap: Map<string, BigNumber> = new Map();
+
+  // calculate pending balances
+  for (const transaction of transactions) {
+    // if transfer is receiver prepared, just increase pending liquidity
+    if (transaction.status === CrosschainTransactionStatus.ReceiverPrepared) {
+      const liquidityKey = transaction.crosschainTx.invariant.receivingChainId
+        .toString()
+        .concat("-")
+        .concat(transaction.crosschainTx.invariant.receivingAssetId);
+      const prevLiquidity = tmpLiquidityMap.get(liquidityKey);
+      const pendingAmount = BigNumber.from(transaction.crosschainTx.receiving?.amount);
+
+      if (tmpLiquidityMap.has(liquidityKey) && prevLiquidity) {
+        tmpLiquidityMap.set(liquidityKey, prevLiquidity.add(pendingAmount));
+      } else {
+        tmpLiquidityMap.set(
+          transaction.crosschainTx.invariant.receivingChainId
+            .toString()
+            .concat("-")
+            .concat(transaction.crosschainTx.invariant.receivingAssetId),
+          BigNumber.from(pendingAmount),
+        );
+      }
+    } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
+      tmpLiquidityMap.set(
+        transaction.crosschainTx.invariant.sendingChainId
+          .toString()
+          .concat("-")
+          .concat(transaction.crosschainTx.invariant.sendingAssetId),
+        BigNumber.from(transaction.crosschainTx.sending?.amount),
+      );
+    }
+  }
+
   pendingLiquidityMap.clear();
+  tmpLiquidityMap.forEach((value, key) => {
+    pendingLiquidityMap.set(key, value);
+  });
 
   for (const transaction of transactions) {
     const { requestContext, methodContext } = createLoggingContext(
@@ -87,6 +123,9 @@ export const handleActiveTransactions = async (
         : undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
+
+    // if transfer is receiver prepared, just no router action required
+    if (transaction.status === CrosschainTransactionStatus.ReceiverPrepared) continue;
 
     // chainId where onChain interaction will happen
     let chainId: number;
@@ -186,21 +225,6 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
-
-      // If receiver side is prepared, convert it into ether balance and add senderAmount to pendingLiquidity for sendingChain
-      let lastLiquidityInBigNum = pendingLiquidityMap.get(transaction.crosschainTx.invariant.sendingChainId);
-      if (!lastLiquidityInBigNum) {
-        lastLiquidityInBigNum = BigNumber.from(0);
-      }
-      const sendingDecimals = await getDecimalsForAsset(
-        transaction.crosschainTx.invariant.sendingChainId,
-        transaction.crosschainTx.invariant.sendingAssetId,
-      );
-      const sendingAmountInEther = BigNumber.from(transaction.crosschainTx.sending.amount).mul(18 - sendingDecimals);
-      pendingLiquidityMap.set(
-        transaction.crosschainTx.invariant.sendingChainId,
-        lastLiquidityInBigNum.add(sendingAmountInEther),
-      );
 
       receiverPrepared.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
