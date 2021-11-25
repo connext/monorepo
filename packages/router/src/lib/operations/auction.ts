@@ -108,7 +108,6 @@ export const newAuction = async (
   }
 
   const currentTime = await getNtpTimeSeconds();
-  const routerAddress = await wallet.getAddress();
 
   // Validate request limit
   const lastAttemptTime = AUCTION_REQUEST_MAP.get(
@@ -138,16 +137,6 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  let inputDecimals = chainData.get(sendingChainId.toString())?.assetId[sendingAssetId]?.decimals;
-  if (!inputDecimals) {
-    inputDecimals = await txService.getDecimalsForAsset(sendingChainId, sendingAssetId);
-  }
-
-  let outputDecimals = chainData.get(receivingChainId.toString())?.assetId[receivingAssetId]?.decimals;
-  if (!outputDecimals) {
-    outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
-  }
-  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
@@ -165,6 +154,9 @@ export const newAuction = async (
       receivingChainId,
     });
   }
+
+  const routerContractAddress = config.chainConfig[receivingChainId]?.routerContractAddress;
+  const routerAddress = routerContractAddress ? routerContractAddress : await wallet.getAddress();
 
   // Make sure subgraphs are synced
   const receivingSyncRecords = await contractReader.getSyncRecords(receivingChainId, requestContext);
@@ -184,6 +176,17 @@ export const newAuction = async (
       transactionId,
     });
   }
+
+  let inputDecimals = chainData.get(sendingChainId.toString())?.assetId[sendingAssetId]?.decimals;
+  if (!inputDecimals) {
+    inputDecimals = await txService.getDecimalsForAsset(sendingChainId, sendingAssetId);
+  }
+
+  let outputDecimals = chainData.get(receivingChainId.toString())?.assetId[receivingAssetId]?.decimals;
+  if (!outputDecimals) {
+    outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
+  }
+  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // getting the swap rate from the receiver side config
   let { receivingAmount: amountReceived } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
@@ -229,31 +232,34 @@ export const newAuction = async (
     });
   }
 
-  const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, routerAddress),
-    txService.getBalance(receivingChainId, routerAddress),
-  ]);
-  logger.debug("Got balances", requestContext, methodContext, {
-    senderBalance: senderBalance.toString(),
-    receiverBalance: receiverBalance.toString(),
-  });
-
-  // Log if gas is low, but above min
-  const LOW_GAS = parseEther("0.1");
-  if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
-    logger.warn("Router has low gas", requestContext, methodContext, {
-      sendingChainId,
-      receivingChainId,
-      senderBalance: formatEther(senderBalance),
-      receiverBalance: formatEther(receiverBalance),
+  // No gasfees status check required for routerContractAddress
+  if (!routerContractAddress) {
+    const [senderBalance, receiverBalance] = await Promise.all([
+      txService.getBalance(sendingChainId, routerAddress),
+      txService.getBalance(receivingChainId, routerAddress),
+    ]);
+    logger.debug("Got balances", requestContext, methodContext, {
+      senderBalance: senderBalance.toString(),
+      receiverBalance: receiverBalance.toString(),
     });
-  }
 
-  if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
-    throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
-      methodContext,
-      requestContext,
-    });
+    // Log if gas is low, but above min
+    const LOW_GAS = parseEther("0.1");
+    if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+      logger.warn("Router has low gas", requestContext, methodContext, {
+        sendingChainId,
+        receivingChainId,
+        senderBalance: formatEther(senderBalance),
+        receiverBalance: formatEther(receiverBalance),
+      });
+    }
+
+    if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
+      throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
+        methodContext,
+        requestContext,
+      });
+    }
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
 
