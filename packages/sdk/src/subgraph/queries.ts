@@ -183,3 +183,20 @@ export const getBlockNumber = gql`
     }
   }
 `;
+
+export const getSubgraphHealth = gql`
+  query health($name: Bytes) {
+    indexingStatusForCurrentVersion(subgraphName: $name, subgraphError: allow) {
+      synced
+      health
+      chains {
+        chainHeadBlock {
+          number
+        }
+        latestBlock {
+          number
+        }
+      }
+    }
+  }
+`;
