@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## 0.0.90
+
+- [router] use subgraphs form chainData default
+- [sdk] fees estimation on sdk side
+- [contracts] [router] use price oracle for optimism
+
 ## 0.0.89
 
 - [router] Fix handling tracker
