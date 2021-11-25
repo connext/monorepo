@@ -9,4 +9,4 @@ export {
 
 export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";
 
-export { getNtpTimeSeconds } from "./shared";
+export * from "./shared";

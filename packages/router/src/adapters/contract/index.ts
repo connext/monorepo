@@ -1,15 +1,9 @@
-import { CancelParams, FulfillParams, PrepareParams, RequestContext, TransactionData } from "@connext/nxtp-utils";
+import { CancelParams, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
-import {
-  prepare,
-  fulfill,
-  cancel,
-  removeLiquidity,
-  getRouterBalance,
-  sanitationCheck,
-  startContractListeners,
-} from "./contract";
+import { startContractListeners } from "../../lib/helpers";
+
+import { prepare, fulfill, cancel, removeLiquidity, getRouterBalance } from "./contract";
 
 export type ContractWriter = {
   prepare: (
@@ -35,12 +29,6 @@ export type ContractWriter = {
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   getRouterBalance: (chainId: number, router: string, assetId: string) => Promise<BigNumber>;
-  sanitationCheck: (
-    chainId: number,
-    transactionData: TransactionData,
-    functionCall: "prepare" | "fulfill" | "cancel",
-    _requestContext?: RequestContext<string>,
-  ) => Promise<void>;
 };
 
 export const contractWriter = (): ContractWriter => {
@@ -51,6 +39,5 @@ export const contractWriter = (): ContractWriter => {
     cancel,
     removeLiquidity,
     getRouterBalance,
-    sanitationCheck,
   };
 };
