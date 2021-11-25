@@ -31,7 +31,7 @@ const prepareEvt = new Evt<{ event: any; args: PrepareParams }>(); // TODO: fix 
 const fulfillEvt = new Evt<{ event: any; args: FulfillParams }>();
 const cancelEvt = new Evt<{ event: any; args: CancelParams }>();
 
-export const startContractListeners = async (): Promise<void> => {
+export const startContractListeners = (): void => {
   const { config, txService } = getContext();
   Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
     const chainId = Number(_chainId);
