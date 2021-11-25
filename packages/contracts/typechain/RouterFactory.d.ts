@@ -24,6 +24,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
     "createRouter(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "routerAddresses(address)": FunctionFragment;
     "setTransactionManager(address)": FunctionFragment;
     "transactionManager()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -37,6 +38,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "routerAddresses",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setTransactionManager",
@@ -61,6 +66,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "routerAddresses",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTransactionManager",
     data: BytesLike
   ): Result;
@@ -75,7 +84,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "RouterCreated(address)": EventFragment;
+    "RouterCreated(address,address,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -138,6 +147,8 @@ export class RouterFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    routerAddresses(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
     setTransactionManager(
       _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -163,6 +174,8 @@ export class RouterFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  routerAddresses(arg0: string, overrides?: CallOverrides): Promise<string>;
+
   setTransactionManager(
     _transactionManager: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -185,6 +198,8 @@ export class RouterFactory extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    routerAddresses(arg0: string, overrides?: CallOverrides): Promise<string>;
 
     setTransactionManager(
       _transactionManager: string,
@@ -209,8 +224,14 @@ export class RouterFactory extends BaseContract {
     >;
 
     RouterCreated(
-      router?: null
-    ): TypedEventFilter<[string], { router: string }>;
+      router?: null,
+      signer?: null,
+      receipient?: null,
+      creater?: null
+    ): TypedEventFilter<
+      [string, string, string, string],
+      { router: string; signer: string; receipient: string; creater: string }
+    >;
   };
 
   estimateGas: {
@@ -224,6 +245,11 @@ export class RouterFactory extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    routerAddresses(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setTransactionManager(
@@ -250,6 +276,11 @@ export class RouterFactory extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    routerAddresses(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setTransactionManager(
