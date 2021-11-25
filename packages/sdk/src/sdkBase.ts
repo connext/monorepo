@@ -120,12 +120,23 @@ export class NxtpSdkBase {
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
 
   constructor(private readonly config: SdkBaseConfigParams) {
-    const { signerAddress, chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling } =
-      this.config;
+    const {
+      signerAddress,
+      chainConfig,
+      messagingSigner,
+      messaging,
+      natsUrl,
+      authUrl,
+      logger,
+      network,
+      skipPolling,
+      chainData,
+    } = this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
     this.config.network = network ?? "testnet";
     this.config.skipPolling = skipPolling ?? false;
+    this.chainData = chainData;
 
     if (messaging) {
       this.messaging = messaging;
@@ -213,7 +224,7 @@ export class NxtpSdkBase {
 
         let subgraph = _subgraph;
         if (!subgraph) {
-          subgraph = getDeployedSubgraphUri(chainId, this.chainData);
+          subgraph = getDeployedSubgraphUri(chainId, chainData);
         }
         if (!subgraph || subgraph.length === 0) {
           throw new NoSubgraph(chainId);
