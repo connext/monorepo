@@ -100,11 +100,11 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
 
 export const getActiveTransactions = async (_requestContext?: RequestContext): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger, config } = getContext();
+  const { logger, config, wallet } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
 
-  const routerAddress = await wallet.getAddress();
+  const walletAddress = await wallet.getAddress();
 
   // get local context
   const sdks = getSdks();
@@ -117,6 +117,9 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         if (!chainConfig) {
           throw new NoChainConfig(chainId);
         }
+
+        const routerContractAddress = config.chainConfig[chainId].routerContractAddress;
+        const routerAddress = routerContractAddress ? routerContractAddress : walletAddress;
 
         // update synced status
         await setSyncRecord(chainId, requestContext);
@@ -367,8 +370,10 @@ export const getTransactionForChain = async (
   const method = "getTransactionForChain";
   const methodId = getUuid();
 
-  const { wallet } = getContext();
-  const routerAddress = await wallet.getAddress();
+  const { wallet, config } = getContext();
+  const walletAddress = await wallet.getAddress();
+  const routerContractAddress = config.chainConfig[chainId].routerContractAddress;
+  const routerAddress = routerContractAddress ? routerContractAddress : walletAddress;
 
   const sdks = getSdks();
   const sdk = sdks[chainId];
@@ -417,10 +422,9 @@ export const getTransactionForChain = async (
     : undefined;
 };
 
-export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
+export const getAssetBalance = async (routerAddress: string, assetId: string, chainId: number): Promise<BigNumber> => {
   const method = "getAssetBalance";
   const methodId = getUuid();
-  const { wallet } = getContext();
   const sdks = getSdks();
   const sdk = sdks[chainId];
 
@@ -428,7 +432,6 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
 
-  const routerAddress = await wallet.getAddress();
   const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
   const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;

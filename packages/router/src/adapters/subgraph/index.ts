@@ -25,7 +25,7 @@ export type ContractReader = {
    * @param chainId - The chain you want to determine liquidity on
    * @returns The available balance
    */
-  getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+  getAssetBalance: (routerAddress: string, assetId: string, chainId: number) => Promise<BigNumber>;
   getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 

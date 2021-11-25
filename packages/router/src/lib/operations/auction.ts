@@ -223,7 +223,7 @@ export const newAuction = async (
 
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
-  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  const balance = await contractReader.getAssetBalance(routerAddress, receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
