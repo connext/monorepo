@@ -1,7 +1,7 @@
-import { utils } from "ethers";
+import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
 import { AuctionBid } from "./messaging";
-import { InvariantTransactionData, VariantTransactionData } from "./transactionManager";
+import { InvariantTransactionData, TransactionData, VariantTransactionData } from "./transactionManager";
 
 /**
  * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.
@@ -10,6 +10,25 @@ import { InvariantTransactionData, VariantTransactionData } from "./transactionM
  * @returns Cleaned version of the input
  */
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
+
+export const TransactionDataEncoding = tidy(`tuple(
+  address receivingChainTxManagerAddress,
+  address user,
+  address router,
+  address initiator,
+  address sendingAssetId,
+  address receivingAssetId,
+  address sendingChainFallback,
+  address receivingAddress,
+  address callTo,
+  bytes32 callDataHash,
+  bytes32 transactionId,
+  uint256 sendingChainId,
+  uint256 receivingChainId,
+  uint256 amount,
+  uint256 expiry,
+  uint256 preparedBlockNumber
+)`);
 
 export const InvariantTransactionDataEncoding = tidy(`tuple(
   address receivingChainTxManagerAddress,
@@ -55,7 +74,7 @@ export const SignedCancelDataEncoding = tidy(`tuple(
  * @returns Encoded version of the params
  */
 export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
-  return utils.defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
+  return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
 };
 
 /**
@@ -65,7 +84,7 @@ export const encodeTxData = (txDataParams: InvariantTransactionData): string => 
  * @returns The hash of the encoded object
  */
 export const getInvariantTransactionDigest = (txDataParams: InvariantTransactionData): string => {
-  const digest = utils.keccak256(encodeTxData(txDataParams));
+  const digest = keccak256(encodeTxData(txDataParams));
   return digest;
 };
 
@@ -76,7 +95,7 @@ export const getInvariantTransactionDigest = (txDataParams: InvariantTransaction
  * @returns Hash of the encoded object
  */
 export const getVariantTransactionDigest = (txDataParams: VariantTransactionData): string => {
-  const digest = utils.keccak256(utils.defaultAbiCoder.encode([VariantTransactionDataEncoding], [txDataParams]));
+  const digest = keccak256(defaultAbiCoder.encode([VariantTransactionDataEncoding], [txDataParams]));
   return digest;
 };
 
@@ -95,7 +114,7 @@ export const encodeFulfillData = (
   receivingChainId: number,
   receivingChainTxManagerAddress: string,
 ): string => {
-  return utils.defaultAbiCoder.encode(
+  return defaultAbiCoder.encode(
     [SignedFulfillDataEncoding],
     [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId, receivingChainTxManagerAddress }],
   );
@@ -114,7 +133,7 @@ export const encodeCancelData = (
   receivingChainId: number,
   receivingChainTxManagerAddress: string,
 ): string => {
-  return utils.defaultAbiCoder.encode(
+  return defaultAbiCoder.encode(
     [SignedCancelDataEncoding],
     [{ transactionId, functionIdentifier: "cancel", receivingChainId, receivingChainTxManagerAddress }],
   );
@@ -149,7 +168,7 @@ export const AuctionBidEncoding = tidy(`tuple(
  * @returns Encoded bid
  */
 export const encodeAuctionBid = (bid: AuctionBid): string => {
-  return utils.defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
+  return defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
 };
 
 /**
@@ -158,7 +177,7 @@ export const encodeAuctionBid = (bid: AuctionBid): string => {
  * @returns Decoded bid
  */
 export const decodeAuctionBid = (data: string): AuctionBid => {
-  const [decoded] = utils.defaultAbiCoder.decode([AuctionBidEncoding], data);
+  const [decoded] = defaultAbiCoder.decode([AuctionBidEncoding], data);
   return {
     user: decoded.user,
     router: decoded.router,
@@ -179,4 +198,121 @@ export const decodeAuctionBid = (data: string): AuctionBid => {
     receivingChainTxManagerAddress: decoded.receivingChainTxManagerAddress,
     sendingChainTxManagerAddress: decoded.sendingChainTxManagerAddress,
   };
+};
+
+// For Router.sol
+/**
+ * Encoding for a Router.sol prepare call
+ */
+export const SignedRouterFulfillDataEncoding = tidy(`tuple(
+  ${TransactionDataEncoding} txData,
+  uint256 relayerFee,
+  bytes signature,
+  bytes callData,
+  bytes encodedMeta
+)`);
+
+export const SignedRouterPrepareDataEncoding = tidy(`tuple(
+  ${InvariantTransactionDataEncoding} invariantData,
+  uint256 amount,
+  uint256 expiry,
+  bytes encryptedCallData,
+  bytes encodedBid,
+  bytes bidSignature,
+  bytes encodedMeta
+)`);
+
+/**
+ * Encodes data for prepare function
+ * @param invariantData
+ * @param amount
+ * @param expiry
+ * @param encryptedCallData
+ * @param encodedBid
+ * @param bidSignature
+ * @param encodedMeta
+ * @returns
+ */
+export const encodeRouterPrepareData = (
+  invariantData: InvariantTransactionData,
+  amount: string,
+  expiry: number,
+  encryptedCallData: string,
+  encodedBid: string,
+  bidSignature: string,
+  encodedMeta: string,
+): string => {
+  return defaultAbiCoder.encode(
+    [SignedRouterPrepareDataEncoding],
+    [
+      {
+        invariantData,
+        amount,
+        expiry,
+        encryptedCallData,
+        encodedBid,
+        bidSignature,
+        encodedMeta,
+      },
+    ],
+  );
+};
+
+export const encodeRouterFulfillData = (
+  txData: TransactionData,
+  fulfillSignature: string,
+  callData: string,
+  encodedMeta: string,
+): string => {
+  return defaultAbiCoder.encode(
+    [SignedRouterFulfillDataEncoding],
+    [
+      {
+        txData,
+        relayerFee: "0",
+        signature: fulfillSignature,
+        callData,
+        encodedMeta,
+      },
+    ],
+  );
+};
+
+const SignedRouterCancelDataEncoding = tidy(`tuple(
+  ${TransactionDataEncoding} txData,
+  bytes signature,
+  bytes encodedMeta
+)`);
+
+export const encodeRouterCancelData = (
+  txData: TransactionData,
+  cancelSignature: string,
+  encodedMeta: string,
+): string => {
+  return defaultAbiCoder.encode(
+    [SignedRouterCancelDataEncoding],
+    [
+      {
+        txData,
+        signature: cancelSignature,
+        encodedMeta,
+      },
+    ],
+  );
+};
+
+const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
+  uint256 amount,
+  address assetId,
+  uint256 chainId,
+  address signer
+)`);
+
+export const encodeRouterRemoveLiquidityData = (
+  amount: string,
+  assetId: string,
+  chainId: number,
+  signer: string,
+): string => {
+  return defaultAbiCoder.encode([SignedRouterRemoveLiquidityDataEncoding], [{ amount, assetId, chainId, signer }]);
 };

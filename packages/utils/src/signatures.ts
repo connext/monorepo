@@ -1,8 +1,17 @@
-import { Signer, Wallet, utils, BigNumber, providers } from "ethers";
-import { arrayify, splitSignature } from "ethers/lib/utils";
+import { Signer, Wallet, BigNumber, providers } from "ethers";
+import { arrayify, solidityKeccak256, splitSignature, verifyMessage } from "ethers/lib/utils";
 
-import { encodeAuctionBid, encodeCancelData, encodeFulfillData } from "./encode";
+import {
+  encodeAuctionBid,
+  encodeCancelData,
+  encodeFulfillData,
+  encodeRouterPrepareData,
+  encodeRouterFulfillData,
+  encodeRouterCancelData,
+  encodeRouterRemoveLiquidityData,
+} from "./encode";
 import { AuctionBid } from "./messaging";
+import { InvariantTransactionData, TransactionData } from "./transactionManager";
 
 /**
  * Occasionally have seen metamask return signatures with v = 00 or v = 01.
@@ -85,7 +94,7 @@ export const getFulfillTransactionHashToSign = (
   receivingChainTxManagerAddress: string,
 ): string => {
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
-  const hash = utils.solidityKeccak256(["bytes"], [payload]);
+  const hash = solidityKeccak256(["bytes"], [payload]);
   return hash;
 };
 
@@ -107,8 +116,8 @@ export const recoverFulfilledTransactionPayload = (
   signature: string,
 ): string => {
   const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return utils.verifyMessage(utils.arrayify(hashed), signature);
+  const hashed = solidityKeccak256(["bytes"], [payload]);
+  return verifyMessage(arrayify(hashed), signature);
 };
 
 /**
@@ -127,7 +136,7 @@ export const signCancelTransactionPayload = async (
   signer: Signer,
 ): Promise<string> => {
   const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
-  const hash = utils.solidityKeccak256(["bytes"], [payload]);
+  const hash = solidityKeccak256(["bytes"], [payload]);
   return sign(hash, signer);
 };
 
@@ -147,8 +156,8 @@ export const recoverCancelTransactionPayload = (
   signature: string,
 ): string => {
   const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return utils.verifyMessage(utils.arrayify(hashed), signature);
+  const hashed = solidityKeccak256(["bytes"], [payload]);
+  return verifyMessage(arrayify(hashed), signature);
 };
 
 /**
@@ -160,8 +169,8 @@ export const recoverCancelTransactionPayload = (
  */
 export const signAuctionBid = async (bid: AuctionBid, signer: Signer): Promise<string> => {
   const payload = encodeAuctionBid(bid);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return sanitizeSignature(await signer.signMessage(utils.arrayify(hashed)));
+  const hashed = solidityKeccak256(["bytes"], [payload]);
+  return sanitizeSignature(await signer.signMessage(arrayify(hashed)));
 };
 
 /**
@@ -173,6 +182,120 @@ export const signAuctionBid = async (bid: AuctionBid, signer: Signer): Promise<s
  */
 export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
   const payload = encodeAuctionBid(bid);
-  const hashed = utils.solidityKeccak256(["bytes"], [payload]);
-  return utils.verifyMessage(utils.arrayify(hashed), signature);
+  const hashed = solidityKeccak256(["bytes"], [payload]);
+  return verifyMessage(arrayify(hashed), signature);
+};
+
+// Router.sol
+
+const getRouterPrepareTransactionHashToSign = (
+  invariantData: InvariantTransactionData,
+  amount: string,
+  expiry: number,
+  encryptedCallData: string,
+  encodedBid: string,
+  bidSignature: string,
+  encodedMeta: string,
+): string => {
+  const payload = encodeRouterPrepareData(
+    invariantData,
+    amount,
+    expiry,
+    encryptedCallData,
+    encodedBid,
+    bidSignature,
+    encodedMeta,
+  );
+  const hash = solidityKeccak256(["bytes"], [payload]);
+  return hash;
+};
+
+export const signRouterPrepareTransactionPayload = async (
+  invariantData: InvariantTransactionData,
+  amount: string,
+  expiry: number,
+  encryptedCallData: string,
+  encodedBid: string,
+  bidSignature: string,
+  encodedMeta: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  const hash = getRouterPrepareTransactionHashToSign(
+    invariantData,
+    amount,
+    expiry,
+    encryptedCallData,
+    encodedBid,
+    bidSignature,
+    encodedMeta,
+  );
+
+  return sign(hash, signer);
+};
+
+const getRouterFulfillTransactionHashToSign = (
+  txData: TransactionData,
+  fulfillSignature: string,
+  callData: string,
+  encodedMeta: string,
+): string => {
+  const payload = encodeRouterFulfillData(txData, fulfillSignature, callData, encodedMeta);
+  const hash = solidityKeccak256(["bytes"], [payload]);
+  return hash;
+};
+
+export const signRouterFulfillTransactionPayload = async (
+  txData: TransactionData,
+  fulfillSignature: string,
+  callData: string,
+  encodedMeta: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  const hash = getRouterFulfillTransactionHashToSign(txData, fulfillSignature, callData, encodedMeta);
+
+  return sign(hash, signer);
+};
+
+const getRouterCancelTransactionHashToSign = (
+  txData: TransactionData,
+  cancelSignature: string,
+  encodedMeta: string,
+): string => {
+  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta);
+  const hash = solidityKeccak256(["bytes"], [payload]);
+  return hash;
+};
+
+export const signRouterCancelTransactionPayload = async (
+  txData: TransactionData,
+  cancelSignature: string,
+  encodedMeta: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  const hash = getRouterCancelTransactionHashToSign(txData, cancelSignature, encodedMeta);
+
+  return sign(hash, signer);
+};
+
+const getRouterRemoveLiquidityHashToSign = (
+  amount: string,
+  assetId: string,
+  chainId: number,
+  signer: string,
+): string => {
+  const payload = encodeRouterRemoveLiquidityData(amount, assetId, chainId, signer);
+  const hash = solidityKeccak256(["bytes"], [payload]);
+  return hash;
+};
+
+export const signRemoveLiquidityTransactionPayload = (
+  amount: string,
+  assetId: string,
+  chainId: number,
+  signerAddress: string,
+  signer: Wallet | Signer,
+): Promise<string> => {
+  const hash = getRouterRemoveLiquidityHashToSign(amount, assetId, chainId, signerAddress);
+
+  return sign(hash, signer);
 };
