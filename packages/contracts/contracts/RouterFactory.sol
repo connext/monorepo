@@ -37,7 +37,7 @@ contract RouterFactory is IRouterFactory, Ownable {
     Router router = new Router(address(transactionManager), signer, recipient, msg.sender, chainId);
 
     routerAddresses[signer] = address(router);
-    emit RouterCreated(address(router, signer, recipient, msg.sender));
+    emit RouterCreated(address(router), signer, recipient, msg.sender);
     return address(router);
   }
 }
