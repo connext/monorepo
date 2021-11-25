@@ -40,6 +40,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
+  if (process.env.Router_Contract) {
+    const txManagerDeployment = await hre.deployments.get("TransactionManager");
+    const txManagerAddress = txManagerDeployment.address;
+
+    await hre.deployments.deploy("RouterFactory", {
+      from: deployer,
+      args: [txManagerAddress, chainId],
+      log: true,
+    });
+    return;
+  }
+
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
     await hre.deployments.deploy("ConnextPriceOracle", {
