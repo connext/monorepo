@@ -19,12 +19,49 @@ import {
 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import { Evt } from "evt";
 
 import { getContext } from "../../router";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 import { NotExistPriceOracle, SanitationCheckFailed } from "../../lib/errors/contracts";
 
 const { HashZero } = constants;
+
+const prepareEvt = new Evt<{ event: any; args: PrepareParams }>(); // TODO: fix types
+const fulfillEvt = new Evt<{ event: any; args: FulfillParams }>();
+const cancelEvt = new Evt<{ event: any; args: CancelParams }>();
+
+export const startContractListeners = async (): Promise<void> => {
+  const { config, txService } = getContext();
+  Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
+    const chainId = Number(_chainId);
+    if (conf.routerContractAddress) {
+      // needs event listeners for listening to relayed events
+      // TODO remove this when we can query gelato for tx receipts
+      // alternatively allow listening on the subgraph
+      const contract = new Contract(
+        conf.transactionManagerAddress,
+        TransactionManagerArtifact.abi,
+        txService.getProvider(chainId).provider,
+      ) as TTransactionManager;
+
+      contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
+        prepareEvt.post({ event, args });
+      });
+
+      contract.on(
+        "TransactionFulfilled",
+        (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
+          fulfillEvt.post({ event, args });
+        },
+      );
+
+      contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
+        cancelEvt.post({ event, args });
+      });
+    }
+  });
+};
 
 export const getContractAddress = (chainId: number): string => {
   const { config } = getContext();
@@ -240,12 +277,11 @@ export const prepare = async (
       });
     }
     // listen for event on contract
-    const contract = new Contract(
-      nxtpContractAddress,
-      getTxManagerInterface(),
-      txService.getProvider(chainId).provider,
-    );
-    // const receipt = await contract.on(...);
+    const { event } = await prepareEvt
+      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+      .waitFor(300_000);
+    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+    return receipt;
   } else {
     return await txService.sendTx(
       {
