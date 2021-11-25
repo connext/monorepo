@@ -55,6 +55,7 @@ export const prepare = async (
     isChainSupportedByGelato(chainId) &&
     chainId === txData.receivingChainId
   ) {
+    logger.info("gelato prepare", requestContext, methodContext, { prepareParams });
     const signature = await signRouterPrepareTransactionPayload(
       txData,
       amount,
