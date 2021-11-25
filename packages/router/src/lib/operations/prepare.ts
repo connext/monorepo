@@ -25,6 +25,7 @@ import {
   recoverAuctionBid,
   validBidExpiry,
   validExpiryBuffer,
+  sanitationCheck,
 } from "../helpers";
 import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
@@ -39,7 +40,7 @@ export const prepare = async (
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
-  await contractWriter.sanitationCheck(
+  await sanitationCheck(
     invariantData.receivingChainId,
     { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
     "prepare",
@@ -183,6 +184,8 @@ export const prepare = async (
     },
     requestContext,
   );
-  logger.info("Sent receiver prepare tx", requestContext, methodContext, { transactionHash: receipt.transactionHash });
+  logger.info("Sent receiver prepare tx", requestContext, methodContext, {
+    transactionHash: receipt.transactionHash,
+  });
   return receipt;
 };
