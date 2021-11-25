@@ -8,9 +8,11 @@ import "./Router.sol";
 
 contract RouterFactory is IRouterFactory, Ownable {
 
+  uint256 private immutable chainId;
   ITransactionManager public transactionManager;
 
-  constructor(address _transactionManager) {
+  constructor(address _transactionManager, uint256 _chainId) {
+    chainId = _chainId;
     transactionManager = ITransactionManager(_transactionManager);
   }
 
@@ -18,7 +20,7 @@ contract RouterFactory is IRouterFactory, Ownable {
     transactionManager = ITransactionManager(_transactionManager);
   }
 
-  function createRouter(address signer, address recipient, uint256 chainId) override external returns (address) {
+  function createRouter(address signer, address recipient) override external returns (address) {
     Router router = new Router(address(transactionManager), signer, recipient, msg.sender, chainId);
     emit RouterCreated(address(router));
     return address(router);
