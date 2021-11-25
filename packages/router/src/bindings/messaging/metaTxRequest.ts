@@ -2,7 +2,6 @@ import {
   createLoggingContext,
   MetaTxFulfillPayload,
   MetaTxPayload,
-  MetaTxPreparePayload,
   MetaTxType,
   MetaTxTypes,
   NxtpErrorJson,
@@ -24,7 +23,7 @@ export const metaTxRequestBinding = async (
   _requestContext?: RequestContext,
 ) => {
   const { messaging, logger, config } = getContext();
-  const { fulfill, prepare } = getOperations();
+  const { fulfill } = getOperations();
   const { requestContext, methodContext } = createLoggingContext(
     metaTxRequestBinding.name,
     _requestContext,
@@ -72,6 +71,7 @@ export const metaTxRequestBinding = async (
     if (record && record === data.type) {
       logger.info("Handling metatx request for tx", requestContext, methodContext, {
         type: data.type,
+        record: record,
       });
       return;
     }
@@ -119,65 +119,68 @@ export const metaTxRequestBinding = async (
     } finally {
       handlingTracker.delete(txData.transactionId);
     }
-  } else if (data.type === MetaTxTypes.Prepare) {
-    if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
-      logger.warn(
-        "Provided transactionManagerAddress does not map to our configured transactionManagerAddress",
-        requestContext,
-        methodContext,
-        { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
-      );
-      return;
-    }
+  }
+  // else if (data.type === MetaTxTypes.Prepare) {
+  //   if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
+  //     logger.warn(
+  //       "Provided transactionManagerAddress does not map to our configured transactionManagerAddress",
+  //       requestContext,
+  //       methodContext,
+  //       { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
+  //     );
+  //     return;
+  //   }
 
-    const { txData, expiry, encryptedCallData, encodedBid, bidSignature, amount }: MetaTxPreparePayload = data.data;
-    if (chainId !== txData.receivingChainId) {
-      logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
-        chainId,
-        receivingChainId: txData.receivingChainId,
-      });
-      return;
-    }
+  //   const { txData, expiry, encryptedCallData, encodedBid, bidSignature, amount }: MetaTxPreparePayload = data.data;
+  //   if (chainId !== txData.receivingChainId) {
+  //     logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
+  //       chainId,
+  //       receivingChainId: txData.receivingChainId,
+  //     });
+  //     return;
+  //   }
 
-    const record = handlingTracker.get(txData.transactionId);
-    if (record && record === data.type) {
-      logger.info("Handling metatx request for tx", requestContext, methodContext, {
-        type: data.type,
-      });
-      return;
-    }
-    handlingTracker.set(txData.transactionId, data.type);
+  //   const record = handlingTracker.get(txData.transactionId);
+  //   if (record && record === data.type) {
+  //     logger.info("Handling metatx request for tx", requestContext, methodContext, {
+  //       type: data.type,
+  //       record: record,
+  //     });
+  //     return;
+  //   }
+  //   handlingTracker.set(txData.transactionId, data.type);
 
-    logger.debug("Handling prepare request", requestContext, methodContext);
-    try {
-      // TODO: need to modify function to be able to handle receiver side prepare as metatx
-      const tx = await prepare(
-        txData,
-        {
-          amount: txData.amount,
-          expiry: txData.expiry,
-          preparedBlockNumber: txData.preparedBlockNumber,
-          signature,
-          relayerFee,
-          callData,
-          side: "receiver",
-        },
-        { ...requestContext, transactionId: txData.transactionId },
-      );
-      if (tx) {
-        await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
-        // Increment collected fees on relayer fee
-        feesCollected.inc({
-          assetId: txData.receivingAssetId,
-          chainId: txData.receivingChainId,
-          amount: relayerFee,
-        });
-      }
-      logger.info("Handled fulfill request", requestContext, methodContext);
-    } finally {
-      handlingTracker.delete(txData.transactionId);
-    }
-  } else {
+  //   logger.debug("Handling prepare request", requestContext, methodContext);
+  //   try {
+  //     // TODO: need to modify function to be able to handle receiver side prepare as metatx
+  //     const tx = await prepare(
+  //       txData,
+  //       {
+  //         amount: txData.amount,
+  //         expiry: txData.expiry,
+  //         preparedBlockNumber: txData.preparedBlockNumber,
+  //         signature,
+  //         relayerFee,
+  //         callData,
+  //         side: "receiver",
+  //       },
+  //       { ...requestContext, transactionId: txData.transactionId },
+  //     );
+  //     if (tx) {
+  //       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
+  //       // Increment collected fees on relayer fee
+  //       feesCollected.inc({
+  //         assetId: txData.receivingAssetId,
+  //         chainId: txData.receivingChainId,
+  //         amount: relayerFee,
+  //       });
+  //     }
+  //     logger.info("Handled fulfill request", requestContext, methodContext);
+  //   } finally {
+  //     handlingTracker.delete(txData.transactionId);
+  //   }
+  // }
+  else {
     logger.debug("Unhandled metatx type", requestContext, methodContext, { chainConfig, type: data.type });
     return;
   }
