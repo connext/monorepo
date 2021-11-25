@@ -8,8 +8,21 @@ import "./Router.sol";
 
 contract RouterFactory is IRouterFactory, Ownable {
 
+  /**
+  * @dev The stored chain id of the contract, may be passed in to avoid any 
+  *      evm issues
+  */
   uint256 private immutable chainId;
+
+    /**
+    * @dev The transaction Manager contract
+    */
   ITransactionManager public transactionManager;
+
+   /**
+    * @dev Mapping of signer to created Router contract address
+    */
+  mapping(address => address) public routerAddresses;
 
   constructor(address _transactionManager, uint256 _chainId) {
     chainId = _chainId;
@@ -22,7 +35,9 @@ contract RouterFactory is IRouterFactory, Ownable {
 
   function createRouter(address signer, address recipient) override external returns (address) {
     Router router = new Router(address(transactionManager), signer, recipient, msg.sender, chainId);
-    emit RouterCreated(address(router));
+
+    routerAddresses[signer] = address(router);
+    emit RouterCreated(address(router, signer, recipient, msg.sender));
     return address(router);
   }
 }
