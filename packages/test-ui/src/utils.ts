@@ -35,18 +35,18 @@ export const getBalance = async (
   return balance;
 };
 
-export const getChainName = (chainId: number, chainData: ChainData[]): string => {
-  const chain = chainData.find((chain) => chain?.chainId === chainId);
+export const getChainName = (chainId: number, chainData: Map<string, ChainData>): string => {
+  const chain = chainData.get(chainId.toString());
   return chain?.name ?? chainId.toString();
 };
 
-export const getExplorerLinkForTx = (tx: string, chainId: number, chainData: ChainData[]) => {
-  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+export const getExplorerLinkForTx = (tx: string, chainId: number, chainData: Map<string, ChainData>) => {
+  const explorer = chainData.get(chainId.toString())?.explorers[0]?.url;
   return explorer ? `${explorer}/tx/${tx}` : "#";
 };
 
-export const getExplorerLinkForAddress = (address: string, chainId: number, chainData: ChainData[]) => {
-  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+export const getExplorerLinkForAddress = (address: string, chainId: number, chainData: Map<string, ChainData>) => {
+  const explorer = chainData.get(chainId.toString())?.explorers[0]?.url;
   return explorer ? `${explorer}/address/${address}` : "#";
 };
 
@@ -54,9 +54,9 @@ export const getDecimalsForAsset = async (
   assetId: string,
   chainId: number,
   provider: providers.Provider,
-  chainData: ChainData[],
+  chainData: Map<string, ChainData>,
 ): Promise<number> => {
-  const chainInfo = chainData.find((data) => data.chainId === chainId);
+  const chainInfo = chainData.get(chainId.toString());
   const decimals = chainInfo?.assetId[assetId]?.decimals;
   if (decimals) {
     return decimals;

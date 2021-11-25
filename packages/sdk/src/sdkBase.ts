@@ -85,7 +85,6 @@ import {
   getTokenPrice,
   gelatoFulfill,
   isChainSupportedByGelato,
-  getChainData,
   getDecimalsForAsset,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
@@ -114,7 +113,7 @@ export class NxtpSdkBase {
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
-  private readonly chainData: Promise<Map<string, ChainData> | undefined>;
+  public readonly chainData?: Map<string, ChainData>;
 
   // Keep messaging evts separate from the evt container that has things
   // attached to it
@@ -214,7 +213,7 @@ export class NxtpSdkBase {
 
         let subgraph = _subgraph;
         if (!subgraph) {
-          subgraph = getDeployedSubgraphUri(chainId);
+          subgraph = getDeployedSubgraphUri(chainId, this.chainData);
         }
         if (!subgraph || subgraph.length === 0) {
           throw new NoSubgraph(chainId);
@@ -234,7 +233,6 @@ export class NxtpSdkBase {
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
     this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
-    this.chainData = getChainData();
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -294,7 +292,6 @@ export class NxtpSdkBase {
     const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
 
     const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
-    const chainData = await this.chainData;
 
     const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
     const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
@@ -307,13 +304,18 @@ export class NxtpSdkBase {
     }
 
     // validate that assets/chains are supported and there is enough liquidity
-    const inputDecimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, chainData);
+    const inputDecimals = await getDecimalsForAsset(
+      sendingAssetId,
+      sendingChainId,
+      sendingChainProvider,
+      this.chainData,
+    );
 
     const outputDecimals = await getDecimalsForAsset(
       receivingAssetId,
       receivingChainId,
       receivingChainProvider,
-      chainData,
+      this.chainData,
     );
 
     this.logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
