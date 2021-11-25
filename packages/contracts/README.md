@@ -132,7 +132,7 @@ You can also add a `.env` to the `packages/contracts` dir with the above env var
 2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
+yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
 ```
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
