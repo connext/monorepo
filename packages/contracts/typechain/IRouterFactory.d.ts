@@ -21,12 +21,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IRouterFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "createRouter(address,address,uint256)": FunctionFragment;
+    "createRouter(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createRouter",
-    values: [string, string, BigNumberish]
+    values: [string, string]
   ): string;
 
   decodeFunctionResult(
@@ -88,7 +88,6 @@ export class IRouterFactory extends BaseContract {
     createRouter(
       router: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -96,7 +95,6 @@ export class IRouterFactory extends BaseContract {
   createRouter(
     router: string,
     recipient: string,
-    chainId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -104,7 +102,6 @@ export class IRouterFactory extends BaseContract {
     createRouter(
       router: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -119,7 +116,6 @@ export class IRouterFactory extends BaseContract {
     createRouter(
       router: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -128,7 +124,6 @@ export class IRouterFactory extends BaseContract {
     createRouter(
       router: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

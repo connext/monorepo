@@ -35,11 +35,6 @@ const _abi = [
         name: "recipient",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "chainId",
-        type: "uint256",
-      },
     ],
     name: "createRouter",
     outputs: [

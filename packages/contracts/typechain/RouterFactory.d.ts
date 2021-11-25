@@ -21,7 +21,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RouterFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "createRouter(address,address,uint256)": FunctionFragment;
+    "createRouter(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setTransactionManager(address)": FunctionFragment;
@@ -31,7 +31,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
 
   encodeFunctionData(
     functionFragment: "createRouter",
-    values: [string, string, BigNumberish]
+    values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -129,7 +129,6 @@ export class RouterFactory extends BaseContract {
     createRouter(
       signer: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -155,7 +154,6 @@ export class RouterFactory extends BaseContract {
   createRouter(
     signer: string,
     recipient: string,
-    chainId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -181,7 +179,6 @@ export class RouterFactory extends BaseContract {
     createRouter(
       signer: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -220,7 +217,6 @@ export class RouterFactory extends BaseContract {
     createRouter(
       signer: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -247,7 +243,6 @@ export class RouterFactory extends BaseContract {
     createRouter(
       signer: string,
       recipient: string,
-      chainId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
