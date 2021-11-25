@@ -7,7 +7,7 @@ import { TIntegerString, TAddress, TChainId } from "./basic";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
-import { FulfillParams } from "./transactionManager";
+import { FulfillParams, PrepareParams } from "./transactionManager";
 import { createLoggingContext, createRequestContext, getUuid, RequestContext } from "./request";
 import { Logger } from "./logger";
 
@@ -385,14 +385,17 @@ export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
 export const MetaTxTypes = {
   Fulfill: "Fulfill",
+  Prepare: "Prepare",
 } as const;
 export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
 
 export type MetaTxPayloads = {
   [MetaTxTypes.Fulfill]: MetaTxFulfillPayload;
+  [MetaTxTypes.Prepare]: MetaTxPreparePayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
+export type MetaTxPreparePayload = PrepareParams;
 
 // TODO: #155 include `cancel`
 
@@ -611,6 +614,32 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
       err,
       requestContext,
     );
+  }
+
+  /**
+   * Publishes a request for a relayer to submit a transaction on behalf of the user
+   *
+   * @param data - The meta transaction information
+   * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
+   * @returns The inbox that will receive responses
+   */
+  async publishMetaTxRequest<T extends MetaTxType>(
+    data: MetaTxPayload<T>,
+    inbox?: string,
+    _requestContext?: RequestContext,
+  ): Promise<{ inbox: string }> {
+    if (!inbox) {
+      inbox = generateMessagingInbox();
+    }
+    const signerAddress = await this.signer.getAddress();
+    await this.publishNxtpMessage(
+      `${signerAddress}.${signerAddress}.${METATX_REQUEST_SUBJECT}`,
+      data,
+      inbox,
+      undefined, // error
+      _requestContext ?? createRequestContext(this.publishMetaTxRequest.name),
+    );
+    return { inbox };
   }
 }
 

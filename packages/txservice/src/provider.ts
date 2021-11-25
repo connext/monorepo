@@ -35,7 +35,7 @@ export class ChainRpcProvider {
   // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
   // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
   private readonly _providers: providers.JsonRpcProvider[];
-  private readonly provider: providers.FallbackProvider;
+  public readonly provider: providers.FallbackProvider;
   private readonly signer?: Signer;
   private readonly quorum: number;
   private cachedGas?: CachedGas;

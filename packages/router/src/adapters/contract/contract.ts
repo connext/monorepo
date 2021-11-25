@@ -7,8 +7,11 @@ import {
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
   TransactionData,
+  isChainSupportedByGelato,
+  gelatoSend,
+  MetaTxTypes,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
@@ -190,7 +193,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepare.name);
 
-  const { logger, txService, wallet } = getContext();
+  const { logger, txService, wallet, config, messaging } = getContext();
   logger.info("Method start", requestContext, methodContext, { prepareParams });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
@@ -209,16 +212,52 @@ export const prepare = async (
     },
   ]);
 
-  return await txService.sendTx(
-    {
-      to: nxtpContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  if (config.chainConfig[chainId].routerContractAddress) {
+    if (isChainSupportedByGelato(chainId)) {
+      try {
+        await gelatoSend(
+          chainId,
+          nxtpContractAddress,
+          encodedData,
+          chainId === txData.sendingChainId ? txData.sendingAssetId : txData.receivingAssetId,
+          "0",
+        );
+      } catch (err) {}
+    } else {
+      await messaging.publishMetaTxRequest({
+        type: MetaTxTypes.Prepare,
+        relayerFee: "0",
+        to: nxtpContractAddress,
+        chainId,
+        data: {
+          txData,
+          amount,
+          expiry,
+          encryptedCallData,
+          encodedBid,
+          bidSignature,
+        },
+      });
+    }
+    // listen for event on contract
+    const contract = new Contract(
+      nxtpContractAddress,
+      getTxManagerInterface(),
+      txService.getProvider(chainId).provider,
+    );
+    // const receipt = await contract.on(...);
+  } else {
+    return await txService.sendTx(
+      {
+        to: nxtpContractAddress,
+        data: encodedData,
+        value: constants.Zero,
+        chainId,
+        from: wallet.address,
+      },
+      requestContext,
+    );
+  }
 };
 
 export const fulfill = async (
