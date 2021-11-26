@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [txservice] removed TransactionServiceFailure error, replaced with specific error types
+
 ## 0.0.92
 
 - [utils] Add native asset decimals handling
