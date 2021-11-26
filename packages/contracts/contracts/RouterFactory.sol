@@ -24,7 +24,9 @@ contract RouterFactory is IRouterFactory, Ownable {
    */
   mapping(address => address) public routerAddresses;
 
-  constructor() {}
+  constructor(address _owner) {
+    transferOwnership(_owner);
+  }
 
   function init(address _transactionManager, uint256 _chainId) external onlyOwner {
     transactionManager = ITransactionManager(_transactionManager);
