@@ -1,4 +1,4 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
 import { Evt } from "evt";
 import {
   ajv,
@@ -34,6 +34,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { abi as RouterAbi } from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 
 import {
   NoTransactionManager,
@@ -420,11 +421,14 @@ export class NxtpSdkBase {
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
     } = params;
-    if (!this.config.chainConfig[sendingChainId]) {
+
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.config.chainConfig[receivingChainId]) {
+    if (!receivingChainProvider) {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
@@ -588,9 +592,23 @@ export class NxtpSdkBase {
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
           if (signer !== data.bid.router) {
-            const msg = "Invalid router signature on bid";
-            this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
-            return msg;
+            const code = await receivingChainProvider.getCode(data.bid.router);
+            if (code !== "0x") {
+              const routerSigner = await new Contract(
+                data.bid.router,
+                RouterAbi,
+                receivingChainProvider,
+              ).routerSigner();
+              if (routerSigner !== signer) {
+                const msg = "Invalid routerContract signature on bid";
+                this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router, routerSigner });
+                return msg;
+              }
+            } else {
+              const msg = "Invalid router signature on bid";
+              this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
+              return msg;
+            }
           }
 
           // check contract for router liquidity
