@@ -40,7 +40,8 @@ contract RouterFactory is IRouterFactory, Ownable {
    */
 
   function createRouter(address routerSigner, address recipient) external override returns (address) {
-    address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode(routerSigner, recipient, msg.sender));
+    address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode(routerSigner, recipient));
+    Router(router).init(address(transactionManager), chainId, msg.sender);
 
     routerAddresses[routerSigner] = router;
     emit RouterCreated(router, routerSigner, recipient, msg.sender, address(transactionManager));
@@ -51,27 +52,18 @@ contract RouterFactory is IRouterFactory, Ownable {
    * @notice Allows us to get the address for a new router contract created via `createRouter`
    * @param routerSigner address router signer
    * @param recipient address recipient
-   * @param owner address router contract owner
    */
-  function getRouterAddress(
-    address routerSigner,
-    address recipient,
-    address owner
-  ) external view returns (address) {
-    return Create2.computeAddress(generateSalt(routerSigner), keccak256(getBytecode(routerSigner, recipient, owner)));
+  function getRouterAddress(address routerSigner, address recipient) external view returns (address) {
+    return Create2.computeAddress(generateSalt(routerSigner), keccak256(getBytecode(routerSigner, recipient)));
   }
 
   ////////////////////////////////////////
   // Internal Methods
 
-  function getBytecode(
-    address routerSigner,
-    address recipient,
-    address owner
-  ) internal view returns (bytes memory) {
+  function getBytecode(address routerSigner, address recipient) internal pure returns (bytes memory) {
     bytes memory bytecode = type(Router).creationCode;
 
-    return abi.encodePacked(bytecode, abi.encode(address(transactionManager), routerSigner, recipient, owner, chainId));
+    return abi.encodePacked(bytecode, abi.encode(routerSigner, recipient));
   }
 
   function generateSalt(address routerSigner) internal pure returns (bytes32) {
