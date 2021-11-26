@@ -24,26 +24,26 @@ contract Router is Ownable {
     address routerSigner; // For domain separation
   }
 
-  constructor(address _routerSigner, address _recipient) {
+  constructor(
+    address _routerSigner,
+    address _recipient,
+    address _owner
+  ) {
     routerFactory = msg.sender;
     routerSigner = _routerSigner;
     recipient = _recipient;
+    transferOwnership(_owner);
   }
 
   // Prevents from calling methods other than RouterFactory contract
   modifier onlyViaFactory() {
-    require(msg.sender != routerFactory, "ONLY_VIA_FACTORY");
+    require(msg.sender == routerFactory, "ONLY_VIA_FACTORY");
     _;
   }
 
-  function init(
-    address _transactionManager,
-    uint256 _chainId,
-    address _owner
-  ) external onlyViaFactory {
+  function init(address _transactionManager, uint256 _chainId) external onlyViaFactory {
     transactionManager = ITransactionManager(_transactionManager);
     chainId = _chainId;
-    transferOwnership(_owner);
   }
 
   function setRecipient(address _recipient) external onlyOwner {
