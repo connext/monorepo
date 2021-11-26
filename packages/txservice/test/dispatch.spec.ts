@@ -8,13 +8,15 @@ import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
 import {
   BadNonce,
+  MaxAttemptsReached,
   MaxBufferLengthError,
+  NotEnoughConfirmations,
   RpcError,
   TimeoutError,
   TransactionError,
+  TransactionProcessingError,
   TransactionReplaced,
   TransactionReverted,
-  TransactionServiceFailure,
 } from "../src/error";
 import { Gas, Transaction } from "../src/types";
 import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RECEIPT, TEST_TX_RESPONSE } from "./constants";
@@ -171,7 +173,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should fail if there is a non-timeout tx error", async () => {
-      stubTx.error = new TransactionServiceFailure("test error");
+      stubTx.error = new Error("test error");
       await (txDispatch as any).mineLoop();
       expect(fail).callCount(0);
     });
@@ -524,13 +526,13 @@ describe("TransactionDispatch", () => {
 
     it("should throw if the transaction is already finished", async () => {
       fakeTransactionState.didFinish = true;
-      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
     it("should throw if it's a second attempt and gas price hasn't been increased", async () => {
       const txResponse: providers.TransactionResponse = { ...TEST_TX_RESPONSE };
       transaction.responses = [txResponse];
-      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
     it("should throw if sendTransaction errors", async () => {
@@ -560,12 +562,12 @@ describe("TransactionDispatch", () => {
 
     it("throws if tx did not submit", async () => {
       fakeTransactionState.didSubmit = false;
-      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
     it("throws if confirmTransaction errors with TransactionReplaced but no replacement exists", async () => {
       confirmTransaction.returns(errAsync(new TransactionReplaced(undefined, undefined)));
-      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionServiceFailure);
+      await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
     it("throws if confirmTransaction errors with TransactionReplaced but replacement is unrecognized", async () => {
@@ -696,9 +698,7 @@ describe("TransactionDispatch", () => {
     it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
       const timeoutError = new TimeoutError("test");
       confirmTransaction.returns(errAsync(timeoutError));
-      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        TransactionServiceFailure.reasons.NotEnoughConfirmations,
-      );
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(NotEnoughConfirmations);
     });
   });
 
@@ -710,9 +710,7 @@ describe("TransactionDispatch", () => {
 
     it("should throw if reached MAX_ATTEMPTS", async () => {
       transaction.attempt = Transaction.MAX_ATTEMPTS;
-      await expect(txDispatch.bump(transaction)).to.be.rejectedWith(
-        TransactionServiceFailure.reasons.MaxAttemptsReached,
-      );
+      await expect(txDispatch.bump(transaction)).to.be.rejectedWith(MaxAttemptsReached);
     });
 
     it("should fail if getGasPrice fails", async () => {

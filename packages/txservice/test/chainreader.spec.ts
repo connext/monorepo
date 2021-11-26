@@ -4,7 +4,7 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from 
 import { ChainReader } from "../src/chainreader";
 import { ChainRpcProvider } from "../src/provider";
 import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_READ_TX, TEST_TX_RECEIPT, makeChaiReadable } from "./constants";
-import { RpcError, TransactionServiceFailure } from "../src/error";
+import { ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
 import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
 import { err, ok } from "neverthrow";
 
@@ -173,7 +173,7 @@ describe("ChainReader", () => {
     it("errors if cannot get provider", async () => {
       // Replacing this method with the original fn not working.
       (chainReader as any).getProvider.restore();
-      await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(TransactionServiceFailure);
+      await expect(chainReader.readTx({ ...TEST_TX, chainId: 9999 })).to.be.rejectedWith(ProviderNotConfigured);
     });
   });
 
@@ -187,7 +187,7 @@ describe("ChainReader", () => {
           gasStations: [],
         },
       };
-      expect(() => (chainReader as any).setupProviders(context, signer)).to.throw(TransactionServiceFailure);
+      expect(() => (chainReader as any).setupProviders(context, signer)).to.throw(ConfigurationError);
     });
   });
 });

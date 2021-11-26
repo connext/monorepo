@@ -4,7 +4,7 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from 
 import { ChainService } from "../src/chainservice";
 import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
 import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
-import { TransactionReverted, TransactionServiceFailure } from "../src/error";
+import { ConfigurationError, ProviderNotConfigured, TransactionReverted } from "../src/error";
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
 import { Gas, NxtpTxServiceEvents, Transaction } from "../src/types";
@@ -240,7 +240,7 @@ describe("ChainService", () => {
       // Replacing this method with the original fn not working.
       (chainService as any).getProvider.restore();
       await expect(chainService.sendTx({ ...TEST_TX, chainId: 9999 }, context)).to.be.rejectedWith(
-        TransactionServiceFailure,
+        ProviderNotConfigured,
       );
     });
   });
@@ -255,7 +255,7 @@ describe("ChainService", () => {
           gasStations: [],
         },
       };
-      expect(() => (chainService as any).setupProviders(context, signer)).to.throw(TransactionServiceFailure);
+      expect(() => (chainService as any).setupProviders(context, signer)).to.throw(ConfigurationError);
     });
   });
 });
