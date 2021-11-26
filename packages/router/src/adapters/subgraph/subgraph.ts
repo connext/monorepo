@@ -119,7 +119,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         }
 
         const routerContractAddress = config.chainConfig[chainId].routerContractAddress;
-        const routerAddress = routerContractAddress!;
+        const routerAddress = routerContractAddress || walletAddress;
 
         // update synced status
         await setSyncRecord(chainId, requestContext);
