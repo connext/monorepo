@@ -2,7 +2,10 @@
 
 ## Next Release
 
+## 0.0.92
+
 - [utils] Add native asset decimals handling
+- [utils] Fallback subgraph should order synced subgraphs first
 
 ## 0.0.91
 
