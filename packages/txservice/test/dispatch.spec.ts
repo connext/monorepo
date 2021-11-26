@@ -616,7 +616,7 @@ describe("TransactionDispatch", () => {
       confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
 
       await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
-        "Transaction was reverted but TransactionReverted error was not thrown",
+        TransactionProcessingError.reasons.DidNotThrowRevert,
       );
     });
 
@@ -625,7 +625,7 @@ describe("TransactionDispatch", () => {
       confirmTransaction.returns(okAsync({ ...txReceiptMock, confirmations: 0 }));
 
       await expect((txDispatch as any).mine(transaction)).to.be.rejectedWith(
-        "Receipt did not have any confirmations, should have timed out",
+        TransactionProcessingError.reasons.InsufficientConfirmations,
       );
     });
 
@@ -668,14 +668,14 @@ describe("TransactionDispatch", () => {
     it("throws if you have not submitted yet", async () => {
       fakeTransactionState.didSubmit = false;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Transaction mine was called, but no transaction has been sent.",
+        TransactionProcessingError.reasons.MineOutOfOrder,
       );
     });
 
     it("throws if the transaction has no receipt (from mining step)", async () => {
       transaction.receipt = undefined;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
+        TransactionProcessingError.reasons.ConfirmOutOfOrder,
       );
     });
 
@@ -683,7 +683,9 @@ describe("TransactionDispatch", () => {
       transaction.responses = [TEST_TX_RESPONSE];
       confirmTransaction.returns(okAsync(null));
 
-      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith("Transaction receipt was null");
+      await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
+        TransactionProcessingError.reasons.NullReceipt,
+      );
     });
 
     it("throws if confirmTransaction receipt status == 0", async () => {
@@ -691,7 +693,7 @@ describe("TransactionDispatch", () => {
       confirmTransaction.returns(okAsync({ ...txReceiptMock, status: 0 }));
 
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
-        "Transaction was reverted but TransactionReverted error was not thrown",
+        TransactionProcessingError.reasons.DidNotThrowRevert,
       );
     });
 
