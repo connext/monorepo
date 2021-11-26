@@ -1,4 +1,5 @@
 import { task } from "hardhat/config";
+import { utils } from "ethers";
 
 export default task("deploy-router-factory", "deploy router factory contract")
   .addParam("signer", "The router's signer address")
@@ -14,7 +15,8 @@ export default task("deploy-router-factory", "deploy router factory contract")
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const { address, deploy } = await deployments.deterministic("RouterFactory", {
       from: namedAccounts.deployer,
-      args: [],
+      salt: utils.keccak256(namedAccounts.deployer),
+      args: [namedAccounts.deployer],
       log: true,
     });
 
