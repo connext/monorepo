@@ -34,12 +34,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
         name: "transactionManager",
         type: "address",
       },

@@ -24,7 +24,7 @@ interface RouterInterface extends ethers.utils.Interface {
   functions: {
     "cancel(tuple,bytes)": FunctionFragment;
     "fulfill(tuple,bytes)": FunctionFragment;
-    "init(address,uint256,address)": FunctionFragment;
+    "init(address,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,bytes)": FunctionFragment;
     "recipient()": FunctionFragment;
@@ -98,7 +98,7 @@ interface RouterInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "init",
-    values: [string, BigNumberish, string]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -307,7 +307,6 @@ export class Router extends BaseContract {
     init(
       _transactionManager: string,
       _chainId: BigNumberish,
-      _owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -435,7 +434,6 @@ export class Router extends BaseContract {
   init(
     _transactionManager: string,
     _chainId: BigNumberish,
-    _owner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -635,7 +633,6 @@ export class Router extends BaseContract {
     init(
       _transactionManager: string,
       _chainId: BigNumberish,
-      _owner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -802,7 +799,6 @@ export class Router extends BaseContract {
     init(
       _transactionManager: string,
       _chainId: BigNumberish,
-      _owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -931,7 +927,6 @@ export class Router extends BaseContract {
     init(
       _transactionManager: string,
       _chainId: BigNumberish,
-      _owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
