@@ -222,6 +222,13 @@ export class FallbackSubgraph<T extends SdkLike> {
       sdk.priority =
         sdk.record.lag - sdk.metrics.cps / FallbackSubgraph.MAX_CPS - sdk.metrics.reliability + sdk.metrics.avgExecTime;
     });
-    return this.sdks.sort((sdk) => sdk.priority);
+    // Always start with the in sync subgraphs and then concat the out of sync subgraphs.
+    // Metrics should only come in to play to sort subgraph call order within each group (i.e. we should never prioritize
+    // an out-of-sync subgraph over a synced one).
+    return this.sdks
+      .filter((sdk) => sdk.record.synced)
+      .sort((sdkA, sdkB) => sdkA.priority - sdkB.priority)
+      .concat(this.sdks.filter((sdk) => !sdk.record.synced))
+      .sort((sdkA, sdkB) => sdkA.priority - sdkB.priority);
   }
 }
