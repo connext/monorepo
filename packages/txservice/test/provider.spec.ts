@@ -175,19 +175,19 @@ describe("ChainRpcProvider", () => {
   describe("#readTransaction", () => {
     it("happy: should read the transaction", async () => {
       const fakeData = getRandomBytes32();
-      signer.call.resolves(fakeData);
+      coreProvider.call.resolves(fakeData);
 
       const result = await chainProvider.readTransaction(TEST_READ_TX);
 
-      expect(signer.call.callCount).to.equal(1);
-      expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
+      expect(coreProvider.call.callCount).to.equal(1);
+      expect(coreProvider.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result.isOk()).to.be.true;
       expect(result.isOk() ? result.value : null).to.be.eq(fakeData);
     });
 
     it("should return error result if the signer readTransaction call throws", async () => {
       const testError = new Error("test error");
-      signer.call.rejects(testError);
+      coreProvider.call.rejects(testError);
 
       const result = await chainProvider.readTransaction(TEST_READ_TX);
 

@@ -9,6 +9,7 @@ import {
   createLoggingContext,
   encrypt,
   isNode,
+  ChainData,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -34,7 +35,13 @@ import {
   CancelParams,
   GetTransferQuote,
 } from "./types";
-import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest, getGasLimit } from "./utils";
+import {
+  signFulfillTransactionPayload,
+  encodeAuctionBid,
+  ethereumRequest,
+  getGasLimit,
+  getDecimalsForAsset,
+} from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 import { NxtpSdkBase } from "./sdkBase";
 
@@ -79,6 +86,7 @@ export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly sdkBase: NxtpSdkBase;
   private readonly logger: Logger;
+  public readonly chainData?: Map<string, ChainData>;
 
   constructor(
     private readonly config: {
@@ -100,10 +108,22 @@ export class NxtpSdk {
       messaging?: UserNxtpNatsMessagingService;
       skipPolling?: boolean;
       sdkBase?: NxtpSdkBase;
+      chainData?: Map<string, ChainData>;
     },
   ) {
-    const { chainConfig, signer, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling, sdkBase } =
-      this.config;
+    const {
+      chainConfig,
+      signer,
+      messagingSigner,
+      messaging,
+      natsUrl,
+      authUrl,
+      logger,
+      network,
+      skipPolling,
+      sdkBase,
+      chainData,
+    } = this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk" });
 
@@ -120,7 +140,9 @@ export class NxtpSdk {
         network,
         messagingSigner,
         skipPolling,
+        chainData,
       });
+    this.chainData = this.sdkBase.chainData;
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -169,12 +191,19 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInSendingToken");
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
+
+    if (!sendingChainProvider) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
+    }
+    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, this.chainData);
+
     const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      true,
+      decimals,
       requestContext,
       methodContext,
     );
@@ -197,12 +226,23 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInReceivingToken");
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    if (!receivingChainProvider) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
+    }
+    const decimals = await getDecimalsForAsset(
+      receivingAssetId,
+      receivingChainId,
+      receivingChainProvider,
+      this.chainData,
+    );
+
     const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      false,
+      decimals,
       requestContext,
       methodContext,
     );
@@ -225,12 +265,20 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInSendingToken");
+
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
+
+    if (!sendingChainProvider) {
+      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
+    }
+    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, this.chainData);
+
     const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      true,
+      decimals,
       requestContext,
       methodContext,
     );
@@ -254,12 +302,24 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInReceivingToken");
+
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    if (!receivingChainProvider) {
+      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
+    }
+    const decimals = await getDecimalsForAsset(
+      receivingAssetId,
+      receivingChainId,
+      receivingChainProvider,
+      this.chainData,
+    );
+
     const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      false,
+      decimals,
       requestContext,
       methodContext,
     );

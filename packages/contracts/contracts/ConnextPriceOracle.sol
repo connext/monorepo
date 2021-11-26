@@ -49,9 +49,11 @@ contract ConnextPriceOracle is PriceOracle {
     }
 
     mapping(address => PriceInfo) public priceRecords;
+    mapping(address => uint256) public assetPrices;
     
     event NewAdmin(address oldAdmin, address newAdmin);
     event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
+    event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
     event AggregatorUpdated(address tokenAddress, address source);
 
     constructor(address _wrapped) {
@@ -64,7 +66,10 @@ contract ConnextPriceOracle is PriceOracle {
         if (_tokenAddress == address(0)) {
             tokenAddress = wrapped;
         }
-        uint256 tokenPrice = getPriceFromOracle(tokenAddress);
+        uint256 tokenPrice = assetPrices[tokenAddress];
+        if (tokenPrice == 0) {
+            tokenPrice = getPriceFromOracle(tokenAddress);
+        }
         if (tokenPrice == 0) {
             tokenPrice = getPriceFromDex(tokenAddress);
         } 
@@ -113,7 +118,7 @@ contract ConnextPriceOracle is PriceOracle {
         return 0;        
     }
 
-    function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) public {
+    function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) external {
         require(msg.sender == admin, "only admin can set DEX price");
         PriceInfo storage priceInfo = priceRecords[_token];
         uint256 baseTokenPrice = getPriceFromOracle(_baseToken);
@@ -123,6 +128,12 @@ contract ConnextPriceOracle is PriceOracle {
         priceInfo.lpToken = _lpToken;
         priceInfo.active = _active;
         emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
+    }
+
+    function setDirectPrice(address _token, uint256 _price) external {
+        require(msg.sender == admin, "only admin can set direct price");
+        emit DirectPriceUpdated(_token, assetPrices[_token], _price);
+        assetPrices[_token] = _price;
     }
 
     function setAdmin(address newAdmin) external {

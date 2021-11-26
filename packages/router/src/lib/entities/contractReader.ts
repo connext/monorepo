@@ -15,7 +15,8 @@ export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[ke
 
 export type Tracker = {
   chainId: number;
-  blockNumber: number;
+  status: TCrosschainTransactionStatus | "Processing";
+  block: number;
 };
 
 export type PreparePayload = {

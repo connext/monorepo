@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider, Menu, Dropdown } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getChainData, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 
@@ -10,7 +10,7 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 type RouterProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 const decimals: Record<string, number> = {};
@@ -155,19 +155,21 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
     const balancesOnNetwork = _network ?? network;
 
+    const _chainData = await getChainData();
+
     const entries = await Promise.all(
       (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
-        const uri = getDeployedSubgraphUri(chainId)[0];
-        if (!uri) {
+        const uri = getDeployedSubgraphUri(chainId, _chainData);
+        if (!uri || uri.length === 0) {
           console.error("Subgraph not available for chain: ", chainId);
           return;
         }
-        const data = chainData?.find((c) => c.chainId === chainId);
+        const data = chainData?.get(chainId.toString());
         if (!data) {
           console.error("Chaindata not available for chain: ", chainId);
           return;
         }
-        const liquidity = await request(uri, getLiquidityQuery, { router: routerAddress!.toLowerCase() });
+        const liquidity = await request(uri[0], getLiquidityQuery, { router: routerAddress!.toLowerCase() });
         const balanceEntries = (liquidity?.router?.assetBalances ?? []).map(
           ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
             console.log("chainId: ", chainId);

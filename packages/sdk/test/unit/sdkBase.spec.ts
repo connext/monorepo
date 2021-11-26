@@ -7,6 +7,7 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
+  chainDataMock,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
@@ -34,8 +35,9 @@ import {
   InvalidCallTo,
   NoValidBids,
   RelayFailed,
+  NotEnoughAmount,
 } from "../../src/error";
-import { getAddress, keccak256 } from "ethers/lib/utils";
+import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
 import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
@@ -101,7 +103,8 @@ describe("NxtpSdkBase", () => {
     subgraph.getSyncStatus.returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
     transactionManager = createStubInstance(TransactionManager);
 
-    stub(utils, "getDecimals").resolves(18);
+    stub(utils, "getChainData").resolves(chainDataMock);
+    stub(utils, "getDecimalsForAsset").resolves(18);
     stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(21));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
     provider1337.getGasPrice.resolves(BigNumber.from(10).pow(9));
@@ -214,7 +217,7 @@ describe("NxtpSdkBase", () => {
       receivingAssetId: mkAddress("0xb"),
       callTo: AddressZero,
       receivingAddress: mkAddress("0xa"),
-      amount: "1000000",
+      amount: parseEther("1").toString(),
       expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
       transactionId,
       ...crossChainParamsOverrides,
@@ -226,7 +229,7 @@ describe("NxtpSdkBase", () => {
       initiator: user,
       sendingChainId,
       sendingAssetId: mkAddress("0xa"),
-      amount: "1000000",
+      amount: parseEther("1").toString(),
       receivingChainId,
       receivingAssetId: mkAddress("0xb"),
       amountReceived: "1000000",
@@ -443,6 +446,11 @@ describe("NxtpSdkBase", () => {
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
         InvalidExpiry.getMessage(crossChainParams.expiry, getMinExpiryBuffer(), getMaxExpiryBuffer()),
       );
+    });
+
+    it("should error if receiverAmount is lower than gasFee", async () => {
+      const { crossChainParams } = getMock({ amount: "100000" });
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(NotEnoughAmount.getMessage());
     });
 
     it("should not include improperly signed bids", async () => {
@@ -1081,7 +1089,7 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
@@ -1098,16 +1106,11 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
       expect(result).to.be.eq("0");
-    });
-    it("should error for non configured chains", async () => {
-      await expect(
-        sdk.estimateFeeForRouterTransfer(111, "0x0", 222, "0x0", true, null, null),
-      ).to.eventually.rejectedWith(ChainNotConfigured.getMessage(111, supportedChains));
     });
   });
 
@@ -1119,7 +1122,7 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
@@ -1139,16 +1142,11 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingAssetId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
-        true,
+        18,
         null,
         null,
       );
       expect(result).to.be.eq("0");
-    });
-    it("should error for non configured chains", async () => {
-      await expect(sdk.estimateFeeForMetaTx(111, "0x0", 222, "0x0", true, null, null)).to.eventually.rejectedWith(
-        ChainNotConfigured.getMessage(111, supportedChains),
-      );
     });
   });
 
