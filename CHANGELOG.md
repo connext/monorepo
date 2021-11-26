@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Add native asset decimals handling
+
 ## 0.0.91
 
 - [sdk] Allow chainData to be passed in
