@@ -256,6 +256,71 @@ export class GasEstimateInvalid extends NxtpError {
   }
 }
 
+export class ProviderNotConfigured extends NxtpError {
+  static readonly type = ProviderNotConfigured.name;
+
+  static getMessage(chainId: string): string {
+    return `No provider(s) configured for chain ${chainId}. Make sure this chain's providers are configured.`;
+  }
+
+  constructor(public readonly chainId: string, public readonly context: any = {}) {
+    super(ProviderNotConfigured.getMessage(chainId), context, ProviderNotConfigured.type);
+  }
+}
+
+export class ConfigurationError extends NxtpError {
+  static readonly type = ConfigurationError.name;
+
+  constructor(public readonly invalidParamaters: any, public readonly context: any = {}) {
+    super("Configuration paramater(s) were invalid.", { ...context, invalidParamaters }, ConfigurationError.type);
+  }
+}
+
+export class InitialSubmitFailure extends NxtpError {
+  static readonly type = InitialSubmitFailure.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+      context,
+      InitialSubmitFailure.type,
+    );
+  }
+}
+
+// These errors should essentially never happen; they are only used within the block of sanity checks.
+export class TransactionProcessingError extends NxtpError {
+  static readonly type = TransactionProcessingError.name;
+
+  static readonly reasons = {
+    SubmitOutOfOrder: "Submit was called but transaction is already completed.",
+    MineOutOfOrder: "Transaction mine or confirm was called, but no transaction has been sent.",
+    ConfirmOutOfOrder: "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
+    DidNotBump: "Gas price was not incremented from last transaction.",
+    DuplicateHash: "Received a transaction response with a duplicate hash!",
+    NoReceipt: "No receipt was returned from the transaction.",
+    NullReceipt: "Unable to obtain receipt: ethers responded with null.",
+    ReplacedButNoReplacement: "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
+    DidNotThrowRevert: "Transaction was reverted but TransactionReverted error was not thrown.",
+    InsufficientConfirmations: "Receipt did not have enough confirmations, should have timed out!",
+  };
+
+  constructor(
+    public readonly reason: Values<typeof TransactionProcessingError.reasons>,
+    public readonly method: string,
+    public readonly context: any = {},
+  ) {
+    super(
+      reason,
+      {
+        ...context,
+        method,
+      },
+      TransactionProcessingError.type,
+    );
+  }
+}
+
 /**
  * Parses error strings into strongly typed NxtpError.
  * @param error from ethers.js package

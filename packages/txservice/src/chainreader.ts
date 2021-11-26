@@ -3,8 +3,8 @@ import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-util
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction } from "./types";
-import { TransactionServiceFailure } from "./error";
 import { ChainRpcProvider } from "./provider";
+import { ConfigurationError, ProviderNotConfigured } from "./error";
 
 /**
  * @classdesc Performs onchain reads with embedded retries.
@@ -177,9 +177,7 @@ export class ChainReader {
   protected getProvider(chainId: number): ChainRpcProvider {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
-      throw new TransactionServiceFailure(
-        `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
-      );
+      throw new ProviderNotConfigured(chainId.toString());
     }
     return this.providers.get(chainId)!;
   }
@@ -198,7 +196,9 @@ export class ChainReader {
       const chain: ChainConfig = chains[chainId];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
-        const error = new TransactionServiceFailure(`Provider configurations not found for chainID: ${chainId}`);
+        const error = new ConfigurationError({
+          providers,
+        });
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
           chainId,
           providers,
