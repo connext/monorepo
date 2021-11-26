@@ -22,6 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RouterFactoryInterface extends ethers.utils.Interface {
   functions: {
     "createRouter(address,address)": FunctionFragment;
+    "getRouterAddress(address,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "routerAddresses(address)": FunctionFragment;
@@ -33,6 +34,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "createRouter",
     values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRouterAddress",
+    values: [string, string, string]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -60,6 +65,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
     functionFragment: "createRouter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRouterAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -84,7 +93,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "RouterCreated(address,address,address,address)": EventFragment;
+    "RouterCreated(address,address,address,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -141,6 +150,13 @@ export class RouterFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getRouterAddress(
+      routerSigner: string,
+      recipient: string,
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -168,6 +184,13 @@ export class RouterFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getRouterAddress(
+    routerSigner: string,
+    recipient: string,
+    owner: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -192,6 +215,13 @@ export class RouterFactory extends BaseContract {
     createRouter(
       routerSigner: string,
       recipient: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRouterAddress(
+      routerSigner: string,
+      recipient: string,
+      owner: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -225,12 +255,19 @@ export class RouterFactory extends BaseContract {
 
     RouterCreated(
       router?: null,
-      signer?: null,
-      receipient?: null,
-      creater?: null
+      routerSigner?: null,
+      recipient?: null,
+      owner?: null,
+      transactionManager?: null
     ): TypedEventFilter<
-      [string, string, string, string],
-      { router: string; signer: string; receipient: string; creater: string }
+      [string, string, string, string, string],
+      {
+        router: string;
+        routerSigner: string;
+        recipient: string;
+        owner: string;
+        transactionManager: string;
+      }
     >;
   };
 
@@ -239,6 +276,13 @@ export class RouterFactory extends BaseContract {
       routerSigner: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRouterAddress(
+      routerSigner: string,
+      recipient: string,
+      owner: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -270,6 +314,13 @@ export class RouterFactory extends BaseContract {
       routerSigner: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRouterAddress(
+      routerSigner: string,
+      recipient: string,
+      owner: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;

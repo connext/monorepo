@@ -35,7 +35,7 @@ interface IRouterFactoryInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "RouterCreated(address,address,address,address)": EventFragment;
+    "RouterCreated(address,address,address,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RouterCreated"): EventFragment;
@@ -109,12 +109,19 @@ export class IRouterFactory extends BaseContract {
   filters: {
     RouterCreated(
       router?: null,
-      signer?: null,
-      receipient?: null,
-      creater?: null
+      routerSigner?: null,
+      recipient?: null,
+      owner?: null,
+      transactionManager?: null
     ): TypedEventFilter<
-      [string, string, string, string],
-      { router: string; signer: string; receipient: string; creater: string }
+      [string, string, string, string, string],
+      {
+        router: string;
+        routerSigner: string;
+        recipient: string;
+        owner: string;
+        transactionManager: string;
+      }
     >;
   };
 
