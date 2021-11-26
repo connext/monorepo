@@ -38,12 +38,13 @@ import {
 export const prepare = async (
   chainId: number,
   prepareParams: PrepareParams,
+  prepareRelayerFee: string,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepare.name);
 
   const { logger, txService, wallet, config } = getContext();
-  logger.info("Method start", requestContext, methodContext, { prepareParams });
+  logger.info("Method start", requestContext, methodContext, { prepareParams, prepareRelayerFee });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
@@ -51,11 +52,10 @@ export const prepare = async (
   const routerContractAddress = config.chainConfig[chainId]?.routerContractAddress;
   if (
     routerContractAddress &&
-    routerContractAddress === txData.router &&
-    isChainSupportedByGelato(chainId) &&
-    chainId === txData.receivingChainId
+    routerContractAddress.toLowerCase() === txData.router.toLowerCase() &&
+    isChainSupportedByGelato(chainId)
   ) {
-    logger.info("gelato prepare", requestContext, methodContext, { prepareParams });
+    logger.info("gelato prepare", requestContext, methodContext, { prepareParams, prepareRelayerFee });
     const signature = await signRouterPrepareTransactionPayload(
       txData,
       amount,
@@ -80,7 +80,7 @@ export const prepare = async (
     ]);
 
     try {
-      await gelatoSend(chainId, routerContractAddress, encodedData, txData.receivingAssetId, "0");
+      await gelatoSend(chainId, routerContractAddress, encodedData, txData.receivingAssetId, prepareRelayerFee);
     } catch (err) {
       logger.error("gelato send failed", requestContext, methodContext, err as NxtpError, { prepareParams });
 
