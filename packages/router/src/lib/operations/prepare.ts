@@ -74,12 +74,11 @@ export const prepare = async (
   const bid = decodeAuctionBid(encodedBid);
   logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
-  const routerContractAddress = config.chainConfig[invariantData.receivingChainId]?.routerContractAddress;
-  const routerAddress = routerContractAddress ? routerContractAddress : await wallet.getAddress();
+  const signerAddress = await wallet.getAddress();
   const recovered = recoverAuctionBid(bid, bidSignature);
-  if (recovered !== routerAddress) {
+  if (recovered !== signerAddress) {
     // cancellable error
-    throw new AuctionSignerInvalid(routerAddress, recovered, { methodContext, requestContext });
+    throw new AuctionSignerInvalid(signerAddress, recovered, { methodContext, requestContext });
   }
 
   if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {
@@ -107,7 +106,9 @@ export const prepare = async (
   logger.info("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
+
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
+  const prepareRelayerFee = gasFeeInReceivingToken.toString();
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.router,
@@ -184,6 +185,7 @@ export const prepare = async (
       encodedBid,
       encryptedCallData,
     },
+    prepareRelayerFee,
     requestContext,
   );
   logger.info("Sent receiver prepare tx", requestContext, methodContext, {
