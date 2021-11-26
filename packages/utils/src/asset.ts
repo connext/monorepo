@@ -19,6 +19,9 @@ export const getDecimalsForAsset = async (
   provider: providers.Provider,
   chainData?: Map<string, ChainData>,
 ): Promise<number> => {
+  if (assetId === constants.AddressZero) {
+    return 18;
+  }
   if (chainData) {
     const chainInfo = chainData.get(chainId.toString());
     const decimals = chainInfo?.assetId[assetId]?.decimals;
