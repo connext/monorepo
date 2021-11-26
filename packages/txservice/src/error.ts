@@ -220,35 +220,39 @@ export class TransactionKilled extends TransactionError {
   }
 }
 
-export class TransactionServiceFailure extends NxtpError {
-  /**
-   * An error that indicates that transaction service infrastructure had a critical
-   * and unexpected failure.
-   */
-  static readonly type = TransactionServiceFailure.name;
+export class MaxAttemptsReached extends NxtpError {
+  static readonly type = MaxAttemptsReached.name;
 
-  static readonly reasons = {
-    /**
-     * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
-     * never reached the required amount. This error should ultimately never occur - but if it does,
-     * it indicates that a chain reorg may have happened, stranding the transaction on an orphan/stale
-     * chain.
-     */
-    NotEnoughConfirmations: "Never reached the required amount of confirmations. Did a reorg occur?",
-    /**
-     * MaxAttemptsReached: Indicates that the transaction bumped gas endlessly, and was never
-     * accepted by the chain (0 confirmations, and chain did not revert). Typically indicates on RPC
-     * failure but could imply a failure in TransactionService to submit correctly to chain.
-     */
-    MaxAttemptsReached: "Reached maximum attempts.",
-    GasEstimateInvalid: "The gas estimate returned was an invalid value.",
-  };
+  static getMessage(attempts: number): string {
+    return `Reached maximum attempts ${attempts}.`;
+  }
 
-  constructor(
-    public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
-    public readonly context: any = {},
-  ) {
-    super(reason, context, TransactionServiceFailure.type);
+  constructor(attempts: number, public readonly context: any = {}) {
+    super(MaxAttemptsReached.getMessage(attempts), context, MaxAttemptsReached.type);
+  }
+}
+
+export class NotEnoughConfirmations extends NxtpError {
+  static readonly type = NotEnoughConfirmations.name;
+
+  static getMessage(required: number, hash: string, confs: number): string {
+    return `Never reached the required amount of confirmations (${required}) on ${hash} (got: ${confs}). Did a reorg occur?`;
+  }
+
+  constructor(required: number, hash: string, confs: number, public readonly context: any = {}) {
+    super(NotEnoughConfirmations.getMessage(required, hash, confs), context, NotEnoughConfirmations.type);
+  }
+}
+
+export class GasEstimateInvalid extends NxtpError {
+  static readonly type = GasEstimateInvalid.name;
+
+  static getMessage(returned: string): string {
+    return `The gas estimate returned was an invalid value. Got: ${returned}`;
+  }
+
+  constructor(returned: string, public readonly context: any = {}) {
+    super(GasEstimateInvalid.getMessage(returned), context, GasEstimateInvalid.type);
   }
 }
 
