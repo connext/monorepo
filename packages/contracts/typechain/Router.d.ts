@@ -24,11 +24,13 @@ interface RouterInterface extends ethers.utils.Interface {
   functions: {
     "cancel(tuple,bytes)": FunctionFragment;
     "fulfill(tuple,bytes)": FunctionFragment;
+    "init(address,uint256,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "prepare(tuple,bytes)": FunctionFragment;
     "recipient()": FunctionFragment;
     "removeLiquidity(uint256,address,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "routerFactory()": FunctionFragment;
     "routerSigner()": FunctionFragment;
     "setRecipient(address)": FunctionFragment;
     "setSigner(address)": FunctionFragment;
@@ -94,6 +96,10 @@ interface RouterInterface extends ethers.utils.Interface {
       BytesLike
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "init",
+    values: [string, BigNumberish, string]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "prepare",
@@ -134,6 +140,10 @@ interface RouterInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "routerFactory",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "routerSigner",
     values?: undefined
   ): string;
@@ -153,6 +163,7 @@ interface RouterInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "recipient", data: BytesLike): Result;
@@ -162,6 +173,10 @@ interface RouterInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "routerFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -289,6 +304,13 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    init(
+      _transactionManager: string,
+      _chainId: BigNumberish,
+      _owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     prepare(
@@ -331,6 +353,8 @@ export class Router extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    routerFactory(overrides?: CallOverrides): Promise<[string]>;
 
     routerSigner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -408,6 +432,13 @@ export class Router extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  init(
+    _transactionManager: string,
+    _chainId: BigNumberish,
+    _owner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   prepare(
@@ -450,6 +481,8 @@ export class Router extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  routerFactory(overrides?: CallOverrides): Promise<string>;
 
   routerSigner(overrides?: CallOverrides): Promise<string>;
 
@@ -599,6 +632,13 @@ export class Router extends BaseContract {
       }
     >;
 
+    init(
+      _transactionManager: string,
+      _chainId: BigNumberish,
+      _owner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     prepare(
@@ -675,6 +715,8 @@ export class Router extends BaseContract {
     ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    routerFactory(overrides?: CallOverrides): Promise<string>;
 
     routerSigner(overrides?: CallOverrides): Promise<string>;
 
@@ -757,6 +799,13 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    init(
+      _transactionManager: string,
+      _chainId: BigNumberish,
+      _owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     prepare(
@@ -799,6 +848,8 @@ export class Router extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    routerFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerSigner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -877,6 +928,13 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    init(
+      _transactionManager: string,
+      _chainId: BigNumberish,
+      _owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     prepare(
@@ -919,6 +977,8 @@ export class Router extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    routerFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     routerSigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -22,7 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RouterFactoryInterface extends ethers.utils.Interface {
   functions: {
     "createRouter(address,address)": FunctionFragment;
-    "getRouterAddress(address,address,address)": FunctionFragment;
+    "getRouterAddress(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "routerAddresses(address)": FunctionFragment;
@@ -37,7 +37,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getRouterAddress",
-    values: [string, string, string]
+    values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -153,7 +153,6 @@ export class RouterFactory extends BaseContract {
     getRouterAddress(
       routerSigner: string,
       recipient: string,
-      owner: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -187,7 +186,6 @@ export class RouterFactory extends BaseContract {
   getRouterAddress(
     routerSigner: string,
     recipient: string,
-    owner: string,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -221,7 +219,6 @@ export class RouterFactory extends BaseContract {
     getRouterAddress(
       routerSigner: string,
       recipient: string,
-      owner: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -281,7 +278,6 @@ export class RouterFactory extends BaseContract {
     getRouterAddress(
       routerSigner: string,
       recipient: string,
-      owner: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -319,7 +315,6 @@ export class RouterFactory extends BaseContract {
     getRouterAddress(
       routerSigner: string,
       recipient: string,
-      owner: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
