@@ -2,8 +2,40 @@
 
 ## Next Release
 
+## 0.0.91
+
+- [sdk] Allow chainData to be passed in
+
+## 0.0.90
+
+- [router] use subgraphs form chainData default
+- [sdk] fees estimation on sdk side
+- [contracts] [router] use price oracle for optimism
+
+## 0.0.89
+
+- [router] Fix handling tracker
+
+## 0.0.88
+
+- [utils] Update default subgraph URIs
+
+## 0.0.87
+
+- [contracts] Add deploy script to package
+
+## 0.0.86
+
+- [contracts] Add artifacts to package
+
+## 0.0.85
+
 - [router] Add optimism fees using mainnet pricing
 - [test-ui] Minor error fixes
+- [router] Remove fees decimal conversion
+- [txservice] `readTransaction` should use provider not signer
+- [router] Improve logs and error contexts
+- [router] Handle null case for getBlock
 
 ## 0.0.84
 

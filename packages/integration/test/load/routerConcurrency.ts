@@ -1,7 +1,6 @@
 import PriorityQueue from "p-queue";
-import { Logger } from "@connext/nxtp-utils";
+import { Logger, getChainData, getDecimalsForAsset } from "@connext/nxtp-utils";
 import { utils } from "ethers";
-import { getDecimals } from "@connext/nxtp-sdk/src/utils";
 
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
@@ -58,7 +57,8 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
   const stats = [];
 
   const provider = config.chainConfig[sendingChainId].provider;
-  const decimals = await getDecimals(sendingAssetId, provider);
+  const chainData = await getChainData();
+  const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
   const amountToSend = utils.parseUnits(AMOUNT_PER_TRANSFER, decimals);
 
   for (const _ of Array(maxConcurrency).fill(0)) {
@@ -80,11 +80,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       .map((_) => {
         const task = async () => {
           const agent = manager.getRandomAgent();
-          const balance = await getOnchainBalance(
-            sendingAssetId,
-            agent.address,
-            provider,
-          );
+          const balance = await getOnchainBalance(sendingAssetId, agent.address, provider);
           if (balance.lt(amountToSend)) {
             throw new Error(`Agent has insufficient funds of ${sendingAssetId}`);
           }

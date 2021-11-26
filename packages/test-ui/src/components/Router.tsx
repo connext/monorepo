@@ -1,7 +1,14 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, getAmountsOut, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  ERC20Abi,
+  getChainData,
+  getAmountsOut,
+  getDeployedSubgraphUri,
+  isValidAddress,
+} from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 import { getAddress } from "ethers/lib/utils";
@@ -22,7 +29,7 @@ const AMPLIFICATION = "85";
 type RouterProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 const decimals: Record<string, number> = {};
@@ -261,6 +268,61 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
     }
     console.log("value: ", value.toString());
     console.log("liquidityWei: ", liquidityToRemoveWei.toString());
+
+    const balancesOnNetwork = _network ?? network;
+
+    const _chainData = await getChainData();
+
+    const entries = await Promise.all(
+      (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
+        const uri = getDeployedSubgraphUri(chainId, _chainData);
+        if (!uri || uri.length === 0) {
+          console.error("Subgraph not available for chain: ", chainId);
+          return;
+        }
+        const data = chainData?.get(chainId.toString());
+        if (!data) {
+          console.error("Chaindata not available for chain: ", chainId);
+          return;
+        }
+        const liquidity = await request(uri[0], getLiquidityQuery, { router: routerAddress!.toLowerCase() });
+        const balanceEntries = (liquidity?.router?.assetBalances ?? []).map(
+          ({ amount, id }: { amount: string; id: string }): BalanceEntry | undefined => {
+            console.log("chainId: ", chainId);
+            console.log("id: ", id);
+            console.log("amount: ", amount);
+            const assetId = utils.getAddress(id.split("-")[0]);
+            let decimals =
+              data.assetId[assetId]?.decimals ??
+              data.assetId[assetId.toLowerCase()]?.decimals ??
+              data.assetId[assetId.toUpperCase()]?.decimals;
+            if (!decimals) {
+              console.warn(`No decimals for asset ${assetId} on chain ${chainId}, using 18`);
+              // return;
+              decimals = 18;
+            }
+            const chain = data.chain === "ETH" ? data.network : data.chain;
+            return {
+              chainId,
+              assetId,
+              balance: utils.formatUnits(amount, decimals),
+              chain,
+              decimals,
+              symbol:
+                data.assetId[assetId]?.symbol ??
+                data.assetId[assetId.toLowerCase()]?.symbol ??
+                data.assetId[assetId.toUpperCase()]?.symbol ??
+                assetId,
+            };
+          },
+        );
+
+        return balanceEntries.filter((x: BalanceEntry | undefined) => !!x);
+      }),
+    );
+    const liquidityTable = entries.filter((x) => !!x).flat() as BalanceEntry[];
+
+    setBalances(liquidityTable);
 
     const removeLiquidityTx = await txManager.removeLiquidity(liquidityToRemoveWei, assetId, routerAddress, {
       gasLimit: 250_000,

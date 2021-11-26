@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.0.84",
+  "version": "0.0.91",
   "description": "",
   "scripts": {
     "test": "hardhat test",
@@ -22,7 +22,9 @@
     "src",
     "typechain",
     "artifacts",
-    "deployments.json"
+    "deployments.json",
+    "contracts",
+    "deploy"
   ],
   "author": "Connext",
   "license": "ISC",
@@ -55,7 +57,7 @@
     "ajv": "^8.6.2",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
-    "hardhat-deploy": "^0.9.6",
+    "hardhat-deploy": "^0.9.10",
     "hardhat-gas-reporter": "^1.0.4",
     "typechain": "^5.1.2"
   },

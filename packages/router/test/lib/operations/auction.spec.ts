@@ -36,7 +36,11 @@ describe("Auction Operation", () => {
   const { newAuction } = getOperations();
   describe("#newAuction", () => {
     beforeEach(() => {
-      getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
+      getReceiverAmountStub = stub(PrepareHelperFns, "getReceiverAmount").resolves({
+        receivingAmount: MUTATED_AMOUNT,
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
 
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
 
@@ -59,7 +63,11 @@ describe("Auction Operation", () => {
     });
 
     it("should error if not enough available liquidity for auction", async () => {
-      getReceiverAmountStub.returns("10002000000000000000000");
+      getReceiverAmountStub.returns({
+        receivingAmount: "10002000000000000000000",
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith("Not enough liquidity");
     });
 
@@ -105,7 +113,11 @@ describe("Auction Operation", () => {
     });
 
     it("happy-1: should take a gas fee for fulfill transactions if sendingChain is fee chain", async () => {
-      getReceiverAmountStub.returns("100000000000000000000");
+      getReceiverAmountStub.returns({
+        receivingAmount: "100000000000000000000",
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
 
       // sendingChain = 1337, receivingChain = 1338
       getChainIdForGasFeeStub.returns([1337]);
@@ -141,7 +153,11 @@ describe("Auction Operation", () => {
 
     it("happy-2: should take a gas fee for prepare transactions if receivingChain is fee chain", async () => {
       AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      getReceiverAmountStub.returns("100000000000000000000");
+      getReceiverAmountStub.returns({
+        receivingAmount: "100000000000000000000",
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
 
       // sendingChain = 1337, receivingChain = 1338
       getChainIdForGasFeeStub.returns([1338]);
@@ -177,7 +193,11 @@ describe("Auction Operation", () => {
 
     it("happy-3: should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains", async () => {
       AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      getReceiverAmountStub.returns("100000000000000000000");
+      getReceiverAmountStub.returns({
+        receivingAmount: "100000000000000000000",
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
 
       // sendingChain = 1337, receivingChain = 1338
       getChainIdForGasFeeStub.returns([1337, 1338]);
@@ -213,7 +233,12 @@ describe("Auction Operation", () => {
 
     it("happy-4: shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains", async () => {
       AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      getReceiverAmountStub.returns("100000000000000000000");
+
+      getReceiverAmountStub.returns({
+        receivingAmount: "100000000000000000000",
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
 
       // sendingChain = 1337, receivingChain = 1338
       getChainIdForGasFeeStub.returns([1]);

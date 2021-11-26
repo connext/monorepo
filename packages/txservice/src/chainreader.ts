@@ -142,7 +142,7 @@ export class ChainReader {
   public async getBlock(
     chainId: number,
     blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
-  ): Promise<providers.Block> {
+  ): Promise<providers.Block | undefined> {
     const result = await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
     if (result.isErr()) {
       throw result.error;

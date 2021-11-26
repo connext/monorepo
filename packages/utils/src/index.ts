@@ -22,4 +22,5 @@ export * from "./time";
 export * from "./gasEstimates";
 export * from "./fallbackSubgraph";
 export * from "./gelato";
+export * from "./router";
 export * from "./stableMath";

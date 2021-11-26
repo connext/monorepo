@@ -7,6 +7,7 @@ import {
   Logger,
   sigMock,
   mkBytes32,
+  chainDataMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { providers, Wallet, constants, BigNumber } from "ethers";
@@ -98,6 +99,8 @@ describe("NxtpSdk", () => {
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
+    stub(utils, "getChainData").resolves(chainDataMock);
+    stub(utils, "getDecimalsForAsset").resolves(18);
     stub(sdkIndex, "createMessagingEvt").returns(messageEvt);
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");

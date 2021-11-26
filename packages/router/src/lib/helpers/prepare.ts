@@ -5,13 +5,13 @@ import {
   calculateExchangeAmount,
   getRateFromPercentage,
   getAmountsOut,
+  ROUTER_FEE,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { PriceImpactTooHigh } from "../errors/auction";
 
 import { AmountInvalid } from "../errors/prepare";
 
-const ROUTER_FEE = "0.05"; // 0.05%
 const EXPIRY_DECREMENT = 3600 * 24;
 const ONE_DAY_IN_SECONDS = 3600 * 24;
 const ONE_WEEK_IN_SECONDS = 3600 * 24 * 7;

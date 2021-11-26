@@ -44,7 +44,7 @@ export const handlingTracker: Map<string, Tracker> = new Map();
 export let pendingLiquidityMap: Map<string, BigNumber> = new Map();
 
 export const bindContractReader = async () => {
-  const { contractReader, logger } = getContext();
+  const { contractReader, logger, config } = getContext();
   setInterval(async () => {
     const { requestContext, methodContext } = createLoggingContext("bindContractReader");
     let transactions: ActiveTransaction<any>[] = [];
@@ -64,6 +64,31 @@ export const bindContractReader = async () => {
       logger.error("Error getting active txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
       return;
     }
+
+    // handle the case for `ReceiverFulfilled` -- in this case, the transaction will *not*
+    // be re-processed from the loop because the next logical status is `SenderFulfilled`,
+    // which is not recognized as an "active transaction". instead, the transaction
+    // should be removed from the tracker completely to avoid a memory leak
+    Object.entries(config.chainConfig).forEach(async ([chainId]) => {
+      const records = await contractReader.getSyncRecords(Number(chainId));
+      const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
+      handlingTracker.forEach((value, key) => {
+        if (
+          value.chainId === Number(chainId) &&
+          value.block > 0 &&
+          value.block <= highestSyncedBlock &&
+          value.status === "ReceiverFulfilled"
+        ) {
+          logger.debug("Deleting tracker record", requestContext, methodContext, {
+            transactionId: key,
+            chainId: chainId,
+            blockNumber: value.block,
+            syncedBlock: highestSyncedBlock,
+          });
+          handlingTracker.delete(key);
+        }
+      });
+    });
 
     await handleActiveTransactions(transactions);
   }, getLoopInterval());
@@ -151,6 +176,7 @@ export const handleActiveTransactions = async (
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
       status: "Processing",
       chainId,
+      block: -1,
     });
 
     handleSingle(transaction, requestContext)
@@ -161,6 +187,7 @@ export const handleActiveTransactions = async (
           handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
             status: transaction.status,
             chainId,
+            block: result.blockNumber,
           });
         } else {
           handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);

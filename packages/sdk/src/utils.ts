@@ -1,18 +1,19 @@
-import { constants, providers, Contract, BigNumber } from "ethers";
+import { providers, Contract, BigNumber } from "ethers";
 import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
   signFulfillTransactionPayload as _signFulfillTransactionPayload,
   getFulfillTransactionHashToSign as _getFulfillTransactionHashToSign,
-  ERC20Abi,
   getOnchainBalance as _getOnchainBalance,
   getNtpTimeSeconds,
   encodeAuctionBid as _encodeAuctionBid,
   ethereumRequest as _ethereumRequest,
   encrypt as _encrypt,
+  getChainData as _getChainData,
   PriceOracleAbi,
   gelatoFulfill as _gelatoFulfill,
   isChainSupportedByGelato as _isChainSupportedByGelato,
+  getDecimalsForAsset as _getDecimalsForAsset,
 } from "@connext/nxtp-utils";
 
 /**
@@ -73,14 +74,6 @@ export const getMetaTxBuffer = () => {
   return 10; // 10%
 };
 
-export const getDecimals = async (assetId: string, provider: providers.FallbackProvider) => {
-  if (assetId === constants.AddressZero) {
-    return 18;
-  }
-  const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
-  return decimals;
-};
-
 /**
  * Gets token price in usd.
  *
@@ -121,3 +114,7 @@ export const encrypt = _encrypt;
 export const gelatoFulfill = _gelatoFulfill;
 
 export const isChainSupportedByGelato = _isChainSupportedByGelato;
+
+export const getChainData = _getChainData;
+
+export const getDecimalsForAsset = _getDecimalsForAsset;

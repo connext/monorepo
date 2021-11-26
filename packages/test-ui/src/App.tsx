@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
-import { ChainData } from "@connext/nxtp-utils";
+import { ChainData, getChainData } from "@connext/nxtp-utils";
 import { Button, Col, Row, Tabs, Typography } from "antd";
-import { providers, Signer, utils } from "ethers";
+import { providers, Signer } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
 
 import "./App.css";
@@ -28,7 +28,6 @@ function App(): ReactElement | null {
   const [signer, setSigner] = useState<Signer>();
   const [chainData, setChainData] = useState<ChainData[]>([]);
   const [account, setAccount] = useState(null);
-
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
     if (typeof ethereum === "undefined") {
@@ -59,8 +58,8 @@ function App(): ReactElement | null {
 
   useEffect(() => {
     const init = async () => {
-      const json = await utils.fetchJson("https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json");
-      setChainData(json);
+      const data = await getChainData();
+      setChainData(data);
     };
     init();
   }, []);
