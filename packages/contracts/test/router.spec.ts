@@ -202,9 +202,9 @@ describe("Router Contract", function () {
       expect(await routerContract.transactionManager()).to.eq(transactionManagerReceiverSide.address);
     });
 
-    // it("should set routerSigner", async () => {
-    //   expect(await routerContract.signer()).to.eq(router.address);
-    // });
+    it("should set routerSigner", async () => {
+      expect(await routerContract.routerSigner()).to.eq(router.address);
+    });
 
     it("should set recipient", async () => {
       expect(await routerContract.recipient()).to.eq(routerReceipient.address);
