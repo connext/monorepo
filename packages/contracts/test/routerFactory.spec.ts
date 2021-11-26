@@ -4,18 +4,18 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { Wallet } from "ethers";
+import { Wallet, providers } from "ethers";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 
-import { deployContract } from "./utils";
+import { deployContract, assertReceiptEvent } from "./utils";
 
 // import types
 import { RouterFactory } from "../typechain";
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Router Contract", function () {
-  const [wallet, router, , user, receiver, , other] = waffle.provider.getWallets() as Wallet[];
+  const [wallet, routerSigner, recipient, other] = waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
   let transactionManagerReceiverSide: TransactionManager;
   const receivingChainId = 1338;
@@ -26,7 +26,11 @@ describe("Router Contract", function () {
       receivingChainId,
     );
 
-    routerFactory = await deployContract<RouterFactory>("RouterFactory", transactionManagerReceiverSide.address);
+    routerFactory = await deployContract<RouterFactory>(
+      "RouterFactory",
+      transactionManagerReceiverSide.address,
+      receivingChainId,
+    );
 
     return {
       routerFactory,
@@ -36,7 +40,7 @@ describe("Router Contract", function () {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, router, user, receiver, other]);
+    loadFixture = createFixtureLoader([wallet, routerSigner, recipient, other]);
   });
 
   beforeEach(async function () {
@@ -48,8 +52,34 @@ describe("Router Contract", function () {
       expect(routerFactory.address).to.be.a("string");
     });
 
-    it("should set transactionManagerAddress", async () => {
+    it("should get transactionManagerAddress", async () => {
       expect(await routerFactory.transactionManager()).to.eq(transactionManagerReceiverSide.address);
+    });
+  });
+
+  describe("create router", () => {
+    it("should create router", async () => {
+      const tx: providers.TransactionResponse = await routerFactory
+        .connect(routerSigner)
+        .createRouter(routerSigner.address, recipient.address);
+
+      const receipt = await tx.wait();
+      expect(receipt.status).to.be.eq(1);
+
+      const computedRouterAddress = await routerFactory.getRouterAddress(
+        routerSigner.address,
+        recipient.address,
+        routerSigner.address,
+      );
+      expect(computedRouterAddress).to.be.a("string");
+
+      await assertReceiptEvent(receipt, "RouterCreated", {
+        router: computedRouterAddress,
+        routerSigner: routerSigner.address,
+        recipient: recipient.address,
+        owner: routerSigner.address,
+        transactionManager: transactionManagerReceiverSide.address,
+      });
     });
   });
 });

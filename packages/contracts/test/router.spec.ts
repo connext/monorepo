@@ -198,15 +198,15 @@ describe("Router Contract", function () {
       expect(routerContract.address).to.be.a("string");
     });
 
-    it("should set transactionManagerAddress", async () => {
+    it("should get transactionManagerAddress", async () => {
       expect(await routerContract.transactionManager()).to.eq(transactionManagerReceiverSide.address);
     });
 
-    it("should set routerSigner", async () => {
+    it("should get routerSigner", async () => {
       expect(await routerContract.routerSigner()).to.eq(router.address);
     });
 
-    it("should set recipient", async () => {
+    it("should get recipient", async () => {
       expect(await routerContract.recipient()).to.eq(routerReceipient.address);
     });
   });
