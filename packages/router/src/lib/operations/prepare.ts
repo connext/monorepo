@@ -36,7 +36,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
@@ -74,7 +74,8 @@ export const prepare = async (
   const bid = decodeAuctionBid(encodedBid);
   logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
-  const routerAddress = await wallet.getAddress();
+  const routerContractAddress = config.chainConfig[invariantData.receivingChainId]?.routerContractAddress;
+  const routerAddress = routerContractAddress ? routerContractAddress : await wallet.getAddress();
   const recovered = recoverAuctionBid(bid, bidSignature);
   if (recovered !== routerAddress) {
     // cancellable error
