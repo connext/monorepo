@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.91
+
+- [sdk] Allow chainData to be passed in
+
 ## 0.0.90
 
 - [router] use subgraphs form chainData default

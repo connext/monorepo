@@ -13,13 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { chainConfig, swapConfig } from "../constants";
-import {
-  getBalance,
-  getChainName,
-  getDecimalsForAsset,
-  getExplorerLinkForTx,
-  mintTokens as _mintTokens,
-} from "../utils";
+import { getBalance, getDecimalsForAsset, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
 import { chainProviders } from "../App";
 
 const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
@@ -32,7 +26,7 @@ const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
 type SwapProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactElement => {
@@ -59,6 +53,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       setInjectedProviderChainId(chainId);
 
       const sendingChain = form.getFieldValue("sendingChain");
+      console.log('form.getFieldValue("sendingChain"): ', form.getFieldsValue(true));
       console.log("sendingChain: ", sendingChain);
 
       const address = await signer.getAddress();
@@ -79,6 +74,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         authUrl: process.env.REACT_APP_AUTH_URL_OVERRIDE,
         logger: new Logger({ level: "info" }),
         network: (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
+        chainData,
       });
       setSdk(_sdk);
       const activeTxs = await _sdk.getActiveTransactions();
@@ -247,7 +243,6 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     }
     const address = await _signer.getAddress();
     const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[_chainId];
-    console.log("sendingAssetId: ", sendingAssetId);
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
     }
@@ -590,8 +585,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 console.log("changed: ", changed);
               }}
               initialValues={{
-                sendingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[0]), chainData),
-                receivingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[1]), chainData),
+                sendingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[0],
+                receivingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[1],
                 asset: selectedPoolIndex,
                 amount: "1",
               }}
@@ -616,7 +611,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       >
                         {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>
@@ -631,7 +626,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
                           }
                         >
-                          Switch To Chain {getChainName(parseInt(form.getFieldValue("sendingChain")), chainData)}
+                          Switch To Chain {form.getFieldValue("sendingChain")}
                         </Button>
                       )}
                     </Form.Item>
@@ -646,7 +641,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       <Select>
                         {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>

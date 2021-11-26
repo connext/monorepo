@@ -10,7 +10,7 @@ import { getChainName, getExplorerLinkForAddress } from "../utils";
 type RouterProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 const decimals: Record<string, number> = {};
@@ -164,7 +164,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
           console.error("Subgraph not available for chain: ", chainId);
           return;
         }
-        const data = chainData?.find((c) => c.chainId === chainId);
+        const data = chainData?.get(chainId.toString());
         if (!data) {
           console.error("Chaindata not available for chain: ", chainId);
           return;
