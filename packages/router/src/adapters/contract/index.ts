@@ -9,6 +9,7 @@ export type ContractWriter = {
   prepare: (
     chainId: number,
     prepareParams: PrepareParams,
+    prepareRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   fulfill: (
