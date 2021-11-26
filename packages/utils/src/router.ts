@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import { getRateFromPercentage } from "./util";
 import { calculateExchangeAmount, calculateExchangeWad } from "./math";
 
-const ROUTER_FEE = "0.05"; // 0.05%
+export const ROUTER_FEE = "0.05"; // 0.05%
 
 /**
  * Returns the swapRate

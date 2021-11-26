@@ -29,11 +29,7 @@ const { prepare } = getOperations();
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
     beforeEach(() => {
-      stub(PrepareHelperFns, "getReceiverAmount").resolves({
-        receivingAmount: MUTATED_AMOUNT,
-        routerFee: "10",
-        amountAfterSwapRate: MUTATED_AMOUNT,
-      });
+      stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
       stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
