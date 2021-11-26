@@ -80,10 +80,19 @@ export const prepare = async (
     ]);
 
     try {
-      await gelatoSend(chainId, routerContractAddress, encodedData, txData.receivingAssetId, prepareRelayerFee);
+      const data = await gelatoSend(
+        chainId,
+        routerContractAddress,
+        encodedData,
+        txData.receivingAssetId,
+        prepareRelayerFee,
+      );
+      if (!data.taskId) {
+        throw new Error("No taskId returned");
+      }
+      logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
     } catch (err) {
       logger.error("gelato send failed", requestContext, methodContext, err as NxtpError, { prepareParams });
-
       /// TODO fallback to metaTx routerContractPrepare
     }
 
