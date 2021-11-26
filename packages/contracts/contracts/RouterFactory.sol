@@ -20,7 +20,7 @@ contract RouterFactory is IRouterFactory, Ownable {
   ITransactionManager public transactionManager;
 
    /**
-    * @dev Mapping of signer to created Router contract address
+    * @dev Mapping of routerSigner to created Router contract address
     */
   mapping(address => address) public routerAddresses;
 
@@ -33,11 +33,11 @@ contract RouterFactory is IRouterFactory, Ownable {
     transactionManager = ITransactionManager(_transactionManager);
   }
 
-  function createRouter(address signer, address recipient) override external returns (address) {
-    Router router = new Router(address(transactionManager), signer, recipient, msg.sender, chainId);
+  function createRouter(address routerSigner, address recipient) override external returns (address) {
+    Router router = new Router(address(transactionManager), routerSigner, recipient, msg.sender, chainId);
 
-    routerAddresses[signer] = address(router);
-    emit RouterCreated(address(router), signer, recipient, msg.sender);
+    routerAddresses[routerSigner] = address(router);
+    emit RouterCreated(address(router), routerSigner, recipient, msg.sender);
     return address(router);
   }
 }
