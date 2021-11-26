@@ -136,7 +136,7 @@ export class RouterFactory extends BaseContract {
 
   functions: {
     createRouter(
-      signer: string,
+      routerSigner: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -163,7 +163,7 @@ export class RouterFactory extends BaseContract {
   };
 
   createRouter(
-    signer: string,
+    routerSigner: string,
     recipient: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -190,7 +190,7 @@ export class RouterFactory extends BaseContract {
 
   callStatic: {
     createRouter(
-      signer: string,
+      routerSigner: string,
       recipient: string,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -236,7 +236,7 @@ export class RouterFactory extends BaseContract {
 
   estimateGas: {
     createRouter(
-      signer: string,
+      routerSigner: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -267,7 +267,7 @@ export class RouterFactory extends BaseContract {
 
   populateTransaction: {
     createRouter(
-      signer: string,
+      routerSigner: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
