@@ -18,32 +18,21 @@ const createFixtureLoader = waffle.createFixtureLoader;
 describe("Router Contract", function () {
   const [wallet, routerSigner, recipient, other] = waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
-  let routerFactorySec: RouterFactory;
 
-  let transactionManager: TransactionManager;
   let transactionManagerReceiverSide: TransactionManager;
 
-  const sendingChainId = 1338;
   const receivingChainId = 1338;
 
   const fixture = async () => {
-    transactionManager = await deployContract<TransactionManager>(TransactionManagerArtifact, receivingChainId);
-
     transactionManagerReceiverSide = await deployContract<TransactionManager>(
       TransactionManagerArtifact,
       receivingChainId,
     );
 
-    routerFactory = await deployContract<RouterFactory>("RouterFactory");
+    routerFactory = await deployContract<RouterFactory>("RouterFactory", wallet.address);
 
     const initTx = await routerFactory.init(transactionManagerReceiverSide.address, receivingChainId);
     await initTx.wait();
-
-    routerFactorySec = await deployContract<RouterFactory>("RouterFactory");
-
-    const initSecTx = await routerFactorySec.init(transactionManager.address, sendingChainId);
-    await initSecTx.wait();
-
     return {
       routerFactory,
       transactionManagerReceiverSide,
@@ -79,11 +68,6 @@ describe("Router Contract", function () {
       expect(receipt.status).to.be.eq(1);
 
       const computedRouterAddress = await routerFactory.getRouterAddress(routerSigner.address);
-
-      const computedRouterAddressSec = await routerFactorySec.getRouterAddress(routerSigner.address);
-
-      console.log(computedRouterAddress, computedRouterAddressSec);
-      expect(computedRouterAddress).to.be.a("string");
 
       await assertReceiptEvent(receipt, "RouterCreated", {
         router: computedRouterAddress,
