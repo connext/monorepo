@@ -12,7 +12,7 @@ contract RouterFactory is IRouterFactory, Ownable {
    * @dev The stored chain id of the contract, may be passed in to avoid any
    *      evm issues
    */
-  uint256 private immutable chainId;
+  uint256 private chainId;
 
   /**
    * @dev The transaction Manager contract
@@ -24,9 +24,11 @@ contract RouterFactory is IRouterFactory, Ownable {
    */
   mapping(address => address) public routerAddresses;
 
-  constructor(address _transactionManager, uint256 _chainId) {
-    chainId = _chainId;
+  constructor() {}
+
+  function init(address _transactionManager, uint256 _chainId) external onlyOwner {
     transactionManager = ITransactionManager(_transactionManager);
+    chainId = _chainId;
   }
 
   function setTransactionManager(address _transactionManager) external onlyOwner {
@@ -40,8 +42,8 @@ contract RouterFactory is IRouterFactory, Ownable {
    */
 
   function createRouter(address routerSigner, address recipient) external override returns (address) {
-    address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode(routerSigner, recipient, msg.sender));
-    Router(router).init(address(transactionManager), chainId);
+    address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode());
+    Router(router).init(address(transactionManager), chainId, routerSigner, recipient, msg.sender);
 
     routerAddresses[routerSigner] = router;
     emit RouterCreated(router, routerSigner, recipient, address(transactionManager));
@@ -51,27 +53,18 @@ contract RouterFactory is IRouterFactory, Ownable {
   /**
    * @notice Allows us to get the address for a new router contract created via `createRouter`
    * @param routerSigner address router signer
-   * @param recipient address recipient
    */
-  function getRouterAddress(
-    address routerSigner,
-    address recipient,
-    address owner
-  ) external view returns (address) {
-    return Create2.computeAddress(generateSalt(routerSigner), keccak256(getBytecode(routerSigner, recipient, owner)));
+  function getRouterAddress(address routerSigner) external view returns (address) {
+    return Create2.computeAddress(generateSalt(routerSigner), keccak256(getBytecode()));
   }
 
   ////////////////////////////////////////
   // Internal Methods
 
-  function getBytecode(
-    address routerSigner,
-    address recipient,
-    address owner
-  ) internal pure returns (bytes memory) {
+  function getBytecode() internal pure returns (bytes memory) {
     bytes memory bytecode = type(Router).creationCode;
 
-    return abi.encodePacked(bytecode, abi.encode(routerSigner, recipient, owner));
+    return abi.encodePacked(bytecode);
   }
 
   function generateSalt(address routerSigner) internal pure returns (bytes32) {
