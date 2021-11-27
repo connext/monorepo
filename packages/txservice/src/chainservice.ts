@@ -14,7 +14,7 @@ import {
   TxServiceMinedEvent,
   TxServiceSubmittedEvent,
 } from "./types";
-import { TransactionServiceFailure } from "./error";
+import { ConfigurationError, ProviderNotConfigured } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
 
@@ -167,16 +167,13 @@ export class ChainService extends ChainReader {
   /**
    * Helper to wrap getting provider for specified chain ID.
    * @param chainId The ID of the chain for which we want a provider.
-   * @returns The ChainRpcProvider for that chain.
-   * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
-   * that ID.
+   * @returns The TransactionDispatch for that chain.
+   * @throws ConfigurationError if provider is not configured for that chain.
    */
   protected getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
-      throw new TransactionServiceFailure(
-        `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
-      );
+      throw new ProviderNotConfigured(chainId.toString());
     }
     return this.providers.get(chainId)! as TransactionDispatch;
   }
@@ -196,7 +193,9 @@ export class ChainService extends ChainReader {
       const chain: ChainConfig = chains[chainId];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
-        const error = new TransactionServiceFailure(`Provider configurations not found for chainID: ${chainId}`);
+        const error = new ConfigurationError({
+          providers,
+        });
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
           chainId,
           providers,

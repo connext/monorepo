@@ -17,8 +17,11 @@ import {
   TransactionReplaced,
   TransactionReverted,
   TimeoutError,
-  TransactionServiceFailure,
   TransactionBackfilled,
+  InitialSubmitFailure,
+  TransactionProcessingError,
+  NotEnoughConfirmations,
+  MaxAttemptsReached,
 } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
@@ -306,7 +309,8 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns A list of receipts or errors that occurred for each.
    */
   public async send(minTx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
-    const { requestContext, methodContext } = createLoggingContext(this.send.name, context);
+    const method = this.send.name;
+    const { requestContext, methodContext } = createLoggingContext(method, context);
     const txsId = getUuid();
     this.logger.debug("Method start", requestContext, methodContext, {
       chainId: this.chainId,
@@ -388,7 +392,7 @@ export class TransactionDispatch extends ChainRpcProvider {
           }
         }
         if (!transaction || transaction.responses.length === 0) {
-          throw new TransactionServiceFailure(
+          throw new InitialSubmitFailure(
             "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
           );
         }
@@ -417,7 +421,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
 
     if (!transaction.receipt) {
-      throw new TransactionServiceFailure("Transaction did not return a receipt");
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.NoReceipt, method);
     }
 
     return transaction.receipt;
@@ -434,7 +438,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Check to make sure we haven't already mined this transaction.
     if (transaction.didFinish) {
       // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-      throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.SubmitOutOfOrder, method);
     }
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
@@ -445,7 +449,7 @@ export class TransactionDispatch extends ChainRpcProvider {
       const lastPrice = transaction.responses[transaction.responses.length - 1].gasPrice;
       if (lastPrice && transaction.gas.price.lte(lastPrice)) {
         // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-        throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
       }
     }
 
@@ -481,8 +485,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     const response = result.value;
     if (transaction.hashes.includes(response.hash)) {
       // Duplicate response? This should never happen.
-      throw new TransactionServiceFailure("Received a transaction response with a duplicate hash!", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.DuplicateHash, method, {
         chainId: this.chainId,
         response,
         transaction: transaction.loggable,
@@ -507,8 +510,7 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Ensure we've submitted at least 1 tx.
     if (!transaction.didSubmit) {
-      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
         chainId: this.chainId,
         transaction: transaction.loggable,
       });
@@ -533,16 +535,12 @@ export class TransactionDispatch extends ChainRpcProvider {
         );
         // Sanity check.
         if (!error.replacement || !error.receipt) {
-          throw new TransactionServiceFailure(
-            "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
-            {
-              method,
-              chainId: this.chainId,
-              replacement: error.replacement,
-              receipt: error.receipt,
-              transaction: transaction.loggable,
-            },
-          );
+          throw new TransactionProcessingError(TransactionProcessingError.reasons.ReplacedButNoReplacement, method, {
+            chainId: this.chainId,
+            replacement: error.replacement,
+            receipt: error.receipt,
+            transaction: transaction.loggable,
+          });
         }
 
         // Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
@@ -570,26 +568,24 @@ export class TransactionDispatch extends ChainRpcProvider {
       if (receipt == null) {
         // Receipt is undefined or null. This should never occur; timeout should occur before this does,
         // as a null receipt indicates 0 confirmations.
-        throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
-          method,
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.NullReceipt, method, {
           chainId: this.chainId,
           receipt,
           transaction: transaction.loggable,
         });
       } else if (receipt.status === 0) {
         // This should never occur. We should always get a TransactionReverted error in this event.
-        throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
-          method,
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
           chainId: this.chainId,
           receipt,
           transaction: transaction.loggable,
         });
       } else if (receipt.confirmations < 1) {
         // Again, should never occur.
-        throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!", {
-          method,
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.InsufficientConfirmations, method, {
           chainId: this.chainId,
           receipt: transaction.receipt,
+          confirmations: receipt.confirmations,
           transaction: transaction.loggable,
         });
       }
@@ -628,23 +624,18 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Ensure we've submitted a tx.
     if (!transaction.didSubmit) {
-      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
         chainId: this.chainId,
         transaction: transaction.loggable,
       });
     }
 
     if (!transaction.receipt) {
-      throw new TransactionServiceFailure(
-        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
-        {
-          method,
-          chainId: this.chainId,
-          receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
-          transaction: transaction.loggable,
-        },
-      );
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.ConfirmOutOfOrder, method, {
+        chainId: this.chainId,
+        receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
+        transaction: transaction.loggable,
+      });
     }
 
     // Here we wait for the target confirmations.
@@ -653,19 +644,23 @@ export class TransactionDispatch extends ChainRpcProvider {
     const confirmResult = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
     if (confirmResult.isErr()) {
       // No other errors should occur during this confirmation attempt. This could occur during a reorg.
-      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
-        method,
-        chainId: this.chainId,
-        receipt: transaction.receipt,
-        error: transaction.error,
-        transaction: transaction.loggable,
-      });
+      throw new NotEnoughConfirmations(
+        this.confirmationsRequired,
+        transaction.receipt.transactionHash,
+        transaction.receipt.confirmations,
+        {
+          method,
+          chainId: this.chainId,
+          receipt: transaction.receipt,
+          error: transaction.error,
+          transaction: transaction.loggable,
+        },
+      );
     }
     const receipt = confirmResult.value;
     if (receipt == null) {
       // Should never occur.
-      throw new TransactionServiceFailure("Transaction receipt was null.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.NullReceipt, method, {
         chainId: this.chainId,
         badReceipt: receipt,
         minedReceipt: transaction.receipt,
@@ -674,8 +669,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     } else if (receipt.status === 0) {
       // This should never occur. We should always get a TransactionReverted error in this event : and that error should
       // have been thrown in the mine() method.
-      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
         chainId: this.chainId,
         receipt,
         transaction: transaction.loggable,
@@ -701,7 +695,7 @@ export class TransactionDispatch extends ChainRpcProvider {
   public async bump(transaction: Transaction) {
     const { requestContext, methodContext } = createLoggingContext(this.bump.name, transaction.context);
     if (transaction.attempt >= Transaction.MAX_ATTEMPTS) {
-      const error = new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
+      const error = new MaxAttemptsReached(transaction.attempt, {
         gasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
         transaction: transaction.loggable,
       });
