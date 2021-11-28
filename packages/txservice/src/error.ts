@@ -220,35 +220,104 @@ export class TransactionKilled extends TransactionError {
   }
 }
 
-export class TransactionServiceFailure extends NxtpError {
-  /**
-   * An error that indicates that transaction service infrastructure had a critical
-   * and unexpected failure.
-   */
-  static readonly type = TransactionServiceFailure.name;
+export class MaxAttemptsReached extends NxtpError {
+  static readonly type = MaxAttemptsReached.name;
+
+  static getMessage(attempts: number): string {
+    return `Reached maximum attempts ${attempts}.`;
+  }
+
+  constructor(attempts: number, public readonly context: any = {}) {
+    super(MaxAttemptsReached.getMessage(attempts), context, MaxAttemptsReached.type);
+  }
+}
+
+export class NotEnoughConfirmations extends NxtpError {
+  static readonly type = NotEnoughConfirmations.name;
+
+  static getMessage(required: number, hash: string, confs: number): string {
+    return `Never reached the required amount of confirmations (${required}) on ${hash} (got: ${confs}). Did a reorg occur?`;
+  }
+
+  constructor(required: number, hash: string, confs: number, public readonly context: any = {}) {
+    super(NotEnoughConfirmations.getMessage(required, hash, confs), context, NotEnoughConfirmations.type);
+  }
+}
+
+export class GasEstimateInvalid extends NxtpError {
+  static readonly type = GasEstimateInvalid.name;
+
+  static getMessage(returned: string): string {
+    return `The gas estimate returned was an invalid value. Got: ${returned}`;
+  }
+
+  constructor(returned: string, public readonly context: any = {}) {
+    super(GasEstimateInvalid.getMessage(returned), context, GasEstimateInvalid.type);
+  }
+}
+
+export class ProviderNotConfigured extends NxtpError {
+  static readonly type = ProviderNotConfigured.name;
+
+  static getMessage(chainId: string): string {
+    return `No provider(s) configured for chain ${chainId}. Make sure this chain's providers are configured.`;
+  }
+
+  constructor(public readonly chainId: string, public readonly context: any = {}) {
+    super(ProviderNotConfigured.getMessage(chainId), context, ProviderNotConfigured.type);
+  }
+}
+
+export class ConfigurationError extends NxtpError {
+  static readonly type = ConfigurationError.name;
+
+  constructor(public readonly invalidParamaters: any, public readonly context: any = {}) {
+    super("Configuration paramater(s) were invalid.", { ...context, invalidParamaters }, ConfigurationError.type);
+  }
+}
+
+export class InitialSubmitFailure extends NxtpError {
+  static readonly type = InitialSubmitFailure.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+      context,
+      InitialSubmitFailure.type,
+    );
+  }
+}
+
+// These errors should essentially never happen; they are only used within the block of sanity checks.
+export class TransactionProcessingError extends NxtpError {
+  static readonly type = TransactionProcessingError.name;
 
   static readonly reasons = {
-    /**
-     * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
-     * never reached the required amount. This error should ultimately never occur - but if it does,
-     * it indicates that a chain reorg may have happened, stranding the transaction on an orphan/stale
-     * chain.
-     */
-    NotEnoughConfirmations: "Never reached the required amount of confirmations. Did a reorg occur?",
-    /**
-     * MaxAttemptsReached: Indicates that the transaction bumped gas endlessly, and was never
-     * accepted by the chain (0 confirmations, and chain did not revert). Typically indicates on RPC
-     * failure but could imply a failure in TransactionService to submit correctly to chain.
-     */
-    MaxAttemptsReached: "Reached maximum attempts.",
-    GasEstimateInvalid: "The gas estimate returned was an invalid value.",
+    SubmitOutOfOrder: "Submit was called but transaction is already completed.",
+    MineOutOfOrder: "Transaction mine or confirm was called, but no transaction has been sent.",
+    ConfirmOutOfOrder: "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
+    DidNotBump: "Gas price was not incremented from last transaction.",
+    DuplicateHash: "Received a transaction response with a duplicate hash!",
+    NoReceipt: "No receipt was returned from the transaction.",
+    NullReceipt: "Unable to obtain receipt: ethers responded with null.",
+    ReplacedButNoReplacement: "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
+    DidNotThrowRevert: "Transaction was reverted but TransactionReverted error was not thrown.",
+    InsufficientConfirmations: "Receipt did not have enough confirmations, should have timed out!",
   };
 
   constructor(
-    public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
+    public readonly reason: Values<typeof TransactionProcessingError.reasons>,
+    public readonly method: string,
     public readonly context: any = {},
   ) {
-    super(reason, context, TransactionServiceFailure.type);
+    super(
+      reason,
+      {
+        ...context,
+        method,
+      },
+      TransactionProcessingError.type,
+    );
   }
 }
 
