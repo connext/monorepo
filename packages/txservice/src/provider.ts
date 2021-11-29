@@ -28,6 +28,8 @@ const { FallbackProvider } = providers;
 // TODO: Move to config; alternatively, configure based on time, not blocks.
 // A provider must be within this many blocks of the "leading" provider (provider with the highest block) to be considered in-sync.
 const PROVIDER_MAX_LAG = 30;
+// Default value for block period time (in ms) if we're unable to attain that info from the providers for some reason.
+const DEFAULT_BLOCK_PERIOD = 2_000;
 
 type ChainRpcProviderCache = { gasPrice: BigNumber; transactionCount: number };
 
@@ -562,10 +564,20 @@ export class ChainRpcProvider {
       this.checkSigner();
     }
     if (!this.blockPeriod) {
-      // This block should only be called once.
-      const currentBlock = await this.getBlock("latest");
-      const previousBlock = await this.getBlock(currentBlock.parentHash);
-      this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
+      // This block should only be called once. Set the block period to the default value.
+      // TODO: We could add this value to the cache and give it a ttl, guaranteeing an eventual retry.
+      this.blockPeriod = DEFAULT_BLOCK_PERIOD;
+      try {
+        const currentBlock = await this.getBlock("latest");
+        const previousBlock = await this.getBlock(currentBlock.parentHash);
+        this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
+      } catch (error) {
+        // If we can't get the block period, we'll just use a default value.
+        this.logger.warn("Could not get block period time, defaulting to 1s.", undefined, undefined, {
+          chainId: this.chainId,
+          error,
+        });
+      }
     }
     const errors: any[] = [];
     const syncedProviders = this.shuffleSyncedProviders();
