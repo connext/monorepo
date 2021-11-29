@@ -12,6 +12,7 @@ import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
 const NO_ORACLE_CHAINS: number[] = [];
+export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 
 /**
  * Helper to allow easy mocking
@@ -264,11 +265,24 @@ export const getTokenPrice = async (
   assetId: string,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
+  const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+  const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
+  const curTimeInSecs = await getNtpTimeSeconds();
+
+  // If it's been less than a minute since we retrieved token price, send the last update in token price.
+  if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
+    return cachedTokenPrice.price;
+  }
+
   const { txService } = getContext();
   const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
   const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-  const tokenPrice = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
-  return BigNumber.from(tokenPrice);
+  const tokenPriceRes = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
+  const tokenPrice = BigNumber.from(tokenPriceRes);
+
+  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
+
+  return tokenPrice;
 };
 
 /**

@@ -34,35 +34,41 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
   console.log("deployer: ", deployer);
 
-  await hre.deployments.deploy("TransactionManager", {
+  // await hre.deployments.deploy("TransactionManager", {
+  //   from: deployer,
+  //   args: [chainId],
+  //   log: true,
+  // });
+
+  // if (WRAPPED_ETH_MAP.has(chainId)) {
+  //   console.log("Deploying ConnextPriceOracle to configured chain");
+  //   await hre.deployments.deploy("ConnextPriceOracle", {
+  //     from: deployer,
+  //     args: [WRAPPED_ETH_MAP.get(chainId)],
+  //     log: true,
+  //   });
+  // }
+
+  console.log("Deploying multicall to configured chain");
+  await hre.deployments.deploy("Multicall", {
     from: deployer,
-    args: [chainId],
     log: true,
   });
 
-  if (WRAPPED_ETH_MAP.has(chainId)) {
-    console.log("Deploying ConnextPriceOracle to configured chain");
-    await hre.deployments.deploy("ConnextPriceOracle", {
-      from: deployer,
-      args: [WRAPPED_ETH_MAP.get(chainId)],
-      log: true,
-    });
-  }
+  // if (!SKIP_SETUP.includes(parseInt(chainId))) {
+  //   console.log("Deploying test token on non-mainnet chain");
+  //   await hre.deployments.deploy("TestERC20", {
+  //     from: deployer,
+  //     log: true,
+  //   });
 
-  if (!SKIP_SETUP.includes(parseInt(chainId))) {
-    console.log("Deploying test token on non-mainnet chain");
-    await hre.deployments.deploy("TestERC20", {
-      from: deployer,
-      log: true,
-    });
+  //   console.log("Setting up test routers on chain", chainId);
 
-    console.log("Setting up test routers on chain", chainId);
-
-    for (const router of TEST_ROUTERS) {
-      await hre.run("setup-test-router", { router });
-    }
-  } else {
-    console.log("Skipping test setup on chainId: ", chainId);
-  }
+  //   for (const router of TEST_ROUTERS) {
+  //     await hre.run("setup-test-router", { router });
+  //   }
+  // } else {
+  //   console.log("Skipping test setup on chainId: ", chainId);
+  // }
 };
 export default func;
