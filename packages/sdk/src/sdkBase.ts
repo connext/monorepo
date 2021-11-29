@@ -34,6 +34,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
   NoTransactionManager,
@@ -110,6 +111,8 @@ export const createMessagingEvt = <T>() => {
  */
 export class NxtpSdkBase {
   private readonly transactionManager: TransactionManager;
+  // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
+  public readonly chainReader: ChainReader;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
@@ -167,6 +170,23 @@ export class NxtpSdkBase {
         authUrl: _authUrl,
       });
     }
+
+    const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
+    Object.keys(chainConfig).forEach((_chainId) => {
+      const chainId = parseInt(_chainId);
+      const _providers = chainConfig[chainId].providers;
+      const providers = typeof _providers === "string" ? [_providers] : _providers;
+      chains[chainId] = {
+        providers: providers.map((provider) =>
+          typeof provider === "string"
+            ? {
+                url: provider,
+              }
+            : provider,
+        ),
+      };
+    });
+    this.chainReader = new ChainReader(this.logger, { chains });
 
     const txManagerConfig: Record<
       number,
