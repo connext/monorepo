@@ -348,7 +348,7 @@ export const startContractListeners = (): void => {
   const { config, txService } = getContext();
   Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
     const chainId = Number(_chainId);
-    if (conf.routerContractAddress) {
+    if (config.routerContractAddress) {
       // needs event listeners for listening to relayed events
       // TODO remove this when we can query gelato for tx receipts
       // alternatively allow listening on the subgraph

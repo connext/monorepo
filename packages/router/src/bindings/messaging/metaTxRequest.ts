@@ -1,6 +1,8 @@
 import {
   createLoggingContext,
   MetaTxFulfillPayload,
+  // MetaTxRouterContractPreparePayload,
+  // PrepareParams,
   MetaTxPayload,
   MetaTxType,
   MetaTxTypes,
@@ -120,18 +122,19 @@ export const metaTxRequestBinding = async (
       handlingTracker.delete(txData.transactionId);
     }
   }
-  // else if (data.type === MetaTxTypes.Prepare) {
-  //   if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
-  //     logger.warn(
-  //       "Provided transactionManagerAddress does not map to our configured transactionManagerAddress",
-  //       requestContext,
-  //       methodContext,
-  //       { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
-  //     );
-  //     return;
-  //   }
+  // else if (data.type === MetaTxTypes.RouterContractPrepare) {
+  //   // if (config.routerContractAddress && getAddress(data.to) !== getAddress(config.routerContractAddress)) {
+  //   //   logger.warn(
+  //   //     "Provided routerContractAddress does not map to our configured routerManagerAddress",
+  //   //     requestContext,
+  //   //     methodContext,
+  //   //     { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
+  //   //   );
+  //   //   return;
+  //   // }
 
-  //   const { txData, expiry, encryptedCallData, encodedBid, bidSignature, amount }: MetaTxPreparePayload = data.data;
+  //   const { params, signature }: MetaTxRouterContractPreparePayload = data.data;
+  //   const {txData, amount, expiry, encryptedCallData, encodedBid, bidSignature}: PrepareParams = params;
   //   if (chainId !== txData.receivingChainId) {
   //     logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
   //       chainId,

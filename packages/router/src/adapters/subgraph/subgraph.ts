@@ -118,7 +118,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
           throw new NoChainConfig(chainId);
         }
 
-        const routerContractAddress = config.chainConfig[chainId].routerContractAddress;
+        const routerContractAddress = config.routerContractAddress;
         const routerAddress = routerContractAddress || walletAddress;
 
         // update synced status
@@ -372,7 +372,7 @@ export const getTransactionForChain = async (
 
   const { wallet, config } = getContext();
   const walletAddress = await wallet.getAddress();
-  const routerContractAddress = config.chainConfig[chainId].routerContractAddress;
+  const routerContractAddress = config.routerContractAddress;
   const routerAddress = routerContractAddress || walletAddress;
 
   const sdks = getSdks();

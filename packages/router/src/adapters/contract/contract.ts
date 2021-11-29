@@ -56,8 +56,8 @@ export const prepare = async (
   await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
 
   // router contract address
-  const routerContractAddress = config.chainConfig[chainId]?.routerContractAddress;
-  if (routerContractAddress && routerContractAddress.toLowerCase() === txData.router.toLowerCase()) {
+  const routerContractAddress = config.routerContractAddress;
+  if (routerContractAddress) {
     logger.info("router contract address detected", requestContext, methodContext, {
       prepareParams,
       routerContractAddress,
@@ -168,8 +168,8 @@ export const fulfill = async (
 
   await sanitationCheck(chainId, txData, "fulfill");
 
-  const routerContractAddress = config.chainConfig[chainId]?.routerContractAddress;
-  if (routerContractAddress && routerContractAddress.toLowerCase() === txData.router.toLowerCase()) {
+  const routerContractAddress = config.routerContractAddress;
+  if (routerContractAddress) {
     logger.info("router contract address detected", requestContext, methodContext, {
       fulfillParams,
       routerContractAddress,
@@ -263,8 +263,8 @@ export const cancel = async (
   const { txData, signature: cancelSignature } = cancelParams;
   await sanitationCheck(chainId, txData, "cancel");
 
-  const routerContractAddress = config.chainConfig[chainId]?.routerContractAddress;
-  if (routerContractAddress && routerContractAddress.toLowerCase() === txData.router.toLowerCase()) {
+  const routerContractAddress = config.routerContractAddress;
+  if (routerContractAddress) {
     logger.info("router contract address detected", requestContext, methodContext, {
       cancelParams,
       routerContractAddress,

@@ -155,7 +155,7 @@ export const newAuction = async (
     });
   }
 
-  const routerContractAddress = config.chainConfig[receivingChainId]?.routerContractAddress;
+  const routerContractAddress = config.routerContractAddress;
   const routerAddress = routerContractAddress ? routerContractAddress : await wallet.getAddress();
 
   // Make sure subgraphs are synced
