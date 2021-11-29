@@ -6,6 +6,9 @@ import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { ConfigurationError, ProviderNotConfigured } from "./error";
 
+// TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
+// probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
+// directly.
 /**
  * @classdesc Performs onchain reads with embedded retries.
  */
