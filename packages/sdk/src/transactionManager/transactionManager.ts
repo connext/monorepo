@@ -12,6 +12,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import { Interface } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import { ChainNotConfigured } from "../error";
 
@@ -66,16 +67,18 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   return chainIdsForGasFee;
 };
 
+export type TransactionManagerChainConfig = {
+  chainReader: ChainReader;
+  transactionManagerAddress: string;
+  priceOracleAddress: string;
+};
+
 /**
  * @classdesc Multi-chain wrapper around TranasctionManager contract interactions
  */
 export class TransactionManager {
   private chainConfig: {
-    [chainId: number]: {
-      provider: providers.FallbackProvider;
-      transactionManagerAddress: string;
-      priceOracleAddress: string;
-    };
+    [chainId: number]: TransactionManagerChainConfig;
   };
 
   private txManagerInterface = new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
@@ -83,23 +86,21 @@ export class TransactionManager {
 
   constructor(
     _chainConfig: {
-      [chainId: number]: {
-        provider: providers.FallbackProvider;
-        transactionManagerAddress: string;
-        priceOracleAddress: string;
-      };
+      [chainId: number]: TransactionManagerChainConfig;
     },
     private readonly signerAddress: Promise<string>,
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};
-    Object.entries(_chainConfig).forEach(([chainId, { provider, transactionManagerAddress, priceOracleAddress }]) => {
-      this.chainConfig[parseInt(chainId)] = {
-        transactionManagerAddress,
-        provider,
-        priceOracleAddress,
-      };
-    });
+    Object.entries(_chainConfig).forEach(
+      ([chainId, { chainReader, transactionManagerAddress, priceOracleAddress }]) => {
+        this.chainConfig[parseInt(chainId)] = {
+          transactionManagerAddress,
+          chainReader,
+          priceOracleAddress,
+        };
+      },
+    );
   }
 
   /**
