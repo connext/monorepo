@@ -34,6 +34,7 @@ import {
   ActiveTransaction,
   CancelParams,
   GetTransferQuote,
+  SdkBaseChainConfigParams,
 } from "./types";
 import {
   signFulfillTransactionPayload,
@@ -90,15 +91,7 @@ export class NxtpSdk {
 
   constructor(
     private readonly config: {
-      chainConfig: {
-        [chainId: number]: {
-          provider: providers.FallbackProvider;
-          transactionManagerAddress?: string;
-          priceOracleAddress?: string;
-          subgraph?: string | string[];
-          subgraphSyncBuffer?: number;
-        };
-      };
+      chainConfig: SdkBaseChainConfigParams;
       signer: Signer;
       messagingSigner?: Signer;
       logger?: Logger;
