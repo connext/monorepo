@@ -105,8 +105,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       interval(async () => await this.confirmLoop(), 2_000);
 
       // Starts an interval loop that synchronizes the provider every configured interval.
-      // NOTE: We do this syncing regardless of whether we're running in synchronizedMode, because the
-      // syncing here is just to make sure we're *generally* in-sync (not running an active block listener).
       interval(async () => await this.syncProviders(), this.config.syncProvidersInterval);
     }
   }

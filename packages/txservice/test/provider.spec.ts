@@ -68,7 +68,6 @@ describe("ChainRpcProvider", () => {
         ...DEFAULT_CONFIG,
         gasInitialBumpPercent: 20,
         gasPriceMaxIncreaseScalar: 200,
-        synchronizedMode: false,
       },
       signer,
     );
@@ -165,22 +164,6 @@ describe("ChainRpcProvider", () => {
       await expect(chainProvider.confirmTransaction(transaction)).to.be.rejectedWith(testError);
     });
 
-    it("should call an initial wait if tx has already been mined and in synchronizedMode and confirmations > 1", async () => {
-      const testDesiredConfirmations = 42;
-      (chainProvider as any).synchronizedMode = true;
-      const expectedReceipt = {
-        ...TEST_TX_RECEIPT,
-        confirmations: testDesiredConfirmations,
-      };
-      getTransactionReceiptStub.resolves(expectedReceipt);
-      transaction.minedBlockNumber = 123;
-
-      const result = await chainProvider.confirmTransaction(transaction, testDesiredConfirmations);
-
-      expect(waitStub.callCount).to.equal(1);
-      expect(makeChaiReadable(result)).to.be.deep.eq(makeChaiReadable(expectedReceipt));
-    });
-
     it("should wait until receipt returns and confirmations are insufficient", async () => {
       const testDesiredConfirmations = 42;
       const insufficientConfirmations = 29;
@@ -198,7 +181,6 @@ describe("ChainRpcProvider", () => {
       getTransactionReceiptStub.onCall(2).resolves(sufficientReceipt);
 
       // So we can check the block args in the wait call below.
-      (chainProvider as any).synchronizedMode = true;
       (chainProvider as any).cache.update(currentBlockNumber);
       // To ensure we don't bother with the initial wait mechanism.
       transaction.minedBlockNumber = -1;
@@ -648,7 +630,6 @@ describe("ChainRpcProvider", () => {
 
     it("uses cached transaction count if available", async () => {
       const testTransactionCount = Math.floor(Math.random() * 1000);
-      (chainProvider as any).synchronizedMode = true;
       (chainProvider as any).cache.set({ transactionCount: testTransactionCount });
 
       const result = await chainProvider.getTransactionCount();

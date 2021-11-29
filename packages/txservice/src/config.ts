@@ -115,9 +115,6 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultConfirmationTimeout: Type.Integer(),
 
   /// RPC PROVIDERS
-  // Whether we should use an RPC block listener to optimize RPC calls (works best with many providers). Will help
-  // with sustaining heavy traffic.
-  synchronizedMode: Type.Boolean(),
   // How often (ms) we will check all RPC providers to measure how in-sync they are with the blockchain.
   // By default, every 5 mins (5 * 60_000).
   syncProvidersInterval: Type.Integer(),
@@ -155,7 +152,6 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   defaultConfirmationTimeout: 30_000,
   defaultConfirmationsRequired: 10,
 
-  synchronizedMode: false,
   syncProvidersInterval: 5 * 60_000,
   maxProviderCPS: 4,
 

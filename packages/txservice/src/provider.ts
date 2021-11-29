@@ -188,12 +188,6 @@ export class ChainRpcProvider {
     confirmations: number = this.confirmationsRequired,
     timeout: number = this.confirmationTimeout,
   ): Promise<providers.TransactionReceipt> {
-    if (transaction.minedBlockNumber !== -1 && confirmations > 1) {
-      // Before we start checking confirmations, wait until we've passed the target number of blocks
-      // from the mined block. This will save us from making unnecessary RPC calls to the provider.
-      const targetBlockNumber = transaction.minedBlockNumber + confirmations - 1;
-      await this.wait(targetBlockNumber);
-    }
     const start = Date.now();
     // Using a timed out variable calculated at the end of the loop - this way we can be sure at
     // least one iteration is completed here.

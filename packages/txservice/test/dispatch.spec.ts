@@ -115,13 +115,11 @@ describe("TransactionDispatch", () => {
       logger,
       TEST_SENDER_CHAIN_ID,
       chainConfig,
-      { ...DEFAULT_CONFIG, debug_logRpcCalls: true, synchronizedMode: false },
+      { ...DEFAULT_CONFIG, debug_logRpcCalls: true },
       signer,
       dispatchCallbacks,
       false,
     );
-    // Disabling this as we obviously won't be using a real provider / block listener.
-    // (txDispatch as any).config.synchronizedMode = false;
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();
