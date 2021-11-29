@@ -22,6 +22,7 @@
     "test/**/*"
   ],
   "dependencies": {
+    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "^0.20.4",
     "@typescript-eslint/eslint-plugin": "^4.29.2",

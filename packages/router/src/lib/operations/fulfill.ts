@@ -1,3 +1,4 @@
+import { calculateGasFeeInReceivingTokenForFulfill } from "@connext/nxtp-txservice";
 import {
   ajv,
   createLoggingContext,
@@ -6,12 +7,12 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import { providers, BigNumber } from "ethers";
+import { getOracleContractAddress } from "../../adapters/contract/contract";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
-import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const fulfill = async (
   invariantData: InvariantTransactionData,
@@ -84,10 +85,14 @@ export const fulfill = async (
       );
     }
     logger.info("Got output decimals", requestContext, methodContext, { outputDecimals });
+    const receivingOracleContractAddress = getOracleContractAddress(invariantData.receivingChainId, requestContext);
     const expectedFulfillFee = await calculateGasFeeInReceivingTokenForFulfill(
       invariantData.receivingAssetId,
       invariantData.receivingChainId,
       outputDecimals,
+      txService,
+      receivingOracleContractAddress,
+      logger,
       requestContext,
     );
     logger.info("Expected Fulfill fee in router side", requestContext, methodContext, {

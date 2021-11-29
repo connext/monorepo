@@ -2,9 +2,9 @@ import { Signer, providers, BigNumber } from "ethers";
 import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { ConfigurationError, ProviderNotConfigured } from "./error";
+import { ReadTransaction } from "./types";
 
 /**
  * @classdesc Performs onchain reads with embedded retries.

@@ -5,3 +5,4 @@ export * from "./chainreader";
 export * from "./types";
 export * from "./config";
 export * from "./error";
+export * from "./nxtp";

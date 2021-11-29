@@ -2,6 +2,9 @@
   "references": [
     {
       "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../contracts/tsconfig.build.json"
     }
   ],
   "extends": "../../config/tsconfig.node.json",
@@ -11,6 +14,11 @@
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": ["test/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "test/**/*.ts"
+  ]
 }

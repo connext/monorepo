@@ -1,12 +1,18 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "types": ["mocha", "chai"]
+    "types": [
+      "mocha",
+      "chai"
+    ]
   },
   "exclude": [],
   "references": [
     {
       "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../contracts/tsconfig.build.json"
     }
   ]
 }

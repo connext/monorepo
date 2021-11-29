@@ -34,6 +34,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { ChainReader, TransactionServiceConfig } from "@connext/nxtp-txservice";
 
 import {
   NoTransactionManager,
@@ -114,6 +115,7 @@ export class NxtpSdkBase {
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
   public readonly chainData?: Map<string, ChainData>;
+  public readonly chainReader: ChainReader;
 
   // Keep messaging evts separate from the evt container that has things
   // attached to it
@@ -182,6 +184,10 @@ export class NxtpSdkBase {
       Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }
     > = {};
 
+    const chainReaderConfig: Partial<TransactionServiceConfig> = {
+      chains: {},
+    };
+
     // create configs for subclasses based on passed-in config
     Object.entries(chainConfig).forEach(
       ([
@@ -235,6 +241,17 @@ export class NxtpSdkBase {
           subgraph,
           provider,
           subgraphSyncBuffer,
+        };
+
+        chainReaderConfig.chains = {
+          [chainId]: {
+            providers: provider.providerConfigs.map((pc) => {
+              return {
+                url: pc.provider,
+              };
+            }),
+            gasStations: [],
+          },
         };
       },
     );

@@ -26,7 +26,8 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { getOracleContractAddress } from "../../adapters/contract/contract";
+import { calculateGasFeeInReceivingTokenForPrepare } from "@connext/nxtp-txservice";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -196,13 +197,20 @@ export const newAuction = async (
   // estimate gas for contract
   // - TODO: Get price from AMM
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
-  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
+
+  const sendingOracleContractAddress = getOracleContractAddress(sendingChainId, requestContext);
+  const receivingOracleContractAddress = getOracleContractAddress(receivingChainId, requestContext);
+  const gasFeeInReceivingToken = await calculateGasFeeInReceivingTokenForPrepare(
     sendingAssetId,
     sendingChainId,
     receivingAssetId,
     receivingChainId,
     outputDecimals,
+    txService,
+    sendingOracleContractAddress,
+    receivingOracleContractAddress,
     requestContext,
+    logger,
   );
   logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
