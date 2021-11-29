@@ -95,7 +95,6 @@ export const TChainConfig = Type.Object({
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
-  routerContractAddress: Type.Optional(Type.String()), // address of deployed Router.sol contract
 });
 
 export const TSwapPool = Type.Object({
@@ -123,6 +122,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   natsUrl: Type.String(),
   authUrl: Type.String(),
   mnemonic: Type.Optional(Type.String()),
+  routerContractAddress: Type.Optional(Type.String()), // address of deployed Router.sol contract
   web3SignerUrl: Type.Optional(Type.String()),
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
