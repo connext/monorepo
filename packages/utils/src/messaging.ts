@@ -7,7 +7,7 @@ import { TIntegerString, TAddress, TChainId } from "./basic";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
-import { FulfillParams, PrepareParams } from "./transactionManager";
+import { CancelParams, FulfillParams, PrepareParams } from "./transactionManager";
 import { createLoggingContext, createRequestContext, getUuid, RequestContext } from "./request";
 import { Logger } from "./logger";
 
@@ -385,17 +385,23 @@ export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
 export const MetaTxTypes = {
   Fulfill: "Fulfill",
-  Prepare: "Prepare",
+  RouterContractPrepare: "RouterContractPrepare",
+  RouterContractFulfill: "RouterContractFulfill",
+  RouterContractCancel: "RouterContractCancel",
 } as const;
 export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
 
 export type MetaTxPayloads = {
   [MetaTxTypes.Fulfill]: MetaTxFulfillPayload;
-  [MetaTxTypes.Prepare]: MetaTxPreparePayload;
+  [MetaTxTypes.RouterContractPrepare]: MetaTxRouterContractPreparePayload;
+  [MetaTxTypes.RouterContractFulfill]: MetaTxRouterContractCancelPayload;
+  [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractFulfillPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
-export type MetaTxPreparePayload = PrepareParams;
+export type MetaTxRouterContractPreparePayload = { params: PrepareParams; signature: string };
+export type MetaTxRouterContractCancelPayload = { params: CancelParams; signature: string };
+export type MetaTxRouterContractFulfillPayload = { params: FulfillParams; signature: string };
 
 // TODO: #155 include `cancel`
 
