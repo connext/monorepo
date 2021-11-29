@@ -76,7 +76,7 @@ export const ChainConfigSchema = Type.Object({
   // Gas station URL, if any, to retrieve current gas price from. If gas station is down or otherwise fails,
   // we'll use the RPC provider's gas as a backup.
   // Gas station should return a "rapid" gas price within the response.data.
-  gasStations: Type.Array(Type.String()),
+  gasStations: Type.Optional(Type.Array(Type.String())),
   // An integer value by which we will inflate the gas LIMIT that is returned by the provider (flat increase).
   // Use this if your provider is returning low values and you're getting "out of gas" call exceptions.
   gasLimitInflation: Type.Optional(Type.Integer()),
@@ -149,7 +149,7 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
   // to get 1 confirmation.
-  defaultConfirmationTimeout: 30_000,
+  defaultConfirmationTimeout: 90_000,
   defaultConfirmationsRequired: 10,
 
   syncProvidersInterval: 5 * 60_000,
