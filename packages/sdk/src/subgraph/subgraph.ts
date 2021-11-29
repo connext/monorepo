@@ -11,6 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import { InvalidTxStatus, PollingNotActive } from "../error";
 import {
@@ -98,7 +99,7 @@ const DEFAULT_SUBGRAPH_SYNC_BUFFER = 50;
 
 export type SubgraphChainConfig = {
   subgraph: string | string[];
-  provider: providers.FallbackProvider;
+  chainReader: ChainReader;
   subgraphSyncBuffer: number;
 };
 
@@ -179,7 +180,7 @@ export class Subgraph {
       {
         chainId,
         records,
-      }
+      },
     );
     return (
       records[0] ?? {

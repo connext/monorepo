@@ -2,6 +2,9 @@
   "references": [
     {
       "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../contracts/tsconfig.build.json"
     }
   ],
   "extends": "../../config/tsconfig.node.json",

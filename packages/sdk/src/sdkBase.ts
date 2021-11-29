@@ -60,6 +60,7 @@ import {
   getDeployedTransactionManagerContract,
   getDeployedPriceOracleContract,
   getDeployedChainIdsForGasFee,
+  TransactionManagerChainConfig,
 } from "./transactionManager/transactionManager";
 import {
   SdkBaseConfigParams,
@@ -188,14 +189,7 @@ export class NxtpSdkBase {
     });
     this.chainReader = new ChainReader(this.logger, { chains });
 
-    const txManagerConfig: Record<
-      number,
-      {
-        provider: providers.FallbackProvider;
-        transactionManagerAddress: string;
-        priceOracleAddress: string;
-      }
-    > = {};
+    const txManagerConfig: Record<number, TransactionManagerChainConfig> = {};
 
     const subgraphConfig: Record<
       number,
@@ -207,7 +201,6 @@ export class NxtpSdkBase {
       ([
         _chainId,
         {
-          provider,
           transactionManagerAddress: _transactionManagerAddress,
           priceOracleAddress: _priceOracleAddress,
           subgraph: _subgraph,
@@ -237,7 +230,7 @@ export class NxtpSdkBase {
         }
 
         txManagerConfig[chainId] = {
-          provider,
+          chainReader: this.chainReader,
           transactionManagerAddress,
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
@@ -253,7 +246,7 @@ export class NxtpSdkBase {
         subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
         subgraphConfig[chainId] = {
           subgraph,
-          provider,
+          chainReader: this.chainReader,
           subgraphSyncBuffer,
         };
       },
@@ -802,7 +795,7 @@ export class NxtpSdkBase {
     }
 
     if (callTo !== constants.AddressZero) {
-      const callToContractCode = await this.config.chainConfig[receivingChainId].provider.getCode(callTo);
+      const callToContractCode = await this.chainReader.getCode(receivingChainId, callTo);
       if (!callToContractCode || callToContractCode === "0x") {
         throw new InvalidCallTo(transactionId, callTo);
       }

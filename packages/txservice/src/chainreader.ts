@@ -128,6 +128,10 @@ export class ChainReader {
     return await this.getProvider(chainId).getTransactionReceipt(hash);
   }
 
+  public async getCode(chainId: number, address: string): Promise<string> {
+    return await this.getProvider(chainId).getCode(address);
+  }
+
   /// HELPERS
   /**
    * Helper to wrap getting provider for specified chain ID.

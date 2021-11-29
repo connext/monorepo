@@ -520,6 +520,12 @@ export class ChainRpcProvider {
     });
   }
 
+  public async getCode(address: string): Promise<string> {
+    return this.execute<string>(false, async (provider: SyncProvider) => {
+      return await provider.getCode(address);
+    });
+  }
+
   /**
    * Gets the current transaction count.
    *
