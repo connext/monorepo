@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [txservice] introduced provider syncing
 - [txservice] removed TransactionServiceFailure error, replaced with specific error types
 
 ## 0.0.92
