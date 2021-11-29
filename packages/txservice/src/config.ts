@@ -60,20 +60,26 @@ export const ProviderConfigSchema = Type.Object({
 export type ProviderConfig = Static<typeof ProviderConfigSchema>;
 export const validateProviderConfig = ajv.compile(ProviderConfigSchema);
 
+// TODO: Since moving to exposing the txservice config through the "all" entry in the chainConfig
+// for router json configuration file, we should converge on a single config schema.
+// For example, imagine gasLimitInflation being able to be applied to "all" (and overriden through
+// specification per chain).
+
 /// CHAIN CONFIG
 export const ChainConfigSchema = Type.Object({
   // List of configurations for providers for this chain.
   providers: Type.Array(ProviderConfigSchema),
-  // Quorum is consensus count that must be reached among providers.
-  quorum: Type.Optional(Type.Integer()),
 
   // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
   // in the event that a gas station is malfunctioning.
   defaultInitialGas: Type.Optional(TIntegerString),
   // Gas station URL, if any, to retrieve current gas price from. If gas station is down or otherwise fails,
   // we'll use the RPC provider's gas as a backup.
-  // Gas station should return a "rapid" gas price within the response.data. See ethereum gasnow API as example.
+  // Gas station should return a "rapid" gas price within the response.data.
   gasStations: Type.Array(Type.String()),
+  // An integer value by which we will inflate the gas LIMIT that is returned by the provider (flat increase).
+  // Use this if your provider is returning low values and you're getting "out of gas" call exceptions.
+  gasLimitInflation: Type.Optional(Type.Integer()),
 
   // The amount of time (ms) to wait before a confirmation polling period times out,
   // indicating we should resubmit tx with higher gas if the tx is not confirmed.
@@ -109,12 +115,25 @@ const TransactionServiceConfigSchema = Type.Object({
   defaultConfirmationTimeout: Type.Integer(),
 
   /// RPC PROVIDERS
-  // RPC provider call max attempts - how many attempts / retries will we do upon failure?
-  rpcProviderMaxRetries: Type.Integer(),
+  // Whether we should use an RPC block listener to optimize RPC calls (works best with many providers). Will help
+  // with sustaining heavy traffic.
+  synchronizedMode: Type.Boolean(),
+  // How often (ms) we will check all RPC providers to measure how in-sync they are with the blockchain.
+  // By default, every 5 mins (5 * 60_000).
+  syncProvidersInterval: Type.Integer(),
+  // Target maximum provider calls per second. Default is 4. Will NOT actually cap calls per second, but rather deprioritize
+  // a provider if it reaches the maximum calls per second.
+  maxProviderCPS: Type.Integer(),
 
   /// CHAINS
   // Configuration for each chain that this txservice will be supporting.
   chains: Type.Record(TIntegerString, ChainConfigSchema),
+
+  /// DEBUGGING / DEVELOPMENT
+  // WARNING: Please do not alter these configuration values; they should be used for development and/or debugging
+  // purposes only, and can greatly affect performance.
+  // Whether to log rpc calls.
+  debug_logRpcCalls: Type.Boolean(),
 });
 
 export type TransactionServiceConfig = Static<typeof TransactionServiceConfigSchema>;
@@ -132,9 +151,13 @@ export const DEFAULT_CONFIG: TransactionServiceConfig = {
   gasPriceMaxIncreaseScalar: 200,
 
   // NOTE: This should be the amount of time we are willing to wait for a transaction
-  // to get 1 confirmation. To configure per chain, look at `TransactionServiceConfig.chains`.
-  defaultConfirmationTimeout: 90_000,
+  // to get 1 confirmation.
+  defaultConfirmationTimeout: 30_000,
   defaultConfirmationsRequired: 10,
 
-  rpcProviderMaxRetries: 5,
+  synchronizedMode: false,
+  syncProvidersInterval: 5 * 60_000,
+  maxProviderCPS: 4,
+
+  debug_logRpcCalls: false,
 } as TransactionServiceConfig;

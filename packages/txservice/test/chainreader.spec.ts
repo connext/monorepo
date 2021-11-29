@@ -6,7 +6,6 @@ import { ChainRpcProvider } from "../src/provider";
 import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_READ_TX, TEST_TX_RECEIPT, makeChaiReadable } from "./constants";
 import { ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
 import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
-import { err, ok } from "neverthrow";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -56,7 +55,7 @@ describe("ChainReader", () => {
   describe("#readTx", () => {
     it("happy: returns exactly what it reads", async () => {
       const fakeData = getRandomBytes32();
-      provider.readTransaction.resolves(ok(fakeData));
+      provider.readTransaction.resolves(fakeData);
 
       const data = await chainReader.readTx(TEST_READ_TX);
 
@@ -66,7 +65,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.readTransaction.resolves(err(new RpcError("fail")));
+      provider.readTransaction.rejects(new RpcError("fail"));
 
       await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
     });
@@ -76,7 +75,7 @@ describe("ChainReader", () => {
     it("happy", async () => {
       const testBalance = utils.parseUnits("42", "ether");
       const testAddress = getRandomAddress();
-      provider.getBalance.resolves(ok(testBalance));
+      provider.getBalance.resolves(testBalance);
 
       const balance = await chainReader.getBalance(TEST_SENDER_CHAIN_ID, testAddress);
 
@@ -86,7 +85,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBalance.resolves(err(new RpcError("fail")));
+      provider.getBalance.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
     });
@@ -96,7 +95,7 @@ describe("ChainReader", () => {
     it("happy", async () => {
       const decimals = 18;
       const assetId = mkAddress("0xaaa");
-      provider.getDecimalsForAsset.resolves(ok(decimals));
+      provider.getDecimalsForAsset.resolves(decimals);
 
       const retrieved = await chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, assetId);
 
@@ -106,7 +105,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getDecimalsForAsset.resolves(err(new RpcError("fail")));
+      provider.getDecimalsForAsset.rejects(new RpcError("fail"));
 
       await expect(chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith(
         "fail",
@@ -117,7 +116,7 @@ describe("ChainReader", () => {
   describe("#getBlockTime", () => {
     it("happy", async () => {
       const time = Math.floor(Date.now() / 1000);
-      provider.getBlockTime.resolves(ok(time));
+      provider.getBlockTime.resolves(time);
 
       const blockTime = await chainReader.getBlockTime(TEST_SENDER_CHAIN_ID);
 
@@ -126,7 +125,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBlockTime.resolves(err(new RpcError("fail")));
+      provider.getBlockTime.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBlockTime(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
@@ -135,7 +134,7 @@ describe("ChainReader", () => {
   describe("#getBlockNumber", () => {
     it("happy", async () => {
       const testBlockNumber = 42;
-      provider.getBlockNumber.resolves(ok(testBlockNumber));
+      provider.getBlockNumber.resolves(testBlockNumber);
 
       const blockNumber = await chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID);
 
@@ -144,7 +143,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBlockNumber.resolves(err(new RpcError("fail")));
+      provider.getBlockNumber.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
@@ -152,7 +151,7 @@ describe("ChainReader", () => {
 
   describe("#getTransactionReceipt", () => {
     it("happy", async () => {
-      provider.getTransactionReceipt.resolves(ok(TEST_TX_RECEIPT));
+      provider.getTransactionReceipt.resolves(TEST_TX_RECEIPT);
 
       const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash);
 
@@ -161,7 +160,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getTransactionReceipt.resolves(err(new RpcError("fail")));
+      provider.getTransactionReceipt.rejects(new RpcError("fail"));
 
       await expect(
         chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash),

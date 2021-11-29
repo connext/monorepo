@@ -21,21 +21,6 @@ export class MaxBufferLengthError extends TransactionError {
   }
 }
 
-export class DispatchAborted extends TransactionError {
-  /**
-   * Thrown if a backfill transaction fails and other txs are attempted
-   */
-  static readonly type = DispatchAborted.name;
-
-  constructor(public readonly context: any = {}) {
-    super(
-      "Failed to send backfill transaction, refusing to send any additional transactions",
-      context,
-      DispatchAborted.type,
-    );
-  }
-}
-
 export class RpcError extends TransactionError {
   static readonly type = RpcError.name;
 
@@ -200,8 +185,17 @@ export class ServerError extends TransactionError {
    */
   static readonly type = ServerError.name;
 
-  constructor(public readonly context: any = {}) {
-    super("Server error occurred", context, ServerError.type);
+  static readonly reasons = {
+    BadResponse: "Received bad response from provider.",
+    /**
+     * This one occurs (usually) when we try to send a transaction to multiple providers
+     * and one or more of them already has the transaction in their mempool.
+     */
+    TransactionAlreadyKnown: "Transaction is already indexed by provider.",
+  };
+
+  constructor(public readonly reason?: Values<typeof ServerError.reasons>, public readonly context: any = {}) {
+    super(reason ?? "Server error occurred.", context, ServerError.type);
   }
 }
 
@@ -356,14 +350,23 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   } else if (
     message.match(
-      /another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
+      /another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|oldnonce/,
     )
   ) {
     return new BadNonce(BadNonce.reasons.NonceExpired, context);
+  } else if (message.match(/replacement transaction underpriced/)) {
+    return new BadNonce(BadNonce.reasons.ReplacementUnderpriced, context);
   } else if (message.match(/tx doesn't have the correct nonce|invalid transaction nonce/)) {
     return new BadNonce(BadNonce.reasons.NonceIncorrect, context);
-  } else if (message.match(/ECONNRESET|ECONNREFUSED|failed to meet quorum/)) {
+  } else if (message.match(/econnreset|eaddrinuse|econnrefused|epipe|enotfound|enetunreach|eai_again/)) {
+    // Common connection errors: ECONNRESET, EADDRINUSE, ECONNREFUSED, EPIPE, ENOTFOUND, ENETUNREACH, EAI_AGAIN
+    // TODO: Should also take in certain HTTP Status Codes: 429, 500, 502, 503, 504, 521, 522, 524; but need to be sure they
+    // are status codes and not just part of a hash string, id number, etc.
     return new RpcError(RpcError.reasons.ConnectionReset, context);
+  } else if (message.match(/already known/)) {
+    return new ServerError(ServerError.reasons.TransactionAlreadyKnown, context);
+  } else if (message.match(/insufficient funds/)) {
+    return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
   }
 
   switch (error.code) {
@@ -389,8 +392,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
-      // TODO: #144 Should this be a TransactionReverted error?
-      return new ServerError(context);
+      return new ServerError(ServerError.reasons.BadResponse, context);
     default:
       return error;
   }

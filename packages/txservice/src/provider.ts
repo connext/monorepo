@@ -9,7 +9,6 @@ import {
 } from "@connext/nxtp-utils";
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -17,40 +16,47 @@ import {
   GasEstimateInvalid,
   parseError,
   RpcError,
-  TransactionError,
+  ServerError,
+  TimeoutError,
   TransactionReadError,
   TransactionReverted,
-  UnpredictableGasLimit,
 } from "./error";
-import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
+import { ProviderCache, ReadTransaction, SyncProvider, OnchainTransaction } from "./types";
 
-const NO_GAS_MIN_CHAIN_IDS = [10];
+const { FallbackProvider } = providers;
 
-const { StaticJsonRpcProvider, FallbackProvider } = providers;
+// TODO: Move to config; alternatively, configure based on time, not blocks.
+// A provider must be within this many blocks of the "leading" provider (provider with the highest block) to be considered in-sync.
+const PROVIDER_MAX_LAG = 30;
+
+type ChainRpcProviderCache = { gasPrice: BigNumber; transactionCount: number };
 
 /**
  * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
  * the responses.
  */
 export class ChainRpcProvider {
-  // Saving the list of underlying JsonRpcProviders used in FallbackProvider for the event
-  // where we need to do a send() call directly on each one (Fallback doesn't raise that interface).
-  private readonly _providers: providers.JsonRpcProvider[];
-  private readonly provider: providers.FallbackProvider;
+  // The array of underlying SyncProviders.
+  private readonly providers: SyncProvider[];
+  // The provider that's most in sync with the chain, and has an active block listener.
+  private leadProvider: SyncProvider | undefined;
+
+  // TODO: Remove fallback provider?
+  private readonly fallbackProvider: providers.FallbackProvider;
   private readonly signer?: Signer;
-  private readonly quorum: number;
-  private cachedGas?: CachedGas;
+
   private lastUsedGasPrice: BigNumber | undefined = undefined;
-  private cachedTransactionCount?: CachedTransactionCount;
+
+  // Cached decimal values per asset. Saved separately from main cache as decimals obviously don't expire.
   private cachedDecimals: Record<string, number> = {};
-  protected paused: Error | undefined = undefined;
+  // Cached block length in time (ms), used for optimizing waiting periods.
+  private blockPeriod?: number;
+
+  // Cache of transient data (i.e. data that can change per block).
+  private cache: ProviderCache<ChainRpcProviderCache>;
 
   public readonly confirmationsRequired: number;
   public readonly confirmationTimeout: number;
-
-  public get isReadOnly(): boolean {
-    return !this.signer;
-  }
 
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
@@ -73,14 +79,10 @@ export class ChainRpcProvider {
     protected readonly config: TransactionServiceConfig,
     signer?: string | Signer,
   ) {
+    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
+
     this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
     this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
-    // NOTE: Quorum is set to 1 here, but we may want to reconfigure later. Normally it is half the sum of the weights,
-    // which might be okay in our case, but for now we have a low bar.
-    // NOTE: This only applies to fallback provider case below.
-    this.quorum = chainConfig.quorum ?? 1;
-
-    const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
 
     // Register a provider for each url.
     // Make sure all providers are ready()
@@ -96,20 +98,22 @@ export class ChainRpcProvider {
     });
     if (filteredConfigs.length > 0) {
       const hydratedConfigs = filteredConfigs.map((config) => ({
-        provider: new StaticJsonRpcProvider(
+        provider: new SyncProvider(
           {
             url: config.url,
             user: config.user,
             password: config.password,
           },
           this.chainId,
+          config.stallTimeout,
+          this.config.debug_logRpcCalls,
         ),
         priority: config.priority ?? 1,
         weight: config.weight ?? 1,
         stallTimeout: config.stallTimeout,
       }));
-      this.provider = new FallbackProvider(hydratedConfigs, this.quorum);
-      this._providers = hydratedConfigs.map((p) => p.provider);
+      this.fallbackProvider = new FallbackProvider(hydratedConfigs, 1);
+      this.providers = hydratedConfigs.map((p) => p.provider);
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
@@ -124,10 +128,25 @@ export class ChainRpcProvider {
     }
 
     if (signer) {
-      this.signer = typeof signer === "string" ? new Wallet(signer, this.provider) : signer.connect(this.provider);
+      this.signer =
+        typeof signer === "string" ? new Wallet(signer, this.fallbackProvider) : signer.connect(this.fallbackProvider);
     } else {
       this.signer = undefined;
     }
+
+    // TODO: Make ttl/btl values below configurable ?
+    this.cache = new ProviderCache<ChainRpcProviderCache>(this.logger, {
+      gasPrice: {
+        ttl: 30_000,
+      },
+      transactionCount: {
+        ttl: 2_000,
+      },
+    });
+
+    // This initial call of sync providers will start the first block listener (on the lead provider) and set up
+    // the cache with correct initial values (as well as establish which providers are out-of-sync).
+    this.syncProviders();
   }
 
   /**
@@ -140,15 +159,16 @@ export class ChainRpcProvider {
    *
    * @returns The ethers TransactionResponse.
    */
-  protected sendTransaction(tx: Transaction): ResultAsync<providers.TransactionResponse, TransactionError> {
-    // Do any parsing and value handling work here if necessary.
-    const { params } = tx;
-    const transaction = {
-      ...params,
-      value: BigNumber.from(params.value || 0),
-    };
-    return this.resultWrapper<providers.TransactionResponse>(true, async () => {
-      return await this.signer!.sendTransaction(transaction);
+  protected async sendTransaction(transaction: OnchainTransaction): Promise<providers.TransactionResponse> {
+    this.checkSigner();
+    // NOTE: We do not use execute for this call as it should be delegated to fallback provider, who
+    // will call the method on all providers.
+    // TODO: We may want to adapt execute to take on this functionality as it's the last step towards
+    // making fallback provider obsolete (and making this class the real fallback provider).
+    this.signer!.connect(this.fallbackProvider);
+    return await this.signer!.sendTransaction({
+      ...transaction.params,
+      value: BigNumber.from(transaction.params.value || 0),
     });
   }
 
@@ -159,24 +179,74 @@ export class ChainRpcProvider {
    * @param hash The hexadecimal hash string of the transaction.
    * @param confirmations Optional parameter to override the configured number of confirmations
    * required to validate the receipt.
-   * @param timeout Optional timeout parameter to override the configured parameter.
+   * @param timeout Optional timeout parameter in ms to override the configured parameter.
    *
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
    */
-  public confirmTransaction(
-    transaction: Transaction,
+  public async confirmTransaction(
+    transaction: OnchainTransaction,
     confirmations: number = this.confirmationsRequired,
     timeout: number = this.confirmationTimeout,
-  ): ResultAsync<providers.TransactionReceipt | null, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(
-      true,
-      () => {
-        // The only way to access the functionality internal to ethers for handling replacement tx.
-        // See issue: https://github.com/ethers-io/ethers.js/issues/1775
-        return Promise.race(transaction.responses.map((response) => (response as any).wait(confirmations, timeout)));
-      },
-      false,
-    );
+  ): Promise<providers.TransactionReceipt> {
+    if (transaction.minedBlockNumber !== -1 && confirmations > 1) {
+      // Before we start checking confirmations, wait until we've passed the target number of blocks
+      // from the mined block. This will save us from making unnecessary RPC calls to the provider.
+      const targetBlockNumber = transaction.minedBlockNumber + confirmations - 1;
+      await this.wait(targetBlockNumber);
+    }
+    const start = Date.now();
+    // Using a timed out variable calculated at the end of the loop - this way we can be sure at
+    // least one iteration is completed here.
+    let timedOut = false;
+    while (!timedOut) {
+      const errors: NxtpError[] = [];
+      // Populate a list of promises to retrieve every receipt for every hash.
+      const _receipts: Promise<providers.TransactionReceipt | null>[] = transaction.responses.map(async (response) => {
+        try {
+          return await this.getTransactionReceipt(response.hash);
+        } catch (error) {
+          errors.push(error);
+          return null;
+        }
+      });
+      // Wait until all the 'receipts' (or errors) have been pushed to the list.
+      const receipts = await Promise.all(_receipts);
+      let mined = false;
+      const reverted: providers.TransactionReceipt[] = [];
+      let remainingConfirmations = confirmations;
+      for (const receipt of receipts) {
+        if (receipt === null || receipt === undefined) {
+          continue;
+        } else if (receipt.status === 1) {
+          mined = true;
+          remainingConfirmations = confirmations - receipt.confirmations;
+          if (remainingConfirmations <= 0) {
+            return receipt;
+          }
+        } else {
+          reverted.push(receipt);
+        }
+      }
+
+      if (!mined) {
+        if (reverted.length > 0) {
+          throw new TransactionReverted(TransactionReverted.reasons.CallException, reverted[0]);
+        } else if (errors.length > 0) {
+          throw errors[0];
+        }
+      }
+
+      // If we timed out this round, no need to wait.
+      timedOut = Date.now() - start >= timeout;
+      if (!timedOut) {
+        // If we haven't resolved yet, wait for the designated parity (or target blocks) before we check again.
+        await this.wait(remainingConfirmations);
+      }
+    }
+    throw new TimeoutError({
+      confirmations,
+      timeout,
+    });
   }
 
   /**
@@ -187,17 +257,17 @@ export class ChainRpcProvider {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(true, async () => {
+  public async readTransaction(tx: ReadTransaction): Promise<string> {
+    return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
-        return await this.provider.call(tx);
+        if (this.signer) {
+          this.signer.connect(provider);
+          return await this.signer.call(tx);
+        } else {
+          return await provider.call(tx);
+        }
       } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, {
-          error,
-          chainId: this.chainId,
-          urls: this._providers.map((p) => p.connection.url),
-          tx,
-        });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
     });
   }
@@ -216,41 +286,20 @@ export class ChainRpcProvider {
    *
    * @returns A BigNumber representing the estimated gas value.
    */
-  public estimateGas(transaction: providers.TransactionRequest): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(false, async () => {
-      const errors: any[] = [];
-      // TODO: #147 If quorum > 1, we should make this call to multiple providers.
-      for (const provider of this._providers) {
-        let result: string;
-        try {
-          // This call will prepare the transaction params for us (hexlify tx, etc).
-          // TODO: #147 Is there any reason prepare should be called for each iteration?
-          const args = provider.prepareRequest("estimateGas", { transaction });
-          result = await provider.send(args[0], args[1]);
-        } catch (error) {
-          const sanitizedError = parseError(error);
-          // If we get a TransactionReverted error, we can assume that the transaction will fail,
-          // and we ought to just throw here.
-          if (sanitizedError.type === TransactionReverted.type) {
-            throw sanitizedError;
-          } else {
-            errors.push(error);
-            continue;
-          }
-        }
+  public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
+    const { gasLimitInflation } = this.chainConfig;
 
-        try {
-          return BigNumber.from(result);
-        } catch (error) {
-          throw new GasEstimateInvalid(result, {
-            error: error.message,
-          });
-        }
+    return this.execute(false, async (provider: SyncProvider) => {
+      // This call will prepare the transaction params for us (hexlify tx, etc).
+      const args = provider.prepareRequest("estimateGas", { transaction });
+      const result = await provider.send(args[0], args[1]);
+      try {
+        return BigNumber.from(result).add(gasLimitInflation ? BigNumber.from(gasLimitInflation) : 0);
+      } catch (error) {
+        throw new GasEstimateInvalid(result, {
+          error: error.message,
+        });
       }
-      if (errors.every((e) => e.type === RpcError.type)) {
-        throw new RpcError(RpcError.reasons.FailedToSend, { errors });
-      }
-      throw new UnpredictableGasLimit({ errors });
     });
   }
 
@@ -258,125 +307,112 @@ export class ChainRpcProvider {
    * Get the current gas price for the chain for which this instance is servicing.
    * @returns The BigNumber value for the current gas price.
    */
-  public getGasPrice(context: RequestContext): ResultAsync<BigNumber, TransactionError> {
+  public async getGasPrice(context: RequestContext): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
+
+    // Check if there is a hardcoded value specified for this chain. This should usually only be set
+    // for testing/overriding purposes.
     const hardcoded = this.chainConfig.defaultInitialGas;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
         chainId: this.chainId,
         hardcoded,
       });
-      return okAsync(BigNumber.from(hardcoded));
+      return BigNumber.from(hardcoded);
     }
 
-    // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    // TODO: This should cache per block, not every 3 seconds!
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
-      return okAsync(this.cachedGas.price);
+    // Check if there is a valid (non-expired) gas price available.
+    if (this.cache.data.gasPrice) {
+      return this.cache.data.gasPrice;
     }
 
-    return this.resultWrapper<BigNumber>(false, async () => {
-      const { gasInitialBumpPercent, gasMinimum, gasPriceMaxIncreaseScalar } = this.config;
-      let gasPrice: BigNumber | undefined = undefined;
+    const { gasInitialBumpPercent, gasMinimum, gasMaximum, gasPriceMaxIncreaseScalar } = this.config;
+    let gasPrice: BigNumber | undefined = undefined;
 
-      // Use gas station APIs, if available.
-      const gasStations = this.chainConfig.gasStations ?? [];
-      for (let i = 0; i < gasStations.length; i++) {
-        const uri = gasStations[i];
-        let response: any;
-        try {
-          response = await axios.get(uri);
-          if (!response || !response.data) {
-            continue;
-          }
-          const { rapid, fast } = response.data;
-          if (rapid) {
-            gasPrice = BigNumber.from(rapid.toString());
-            break;
-          } else if (fast) {
+    // Use gas station APIs, if available.
+    const gasStations = this.chainConfig.gasStations ?? [];
+    for (let i = 0; i < gasStations.length; i++) {
+      const uri = gasStations[i];
+      let response: any;
+      try {
+        response = await axios.get(uri);
+        if (response && response.data) {
+          const { fast } = response.data;
+          if (fast) {
             gasPrice = utils.parseUnits(fast.toString(), "gwei");
             break;
-          } else {
-            this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
-              uri,
-              data: response.data,
-            });
           }
-        } catch (e) {
-          this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
-            uri,
-            res: response ? (response?.data ? response.data : response) : undefined,
-            error: jsonifyError(e),
-          });
         }
-      }
-
-      if (gasStations.length > 0 && !gasPrice) {
-        this.logger.warn("Gas stations failed, using provider call instead", requestContext, methodContext, {
-          gasStations,
+        this.logger.debug("Gas station response did not have expected params", requestContext, methodContext, {
+          uri,
+          data: response.data,
         });
-      } else if (gasStations.length > 0 && gasPrice) {
-        // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
-        const providerQuote = await this.provider.getGasPrice();
-        this.logger.debug("Retrieved gas prices", requestContext, methodContext, {
-          chainId: this.chainId,
-          gasStationQuote: gasPrice,
-          providerQuote,
+      } catch (e) {
+        this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
+          uri,
+          res: response ? (response?.data ? response.data : response) : undefined,
+          error: jsonifyError(e),
         });
       }
+    }
 
+    if (!gasPrice) {
       // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
-      if (!gasPrice) {
-        try {
-          gasPrice = await this.provider.getGasPrice();
-        } catch (error) {
-          this.logger.error(
-            "getGasPrice failure, attempting to default to backup gas value.",
-            requestContext,
-            methodContext,
-            jsonifyError(error),
-            { chainId: this.chainId },
-          );
-          // Default to initial gas price, if available. Otherwise, throw.
-          gasPrice = BigNumber.from(this.chainConfig.defaultInitialGas);
-          if (!gasPrice) {
-            throw error;
-          }
-        }
-        gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
-      }
+      gasPrice = await this.execute<BigNumber>(false, async (provider: SyncProvider) => {
+        return await provider.getGasPrice();
+      });
+      gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
+    }
 
-      // If the gas price is less than the gas minimum, bump it up to minimum.
-      if (!NO_GAS_MIN_CHAIN_IDS.includes(this.chainId)) {
-        const min = BigNumber.from(gasMinimum);
-        if (gasPrice.lt(min)) {
-          gasPrice = min;
-        }
+    // Apply a curbing function (if applicable) - this will curb the effect of dramatic network gas spikes.
+    let hitMaximum = false;
+    if (
+      gasPriceMaxIncreaseScalar !== undefined &&
+      gasPriceMaxIncreaseScalar > 100 &&
+      this.lastUsedGasPrice !== undefined
+    ) {
+      // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
+      const curbedPrice = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
+      if (gasPrice.gt(curbedPrice)) {
+        this.logger.debug("Hit the gas price curbed maximum.", requestContext, methodContext, {
+          chainId: this.chainId,
+          gasPrice: utils.formatUnits(gasPrice, "gwei"),
+          curbedPrice: utils.formatUnits(curbedPrice, "gwei"),
+          gasPriceMaxIncreaseScalar,
+          lastUsedGasPrice: utils.formatUnits(this.lastUsedGasPrice, "gwei"),
+        });
+        gasPrice = curbedPrice;
+        hitMaximum = true;
       }
-      let hitMaximum = false;
-      if (
-        gasPriceMaxIncreaseScalar !== undefined &&
-        gasPriceMaxIncreaseScalar > 100 &&
-        this.lastUsedGasPrice !== undefined
-      ) {
-        // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
-        const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
-        if (gasPrice.gt(max)) {
-          hitMaximum = true;
-          gasPrice = max;
-        }
-        // Update our last used gas price with this tx's gas price. This may be used to determine the cap of
-        // subsuquent tx's gas price.
-        this.lastUsedGasPrice = gasPrice;
-      }
+    }
 
-      // Cache the latest gas price, assuming we didn't hit the maximum increase cap.
-      // We'll want to re-request the gas price if we did hit the cap.
-      if (!hitMaximum) {
-        this.cachedGas = { price: gasPrice, timestamp: Date.now() };
-      }
-      return gasPrice;
-    });
+    // Final step to ensure we remain within reasonable, configured bounds for gas price.
+    // If the gas price is less than absolute gas minimum, bump it up to minimum.
+    // If it's greater than (or equal to) the absolute maximum, set it to that maximum (and log).
+    const min = BigNumber.from(gasMinimum);
+    const max = BigNumber.from(gasMaximum);
+    if (gasPrice.lt(min)) {
+      gasPrice = min;
+    } else if (gasPrice.gte(max)) {
+      this.logger.warn("Hit the gas price absolute maximum.", requestContext, methodContext, {
+        chainId: this.chainId,
+        gasPrice: utils.formatUnits(gasPrice, "gwei"),
+        absoluteMax: utils.formatUnits(max, "gwei"),
+      });
+      gasPrice = max;
+      hitMaximum = true;
+    }
+
+    // Update our last used gas price with this tx's gas price. This may be used to determine the cap of
+    // subsuquent tx's gas price.
+    this.lastUsedGasPrice = gasPrice;
+
+    // We only want to cache the gas price if we didn't hit the maximum.
+    if (!hitMaximum) {
+      this.cache.set({ gasPrice });
+    }
+
+    return gasPrice;
   }
 
   /**
@@ -387,9 +423,9 @@ export class ChainRpcProvider {
    * @returns A BigNumber representing the current value held by the wallet at the
    * specified address.
    */
-  public getBalance(address: string): ResultAsync<BigNumber, TransactionError> {
-    return this.resultWrapper<BigNumber>(false, async () => {
-      return await this.provider.getBalance(address);
+  public async getBalance(address: string): Promise<BigNumber> {
+    return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
+      return await provider.getBalance(address);
     });
   }
 
@@ -400,8 +436,8 @@ export class ChainRpcProvider {
    *
    * @returns A number representing the current decimals.
    */
-  public getDecimalsForAsset(assetId: string): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(false, async () => {
+  public async getDecimalsForAsset(assetId: string): Promise<number> {
+    return this.execute<number>(false, async (provider: SyncProvider) => {
       if (this.cachedDecimals[assetId]) {
         return this.cachedDecimals[assetId];
       }
@@ -412,20 +448,36 @@ export class ChainRpcProvider {
       }
 
       // Get provider
-      const decimals = await new Contract(assetId, ERC20Abi, this.provider).decimals();
+      const decimals = await new Contract(assetId, ERC20Abi, provider).decimals();
       this.cachedDecimals[assetId] = decimals;
       return decimals;
     });
   }
 
   /**
+   * Gets the current block number.
+   *
+   * @returns A number representing the current block number.
+   */
+  public async getBlock(
+    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
+  ): Promise<providers.Block> {
+    return this.execute<providers.Block>(false, async (provider) => {
+      return await provider.getBlock(blockHashOrBlockTag);
+    });
+  }
+
+  /**
    * Gets the current blocktime.
+   *
+   * @param blockTag (default: "latest") - The block tag to get the blocktime for, could be a block number or a block hash.
+   * By default, this will get the current blocktime.
    *
    * @returns A number representing the current blocktime.
    */
-  public getBlockTime(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(false, async () => {
-      const block = await this.provider.getBlock("latest");
+  public async getBlockTime(blockTag = "latest"): Promise<number> {
+    return this.execute<number>(false, async (provider: SyncProvider) => {
+      const block = await provider.getBlock(blockTag);
       return block.timestamp;
     });
   }
@@ -435,24 +487,9 @@ export class ChainRpcProvider {
    *
    * @returns A number representing the current block number.
    */
-  public getBlock(
-    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
-  ): ResultAsync<providers.Block, TransactionError> {
-    return this.resultWrapper<providers.Block>(false, async () => {
-      const block = await this.provider.getBlock(blockHashOrBlockTag);
-      return block;
-    });
-  }
-
-  /**
-   * Gets the current blocktime.
-   *
-   * @returns A number representing the current blocktime.
-   */
-  public getBlockNumber(): ResultAsync<number, TransactionError> {
-    return this.resultWrapper<number>(false, async () => {
-      const number = await this.provider.getBlockNumber();
-      return number;
+  public async getBlockNumber(): Promise<number> {
+    return this.execute<number>(false, async (provider: SyncProvider) => {
+      return await provider.getBlockNumber();
     });
   }
 
@@ -461,22 +498,21 @@ export class ChainRpcProvider {
    *
    * @returns A hash string address belonging to the signer.
    */
-  public getAddress(): ResultAsync<string, TransactionError> {
-    return this.resultWrapper<string>(true, async () => {
-      return await this.signer!.getAddress();
-    });
+  public async getAddress(): Promise<string> {
+    this.checkSigner();
+    return await this.signer!.getAddress();
   }
 
   /**
-   * Gets a transaction.
+   * Retrieves a transaction's receipt by the transaction hash.
    *
    * @param hash - the transaction hash to get the receipt for.
    *
    * @returns A TransactionReceipt instance.
    */
-  public getTransactionReceipt(hash: string): ResultAsync<providers.TransactionReceipt, TransactionError> {
-    return this.resultWrapper<providers.TransactionReceipt>(false, async () => {
-      const receipt = await this.provider.getTransactionReceipt(hash);
+  public async getTransactionReceipt(hash: string): Promise<providers.TransactionReceipt> {
+    return this.execute<providers.TransactionReceipt>(false, async (provider: SyncProvider) => {
+      const receipt = await provider.getTransactionReceipt(hash);
       return receipt;
     });
   }
@@ -484,105 +520,175 @@ export class ChainRpcProvider {
   /**
    * Gets the current transaction count.
    *
-   * @param blockTag - the block tag to get the transaction count for. Use "latest" mined-only transactions.
+   * @param blockTag (default: "latest") - The block tag to get the transaction count for. Use "latest" mined-only transactions.
    * Use "pending" for transactions that have not been mined yet, but will (supposedly) be mined in the pending
    * block (essentially, transactions included in the mempool, but this behavior is not consistent).
    *
-   * @returns Number of transactions sent; by default, including transactions in the pending (next) block.
+   * @returns Number of transactions sent AKA the current nonce.
    */
-  public getTransactionCount(blockTag = "pending"): ResultAsync<number, TransactionError> {
-    // If it's been less than a couple seconds since we retrieved tx count, return the cached value.
-    if (this.cachedTransactionCount && Date.now() - this.cachedTransactionCount.timestamp < 2_000) {
-      return okAsync(this.cachedTransactionCount.value);
+  public async getTransactionCount(blockTag = "latest"): Promise<number> {
+    // TODO: Cache both latest and pending transaction counts separately?
+    if (this.cache.data.transactionCount && blockTag === "latest") {
+      return this.cache.data.transactionCount;
     }
 
-    return this.resultWrapper<number>(true, async () => {
-      const value = await this.signer!.getTransactionCount(blockTag);
-      this.cachedTransactionCount = { value, timestamp: Date.now() };
-      return value;
+    return this.execute<number>(true, async (provider: SyncProvider) => {
+      const transactionCount = await provider.getTransactionCount(await this.signer!.getAddress(), blockTag);
+      this.cache.set({ transactionCount });
+      return transactionCount;
     });
   }
 
   /// HELPERS
   /**
-   * The result wrapper is used for wrapping and parsing errors, as well as ensuring that providers are ready
-   * before any call is made. Also used for executing multiple retries for RPC requests to providers.
-   * This is to circumvent any issues related to unreliable internet/network issues, whether locally,
-   * or externally (for the provider's network).
+   * A helper to throw a custom error if the method requires a signer but no signer has
+   * been injected into the provider.
    *
-   * @param method The method callback to execute and wrap in retries.
-   *
-   * @returns A ResultAsync instance containing an object of the specified type or an NxtpError.
+   * @throws NxtpError if signer is required and not provided.
    */
-  private resultWrapper<T>(
-    needsSigner: boolean,
-    method: () => Promise<T>,
-    rpcCanTimeout = true,
-  ): ResultAsync<T, NxtpError> {
-    const RPC_TIMEOUT = 60_000;
-    return ResultAsync.fromPromise(
-      this.isReady().then(async () => {
-        if (needsSigner && this.isReadOnly) {
-          throw new NxtpError("Method requires signer, and no signer was provided.");
-        }
-        const errors = [];
-        let result: T | undefined = undefined;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for (const _ of Array(5).fill(0)) {
-          try {
-            const _result = await Promise.race(
-              [method()].concat(
-                rpcCanTimeout
-                  ? [
-                      new Promise(async (_res, reject) => {
-                        await delay(RPC_TIMEOUT);
-                        reject(new RpcError(RpcError.reasons.Timeout));
-                      }),
-                    ]
-                  : [],
-              ),
-            );
-            result = _result;
-            break;
-          } catch (e) {
-            const error = parseError(e);
-            // NOTE: If it's an rpc timeout error, we want to go ahead and throw.
-            if (error.type === RpcError.type && (error as RpcError).reason != RpcError.reasons.Timeout) {
-              errors.push(error);
-            } else {
-              throw error;
-            }
-          }
-        }
-        if (result === undefined) {
-          throw new RpcError(RpcError.reasons.FailedToSend, { errors });
-        }
-        return result;
-      }),
-      (error) => {
-        // Parse error into TransactionError, etc.
-        return parseError(error);
-      },
-    );
+  private checkSigner() {
+    if (!this.signer) {
+      throw new NxtpError("Method requires signer, and no signer was provided.");
+    }
   }
 
   /**
-   * Checks whether our providers are ready for execution. Should be called every time we do any
-   * operation in this class.
+   * The RPC method execute wrapper is used for wrapping and parsing errors, as well as ensuring that
+   * providers are ready before any call is made. Also used for executing multiple retries for RPC
+   * requests to providers. This is to circumvent any issues related to unreliable internet/network
+   * issues, whether locally, or externally (for the provider's network).
+   *
+   * @param method - The method callback to execute and wrap in retries.
+   * @returns The object of the specified generic type.
+   * @throws NxtpError if the method fails to execute.
    */
-  private async isReady(): Promise<boolean> {
-    const method = this.isReady.name;
-    // provider.ready returns a Promise which will stall until the network has heen established, ignoring
-    // errors due to the target node not being active yet. This will ensure we wait until the node is up
-    // and running smoothly.
-    const ready = await this.provider.ready;
-    if (!ready) {
-      // Error out, not enough providers are ready.
-      throw new RpcError(RpcError.reasons.OutOfSync, {
-        method,
-        chainId: this.chainId,
-      });
+  private async execute<T>(needsSigner: boolean, method: (provider: SyncProvider) => Promise<T>): Promise<T> {
+    // If we need a signer, check to ensure we have one.
+    if (needsSigner) {
+      this.checkSigner();
     }
-    return true;
+    if (!this.blockPeriod) {
+      // This block should only be called once.
+      const currentBlock = await this.getBlock("latest");
+      const previousBlock = await this.getBlock(currentBlock.parentHash);
+      this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
+    }
+    const errors: any[] = [];
+    const syncedProviders = this.shuffleSyncedProviders();
+    for (const provider of syncedProviders) {
+      try {
+        return await method(provider);
+      } catch (e) {
+        const error = parseError(e);
+        // If the error thrown is a timeout or non-RPC or non-Server error, we want to go ahead and throw it.
+        // e.g. a TransactionReverted, TransactionReplaced, etc.
+        if (
+          error.type !== ServerError.type &&
+          (error.type !== RpcError.type || (error as RpcError).reason === RpcError.reasons.Timeout)
+        ) {
+          throw error;
+        } else {
+          errors.push(error);
+        }
+      }
+    }
+    throw new RpcError(RpcError.reasons.FailedToSend, { errors });
+  }
+
+  /**
+   * Callback method used for handling a block update from synchronized providers.
+   *
+   * @remarks
+   * Since being "in-sync" is actually a relative matter, it's possible to have all providers
+   * be out of sync (e.g. 100 blocks behind the current block in reality), but also have them
+   * be considered in-sync here, since we only use the highest block among our providers to determine
+   * the "true" current block.
+   *
+   *
+   * @param provider - SyncProvider instance this block update applies to.
+   * @param blockNumber - Current block number (according to the provider).
+   * @param url - URL of the provider.
+   * @returns boolean indicating whether the provider is in sync.
+   */
+  protected async syncProviders(): Promise<void> {
+    const { requestContext, methodContext } = createLoggingContext(this.syncProviders.name);
+
+    // Reset the current lead provider.
+    this.leadProvider = undefined;
+
+    // First, sync all providers simultaneously.
+    await Promise.all(
+      this.providers.map((p) => new Promise((resolve, reject) => p.sync().then(resolve).catch(reject))),
+    );
+
+    // Find the provider with the highest block number and use that as source of truth.
+    const highestBlockNumber = Math.max(...this.providers.map((p) => p.syncedBlockNumber));
+    for (const provider of this.providers) {
+      const providerBlockNumber = provider.syncedBlockNumber;
+      provider.lag = highestBlockNumber - providerBlockNumber;
+
+      // Set synced property, log if the provider went out of sync.
+      const synced = provider.lag < PROVIDER_MAX_LAG;
+      if (!synced && provider.synced) {
+        // If the provider was previously synced but fell out of sync, debug log to notify.
+        this.logger.debug("Provider fell out of sync.", undefined, undefined, {
+          providerBlockNumber,
+          provider: provider.url,
+          lag: provider.lag,
+        });
+      }
+      provider.synced = synced;
+    }
+
+    // We want to pick the lead provider here at random from the list of 0-lag providers to ensure that we distribute
+    // our block listener RPC calls as evenly as possible across all providers.
+    const leadProviders = this.shuffleSyncedProviders(true);
+    this.leadProvider = leadProviders[(Math.random() * leadProviders.length) | 0];
+
+    this.logger.debug("Synced provider(s).", requestContext, methodContext, {
+      highestBlockNumber,
+      leadProvider: this.leadProvider.url,
+      providers: this.providers
+        .filter((p) => p.synced)
+        .map((p) => ({
+          url: p.url,
+          blockNumber: p.syncedBlockNumber,
+          lag: p.lag,
+        })),
+    });
+  }
+
+  /**
+   * Helper method to stall, possibly until we've surpassed a specified number of blocks. Only works
+   * with block number if we're running in synchronized mode.
+   *
+   * @param numBlocks (default: 1) - the number of blocks to wait.
+   */
+  private async wait(numBlocks = 1): Promise<void> {
+    const pollPeriod = numBlocks * (this.blockPeriod ?? 2_000);
+    await delay(pollPeriod);
+  }
+
+  /**
+   * Helper method for getting tier-shuffled synced providers.
+   *
+   * @returns all in-sync providers in order of synchronicity with chain, with the lead provider
+   * in the first position and the rest shuffled by tier (lag).
+   */
+  private shuffleSyncedProviders(zeroLagOnly = false): SyncProvider[] {
+    const syncedProviders = this.providers.filter((p) => (zeroLagOnly ? p.lag === 0 : p.synced));
+    // Tiered shuffling: providers that have the same lag value (e.g. 0) will be shuffled so as to distribute RPC calls
+    // as evenly as possible across all providers; at high load, this can translate to higher efficiency (each time we
+    // execute an RPC call, we'll be hitting different providers).
+    // Shuffle isn't applied to lead provider - instead, we just guarantee that it's in the first position.
+    syncedProviders.forEach((p) => {
+      p.priority =
+        p.lag -
+        (this.leadProvider && p.url === this.leadProvider.url ? 1 : Math.random()) -
+        p.cps / this.config.maxProviderCPS -
+        p.reliability * 2 +
+        p.avgExecTime;
+    });
+    return syncedProviders.sort((a, b) => a.priority - b.priority);
   }
 }

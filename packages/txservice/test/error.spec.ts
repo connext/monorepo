@@ -9,7 +9,7 @@ describe("parseError", () => {
     expect(err).to.be.deep.eq(parsed);
   });
 
-  it("should handle server errors", () => {
+  it("should handle server errors / bad response from providers", () => {
     const err = {
       code: Logger.errors.SERVER_ERROR,
       error: {
@@ -20,7 +20,20 @@ describe("parseError", () => {
 
     expect(parsed instanceof ServerError).to.be.true;
     expect(parsed.context.message).to.be.eq("fail");
-    expect(parsed.message).to.be.eq(new ServerError().message);
+    expect(parsed.message).to.be.eq(ServerError.reasons.BadResponse);
+  });
+
+  it("should handle all connection errors", () => {
+    const errs = ["ECONNRESET", "EADDRINUSE", "ECONNREFUSED", "EPIPE", "ENOTFOUND", "ENETUNREACH", "EAI_AGAIN"];
+    errs.forEach((err) => {
+      const parsed = parseError({
+        code: Logger.errors.SERVER_ERROR,
+        otherdata: "nonsense",
+        error: { message: `<d12kegvzpwe1f${err}@!#!$%!@%<<>` },
+      });
+      expect(parsed instanceof RpcError).to.be.true;
+      expect(parsed.message).to.be.eq(RpcError.reasons.ConnectionReset);
+    });
   });
 
   it("should handle errors where typeof body == string", () => {
