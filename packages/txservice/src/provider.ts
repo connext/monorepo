@@ -261,8 +261,7 @@ export class ChainRpcProvider {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
-          this.signer.connect(provider);
-          return await this.signer.call(tx);
+          return await this.signer.connect(provider).call(tx);
         } else {
           return await provider.call(tx);
         }
