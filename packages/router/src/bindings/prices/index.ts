@@ -1,9 +1,9 @@
 import { BigNumber, constants } from "ethers";
-import { createLoggingContext, getNtpTimeSeconds, jsonifyError, multicall } from "@connext/nxtp-utils";
+import { createLoggingContext, getNtpTimeSeconds, jsonifyError } from "@connext/nxtp-utils";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
-import { getTokenPriceFromOnChain } from "../../lib/helpers/shared";
+import { getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
 
 export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 const PRICE_LOOP_INTERVAL = 15_000;

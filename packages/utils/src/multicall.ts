@@ -1,9 +1,10 @@
 import { Bytes, Contract } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { Interface } from "@ethersproject/abi";
+
 import { getSimpleRPCPRovider, MulticallAbi } from ".";
 
-interface Call {
+export interface Call {
   address: string; // Address of the contract
   name: string; // Function name on the contract (example: balanceOf)
   params?: any[]; // Function params

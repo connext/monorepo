@@ -4,6 +4,8 @@ import {
   GAS_ESTIMATES,
   getChainData,
   createLoggingContext,
+  multicall as _multicall,
+  Call,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -313,4 +315,18 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
  */
 export const getChainIdForGasFee = (): number[] => {
   return getDeployedChainIdsForGasFee();
+};
+
+/**
+ * Runs multiple calls at a time, call data should be read methods. used to make it easier for sinon mocks to happen in test cases.
+ *
+ * @param abi - The ABI data of target contract
+ * @param calls - The call data what you want to read from contract
+ * @param multicallAddress - The address of multicall contract deployed to configured chain
+ * @param rpcUrl - The rpc endpoints what you want to call with
+ *
+ * @returns Array in ethers.BigNumber
+ */
+export const multicall = async (abi: any[], calls: Call[], multicallAddress: string, rpcUrl: string) => {
+  return await _multicall(abi, calls, multicallAddress, rpcUrl);
 };

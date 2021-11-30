@@ -63,6 +63,13 @@ describe("getMainnetEquivalent", () => {
   });
 });
 
+describe("getMainnetDecimals", () => {
+  it("should work", async () => {
+    const result = await shared.getMainnetDecimals(constants.AddressZero, 100);
+    expect(result).to.be.eq(18);
+  });
+});
+
 describe("calculateGasFeeInReceivingToken", () => {
   it("should return 0 for local chains", async () => {
     const result = await shared.calculateGasFeeInReceivingToken(
@@ -93,6 +100,26 @@ describe("calculateGasFeeInReceivingToken", () => {
     expect(result.toNumber()).to.be.eq((5 * parseInt(GAS_ESTIMATES.fulfill) * 1) / 2);
   });
 
+  it("should only calculate sending chain if receiving chain is not included and add l1gas for optimism", async () => {
+    const tokenStub = stub(shared, "getTokenPrice");
+    const gasStub = stub(shared, "getGasPrice");
+    tokenStub.onFirstCall().resolves(BigNumber.from(1));
+    tokenStub.onSecondCall().resolves(BigNumber.from(2));
+    gasStub.onFirstCall().resolves(BigNumber.from(5));
+    gasStub.onSecondCall().resolves(BigNumber.from(5));
+    const result = await shared.calculateGasFeeInReceivingToken(
+      mkAddress("0x0"),
+      10,
+      mkAddress("0x2"),
+      1338,
+      18,
+      createRequestContext("test"),
+    );
+    expect(result.toNumber()).to.be.eq(
+      (5 * (parseInt(GAS_ESTIMATES.fulfill) + parseInt(GAS_ESTIMATES.fulfillL1)) * 1) / 2,
+    );
+  });
+
   it("should only calculate receiving chain if sending chain is not included", async () => {
     const tokenStub = stub(shared, "getTokenPrice");
     const gasStub = stub(shared, "getGasPrice");
@@ -108,5 +135,70 @@ describe("calculateGasFeeInReceivingToken", () => {
       createRequestContext("test"),
     );
     expect(result.toNumber()).to.be.eq((5 * parseInt(GAS_ESTIMATES.prepare) * 1) / 2);
+  });
+
+  it("should only calculate receiving chain if sending chain is not included and add l1gas for optimism", async () => {
+    const tokenStub = stub(shared, "getTokenPrice");
+    const gasStub = stub(shared, "getGasPrice");
+    tokenStub.onFirstCall().resolves(BigNumber.from(1));
+    tokenStub.onSecondCall().resolves(BigNumber.from(2));
+    gasStub.onFirstCall().resolves(BigNumber.from(5));
+    gasStub.onSecondCall().resolves(BigNumber.from(5));
+    const result = await shared.calculateGasFeeInReceivingToken(
+      mkAddress("0x0"),
+      1338,
+      mkAddress("0x2"),
+      10,
+      18,
+      createRequestContext("test"),
+    );
+    expect(result.toNumber()).to.be.eq(
+      (5 * (parseInt(GAS_ESTIMATES.prepare) + parseInt(GAS_ESTIMATES.prepareL1)) * 1) / 2,
+    );
+  });
+});
+
+describe("calculateGasFeeInReceivingTokenForFulfill", () => {
+  it("should return 0 for local chains", async () => {
+    const result = await shared.calculateGasFeeInReceivingTokenForFulfill(
+      mkAddress("0x1"),
+      1337,
+      18,
+      createRequestContext("test"),
+    );
+    expect(result.toNumber()).to.be.eq(0);
+  });
+
+  it("should work", async () => {
+    const tokenStub = stub(shared, "getTokenPrice");
+    const gasStub = stub(shared, "getGasPrice");
+    tokenStub.onFirstCall().resolves(BigNumber.from(1));
+    tokenStub.onSecondCall().resolves(BigNumber.from(2));
+    gasStub.onFirstCall().resolves(BigNumber.from(5));
+    const result = await shared.calculateGasFeeInReceivingTokenForFulfill(
+      mkAddress("0x0"),
+      1,
+      18,
+      createRequestContext("test"),
+    );
+    expect(result.toNumber()).to.be.eq((5 * parseInt(GAS_ESTIMATES.fulfill) * 1) / 2);
+  });
+
+  it("should add l1Gas for optimism", async () => {
+    const tokenStub = stub(shared, "getTokenPrice");
+    const gasStub = stub(shared, "getGasPrice");
+    tokenStub.onFirstCall().resolves(BigNumber.from(1));
+    tokenStub.onSecondCall().resolves(BigNumber.from(2));
+    gasStub.onFirstCall().resolves(BigNumber.from(5));
+    gasStub.onSecondCall().resolves(BigNumber.from(5));
+    const result = await shared.calculateGasFeeInReceivingTokenForFulfill(
+      mkAddress("0x0"),
+      10,
+      18,
+      createRequestContext("test"),
+    );
+    expect(result.toNumber()).to.be.eq(
+      (5 * (parseInt(GAS_ESTIMATES.fulfill) + parseInt(GAS_ESTIMATES.prepareL1)) * 1) / 2,
+    );
   });
 });
