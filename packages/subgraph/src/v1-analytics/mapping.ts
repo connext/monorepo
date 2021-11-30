@@ -31,9 +31,15 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     assetBalance.assetId = event.params.assetId;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
+    assetBalance.supplied = new BigInt(0);
   }
   // add new amount
   assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
+
+  // add invested
+  assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
+
+  // save
   assetBalance.save();
 }
 
@@ -50,10 +56,16 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   }
 
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  let assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
-  let assetBalance = AssetBalance.load(assetBalanceId);
-  // add new amount
+  const assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
+  const assetBalance = AssetBalance.load(assetBalanceId);
+
+  // update amount
   assetBalance!.amount = assetBalance!.amount.minus(event.params.amount);
+
+  // update supplied
+  assetBalance!.supplied = assetBalance!.supplied.minus(event.params.amount);
+
+  // save
   assetBalance!.save();
 }
 
@@ -224,6 +236,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     hourlyMetric.volume = BigInt.fromI32(0);
     hourlyMetric.liquidity = BigInt.fromI32(0);
     hourlyMetric.txCount = BigInt.fromI32(0);
+    hourlyMetric.sendingTxCount = BigInt.fromI32(0);
+    hourlyMetric.receivingTxCount = BigInt.fromI32(0);
+    hourlyMetric.cancelTxCount = BigInt.fromI32(0);
   }
 
   let day = timestamp / 86400; // rounded
@@ -239,15 +254,19 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     dayMetric.volume = BigInt.fromI32(0);
     dayMetric.txCount = BigInt.fromI32(0);
     dayMetric.sendingTxCount = BigInt.fromI32(0);
+    dayMetric.receivingTxCount = BigInt.fromI32(0);
+    dayMetric.cancelTxCount = BigInt.fromI32(0);
   }
 
   // Only count volume on receiving chain
   if (transaction.chainId == transaction.receivingChainId) {
     hourlyMetric.volume = hourlyMetric.volume.plus(transaction.amount);
     hourlyMetric.txCount = hourlyMetric.txCount.plus(BigInt.fromI32(1));
+    hourlyMetric.receivingTxCount = hourlyMetric.receivingTxCount.plus(BigInt.fromI32(1));
 
     dayMetric.volume = dayMetric.volume.plus(transaction.amount);
     dayMetric.txCount = dayMetric.txCount.plus(BigInt.fromI32(1));
+    dayMetric.receivingTxCount = dayMetric.receivingTxCount.plus(BigInt.fromI32(1));
   } else if (transaction.chainId == transaction.sendingChainId) {
     // load assetBalance
     let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
@@ -257,6 +276,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       hourlyMetric.liquidity = assetBalance.amount;
     }
 
+    hourlyMetric.sendingTxCount = hourlyMetric.receivingTxCount.plus(BigInt.fromI32(1));
     dayMetric.sendingTxCount = dayMetric.sendingTxCount.plus(BigInt.fromI32(1));
   }
 
@@ -295,4 +315,45 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     assetBalance.amount = assetBalance.amount.plus(transaction.amount);
     assetBalance.save();
   }
+
+  // update metrics
+  let timestamp = event.block.timestamp.toI32();
+
+  let hour = timestamp / 3600; // rounded
+  let hourStartTimestamp = hour * 3600;
+
+  let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
+
+  let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
+  if (hourlyMetric === null) {
+    hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
+    hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
+    hourlyMetric.assetId = transaction.receivingAssetId.toHex();
+    hourlyMetric.volume = BigInt.fromI32(0);
+    hourlyMetric.liquidity = BigInt.fromI32(0);
+    hourlyMetric.txCount = BigInt.fromI32(0);
+    hourlyMetric.sendingTxCount = BigInt.fromI32(0);
+    hourlyMetric.receivingTxCount = BigInt.fromI32(0);
+    hourlyMetric.cancelTxCount = BigInt.fromI32(0);
+  }
+
+  let day = timestamp / 86400; // rounded
+  let dayStartTimestamp = day * 86400;
+
+  let dayIDPerAsset = day.toString() + "-" + transaction.receivingAssetId.toHex();
+
+  let dayMetric = DayMetric.load(dayIDPerAsset.toString());
+  if (dayMetric === null) {
+    dayMetric = new DayMetric(dayIDPerAsset.toString());
+    dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
+    dayMetric.assetId = transaction.receivingAssetId.toHex();
+    dayMetric.volume = BigInt.fromI32(0);
+    dayMetric.txCount = BigInt.fromI32(0);
+    dayMetric.sendingTxCount = BigInt.fromI32(0);
+    dayMetric.receivingTxCount = BigInt.fromI32(0);
+    dayMetric.cancelTxCount = BigInt.fromI32(0);
+  }
+
+  hourlyMetric.cancelTxCount = hourlyMetric.cancelTxCount.plus(BigInt.fromI32(1));
+  dayMetric.cancelTxCount = dayMetric.cancelTxCount.plus(BigInt.fromI32(1));
 }
