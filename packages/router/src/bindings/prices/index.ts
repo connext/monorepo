@@ -1,22 +1,16 @@
-import { Contract, BigNumber, constants } from "ethers";
-import {
-  createLoggingContext,
-  getNtpTimeSeconds,
-  getSimpleRPCPRovider,
-  jsonifyError,
-  multicall,
-  MulticallAbi,
-} from "@connext/nxtp-utils";
+import { BigNumber, constants } from "ethers";
+import { createLoggingContext, getNtpTimeSeconds, jsonifyError, multicall } from "@connext/nxtp-utils";
 
-import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
+import { getTokenPriceFromOnChain } from "../../lib/helpers/shared";
 
+export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
-export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
+
 export const bindPrices = async () => {
-  const { logger, config, txService } = getContext();
+  const { logger, config } = getContext();
   const { requestContext, methodContext } = createLoggingContext("bindPrices");
 
   setInterval(async () => {
@@ -55,12 +49,11 @@ export const bindPrices = async () => {
                 params: [assetId],
               };
             });
-            const multicallContract = new Contract(
-              multicallAddress,
-              MulticallAbi,
-              getSimpleRPCPRovider(config.chainConfig[chainId].providers[0]),
-            );
-            const tokenPrices = await multicall(priceOracleContract.abi, calls, multicallContract);
+            const randomRpcUrl =
+              config.chainConfig[chainId].providers[
+                Math.floor(Math.random() * (config.chainConfig[chainId].providers.length - 1))
+              ];
+            const tokenPrices = await multicall(priceOracleContract.abi, calls, multicallAddress, randomRpcUrl);
             logger.info("fetching token prices using multicall done", requestContext, methodContext, {
               multicallAddress,
               assetIds,
@@ -80,17 +73,9 @@ export const bindPrices = async () => {
               assetIds,
             });
 
-            const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
-
             const tokenPrices = await Promise.all(
               assetIds.map(async (assetId) => {
-                const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-                const tokenPriceRes = await txService.readTx({
-                  chainId,
-                  to: oracleContractAddress,
-                  data: encodedTokenPriceData,
-                });
-                const tokenPrice = BigNumber.from(tokenPriceRes);
+                const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
                 const priceCacheKey = chainId.toString().concat("-").concat(assetId);
                 cachedPriceMap.set(priceCacheKey, { timestamp: curTimeInSecs, price: tokenPrice });
                 return tokenPrice;

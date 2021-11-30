@@ -255,7 +255,7 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
 };
 
 /**
- * Gets token price in usd from price oracle
+ * Gets token price in usd from cache first. If its not cached, gets price from price oracle.
  *
  * @param chainId The network identifier
  * @param assetId The asset address to get price for
@@ -274,13 +274,23 @@ export const getTokenPrice = async (
     return cachedTokenPrice.price;
   }
 
+  // Gets token price from onchain.
+  const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
+
+  return tokenPrice;
+};
+
+export const getTokenPriceFromOnChain = async (
+  chainId: number,
+  assetId: string,
+  requestContext: RequestContext,
+): Promise<BigNumber> => {
   const { txService } = getContext();
   const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
   const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
   const tokenPriceRes = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
   const tokenPrice = BigNumber.from(tokenPriceRes);
-
-  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
 
   return tokenPrice;
 };
