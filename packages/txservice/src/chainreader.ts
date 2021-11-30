@@ -56,15 +56,25 @@ export class ChainReader {
   }
 
   /**
-   * Gets the native asset balance for an address
+   * Gets the asset balance for a specified address for the specified chain. Optionally pass in the
+   * assetId; by default, gets the native asset.
    *
    * @param chainId - The ID of the chain for which this call is related.
    * @param address - The hexadecimal string address whose balance we are getting.
+   * @param assetId (default = ETH) - The ID (address) of the asset whose balance we are getting.
+   * @param abi - The ABI of the token contract to use for interfacing with it, if applicable (non-native).
+   * Defaults to ERC20.
+   *
    * @returns BigNumber representing the current value held by the wallet at the
    * specified address.
    */
-  public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    return await this.getProvider(chainId).getBalance(address);
+  public async getBalance(
+    chainId: number,
+    address: string,
+    assetId = constants.AddressZero,
+    abi?: string[],
+  ): Promise<BigNumber> {
+    return await this.getProvider(chainId).getBalance(address, assetId, abi);
   }
   /**
    * Get the current gas price for the chain for which this instance is servicing.
@@ -397,13 +407,5 @@ export class ChainReader {
       const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, this.config, signer);
       this.providers.set(chainIdNumber, provider);
     });
-  }
-
-  private getPriceOracleContract(chainId: number, requestContext: RequestContext): { address: string; abi: any } {
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
-    if (!priceOracleContract) {
-      throw new ChainNotSupported(chainId.toString(), requestContext);
-    }
-    return priceOracleContract;
   }
 }

@@ -567,6 +567,14 @@ export class NxtpSdk {
     return cancelResponse;
   }
 
+  async getBalance(chainId: number, address: string, assetId?: string, abi?: string[]): Promise<BigNumber> {
+    return await this.sdkBase.chainReader.getBalance(chainId, address, assetId, abi);
+  }
+
+  async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+    return await this.sdkBase.chainReader.getDecimalsForAsset(chainId, assetId);
+  }
+
   /**
    * Changes the signer associated with the sdk
    *
@@ -574,6 +582,7 @@ export class NxtpSdk {
    */
   public changeInjectedSigner(signer: Signer) {
     this.config.signer = signer;
+    this.sdkBase.changeInjectedSigner(signer);
   }
 
   /**

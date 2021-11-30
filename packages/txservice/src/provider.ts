@@ -64,12 +64,12 @@ export class ChainRpcProvider {
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
    *
-   * @param logger Logger used for logging.
-   * @param signer Signer instance or private key used for signing transactions.
-   * @param chainId The ID of the chain for which this class's providers will be servicing.
-   * @param chainConfig Configuration for this specified chain, including the providers we'll
+   * @param logger - Logger used for logging.
+   * @param signer - Signer instance or private key used for signing transactions.
+   * @param chainId - The ID of the chain for which this class's providers will be servicing.
+   * @param chainConfig - Configuration for this specified chain, including the providers we'll
    * be using for it.
-   * @param config The shared TransactionServiceConfig with general configuration.
+   * @param config - The shared TransactionServiceConfig with general configuration.
    *
    * @throws ChainError.reasons.ProviderNotFound if no valid providers are found in the
    * configuration.
@@ -182,10 +182,10 @@ export class ChainRpcProvider {
    * Get the receipt for the transaction with the specified hash, optionally blocking
    * until a specified timeout.
    *
-   * @param hash The hexadecimal hash string of the transaction.
-   * @param confirmations Optional parameter to override the configured number of confirmations
+   * @param hash - The hexadecimal hash string of the transaction.
+   * @param confirmations - Optional parameter to override the configured number of confirmations
    * required to validate the receipt.
-   * @param timeout Optional timeout parameter in ms to override the configured parameter.
+   * @param timeout - Optional timeout parameter in ms to override the configured parameter.
    *
    * @returns The ethers TransactionReceipt, if mined, otherwise null.
    */
@@ -256,7 +256,9 @@ export class ChainRpcProvider {
   /**
    * Execute a read transaction using the passed in transaction data, which includes
    * the target contract which we are reading from.
-   * @param tx Minimal transaction data needed to read from chain.
+   *
+   * @param tx - Minimal transaction data needed to read from chain.
+   *
    * @returns A string of data read from chain.
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
@@ -285,7 +287,7 @@ export class ChainRpcProvider {
    * revert error code when it fails through its typical API, we had to implement our own
    * estimateGas call through RPC directly.
    *
-   * @param transaction The ethers TransactionRequest data in question.
+   * @param transaction - The ethers TransactionRequest data in question.
    *
    * @returns A BigNumber representing the estimated gas value.
    */
@@ -421,14 +423,21 @@ export class ChainRpcProvider {
   /**
    * Get the current balance for the specified address.
    *
-   * @param address The hexadecimal string address whose balance we are getting.
+   * @param address - The hexadecimal string address whose balance we are getting.
+   * @param assetId - The ID (address) of the asset whose balance we are getting.
+   * @param abi (default = ERC20) - The ABI of the token contract to use, if non-native token.
    *
    * @returns A BigNumber representing the current value held by the wallet at the
    * specified address.
    */
-  public async getBalance(address: string): Promise<BigNumber> {
+  public async getBalance(address: string, assetId: string, abi?: string[]): Promise<BigNumber> {
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
-      return await provider.getBalance(address);
+      if (assetId === constants.AddressZero) {
+        return await provider.getBalance(address);
+      } else {
+        const contract = new Contract(assetId, abi ?? ERC20Abi, provider);
+        return await contract.balanceOf(address);
+      }
     });
   }
 

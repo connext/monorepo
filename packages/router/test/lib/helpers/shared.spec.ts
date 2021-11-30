@@ -1,4 +1,4 @@
-import { createRequestContext, expect, mkAddress, GAS_ESTIMATES } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { stub } from "sinon";
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
