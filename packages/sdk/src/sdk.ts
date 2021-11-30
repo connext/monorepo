@@ -404,7 +404,7 @@ export class NxtpSdk {
       initiator,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
-    const amount = actualAmount || _amount;
+    const amount = actualAmount ?? _amount;
 
     const signerAddr = await this.config.signer.getAddress();
     let connectedSigner = this.config.signer;
