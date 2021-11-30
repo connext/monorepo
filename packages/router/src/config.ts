@@ -83,6 +83,22 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   return chainIdsForGasFee;
 };
 
+/**
+ * Returns the address of the `Multicall` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.Multicall;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
@@ -90,6 +106,7 @@ export const TChainConfig = Type.Object({
   subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
+  multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
@@ -128,6 +145,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
   cleanUpMode: Type.Boolean(),
+  priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
 
@@ -207,6 +225,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
     requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
+    priceCacheMode: process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCacheMode || configFile.priceCacheMode || true,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
   };
 
@@ -251,6 +270,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.priceOracleAddress) {
       const res = getDeployedPriceOracleContract(parseInt(chainId));
       nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
+    }
+
+    if (!chainConfig.multicallAddress) {
+      const res = getDeployedMulticallContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].multicallAddress = res?.address;
     }
 
     if (!chainConfig.minGas) {

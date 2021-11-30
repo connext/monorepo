@@ -8,11 +8,11 @@ import {
 import { BigNumber, constants, utils } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
+import { cachedPriceMap } from "../../bindings/prices";
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
 const NO_ORACLE_CHAINS: number[] = [];
-export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 
 /**
  * Helper to allow easy mocking
