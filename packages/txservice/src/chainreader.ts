@@ -151,7 +151,10 @@ export class ChainReader {
    */
   async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
-    const priceOracleContract = this.getPriceOracleContract(chainId, requestContext);
+    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    if (!priceOracleContract) {
+      throw new ChainNotSupported(chainId.toString(), requestContext);
+    }
     const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
     const tokenPrice = await this.readTx({
       chainId,
@@ -171,16 +174,16 @@ export class ChainReader {
    * @param _outputDecimals Decimal number of receiving asset
    * @param requestContext Request context instance
    */
-  async calculateGasFeeInReceivingTokenForPrepare(
+  async calculateGasFeeInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
     receivingChainId: number,
     receivingAssetId: string,
     outputDecimals: number,
-    sendingChainId?: number,
-    sendingAssetId?: string,
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(
-      this.calculateGasFeeInReceivingTokenForPrepare.name,
+      this.calculateGasFeeInReceivingToken.name,
       _requestContext,
     );
     this.logger.info("Method start", requestContext, methodContext, {
@@ -191,13 +194,9 @@ export class ChainReader {
       outputDecimals,
     });
 
-    const chaindIdsForGasFee = getDeployedChainIdsForGasFee();
+    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
 
-    if (
-      sendingChainId !== undefined &&
-      !chaindIdsForGasFee.includes(sendingChainId) &&
-      !chaindIdsForGasFee.includes(receivingChainId)
-    ) {
+    if (!chainIdsForGasFee.includes(sendingChainId) && !chainIdsForGasFee.includes(receivingChainId)) {
       return constants.Zero;
     }
     let totalCost = constants.Zero;
@@ -205,10 +204,10 @@ export class ChainReader {
     // is not configured for goerli so theres no way to translate the price to goerli
     // TODO: we can combine these into just 2 if statements and remove the repeated logic
     // calculate receiving token amount for gas fee
-    // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
-    // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
+    // if chainIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
+    // if chainIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
 
-    const tokenPricingSendingChain = sendingChainId && NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
+    const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
     const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
 
     this.logger.info("Getting token prices", requestContext, methodContext, {
@@ -218,7 +217,7 @@ export class ChainReader {
       receivingAssetId,
       outputDecimals,
     });
-    if (chaindIdsForGasFee.includes(sendingChainId)) {
+    if (chainIdsForGasFee.includes(sendingChainId)) {
       const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
       const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
         this.getTokenPrice(tokenPricingSendingChain, constants.AddressZero),
@@ -247,7 +246,7 @@ export class ChainReader {
       });
     }
 
-    if (chaindIdsForGasFee.includes(receivingChainId)) {
+    if (chainIdsForGasFee.includes(receivingChainId)) {
       const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
       const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
         this.getTokenPrice(tokenPricingReceivingChain, constants.AddressZero),
@@ -352,6 +351,16 @@ export class ChainReader {
     return totalCost;
   }
 
+  /**
+   * Helper to check for chain support gently.
+   *
+   * @param chainId - chainID of the chain to check
+   * @returns boolean indicating whether chain of chainID is supported by the service
+   */
+  public isSupportedChain(chainId: number): boolean {
+    return this.providers.has(chainId);
+  }
+
   /// HELPERS
   /**
    * Helper to wrap getting provider for specified chain ID.
@@ -395,13 +404,5 @@ export class ChainReader {
       const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, this.config, signer);
       this.providers.set(chainIdNumber, provider);
     });
-  }
-
-  private getPriceOracleContract(chainId: number, requestContext: RequestContext): { address: string; abi: any } {
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
-    if (!priceOracleContract) {
-      throw new ChainNotSupported(chainId.toString(), requestContext);
-    }
-    return priceOracleContract;
   }
 }

@@ -68,7 +68,6 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
 };
 
 export type TransactionManagerChainConfig = {
-  chainReader: ChainReader;
   transactionManagerAddress: string;
   priceOracleAddress: string;
 };
@@ -88,19 +87,17 @@ export class TransactionManager {
     _chainConfig: {
       [chainId: number]: TransactionManagerChainConfig;
     },
+    private readonly chainReader: ChainReader,
     private readonly signerAddress: Promise<string>,
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};
-    Object.entries(_chainConfig).forEach(
-      ([chainId, { chainReader, transactionManagerAddress, priceOracleAddress }]) => {
-        this.chainConfig[parseInt(chainId)] = {
-          transactionManagerAddress,
-          chainReader,
-          priceOracleAddress,
-        };
-      },
-    );
+    Object.entries(_chainConfig).forEach(([chainId, { transactionManagerAddress, priceOracleAddress }]) => {
+      this.chainConfig[parseInt(chainId)] = {
+        transactionManagerAddress,
+        priceOracleAddress,
+      };
+    });
   }
 
   /**
@@ -139,10 +136,8 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
 
-    const { provider, transactionManagerAddress } = this.chainConfig[chainId] ?? {};
-    if (!provider || !transactionManagerAddress) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
+    this.assertChainIsConfigured(chainId);
+    const { transactionManagerAddress } = this.chainConfig[chainId];
 
     const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
@@ -211,10 +206,8 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { cancelParams });
 
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
+    this.assertChainIsConfigured(chainId);
+    const { transactionManagerAddress } = this.chainConfig[chainId];
 
     const { txData, signature } = cancelParams;
 
@@ -266,10 +259,8 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
 
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
+    this.assertChainIsConfigured(chainId);
+    const { transactionManagerAddress } = this.chainConfig[chainId];
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
@@ -317,18 +308,17 @@ export class TransactionManager {
 
     this.logger.info("Method start", requestContext, methodContext, { chainId, assetId, amount });
 
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
+    this.assertChainIsConfigured(chainId);
+    const { transactionManagerAddress } = this.chainConfig[chainId];
 
     const approvedData = this.erc20Interface.encodeFunctionData("allowance", [
       await this.signerAddress,
       transactionManagerAddress,
     ]);
-    const approvedEncoded = await provider.call({
+    const approvedEncoded = await this.chainReader.readTx({
       to: assetId,
       data: approvedData,
+      chainId,
     });
     const [approved] = this.erc20Interface.decodeFunctionResult("allowance", approvedEncoded);
     this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
@@ -362,15 +352,20 @@ export class TransactionManager {
    * @returns Either the BigNumber representation of the available router liquidity in the provided asset, or a TransactionManagerError if the function failed
    */
   async getRouterLiquidity(chainId: number, router: string, assetId: string): Promise<BigNumber> {
-    const { transactionManagerAddress, provider } = this.chainConfig[chainId] ?? {};
-    if (!transactionManagerAddress || !provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
-    }
+    this.assertChainIsConfigured(chainId);
+    const { transactionManagerAddress } = this.chainConfig[chainId];
 
     const data = this.txManagerInterface.encodeFunctionData("routerBalances", [router, assetId]);
-    const encoded = await provider.call({ to: transactionManagerAddress, data });
+    const encoded = await this.chainReader.readTx({ to: transactionManagerAddress, data, chainId });
     const [balance] = this.txManagerInterface.decodeFunctionResult("routerBalances", encoded);
 
     return BigNumber.from(balance);
+  }
+
+  private assertChainIsConfigured(chainId: number) {
+    const { transactionManagerAddress } = this.chainConfig[chainId] ?? {};
+    if (!transactionManagerAddress || !this.chainReader.isSupportedChain(chainId)) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.chainConfig));
+    }
   }
 }

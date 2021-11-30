@@ -74,6 +74,7 @@ import {
   ActiveTransaction,
   CancelParams,
   GetTransferQuote,
+  SdkBaseChainConfigParams,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -84,7 +85,6 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   encodeAuctionBid,
-  getTokenPrice,
   gelatoFulfill,
   isChainSupportedByGelato,
 } from "./utils";
@@ -103,6 +103,25 @@ Evt.setDefaultMaxHandlers(250);
  */
 export const createMessagingEvt = <T>() => {
   return Evt.create<{ inbox: string; data?: T; err?: any }>();
+};
+
+export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
+  const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
+  Object.keys(chainConfig).forEach((_chainId) => {
+    const chainId = parseInt(_chainId);
+    const _providers = chainConfig[chainId].providers;
+    const providers = typeof _providers === "string" ? [_providers] : _providers;
+    chains[chainId] = {
+      providers: providers.map((provider) =>
+        typeof provider === "string"
+          ? {
+              url: provider,
+            }
+          : provider,
+      ),
+    };
+  });
+  return new ChainReader(logger, { chains });
 };
 
 /**
@@ -171,22 +190,7 @@ export class NxtpSdkBase {
       });
     }
 
-    const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
-    Object.keys(chainConfig).forEach((_chainId) => {
-      const chainId = parseInt(_chainId);
-      const _providers = chainConfig[chainId].providers;
-      const providers = typeof _providers === "string" ? [_providers] : _providers;
-      chains[chainId] = {
-        providers: providers.map((provider) =>
-          typeof provider === "string"
-            ? {
-                url: provider,
-              }
-            : provider,
-        ),
-      };
-    });
-    this.chainReader = new ChainReader(this.logger, { chains });
+    this.chainReader = setupChainReader(this.logger, chainConfig);
 
     const txManagerConfig: Record<number, TransactionManagerChainConfig> = {};
 
@@ -229,7 +233,6 @@ export class NxtpSdkBase {
         }
 
         txManagerConfig[chainId] = {
-          chainReader: this.chainReader,
           transactionManagerAddress,
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
@@ -245,17 +248,23 @@ export class NxtpSdkBase {
         subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
         subgraphConfig[chainId] = {
           subgraph,
-          chainReader: this.chainReader,
           subgraphSyncBuffer,
         };
       },
     );
     this.transactionManager = new TransactionManager(
       txManagerConfig,
+      this.chainReader,
       signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      signerAddress,
+      subgraphConfig,
+      this.chainReader,
+      this.logger.child({ module: "Subgraph" }),
+      skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -1021,70 +1030,36 @@ export class NxtpSdkBase {
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas in token for prepare", requestContext, methodContext, {
+    this.logger.info("Calculating gas fee in token for prepare", requestContext, methodContext, {
       chainId,
       assetId,
       decimals,
     });
-    this.chainReader.calculateGasFeeInReceivingTokenForPrepare(chainId, assetId, decimals, requestContext);
 
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
     let totalCost = constants.Zero;
-    if (priceOracleContract && priceOracleContract.address) {
-      const priceOracleAddress = priceOracleContract.address;
-      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
-      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
-      const gasPrice = await this.getGasPrice(chainId);
+    try {
+      const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
+      const tokenPriceInUsd = await this.chainReader.getTokenPrice(chainId, assetId);
+      const gasPrice = await this.getGasPrice(chainId, requestContext);
       const gasAmountInUsd = gasPrice.mul(gasLimitForPrepare).mul(ethPriceInUsd);
       const tokenAmountForGasFee = tokenPriceInUsd.isZero()
         ? constants.Zero
         : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
       totalCost = totalCost.add(tokenAmountForGasFee);
+    } catch (e) {
+      this.logger.error(
+        "Error estimating gas fee in token for prepare",
+        requestContext,
+        methodContext,
+        jsonifyError(e),
+        {
+          chainId,
+          assetId,
+          decimals,
+        },
+      );
     }
-
-    return totalCost;
-  }
-
-  /**
-   * Estimates hardcoded fee for fulfill transactions
-   *
-   * @param chainId - The network indentifier
-   * @param assetId - The asset address
-   * @param decimals - The asset decimals
-   * @returns Gas fee for fulfill in token
-   */
-  async estimateHardcodedFeeForFulfill(
-    chainId: number,
-    assetId: string,
-    decimals: number,
-    requestContext: RequestContext,
-    methodContext: MethodContext,
-  ): Promise<BigNumber> {
-    this.logger.info("Calculating gas fee for fulfill", requestContext, methodContext, {
-      chainId,
-      assetId,
-      decimals,
-    });
-
-    this.chainReader.calculateGasFeeInReceivingTokenForFulfill(chainId, assetId, decimals, requestContext);
-
-    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    let totalCost = constants.Zero;
-    try {
-      const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
-      const tokenPriceInUsd = await this.chainReader.getTokenPrice(chainId, assetId);
-      const gasPrice = await this.getGasPrice(chainId);
-      const gasAmountInUsd = gasPrice.mul(gasLimitForFulfill).mul(ethPriceInUsd);
-      const tokenAmountForGasFee = tokenPriceInUsd.isZero()
-        ? constants.Zero
-        : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
-      totalCost = totalCost.add(tokenAmountForGasFee);
-    } catch (e) {}
-
-    this.logger.info("Calculated gas in token for fulfill", requestContext, methodContext, {
-      calculatedGas: totalCost,
-    });
 
     return totalCost;
   }
@@ -1108,42 +1083,20 @@ export class NxtpSdkBase {
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas fee in token for router transfer", requestContext, methodContext, {
+    this.logger.info("Calculating gas fee in token for router transfer", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
     });
-
-    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-    // TODO: We calculate gas fee for router transfer in sending token
-    // if chainIdsForGasFee includes sending chain, calculate gas fee for fulfill transactions
-    // if chainIdsForGasFee includes receiving chain, calculate gas fee for prepare transactions
-    let totalCost = constants.Zero;
-    if (chainIdsForGasFee.includes(sendingChainId)) {
-      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
-        sendingChainId,
-        sendingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-
-      totalCost = totalCost.add(fulfillFee);
-    }
-
-    if (chainIdsForGasFee.includes(receivingChainId)) {
-      const prepareFee = await this.estimateHardcodedFeeForPrepare(
-        receivingChainId,
-        receivingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-
-      totalCost = totalCost.add(prepareFee);
-    }
-    return totalCost;
+    return await this.chainReader.calculateGasFeeInReceivingToken(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      requestContext,
+    );
   }
 
   /**
@@ -1165,26 +1118,18 @@ export class NxtpSdkBase {
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas fee in token for meta tranaction", requestContext, methodContext, {
+    this.logger.info("Calculating relayer fee in token for meta transaction", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
     });
-
-    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-
-    let totalCost = constants.Zero;
-    if (chainIdsForGasFee.includes(receivingChainId)) {
-      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
-        receivingChainId,
-        receivingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-      totalCost = totalCost.add(fulfillFee);
-    }
+    const totalCost = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      requestContext,
+    );
     return totalCost.add(totalCost.mul(getMetaTxBuffer()).div(100));
   }
 
@@ -1195,13 +1140,13 @@ export class NxtpSdkBase {
    *
    * @returns Gas price in BigNumber
    */
-  async getGasPrice(chainId: number): Promise<BigNumber> {
-    this.assertChainIsSupported(chainId);
+  async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
+    this.assertChainIsConfigured(chainId);
 
     // get gas price
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await provider.getGasPrice();
+      gasPrice = await this.chainReader.getGasPrice(chainId, requestContext);
     } catch (e) {}
 
     return gasPrice;
@@ -1287,8 +1232,8 @@ export class NxtpSdkBase {
     return this.subgraph.waitFor(event, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
   }
 
-  private assertChainIsSupported(chainId: number) {
-    if (!this.config.chainConfig[chainId] || !this.config.chainConfig[chainId].providers) {
+  public assertChainIsConfigured(chainId: number) {
+    if (!this.config.chainConfig[chainId] || !this.chainReader.isSupportedChain(chainId)) {
       throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
     }
   }

@@ -55,7 +55,7 @@ export const NetworkSchema = Type.Union([Type.Literal("local"), Type.Literal("te
 // export type SdkBaseConfigParams = Static<typeof SdkBaseConfigSchema>;
 export type SdkBaseChainConfigParams = {
   [chainId: number]: {
-    providers: string | string[] | { url: string; user: string; password: string }[];
+    providers: string | string[] | { url: string; user?: string; password?: string }[];
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string | string[];

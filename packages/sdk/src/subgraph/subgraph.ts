@@ -1,4 +1,3 @@
-import { providers } from "ethers";
 import {
   createLoggingContext,
   FallbackSubgraph,
@@ -99,7 +98,6 @@ const DEFAULT_SUBGRAPH_SYNC_BUFFER = 50;
 
 export type SubgraphChainConfig = {
   subgraph: string | string[];
-  chainReader: ChainReader;
   subgraphSyncBuffer: number;
 };
 
@@ -117,34 +115,32 @@ export class Subgraph {
   constructor(
     private readonly userAddress: Promise<string>,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
+    private readonly chainReader: ChainReader,
     private readonly logger: Logger,
     skipPolling = false,
     private readonly pollInterval = 10_000,
   ) {
     this.chainConfig = {};
-    Object.entries(_chainConfig).forEach(
-      ([chainId, { subgraph, provider, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
-        const cId = parseInt(chainId);
-        const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
-        const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
-        const fallbackSubgraph = new FallbackSubgraph<Sdk>(
-          cId,
-          sdksWithClients,
-          _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
-        );
-        this.sdks[cId] = fallbackSubgraph;
-        this.syncStatus[cId] = {
-          latestBlock: 0,
-          synced: true,
-          syncedBlock: 0,
-        };
-        this.chainConfig[cId] = {
-          subgraph,
-          provider,
-          subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
-        };
-      },
-    );
+    Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
+      const cId = parseInt(chainId);
+      const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
+      const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
+      const fallbackSubgraph = new FallbackSubgraph<Sdk>(
+        cId,
+        sdksWithClients,
+        _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+      );
+      this.sdks[cId] = fallbackSubgraph;
+      this.syncStatus[cId] = {
+        latestBlock: 0,
+        synced: true,
+        syncedBlock: 0,
+      };
+      this.chainConfig[cId] = {
+        subgraph,
+        subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+      };
+    });
     if (!skipPolling) {
       this.startPolling();
     }
@@ -706,7 +702,7 @@ export class Subgraph {
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
         const subgraph = this.sdks[chainId];
-        const latestBlock = await this.chainConfig[chainId].provider.getBlockNumber();
+        const latestBlock = await this.chainReader.getBlockNumber(chainId);
         const records = await subgraph.sync(latestBlock);
         const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
         this.syncStatus[chainId] = {
