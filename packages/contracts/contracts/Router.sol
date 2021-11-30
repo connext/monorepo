@@ -16,14 +16,7 @@ contract Router is Ownable {
   address public recipient;
 
   address public routerSigner;
-
-  struct SignedRemoveLiquidityData {
-    uint256 amount;
-    address assetId;
-    uint256 chainId; // For domain separation
-    address routerSigner; // For domain separation
-  }
-
+  
   event RelayerFeeAdded(address assetId, uint256 amount, address caller);
   event RelayerFeeRemoved(address assetId, uint256 amount, address caller);
 
@@ -61,14 +54,14 @@ contract Router is Ownable {
 
   function addRelayerFee(uint256 amount, address assetId) external payable {
     // Sanity check: nonzero amounts
-    require(amount > 0, "#ARF:002");
+    require(amount > 0, "#RC_ARF:002");
 
     // Transfer funds to contract
     // Validate correct amounts are transferred
     if (LibAsset.isNativeAsset(assetId)) {
-      require(msg.value == amount, "#ARF:005");
+      require(msg.value == amount, "#RC_ARF:005");
     } else {
-      require(msg.value == 0, "#ARF:006");
+      require(msg.value == 0, "#RC_ARF:006");
       LibAsset.transferFromERC20(assetId, msg.sender, address(this), amount);
     }
 
@@ -78,9 +71,9 @@ contract Router is Ownable {
 
   function removeRelayerFee(uint256 amount, address assetId) external onlyOwner {
     // Sanity check: nonzero amounts
-    require(amount > 0, "#RRF:002");
+    require(amount > 0, "#RC_RRF:002");
 
-    // Transfer funds to contract
+    // Transfer funds from contract
     LibAsset.transferAsset(assetId, payable(recipient), amount);
 
     // Emit event
@@ -93,14 +86,8 @@ contract Router is Ownable {
     bytes calldata signature
   ) external {
     if (msg.sender != routerSigner) {
-      SignedRemoveLiquidityData memory payload = SignedRemoveLiquidityData({
-        amount: amount,
-        assetId: assetId,
-        chainId: chainId,
-        routerSigner: routerSigner
-      });
-      address recovered = recoverSignature(abi.encode(payload), signature);
-      require(recovered == routerSigner, "Router signature is not valid");
+      address recovered = recoverSignature(abi.encode(amount, assetId, chainId, routerSigner), signature);
+      require(recovered == routerSigner, "#RC_RL:040");
     }
 
     return transactionManager.removeLiquidity(amount, assetId, payable(recipient));
@@ -113,8 +100,8 @@ contract Router is Ownable {
     bytes calldata signature
   ) external payable returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args), signature);
-      require(recovered == routerSigner, "Router signature is not valid");
+      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      require(recovered == routerSigner, "#RC_P:040");
 
       // Send the relayer the fee
       if (relayerFee > 0) {
@@ -135,8 +122,8 @@ contract Router is Ownable {
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args), signature);
-      require(recovered == routerSigner, "Router signature is not valid");
+      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      require(recovered == routerSigner, "#RC_F:040");
 
       // Send the relayer the fee
       if (relayerFee > 0) {
@@ -154,8 +141,8 @@ contract Router is Ownable {
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args), signature);
-      require(recovered == routerSigner, "Router signature is not valid");
+      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      require(recovered == routerSigner, "#RC_C:040");
 
       // Send the relayer the fee
       if (relayerFee > 0) {
