@@ -10,6 +10,7 @@ import {
   encrypt,
   ChainData,
   isNode,
+  getChainData,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -132,6 +133,28 @@ export class NxtpSdk {
     this.chainData = this.sdkBase.chainData;
   }
 
+  /**
+   * Retrieves ChainData and instantiates a new NxtpSdk instance using it.
+   *
+   * @param config - Sdk configuration params (without chainData).
+   * @returns A new NxtpSdk instance.
+   */
+  static async create(config: {
+    chainConfig: SdkBaseChainConfigParams;
+    signer: Signer;
+    messagingSigner?: Signer;
+    logger?: Logger;
+    network?: "testnet" | "mainnet" | "local";
+    natsUrl?: string;
+    authUrl?: string;
+    messaging?: UserNxtpNatsMessagingService;
+    skipPolling?: boolean;
+    sdkBase?: NxtpSdkBase;
+  }): Promise<NxtpSdk> {
+    const chainData = await getChainData();
+    return new NxtpSdk({ ...config, chainData });
+  }
+
   async connectMessaging(bearerToken?: string): Promise<string> {
     return this.sdkBase.connectMessaging(bearerToken);
   }
@@ -162,6 +185,7 @@ export class NxtpSdk {
   public async getHistoricalTransactions(): Promise<HistoricalTransaction[]> {
     return this.sdkBase.getHistoricalTransactions();
   }
+
   /**
    * Gets gas fee in sending token for meta transaction
    *
