@@ -45,6 +45,7 @@ export const Errors: ErrorsType = {
   "037": "NO_PROPOSAL",
   "038": "NO_OWNERSHIP_CHANGE",
   "039": "INITIATOR_MISMATCH",
+  "040": "INVALID__ROUTER_SIGNATURE",
 };
 
 type ErrorsPrefixType = {
@@ -76,6 +77,12 @@ export const ErrorsPrefix: ErrorsPrefixType = {
   "#RAO": "renounceAssetOwnership",
   "#PNO": "proposeNewOwner",
   "#RO": "renounceOwnership",
+  "#RC_ARF": "routerContract_addRelayerFee",
+  "#RC_RRF": "routerContract_removeRelayerFee",
+  "#RC_RL": "routerContract_removeLiquidity",
+  "#RC_P": "routerContract_prepare",
+  "#RC_F": "routerContract_fulfill",
+  "#RC_C": "routerContract_cancel",
 };
 
 /**
