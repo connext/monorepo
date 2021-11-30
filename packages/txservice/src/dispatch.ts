@@ -666,6 +666,18 @@ export class TransactionDispatch extends ChainRpcProvider {
     try {
       receipt = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
     } catch (error) {
+      this.logger.error(
+        "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
+        requestContext,
+        methodContext,
+        jsonifyError(error),
+        {
+          chainId: this.chainId,
+          transaction: transaction.loggable,
+          confirmations: transaction.receipt.confirmations,
+          confirmationsRequired: this.confirmationsRequired,
+        },
+      );
       // No other errors should normally occur during this confirmation attempt. This could occur during a reorg.
       throw new NotEnoughConfirmations(
         this.confirmationsRequired,

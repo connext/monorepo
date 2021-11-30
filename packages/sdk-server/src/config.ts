@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import { Type, Static } from "@sinclair/typebox";
 import { ajv, Logger, TChainId } from "@connext/nxtp-utils";
 import { SdkBaseConfigParams, NetworkSchema, LogLevelScehma, SdkBaseChainConfigParams } from "@connext/nxtp-sdk";
-import { Wallet, providers } from "ethers";
+import { Wallet } from "ethers";
 
 export const SdkServerChainConfigSchema = Type.Record(
   TChainId,
@@ -72,9 +72,7 @@ export const getConfig = (): SdkBaseConfigParams => {
   const chainConfig: SdkBaseChainConfigParams = {};
   Object.entries(serverConfig.chainConfig).forEach(([chainId, config]) => {
     chainConfig[parseInt(chainId)] = {
-      provider: new providers.FallbackProvider(
-        config.provider.map((p) => new providers.StaticJsonRpcProvider(p, parseInt(chainId))),
-      ),
+      providers: config.provider,
       transactionManagerAddress: config.transactionManagerAddress,
       priceOracleAddress: config.priceOracleAddress,
       subgraph: config.subgraph,

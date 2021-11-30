@@ -97,4 +97,36 @@ describe("calculateGasFeeInReceivingToken", () => {
     );
     expect(result.toNumber()).to.be.eq((5 * parseInt(GAS_ESTIMATES.prepare) * 1) / 2);
   });
+
+  it("happy: should return valid price if price oracle is configured", async () => {
+    const { crossChainParams } = getMock();
+    const result = await sdk.estimateFeeForRouterTransfer(
+      crossChainParams.sendingChainId,
+      crossChainParams.sendingAssetId,
+      crossChainParams.receivingChainId,
+      crossChainParams.receivingAssetId,
+      18,
+      null,
+      null,
+    );
+
+    expect(result).to.be.eq(
+      BigNumber.from(GAS_ESTIMATES.fulfill).add(BigNumber.from(GAS_ESTIMATES.prepare)).mul("1000000000"),
+    );
+  });
+
+  it("happy: should return zero price if price oracle isn't configured", async () => {
+    const { crossChainParams } = getMock();
+    getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
+    const result = await sdk.estimateFeeForRouterTransfer(
+      crossChainParams.sendingChainId,
+      crossChainParams.sendingAssetId,
+      crossChainParams.receivingChainId,
+      crossChainParams.receivingAssetId,
+      18,
+      null,
+      null,
+    );
+    expect(result).to.be.eq("0");
+  });
 });

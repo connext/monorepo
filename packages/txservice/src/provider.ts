@@ -52,7 +52,7 @@ export class ChainRpcProvider {
   // Cached decimal values per asset. Saved separately from main cache as decimals obviously don't expire.
   private cachedDecimals: Record<string, number> = {};
   // Cached block length in time (ms), used for optimizing waiting periods.
-  private blockPeriod?: number;
+  private blockPeriod: number = DEFAULT_BLOCK_PERIOD;
 
   // Cache of transient data (i.e. data that can change per block).
   private cache: ProviderCache<ChainRpcProviderCache>;
@@ -149,6 +149,10 @@ export class ChainRpcProvider {
     // This initial call of sync providers will start the first block listener (on the lead provider) and set up
     // the cache with correct initial values (as well as establish which providers are out-of-sync).
     this.syncProviders();
+
+    // Set up the initial value for block period. Will run asyncronously, and update the value (from the default) when
+    // it completes.
+    this.setBlockPeriod();
   }
 
   /**
@@ -206,25 +210,29 @@ export class ChainRpcProvider {
         }
       });
       // Wait until all the 'receipts' (or errors) have been pushed to the list.
-      const receipts = await Promise.all(_receipts);
+      const receipts = (await Promise.all(_receipts)).filter(
+        (r) => r !== null && r !== undefined,
+      ) as providers.TransactionReceipt[];
+
       let mined = false;
       const reverted: providers.TransactionReceipt[] = [];
       let remainingConfirmations = confirmations;
       for (const receipt of receipts) {
-        if (receipt === null || receipt === undefined) {
-          continue;
-        } else if (receipt.status === 1) {
+        if (receipt.status === 1) {
+          // Receipt status is successful, check to see if we have enough confirmations.
           mined = true;
           remainingConfirmations = confirmations - receipt.confirmations;
           if (remainingConfirmations <= 0) {
             return receipt;
           }
         } else {
+          // Receipt status indicates tx was reverted.
           reverted.push(receipt);
         }
       }
 
       if (!mined) {
+        // If the tx was not mined yet, the tx may have been reverted (or other errors may have occurred).
         if (reverted.length > 0) {
           throw new TransactionReverted(TransactionReverted.reasons.CallException, reverted[0]);
         } else if (errors.length > 0) {
@@ -257,8 +265,7 @@ export class ChainRpcProvider {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
-          this.signer.connect(provider);
-          return await this.signer.call(tx);
+          return await this.signer.connect(provider).call(tx);
         } else {
           return await provider.call(tx);
         }
@@ -308,7 +315,7 @@ export class ChainRpcProvider {
 
     // Check if there is a hardcoded value specified for this chain. This should usually only be set
     // for testing/overriding purposes.
-    const hardcoded = this.chainConfig.defaultInitialGas;
+    const hardcoded = this.chainConfig.defaultInitialGasPrice;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
         chainId: this.chainId,
@@ -569,22 +576,6 @@ export class ChainRpcProvider {
     if (needsSigner) {
       this.checkSigner();
     }
-    if (!this.blockPeriod) {
-      // This block should only be called once. Set the block period to the default value.
-      // TODO: We could add this value to the cache and give it a ttl, guaranteeing an eventual retry.
-      this.blockPeriod = DEFAULT_BLOCK_PERIOD;
-      try {
-        const currentBlock = await this.getBlock("latest");
-        const previousBlock = await this.getBlock(currentBlock.parentHash);
-        this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
-      } catch (error) {
-        // If we can't get the block period, we'll just use a default value.
-        this.logger.warn("Could not get block period time, defaulting to 1s.", undefined, undefined, {
-          chainId: this.chainId,
-          error,
-        });
-      }
-    }
     const errors: any[] = [];
     const syncedProviders = this.shuffleSyncedProviders();
     for (const provider of syncedProviders) {
@@ -702,5 +693,20 @@ export class ChainRpcProvider {
         p.avgExecTime;
     });
     return syncedProviders.sort((a, b) => a.priority - b.priority);
+  }
+
+  private async setBlockPeriod(): Promise<void> {
+    try {
+      const currentBlock = await this.getBlock("latest");
+      const previousBlock = await this.getBlock(currentBlock.parentHash);
+      this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
+    } catch (error) {
+      // If we can't get the block period, we'll just use a default value.
+      this.logger.warn("Could not get block period time, using default.", undefined, undefined, {
+        chainId: this.chainId,
+        error,
+        default: DEFAULT_BLOCK_PERIOD,
+      });
+    }
   }
 }

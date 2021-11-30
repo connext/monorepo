@@ -9,9 +9,10 @@ import {
   Logger,
   chainDataMock,
   GAS_ESTIMATES,
+  requestContextMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
-import { providers, Wallet, constants, BigNumber } from "ethers";
+import { Wallet, constants, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
@@ -43,6 +44,7 @@ import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
+import { ChainReader } from "../../../txservice/dist";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -58,11 +60,10 @@ describe("NxtpSdkBase", () => {
   let signer: SinonStubbedInstance<Wallet>;
   let messaging: SinonStubbedInstance<UserNxtpNatsMessagingService>;
   let subgraph: SinonStubbedInstance<Subgraph>;
+  let chainReader: SinonStubbedInstance<ChainReader>;
   let transactionManager: SinonStubbedInstance<TransactionManager>;
   let getDeployedChainIdsForGasFeeStub: SinonStub;
   let getDeployedPriceOracleContractStub: SinonStub;
-  let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
-  let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
   let balanceStub: SinonStub;
@@ -81,22 +82,26 @@ describe("NxtpSdkBase", () => {
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
   beforeEach(async () => {
-    provider1337 = createStubInstance(providers.FallbackProvider);
-    (provider1337 as any)._isProvider = true;
-    provider1338 = createStubInstance(providers.FallbackProvider);
-    (provider1338 as any)._isProvider = true;
+    chainReader = createStubInstance(ChainReader);
+    chainReader.getGasPrice.resolves(BigNumber.from(10).pow(9));
+    chainReader.getDecimalsForAsset.resolves(18);
+    chainReader.getTokenPrice.resolves(BigNumber.from(10).pow(21));
+    chainReader.isSupportedChain.resolves(true);
+    stub(sdkIndex, "setupChainReader").returns(chainReader as any);
+
     const chainConfig = {
       [sendingChainId]: {
-        provider: provider1337,
+        providers: ["http://----------------------"],
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
       },
       [receivingChainId]: {
-        provider: provider1338,
+        providers: ["http://----------------------"],
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
       },
     };
+
     signer = createStubInstance(Wallet);
     messaging = createStubInstance(UserNxtpNatsMessagingService);
     subgraph = createStubInstance(Subgraph);
@@ -104,11 +109,7 @@ describe("NxtpSdkBase", () => {
     transactionManager = createStubInstance(TransactionManager);
 
     stub(utils, "getChainData").resolves(chainDataMock);
-    stub(utils, "getDecimalsForAsset").resolves(18);
-    stub(utils, "getTokenPrice").resolves(BigNumber.from(10).pow(21));
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-    provider1337.getGasPrice.resolves(BigNumber.from(10).pow(9));
-    provider1338.getGasPrice.resolves(BigNumber.from(10).pow(9));
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
@@ -256,7 +257,7 @@ describe("NxtpSdkBase", () => {
     it("should error if transaction manager doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
         },
       };
@@ -278,7 +279,7 @@ describe("NxtpSdkBase", () => {
       getDeployedChainIdsForGasFeeStub.returns([sendingChainId, receivingChainId]);
       const _chainConfig = {
         [sendingChainId]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           transactionManagerAddress: sendingChainTxManagerAddress,
         },
       };
@@ -299,11 +300,11 @@ describe("NxtpSdkBase", () => {
     it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
         },
         [5]: {
-          provider: provider1338,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
         },
       };
@@ -378,6 +379,10 @@ describe("NxtpSdkBase", () => {
   });
 
   describe("#getTransferQuote", () => {
+    beforeEach(() => {
+      chainReader.calculateGasFeeInReceivingToken.resolves(BigNumber.from("100000"));
+      chainReader.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from("100000"));
+    });
     // TODO: #143 callData encryption
 
     describe("should error if invalid params", () => {
@@ -390,14 +395,14 @@ describe("NxtpSdkBase", () => {
     });
 
     describe("should error if invalid config", () => {
-      it("unkown sendingChainId", async () => {
+      it("unknown sendingChainId", async () => {
         const { crossChainParams } = getMock({ sendingChainId: 1400 });
         await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
           ChainNotConfigured.getMessage(1400, supportedChains),
         );
       });
 
-      it("unkown receivingChainId", async () => {
+      it("unknown receivingChainId", async () => {
         const { crossChainParams } = getMock({ receivingChainId: 1400 });
 
         await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
@@ -1036,6 +1041,8 @@ describe("NxtpSdkBase", () => {
     });
 
     it("happy: should return zero price if price oracle isn't configured", async () => {
+      chainReader.getTokenPrice.rejects(new Error("fail, not supported etc"));
+
       getDeployedPriceOracleContractStub.returns({ address: null, abi: null });
       const { crossChainParams } = getMock();
 
@@ -1051,38 +1058,10 @@ describe("NxtpSdkBase", () => {
     });
   });
 
-  describe("#estimateHardcodedFeeForFulfill", () => {
-    it("happy: should return valid price if price oracle is configured", async () => {
-      const { crossChainParams } = getMock();
-
-      const result = await sdk.estimateHardcodedFeeForFulfill(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        18,
-        null,
-        null,
-      );
-
-      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.fulfill).mul("1000000000"));
-    });
-    it("happy: should return zero price if price oracle isn't configured", async () => {
-      getDeployedPriceOracleContractStub.returns({ address: null, abi: null });
-      const { crossChainParams } = getMock();
-
-      const result = await sdk.estimateHardcodedFeeForFulfill(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        18,
-        null,
-        null,
-      );
-
-      expect(result).to.be.eq(BigNumber.from("0"));
-    });
-  });
-
   describe("#estimateFeeForRouterTransfer", () => {
-    it("happy: should return valid price if price oracle is configured", async () => {
+    it("happy: should consult chain reader method", async () => {
+      const expectedResult = BigNumber.from("10000000");
+      chainReader.calculateGasFeeInReceivingToken.resolves(expectedResult);
       const { crossChainParams } = getMock();
       const result = await sdk.estimateFeeForRouterTransfer(
         crossChainParams.sendingChainId,
@@ -1093,14 +1072,12 @@ describe("NxtpSdkBase", () => {
         null,
         null,
       );
-
-      expect(result).to.be.eq(
-        BigNumber.from(GAS_ESTIMATES.fulfill).add(BigNumber.from(GAS_ESTIMATES.prepare)).mul("1000000000"),
-      );
+      expect(result.toString()).to.be.eq(expectedResult.toString());
+      expect(chainReader.calculateGasFeeInReceivingToken.callCount).to.be.eq(1);
     });
-    it("happy: should return zero price if price oracle isn't configured", async () => {
+
+    it.skip("happy: should return zero price if price oracle isn't configured", async () => {
       const { crossChainParams } = getMock();
-      getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
       const result = await sdk.estimateFeeForRouterTransfer(
         crossChainParams.sendingChainId,
         crossChainParams.sendingAssetId,
@@ -1115,7 +1092,9 @@ describe("NxtpSdkBase", () => {
   });
 
   describe("#estimateFeeForMetaTx", () => {
-    it("happy: should return valid price if price oracle is configured", async () => {
+    it("happy: should consult chain reader method", async () => {
+      const expectedResult = BigNumber.from("10000000");
+      chainReader.calculateGasFeeInReceivingTokenForFulfill.resolves(expectedResult);
       const { crossChainParams } = getMock();
       const result = await sdk.estimateFeeForMetaTx(
         crossChainParams.sendingChainId,
@@ -1126,15 +1105,14 @@ describe("NxtpSdkBase", () => {
         null,
         null,
       );
-
-      expect(result).to.be.eq(
-        BigNumber.from(GAS_ESTIMATES.fulfill)
-          .mul("1000000000")
-          .mul(utils.getMetaTxBuffer() + 100)
-          .div(100),
+      // Expect price to be bumped by the meta tx buffer.
+      expect(result.toString()).to.be.eq(
+        expectedResult.add(expectedResult.mul(utils.getMetaTxBuffer()).div(100)).toString(),
       );
+      expect(chainReader.calculateGasFeeInReceivingTokenForFulfill.callCount).to.be.eq(1);
     });
-    it("happy: should return zero price if price oracle isn't configured", async () => {
+
+    it.skip("happy: should return zero price if price oracle isn't configured", async () => {
       const { crossChainParams } = getMock();
       getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
       const result = await sdk.estimateFeeForMetaTx(
@@ -1152,12 +1130,12 @@ describe("NxtpSdkBase", () => {
 
   describe("#getGasPrice", () => {
     it("should work for configured chain", async () => {
-      const result = await sdk.getGasPrice(sendingChainId);
+      const result = await sdk.getGasPrice(sendingChainId, requestContextMock);
       expect(result).to.be.eq(BigNumber.from("1000000000"));
     });
 
     it("should error for non-configured chain", async () => {
-      await expect(sdk.getGasPrice(11111)).eventually.be.rejectedWith(
+      await expect(sdk.getGasPrice(11111, requestContextMock)).eventually.be.rejectedWith(
         ChainNotConfigured.getMessage(11111, supportedChains),
       );
     });

@@ -144,9 +144,17 @@ export class SdkAgent {
       queues[parseInt(chainId)] = new PriorityQueue({ concurrency: 1 });
     });
 
+    const chainConfig: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
+    Object.keys(chainProviders).map((_chainId) => {
+      const chainId = parseInt(_chainId);
+      chainConfig[chainId] = {
+        providers: chainProviders[chainId].providerUrls.map((url) => ({ url })),
+      };
+    });
+
     // Create sdk
     const sdk = new NxtpSdk({
-      chainConfig: chainProviders,
+      chainConfig,
       signer: connected,
       natsUrl,
       authUrl,

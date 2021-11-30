@@ -8,7 +8,6 @@ import {
   Logger,
   createLoggingContext,
   encrypt,
-  isNode,
   ChainData,
 } from "@connext/nxtp-utils";
 
@@ -36,13 +35,7 @@ import {
   GetTransferQuote,
   SdkBaseChainConfigParams,
 } from "./types";
-import {
-  signFulfillTransactionPayload,
-  encodeAuctionBid,
-  ethereumRequest,
-  getGasLimit,
-  getDecimalsForAsset,
-} from "./utils";
+import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest, getGasLimit } from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 import { NxtpSdkBase } from "./sdkBase";
 
@@ -184,12 +177,10 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInSendingToken");
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
 
-    if (!sendingChainProvider) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, this.chainData);
+    this.sdkBase.assertChainIsConfigured(sendingChainId);
+    this.sdkBase.assertChainIsConfigured(receivingChainId);
+    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
     const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
       sendingChainId,
@@ -219,16 +210,10 @@ export class NxtpSdk {
     receivingAssetId: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInReceivingToken");
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
-    if (!receivingChainProvider) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-    const decimals = await getDecimalsForAsset(
-      receivingAssetId,
-      receivingChainId,
-      receivingChainProvider,
-      this.chainData,
-    );
+
+    this.sdkBase.assertChainIsConfigured(sendingChainId);
+    this.sdkBase.assertChainIsConfigured(receivingChainId);
+    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
     const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
       sendingChainId,
@@ -259,12 +244,9 @@ export class NxtpSdk {
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInSendingToken");
 
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
-
-    if (!sendingChainProvider) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, sendingChainProvider, this.chainData);
+    this.sdkBase.assertChainIsConfigured(sendingChainId);
+    this.sdkBase.assertChainIsConfigured(receivingChainId);
+    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
     const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       sendingChainId,
@@ -296,16 +278,9 @@ export class NxtpSdk {
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInReceivingToken");
 
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
-    if (!receivingChainProvider) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-    const decimals = await getDecimalsForAsset(
-      receivingAssetId,
-      receivingChainId,
-      receivingChainProvider,
-      this.chainData,
-    );
+    this.sdkBase.assertChainIsConfigured(sendingChainId);
+    this.sdkBase.assertChainIsConfigured(receivingChainId);
+    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
     const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       sendingChainId,
@@ -398,10 +373,11 @@ export class NxtpSdk {
     const encodedBid = encodeAuctionBid(bid);
 
     const signerAddr = await this.config.signer.getAddress();
-    let connectedSigner = this.config.signer;
-    if (isNode()) {
-      connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].provider);
-    }
+    const connectedSigner = this.config.signer;
+    // TODO: Safe to remove?
+    // if (isNode()) {
+    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].provider);
+    // }
 
     const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
     const gasLimit = getGasLimit(receivingChainId);
@@ -500,10 +476,11 @@ export class NxtpSdk {
     }
 
     const signerAddress = await this.config.signer.getAddress();
-    let connectedSigner = this.config.signer;
-    if (isNode()) {
-      connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
-    }
+    const connectedSigner = this.config.signer;
+    // TODO: Safe to remove?
+    // if (isNode()) {
+    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
+    // }
 
     let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
@@ -578,10 +555,11 @@ export class NxtpSdk {
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
-    let connectedSigner = this.config.signer;
-    if (isNode()) {
-      connectedSigner = this.config.signer.connect(this.config.chainConfig[chainId].provider);
-    }
+    const connectedSigner = this.config.signer;
+    // TODO: Safe to remove?
+    // if (isNode()) {
+    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[chainId].provider);
+    // }
 
     const cancelResponse = await connectedSigner.sendTransaction(cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
