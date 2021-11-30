@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "./interfaces/IRouterFactory.sol";
-import "./interfaces/ITransactionManager.sol";
 import "./Router.sol";
 
 contract RouterFactory is IRouterFactory, Ownable {
@@ -63,10 +62,9 @@ contract RouterFactory is IRouterFactory, Ownable {
   ////////////////////////////////////////
   // Internal Methods
 
-  function getBytecode() internal pure returns (bytes memory) {
+  function getBytecode() internal view returns (bytes memory) {
     bytes memory bytecode = type(Router).creationCode;
-
-    return abi.encodePacked(bytecode);
+    return abi.encodePacked(bytecode, abi.encode(address(this)));
   }
 
   function generateSalt(address routerSigner) internal pure returns (bytes32) {
