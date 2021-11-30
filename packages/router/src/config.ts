@@ -28,6 +28,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 const MIN_GAS = utils.parseEther("0.1");
 const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain native asset unit
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 dotenvConfig();
 
@@ -127,6 +128,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
+  allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
   cleanUpMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
@@ -208,6 +210,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
+    allowedTolerance:
+      process.env.NXTP_ALLOWED_TOLERANCE ||
+      configJson.allowedTolerance ||
+      configFile.allowedTolerance ||
+      DEFAULT_ALLOWED_TOLERANCE,
   };
 
   const overridechainRecommendedConfirmations =
