@@ -452,3 +452,23 @@ export const getAssetBalances = async (chainId: number): Promise<{ assetId: stri
     return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
   });
 };
+
+export const getLiquiditySupplied = async (_chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
+  // const { wallet } = getContext();
+
+  throw new Error("Implement multiple sdk handling");
+  // const sdks = getAnalyticsSdks();
+  // const sdk = sdks[chainId];
+
+  // if (!sdk) {
+  //   throw new ContractReaderNotAvailableForChain(chainId);
+  // }
+
+  // const addr = await wallet.getAddress();
+  // const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
+  //   client.GetAssetBalances({ routerId: addr }),
+  // );
+  // return assetBalances.map((a) => {
+  //   return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
+  // });
+};

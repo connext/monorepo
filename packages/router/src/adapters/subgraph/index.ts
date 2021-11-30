@@ -41,6 +41,8 @@ export type ContractReader = {
    */
   getAssetBalances: (chainId: number) => Promise<{ assetId: string; amount: BigNumber }[]>;
 
+  getLiquiditySupplied: (chainId: number) => Promise<{ assetId: string; amount: BigNumber }[]>;
+
   getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
@@ -68,5 +70,6 @@ export const subgraphContractReader = (): ContractReader => {
     getAssetBalance,
     getSyncRecords,
     getAssetBalances,
+    getLiquiditySupplied,
   };
 };

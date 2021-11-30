@@ -26,6 +26,7 @@ export type AssetBalance = {
   amount: Scalars['BigInt'];
   router: Router;
   assetId: Scalars['Bytes'];
+  supplied: Scalars['BigInt'];
 };
 
 export type AssetBalance_Filter = {
@@ -65,13 +66,22 @@ export type AssetBalance_Filter = {
   assetId_not_in?: Maybe<Array<Scalars['Bytes']>>;
   assetId_contains?: Maybe<Scalars['Bytes']>;
   assetId_not_contains?: Maybe<Scalars['Bytes']>;
+  supplied?: Maybe<Scalars['BigInt']>;
+  supplied_not?: Maybe<Scalars['BigInt']>;
+  supplied_gt?: Maybe<Scalars['BigInt']>;
+  supplied_lt?: Maybe<Scalars['BigInt']>;
+  supplied_gte?: Maybe<Scalars['BigInt']>;
+  supplied_lte?: Maybe<Scalars['BigInt']>;
+  supplied_in?: Maybe<Array<Scalars['BigInt']>>;
+  supplied_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum AssetBalance_OrderBy {
   Id = 'id',
   Amount = 'amount',
   Router = 'router',
-  AssetId = 'assetId'
+  AssetId = 'assetId',
+  Supplied = 'supplied'
 }
 
 
@@ -90,6 +100,8 @@ export type DayMetric = {
   volume: Scalars['BigInt'];
   txCount: Scalars['BigInt'];
   sendingTxCount: Scalars['BigInt'];
+  receivingTxCount: Scalars['BigInt'];
+  cancelTxCount: Scalars['BigInt'];
 };
 
 export type DayMetric_Filter = {
@@ -147,6 +159,22 @@ export type DayMetric_Filter = {
   sendingTxCount_lte?: Maybe<Scalars['BigInt']>;
   sendingTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
   sendingTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingTxCount?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_not?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_gt?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_lt?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_gte?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_lte?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelTxCount?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_not?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_gt?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_lt?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_gte?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_lte?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum DayMetric_OrderBy {
@@ -155,7 +183,9 @@ export enum DayMetric_OrderBy {
   AssetId = 'assetId',
   Volume = 'volume',
   TxCount = 'txCount',
-  SendingTxCount = 'sendingTxCount'
+  SendingTxCount = 'sendingTxCount',
+  ReceivingTxCount = 'receivingTxCount',
+  CancelTxCount = 'cancelTxCount'
 }
 
 export type HourlyMetric = {
@@ -166,6 +196,9 @@ export type HourlyMetric = {
   volume: Scalars['BigInt'];
   liquidity: Scalars['BigInt'];
   txCount: Scalars['BigInt'];
+  sendingTxCount: Scalars['BigInt'];
+  receivingTxCount: Scalars['BigInt'];
+  cancelTxCount: Scalars['BigInt'];
 };
 
 export type HourlyMetric_Filter = {
@@ -223,6 +256,30 @@ export type HourlyMetric_Filter = {
   txCount_lte?: Maybe<Scalars['BigInt']>;
   txCount_in?: Maybe<Array<Scalars['BigInt']>>;
   txCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  sendingTxCount?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_not?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_gt?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_lt?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_gte?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_lte?: Maybe<Scalars['BigInt']>;
+  sendingTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  sendingTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingTxCount?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_not?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_gt?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_lt?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_gte?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_lte?: Maybe<Scalars['BigInt']>;
+  receivingTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  receivingTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelTxCount?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_not?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_gt?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_lt?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_gte?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_lte?: Maybe<Scalars['BigInt']>;
+  cancelTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
+  cancelTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum HourlyMetric_OrderBy {
@@ -231,7 +288,10 @@ export enum HourlyMetric_OrderBy {
   AssetId = 'assetId',
   Volume = 'volume',
   Liquidity = 'liquidity',
-  TxCount = 'txCount'
+  TxCount = 'txCount',
+  SendingTxCount = 'sendingTxCount',
+  ReceivingTxCount = 'receivingTxCount',
+  CancelTxCount = 'cancelTxCount'
 }
 
 export enum OrderDirection {
