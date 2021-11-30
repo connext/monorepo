@@ -20,16 +20,13 @@ export const mintTokens = async (signer: Signer, assetId: string): Promise<provi
   return response;
 };
 
-export const getBalance = async (
-  address: string,
-  assetId: string,
-  provider: providers.Provider,
-): Promise<BigNumber> => {
+export const getBalance = async (address: string, assetId: string, provider: string): Promise<BigNumber> => {
   let balance;
+  const web3provider = new providers.JsonRpcProvider(provider);
   if (assetId === constants.AddressZero) {
-    balance = await provider.getBalance(address);
+    balance = await web3provider.getBalance(address);
   } else {
-    const contract = new Contract(assetId, TestTokenABI, provider);
+    const contract = new Contract(assetId, TestTokenABI, web3provider);
     balance = await contract.balanceOf(address);
   }
   return balance;
@@ -53,7 +50,7 @@ export const getExplorerLinkForAddress = (address: string, chainId: number, chai
 export const getDecimalsForAsset = async (
   assetId: string,
   chainId: number,
-  provider: providers.Provider,
+  provider: string,
   chainData: Map<string, ChainData>,
 ): Promise<number> => {
   const chainInfo = chainData.get(chainId.toString());
@@ -61,6 +58,6 @@ export const getDecimalsForAsset = async (
   if (decimals) {
     return decimals;
   }
-  const contract = new Contract(assetId, TestTokenABI, provider);
+  const contract = new Contract(assetId, TestTokenABI, new providers.JsonRpcProvider(provider, chainId));
   return await contract.decimals();
 };

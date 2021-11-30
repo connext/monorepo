@@ -9,6 +9,7 @@ import {
   createLoggingContext,
   encrypt,
   ChainData,
+  isNode,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -375,9 +376,9 @@ export class NxtpSdk {
     const signerAddr = await this.config.signer.getAddress();
     const connectedSigner = this.config.signer;
     // TODO: Safe to remove?
-    // if (isNode()) {
-    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].provider);
-    // }
+    if (isNode()) {
+      // connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].providers[0]);
+    }
 
     const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
     const gasLimit = getGasLimit(receivingChainId);

@@ -14,7 +14,6 @@ import {
 
 import { chainConfig, swapConfig } from "../constants";
 import { getBalance, getDecimalsForAsset, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
-import { chainProviders } from "../App";
 
 const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
   swapConfig.find((sc) =>
@@ -67,7 +66,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       form.setFieldsValue({ receivingAddress: address });
 
       const _sdk = new NxtpSdk({
-        chainConfig: chainProviders,
+        chainConfig,
         signer,
         messaging: undefined,
         natsUrl: process.env.REACT_APP_NATS_URL_OVERRIDE,
@@ -246,10 +245,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
     }
-    if (!chainProviders || !chainProviders[_chainId]) {
-      throw new Error(`No config for chainId: ${_chainId}. Supported: ${Object.keys(chainProviders).toString()}`);
+    if (!chainConfig || !chainConfig[_chainId]) {
+      throw new Error(`No config for chainId: ${_chainId}. Supported: ${Object.keys(chainConfig).toString()}`);
     }
-    const _balance = await getBalance(address, sendingAssetId, chainProviders[_chainId].provider);
+    const _balance = await getBalance(address, sendingAssetId, chainConfig[_chainId].providers[0]);
     return _balance;
   };
 
@@ -735,13 +734,13 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                         const sendingDecimals = await getDecimalsForAsset(
                           sendingAssetId,
                           sendingChainId,
-                          web3Provider!,
+                          chainConfig[sendingChainId].providers[0],
                           chainData,
                         );
                         const receivingDecimals = await getDecimalsForAsset(
                           receivingAssetId,
                           receivingChainId,
-                          chainProviders[receivingChainId].provider,
+                          chainConfig[receivingChainId].providers[0],
                           chainData,
                         );
 
