@@ -228,8 +228,7 @@ export class ChainRpcProvider {
       }
 
       if (!mined) {
-        // If the tx was not mined yet, it either reverted or errors occurred (possibly because it's still
-        // pending).
+        // If the tx was not mined yet, the tx may have been reverted (or other errors may have occurred).
         if (reverted.length > 0) {
           throw new TransactionReverted(TransactionReverted.reasons.CallException, reverted[0]);
         } else if (errors.length > 0) {
