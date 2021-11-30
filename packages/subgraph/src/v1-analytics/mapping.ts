@@ -56,8 +56,8 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   }
 
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
-  const assetBalance = AssetBalance.load(assetBalanceId);
+  let assetBalanceId = event.params.assetId.toHex() + "-" + event.params.router.toHex();
+  let assetBalance = AssetBalance.load(assetBalanceId);
 
   // update amount
   assetBalance!.amount = assetBalance!.amount.minus(event.params.amount);
