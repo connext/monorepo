@@ -19,6 +19,7 @@ import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
 import "./src/tasks/setDexPrice";
+import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
 
@@ -95,6 +96,11 @@ const config: HardhatUserConfig = {
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
+    optimism: {
+      accounts: { mnemonic },
+      chainId: 10,
+      url: "https://mainnet.optimism.io",
+    },
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
@@ -123,7 +129,7 @@ const config: HardhatUserConfig = {
     matic: {
       accounts: { mnemonic },
       chainId: 137,
-      url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://matic-mainnet.chainstacklabs.com",
+      url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://polygon-rpc.com",
     },
     ftm: {
       accounts: { mnemonic },

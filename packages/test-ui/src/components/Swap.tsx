@@ -13,13 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { chainConfig, swapConfig } from "../constants";
-import {
-  getBalance,
-  getChainName,
-  getDecimalsForAsset,
-  getExplorerLinkForTx,
-  mintTokens as _mintTokens,
-} from "../utils";
+import { getBalance, getDecimalsForAsset, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
 import { chainProviders } from "../App";
 
 const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
@@ -32,7 +26,7 @@ const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
 type SwapProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactElement => {
@@ -59,11 +53,15 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       setInjectedProviderChainId(chainId);
 
       const sendingChain = form.getFieldValue("sendingChain");
+      console.log('form.getFieldValue("sendingChain"): ', form.getFieldsValue(true));
       console.log("sendingChain: ", sendingChain);
 
       const address = await signer.getAddress();
 
-      const _balance = await getUserBalance(sendingChain, signer);
+      const _balance = await getUserBalance(
+        typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain),
+        signer,
+      );
       console.log("_balance: ", _balance);
       setUserBalance(_balance);
       form.setFieldsValue({ receivingAddress: address });
@@ -76,6 +74,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         authUrl: process.env.REACT_APP_AUTH_URL_OVERRIDE,
         logger: new Logger({ level: "info" }),
         network: (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
+        chainData,
       });
       setSdk(_sdk);
       const activeTxs = await _sdk.getActiveTransactions();
@@ -238,17 +237,19 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     init();
   }, [web3Provider, signer]);
 
-  const getUserBalance = async (chainId: number, _signer: Signer) => {
+  const getUserBalance = async (_chainId: number, _signer: Signer) => {
+    if (_chainId === 0) {
+      return BigNumber.from(0);
+    }
     const address = await _signer.getAddress();
-    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[chainId];
-    console.log("sendingAssetId: ", sendingAssetId);
+    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[_chainId];
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
     }
-    if (!chainProviders || !chainProviders[chainId]) {
-      throw new Error("No config for chainId");
+    if (!chainProviders || !chainProviders[_chainId]) {
+      throw new Error(`No config for chainId: ${_chainId}. Supported: ${Object.keys(chainProviders).toString()}`);
     }
-    const _balance = await getBalance(address, sendingAssetId, chainProviders[chainId].provider);
+    const _balance = await getBalance(address, sendingAssetId, chainProviders[_chainId].provider);
     return _balance;
   };
 
@@ -584,8 +585,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 console.log("changed: ", changed);
               }}
               initialValues={{
-                sendingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[0]), chainData),
-                receivingChain: getChainName(parseInt(Object.keys(swapConfig[selectedPoolIndex].assets)[1]), chainData),
+                sendingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[0],
+                receivingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[1],
                 asset: selectedPoolIndex,
                 amount: "1",
               }}
@@ -601,13 +602,16 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             console.error("No signer available");
                             return;
                           }
-                          const _balance = await getUserBalance(val as number, signer);
+                          const _balance = await getUserBalance(
+                            typeof val === "number" ? val : parseInt(val as string),
+                            signer,
+                          );
                           setUserBalance(_balance);
                         }}
                       >
                         {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>
@@ -622,7 +626,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
                           }
                         >
-                          Switch To Chain {getChainName(parseInt(form.getFieldValue("sendingChain")), chainData)}
+                          Switch To Chain {form.getFieldValue("sendingChain")}
                         </Button>
                       )}
                     </Form.Item>
@@ -637,7 +641,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       <Select>
                         {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>

@@ -289,6 +289,21 @@ export class EncryptionError extends NxtpError {
 }
 
 /**
+ * @classdesc Thrown if receiver amount is less than total fee
+ */
+export class NotEnoughAmount extends NxtpError {
+  static readonly type = NotEnoughAmount.name;
+
+  static getMessage() {
+    return `Not enough amount for swap`;
+  }
+
+  constructor(public readonly context: any = {}) {
+    super(NotEnoughAmount.getMessage(), { ...context }, NotEnoughAmount.type);
+  }
+}
+
+/**
  * @classdesc Thrown if no bids received in given timeout
  */
 export class NoBids extends AuctionError {

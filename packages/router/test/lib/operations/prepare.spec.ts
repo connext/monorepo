@@ -28,7 +28,11 @@ const { prepare } = getOperations();
 describe("Prepare Receiver Operation", () => {
   describe("#prepareReceiver", () => {
     beforeEach(() => {
-      stub(PrepareHelperFns, "getReceiverAmount").resolves(MUTATED_AMOUNT);
+      stub(PrepareHelperFns, "getReceiverAmount").resolves({
+        receivingAmount: MUTATED_AMOUNT,
+        routerFee: "10",
+        amountAfterSwapRate: MUTATED_AMOUNT,
+      });
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
       recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
       validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
@@ -58,8 +62,14 @@ describe("Prepare Receiver Operation", () => {
       );
     });
 
+    it("should not error if router liquidity is too low but onchain is okay", async () => {
+      (contractReaderMock.getAssetBalance as SinonStub).resolves(constants.One);
+      await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.ok;
+    });
+
     it("should error if router liquidity is too low", async () => {
       (contractReaderMock.getAssetBalance as SinonStub).resolves(constants.One);
+      (contractWriterMock.getRouterBalance as SinonStub).resolves(constants.One);
       await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Not enough liquidity",
       );

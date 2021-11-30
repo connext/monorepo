@@ -2,6 +2,64 @@
 
 ## Next Release
 
+- [txservice] removed TransactionServiceFailure error, replaced with specific error types
+
+## 0.0.92
+
+- [utils] Add native asset decimals handling
+- [utils] Fallback subgraph should order synced subgraphs first
+
+## 0.0.91
+
+- [sdk] Allow chainData to be passed in
+
+## 0.0.90
+
+- [router] use subgraphs form chainData default
+- [sdk] fees estimation on sdk side
+- [contracts] [router] use price oracle for optimism
+
+## 0.0.89
+
+- [router] Fix handling tracker
+
+## 0.0.88
+
+- [utils] Update default subgraph URIs
+
+## 0.0.87
+
+- [contracts] Add deploy script to package
+
+## 0.0.86
+
+- [contracts] Add artifacts to package
+
+## 0.0.85
+
+- [router] Add optimism fees using mainnet pricing
+- [test-ui] Minor error fixes
+- [router] Remove fees decimal conversion
+- [txservice] `readTransaction` should use provider not signer
+- [router] Improve logs and error contexts
+- [router] Handle null case for getBlock
+
+## 0.0.84
+
+- [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
+- [txservice] Remove min gas enforcement for optimism
+- [router] Ensure handling tracker is pruned properly
+
+## 0.0.83
+
+- [router] Track handling transactions by status over block
+
+## 0.0.82
+
+- [router] Add time-delay for sender cancellations
+
+## 0.0.81
+
 - [sdk] Gelato support for Arbitrum
 - [subgraph] subgraph lite for routers and sdk
 - [subgraph] add sending tx count for explorer

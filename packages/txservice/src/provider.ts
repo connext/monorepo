@@ -13,15 +13,18 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import {
+  ConfigurationError,
+  GasEstimateInvalid,
   parseError,
   RpcError,
   TransactionError,
   TransactionReadError,
   TransactionReverted,
-  TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
 import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
+
+const NO_GAS_MIN_CHAIN_IDS = [10];
 
 const { StaticJsonRpcProvider, FallbackProvider } = providers;
 
@@ -110,8 +113,13 @@ export class ChainRpcProvider {
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
-      throw new TransactionServiceFailure(
-        `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+      throw new ConfigurationError(
+        {
+          providers: `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+        },
+        {
+          providers,
+        },
       );
     }
 
@@ -182,9 +190,14 @@ export class ChainRpcProvider {
   public readTransaction(tx: ReadTransaction): ResultAsync<string, TransactionError> {
     return this.resultWrapper<string>(true, async () => {
       try {
-        return await this.signer!.call(tx);
+        return await this.provider.call(tx);
       } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, {
+          error,
+          chainId: this.chainId,
+          urls: this._providers.map((p) => p.connection.url),
+          tx,
+        });
       }
     });
   }
@@ -229,8 +242,7 @@ export class ChainRpcProvider {
         try {
           return BigNumber.from(result);
         } catch (error) {
-          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
-            invalidEstimate: result,
+          throw new GasEstimateInvalid(result, {
             error: error.message,
           });
         }
@@ -306,15 +318,11 @@ export class ChainRpcProvider {
       } else if (gasStations.length > 0 && gasPrice) {
         // TODO: Remove this unnecessary provider call, used temporarily for debugging / metrics.
         const providerQuote = await this.provider.getGasPrice();
-        this.logger.debug("Retrieved gas prices",
-          requestContext,
-          methodContext,
-          {
-            chainId: this.chainId,
-            gasStationQuote: gasPrice,
-            providerQuote,
-          }
-        );
+        this.logger.debug("Retrieved gas prices", requestContext, methodContext, {
+          chainId: this.chainId,
+          gasStationQuote: gasPrice,
+          providerQuote,
+        });
       }
 
       // If we did not have a gas station API to use, or the gas station failed, use the provider's getGasPrice method.
@@ -339,13 +347,18 @@ export class ChainRpcProvider {
       }
 
       // If the gas price is less than the gas minimum, bump it up to minimum.
-      const min = BigNumber.from(gasMinimum);
-      if (gasPrice.lt(min)) {
-        gasPrice = min;
+      if (!NO_GAS_MIN_CHAIN_IDS.includes(this.chainId)) {
+        const min = BigNumber.from(gasMinimum);
+        if (gasPrice.lt(min)) {
+          gasPrice = min;
+        }
       }
-
       let hitMaximum = false;
-      if (gasPriceMaxIncreaseScalar !== undefined && gasPriceMaxIncreaseScalar > 100 && this.lastUsedGasPrice !== undefined) {
+      if (
+        gasPriceMaxIncreaseScalar !== undefined &&
+        gasPriceMaxIncreaseScalar > 100 &&
+        this.lastUsedGasPrice !== undefined
+      ) {
         // If we have a configured cap scalar, and the gas price is greater than that cap, set it to the cap.
         const max = this.lastUsedGasPrice.mul(gasPriceMaxIncreaseScalar).div(100);
         if (gasPrice.gt(max)) {
@@ -414,6 +427,20 @@ export class ChainRpcProvider {
     return this.resultWrapper<number>(false, async () => {
       const block = await this.provider.getBlock("latest");
       return block.timestamp;
+    });
+  }
+
+  /**
+   * Gets the current block number.
+   *
+   * @returns A number representing the current block number.
+   */
+  public getBlock(
+    blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
+  ): ResultAsync<providers.Block, TransactionError> {
+    return this.resultWrapper<providers.Block>(false, async () => {
+      const block = await this.provider.getBlock(blockHashOrBlockTag);
+      return block;
     });
   }
 

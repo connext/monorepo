@@ -15,13 +15,7 @@ import {
   TEST_TX,
 } from "./constants";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import {
-  DispatchAborted,
-  RpcError,
-  TransactionReadError,
-  TransactionReverted,
-  TransactionServiceFailure,
-} from "../src/error";
+import { DispatchAborted, GasEstimateInvalid, RpcError, TransactionReadError, TransactionReverted } from "../src/error";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -175,19 +169,19 @@ describe("ChainRpcProvider", () => {
   describe("#readTransaction", () => {
     it("happy: should read the transaction", async () => {
       const fakeData = getRandomBytes32();
-      signer.call.resolves(fakeData);
+      coreProvider.call.resolves(fakeData);
 
       const result = await chainProvider.readTransaction(TEST_READ_TX);
 
-      expect(signer.call.callCount).to.equal(1);
-      expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
+      expect(coreProvider.call.callCount).to.equal(1);
+      expect(coreProvider.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result.isOk()).to.be.true;
       expect(result.isOk() ? result.value : null).to.be.eq(fakeData);
     });
 
     it("should return error result if the signer readTransaction call throws", async () => {
       const testError = new Error("test error");
-      signer.call.rejects(testError);
+      coreProvider.call.rejects(testError);
 
       const result = await chainProvider.readTransaction(TEST_READ_TX);
 
@@ -275,13 +269,12 @@ describe("ChainRpcProvider", () => {
       // Good rpc provider - but will return an invalid value.
       (chainProvider as any)._providers = [goodRpcProvider];
 
-      goodRpcProvider.send.resolves("thisisnotanumber");
+      const badValue = "thisisnotanumber";
+      goodRpcProvider.send.resolves(badValue);
 
       const result = await chainProvider.estimateGas(testTx);
       expect(
-        result.isErr() &&
-          result.error.isNxtpError &&
-          result.error.message === TransactionServiceFailure.reasons.GasEstimateInvalid,
+        result.isErr() && result.error.isNxtpError && result.error.message === GasEstimateInvalid.getMessage(badValue),
       ).to.be.true;
     });
 

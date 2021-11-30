@@ -11,6 +11,7 @@ import {
   CrosschainTransaction,
   UserNxtpNatsMessagingService,
   AuctionResponseSchema,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
@@ -72,6 +73,7 @@ export type SdkBaseConfigParams = {
   authUrl?: string;
   messaging?: UserNxtpNatsMessagingService;
   skipPolling?: boolean;
+  chainData?: Map<string, ChainData>;
 };
 
 export const CrossChainParamsSchema = Type.Object({

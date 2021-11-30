@@ -186,7 +186,7 @@ export const newAuction = async (
   }
 
   // getting the swap rate from the receiver side config
-  let amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  let { receivingAmount: amountReceived } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
 
   // (TODO in what other scenarios would auction fail here? We should make sure
   // that router does not bid unless it is *sure* it's doing ok)
@@ -223,14 +223,9 @@ export const newAuction = async (
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
       requestContext,
-      balance: balance.toString(),
-      amountReceived: amountReceived.toString(),
-      amount,
-      receivingAssetId,
-      receivingChainId,
     });
   }
 

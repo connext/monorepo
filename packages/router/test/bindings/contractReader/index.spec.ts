@@ -412,7 +412,7 @@ describe("Contract Reader Binding", () => {
         },
       };
       binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, {
-        blockNumber: 1234,
+        status: prepare.status,
         chainId: prepare.crosschainTx.invariant.receivingChainId,
       });
       await binding.handleActiveTransactions([prepare, fulfill]);

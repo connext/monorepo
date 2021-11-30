@@ -38,6 +38,13 @@ export const prepare = async (
   const { logger, wallet, contractWriter, contractReader, txService } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
+  // HOTFIX: add sanitation check before cancellable validation
+  await contractWriter.sanitationCheck(
+    invariantData.receivingChainId,
+    { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
+    "prepare",
+  );
+
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
@@ -85,7 +92,7 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  let receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  let { receivingAmount: receiverAmount } = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
     invariantData.sendingAssetId,
@@ -105,8 +112,27 @@ export const prepare = async (
     invariantData.receivingChainId,
   );
   if (routerBalance.lt(receiverAmount)) {
-    // cancellable error
-    throw new NotEnoughLiquidity(invariantData.receivingChainId, { methodContext, requestContext });
+    // double check balance on chain
+    const onChainBalance = await contractWriter.getRouterBalance(
+      invariantData.receivingChainId,
+      invariantData.router,
+      invariantData.receivingAssetId,
+    );
+    if (onChainBalance.lt(receiverAmount)) {
+      // cancellable error
+      throw new NotEnoughLiquidity(
+        invariantData.receivingChainId,
+        invariantData.receivingAssetId,
+        onChainBalance.toString(),
+        receiverAmount.toString(),
+        { methodContext, requestContext },
+      );
+    } else {
+      logger.error("Router balance is different onchain vs subgraph", requestContext, methodContext, undefined, {
+        onChainBalance: onChainBalance.toString(),
+        subgraphBalance: routerBalance.toString(),
+      });
+    }
   }
 
   // Handle the expiries.

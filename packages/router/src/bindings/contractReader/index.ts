@@ -3,6 +3,7 @@ import {
   createRequestContext,
   delay,
   jsonifyError,
+  RequestContext,
   RequestContextWithTransactionId,
   safeJsonStringify,
 } from "@connext/nxtp-utils";
@@ -43,8 +44,8 @@ export const handlingTracker: Map<string, Tracker> = new Map();
 
 export const bindContractReader = async () => {
   const { contractReader, logger, config } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("bindContractReader");
   setInterval(async () => {
+    const { requestContext, methodContext } = createLoggingContext("bindContractReader");
     let transactions: ActiveTransaction<any>[] = [];
     try {
       transactions = await contractReader.getActiveTransactions();
@@ -63,17 +64,24 @@ export const bindContractReader = async () => {
       return;
     }
 
-    // subgraph buffer
-    // remove records only iff transaction handled mined block is synced with respective chain subgraph
+    // handle the case for `ReceiverFulfilled` -- in this case, the transaction will *not*
+    // be re-processed from the loop because the next logical status is `SenderFulfilled`,
+    // which is not recognized as an "active transaction". instead, the transaction
+    // should be removed from the tracker completely to avoid a memory leak
     Object.entries(config.chainConfig).forEach(async ([chainId]) => {
       const records = await contractReader.getSyncRecords(Number(chainId));
       const highestSyncedBlock = Math.max(...records.map((r) => r.syncedBlock));
       handlingTracker.forEach((value, key) => {
-        if (value.chainId === Number(chainId) && value.blockNumber != -1 && value.blockNumber <= highestSyncedBlock) {
-          logger.debug("Deleting Tracker Record", requestContext, methodContext, {
+        if (
+          value.chainId === Number(chainId) &&
+          value.block > 0 &&
+          value.block <= highestSyncedBlock &&
+          value.status === "ReceiverFulfilled"
+        ) {
+          logger.debug("Deleting tracker record", requestContext, methodContext, {
             transactionId: key,
             chainId: chainId,
-            blockNumber: value.blockNumber,
+            blockNumber: value.block,
             syncedBlock: highestSyncedBlock,
           });
           handlingTracker.delete(key);
@@ -85,12 +93,17 @@ export const bindContractReader = async () => {
   }, getLoopInterval());
 };
 
-export const handleActiveTransactions = async (transactions: ActiveTransaction<any>[]) => {
+export const handleActiveTransactions = async (
+  transactions: ActiveTransaction<any>[],
+  _requestContext?: RequestContext,
+) => {
   const { logger } = getContext();
   for (const transaction of transactions) {
     const { requestContext, methodContext } = createLoggingContext(
       handleActiveTransactions.name,
-      undefined,
+      typeof _requestContext === "object"
+        ? { ..._requestContext, transactionId: transaction.crosschainTx.invariant.transactionId }
+        : undefined,
       transaction.crosschainTx.invariant.transactionId,
     );
 
@@ -108,15 +121,17 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
     // check if transactionId is already handled for respective chainId
     if (
       handlingTracker.has(transaction.crosschainTx.invariant.transactionId) &&
-      chainId === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.chainId
+      (transaction.status === handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status ||
+        handlingTracker.get(transaction.crosschainTx.invariant.transactionId)?.status === "Processing")
     ) {
-      logger.debug("Already handling transaction", requestContext, methodContext);
+      logger.debug("Already handling transaction", requestContext, methodContext, { status: transaction.status });
       continue;
     }
 
     handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-      blockNumber: -1,
+      status: "Processing",
       chainId,
+      block: -1,
     });
 
     handleSingle(transaction, requestContext)
@@ -125,8 +140,9 @@ export const handleActiveTransactions = async (transactions: ActiveTransaction<a
 
         if (result && result.blockNumber) {
           handlingTracker.set(transaction.crosschainTx.invariant.transactionId, {
-            blockNumber: result.blockNumber,
+            status: transaction.status,
             chainId,
+            block: result.blockNumber,
           });
         } else {
           handlingTracker.delete(transaction.crosschainTx.invariant.transactionId);
@@ -210,6 +226,7 @@ export const handleSingle = async (
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
+        return;
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,

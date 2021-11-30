@@ -185,6 +185,17 @@ yarn workspace @connext/nxtp-contracts hardhat set-dex-price --token TOKEN_ADDRE
 'ACTIVE': Shows price record status. If true, the price record will work.
 ```
 
+3. To set token price directly and use it, you need to set direct price for tokens.
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat set-direct-price --token TOKEN_ADDRESS --price TOKEN_PRICE --network NETWORK
+# e.g. yarn workspace @connext/nxtp-contracts hardhat set-direct-price --token 0x4AD6C49FC206C8070915151F31EAbE4c70016F55 --price 1000000000000000000 --network rinkeby
+
+'TOKEN_ADDRESS': The token address that you want to fetch price of.
+
+'TOKEN_PRICE': The direct price of token.
+```
+
 ## Helper Tasks
 
 There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. These can be run using the following example command structure:

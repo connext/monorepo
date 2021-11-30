@@ -266,7 +266,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     }
 
     if (!chainConfig.subgraph) {
-      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId));
+      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId), crossChainData);
       if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }

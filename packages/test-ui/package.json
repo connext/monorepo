@@ -1,13 +1,13 @@
 {
   "name": "@connext/nxtp-test-ui",
-  "version": "0.0.80",
+  "version": "0.0.92",
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@types/node": "^14.17.5",
     "@types/react": "^17.0.18",
     "@types/react-dom": "^17.0.9",
-    "antd": "^4.16.12",
+    "antd": "^4.17.1",
     "axios": "^0.21.1",
     "ethers": "^5.4.6",
     "graphql": "^15.5.3",

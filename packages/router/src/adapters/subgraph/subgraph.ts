@@ -19,6 +19,7 @@ import {
   CrosschainTransactionStatus,
   CancelPayload,
 } from "../../lib/entities";
+import { handlingTracker } from "../../bindings/contractReader";
 
 import {
   GetAssetBalanceQuery,
@@ -314,6 +315,12 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                 payload: {} as CancelPayload,
                 status: CrosschainTransactionStatus.ReceiverCancelled,
               };
+            }
+
+            // TODO: fix this, not good to have the handling tracker leak into this file
+            // no actions for router to take, safe to remove from handling tracker
+            if (handlingTracker.get(senderTx.transactionId)) {
+              handlingTracker.delete(senderTx.transactionId);
             }
             return undefined;
           }) ?? [];

@@ -6,11 +6,9 @@ import {
   RequestContext,
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
-  InvariantTransactionData,
   TransactionData,
-  jsonifyError,
 } from "@connext/nxtp-utils";
-import { constants, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, providers } from "ethers/lib/ethers";
 import { Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
@@ -20,7 +18,8 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
 import { getContext } from "../../router";
-import { NotExistPriceOracle } from "../../lib/errors/contracts";
+import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { NotExistPriceOracle, SanitationCheckFailed } from "../../lib/errors/contracts";
 
 const { HashZero } = constants;
 
@@ -47,58 +46,21 @@ export const getTxManagerInterface = () =>
 
 export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
-export const prepareSanitationCheck = async (
+export const sanitationCheck = async (
   chainId: number,
-  nxtpContractAddress: string,
-  invariantTransactionData: InvariantTransactionData,
-  _requestContext?: RequestContext<string>,
-) => {
-  const { txService, logger } = getContext();
-
-  const { requestContext, methodContext } = createLoggingContext(
-    prepareSanitationCheck.name,
-    _requestContext,
-    invariantTransactionData.transactionId,
-  );
-
-  const invariantDigest = getInvariantTransactionDigest(invariantTransactionData);
-  const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
-    invariantDigest,
-  ]);
-
-  const variantTransactionDigest = await txService.readTx({
-    chainId,
-    to: nxtpContractAddress,
-    data: encodeVariantTransactionData,
-  });
-
-  // variantTransactionDigest exist then transaction is already prepared
-  if (variantTransactionDigest !== HashZero) {
-    const error = new Error("Transaction is already prepared");
-    logger.error(
-      `FAILED prepareSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT`,
-      requestContext,
-      methodContext,
-      jsonifyError(error),
-      { invariantData: invariantTransactionData, chainId },
-    );
-    throw error;
-  }
-};
-
-export const cancelAndFullfillSanitationCheck = async (
-  chainId: number,
-  nxtpContractAddress: string,
   transactionData: TransactionData,
+  functionCall: "prepare" | "fulfill" | "cancel",
   _requestContext?: RequestContext<string>,
 ) => {
-  const { txService, logger } = getContext();
+  const { txService, contractReader } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(
-    cancelAndFullfillSanitationCheck.name,
+    sanitationCheck.name,
     _requestContext,
     transactionData.transactionId,
   );
+
+  const nxtpContractAddress = getContractAddress(chainId);
 
   const invariantDigest = getInvariantTransactionDigest({
     receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
@@ -115,11 +77,7 @@ export const cancelAndFullfillSanitationCheck = async (
     callDataHash: transactionData.callDataHash,
     transactionId: transactionData.transactionId,
   });
-  const expectedVariantDigest = getVariantTransactionDigest({
-    amount: transactionData.amount,
-    expiry: transactionData.expiry,
-    preparedBlockNumber: transactionData.preparedBlockNumber,
-  });
+
   const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
     invariantDigest,
   ]);
@@ -130,53 +88,84 @@ export const cancelAndFullfillSanitationCheck = async (
     data: encodeVariantTransactionData,
   });
 
-  if (expectedVariantDigest === variantTransactionDigest) {
-    // All is good, no issues
-    return;
+  if (functionCall === "prepare") {
+    // variantTransactionDigest exist then transaction is already prepared
+    if (variantTransactionDigest !== HashZero) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+      });
+    }
+  } else {
+    const expectedVariantDigest = getVariantTransactionDigest({
+      amount: transactionData.amount,
+      expiry: transactionData.expiry,
+      preparedBlockNumber: transactionData.preparedBlockNumber,
+    });
+
+    if (expectedVariantDigest === variantTransactionDigest) {
+      // All is good, no issues
+      return;
+    }
+
+    // transaction should be prepared before fulfill
+    if (variantTransactionDigest === HashZero) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+      });
+    }
+
+    // transaction is already fulfilled
+    // get expected fulfilled/cancelled variant hash
+    const fulfilledOrCancelledVariant = getVariantTransactionDigest({
+      amount: transactionData.amount,
+      expiry: transactionData.expiry,
+      preparedBlockNumber: 0,
+    });
+
+    if (variantTransactionDigest === fulfilledOrCancelledVariant) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+        fulfilledOrCancelledVariant,
+      });
+    }
+
+    if (functionCall === "cancel" && chainId === transactionData.sendingChainId) {
+      const receivingChainNxtpContractAddress = getContractAddress(transactionData.receivingChainId);
+
+      const receivingChainVariantTransactionDigest = await txService.readTx({
+        chainId: transactionData.receivingChainId,
+        to: receivingChainNxtpContractAddress,
+        data: encodeVariantTransactionData,
+      });
+
+      if (receivingChainVariantTransactionDigest === HashZero) {
+        // cancel is allowed when no transaction is prepared
+        return;
+      } else {
+        const receivingChainTransaction = await contractReader.getTransactionForChain(
+          transactionData.transactionId,
+          transactionData.user,
+          transactionData.receivingChainId,
+        );
+
+        if (receivingChainTransaction?.status === TransactionStatus.Cancelled) {
+          // cancel is allowed when transaction is cancelled on receiving chain
+          return;
+        } else {
+          throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+            requestContext,
+            methodContext,
+          });
+        }
+      }
+    }
   }
-
-  // transaction should be prepared before fulfill
-  if (variantTransactionDigest === HashZero) {
-    const error = new Error("Transaction isn't prepared yet");
-    logger.error(
-      "FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: Transaction isn't prepared yet",
-      requestContext,
-      methodContext,
-      jsonifyError(error),
-      { transactionData, chainId },
-    );
-    throw error;
-  }
-
-  // transaction is already fulfilled
-  // get expected fulfilled/cancelled variant hash
-  const fulfilledVariant = getVariantTransactionDigest({
-    amount: transactionData.amount,
-    expiry: transactionData.expiry,
-    preparedBlockNumber: 0,
-  });
-
-  if (variantTransactionDigest === fulfilledVariant) {
-    const error = new Error("Transaction is already fulfilled or canceled");
-    logger.error(
-      `FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: ${error.message}`,
-      requestContext,
-      methodContext,
-      jsonifyError(error),
-      { transactionData, chainId },
-    );
-    throw error;
-  }
-
-  const error = new Error("Transaction has unexpected variant hash");
-  logger.error(
-    `FAILED cancelAndFullfillSanitationCheck THIS SHOULD NOT HAPPEN, FIGURE THIS OUT: ${error.message}`,
-    requestContext,
-    methodContext,
-    jsonifyError(error),
-    { transactionData, chainId, expectedVariantDigest, fulfilledVariant },
-  );
-  throw error;
 };
 
 /**
@@ -207,8 +196,6 @@ export const prepare = async (
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
   const nxtpContractAddress = getContractAddress(chainId);
-
-  await prepareSanitationCheck(chainId, nxtpContractAddress, txData);
 
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
     {
@@ -248,7 +235,7 @@ export const fulfill = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
+  await sanitationCheck(chainId, txData, "fulfill");
 
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [
     { txData, relayerFee, signature, callData, encodedMeta: "0x" },
@@ -280,7 +267,7 @@ export const cancel = async (
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  await cancelAndFullfillSanitationCheck(chainId, nxtpContractAddress, txData);
+  await sanitationCheck(chainId, txData, "cancel");
 
   const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [{ txData, signature, encodedMeta: "0x" }]);
 
@@ -312,7 +299,7 @@ export const removeLiquidity = async (
   recipientAddress: string | undefined,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(removeLiquidity.name);
+  const { methodContext } = createLoggingContext(removeLiquidity.name, requestContext);
 
   const { logger, txService, wallet } = getContext();
 
@@ -339,4 +326,18 @@ export const removeLiquidity = async (
     },
     requestContext,
   );
+};
+
+export const getRouterBalance = async (chainId: number, router: string, assetId: string): Promise<BigNumber> => {
+  const { txService } = getContext();
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const encodedData = getTxManagerInterface().encodeFunctionData("routerBalances", [router, assetId]);
+  const ret = await txService.readTx({
+    to: nxtpContractAddress,
+    data: encodedData,
+    chainId,
+  });
+  return BigNumber.from(ret);
 };
