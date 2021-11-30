@@ -86,7 +86,7 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  defaultInitialGas: Type.Optional(TIntegerString),
+  defaultInitialGasPrice: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),

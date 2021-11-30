@@ -72,7 +72,7 @@ export const ChainConfigSchema = Type.Object({
 
   // Hardcoded initial value for gas. This shouldn't be used normally - only temporarily
   // in the event that a gas station is malfunctioning.
-  defaultInitialGas: Type.Optional(TIntegerString),
+  defaultInitialGasPrice: Type.Optional(TIntegerString),
   // Gas station URL, if any, to retrieve current gas price from. If gas station is down or otherwise fails,
   // we'll use the RPC provider's gas as a backup.
   // Gas station should return a "rapid" gas price within the response.data.

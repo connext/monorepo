@@ -312,7 +312,7 @@ export class ChainRpcProvider {
 
     // Check if there is a hardcoded value specified for this chain. This should usually only be set
     // for testing/overriding purposes.
-    const hardcoded = this.chainConfig.defaultInitialGas;
+    const hardcoded = this.chainConfig.defaultInitialGasPrice;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
         chainId: this.chainId,

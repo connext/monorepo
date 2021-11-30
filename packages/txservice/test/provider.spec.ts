@@ -394,7 +394,7 @@ describe("ChainRpcProvider", () => {
 
     it("should accept hardcoded values from config", async () => {
       const expectedGas = "197";
-      (chainProvider as any).chainConfig.defaultInitialGas = expectedGas;
+      (chainProvider as any).chainConfig.defaultInitialGasPrice = expectedGas;
       const result = await (chainProvider as any).getGasPrice();
       expect(coreSyncProvider.getGasPrice.callCount).to.equal(0);
       expect(result.toString()).to.be.eq(expectedGas);
