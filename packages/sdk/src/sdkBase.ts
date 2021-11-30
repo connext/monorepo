@@ -87,7 +87,6 @@ import {
   getTokenPrice,
   gelatoFulfill,
   isChainSupportedByGelato,
-  getDecimalsForAsset,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -317,8 +316,8 @@ export class NxtpSdkBase {
 
     const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
 
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
     if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
@@ -328,19 +327,9 @@ export class NxtpSdkBase {
     }
 
     // validate that assets/chains are supported and there is enough liquidity
-    const inputDecimals = await getDecimalsForAsset(
-      sendingAssetId,
-      sendingChainId,
-      sendingChainProvider,
-      this.chainData,
-    );
+    const inputDecimals = await this.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
-    const outputDecimals = await getDecimalsForAsset(
-      receivingAssetId,
-      receivingChainId,
-      receivingChainProvider,
-      this.chainData,
-    );
+    const outputDecimals = await this.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
     this.logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
@@ -1037,13 +1026,12 @@ export class NxtpSdkBase {
       assetId,
       decimals,
     });
-
-    const { provider } = this.config.chainConfig[chainId] ?? {};
+    this.chainReader.calculateGasFeeInReceivingTokenForPrepare(chainId, assetId, decimals, requestContext);
 
     const priceOracleContract = getDeployedPriceOracleContract(chainId);
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
     let totalCost = constants.Zero;
-    if (priceOracleContract && priceOracleContract.address && provider) {
+    if (priceOracleContract && priceOracleContract.address) {
       const priceOracleAddress = priceOracleContract.address;
       const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
       const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
@@ -1073,26 +1061,26 @@ export class NxtpSdkBase {
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas in token for fulfill", requestContext, methodContext, {
+    this.logger.info("Calculating gas fee for fulfill", requestContext, methodContext, {
       chainId,
       assetId,
       decimals,
     });
-    const { provider } = this.config.chainConfig[chainId] ?? {};
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+
+    this.chainReader.calculateGasFeeInReceivingTokenForFulfill(chainId, assetId, decimals, requestContext);
+
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
     let totalCost = constants.Zero;
-    if (priceOracleContract && priceOracleContract.address && provider) {
-      const priceOracleAddress = priceOracleContract.address;
-      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
-      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
+    try {
+      const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
+      const tokenPriceInUsd = await this.chainReader.getTokenPrice(chainId, assetId);
       const gasPrice = await this.getGasPrice(chainId);
       const gasAmountInUsd = gasPrice.mul(gasLimitForFulfill).mul(ethPriceInUsd);
       const tokenAmountForGasFee = tokenPriceInUsd.isZero()
         ? constants.Zero
         : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
       totalCost = totalCost.add(tokenAmountForGasFee);
-    }
+    } catch (e) {}
 
     this.logger.info("Calculated gas in token for fulfill", requestContext, methodContext, {
       calculatedGas: totalCost,
@@ -1208,10 +1196,7 @@ export class NxtpSdkBase {
    * @returns Gas price in BigNumber
    */
   async getGasPrice(chainId: number): Promise<BigNumber> {
-    const { provider } = this.config.chainConfig[chainId] ?? {};
-    if (!provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
-    }
+    this.assertChainIsSupported(chainId);
 
     // get gas price
     let gasPrice = BigNumber.from(0);
@@ -1300,5 +1285,11 @@ export class NxtpSdkBase {
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
   ): Promise<NxtpSdkEventPayloads[T]> {
     return this.subgraph.waitFor(event, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
+  }
+
+  private assertChainIsSupported(chainId: number) {
+    if (!this.config.chainConfig[chainId] || !this.config.chainConfig[chainId].providers) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
+    }
   }
 }

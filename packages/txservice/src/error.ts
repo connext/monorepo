@@ -250,6 +250,19 @@ export class GasEstimateInvalid extends NxtpError {
   }
 }
 
+export class ChainNotSupported extends NxtpError {
+  static readonly type = ChainNotSupported.name;
+
+  static getMessage(chainId: string): string {
+    return `Request for chain ${chainId} cannot be handled: resources not configured.`;
+  }
+
+  constructor(public readonly chainId: string, public readonly context: any = {}) {
+    super(ChainNotSupported.getMessage(chainId), context, ChainNotSupported.type);
+  }
+}
+
+// TODO: ProviderNotConfigured is essentially a more specific ChainNotSupported error. Should they be combined?
 export class ProviderNotConfigured extends NxtpError {
   static readonly type = ProviderNotConfigured.name;
 
