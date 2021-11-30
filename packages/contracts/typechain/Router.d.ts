@@ -22,14 +22,17 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RouterInterface extends ethers.utils.Interface {
   functions: {
-    "cancel(tuple,bytes)": FunctionFragment;
-    "fulfill(tuple,bytes)": FunctionFragment;
+    "addRelayerFee(uint256,address)": FunctionFragment;
+    "cancel(tuple,address,uint256,bytes)": FunctionFragment;
+    "fulfill(tuple,address,uint256,bytes)": FunctionFragment;
     "init(address,uint256,address,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "prepare(tuple,bytes)": FunctionFragment;
+    "prepare(tuple,address,uint256,bytes)": FunctionFragment;
     "recipient()": FunctionFragment;
     "removeLiquidity(uint256,address,bytes)": FunctionFragment;
+    "removeRelayerFee(uint256,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "routerFactory()": FunctionFragment;
     "routerSigner()": FunctionFragment;
     "setRecipient(address)": FunctionFragment;
     "setSigner(address)": FunctionFragment;
@@ -37,6 +40,10 @@ interface RouterInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "addRelayerFee",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "cancel",
     values: [
@@ -62,6 +69,8 @@ interface RouterInterface extends ethers.utils.Interface {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
+      string,
+      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -92,6 +101,8 @@ interface RouterInterface extends ethers.utils.Interface {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
+      string,
+      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -126,6 +137,8 @@ interface RouterInterface extends ethers.utils.Interface {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
+      string,
+      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -135,7 +148,15 @@ interface RouterInterface extends ethers.utils.Interface {
     values: [BigNumberish, string, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeRelayerFee",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "routerFactory",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -156,6 +177,10 @@ interface RouterInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "addRelayerFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
@@ -167,7 +192,15 @@ interface RouterInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "removeRelayerFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "routerFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -190,9 +223,13 @@ interface RouterInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
+    "RelayerFeeAdded(address,uint256,address)": EventFragment;
+    "RelayerFeeRemoved(address,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RelayerFeeAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RelayerFeeRemoved"): EventFragment;
 }
 
 export class Router extends BaseContract {
@@ -239,6 +276,12 @@ export class Router extends BaseContract {
   interface: RouterInterface;
 
   functions: {
+    addRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     cancel(
       args: {
         txData: {
@@ -262,6 +305,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -291,6 +336,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -330,6 +377,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -343,9 +392,17 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    removeRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    routerFactory(overrides?: CallOverrides): Promise<[string]>;
 
     routerSigner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -366,6 +423,12 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  addRelayerFee(
+    amount: BigNumberish,
+    assetId: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   cancel(
     args: {
@@ -390,6 +453,8 @@ export class Router extends BaseContract {
       signature: BytesLike;
       encodedMeta: BytesLike;
     },
+    relayerFeeAsset: string,
+    relayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -419,6 +484,8 @@ export class Router extends BaseContract {
       callData: BytesLike;
       encodedMeta: BytesLike;
     },
+    relayerFeeAsset: string,
+    relayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -458,6 +525,8 @@ export class Router extends BaseContract {
       bidSignature: BytesLike;
       encodedMeta: BytesLike;
     },
+    relayerFeeAsset: string,
+    relayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -471,9 +540,17 @@ export class Router extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  removeRelayerFee(
+    amount: BigNumberish,
+    assetId: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  routerFactory(overrides?: CallOverrides): Promise<string>;
 
   routerSigner(overrides?: CallOverrides): Promise<string>;
 
@@ -495,6 +572,12 @@ export class Router extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    addRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     cancel(
       args: {
         txData: {
@@ -518,6 +601,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -583,6 +668,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -658,6 +745,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -707,7 +796,15 @@ export class Router extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    removeRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    routerFactory(overrides?: CallOverrides): Promise<string>;
 
     routerSigner(overrides?: CallOverrides): Promise<string>;
 
@@ -731,9 +828,33 @@ export class Router extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
+
+    RelayerFeeAdded(
+      assetId?: null,
+      amount?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [string, BigNumber, string],
+      { assetId: string; amount: BigNumber; caller: string }
+    >;
+
+    RelayerFeeRemoved(
+      assetId?: null,
+      amount?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [string, BigNumber, string],
+      { assetId: string; amount: BigNumber; caller: string }
+    >;
   };
 
   estimateGas: {
+    addRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     cancel(
       args: {
         txData: {
@@ -757,6 +878,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -786,6 +909,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -825,6 +950,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -838,9 +965,17 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    removeRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    routerFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerSigner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -863,6 +998,12 @@ export class Router extends BaseContract {
   };
 
   populateTransaction: {
+    addRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     cancel(
       args: {
         txData: {
@@ -886,6 +1027,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -915,6 +1058,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -954,6 +1099,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
+      relayerFeeAsset: string,
+      relayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -967,9 +1114,17 @@ export class Router extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    removeRelayerFee(
+      amount: BigNumberish,
+      assetId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    routerFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     routerSigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
