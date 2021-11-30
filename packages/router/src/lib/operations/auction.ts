@@ -24,7 +24,7 @@ import {
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
-import { receivedAuction } from "../../bindings/metrics";
+import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
@@ -84,7 +84,7 @@ export const newAuction = async (
       // Throwing empty error as the ZeroValueBid error below will override it.
       throw new Error("Amount was zero.");
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new ZeroValueBid({
       methodContext,
       requestContext,
