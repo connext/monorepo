@@ -52,7 +52,7 @@ export class ChainRpcProvider {
   // Cached decimal values per asset. Saved separately from main cache as decimals obviously don't expire.
   private cachedDecimals: Record<string, number> = {};
   // Cached block length in time (ms), used for optimizing waiting periods.
-  private blockPeriod?: number;
+  private blockPeriod: number = DEFAULT_BLOCK_PERIOD;
 
   // Cache of transient data (i.e. data that can change per block).
   private cache: ProviderCache<ChainRpcProviderCache>;
@@ -149,6 +149,10 @@ export class ChainRpcProvider {
     // This initial call of sync providers will start the first block listener (on the lead provider) and set up
     // the cache with correct initial values (as well as establish which providers are out-of-sync).
     this.syncProviders();
+
+    // Set up the initial value for block period. Will run asyncronously, and update the value (from the default) when
+    // it completes.
+    this.setBlockPeriod();
   }
 
   /**
@@ -566,22 +570,6 @@ export class ChainRpcProvider {
     if (needsSigner) {
       this.checkSigner();
     }
-    if (!this.blockPeriod) {
-      // This block should only be called once. Set the block period to the default value.
-      // TODO: We could add this value to the cache and give it a ttl, guaranteeing an eventual retry.
-      this.blockPeriod = DEFAULT_BLOCK_PERIOD;
-      try {
-        const currentBlock = await this.getBlock("latest");
-        const previousBlock = await this.getBlock(currentBlock.parentHash);
-        this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
-      } catch (error) {
-        // If we can't get the block period, we'll just use a default value.
-        this.logger.warn("Could not get block period time, defaulting to 1s.", undefined, undefined, {
-          chainId: this.chainId,
-          error,
-        });
-      }
-    }
     const errors: any[] = [];
     const syncedProviders = this.shuffleSyncedProviders();
     for (const provider of syncedProviders) {
@@ -699,5 +687,20 @@ export class ChainRpcProvider {
         p.avgExecTime;
     });
     return syncedProviders.sort((a, b) => a.priority - b.priority);
+  }
+
+  private async setBlockPeriod(): Promise<void> {
+    try {
+      const currentBlock = await this.getBlock("latest");
+      const previousBlock = await this.getBlock(currentBlock.parentHash);
+      this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
+    } catch (error) {
+      // If we can't get the block period, we'll just use a default value.
+      this.logger.warn("Could not get block period time, using default.", undefined, undefined, {
+        chainId: this.chainId,
+        error,
+        default: DEFAULT_BLOCK_PERIOD,
+      });
+    }
   }
 }
