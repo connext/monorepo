@@ -23,6 +23,7 @@ import { handlingTracker } from "../../bindings/contractReader";
 
 import {
   GetAssetBalanceQuery,
+  GetAssetBalancesQuery,
   GetReceiverTransactionsQuery,
   GetSenderTransactionsQuery,
   GetTransactionQuery,
@@ -432,4 +433,22 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
   const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
   const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
+};
+
+export const getAssetBalances = async (chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
+  const { wallet } = getContext();
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId);
+  }
+
+  const addr = await wallet.getAddress();
+  const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
+    client.GetAssetBalances({ routerId: addr }),
+  );
+  return assetBalances.map((a) => {
+    return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
+  });
 };

@@ -7,7 +7,13 @@ import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractRea
 import { getContext } from "../../router";
 
 import { getSdk, Sdk } from "./graphqlsdk";
-import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncRecords } from "./subgraph";
+import {
+  getActiveTransactions,
+  getAssetBalance,
+  getTransactionForChain,
+  getSyncRecords,
+  getAssetBalances,
+} from "./subgraph";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -26,6 +32,15 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+
+  /**
+   * Returns available liquidity for any of the assets
+   *
+   * @param chainId - The chain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  getAssetBalances: (chainId: number) => Promise<{ assetId: string; amount: BigNumber }[]>;
+
   getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
@@ -52,5 +67,6 @@ export const subgraphContractReader = (): ContractReader => {
     getTransactionForChain,
     getAssetBalance,
     getSyncRecords,
+    getAssetBalances,
   };
 };
