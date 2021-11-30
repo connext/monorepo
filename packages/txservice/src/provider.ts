@@ -206,25 +206,30 @@ export class ChainRpcProvider {
         }
       });
       // Wait until all the 'receipts' (or errors) have been pushed to the list.
-      const receipts = await Promise.all(_receipts);
+      const receipts = (await Promise.all(_receipts)).filter(
+        (r) => r !== null && r !== undefined,
+      ) as providers.TransactionReceipt[];
+
       let mined = false;
       const reverted: providers.TransactionReceipt[] = [];
       let remainingConfirmations = confirmations;
       for (const receipt of receipts) {
-        if (receipt === null || receipt === undefined) {
-          continue;
-        } else if (receipt.status === 1) {
+        if (receipt.status === 1) {
+          // Receipt status is successful, check to see if we have enough confirmations.
           mined = true;
           remainingConfirmations = confirmations - receipt.confirmations;
           if (remainingConfirmations <= 0) {
             return receipt;
           }
         } else {
+          // Receipt status indicates tx was reverted.
           reverted.push(receipt);
         }
       }
 
       if (!mined) {
+        // If the tx was not mined yet, it either reverted or errors occurred (possibly because it's still
+        // pending).
         if (reverted.length > 0) {
           throw new TransactionReverted(TransactionReverted.reasons.CallException, reverted[0]);
         } else if (errors.length > 0) {
