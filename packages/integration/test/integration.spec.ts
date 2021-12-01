@@ -292,17 +292,6 @@ describe("Integration", () => {
     await test(sendingAssetId, receivingAssetId);
   });
 
-  it.only("should send ERC20 tokens, prepare with optional actualAmount param", async function () {
-    this.timeout(120_000);
-
-    const sendingAssetId = erc20Address;
-    const receivingAssetId = erc20Address;
-
-    await setupTest(sendingAssetId, receivingAssetId);
-
-    await test(sendingAssetId, receivingAssetId, true);
-  });
-
   it("should send Native tokens", async function () {
     this.timeout(120_000);
 
