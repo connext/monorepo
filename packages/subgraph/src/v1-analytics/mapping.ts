@@ -35,7 +35,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     assetBalance.locked = new BigInt(0);
   }
   // add new amount
-  assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
+  assetBalance.amount = assetBalance.amount.plus(event.params.amount);
 
   // add invested
   assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
