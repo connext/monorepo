@@ -120,7 +120,7 @@ describe("Prepare Receiver Operation", () => {
         invariantDataMock.receivingChainId,
         {
           txData: invariantDataMock,
-          amount: MUTATED_AMOUNT,
+          amount: BigNumber.from(MUTATED_AMOUNT).sub(100).toString(),
           expiry: baseTime + MUTATED_BUFFER,
           bidSignature: prepareInputMock.bidSignature,
           encodedBid: prepareInputMock.encodedBid,

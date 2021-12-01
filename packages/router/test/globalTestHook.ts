@@ -35,6 +35,8 @@ export const mochaHooks = {
     txServiceMock.getBlockTime.resolves(Math.floor(Date.now() / 1000));
     txServiceMock.getTransactionReceipt.resolves(txReceiptMock);
     txServiceMock.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
+    txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
+    txServiceMock.getTokenPrice.resolves(BigNumber.from(1));
 
     messagingMock = createStubInstance(RouterNxtpNatsMessagingService);
 
