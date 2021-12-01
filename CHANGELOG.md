@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.93
+
+- [router] Improved caching and auction response time
+- [sdk, router] Add method to allow slippage in prepared amount
 - [txservice] removed TransactionServiceFailure error, replaced with specific error types
 - [subgraph] Add convenience fields for analytics subgraph
 - [subgraph] Redeploy analytics subgraphs
