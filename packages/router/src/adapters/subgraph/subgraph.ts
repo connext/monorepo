@@ -133,7 +133,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         if ((allReceiverExpired.router?.transactions.length ?? 0) > 0) {
           logger.debug("Got receiver expired", requestContext, methodContext, {
             chainId,
-            allReceiverExpired: jsonifyError(allReceiverExpired as any),
+            allReceiverExpired: allReceiverExpired.router?.transactions,
           });
         }
 
