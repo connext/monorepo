@@ -270,8 +270,8 @@ export class ChainRpcProvider {
     }
 
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    // TODO: This should cache per block, not every 3 seconds!
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
+    // TODO: This should cache per block, not every 60 seconds!
+    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60_000) {
       return okAsync(this.cachedGas.price);
     }
 
