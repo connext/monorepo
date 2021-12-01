@@ -13,12 +13,13 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
 import {
+  ConfigurationError,
+  GasEstimateInvalid,
   parseError,
   RpcError,
   TransactionError,
   TransactionReadError,
   TransactionReverted,
-  TransactionServiceFailure,
   UnpredictableGasLimit,
 } from "./error";
 import { CachedGas, CachedTransactionCount, ReadTransaction, Transaction } from "./types";
@@ -112,8 +113,13 @@ export class ChainRpcProvider {
     } else {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
-      throw new TransactionServiceFailure(
-        `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+      throw new ConfigurationError(
+        {
+          providers: `No valid providers were supplied in configuration for chain ${this.chainId}.`,
+        },
+        {
+          providers,
+        },
       );
     }
 
@@ -236,8 +242,7 @@ export class ChainRpcProvider {
         try {
           return BigNumber.from(result);
         } catch (error) {
-          throw new TransactionServiceFailure(TransactionServiceFailure.reasons.GasEstimateInvalid, {
-            invalidEstimate: result,
+          throw new GasEstimateInvalid(result, {
             error: error.message,
           });
         }
@@ -265,8 +270,8 @@ export class ChainRpcProvider {
     }
 
     // If it's been less than a minute since we retrieved gas price, send the last update in gas price.
-    // TODO: This should cache per block, not every 3 seconds!
-    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 3_000) {
+    // TODO: This should cache per block, not every 60 seconds!
+    if (this.cachedGas && Date.now() - this.cachedGas.timestamp < 60_000) {
       return okAsync(this.cachedGas.price);
     }
 

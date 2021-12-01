@@ -4,10 +4,13 @@ import {
   GAS_ESTIMATES,
   getChainData,
   createLoggingContext,
+  multicall as _multicall,
+  Call,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
+import { cachedPriceMap } from "../../bindings/prices";
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
@@ -254,7 +257,7 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
 };
 
 /**
- * Gets token price in usd from price oracle
+ * Gets token price in usd from cache first. If its not cached, gets price from price oracle.
  *
  * @param chainId The network identifier
  * @param assetId The asset address to get price for
@@ -264,11 +267,34 @@ export const getTokenPrice = async (
   assetId: string,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
+  const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+  const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
+  const curTimeInSecs = await getNtpTimeSeconds();
+
+  // If it's been less than a minute since we retrieved token price, send the last update in token price.
+  if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
+    return cachedTokenPrice.price;
+  }
+
+  // Gets token price from onchain.
+  const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
+
+  return tokenPrice;
+};
+
+export const getTokenPriceFromOnChain = async (
+  chainId: number,
+  assetId: string,
+  requestContext: RequestContext,
+): Promise<BigNumber> => {
   const { txService } = getContext();
   const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
   const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-  const tokenPrice = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
-  return BigNumber.from(tokenPrice);
+  const tokenPriceRes = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
+  const tokenPrice = BigNumber.from(tokenPriceRes);
+
+  return tokenPrice;
 };
 
 /**
@@ -289,4 +315,18 @@ export const getGasPrice = async (chainId: number, requestContext: RequestContex
  */
 export const getChainIdForGasFee = (): number[] => {
   return getDeployedChainIdsForGasFee();
+};
+
+/**
+ * Runs multiple calls at a time, call data should be read methods. used to make it easier for sinon mocks to happen in test cases.
+ *
+ * @param abi - The ABI data of target contract
+ * @param calls - The call data what you want to read from contract
+ * @param multicallAddress - The address of multicall contract deployed to configured chain
+ * @param rpcUrl - The rpc endpoints what you want to call with
+ *
+ * @returns Array in ethers.BigNumber
+ */
+export const multicall = async (abi: any[], calls: Call[], multicallAddress: string, rpcUrl: string) => {
+  return await _multicall(abi, calls, multicallAddress, rpcUrl);
 };

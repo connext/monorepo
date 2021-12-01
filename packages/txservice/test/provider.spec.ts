@@ -15,13 +15,7 @@ import {
   TEST_TX,
 } from "./constants";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import {
-  DispatchAborted,
-  RpcError,
-  TransactionReadError,
-  TransactionReverted,
-  TransactionServiceFailure,
-} from "../src/error";
+import { DispatchAborted, GasEstimateInvalid, RpcError, TransactionReadError, TransactionReverted } from "../src/error";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -275,13 +269,12 @@ describe("ChainRpcProvider", () => {
       // Good rpc provider - but will return an invalid value.
       (chainProvider as any)._providers = [goodRpcProvider];
 
-      goodRpcProvider.send.resolves("thisisnotanumber");
+      const badValue = "thisisnotanumber";
+      goodRpcProvider.send.resolves(badValue);
 
       const result = await chainProvider.estimateGas(testTx);
       expect(
-        result.isErr() &&
-          result.error.isNxtpError &&
-          result.error.message === TransactionServiceFailure.reasons.GasEstimateInvalid,
+        result.isErr() && result.error.isNxtpError && result.error.message === GasEstimateInvalid.getMessage(badValue),
       ).to.be.true;
     });
 

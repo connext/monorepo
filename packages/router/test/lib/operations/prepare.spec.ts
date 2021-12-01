@@ -1,5 +1,5 @@
 import { SinonStub, stub } from "sinon";
-import { constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers/lib/ethers";
 import {
   AuctionBid,
   expect,
@@ -94,6 +94,20 @@ describe("Prepare Receiver Operation", () => {
       await expect(prepare(invariantDataMock, prepareInputMock, requestContext)).to.eventually.be.rejectedWith(
         "Bid expiry",
       );
+    });
+
+    it("should error if amount is lower than lower bound", async () => {
+      const senderAmount = BigNumber.from(prepareInputMock.senderAmount).mul(85).div(100).toString(); // lower than 90% tolerance
+      await expect(
+        prepare(invariantDataMock, { ...prepareInputMock, senderAmount }, requestContext),
+      ).to.eventually.be.rejectedWith("Invalid data on sender chain");
+    });
+
+    it("should error if amount is higher than upper bound", async () => {
+      const senderAmount = BigNumber.from(prepareInputMock.senderAmount).mul(115).div(100).toString(); // higher than 110% tolerance
+      await expect(
+        prepare(invariantDataMock, { ...prepareInputMock, senderAmount }, requestContext),
+      ).to.eventually.be.rejectedWith("Invalid data on sender chain");
     });
 
     it("happy: should send prepare for receiving chain", async () => {

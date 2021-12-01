@@ -32,9 +32,10 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
     assetBalance.supplied = new BigInt(0);
+    assetBalance.locked = new BigInt(0);
   }
   // add new amount
-  assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
+  assetBalance.amount = assetBalance.amount.plus(event.params.amount);
 
   // add invested
   assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
@@ -173,11 +174,21 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
 
   transaction.save();
 
+  // Get receiving asset balance (update amount and locked)
   // router is providing liquidity on receiver prepare
   if (chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
+    if (assetBalance == null) {
+      assetBalance = new AssetBalance(assetBalanceId);
+      assetBalance.assetId = transaction.receivingAssetId;
+      assetBalance.router = event.params.router.toHex();
+      assetBalance.amount = new BigInt(0);
+      assetBalance.supplied = new BigInt(0);
+      assetBalance.locked = new BigInt(0);
+    }
     assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.locked = assetBalance.locked.plus(transaction.amount);
     assetBalance.save();
   }
 }
@@ -206,18 +217,36 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   transaction!.save();
 
-  // router receives liquidity back on sender fulfill
   if (transaction.chainId == transaction.sendingChainId) {
-    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
-    let assetBalance = AssetBalance.load(assetBalanceId);
-    if (assetBalance == null) {
-      assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction.sendingAssetId;
-      assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
+    // Get asset balance
+    let sendingAssetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+    let sendingAssetBalance = AssetBalance.load(sendingAssetBalanceId);
+    if (sendingAssetBalance == null) {
+      sendingAssetBalance = new AssetBalance(sendingAssetBalanceId);
+      sendingAssetBalance.assetId = transaction.sendingAssetId;
+      sendingAssetBalance.router = event.params.router.toHex();
+      sendingAssetBalance.amount = new BigInt(0);
+      sendingAssetBalance.supplied = new BigInt(0);
+      sendingAssetBalance.locked = new BigInt(0);
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
-    assetBalance.save();
+    // router receives liquidity back on sender fulfill
+    sendingAssetBalance.amount = sendingAssetBalance.amount.plus(transaction.amount);
+    sendingAssetBalance.save();
+  } else {
+    // Get asset balance
+    let receivingAssetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+    let receivingAssetBalance = AssetBalance.load(receivingAssetBalanceId);
+    if (receivingAssetBalance == null) {
+      receivingAssetBalance = new AssetBalance(receivingAssetBalanceId);
+      receivingAssetBalance.assetId = transaction.receivingAssetId;
+      receivingAssetBalance.router = event.params.router.toHex();
+      receivingAssetBalance.amount = new BigInt(0);
+      receivingAssetBalance.supplied = new BigInt(0);
+      receivingAssetBalance.locked = new BigInt(0);
+    }
+    // router releases locked liquidity on receiver fulfill
+    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction.amount);
+    receivingAssetBalance.save();
   }
 
   // update metrics
@@ -228,9 +257,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
 
-  let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
+  let hourlyMetric = HourlyMetric.load(hourIDPerAsset);
   if (hourlyMetric === null) {
-    hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
+    hourlyMetric = new HourlyMetric(hourIDPerAsset);
     hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
     hourlyMetric.assetId = transaction.receivingAssetId.toHex();
     hourlyMetric.volume = BigInt.fromI32(0);
@@ -246,9 +275,9 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   let dayIDPerAsset = day.toString() + "-" + transaction.receivingAssetId.toHex();
 
-  let dayMetric = DayMetric.load(dayIDPerAsset.toString());
+  let dayMetric = DayMetric.load(dayIDPerAsset);
   if (dayMetric === null) {
-    dayMetric = new DayMetric(dayIDPerAsset.toString());
+    dayMetric = new DayMetric(dayIDPerAsset);
     dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
     dayMetric.assetId = transaction.receivingAssetId.toHex();
     dayMetric.volume = BigInt.fromI32(0);
@@ -276,7 +305,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       hourlyMetric.liquidity = assetBalance.amount;
     }
 
-    hourlyMetric.sendingTxCount = hourlyMetric.receivingTxCount.plus(BigInt.fromI32(1));
+    hourlyMetric.sendingTxCount = hourlyMetric.sendingTxCount.plus(BigInt.fromI32(1));
     dayMetric.sendingTxCount = dayMetric.sendingTxCount.plus(BigInt.fromI32(1));
   }
 
@@ -306,13 +335,10 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   if (transaction.chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    if (assetBalance == null) {
-      assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction.receivingAssetId;
-      assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
-    }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
+    // Should always be defined because will always be created on
+    // preparation for the receiving chain
+    assetBalance!.amount = assetBalance!.amount.plus(transaction.amount);
+    assetBalance!.locked = assetBalance!.locked.minus(transaction.amount);
     assetBalance.save();
   }
 
@@ -324,9 +350,9 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
 
   let hourIDPerAsset = hour.toString() + "-" + transaction.receivingAssetId.toHex();
 
-  let hourlyMetric = HourlyMetric.load(hourIDPerAsset.toString());
+  let hourlyMetric = HourlyMetric.load(hourIDPerAsset);
   if (hourlyMetric === null) {
-    hourlyMetric = new HourlyMetric(hourIDPerAsset.toString());
+    hourlyMetric = new HourlyMetric(hourIDPerAsset);
     hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
     hourlyMetric.assetId = transaction.receivingAssetId.toHex();
     hourlyMetric.volume = BigInt.fromI32(0);
@@ -342,9 +368,9 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
 
   let dayIDPerAsset = day.toString() + "-" + transaction.receivingAssetId.toHex();
 
-  let dayMetric = DayMetric.load(dayIDPerAsset.toString());
+  let dayMetric = DayMetric.load(dayIDPerAsset);
   if (dayMetric === null) {
-    dayMetric = new DayMetric(dayIDPerAsset.toString());
+    dayMetric = new DayMetric(dayIDPerAsset);
     dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
     dayMetric.assetId = transaction.receivingAssetId.toHex();
     dayMetric.volume = BigInt.fromI32(0);

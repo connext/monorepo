@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,6 @@
     "start": "node --enable-source-maps dist/index.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
-    "test-auction": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/lib/operations/auction.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
