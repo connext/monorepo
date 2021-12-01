@@ -188,7 +188,7 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
       assetBalance.locked = new BigInt(0);
     }
     assetBalance.amount = assetBalance.amount.minus(transaction.amount);
-    assetBalance.locked = assetBalance.locked.add(transaction.amount);
+    assetBalance.locked = assetBalance.locked.plus(transaction.amount);
     assetBalance.save();
   }
 }
@@ -245,7 +245,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       receivingAssetBalance.locked = new BigInt(0);
     }
     // router releases locked liquidity on receiver fulfill
-    receivingAssetBalance.locked = receivingAssetBalance.locked.sub(transaction.amount);
+    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction.amount);
     receivingAssetBalance.save();
   }
 
@@ -338,7 +338,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     // Should always be defined because will always be created on
     // preparation for the receiving chain
     assetBalance!.amount = assetBalance!.amount.plus(transaction.amount);
-    assetBalance!.locked = assetBalance!.locked.sub(transaction.amount);
+    assetBalance!.locked = assetBalance!.locked.minus(transaction.amount);
     assetBalance.save();
   }
 
