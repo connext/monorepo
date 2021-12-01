@@ -3,6 +3,8 @@
 ## Next Release
 
 - [txservice] removed TransactionServiceFailure error, replaced with specific error types
+- [subgraph] Add convenience fields for analytics subgraph
+- [subgraph] Redeploy analytics subgraphs
 
 ## 0.0.92
 
