@@ -96,12 +96,17 @@ export const cancel = async (
   // Send to tx service
   logger.info("Sending cancel tx", requestContext, methodContext, { side });
 
+  const routerRelayerFeeAsset = "0x";
+  const routerRelayerFee = "0";
+
   const receipt = await contractWriter.cancel(
     cancelChain,
     {
       txData: { ...invariantData, amount, preparedBlockNumber, expiry },
       signature: "0x",
     },
+    routerRelayerFeeAsset,
+    routerRelayerFee,
     requestContext,
   );
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });

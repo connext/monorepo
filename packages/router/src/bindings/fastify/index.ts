@@ -72,9 +72,13 @@ export const bindFastify = () =>
         }
         try {
           const senderTx = await prepareCancel({ senderChainId, user, transactionId });
+          const routerRelayerFeeAsset = "0x";
+          const routerRelayerFee = "0";
           const result = await contractWriter.cancel(
             senderTx.txData.sendingChainId,
             { signature: senderTx.signature ?? "0x", txData: senderTx.txData },
+            routerRelayerFeeAsset,
+            routerRelayerFee,
             requestContext,
           );
           return { transactionHash: result.transactionHash };

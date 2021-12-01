@@ -9,17 +9,22 @@ export type ContractWriter = {
   prepare: (
     chainId: number,
     prepareParams: PrepareParams,
-    prepareRelayerFee: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   fulfill: (
     chainId: number,
     fulfillParams: FulfillParams,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   cancel: (
     chainId: number,
     cancelParams: CancelParams,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   removeLiquidity: (

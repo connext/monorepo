@@ -43,13 +43,18 @@ const flag = false;
 export const prepare = async (
   chainId: number,
   prepareParams: PrepareParams,
-  prepareRelayerFee: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepare.name);
 
   const { logger, txService, wallet, config } = getContext();
-  logger.info("Method start", requestContext, methodContext, { prepareParams, prepareRelayerFee });
+  logger.info("Method start", requestContext, methodContext, {
+    prepareParams,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
@@ -61,7 +66,8 @@ export const prepare = async (
     logger.info("router contract address detected", requestContext, methodContext, {
       prepareParams,
       routerContractAddress,
-      prepareRelayerFee,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
     });
 
     const signature = await signRouterPrepareTransactionPayload(
@@ -72,6 +78,8 @@ export const prepare = async (
       encodedBid,
       bidSignature,
       "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee,
       wallet,
     );
     const encodedData = getRouterContractInterface().encodeFunctionData("prepare", [
@@ -84,19 +92,25 @@ export const prepare = async (
         bidSignature,
         encodedMeta: "0x",
       },
+      routerRelayerFeeAsset,
+      routerRelayerFee,
       signature,
     ]);
 
     if (isChainSupportedByGelato(chainId) && flag) {
-      logger.info("gelato prepare", requestContext, methodContext, { prepareParams, prepareRelayerFee });
+      logger.info("gelato prepare", requestContext, methodContext, {
+        prepareParams,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      });
 
       try {
         const data = await gelatoSend(
           chainId,
           routerContractAddress,
           encodedData,
-          txData.receivingAssetId,
-          prepareRelayerFee,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
         );
         if (!data.taskId) {
           throw new Error("No taskId returned");
@@ -157,6 +171,8 @@ export const prepare = async (
 export const fulfill = async (
   chainId: number,
   fulfillParams: FulfillParams,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(fulfill.name);
@@ -175,7 +191,15 @@ export const fulfill = async (
       routerContractAddress,
     });
 
-    const signature = await signRouterFulfillTransactionPayload(txData, fulfillSignature, callData, "0x", wallet);
+    const signature = await signRouterFulfillTransactionPayload(
+      txData,
+      fulfillSignature,
+      callData,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+      wallet,
+    );
     const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
       {
         txData,
@@ -184,6 +208,8 @@ export const fulfill = async (
         callData,
         encodedMeta: "0x",
       },
+      routerRelayerFeeAsset,
+      routerRelayerFee,
       signature,
     ]);
 
@@ -253,6 +279,8 @@ export const fulfill = async (
 export const cancel = async (
   chainId: number,
   cancelParams: CancelParams,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(cancel.name);
@@ -270,13 +298,22 @@ export const cancel = async (
       routerContractAddress,
     });
 
-    const signature = await signRouterCancelTransactionPayload(txData, cancelSignature, "0x", wallet);
+    const signature = await signRouterCancelTransactionPayload(
+      txData,
+      cancelSignature,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+      wallet,
+    );
     const encodedData = getRouterContractInterface().encodeFunctionData("cancel", [
       {
         txData,
         signature: cancelSignature,
         encodedMeta: "0x",
       },
+      routerRelayerFeeAsset,
+      routerRelayerFee,
       signature,
     ]);
 
@@ -285,7 +322,13 @@ export const cancel = async (
         cancelParams,
       });
       try {
-        const data = await gelatoSend(chainId, routerContractAddress, encodedData, txData.receivingAssetId, "0");
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
         if (!data.taskId) {
           throw new Error("No taskId returned");
         }

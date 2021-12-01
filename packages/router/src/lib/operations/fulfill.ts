@@ -107,6 +107,8 @@ export const fulfill = async (
     }
   }
 
+  const routerRelayerFeeAsset = "0x";
+  const routerRelayerFee = "0";
   const receipt = await contractWriter.fulfill(
     fulfillChain,
     {
@@ -115,6 +117,8 @@ export const fulfill = async (
       relayerFee: relayerFee,
       callData: callData,
     },
+    routerRelayerFeeAsset,
+    routerRelayerFee,
     requestContext,
   );
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });

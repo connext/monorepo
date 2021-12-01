@@ -175,6 +175,9 @@ export const prepare = async (
   logger.info("Validated input", requestContext, methodContext);
   logger.info("Sending receiver prepare tx", requestContext, methodContext);
 
+  const routerRelayerFeeAsset = "0x";
+  const routerRelayerFee = "0";
+
   const receipt = await contractWriter.prepare(
     invariantData.receivingChainId,
     {
@@ -185,7 +188,8 @@ export const prepare = async (
       encodedBid,
       encryptedCallData,
     },
-    prepareRelayerFee,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
     requestContext,
   );
   logger.info("Sent receiver prepare tx", requestContext, methodContext, {
