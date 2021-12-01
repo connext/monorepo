@@ -268,7 +268,6 @@ export const getTokenPrice = async (
   assetId: string,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  console.log(`> getTokenPrice, chainID=${chainId} assetId=${assetId}`);
   const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
   const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
   const curTimeInSecs = await getNtpTimeSeconds();
