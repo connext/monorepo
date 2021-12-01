@@ -515,7 +515,7 @@ describe("ChainRpcProvider", () => {
       const testAddress = getRandomAddress();
       coreSyncProvider.getBalance.resolves(testBalance);
 
-      const result = await chainProvider.getBalance(testAddress);
+      const result = await chainProvider.getBalance(testAddress, constants.AddressZero);
 
       expect(result.eq(testBalance)).to.be.true;
       expect(coreSyncProvider.getBalance.callCount).to.equal(1);
