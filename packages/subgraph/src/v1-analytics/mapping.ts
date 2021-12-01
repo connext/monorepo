@@ -297,7 +297,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       hourlyMetric.liquidity = assetBalance.amount;
     }
 
-    hourlyMetric.sendingTxCount = hourlyMetric.receivingTxCount.plus(BigInt.fromI32(1));
+    hourlyMetric.sendingTxCount = hourlyMetric.sendingTxCount.plus(BigInt.fromI32(1));
     dayMetric.sendingTxCount = dayMetric.sendingTxCount.plus(BigInt.fromI32(1));
   }
 
