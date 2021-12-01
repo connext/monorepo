@@ -27,6 +27,18 @@ describe("getTokenPrice", () => {
   });
 });
 
+describe("getTokenPriceFromOnChain", () => {
+  beforeEach(() => {
+    stub(ContractHelperFns, "getOracleContractAddress").returns("0xaaa");
+  });
+
+  it("should work", async () => {
+    txServiceMock.readTx.resolves("1");
+    const result = await shared.getTokenPriceFromOnChain(4, constants.AddressZero, null);
+    expect(result.toString()).to.be.eq("1");
+  });
+});
+
 describe("getGasPrice", () => {
   it("should work", async () => {
     txServiceMock.getGasPrice.resolves(BigNumber.from("1"));

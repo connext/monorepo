@@ -27,6 +27,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xaaa"),
       priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
       relayerFeeThreshold: 100,
       allowFulfillRelay: true,
@@ -39,6 +40,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xbbb"),
       priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
       relayerFeeThreshold: 100,
       allowFulfillRelay: true,
@@ -58,9 +60,12 @@ export const configMock: NxtpRouterConfig = {
       ],
     },
   ],
+  allowedTolerance: 10,
   host: "0.0.0.0",
   port: 8080,
   requestLimit: 2000,
+  cleanUpMode: false,
+  diagnosticMode: false,
 };
 
 export const prepareInputMock: PrepareInput = {

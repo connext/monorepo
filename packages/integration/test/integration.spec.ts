@@ -20,7 +20,7 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const erc20Address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const erc20Address = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
 
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;
@@ -206,7 +206,7 @@ describe("Integration", () => {
     }
   };
 
-  const test = async (sendingAssetId: string, receivingAssetId: string) => {
+  const test = async (sendingAssetId: string, receivingAssetId: string, actualAmount?: boolean) => {
     let quote: AuctionResponse;
     try {
       await userSdk.getActiveTransactions();
@@ -226,7 +226,11 @@ describe("Integration", () => {
 
     expect(quote.bid).to.be.ok;
     expect(quote.bidSignature).to.be.ok;
-    const res = await userSdk.prepareTransfer(quote!);
+    const res = await userSdk.prepareTransfer(
+      quote!,
+      false,
+      actualAmount ? BigNumber.from(quote.bid.amount).sub(utils.parseEther("0.1")).toString() : undefined,
+    );
     expect(res.prepareResponse.hash).to.be.ok;
     const event = await userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,

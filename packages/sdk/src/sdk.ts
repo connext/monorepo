@@ -368,6 +368,7 @@ export class NxtpSdk {
   public async prepareTransfer(
     transferParams: AuctionResponse,
     infiniteApprove = false,
+    actualAmount?: string,
   ): Promise<{ prepareResponse: providers.TransactionResponse; transactionId: string }> {
     const { requestContext, methodContext } = createLoggingContext(
       this.prepareTransfer.name,
@@ -385,7 +386,7 @@ export class NxtpSdk {
       sendingAssetId,
       receivingAssetId,
       receivingAddress,
-      amount,
+      amount: _amount,
       expiry,
       callDataHash,
       encryptedCallData,
@@ -396,6 +397,7 @@ export class NxtpSdk {
       initiator,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
+    const amount = actualAmount ?? _amount;
 
     const signerAddr = await this.config.signer.getAddress();
     const connectedSigner = this.config.signer;
@@ -404,7 +406,10 @@ export class NxtpSdk {
       // connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].providers[0]);
     }
 
-    const approveTxReq = await this.sdkBase.approveForPrepare(transferParams, infiniteApprove);
+    const approveTxReq = await this.sdkBase.approveForPrepare(
+      { sendingAssetId, sendingChainId, amount, transactionId },
+      infiniteApprove,
+    );
     const gasLimit = getGasLimit(receivingChainId);
     if (approveTxReq) {
       const approveTx = await connectedSigner.sendTransaction({ ...approveTxReq, gasLimit });
