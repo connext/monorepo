@@ -26,7 +26,7 @@ contract Router is Ownable {
 
   // Prevents from calling methods other than routerFactory contract
   modifier onlyViaFactory() {
-    require(address(this) == routerFactory, "ONLY_VIA_FACTORY");
+    require( msg.sender == routerFactory, "ONLY_VIA_FACTORY");
     _;
   }
 
