@@ -400,6 +400,25 @@ describe("NxtpSdk", () => {
       expect(signer.sendTransaction).to.be.calledWithExactly({ ...PrepareReq, gasLimit: undefined });
       expect(res.prepareResponse).to.be.deep.eq(TxResponse);
     });
+
+    it("happy: prepare transfer with actualAmount ", async () => {
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
+
+      const actualAmount = String(Number(auctionBid.amount) - 1000);
+      const res = await sdk.prepareTransfer(
+        {
+          bid: auctionBid,
+          bidSignature,
+          gasFeeInReceivingToken,
+        },
+        false,
+        actualAmount,
+      );
+
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...ApproveReq, gasLimit: undefined });
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...PrepareReq, gasLimit: undefined });
+      expect(res.prepareResponse).to.be.deep.eq(TxResponse);
+    });
   });
 
   describe("#fulfillTransfer", () => {

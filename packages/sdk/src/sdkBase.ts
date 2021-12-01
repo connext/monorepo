@@ -72,6 +72,7 @@ import {
   ActiveTransaction,
   CancelParams,
   GetTransferQuote,
+  ApproveParams,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -681,20 +682,18 @@ export class NxtpSdkBase {
   }
 
   public async approveForPrepare(
-    transferParams: AuctionResponse,
+    approveParams: ApproveParams,
     infiniteApprove = false,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(
       this.approveForPrepare.name,
       undefined,
-      transferParams.bid.transactionId,
+      approveParams.transactionId,
     );
 
-    this.logger.info("Method started", requestContext, methodContext, { transferParams });
+    this.logger.info("Method started", requestContext, methodContext, { approveParams });
 
-    const {
-      bid: { sendingAssetId, sendingChainId, amount },
-    } = transferParams;
+    const { sendingAssetId, sendingChainId, amount } = approveParams;
 
     if (sendingAssetId !== constants.AddressZero) {
       const approveTx = await this.transactionManager.approveTokensIfNeeded(
@@ -718,19 +717,22 @@ export class NxtpSdkBase {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async prepareTransfer(transferParams: AuctionResponse): Promise<providers.TransactionRequest> {
+  public async prepareTransfer(
+    transferParams: AuctionResponse,
+    actualAmount?: string,
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       this.prepareTransfer.name,
       undefined,
       transferParams.bid.transactionId,
     );
 
-    this.logger.info("Method started", requestContext, methodContext, { transferParams });
+    this.logger.info("Method started", requestContext, methodContext, { transferParams, actualAmount });
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
     if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams });
+      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, actualAmount });
     }
 
     const { bid, bidSignature } = transferParams;
@@ -758,7 +760,7 @@ export class NxtpSdkBase {
       sendingAssetId,
       receivingAssetId,
       receivingAddress,
-      amount,
+      amount: _amount,
       expiry,
       callDataHash,
       encryptedCallData,
@@ -768,6 +770,7 @@ export class NxtpSdkBase {
       transactionId,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
+    const amount = actualAmount || _amount;
 
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));

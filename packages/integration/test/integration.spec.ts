@@ -213,7 +213,7 @@ describe("Integration", () => {
     }
   };
 
-  const test = async (sendingAssetId: string, receivingAssetId: string) => {
+  const test = async (sendingAssetId: string, receivingAssetId: string, actualAmount?: boolean) => {
     let quote: AuctionResponse;
     try {
       await userSdk.getActiveTransactions();
@@ -233,7 +233,11 @@ describe("Integration", () => {
 
     expect(quote.bid).to.be.ok;
     expect(quote.bidSignature).to.be.ok;
-    const res = await userSdk.prepareTransfer(quote!);
+    const res = await userSdk.prepareTransfer(
+      quote!,
+      false,
+      actualAmount ? BigNumber.from(quote.bid.amount).sub(utils.parseEther("0.1")).toString() : undefined,
+    );
     expect(res.prepareResponse.hash).to.be.ok;
     const event = await userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,
