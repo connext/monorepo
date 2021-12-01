@@ -109,8 +109,7 @@ describe("Auction Operation", () => {
       getChainIdForGasFeeStub.returns([1337]);
 
       // it should take a gas fee for fulfill transactions if sendingChain is fee chain.
-      // amountReceived = amount.sub(fulfillGasFee)
-      const expectedReceiverAmount = "99987400000000000000";
+      const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
