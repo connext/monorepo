@@ -58,15 +58,15 @@ describe("getChainIdsForGasFee", () => {
 
 describe("getMainnetEquivalent", () => {
   it("should work", async () => {
-    const result = await shared.getMainnetEquivalent(constants.AddressZero, 100);
-    expect(result).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
+    const result = await shared.getMainnetEquivalent(mkAddress("0xc"), 1337);
+    expect(result).to.be.eq(mkAddress("0xd"));
   });
 });
 
-describe("getMainnetDecimals", () => {
+describe("getMainnetEquivalentFromChainData", () => {
   it("should work", async () => {
-    const result = await shared.getMainnetDecimals(constants.AddressZero, 100);
-    expect(result).to.be.eq(18);
+    const result = await shared.getMainnetEquivalentFromChainData(constants.AddressZero, 100);
+    expect(result).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
   });
 });
 

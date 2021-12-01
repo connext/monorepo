@@ -2,19 +2,17 @@ import {
   getNtpTimeSeconds as _getNtpTimeSeconds,
   RequestContext,
   GAS_ESTIMATES,
-  getChainData,
   createLoggingContext,
   multicall as _multicall,
   Call,
 } from "@connext/nxtp-utils";
+import { getAddress } from "ethers/lib/utils";
 import { BigNumber, constants, utils } from "ethers";
 
 import { getOracleContractAddress, getPriceOracleInterface } from "../../adapters/contract/contract";
 import { cachedPriceMap } from "../../bindings/prices";
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
-
-const NO_ORACLE_CHAINS: number[] = [];
 
 /**
  * Helper to allow easy mocking
@@ -24,15 +22,15 @@ export const getNtpTimeSeconds = async () => {
 };
 
 /**
- * Returns the mainnet equivalent of the given asset on the given chain.
+ * Returns the mainnet equivalent of the given asset on the given chain from chain data.
  * @param assetId Address you want mainnet equivalent of
  * @param chainId Chain your asset lives on
  * @returns Address of equivalent asset on mainnet
  */
-export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
-  const chainData = await getChainData();
+export const getMainnetEquivalentFromChainData = async (assetId: string, chainId: number): Promise<string | null> => {
+  const { chainData } = getContext();
   if (!chainData || !chainData.has(chainId.toString())) {
-    throw new Error(`No chain data found for ${chainId}`);
+    return null;
   }
   const chain = chainData.get(chainId.toString())!;
   const equiv =
@@ -42,23 +40,29 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
     chain.assetId[assetId];
 
   if (!equiv || !equiv.mainnetEquivalent) {
-    throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
+    return null;
   }
   return utils.getAddress(equiv.mainnetEquivalent);
 };
 
 /**
- * Returns the decimals of mainnet equivalent of the given asset on the given chain.
+ * Returns the mainnet equivalent of the given asset on the given chain
+ * Reads from config first, if it fails, tries to read from chain data.
+ *
  * @param assetId Address you want mainnet equivalent of
  * @param chainId Chain your asset lives on
- * @returns Decimals of equivalent asset on mainnet
+ * @returns Address of equivalent asset on mainnet
  */
-export const getMainnetDecimals = async (assetId: string, chainId: number): Promise<number> => {
-  const mainnet = await getMainnetEquivalent(assetId, chainId);
-
-  const { txService } = getContext();
-  const decimals = await txService.getDecimalsForAsset(1, mainnet);
-  return decimals;
+export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string | null> => {
+  const { config } = getContext();
+  const allowedSwapPool = config.swapPools.find((pool) =>
+    pool.assets.find((a) => getAddress(a.assetId) === getAddress(assetId) && a.chainId === chainId),
+  );
+  if (allowedSwapPool && allowedSwapPool.mainnetEquivalent) {
+    return allowedSwapPool.mainnetEquivalent;
+  } else {
+    return await getMainnetEquivalentFromChainData(assetId, chainId);
+  }
 };
 
 /**
@@ -103,15 +107,14 @@ export const calculateGasFeeInReceivingToken = async (
 
   // NOTE: to handle optimism gas fees before oracle is deployed, use mainnet
   // oracle token pricing and optimism gas price
-  const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
-  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
 
-  const tokenPricingAssetIdSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId)
-    ? await getMainnetEquivalent(sendingAssetId, sendingChainId)
-    : sendingAssetId;
-  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
-    : receivingAssetId;
+  const sendingAssetIdOnMainnet = await getMainnetEquivalent(sendingAssetId, sendingChainId);
+  const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+  const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+  const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
+  const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+  const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
 
   logger.info("Getting token prices", requestContext, methodContext, {
     tokenPricingSendingChain,
@@ -212,11 +215,9 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
   let totalCost = constants.Zero;
 
-  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
-
-  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
-    : receivingAssetId;
+  const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
+  const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+  const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
 
   if (chaindIdsForGasFee.includes(receivingChainId)) {
     const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
@@ -267,6 +268,7 @@ export const getTokenPrice = async (
   assetId: string,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
+  console.log(`> getTokenPrice, chainID=${chainId} assetId=${assetId}`);
   const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
   const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
   const curTimeInSecs = await getNtpTimeSeconds();
