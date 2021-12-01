@@ -4,7 +4,7 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { Wallet, providers, Contract } from "ethers";
+import { Wallet, providers, Contract, constants } from "ethers";
 import { TransactionManager } from "@connext/nxtp-contracts";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
@@ -14,8 +14,11 @@ import { deployContract, assertReceiptEvent } from "./utils";
 // import types
 import { RouterFactory } from "../typechain";
 
+import { getContractError } from "../src";
+
+const { AddressZero } = constants;
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("Router Contract", function () {
+describe("Router Factory Contract", function () {
   const [wallet, routerSigner, recipient, other] = waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
 
@@ -31,7 +34,7 @@ describe("Router Contract", function () {
 
     routerFactory = await deployContract<RouterFactory>("RouterFactory", wallet.address);
 
-    const initTx = await routerFactory.init(transactionManagerReceiverSide.address, receivingChainId);
+    const initTx = await routerFactory.init(transactionManagerReceiverSide.address);
     await initTx.wait();
     return {
       routerFactory,
@@ -59,15 +62,35 @@ describe("Router Contract", function () {
   });
 
   describe("create router", () => {
+    it("should error if init wasn't done", async () => {
+      const instance = await deployContract<RouterFactory>("RouterFactory", wallet.address);
+
+      await expect(
+        instance.connect(routerSigner).createRouter(routerSigner.address, recipient.address),
+      ).to.be.revertedWith(getContractError("routerFactory_createRouter: TRANSACTION_MANAGER_EMPTY"));
+    });
+
+    it("should error if routerSigner is empty", async () => {
+      await expect(routerFactory.connect(routerSigner).createRouter(AddressZero, recipient.address)).to.be.revertedWith(
+        getContractError("routerFactory_createRouter: ROUTER_SIGNER_EMPTY"),
+      );
+    });
+
+    it("should error if receipient is empty", async () => {
+      await expect(
+        routerFactory.connect(routerSigner).createRouter(routerSigner.address, AddressZero),
+      ).to.be.revertedWith(getContractError("routerFactory_createRouter: RECIPIENT_EMPTY"));
+    });
+
     it("should create router", async () => {
+      const computedRouterAddress = await routerFactory.getRouterAddress(routerSigner.address);
+
       const tx: providers.TransactionResponse = await routerFactory
         .connect(routerSigner)
         .createRouter(routerSigner.address, recipient.address);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.be.eq(1);
-
-      const computedRouterAddress = await routerFactory.getRouterAddress(routerSigner.address);
 
       await assertReceiptEvent(receipt, "RouterCreated", {
         router: computedRouterAddress,

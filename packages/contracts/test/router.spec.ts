@@ -4,11 +4,12 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
-import { Wallet, BigNumberish, constants } from "ethers";
-import { RevertableERC20, TransactionManager, ERC20 } from "@connext/nxtp-contracts";
+import { hexlify, keccak256, randomBytes, defaultAbiCoder } from "ethers/lib/utils";
+import { Wallet, BigNumberish, constants, providers, Contract } from "ethers";
+import { RevertableERC20, TransactionManager, ERC20, RouterFactory } from "@connext/nxtp-contracts";
 
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import RevertableERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/test/RevertableERC20.sol/RevertableERC20.json";
 
 import {
@@ -20,8 +21,11 @@ import {
   signRouterCancelTransactionPayload,
   signRouterFulfillTransactionPayload,
   signRouterPrepareTransactionPayload,
+  InvariantTransactionDataEncoding,
+  tidy,
 } from "@connext/nxtp-utils";
-import { deployContract, MAX_FEE_PER_GAS } from "./utils";
+import { deployContract, MAX_FEE_PER_GAS, getOnchainBalance } from "./utils";
+import { getContractError } from "../src";
 
 // import types
 import { Router } from "../typechain";
@@ -80,11 +84,15 @@ const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("Router Contract", function () {
-  const [wallet, router, routerReceipient, user, receiver, gelato, other] = waffle.provider.getWallets() as Wallet[];
-  let routerContract: Router;
+describe.only("Router Contract", function () {
+  const [wallet, routerSigner, routerReceipient, user, receiver, gelato, other] =
+    waffle.provider.getWallets() as Wallet[];
+  let routerFactory: RouterFactory;
   let transactionManagerReceiverSide: TransactionManager;
   let token: RevertableERC20;
+  let computedRouterAddress: string;
+  let routerContract: Router;
+
   const sendingChainId = 1337;
   const receivingChainId = 1338;
 
@@ -94,29 +102,24 @@ describe("Router Contract", function () {
       receivingChainId,
     );
 
-    routerContract = await deployContract<Router>(
-      "Router",
-      transactionManagerReceiverSide.address,
-      router.address,
-      routerReceipient.address,
-      router.address,
-      receivingChainId,
-    );
+    routerFactory = await deployContract<RouterFactory>("RouterFactory", wallet.address);
+    const initTx = await routerFactory.init(transactionManagerReceiverSide.address);
+    await initTx.wait();
 
     token = await deployContract<RevertableERC20>(RevertableERC20Artifact);
 
     return {
-      routerContract,
+      routerFactory,
       transactionManagerReceiverSide,
       token,
     };
   };
 
   const addPrivileges = async (tm: TransactionManager, routers: string[], assets: string[]) => {
-    for (const router of routers) {
-      const tx = await tm.addRouter(router, { maxFeePerGas: MAX_FEE_PER_GAS });
+    for (const routerSigner of routers) {
+      const tx = await tm.addRouter(routerSigner, { maxFeePerGas: MAX_FEE_PER_GAS });
       await tx.wait();
-      expect(await tm.approvedRouters(router)).to.be.true;
+      expect(await tm.approvedRouters(routerSigner)).to.be.true;
     }
 
     for (const assetId of assets) {
@@ -137,23 +140,35 @@ describe("Router Contract", function () {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
-    loadFixture = createFixtureLoader([wallet, router, user, receiver, other]);
+    loadFixture = createFixtureLoader([wallet, routerSigner, user, receiver, other]);
   });
 
   beforeEach(async function () {
-    ({ transactionManagerReceiverSide, token } = await loadFixture(fixture));
+    ({ routerFactory, transactionManagerReceiverSide, token } = await loadFixture(fixture));
 
-    // Prep contracts with router and assets
-    await addPrivileges(transactionManagerReceiverSide, [routerContract.address], [AddressZero, token.address]);
+    const createTx: providers.TransactionResponse = await routerFactory
+      .connect(routerSigner)
+      .createRouter(routerSigner.address, routerReceipient.address);
+
+    const receipt = await createTx.wait();
+    expect(receipt.status).to.be.eq(1);
+
+    computedRouterAddress = await routerFactory.getRouterAddress(routerSigner.address);
+    routerContract = new Contract(computedRouterAddress, RouterArtifact.abi, ethers.provider) as Router;
+
+    // Prep contracts with routerSigner and assets
+    await addPrivileges(transactionManagerReceiverSide, [computedRouterAddress], [AddressZero, token.address]);
 
     const liq = "10000";
-    let tx = await token.connect(wallet).transfer(router.address, liq);
+    let tx = await token.connect(wallet).transfer(routerSigner.address, liq);
     await tx.wait();
 
-    await approveTokens(liq, router, transactionManagerReceiverSide.address);
+    await token.connect(wallet).transfer(computedRouterAddress, liq);
+
+    await approveTokens(liq, routerSigner, transactionManagerReceiverSide.address);
     let addLiquidityTx = await transactionManagerReceiverSide
-      .connect(router)
-      .addLiquidityFor(liq, token.address, routerContract.address);
+      .connect(routerSigner)
+      .addLiquidityFor(liq, token.address, computedRouterAddress);
     await addLiquidityTx.wait();
   });
 
@@ -167,7 +182,7 @@ describe("Router Contract", function () {
     const transaction = {
       receivingChainTxManagerAddress: transactionManagerReceiverSide.address,
       user: user.address,
-      router: routerContract.address,
+      router: computedRouterAddress,
       initiator: user.address,
       sendingAssetId: AddressZero,
       receivingAssetId: token.address,
@@ -195,7 +210,7 @@ describe("Router Contract", function () {
 
   describe("constructor", async () => {
     it("should deploy", async () => {
-      expect(routerContract.address).to.be.a("string");
+      expect(computedRouterAddress).to.be.a("string");
     });
 
     it("should get transactionManagerAddress", async () => {
@@ -203,7 +218,7 @@ describe("Router Contract", function () {
     });
 
     it("should get routerSigner", async () => {
-      expect(await routerContract.routerSigner()).to.eq(router.address);
+      expect(await routerContract.routerSigner()).to.eq(routerSigner.address);
     });
 
     it("should get recipient", async () => {
@@ -219,17 +234,25 @@ describe("Router Contract", function () {
         amount,
         assetId,
         receivingChainId,
-        router.address,
-        router,
+        routerSigner.address,
+        routerSigner,
       );
-      const tx = await routerContract.removeLiquidity(amount, assetId, signature);
+      const tx = await routerContract.connect(gelato).removeLiquidity(amount, assetId, signature);
       const receipt = await tx.wait();
       expect(receipt.status).to.eq(1);
     });
   });
 
-  const prepare = async (transaction: InvariantTransactionData, record: VariantTransactionData) => {
+  const prepare = async (
+    transaction: InvariantTransactionData,
+    record: VariantTransactionData,
+    routerRelayerFeeAsset = token.address,
+    routerRelayerFee = "0",
+  ) => {
     const args = convertToPrepareArgs(transaction, record);
+
+    const balance = await getOnchainBalance(token.address, computedRouterAddress, ethers.provider);
+    console.log(balance.toString());
 
     const signature = await signRouterPrepareTransactionPayload(
       transaction,
@@ -239,9 +262,13 @@ describe("Router Contract", function () {
       args.encodedBid,
       args.bidSignature,
       args.encodedMeta,
-      router,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+      routerSigner,
     );
-    const prepareTx = await routerContract.connect(gelato).prepare(args, signature);
+    const prepareTx = await routerContract
+      .connect(gelato)
+      .prepare(args, routerRelayerFeeAsset, routerRelayerFee, signature);
 
     const receipt = await prepareTx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -251,6 +278,8 @@ describe("Router Contract", function () {
   describe("prepare", () => {
     it("should fail to prepare a bad sig", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       const args = convertToPrepareArgs(transaction, record);
       const signature = await signRouterPrepareTransactionPayload(
@@ -261,12 +290,14 @@ describe("Router Contract", function () {
         args.encodedBid,
         args.bidSignature,
         args.encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
         other, // bad signer
       );
 
-      await expect(routerContract.connect(gelato).prepare(args, signature)).to.be.revertedWith(
-        "Router signature is not valid",
-      );
+      await expect(
+        routerContract.connect(gelato).prepare(args, routerRelayerFeeAsset, routerRelayerFee, signature),
+      ).to.be.revertedWith(getContractError("routerContract_prepare: INVALID_ROUTER_SIGNATURE"));
     });
 
     it("should prepare with a different sender", async () => {
@@ -278,9 +309,14 @@ describe("Router Contract", function () {
     it("should prepare with the signer and no sig", async () => {
       const { transaction, record } = await getTransactionData();
 
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
+
       const args = convertToPrepareArgs(transaction, record);
 
-      const prepareTx = await routerContract.connect(router).prepare(args, "0x");
+      const prepareTx = await routerContract
+        .connect(routerSigner)
+        .prepare(args, routerRelayerFeeAsset, routerRelayerFee, "0x");
 
       const receipt = await prepareTx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -291,7 +327,8 @@ describe("Router Contract", function () {
   describe("fulfill", () => {
     it("should fail to fulfill a bad sig", async () => {
       const { transaction, record } = await getTransactionData();
-
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
       await prepare(transaction, record);
 
       // Generate signature from user
@@ -309,16 +346,20 @@ describe("Router Contract", function () {
         fulfillSignature,
         args.callData,
         args.encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
         other, // bad signer
       );
 
-      await expect(routerContract.connect(gelato).fulfill(args, signature)).to.be.revertedWith(
-        "Router signature is not valid",
-      );
+      await expect(
+        routerContract.connect(gelato).fulfill(args, routerRelayerFeeAsset, routerRelayerFee, signature),
+      ).to.be.revertedWith("Router signature is not valid");
     });
 
     it("should fulfill with a different sender", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       await prepare(transaction, record);
 
@@ -337,9 +378,13 @@ describe("Router Contract", function () {
         args.signature,
         args.callData,
         args.encodedMeta,
-        router,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+        routerSigner,
       );
-      const fulfillTx = await routerContract.connect(gelato).fulfill(args, signature);
+      const fulfillTx = await routerContract
+        .connect(gelato)
+        .fulfill(args, routerRelayerFeeAsset, routerRelayerFee, signature);
 
       const receipt = await fulfillTx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -348,6 +393,8 @@ describe("Router Contract", function () {
 
     it("should fulfill with the signer and no sig", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       await prepare(transaction, record);
 
@@ -361,7 +408,9 @@ describe("Router Contract", function () {
       );
 
       const args = convertToFulfillArgs(transaction, record, "0", fulfillSignature);
-      const fulfillTx = await routerContract.connect(router).fulfill(args, "0x");
+      const fulfillTx = await routerContract
+        .connect(routerSigner)
+        .fulfill(args, routerRelayerFeeAsset, routerRelayerFee, "0x");
 
       const receipt = await fulfillTx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -372,6 +421,8 @@ describe("Router Contract", function () {
   describe("cancel", () => {
     it("should fail to cancel a bad sig", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       await prepare(transaction, record);
 
@@ -388,16 +439,20 @@ describe("Router Contract", function () {
         args.txData,
         cancelSignature,
         args.encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
         other, // bad signer
       );
 
-      await expect(routerContract.connect(gelato).cancel(args, signature)).to.be.revertedWith(
-        "Router signature is not valid",
-      );
+      await expect(
+        routerContract.connect(gelato).cancel(args, routerRelayerFeeAsset, routerRelayerFee, signature),
+      ).to.be.revertedWith("Router signature is not valid");
     });
 
     it("should cancel with a different sender", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       await prepare(transaction, record);
 
@@ -414,9 +469,13 @@ describe("Router Contract", function () {
         args.txData,
         cancelSignature,
         args.encodedMeta,
-        router,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+        routerSigner,
       );
-      const cancelTx = await routerContract.connect(gelato).cancel(args, signature);
+      const cancelTx = await routerContract
+        .connect(gelato)
+        .cancel(args, routerRelayerFeeAsset, routerRelayerFee, signature);
 
       const receipt = await cancelTx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -425,6 +484,8 @@ describe("Router Contract", function () {
 
     it("should cancel with the signer and no sig", async () => {
       const { transaction, record } = await getTransactionData();
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
 
       await prepare(transaction, record);
 
@@ -437,7 +498,9 @@ describe("Router Contract", function () {
       );
 
       const args = convertToCancelArgs(transaction, record, cancelSignature);
-      const cancelTx = await routerContract.connect(router).cancel(args, "0x");
+      const cancelTx = await routerContract
+        .connect(routerSigner)
+        .cancel(args, routerRelayerFeeAsset, routerRelayerFee, "0x");
 
       const receipt = await cancelTx.wait();
       expect(receipt.status).to.be.eq(1);
