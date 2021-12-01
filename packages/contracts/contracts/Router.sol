@@ -95,17 +95,17 @@ contract Router is Ownable {
 
   function prepare(
     ITransactionManager.PrepareArgs calldata args,
-    address relayerFeeAsset,
-    uint256 relayerFee,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
     bytes calldata signature
   ) external payable returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
       require(recovered == routerSigner, "#RC_P:040");
 
       // Send the relayer the fee
-      if (relayerFee > 0) {
-        LibAsset.transferAsset(relayerFeeAsset, payable(msg.sender), relayerFee);
+      if (routerRelayerFee > 0) {
+        LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
       }
     }
 
@@ -117,17 +117,17 @@ contract Router is Ownable {
 
   function fulfill(
     ITransactionManager.FulfillArgs calldata args,
-    address relayerFeeAsset,
-    uint256 relayerFee,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
       require(recovered == routerSigner, "#RC_F:040");
 
       // Send the relayer the fee
-      if (relayerFee > 0) {
-        LibAsset.transferAsset(relayerFeeAsset, payable(msg.sender), relayerFee);
+      if (routerRelayerFee > 0) {
+        LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
       }
     }
 
@@ -136,17 +136,17 @@ contract Router is Ownable {
 
   function cancel(
     ITransactionManager.CancelArgs calldata args,
-    address relayerFeeAsset,
-    uint256 relayerFee,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, relayerFeeAsset, relayerFee), signature);
+      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
       require(recovered == routerSigner, "#RC_C:040");
 
       // Send the relayer the fee
-      if (relayerFee > 0) {
-        LibAsset.transferAsset(relayerFeeAsset, payable(msg.sender), relayerFee);
+      if (routerRelayerFee > 0) {
+        LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
       }
     }
 

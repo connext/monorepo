@@ -27,13 +27,11 @@ contract RouterFactory is IRouterFactory, Ownable {
     transferOwnership(_owner);
   }
 
-  function init(address _transactionManager, uint256 _chainId) external onlyOwner {
-    transactionManager = ITransactionManager(_transactionManager);
-    chainId = _chainId;
-  }
+  function init(address _transactionManager) external onlyOwner {
+    require(address(_transactionManager) != address(0), "#RF_I:042");
 
-  function setTransactionManager(address _transactionManager) external onlyOwner {
     transactionManager = ITransactionManager(_transactionManager);
+    chainId = ITransactionManager(_transactionManager).getChainId();
   }
 
   /**
@@ -43,6 +41,12 @@ contract RouterFactory is IRouterFactory, Ownable {
    */
 
   function createRouter(address routerSigner, address recipient) external override returns (address) {
+    require(address(transactionManager) != address(0), "#RF_CR:042");
+
+    require(routerSigner != address(0), "#RF_CR:041");
+
+    require(recipient != address(0), "#RF_CR:007");
+
     address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode());
     Router(router).init(address(transactionManager), chainId, routerSigner, recipient, msg.sender);
 
@@ -55,7 +59,7 @@ contract RouterFactory is IRouterFactory, Ownable {
    * @notice Allows us to get the address for a new router contract created via `createRouter`
    * @param routerSigner address router signer
    */
-  function getRouterAddress(address routerSigner) external view returns (address) {
+  function getRouterAddress(address routerSigner) external view override returns (address) {
     return Create2.computeAddress(generateSalt(routerSigner), keccak256(getBytecode()));
   }
 
