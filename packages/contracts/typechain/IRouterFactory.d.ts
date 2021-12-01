@@ -22,15 +22,24 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IRouterFactoryInterface extends ethers.utils.Interface {
   functions: {
     "createRouter(address,address)": FunctionFragment;
+    "getRouterAddress(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createRouter",
     values: [string, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getRouterAddress",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "createRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRouterAddress",
     data: BytesLike
   ): Result;
 
@@ -90,6 +99,11 @@ export class IRouterFactory extends BaseContract {
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getRouterAddress(
+      routerSigner: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
   };
 
   createRouter(
@@ -98,10 +112,20 @@ export class IRouterFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getRouterAddress(
+    routerSigner: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   callStatic: {
     createRouter(
       router: string,
       recipient: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRouterAddress(
+      routerSigner: string,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -129,6 +153,11 @@ export class IRouterFactory extends BaseContract {
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getRouterAddress(
+      routerSigner: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -136,6 +165,11 @@ export class IRouterFactory extends BaseContract {
       router: string,
       recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRouterAddress(
+      routerSigner: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

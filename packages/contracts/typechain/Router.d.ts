@@ -305,8 +305,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -336,8 +336,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -377,8 +377,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -453,8 +453,8 @@ export class Router extends BaseContract {
       signature: BytesLike;
       encodedMeta: BytesLike;
     },
-    relayerFeeAsset: string,
-    relayerFee: BigNumberish,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -484,8 +484,8 @@ export class Router extends BaseContract {
       callData: BytesLike;
       encodedMeta: BytesLike;
     },
-    relayerFeeAsset: string,
-    relayerFee: BigNumberish,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -525,8 +525,8 @@ export class Router extends BaseContract {
       bidSignature: BytesLike;
       encodedMeta: BytesLike;
     },
-    relayerFeeAsset: string,
-    relayerFee: BigNumberish,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -601,8 +601,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -668,8 +668,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -745,8 +745,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -878,8 +878,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -909,8 +909,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -950,8 +950,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1027,8 +1027,8 @@ export class Router extends BaseContract {
         signature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1058,8 +1058,8 @@ export class Router extends BaseContract {
         callData: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1099,8 +1099,8 @@ export class Router extends BaseContract {
         bidSignature: BytesLike;
         encodedMeta: BytesLike;
       },
-      relayerFeeAsset: string,
-      relayerFee: BigNumberish,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
