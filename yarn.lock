@@ -1961,6 +1961,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-txservice@workspace:packages/txservice"
   dependencies:
+    "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": ^0.20.4
     "@types/chai": ^4.2.21

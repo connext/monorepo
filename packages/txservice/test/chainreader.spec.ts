@@ -1,11 +1,28 @@
-import { utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
+import { BigNumber, utils, Wallet } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 
 import { ChainReader } from "../src/chainreader";
 import { ChainRpcProvider } from "../src/provider";
-import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_READ_TX, TEST_TX_RECEIPT, makeChaiReadable } from "./constants";
+import {
+  TEST_SENDER_CHAIN_ID,
+  TEST_TX,
+  TEST_READ_TX,
+  TEST_TX_RECEIPT,
+  makeChaiReadable,
+  TEST_RECEIVER_CHAIN_ID,
+} from "./constants";
 import { ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
-import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
+import * as contractFns from "../src/contracts";
+import {
+  getRandomAddress,
+  getRandomBytes32,
+  mkAddress,
+  RequestContext,
+  expect,
+  Logger,
+  requestContextMock,
+  GAS_ESTIMATES,
+} from "@connext/nxtp-utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -165,6 +182,94 @@ describe("ChainReader", () => {
       await expect(
         chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash),
       ).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#calculateGasFeeInReceivingToken", () => {
+    const testEthPrice = 1;
+    const testTokenPrice = 2;
+    const testGasPrice = 5;
+    let getDeployedChainIdsStub: SinonStub;
+    let tokenPriceStub: SinonStub;
+    let gasPriceStub: SinonStub;
+    beforeEach(() => {
+      getDeployedChainIdsStub = Sinon.stub(contractFns, "getDeployedChainIdsForGasFee");
+      getDeployedChainIdsStub.returns([1]);
+      tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
+      gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
+      tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
+      tokenPriceStub.onSecondCall().resolves(BigNumber.from(testTokenPrice));
+      gasPriceStub.onFirstCall().resolves(BigNumber.from(testGasPrice));
+    });
+
+    it("should only calculate sending chain if receiving chain is not included", async () => {
+      getDeployedChainIdsStub.returns([1]);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        1,
+        mkAddress("0x0"),
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x2"),
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(
+        (testGasPrice * parseInt(GAS_ESTIMATES.fulfill) * testEthPrice) / testTokenPrice,
+      );
+    });
+
+    it("should only calculate receiving chain if sending chain is not included", async () => {
+      getDeployedChainIdsStub.returns([1]);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x0"),
+        1,
+        mkAddress("0x2"),
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(
+        (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
+      );
+    });
+
+    it("should return sum of both if both chains included", async () => {
+      const testGasPriceReceivingChain = BigNumber.from(13);
+      const testEthPriceReceivingChain = BigNumber.from(7);
+      const testTokenPriceReceivingChain = BigNumber.from(3);
+      gasPriceStub.onSecondCall().resolves(testGasPriceReceivingChain);
+      tokenPriceStub.onCall(2).resolves(testEthPriceReceivingChain);
+      tokenPriceStub.onCall(3).resolves(testTokenPriceReceivingChain);
+      getDeployedChainIdsStub.returns([TEST_SENDER_CHAIN_ID, TEST_RECEIVER_CHAIN_ID]);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x2"),
+        18,
+        requestContextMock,
+      );
+      const expectedSumSendingChain = BigNumber.from(testGasPrice)
+        .mul(GAS_ESTIMATES.fulfill)
+        .mul(testEthPrice)
+        .div(testTokenPrice);
+      const expectedSumReceivingChain = testGasPriceReceivingChain
+        .mul(GAS_ESTIMATES.prepare)
+        .mul(testEthPriceReceivingChain)
+        .div(testTokenPriceReceivingChain);
+      expect(result.toNumber()).to.be.eq(expectedSumSendingChain.add(expectedSumReceivingChain).toNumber());
+    });
+
+    it("should return zero if price oracle isn't configured for either chain", async () => {
+      getDeployedChainIdsStub.returns([]);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x2"),
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(0);
     });
   });
 

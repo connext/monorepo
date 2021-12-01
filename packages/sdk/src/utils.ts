@@ -1,4 +1,3 @@
-import { providers, Contract, BigNumber } from "ethers";
 import {
   generateMessagingInbox as _generateMessagingInbox,
   recoverAuctionBid as _recoverAuctionBid,
@@ -10,7 +9,6 @@ import {
   ethereumRequest as _ethereumRequest,
   encrypt as _encrypt,
   getChainData as _getChainData,
-  PriceOracleAbi,
   gelatoFulfill as _gelatoFulfill,
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getDecimalsForAsset as _getDecimalsForAsset,
@@ -72,24 +70,6 @@ export const getMaxExpiryBuffer = () => daysToSeconds(4); // 4 days
  */
 export const getMetaTxBuffer = () => {
   return 10; // 10%
-};
-
-/**
- * Gets token price in usd.
- *
- * @param oracleAddress The price oracle address
- * @param tokenAddress The token address to get the price
- *
- * @returns price in usd by decimals 18.
- */
-export const getTokenPrice = async (
-  oracleAddress: string,
-  tokenAddress: string,
-  provider: providers.FallbackProvider,
-): Promise<BigNumber> => {
-  const priceOracleContract = new Contract(oracleAddress, PriceOracleAbi, provider);
-  const tokenPriceInBigNum = await priceOracleContract.getTokenPrice(tokenAddress);
-  return tokenPriceInBigNum;
 };
 
 // FOR TEST MOCKING

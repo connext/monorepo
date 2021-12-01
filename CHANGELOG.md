@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] delegate fee calc to chainreader
+- [sdk] integrate chainreader
 - [txservice] introduced provider syncing
 - [txservice] removed TransactionServiceFailure error, replaced with specific error types
 

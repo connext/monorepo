@@ -109,13 +109,14 @@ describe("TransactionDispatch", () => {
     };
 
     Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
+    Sinon.stub(ChainRpcProvider.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
     txDispatch = new TransactionDispatch(
       logger,
       TEST_SENDER_CHAIN_ID,
       chainConfig,
-      { ...DEFAULT_CONFIG, debug_logRpcCalls: true },
+      { ...DEFAULT_CONFIG },
       signer,
       dispatchCallbacks,
       false,

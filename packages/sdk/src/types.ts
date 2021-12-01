@@ -19,7 +19,13 @@ import { providers, Signer } from "ethers";
 export const SdkBaseChainConfigSchema = Type.Record(
   Type.Number(),
   Type.Object({
-    provider: Type.Any(providers.FallbackProvider),
+    providers: Type.Union([
+      Type.Array(Type.String()),
+      Type.String(),
+      Type.Array(
+        Type.Object({ url: Type.String(), user: Type.Optional(Type.String()), password: Type.Optional(Type.String()) }),
+      ),
+    ]),
     transactionManagerAddress: Type.Optional(Type.String()),
     priceOracleAddress: Type.Optional(Type.String()),
     subgraph: Type.Optional(Type.String()),
@@ -55,7 +61,7 @@ export const NetworkSchema = Type.Union([Type.Literal("local"), Type.Literal("te
 // export type SdkBaseConfigParams = Static<typeof SdkBaseConfigSchema>;
 export type SdkBaseChainConfigParams = {
   [chainId: number]: {
-    provider: providers.FallbackProvider;
+    providers: string | string[] | { url: string; user?: string; password?: string }[];
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string | string[];
