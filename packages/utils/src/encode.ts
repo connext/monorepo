@@ -204,12 +204,15 @@ export const decodeAuctionBid = (data: string): AuctionBid => {
 /**
  * Encoding for a Router.sol prepare call
  */
+
 export const SignedRouterFulfillDataEncoding = tidy(`tuple(
   ${TransactionDataEncoding} txData,
   uint256 relayerFee,
   bytes signature,
   bytes callData,
-  bytes encodedMeta
+  bytes encodedMeta,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee
 )`);
 
 export const SignedRouterPrepareDataEncoding = tidy(`tuple(
@@ -219,7 +222,17 @@ export const SignedRouterPrepareDataEncoding = tidy(`tuple(
   bytes encryptedCallData,
   bytes encodedBid,
   bytes bidSignature,
-  bytes encodedMeta
+  bytes encodedMeta,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee
+)`);
+
+const SignedRouterCancelDataEncoding = tidy(`tuple(
+  ${TransactionDataEncoding} txData,
+  bytes signature,
+  bytes encodedMeta,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee
 )`);
 
 /**
@@ -241,6 +254,8 @@ export const encodeRouterPrepareData = (
   encodedBid: string,
   bidSignature: string,
   encodedMeta: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterPrepareDataEncoding],
@@ -253,6 +268,8 @@ export const encodeRouterPrepareData = (
         encodedBid,
         bidSignature,
         encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
       },
     ],
   );
@@ -263,6 +280,8 @@ export const encodeRouterFulfillData = (
   fulfillSignature: string,
   callData: string,
   encodedMeta: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterFulfillDataEncoding],
@@ -273,21 +292,19 @@ export const encodeRouterFulfillData = (
         signature: fulfillSignature,
         callData,
         encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
       },
     ],
   );
 };
 
-const SignedRouterCancelDataEncoding = tidy(`tuple(
-  ${TransactionDataEncoding} txData,
-  bytes signature,
-  bytes encodedMeta
-)`);
-
 export const encodeRouterCancelData = (
   txData: TransactionData,
   cancelSignature: string,
   encodedMeta: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterCancelDataEncoding],
@@ -296,6 +313,8 @@ export const encodeRouterCancelData = (
         txData,
         signature: cancelSignature,
         encodedMeta,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
       },
     ],
   );
