@@ -1,5 +1,5 @@
 import { Counter, Gauge } from "prom-client";
-import { collectOnchainLiquidity } from "../helpers/metrics";
+import { collectOnchainLiquidity, collectExpressiveLiquidity } from "../helpers/metrics";
 
 //////////////////////////
 ///// High Level Metrics
@@ -94,17 +94,33 @@ export const gasConsumed = new Counter({
   labelNames: ["reason", "chainId"] as const,
 });
 
-// Track liquidity added (i.e. investment) in USD
+// Track liquidity supplied (i.e. investment) in USD
 // Collected via analytics subgraph
-export const liquidityAdded = new Gauge({
-  name: "liquidity_added_usd",
-  help: "liquidity_added_usd_help",
-  labelNames: ["assetId", "chainId"],
+export const liquiditySupplied = new Gauge({
+  name: "liquidity_supplied_usd",
+  help: "liquidity_supplied_usd_help",
+  labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
-    const liquidity = await collectLiquidityAdded();
+    const liquidity = await collectExpressiveLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
-      values.map(({ assetId, balance }) => {
-        this.set({ chainId, assetId }, balance);
+      values.map(({ assetId, supplied }) => {
+        this.set({ chainId, assetId }, supplied);
+      });
+    });
+  },
+});
+
+// Track liquidity supplied (i.e. investment) in USD
+// Collected via analytics subgraph
+export const liquidityLocked = new Gauge({
+  name: "liquidity_locked_usd",
+  help: "liquidity_locked_usd_help",
+  labelNames: ["assetId", "chainId", "assetName"],
+  async collect() {
+    const liquidity = await collectExpressiveLiquidity();
+    Object.entries(liquidity).map(([chainId, values]) => {
+      values.map(({ assetId, locked }) => {
+        this.set({ chainId, assetId }, locked);
       });
     });
   },

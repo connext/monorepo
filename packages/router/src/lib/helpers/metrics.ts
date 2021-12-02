@@ -4,7 +4,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { formatUnits } from "@ethersproject/units";
 import { constants } from "ethers";
 import { getContext } from "../../router";
-import { feesCollected, gasConsumed, liquidityAdded, totalTransferredVolume } from "../entities";
+import { feesCollected, gasConsumed, totalTransferredVolume } from "../entities";
 import { getTokenPrice } from "./shared";
 
 const convertToUsd = async (
@@ -39,7 +39,9 @@ const convertToUsd = async (
   return +formatUnits(usdWei, decimals);
 };
 
-export const collectLiquidityAdded = async (): Promise<Record<number, { assetId: string; balance: number }[]>> => {
+export const collectExpressiveLiquidity = async (): Promise<
+  Record<number, { assetId: string; amount: number; supplied: number; locked: number }[]>
+> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
@@ -50,21 +52,26 @@ export const collectLiquidityAdded = async (): Promise<Record<number, { assetId:
   const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
 
   // Get all the asset balances for that chain
-  const assetBalances: Record<number, { assetId: string; amount: BigNumber }[]> = {};
+  const assetBalances: Record<
+    number,
+    { assetId: string; amount: BigNumber; supplied: BigNumber; locked: BigNumber }[]
+  > = {};
   await Promise.all(
     chainIds.map(async (chainId) => {
-      assetBalances[chainId] = await contractReader.getAssetBalances(chainId);
+      assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
     }),
   );
 
   // Convert all balances to USD
-  const converted: Record<number, { assetId: string; balance: number }[]> = {};
+  const converted: Record<number, { assetId: string; amount: number; supplied: number; locked: number }[]> = {};
   await Promise.all(
     Object.entries(assetBalances).map(async ([chainId, value]) => {
       const usd = await Promise.all(
-        value.map(async ({ assetId, amount }) => {
-          const balance = await convertToUsd(assetId, parseInt(chainId), amount.toString(), requestContext);
-          return { assetId, balance };
+        value.map(async ({ assetId, supplied, amount, locked }) => {
+          const suppliedUsd = await convertToUsd(assetId, parseInt(chainId), supplied.toString(), requestContext);
+          const amountUsd = await convertToUsd(assetId, parseInt(chainId), amount.toString(), requestContext);
+          const lockedUsd = await convertToUsd(assetId, parseInt(chainId), locked.toString(), requestContext);
+          return { assetId, supplied: suppliedUsd, amount: amountUsd, locked: lockedUsd };
         }),
       );
       return { chainId, converted: usd };
@@ -157,34 +164,6 @@ export const incrementGasConsumed = async (chainId: number, gas: BigNumber, _req
   // Update counter
   // TODO: reason type
   gasConsumed.inc({ chainId }, usd);
-};
-
-export const updateLiquidityGauge = async (
-  assetId: string,
-  chainId: number,
-  amount: string,
-  type: "add" | "remove",
-  _requestContext: RequestContext,
-) => {
-  const { logger } = getContext();
-
-  const { requestContext, methodContext } = createLoggingContext(updateLiquidityGauge.name, _requestContext);
-  logger.debug("Method start", requestContext, methodContext, {
-    chainId,
-    assetId,
-    amount,
-  });
-
-  const usd = await convertToUsd(assetId, chainId, amount, requestContext);
-
-  logger.debug("Got updated liquidity in usd", requestContext, methodContext, {
-    assetId,
-    chainId,
-    amount,
-    usd: usd.toString(),
-  });
-
-  liquidityAdded[type === "add" ? "inc" : "dec"]({ assetId, chainId }, usd);
 };
 
 export const incrementTotalTransferredVolume = async (
