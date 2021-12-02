@@ -186,15 +186,77 @@ describe("ChainReader", () => {
   });
 
   describe("#calculateGasFeeInReceivingToken", () => {
+    let calculateGasFeeStub: SinonStub;
+    beforeEach(() => {
+      calculateGasFeeStub = Sinon.stub(chainReader as any, "calculateGasFee");
+    });
+
+    it("happy: should return sum of both chains calculations'", async () => {
+      const gasFeeSenderFulfill = BigNumber.from(124098148);
+      const gasFeeReceiverPrepare = BigNumber.from(1151259044);
+      const expectedTotal = gasFeeReceiverPrepare.add(gasFeeSenderFulfill);
+      const sendingAssetId = mkAddress("0xa1");
+      const receivingAssetId = mkAddress("0xb2");
+      calculateGasFeeStub.onFirstCall().resolves(gasFeeSenderFulfill);
+      calculateGasFeeStub.onSecondCall().resolves(gasFeeReceiverPrepare);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        TEST_SENDER_CHAIN_ID,
+        sendingAssetId,
+        TEST_RECEIVER_CHAIN_ID,
+        receivingAssetId,
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.eq(expectedTotal.toNumber());
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+        TEST_SENDER_CHAIN_ID,
+        sendingAssetId,
+        18,
+        "fulfill",
+      ]);
+      expect(calculateGasFeeStub.getCall(1).args.slice(0, 4)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
+        receivingAssetId,
+        18,
+        "prepare",
+      ]);
+    });
+  });
+
+  describe("#calculateGasFeeInReceivingToken", () => {
+    let calculateGasFeeStub: SinonStub;
+    beforeEach(() => {
+      calculateGasFeeStub = Sinon.stub(chainReader as any, "calculateGasFee");
+    });
+
+    it("happy: should call calculateGasFee for fulfill", async () => {
+      const gasFee = BigNumber.from(71221304);
+      const assetId = mkAddress("0xb2");
+      calculateGasFeeStub.onFirstCall().resolves(gasFee);
+      const result = await chainReader.calculateGasFeeInReceivingTokenForFulfill(
+        TEST_RECEIVER_CHAIN_ID,
+        assetId,
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.eq(gasFee.toNumber());
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
+        assetId,
+        18,
+        "fulfill",
+      ]);
+    });
+  });
+
+  describe("#calculateGasFee", () => {
     const testEthPrice = 1;
     const testTokenPrice = 2;
     const testGasPrice = 5;
-    let getDeployedChainIdsStub: SinonStub;
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      getDeployedChainIdsStub = Sinon.stub(contractFns, "getDeployedChainIdsForGasFee");
-      getDeployedChainIdsStub.returns([1]);
+      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [1];
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -202,23 +264,32 @@ describe("ChainReader", () => {
       gasPriceStub.onFirstCall().resolves(BigNumber.from(testGasPrice));
     });
 
-    it("should only calculate sending chain if receiving chain is not included", async () => {
-      getDeployedChainIdsStub.returns([1]);
-      const result = await chainReader.calculateGasFeeInReceivingToken(
-        1,
-        mkAddress("0x0"),
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x2"),
-        18,
-        requestContextMock,
+    it("happy: should calculate for prepare if chain included and prepare specified", async () => {
+      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "prepare", requestContextMock);
+      expect(result.toNumber()).to.be.eq(
+        (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
       );
+    });
+
+    it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
+      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "fulfill", requestContextMock);
       expect(result.toNumber()).to.be.eq(
         (testGasPrice * parseInt(GAS_ESTIMATES.fulfill) * testEthPrice) / testTokenPrice,
       );
     });
 
-    it("should only calculate receiving chain if sending chain is not included", async () => {
-      getDeployedChainIdsStub.returns([1]);
+    it("should return zero if price oracle isn't configured for that chain", async () => {
+      const result = await (chainReader as any).calculateGasFee(
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(0);
+    });
+
+    it("should return zero if price oracle isn't configured for that chain", async () => {
       const result = await chainReader.calculateGasFeeInReceivingToken(
         TEST_RECEIVER_CHAIN_ID,
         mkAddress("0x0"),
@@ -239,7 +310,7 @@ describe("ChainReader", () => {
       gasPriceStub.onSecondCall().resolves(testGasPriceReceivingChain);
       tokenPriceStub.onCall(2).resolves(testEthPriceReceivingChain);
       tokenPriceStub.onCall(3).resolves(testTokenPriceReceivingChain);
-      getDeployedChainIdsStub.returns([TEST_SENDER_CHAIN_ID, TEST_RECEIVER_CHAIN_ID]);
+      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [TEST_SENDER_CHAIN_ID, TEST_RECEIVER_CHAIN_ID];
       const result = await chainReader.calculateGasFeeInReceivingToken(
         TEST_SENDER_CHAIN_ID,
         mkAddress("0x0"),
@@ -257,19 +328,6 @@ describe("ChainReader", () => {
         .mul(testEthPriceReceivingChain)
         .div(testTokenPriceReceivingChain);
       expect(result.toNumber()).to.be.eq(expectedSumSendingChain.add(expectedSumReceivingChain).toNumber());
-    });
-
-    it("should return zero if price oracle isn't configured for either chain", async () => {
-      getDeployedChainIdsStub.returns([]);
-      const result = await chainReader.calculateGasFeeInReceivingToken(
-        TEST_SENDER_CHAIN_ID,
-        mkAddress("0x0"),
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x2"),
-        18,
-        requestContextMock,
-      );
-      expect(result.toNumber()).to.be.eq(0);
     });
   });
 

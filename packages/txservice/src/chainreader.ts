@@ -212,7 +212,7 @@ export class ChainReader {
     // is not configured for goerli so theres no way to translate the price to goerli.
     const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
       // Calculate gas fees for sender fulfill.
-      this._calculateGasFees(
+      this.calculateGasFee(
         sendingChainId,
         sendingAssetId,
         outputDecimals,
@@ -222,7 +222,7 @@ export class ChainReader {
         "sending",
       ),
       // Calculate gas fees for receiver prepare.
-      this._calculateGasFees(
+      this.calculateGasFee(
         receivingChainId,
         receivingAssetId,
         outputDecimals,
@@ -259,7 +259,7 @@ export class ChainReader {
       receivingAssetId,
       outputDecimals,
     });
-    return await this._calculateGasFees(
+    return await this.calculateGasFee(
       receivingChainId,
       receivingAssetId,
       outputDecimals,
@@ -282,7 +282,7 @@ export class ChainReader {
    * @param whichChain - Whether it's sender or receiver chain, used for
    * logging purposes only.
    */
-  private async _calculateGasFees(
+  private async calculateGasFee(
     chainId: number,
     assetId: string,
     decimals: number,
