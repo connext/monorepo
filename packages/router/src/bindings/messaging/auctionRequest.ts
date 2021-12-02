@@ -1,6 +1,7 @@
 import { AuctionPayload, createLoggingContext, NxtpErrorJson, RequestContext } from "@connext/nxtp-utils";
 
 import { attemptedAuction } from "../../lib/entities";
+import { getAssetName } from "../../lib/helpers/metrics";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
@@ -39,6 +40,7 @@ export const auctionRequestBinding = async (
     receivingAssetId: bid.receivingAssetId,
     sendingChainId: bid.sendingChainId,
     receivingChainId: bid.receivingChainId,
+    assetName: getAssetName(bid.sendingAssetId, bid.sendingChainId),
   });
   logger.debug("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
 };

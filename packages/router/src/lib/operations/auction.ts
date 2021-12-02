@@ -27,6 +27,7 @@ import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { getAssetName } from "../helpers/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -38,6 +39,7 @@ export const newAuction = async (
     receivingAssetId: data.receivingAssetId,
     sendingChainId: data.receivingChainId,
     receivingChainId: data.receivingChainId,
+    assetName: getAssetName(data.sendingAssetId, data.sendingChainId),
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();

@@ -118,7 +118,7 @@ export const TChainConfig = Type.Object({
 });
 
 export const TSwapPool = Type.Object({
-  name: Type.Optional(Type.String()),
+  name: Type.String(),
   assets: Type.Array(
     Type.Object({
       chainId: TChainId,
@@ -252,6 +252,49 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
   }
+
+  // add name to swap pools using mainnet equivalent
+  nxtpConfig.swapPools.forEach((pool, idx) => {
+    if (pool.name) {
+      return;
+    }
+
+    // Try to get mainnet equivalent of assets in the pool
+    let name: string | undefined = undefined;
+    pool.assets.forEach(({ chainId, assetId }) => {
+      if (name) {
+        return;
+      }
+
+      if (!crossChainData || !crossChainData.has(chainId.toString()) || !crossChainData.has("1")) {
+        return;
+      }
+
+      const entry = crossChainData.get(chainId.toString()) as ChainData;
+
+      const mainnetEquivalent =
+        entry.assetId[utils.getAddress(assetId)]?.mainnetEquivalent ??
+        entry.assetId[assetId.toLowerCase()]?.mainnetEquivalent ??
+        entry.assetId[assetId.toUpperCase()]?.mainnetEquivalent;
+      if (!mainnetEquivalent) {
+        return;
+      }
+
+      // Get name from mainnet equivalent
+      const mainnetEntry = crossChainData.get("1") as ChainData;
+      name =
+        mainnetEntry.assetId[utils.getAddress(mainnetEquivalent)]?.symbol ??
+        mainnetEntry.assetId[mainnetEquivalent.toLowerCase()]?.symbol ??
+        mainnetEntry.assetId[mainnetEquivalent.toUpperCase()]?.symbol;
+    });
+
+    if (!name) {
+      throw new Error(
+        `Could not find name for pool: ${JSON.stringify(pool)} at ${idx} in config. Please provide override.`,
+      );
+    }
+    nxtpConfig.swapPools[idx] = { ...pool, name };
+  });
 
   const defaultConfirmations =
     crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;

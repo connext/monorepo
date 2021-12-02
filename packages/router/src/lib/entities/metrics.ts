@@ -1,5 +1,5 @@
 import { Counter, Gauge } from "prom-client";
-import { collectOnchainLiquidity, collectExpressiveLiquidity } from "../helpers/metrics";
+import { collectOnchainLiquidity, collectExpressiveLiquidity, getAssetName } from "../helpers/metrics";
 
 //////////////////////////
 ///// Types
@@ -23,12 +23,12 @@ export type TransactionReason = typeof TransactionReasons[keyof typeof Transacti
 export const onchainLiquidity = new Gauge({
   name: "router_onchain_liquidity",
   help: "router_onchain_liquidity_help",
-  labelNames: ["chainId", "assetId"] as const,
+  labelNames: ["chainId", "assetId", "assetName"] as const,
   async collect() {
     const liquidity = await collectOnchainLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, balance }) => {
-        this.set({ chainId, assetId }, balance);
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, balance);
       });
     });
   },
@@ -41,7 +41,7 @@ export const onchainLiquidity = new Gauge({
 export const totalTransferredVolume = new Counter({
   name: "router_transfer_volume",
   help: "router_transfer_volume_help",
-  labelNames: ["assetId", "chainId", "amount"] as const,
+  labelNames: ["assetId", "chainId", "amount", "assetName"] as const,
 });
 
 //////////////////////////
@@ -51,21 +51,21 @@ export const totalTransferredVolume = new Counter({
 export const receivedAuction = new Counter({
   name: "router_auction_received",
   help: "router_auction_received_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
 });
 
 // Incremented when an auction response is sent
 export const attemptedAuction = new Counter({
   name: "router_auction_attempt",
   help: "router_auction_attempt_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
 });
 
 // Incremented when receiver transaction first handled (either prepared or cancelled)
 export const successfulAuction = new Counter({
   name: "router_auction_successful",
   help: "router_auction_successful_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
 });
 
 //////////////////////////
@@ -76,7 +76,7 @@ export const successfulAuction = new Counter({
 export const attemptedTransfer = new Counter({
   name: "router_transfer_attempt",
   help: "router_transfer_attempt_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
 });
 
 // Track completed transfers. Incremented when a router unlocks
@@ -84,7 +84,7 @@ export const attemptedTransfer = new Counter({
 export const completedTransfer = new Counter({
   name: "router_transfer_successful",
   help: "router_transfer_successful_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId"] as const,
+  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
 });
 
 //////////////////////////
@@ -95,7 +95,7 @@ export const completedTransfer = new Counter({
 export const feesCollected = new Counter({
   name: "router_fees_usd",
   help: "router_fees_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 // Track gas consumed in USD -- incremented via `incrementGas` function that
@@ -111,12 +111,12 @@ export const gasConsumed = new Counter({
 export const liquiditySupplied = new Gauge({
   name: "liquidity_supplied_usd",
   help: "liquidity_supplied_usd_help",
-  labelNames: ["assetId", "chainId", "assetName"],
+  labelNames: ["assetId", "chainId", "assetName", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, supplied }) => {
-        this.set({ chainId, assetId }, supplied);
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, supplied);
       });
     });
   },
@@ -132,7 +132,7 @@ export const liquidityLocked = new Gauge({
     const liquidity = await collectExpressiveLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, locked }) => {
-        this.set({ chainId, assetId }, locked);
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, locked);
       });
     });
   },
@@ -144,35 +144,35 @@ export const liquidityLocked = new Gauge({
 export const senderExpired = new Counter({
   name: "sender_expired",
   help: "sender_expired_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 export const receiverExpired = new Counter({
   name: "receiver_expired",
   help: "receiver_expired_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 export const receiverFailedPrepare = new Counter({
   name: "receiver_failed_prepare",
   help: "receiver_failed_prepare_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 export const senderFailedFulfill = new Counter({
   name: "sender_failed_fulfill",
   help: "sender_failed_fulfill_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 export const senderFailedCancel = new Counter({
   name: "sender_failed_cancel",
   help: "sender_failed_cancel_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });
 
 export const receiverFailedCancel = new Counter({
   name: "receiver_failed_cancel",
   help: "receiver_failed_cancel_help",
-  labelNames: ["assetId", "chainId"] as const,
+  labelNames: ["assetId", "chainId", "assetName"] as const,
 });

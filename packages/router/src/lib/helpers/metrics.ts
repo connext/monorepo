@@ -39,6 +39,18 @@ const convertToUsd = async (
   return +formatUnits(usdWei, decimals);
 };
 
+export const getAssetName = (assetId: string, chainId: number): string | undefined => {
+  const { config } = getContext();
+
+  // Find matching swap pool
+  const match = config.swapPools.find((pool) => {
+    const idx = pool.assets.findIndex((asset) => chainId === asset.chainId && asset.assetId === assetId.toLowerCase());
+    return idx !== -1;
+  });
+
+  return match?.name;
+};
+
 export const collectExpressiveLiquidity = async (): Promise<
   Record<number, { assetId: string; amount: number; supplied: number; locked: number }[]>
 > => {
@@ -141,7 +153,7 @@ export const incrementFees = async (
   });
 
   // Update counter
-  feesCollected.inc({ assetId, chainId }, usd);
+  feesCollected.inc({ assetId, chainId, assetName: getAssetName(assetId, chainId) }, usd);
 };
 
 export const incrementGasConsumed = async (
@@ -195,5 +207,5 @@ export const incrementTotalTransferredVolume = async (
     usd: usd.toString(),
   });
 
-  totalTransferredVolume.inc({ assetId, chainId }, usd);
+  totalTransferredVolume.inc({ assetId, chainId, assetName: getAssetName(assetId, chainId) }, usd);
 };

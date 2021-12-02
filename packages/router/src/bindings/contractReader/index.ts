@@ -30,7 +30,7 @@ import {
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
-import { incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
+import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -208,6 +208,10 @@ export const handleSingle = async (
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
           receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+          assetName: getAssetName(
+            _transaction.crosschainTx.invariant.sendingAssetId,
+            _transaction.crosschainTx.invariant.sendingChainId,
+          ),
         },
         1,
       );
@@ -217,6 +221,10 @@ export const handleSingle = async (
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
@@ -228,6 +236,10 @@ export const handleSingle = async (
       receiverFailedPrepare.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
+        ),
       });
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
@@ -259,6 +271,10 @@ export const handleSingle = async (
               receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
               sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
               receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+              assetName: getAssetName(
+                _transaction.crosschainTx.invariant.sendingAssetId,
+                _transaction.crosschainTx.invariant.sendingChainId,
+              ),
             },
             1,
           );
@@ -272,6 +288,10 @@ export const handleSingle = async (
           senderFailedCancel.inc({
             assetId: _transaction.crosschainTx.invariant.sendingAssetId,
             chainId: _transaction.crosschainTx.invariant.sendingChainId,
+            assetName: getAssetName(
+              _transaction.crosschainTx.invariant.sendingAssetId,
+              _transaction.crosschainTx.invariant.sendingChainId,
+            ),
           });
           const cancelJson = jsonifyError(cancelErr);
           if (safeJsonStringify(jsonifyError(cancelErr)).includes("#C:019")) {
@@ -330,6 +350,10 @@ export const handleSingle = async (
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
@@ -357,6 +381,10 @@ export const handleSingle = async (
       senderFailedFulfill.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       const jsonErr = jsonifyError(err);
       if (safeJsonStringify(jsonErr).includes("#F:019")) {
@@ -391,6 +419,10 @@ export const handleSingle = async (
       receiverExpired.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
+        ),
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
@@ -402,6 +434,10 @@ export const handleSingle = async (
       receiverFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
+        ),
       });
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
@@ -434,6 +470,10 @@ export const handleSingle = async (
       senderExpired.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
@@ -484,6 +524,10 @@ export const handleSingle = async (
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
@@ -524,6 +568,10 @@ export const handleSingle = async (
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
