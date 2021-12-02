@@ -56,16 +56,6 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       console.log('form.getFieldValue("sendingChain"): ', form.getFieldsValue(true));
       console.log("sendingChain: ", sendingChain);
 
-      const address = await signer.getAddress();
-
-      const _balance = await getUserBalance(
-        typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain),
-        signer,
-      );
-      console.log("_balance: ", _balance);
-      setUserBalance(_balance);
-      form.setFieldsValue({ receivingAddress: address });
-
       const _sdk = await NxtpSdk.create({
         chainConfig,
         signer,
@@ -77,6 +67,9 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       });
       setSdk(_sdk);
       const activeTxs = await _sdk.getActiveTransactions();
+
+      const address = await signer.getAddress();
+      form.setFieldsValue({ receivingAddress: address });
 
       // TODO: race condition with the event listeners
       // Will not update the transactions appropriately if sender tx prepared and no txs set
@@ -165,11 +158,21 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         );
       });
 
-      _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, (data) => {
+      _sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
         console.log("ReceiverTransactionPrepared:", data);
         const { amount, expiry, preparedBlockNumber, ...invariant } = data.txData;
         const index = activeTransferTableColumns.findIndex(
           (col) => col.crosschainTx.invariant.transactionId === invariant.transactionId,
+        );
+
+        await finishTransfer(
+          {
+            bidSignature: data.bidSignature,
+            encodedBid: data.encodedBid,
+            encryptedCallData: data.encryptedCallData,
+            txData: data.txData,
+          },
+          _sdk,
         );
 
         const table = [...activeTransferTableColumns];
@@ -236,8 +239,20 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     init();
   }, [web3Provider, signer]);
 
+  useEffect(() => {
+    if (!signer || !web3Provider) {
+      return;
+    }
+    const sendingChain = form.getFieldValue("sendingChain");
+    getUserBalance(typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain), signer).then((balance) => {
+      console.log("balance: ", balance);
+      setUserBalance(balance);
+    });
+  }, [sdk]);
+
   const getUserBalance = async (_chainId: number, _signer: Signer) => {
     if (_chainId === 0 || !sdk) {
+      console.log("Could not get user balance!", _chainId, !!sdk);
       return BigNumber.from(0);
     }
     const address = await _signer.getAddress();
@@ -352,21 +367,38 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       alert("Please switch chains to the sending chain!");
       throw new Error("Wrong chain");
     }
-    const transfer = await sdk.prepareTransfer(auctionResponse, true);
+
+    await sdk.generateFulfillSignature(auctionResponse, false);
+    const transfer = await sdk.prepareTransfer(auctionResponse, false);
     console.log("transfer: ", transfer);
   };
 
-  const finishTransfer = async ({
-    bidSignature,
-    encodedBid,
-    encryptedCallData,
-    txData,
-  }: Omit<TransactionPreparedEvent, "caller">) => {
-    if (!sdk) {
+  const finishTransfer = async (
+    { bidSignature, encodedBid, encryptedCallData, txData }: Omit<TransactionPreparedEvent, "caller">,
+    backupSdkInstance?: NxtpSdk,
+  ) => {
+    if (!sdk && !backupSdkInstance) {
+      console.error(
+        "Cannot finish transfer, no sdk found!",
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+        txData,
+        sdk,
+        backupSdkInstance,
+      );
       return;
     }
+    console.log(sdk, backupSdkInstance);
+    const _sdk = sdk ?? backupSdkInstance;
 
-    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData }, true);
+    console.log("Finishing transfer with presigned call data...");
+    const finish = await _sdk!.fulfillTransferWithPresignedCallData({
+      bidSignature,
+      encodedBid,
+      encryptedCallData,
+      txData,
+    });
     console.log("finish: ", finish);
     if (finish?.transactionHash || finish.transactionHash === "") {
       setActiveTransferTableColumns(

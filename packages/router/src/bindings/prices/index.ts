@@ -57,7 +57,7 @@ export const bindPrices = async () => {
             logger.info("fetching token prices using multicall done", requestContext, methodContext, {
               multicallAddress,
               assetIds,
-              tokenPrices,
+              tokenPrices: tokenPrices.map((p: BigNumber) => p.toString()),
             });
             for (let idx = 0; idx < assetIds.length; idx++) {
               const priceCacheKey = chainId.toString().concat("-").concat(assetIds[idx]);
@@ -88,7 +88,7 @@ export const bindPrices = async () => {
             logger.info("fetching token prices using Promise done", requestContext, methodContext, {
               chainId,
               assetIds,
-              tokenPrices,
+              tokenPrices: tokenPrices.map((p) => p.toString()),
             });
           }
         }

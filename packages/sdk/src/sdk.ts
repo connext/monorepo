@@ -80,10 +80,19 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
  *
  */
 export class NxtpSdk {
+  public readonly chainData?: Map<string, ChainData>;
+
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
   private readonly sdkBase: NxtpSdkBase;
+  private readonly claimCalls: Map<
+    string,
+    {
+      callData: string;
+      signature: string;
+      relayerFee: string;
+    }
+  > = new Map();
   private readonly logger: Logger;
-  public readonly chainData?: Map<string, ChainData>;
 
   constructor(
     private readonly config: {
@@ -581,6 +590,95 @@ export class NxtpSdk {
       transactionResponse: prepareResponse,
     });
     return { prepareResponse, transactionId };
+  }
+
+  // TODO: This should have a base method shared between this method and fulfillTransfer
+  public async generateFulfillSignature(params: AuctionResponse, willUseRelayers = true): Promise<string> {
+    const { requestContext, methodContext } = createLoggingContext(this.generateFulfillSignature.name, undefined);
+    this.logger.info("Method started", requestContext, methodContext, { params });
+
+    const { bid } = params;
+
+    if (!this.config.chainConfig[bid.sendingChainId]) {
+      throw new ChainNotConfigured(bid.sendingChainId, Object.keys(this.config.chainConfig));
+    } else if (!this.config.chainConfig[bid.receivingChainId]) {
+      throw new ChainNotConfigured(bid.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    const relayerFee = willUseRelayers
+      ? (
+          await this.estimateMetaTxFeeInReceivingToken(
+            bid.sendingChainId,
+            bid.sendingAssetId,
+            bid.receivingChainId,
+            bid.receivingAssetId,
+          )
+        ).toString()
+      : "0";
+
+    const signature = await signFulfillTransactionPayload(
+      bid.transactionId,
+      relayerFee,
+      bid.receivingChainId,
+      bid.receivingChainTxManagerAddress,
+      this.config.signer,
+    );
+    this.logger.info("Pre-generated claim signature", requestContext, methodContext, { signature });
+
+    let callData = "0x";
+    if (bid.callDataHash !== utils.keccak256(callData)) {
+      try {
+        callData = await ethereumRequest("eth_decrypt", [bid.encryptedCallData, bid.user]);
+      } catch (e) {
+        throw new EncryptionError("decryption failed", jsonifyError(e));
+      }
+    }
+
+    // Save calldata/sig/fee locally.
+    this.claimCalls.set(bid.transactionId.toLowerCase(), {
+      callData,
+      signature,
+      relayerFee,
+    });
+    console.log("claim call txid entry:", this.claimCalls.get(bid.transactionId.toLowerCase()));
+
+    return signature;
+  }
+
+  // TODO: mouthful
+  public async fulfillTransferWithPresignedCallData(
+    params: Omit<TransactionPreparedEvent, "caller">,
+  ): Promise<{ transactionHash: string }> {
+    const { requestContext, methodContext } = createLoggingContext(this.generateFulfillSignature.name, undefined);
+    this.logger.info("Method started", requestContext, methodContext, { params });
+
+    const { txData } = params;
+
+    if (!this.config.chainConfig[txData.sendingChainId]) {
+      throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
+    } else if (!this.config.chainConfig[txData.receivingChainId]) {
+      throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
+    }
+
+    const call = this.claimCalls.get(txData.transactionId.toLowerCase());
+    if (!call) {
+      // TODO: ClaimSignatureNotFound error type!
+      throw new Error("ClaimSignatureNotFound");
+    }
+    const { callData, signature, relayerFee } = call;
+    const useRelayers = relayerFee !== "0";
+    const response = await this.sdkBase.fulfillTransfer(params, signature, callData, relayerFee, useRelayers);
+
+    if (useRelayers) {
+      return { transactionHash: response.transactionResponse!.transactionHash };
+    } else {
+      this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
+      const connectedSigner = this.config.signer;
+      const fulfillResponse = await connectedSigner.sendTransaction(response.transactionRequest!);
+
+      this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
+      return { transactionHash: fulfillResponse.hash };
+    }
   }
 
   /**
