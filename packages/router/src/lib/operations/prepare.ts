@@ -5,7 +5,7 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers/lib/ethers";
+import { BigNumber, providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { PrepareInput, PrepareInputSchema } from "../entities";
@@ -29,6 +29,7 @@ import {
 } from "../helpers";
 import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 
+const { AddressZero } = constants;
 export const prepare = async (
   invariantData: InvariantTransactionData,
   input: PrepareInput,
@@ -107,8 +108,11 @@ export const prepare = async (
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
 
+  const routerContractRelayerAsset: string = config.chainConfig.routerContractRelayerAsset.toString() || AddressZero;
+  const routerRelayerFeeAsset = utils.getAddress(routerContractRelayerAsset);
+  const routerRelayerFee = "0";
+
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
-  const prepareRelayerFee = gasFeeInReceivingToken.toString();
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.router,
@@ -174,10 +178,6 @@ export const prepare = async (
 
   logger.info("Validated input", requestContext, methodContext);
   logger.info("Sending receiver prepare tx", requestContext, methodContext);
-
-  const routerRelayerFeeAsset = "0x";
-  const routerRelayerFee = "0";
-
   const receipt = await contractWriter.prepare(
     invariantData.receivingChainId,
     {
