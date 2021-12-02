@@ -4,7 +4,7 @@ import { solidity } from "ethereum-waffle";
 
 use(solidity);
 
-import { hexlify, keccak256, randomBytes, defaultAbiCoder } from "ethers/lib/utils";
+import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumberish, constants, providers, Contract } from "ethers";
 import { RevertableERC20, TransactionManager, ERC20, RouterFactory } from "@connext/nxtp-contracts";
 
@@ -21,8 +21,6 @@ import {
   signRouterCancelTransactionPayload,
   signRouterFulfillTransactionPayload,
   signRouterPrepareTransactionPayload,
-  InvariantTransactionDataEncoding,
-  tidy,
 } from "@connext/nxtp-utils";
 import { deployContract, MAX_FEE_PER_GAS, getOnchainBalance } from "./utils";
 import { getContractError } from "../src";
@@ -84,7 +82,7 @@ const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("Router Contract", function () {
+describe("Router Contract", function () {
   const [wallet, routerSigner, routerReceipient, user, receiver, gelato, other] =
     waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
@@ -230,13 +228,7 @@ describe.only("Router Contract", function () {
     it("should remove liquidity", async () => {
       const amount = "100";
       const assetId = token.address;
-      const signature = await signRemoveLiquidityTransactionPayload(
-        amount,
-        assetId,
-        receivingChainId,
-        routerSigner.address,
-        routerSigner,
-      );
+      const signature = await signRemoveLiquidityTransactionPayload(amount, assetId, receivingChainId, routerSigner);
       const tx = await routerContract.connect(gelato).removeLiquidity(amount, assetId, signature);
       const receipt = await tx.wait();
       expect(receipt.status).to.eq(1);
@@ -251,8 +243,8 @@ describe.only("Router Contract", function () {
   ) => {
     const args = convertToPrepareArgs(transaction, record);
 
-    const balance = await getOnchainBalance(token.address, computedRouterAddress, ethers.provider);
-    console.log(balance.toString());
+    // const balance = await getOnchainBalance(token.address, computedRouterAddress, ethers.provider);
+    // console.log(balance.toString());
 
     const signature = await signRouterPrepareTransactionPayload(
       transaction,
@@ -266,6 +258,7 @@ describe.only("Router Contract", function () {
       routerRelayerFee,
       routerSigner,
     );
+
     const prepareTx = await routerContract
       .connect(gelato)
       .prepare(args, routerRelayerFeeAsset, routerRelayerFee, signature);
@@ -353,15 +346,16 @@ describe.only("Router Contract", function () {
 
       await expect(
         routerContract.connect(gelato).fulfill(args, routerRelayerFeeAsset, routerRelayerFee, signature),
-      ).to.be.revertedWith("Router signature is not valid");
+      ).to.be.revertedWith(getContractError("routerContract_fulfill: INVALID_ROUTER_SIGNATURE"));
     });
 
     it("should fulfill with a different sender", async () => {
       const { transaction, record } = await getTransactionData();
+
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
 
-      await prepare(transaction, record);
+      const { blockNumber } = await prepare(transaction, record);
 
       // Generate signature from user
       const fulfillSignature = await signFulfillTransactionPayload(
@@ -372,16 +366,23 @@ describe.only("Router Contract", function () {
         user,
       );
 
-      const args = convertToFulfillArgs(transaction, record, "0", fulfillSignature);
+      const args = convertToFulfillArgs(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        "0",
+        fulfillSignature,
+      );
+
       const signature = await signRouterFulfillTransactionPayload(
         args.txData,
-        args.signature,
+        fulfillSignature,
         args.callData,
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
         routerSigner,
       );
+
       const fulfillTx = await routerContract
         .connect(gelato)
         .fulfill(args, routerRelayerFeeAsset, routerRelayerFee, signature);
@@ -396,7 +397,7 @@ describe.only("Router Contract", function () {
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
 
-      await prepare(transaction, record);
+      const { blockNumber } = await prepare(transaction, record);
 
       // Generate signature from user
       const fulfillSignature = await signFulfillTransactionPayload(
@@ -407,7 +408,12 @@ describe.only("Router Contract", function () {
         user,
       );
 
-      const args = convertToFulfillArgs(transaction, record, "0", fulfillSignature);
+      const args = convertToFulfillArgs(
+        transaction,
+        { ...record, preparedBlockNumber: blockNumber },
+        "0",
+        fulfillSignature,
+      );
       const fulfillTx = await routerContract
         .connect(routerSigner)
         .fulfill(args, routerRelayerFeeAsset, routerRelayerFee, "0x");
@@ -424,7 +430,7 @@ describe.only("Router Contract", function () {
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
 
-      await prepare(transaction, record);
+      const { blockNumber } = await prepare(transaction, record);
 
       // Generate signature from user
       const cancelSignature = await signCancelTransactionPayload(
@@ -434,7 +440,7 @@ describe.only("Router Contract", function () {
         user,
       );
 
-      const args = convertToCancelArgs(transaction, record, cancelSignature);
+      const args = convertToCancelArgs(transaction, { ...record, preparedBlockNumber: blockNumber }, cancelSignature);
       const signature = await signRouterCancelTransactionPayload(
         args.txData,
         cancelSignature,
@@ -446,16 +452,14 @@ describe.only("Router Contract", function () {
 
       await expect(
         routerContract.connect(gelato).cancel(args, routerRelayerFeeAsset, routerRelayerFee, signature),
-      ).to.be.revertedWith("Router signature is not valid");
+      ).to.be.revertedWith(getContractError("routerContract_cancel: INVALID_ROUTER_SIGNATURE"));
     });
 
     it("should cancel with a different sender", async () => {
       const { transaction, record } = await getTransactionData();
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
-
-      await prepare(transaction, record);
-
+      const { blockNumber } = await prepare(transaction, record);
       // Generate signature from user
       const cancelSignature = await signCancelTransactionPayload(
         transaction.transactionId,
@@ -464,7 +468,7 @@ describe.only("Router Contract", function () {
         user,
       );
 
-      const args = convertToCancelArgs(transaction, record, cancelSignature);
+      const args = convertToCancelArgs(transaction, { ...record, preparedBlockNumber: blockNumber }, cancelSignature);
       const signature = await signRouterCancelTransactionPayload(
         args.txData,
         cancelSignature,
@@ -487,7 +491,7 @@ describe.only("Router Contract", function () {
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
 
-      await prepare(transaction, record);
+      const { blockNumber } = await prepare(transaction, record);
 
       // Generate signature from user
       const cancelSignature = await signCancelTransactionPayload(
@@ -497,7 +501,7 @@ describe.only("Router Contract", function () {
         user,
       );
 
-      const args = convertToCancelArgs(transaction, record, cancelSignature);
+      const args = convertToCancelArgs(transaction, { ...record, preparedBlockNumber: blockNumber }, cancelSignature);
       const cancelTx = await routerContract
         .connect(routerSigner)
         .cancel(args, routerRelayerFeeAsset, routerRelayerFee, "0x");
