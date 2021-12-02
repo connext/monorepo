@@ -1,5 +1,5 @@
 import { SinonStub, stub } from "sinon";
-import { constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers/lib/ethers";
 import {
   AuctionBid,
   expect,
@@ -96,6 +96,20 @@ describe("Prepare Receiver Operation", () => {
       );
     });
 
+    it("should error if amount is lower than lower bound", async () => {
+      const senderAmount = BigNumber.from(prepareInputMock.senderAmount).mul(85).div(100).toString(); // lower than 90% tolerance
+      await expect(
+        prepare(invariantDataMock, { ...prepareInputMock, senderAmount }, requestContext),
+      ).to.eventually.be.rejectedWith("Invalid data on sender chain");
+    });
+
+    it("should error if amount is higher than upper bound", async () => {
+      const senderAmount = BigNumber.from(prepareInputMock.senderAmount).mul(115).div(100).toString(); // higher than 110% tolerance
+      await expect(
+        prepare(invariantDataMock, { ...prepareInputMock, senderAmount }, requestContext),
+      ).to.eventually.be.rejectedWith("Invalid data on sender chain");
+    });
+
     it("happy: should send prepare for receiving chain", async () => {
       const baseTime = Math.floor(Date.now() / 1000);
       (txServiceMock.getBlockTime as SinonStub).resolves(baseTime);
@@ -106,7 +120,7 @@ describe("Prepare Receiver Operation", () => {
         invariantDataMock.receivingChainId,
         {
           txData: invariantDataMock,
-          amount: MUTATED_AMOUNT,
+          amount: BigNumber.from(MUTATED_AMOUNT).sub(100).toString(),
           expiry: baseTime + MUTATED_BUFFER,
           bidSignature: prepareInputMock.bidSignature,
           encodedBid: prepareInputMock.encodedBid,

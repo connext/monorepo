@@ -61,6 +61,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
+  console.log("Deploying multicall to configured chain");
+  await hre.deployments.deploy("Multicall", {
+    from: deployer,
+    log: true,
+  });
+
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
     await hre.deployments.deploy("TestERC20", {

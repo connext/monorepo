@@ -17,6 +17,7 @@ import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
 import { bindMetrics } from "./bindings/metrics";
 import { Web3Signer } from "./adapters/web3signer";
+import { bindPrices } from "./bindings/prices";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -83,7 +84,7 @@ export const makeRouter = async () => {
         confirmations: config.confirmations,
         providers: config.providers.map((url) => ({ url })),
         gasStations: config.gasStations,
-        defaultInitialGas: config.defaultInitialGas,
+        defaultInitialGasPrice: config.defaultInitialGasPrice,
       } as ChainConfig;
     });
     // TODO: txserviceconfig log level
@@ -109,6 +110,12 @@ export const makeRouter = async () => {
       await bindMessaging();
     } else {
       logger.warn("Running router in cleanup mode");
+    }
+
+    if (context.config.priceCacheMode) {
+      await bindPrices();
+    } else {
+      logger.warn("Running router not in price cache mode");
     }
     await bindFastify();
     await bindMetrics();

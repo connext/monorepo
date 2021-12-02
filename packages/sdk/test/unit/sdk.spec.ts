@@ -10,7 +10,7 @@ import {
   chainDataMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
-import { providers, Wallet, constants, BigNumber } from "ethers";
+import { Wallet, constants, BigNumber } from "ethers";
 import { getAddress, keccak256 } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -31,7 +31,8 @@ import {
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
-import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
+// import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
+import { ChainReader } from "../../../txservice/dist";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -44,8 +45,7 @@ const CancelReq = { ...TxRequest, data: "0xaaabbbcccddd" };
 describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
   let signer: SinonStubbedInstance<Wallet>;
-  let provider1337: SinonStubbedInstance<providers.FallbackProvider>;
-  let provider1338: SinonStubbedInstance<providers.FallbackProvider>;
+  let chainReader: SinonStubbedInstance<ChainReader>;
   let signFulfillTransactionPayloadMock: SinonStub;
   let recoverAuctionBidMock: SinonStub;
   let ethereumRequestMock: SinonStub;
@@ -66,20 +66,17 @@ describe("NxtpSdk", () => {
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
   beforeEach(async () => {
+    chainReader = createStubInstance(ChainReader);
     transactionManagerStub = createStubInstance(TransactionManager);
-    provider1337 = createStubInstance(providers.FallbackProvider);
-    (provider1337 as any)._isProvider = true;
-    provider1338 = createStubInstance(providers.FallbackProvider);
-    (provider1338 as any)._isProvider = true;
     const chainConfig = {
       [sendingChainId]: {
-        provider: provider1337,
+        providers: ["http://----------------------"],
         subgraph: "http://example.com",
         transactionManagerAddress: sendingChainTxManagerAddress,
         priceOracleAddress: constants.AddressZero,
       },
       [receivingChainId]: {
-        provider: provider1338,
+        providers: ["http://----------------------"],
         subgraph: "http://example.com",
         transactionManagerAddress: receivingChainTxManagerAddress,
         priceOracleAddress: constants.AddressZero,
@@ -93,14 +90,14 @@ describe("NxtpSdk", () => {
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
     sdkBase.cancel.resolves(CancelReq);
+    (sdkBase as any).chainReader = chainReader;
+    chainReader.getDecimalsForAsset.resolves(18);
 
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-    stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
     stub(utils, "getChainData").resolves(chainDataMock);
-    stub(utils, "getDecimalsForAsset").resolves(18);
     stub(sdkIndex, "createMessagingEvt").returns(messageEvt);
 
     signFulfillTransactionPayloadMock = stub(utils, "signFulfillTransactionPayload");
@@ -225,7 +222,7 @@ describe("NxtpSdk", () => {
     it("should error if transaction manager doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
         },
       };
@@ -251,7 +248,7 @@ describe("NxtpSdk", () => {
     it("should error if subgraph doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           transactionManagerAddress: sendingChainTxManagerAddress,
           priceOracleAddress: priceOracleAddress,
         },
@@ -278,12 +275,12 @@ describe("NxtpSdk", () => {
     it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {
-          provider: provider1337,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
           priceOracleAddress: priceOracleAddress,
         },
         [5]: {
-          provider: provider1338,
+          providers: ["http://----------------------"],
           subgraph: "http://example.com",
           priceOracleAddress: priceOracleAddress,
         },
@@ -395,6 +392,25 @@ describe("NxtpSdk", () => {
         bidSignature,
         gasFeeInReceivingToken,
       });
+
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...ApproveReq, gasLimit: undefined });
+      expect(signer.sendTransaction).to.be.calledWithExactly({ ...PrepareReq, gasLimit: undefined });
+      expect(res.prepareResponse).to.be.deep.eq(TxResponse);
+    });
+
+    it("happy: prepare transfer with actualAmount ", async () => {
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock();
+
+      const actualAmount = String(Number(auctionBid.amount) - 1000);
+      const res = await sdk.prepareTransfer(
+        {
+          bid: auctionBid,
+          bidSignature,
+          gasFeeInReceivingToken,
+        },
+        false,
+        actualAmount,
+      );
 
       expect(signer.sendTransaction).to.be.calledWithExactly({ ...ApproveReq, gasLimit: undefined });
       expect(signer.sendTransaction).to.be.calledWithExactly({ ...PrepareReq, gasLimit: undefined });

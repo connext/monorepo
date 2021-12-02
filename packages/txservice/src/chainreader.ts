@@ -1,11 +1,20 @@
-import { Signer, providers, BigNumber } from "ethers";
-import { createLoggingContext, Logger, RequestContext } from "@connext/nxtp-utils";
+import { Signer, providers, BigNumber, constants } from "ethers";
+import { createLoggingContext, GAS_ESTIMATES, Logger, RequestContext, MethodContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
-import { ConfigurationError, ProviderNotConfigured } from "./error";
+import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
+import {
+  CHAINS_WITH_PRICE_ORACLES,
+  NO_ORACLE_CHAINS,
+  getDeployedPriceOracleContract,
+  getPriceOracleInterface,
+} from "./contracts";
 
+// TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
+// probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
+// directly.
 /**
  * @classdesc Performs onchain reads with embedded retries.
  */
@@ -34,7 +43,7 @@ export class ChainReader {
     this.setupProviders(requestContext, signer);
   }
 
-  /// INTERFACE
+  /// CHAIN READING METHODS
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.
    *
@@ -46,29 +55,29 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
-    const result = await this.getProvider(tx.chainId).readTransaction(tx);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(tx.chainId).readTransaction(tx);
   }
 
   /**
-   * Gets the native asset balance for an address
+   * Gets the asset balance for a specified address for the specified chain. Optionally pass in the
+   * assetId; by default, gets the native asset.
    *
    * @param chainId - The ID of the chain for which this call is related.
    * @param address - The hexadecimal string address whose balance we are getting.
+   * @param assetId (default = ETH) - The ID (address) of the asset whose balance we are getting.
+   * @param abi - The ABI of the token contract to use for interfacing with it, if applicable (non-native).
+   * Defaults to ERC20.
+   *
    * @returns BigNumber representing the current value held by the wallet at the
    * specified address.
    */
-  public async getBalance(chainId: number, address: string): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).getBalance(address);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+  public async getBalance(
+    chainId: number,
+    address: string,
+    assetId = constants.AddressZero,
+    abi?: string[],
+  ): Promise<BigNumber> {
+    return await this.getProvider(chainId).getBalance(address, assetId, abi);
   }
   /**
    * Get the current gas price for the chain for which this instance is servicing.
@@ -78,13 +87,7 @@ export class ChainReader {
    * @returns BigNumber representing the current gas price.
    */
   public async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
-    const result = await this.getProvider(chainId).getGasPrice(requestContext);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      // bump gas price
-      return result.value.mul(120).div(100);
-    }
+    return await this.getProvider(chainId).getGasPrice(requestContext);
   }
 
   /**
@@ -95,42 +98,7 @@ export class ChainReader {
    * @returns number representing the decimals of the asset
    */
   public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
-    const result = await this.getProvider(chainId).getDecimalsForAsset(assetId);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the current blocktime
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @returns number representing the current blocktime
-   */
-  public async getBlockTime(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockTime();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
-  }
-
-  /**
-   * Gets the current block number
-   *
-   * @param chainId - The ID of the chain for which this call is related.
-   * @returns number representing the current block
-   */
-  public async getBlockNumber(chainId: number): Promise<number> {
-    const result = await this.getProvider(chainId).getBlockNumber();
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getDecimalsForAsset(assetId);
   }
 
   /**
@@ -143,12 +111,27 @@ export class ChainReader {
     chainId: number,
     blockHashOrBlockTag: providers.BlockTag | Promise<providers.BlockTag>,
   ): Promise<providers.Block | undefined> {
-    const result = await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
-    }
+    return await this.getProvider(chainId).getBlock(blockHashOrBlockTag);
+  }
+
+  /**
+   * Gets the current blocktime
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current blocktime
+   */
+  public async getBlockTime(chainId: number): Promise<number> {
+    return await this.getProvider(chainId).getBlockTime();
+  }
+
+  /**
+   * Gets the current block number
+   *
+   * @param chainId - The ID of the chain for which this call is related.
+   * @returns number representing the current block
+   */
+  public async getBlockNumber(chainId: number): Promise<number> {
+    return await this.getProvider(chainId).getBlockNumber();
   }
 
   /**
@@ -158,12 +141,208 @@ export class ChainReader {
    * @returns number representing the current blocktime
    */
   public async getTransactionReceipt(chainId: number, hash: string): Promise<providers.TransactionReceipt> {
-    const result = await this.getProvider(chainId).getTransactionReceipt(hash);
-    if (result.isErr()) {
-      throw result.error;
-    } else {
-      return result.value;
+    return await this.getProvider(chainId).getTransactionReceipt(hash);
+  }
+
+  /**
+   * Returns a hexcode string representation of the contract code at the given
+   * address. If there is no contract deployed at the given address, returns "0x".
+   *
+   * @param address - contract address.
+   *
+   * @returns Hexcode string representation of contract code.
+   */
+  public async getCode(chainId: number, address: string): Promise<string> {
+    return await this.getProvider(chainId).getCode(address);
+  }
+
+  /// CONTRACT READ METHODS
+  /**
+   * Gets token price in usd from price oracle
+   *
+   * @param chainId - The network identifier.
+   * @param assetId - The asset address to get price for.
+   */
+  async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
+    const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
+    const priceOracleContract = getDeployedPriceOracleContract(chainId);
+    if (!priceOracleContract) {
+      throw new ChainNotSupported(chainId.toString(), requestContext);
     }
+    const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
+    const tokenPrice = await this.readTx({
+      chainId,
+      to: priceOracleContract.address,
+      data: encodedTokenPriceData,
+    });
+    return BigNumber.from(tokenPrice);
+  }
+
+  /**
+   * Calculates total router gas fee in token.
+   *
+   * @param sendingChainId The source chain ID
+   * @param sendingAssetId The asset address on source chain
+   * @param receivingChainId The destination chain ID
+   * @param receivingAssetId The asset address on destination chain
+   * @param outputDecimals Decimal number of receiving asset
+   * @param _requestContext Request context instance
+   */
+  async calculateGasFeeInReceivingToken(
+    sendingChainId: number,
+    sendingAssetId: string,
+    receivingChainId: number,
+    receivingAssetId: string,
+    outputDecimals: number,
+    _requestContext?: RequestContext,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.calculateGasFeeInReceivingToken.name,
+      _requestContext,
+    );
+    this.logger.info("Method start", requestContext, methodContext, {
+      sendingChainId,
+      sendingAssetId,
+      receivingAssetId,
+      receivingChainId,
+      outputDecimals,
+    });
+
+    // NOTE: This is returning zero when doing a rinkeby to goerli tx. I believe this is because the oracle
+    // is not configured for goerli so theres no way to translate the price to goerli.
+    const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
+      // Calculate gas fees for sender fulfill.
+      this.calculateGasFee(
+        sendingChainId,
+        sendingAssetId,
+        outputDecimals,
+        "fulfill",
+        requestContext,
+        methodContext,
+        "sending",
+      ),
+      // Calculate gas fees for receiver prepare.
+      this.calculateGasFee(
+        receivingChainId,
+        receivingAssetId,
+        outputDecimals,
+        "prepare",
+        requestContext,
+        methodContext,
+        "receiving",
+      ),
+    ]);
+
+    return senderFulfillGasFee.add(receiverPrepareGasFee);
+  }
+
+  /**
+   * Calculates relayer fee in receiving token.
+   *
+   * @param receivingChainId - The destination chain ID.
+   * @param receivingAssetId - The asset address on destination chain.
+   * @param outputDecimals - Decimal number of receiving asset.
+   * @param requestContext - Request context instance.
+   */
+  async calculateGasFeeInReceivingTokenForFulfill(
+    receivingChainId: number,
+    receivingAssetId: string,
+    outputDecimals: number,
+    _requestContext: RequestContext,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.calculateGasFeeInReceivingTokenForFulfill.name,
+      _requestContext,
+    );
+    this.logger.info("Method start", requestContext, methodContext, {
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+    });
+    return await this.calculateGasFee(
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      "fulfill",
+      requestContext,
+      methodContext,
+      "receiving",
+    );
+  }
+
+  /**
+   * Calculates gas fee for specified chain and asset.
+   *
+   * @param chainId - The destination chain ID.
+   * @param assetId - The asset address on destination chain.
+   * @param decimals - Decimal number of asset.
+   * @param method - Which contract method to calculate gas fees for.
+   * @param requestContext - Request context instance.
+   * @param methodContext - Method context instance.
+   * @param whichChain - Whether it's sender or receiver chain, used for
+   * logging purposes only.
+   */
+  private async calculateGasFee(
+    chainId: number,
+    assetId: string,
+    decimals: number,
+    method: "prepare" | "fulfill",
+    requestContext: RequestContext,
+    methodContext?: MethodContext,
+    whichChain: "sending" | "receiving" | "" = "",
+  ): Promise<BigNumber> {
+    // If the list of chains with deployed Price Oracle Contracts does not include
+    // this chain ID, return 0.
+    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId)) return constants.Zero;
+
+    // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
+    // on the specified chain.
+    const tokenPricingChainId = NO_ORACLE_CHAINS.includes(chainId) ? 1 : chainId;
+    const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
+      this.getTokenPrice(tokenPricingChainId, constants.AddressZero),
+      this.getTokenPrice(tokenPricingChainId, assetId),
+      this.getGasPrice(chainId, requestContext),
+    ]);
+
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (chainId === 10) {
+      const gasPriceMainnet = await this.getGasPrice(1, requestContext);
+      const gasEstimate = method === "prepare" ? GAS_ESTIMATES.prepareL1 : GAS_ESTIMATES.fulfillL1;
+      l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
+    }
+
+    const gasLimit =
+      method === "prepare" ? BigNumber.from(GAS_ESTIMATES.prepare) : BigNumber.from(GAS_ESTIMATES.fulfill);
+    const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
+    const tokenAmountForGasFee = tokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
+
+    this.logger.info(
+      `Calculated gas fee on ${whichChain} chain ${chainId} for ${method}`,
+      requestContext,
+      methodContext,
+      {
+        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+        l1GasInUsd: l1GasInUsd.toString(),
+        ethPrice: ethPrice.toString(),
+        tokenPrice: tokenPrice.toString(),
+        gasPrice: gasPrice.toString(),
+      },
+    );
+
+    return tokenAmountForGasFee;
+  }
+
+  /**
+   * Helper to check for chain support gently.
+   *
+   * @param chainId - chainID of the chain to check
+   * @returns boolean indicating whether chain of chainID is supported by the service
+   */
+  public isSupportedChain(chainId: number): boolean {
+    return this.providers.has(chainId);
   }
 
   /// HELPERS

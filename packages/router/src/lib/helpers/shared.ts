@@ -1,7 +1,6 @@
 import {
   getNtpTimeSeconds as _getNtpTimeSeconds,
   RequestContext,
-  GAS_ESTIMATES,
   getChainData,
   createLoggingContext,
   getInvariantTransactionDigest,
@@ -10,6 +9,8 @@ import {
   PrepareParams,
   FulfillParams,
   CancelParams,
+  multicall as _multicall,
+  Call,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils, Contract } from "ethers";
 import { Evt } from "evt";
@@ -25,17 +26,11 @@ import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.s
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
+import { cachedPriceMap } from "../../bindings/prices";
 import { getDeployedChainIdsForGasFee } from "../../config";
 
 import { NotExistPriceOracle } from "../../lib/errors/contracts";
 import { getContext } from "../../router";
-
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
-import { SanitationCheckFailed } from "../../lib/errors/contracts";
-
-const { HashZero } = constants;
-
-const NO_ORACLE_CHAINS: number[] = [];
 
 /**
  * Helper to allow easy mocking
@@ -123,113 +118,17 @@ export const calculateGasFeeInReceivingToken = async (
   receivingAssetId: string,
   receivingChainId: number,
   outputDecimals: number,
-  _requestContext: RequestContext,
+  requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(calculateGasFeeInReceivingToken.name, _requestContext);
-  logger.info("Method start", requestContext, methodContext, {
+  const { txService } = getContext();
+  return txService.calculateGasFeeInReceivingToken(
     sendingChainId,
     sendingAssetId,
-    receivingAssetId,
     receivingChainId,
+    receivingAssetId,
     outputDecimals,
-  });
-
-  const chaindIdsForGasFee = getChainIdForGasFee();
-
-  if (!chaindIdsForGasFee.includes(sendingChainId) && !chaindIdsForGasFee.includes(receivingChainId))
-    return constants.Zero;
-  let totalCost = constants.Zero;
-  // TODO: this is returning zero when doing a rinkeby to goerli tx. i believe this is because the oracle
-  // is not configured for goerli so theres no way to translate the price to goerli
-  // TODO: we can combine these into just 2 if statements and remove the repeated logic
-  // calculate receiving token amount for gas fee
-  // if chaindIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
-  // if chaindIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
-
-  // NOTE: to handle optimism gas fees before oracle is deployed, use mainnet
-  // oracle token pricing and optimism gas price
-  const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
-  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
-
-  const tokenPricingAssetIdSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId)
-    ? await getMainnetEquivalent(sendingAssetId, sendingChainId)
-    : sendingAssetId;
-  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
-    : receivingAssetId;
-
-  logger.info("Getting token prices", requestContext, methodContext, {
-    tokenPricingSendingChain,
-    tokenPricingReceivingChain,
-    tokenPricingAssetIdSendingChain,
-    tokenPricingAssetIdReceivingChain,
-    outputDecimals,
-  });
-  if (chaindIdsForGasFee.includes(sendingChainId)) {
-    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
-      getTokenPrice(tokenPricingSendingChain, constants.AddressZero, requestContext),
-      getTokenPrice(tokenPricingSendingChain, tokenPricingAssetIdSendingChain, requestContext),
-      getGasPrice(sendingChainId, requestContext),
-    ]);
-
-    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-    let l1GasInUsd = BigNumber.from(0);
-    if (sendingChainId === 10) {
-      const gasPriceMainnet = await getGasPrice(1, requestContext);
-      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.fulfillL1).mul(ethPriceInSendingChain);
-    }
-    const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain).add(l1GasInUsd);
-    const tokenAmountForGasFee = receivingTokenPrice.isZero()
-      ? constants.Zero
-      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-    totalCost = totalCost.add(tokenAmountForGasFee);
-    logger.info("Calculated cost on sending chain", requestContext, methodContext, {
-      totalCost: totalCost.toString(),
-      l1GasInUsd: l1GasInUsd.toString(),
-      ethPriceInSendingChain: ethPriceInSendingChain.toString(),
-      receivingTokenPrice: receivingTokenPrice.toString(),
-      gasPriceInSendingChain: gasPriceInSendingChain.toString(),
-    });
-  }
-
-  if (chaindIdsForGasFee.includes(receivingChainId)) {
-    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-    const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-      getTokenPrice(tokenPricingReceivingChain, constants.AddressZero, requestContext),
-      getTokenPrice(tokenPricingReceivingChain, tokenPricingAssetIdReceivingChain, requestContext),
-      getGasPrice(receivingChainId, requestContext),
-    ]);
-
-    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-    let l1GasInUsd = BigNumber.from(0);
-    if (receivingChainId === 10) {
-      const gasPriceMainnet = await getGasPrice(1, requestContext);
-      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
-    }
-    const gasAmountInUsd = gasPriceInReceivingChain
-      .mul(gasLimitForPrepare)
-      .mul(ethPriceInReceivingChain)
-      .add(l1GasInUsd);
-    const tokenAmountForGasFee = receivingTokenPrice.isZero()
-      ? constants.Zero
-      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-    totalCost = totalCost.add(tokenAmountForGasFee);
-    logger.info("Calculated cost on receiving chain", requestContext, methodContext, {
-      totalCost: totalCost.toString(),
-      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-      l1GasInUsd: l1GasInUsd.toString(),
-      ethPriceInSendingChain: ethPriceInReceivingChain.toString(),
-      receivingTokenPrice: receivingTokenPrice.toString(),
-      gasPriceInSendingChain: gasPriceInReceivingChain.toString(),
-    });
-  }
-
-  // convert back to the intended decimals
-  return totalCost;
+    requestContext,
+  );
 };
 
 /**
@@ -244,66 +143,19 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   receivingAssetId: string,
   receivingChainId: number,
   outputDecimals: number,
-  _requestContext: RequestContext,
+  requestContext: RequestContext,
 ): Promise<BigNumber> => {
-  const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(calculateGasFeeInReceivingToken.name, _requestContext);
-  logger.info("Method start", requestContext, methodContext, {
-    receivingAssetId,
+  const { txService } = getContext();
+  return txService.calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId,
+    receivingAssetId,
     outputDecimals,
-  });
-  const chaindIdsForGasFee = getChainIdForGasFee();
-
-  if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
-  let totalCost = constants.Zero;
-
-  const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
-
-  const tokenPricingAssetIdReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId)
-    ? await getMainnetEquivalent(receivingAssetId, receivingChainId)
-    : receivingAssetId;
-
-  if (chaindIdsForGasFee.includes(receivingChainId)) {
-    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-      getTokenPrice(tokenPricingReceivingChain, constants.AddressZero, requestContext),
-      getTokenPrice(tokenPricingReceivingChain, tokenPricingAssetIdReceivingChain, requestContext),
-      getGasPrice(receivingChainId, requestContext),
-    ]);
-
-    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-    let l1GasInUsd = BigNumber.from(0);
-    if (receivingChainId === 10) {
-      const gasPriceMainnet = await getGasPrice(1, requestContext);
-      l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
-    }
-
-    const gasAmountInUsd = gasPriceInReceivingChain
-      .mul(gasLimitForFulfill)
-      .mul(ethPriceInReceivingChain)
-      .add(l1GasInUsd);
-    const tokenAmountForGasFee = receivingTokenPrice.isZero()
-      ? constants.Zero
-      : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-    logger.info("Calculated cost on receiving chain for fulfill", requestContext, methodContext, {
-      totalCost: totalCost.toString(),
-      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-      l1GasInUsd: l1GasInUsd.toString(),
-      ethPriceInReceivingChain: ethPriceInReceivingChain.toString(),
-      receivingTokenPrice: receivingTokenPrice.toString(),
-      gasPriceInReceivingChain: gasPriceInReceivingChain.toString(),
-    });
-
-    totalCost = totalCost.add(tokenAmountForGasFee);
-  }
-
-  return totalCost;
+    requestContext,
+  );
 };
 
 /**
- * Gets token price in usd from price oracle
+ * Gets token price in usd from cache first. If its not cached, gets price from price oracle.
  *
  * @param chainId The network identifier
  * @param assetId The asset address to get price for
@@ -313,11 +165,29 @@ export const getTokenPrice = async (
   assetId: string,
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
+  const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+  const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
+  const curTimeInSecs = await getNtpTimeSeconds();
+
+  // If it's been less than a minute since we retrieved token price, send the last update in token price.
+  if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
+    return cachedTokenPrice.price;
+  }
+
+  // Gets token price from onchain.
+  const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
+
+  return tokenPrice;
+};
+
+export const getTokenPriceFromOnChain = async (
+  chainId: number,
+  assetId: string,
+  requestContext: RequestContext,
+): Promise<BigNumber> => {
   const { txService } = getContext();
-  const oracleContractAddress = getOracleContractAddress(chainId, requestContext);
-  const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-  const tokenPrice = await txService.readTx({ chainId, to: oracleContractAddress, data: encodedTokenPriceData });
-  return BigNumber.from(tokenPrice);
+  return txService.getTokenPrice(chainId, assetId, requestContext);
 };
 
 /**
@@ -496,4 +366,16 @@ export const sanitationCheck = async (
       }
     }
   }
+/**
+ * Runs multiple calls at a time, call data should be read methods. used to make it easier for sinon mocks to happen in test cases.
+ *
+ * @param abi - The ABI data of target contract
+ * @param calls - The call data what you want to read from contract
+ * @param multicallAddress - The address of multicall contract deployed to configured chain
+ * @param rpcUrl - The rpc endpoints what you want to call with
+ *
+ * @returns Array in ethers.BigNumber
+ */
+export const multicall = async (abi: any[], calls: Call[], multicallAddress: string, rpcUrl: string) => {
+  return await _multicall(abi, calls, multicallAddress, rpcUrl);
 };

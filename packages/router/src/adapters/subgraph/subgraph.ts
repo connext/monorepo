@@ -131,7 +131,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         if ((allReceiverExpired.router?.transactions.length ?? 0) > 0) {
           logger.debug("Got receiver expired", requestContext, methodContext, {
             chainId,
-            allReceiverExpired: jsonifyError(allReceiverExpired as any),
+            allReceiverExpired: allReceiverExpired.router?.transactions,
           });
         }
 
@@ -323,7 +323,23 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             return undefined;
           }) ?? [];
         const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction<any>[];
-        return filterUndefined.concat(receiverNotConfigured);
+        const remainingReceiverExpired = (allReceiverExpired.router?.transactions ?? [])
+          .filter(
+            (expTx) =>
+              !filterUndefined.map((tx) => tx.crosschainTx.invariant.transactionId).includes(expTx.transactionId),
+          )
+          .map((expTx) => {
+            const { sending: receiving, invariant } = sdkSenderTransactionToCrosschainTransaction(expTx);
+            return {
+              crosschainTx: {
+                invariant,
+                receiving,
+              },
+              payload: {},
+              status: CrosschainTransactionStatus.ReceiverExpired,
+            } as ActiveTransaction<"ReceiverExpired">;
+          });
+        return filterUndefined.concat(receiverNotConfigured).concat(remainingReceiverExpired);
       } catch (e) {
         // Set this chain's error.
         errors.set(cId, e);

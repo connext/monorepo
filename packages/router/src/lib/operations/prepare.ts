@@ -82,9 +82,28 @@ export const prepare = async (
     throw new AuctionSignerInvalid(signerAddress, recovered, { methodContext, requestContext });
   }
 
-  if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {
+  const thresholdPct = Number(config.allowedTolerance.toString().split(".")[0]);
+  const highThreshold = BigNumber.from(bid.amount)
+    .mul(100 + thresholdPct)
+    .div(100);
+  const lowThreshold = BigNumber.from(bid.amount)
+    .mul(100 - thresholdPct)
+    .div(100);
+  if (
+    BigNumber.from(senderAmount).gt(highThreshold) ||
+    BigNumber.from(senderAmount).lt(lowThreshold) ||
+    bid.transactionId !== invariantData.transactionId
+  ) {
     // cancellable error
-    throw new SenderChainDataInvalid({ methodContext, requestContext });
+    throw new SenderChainDataInvalid({
+      methodContext,
+      requestContext,
+      senderAmount: senderAmount.toString(),
+      highThreshold: highThreshold.toString(),
+      lowThreshold: lowThreshold.toString(),
+      bid,
+      invariantData,
+    });
   }
 
   const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);

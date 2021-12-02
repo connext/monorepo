@@ -109,8 +109,7 @@ describe("Auction Operation", () => {
       getChainIdForGasFeeStub.returns([1337]);
 
       // it should take a gas fee for fulfill transactions if sendingChain is fee chain.
-      // amountReceived = amount.sub(fulfillGasFee)
-      const expectedReceiverAmount = "99987400000000000000";
+      const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -150,7 +149,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for prepare transactions if receivingChain is fee chain.
       // amountReceived = amount.sub(prepareGasFee)
-      const expectedReceiverAmount = "99988800000000000000";
+      const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -190,7 +189,7 @@ describe("Auction Operation", () => {
 
       // it should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains.
       // amountReceived = amount.sub(prepareGasFee).sub(fulfillGasFee)
-      const expectedReceiverAmount = "99976200000000000000";
+      const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -230,7 +229,7 @@ describe("Auction Operation", () => {
       getChainIdForGasFeeStub.returns([1]);
 
       // it shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains
-      const expectedReceiverAmount = "100000000000000000000";
+      const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -271,7 +270,7 @@ describe("Auction Operation", () => {
         amount: auctionPayload.amount,
         receivingChainId: auctionPayload.receivingChainId,
         receivingAssetId: auctionPayload.receivingAssetId,
-        amountReceived: MUTATED_AMOUNT,
+        amountReceived: BigNumber.from(MUTATED_AMOUNT).sub(100).toString(),
         bidExpiry: BID_EXPIRY,
         receivingAddress: auctionPayload.receivingAddress,
         transactionId: auctionPayload.transactionId,

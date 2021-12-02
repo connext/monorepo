@@ -28,6 +28,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 const MIN_GAS = utils.parseEther("0.1");
 const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain native asset unit
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 dotenvConfig();
 
@@ -83,13 +84,30 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   return chainIdsForGasFee;
 };
 
+/**
+ * Returns the address of the `Multicall` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.Multicall;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  defaultInitialGas: Type.Optional(TIntegerString),
+  defaultInitialGasPrice: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
+  multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
   allowFulfillRelay: Type.Boolean(),
@@ -129,7 +147,9 @@ export const NxtpRouterConfigSchema = Type.Object({
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
+  allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
   cleanUpMode: Type.Boolean(),
+  priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
 
@@ -211,7 +231,13 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
     requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
+    priceCacheMode: process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCacheMode || configFile.priceCacheMode || true,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
+    allowedTolerance:
+      process.env.NXTP_ALLOWED_TOLERANCE ||
+      configJson.allowedTolerance ||
+      configFile.allowedTolerance ||
+      DEFAULT_ALLOWED_TOLERANCE,
   };
 
   const overridechainRecommendedConfirmations =
@@ -255,6 +281,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.priceOracleAddress) {
       const res = getDeployedPriceOracleContract(parseInt(chainId));
       nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
+    }
+
+    if (!chainConfig.multicallAddress) {
+      const res = getDeployedMulticallContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].multicallAddress = res?.address;
     }
 
     if (!chainConfig.minGas) {
