@@ -21,6 +21,7 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
 } from "@connext/nxtp-contracts/typechain";
 import { Router as TRouter } from "@connext/nxtp-contracts/typechain";
+import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -32,9 +33,12 @@ import { getDeployedChainIdsForGasFee } from "../../config";
 import { NotExistPriceOracle } from "../../lib/errors/contracts";
 import { getContext } from "../../router";
 
+import { SanitationCheckFailed } from "../errors";
 /**
  * Helper to allow easy mocking
  */
+
+const { HashZero } = constants;
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
@@ -222,26 +226,23 @@ export const startContractListeners = (): void => {
       // needs event listeners for listening to relayed events
       // TODO remove this when we can query gelato for tx receipts
       // alternatively allow listening on the subgraph
-      const contract = new Contract(
-        conf.transactionManagerAddress,
-        TransactionManagerArtifact.abi,
-        txService.getProvider(chainId).provider,
-      ) as TTransactionManager;
-
-      contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
-        prepareEvt.post({ event, args });
-      });
-
-      contract.on(
-        "TransactionFulfilled",
-        (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
-          fulfillEvt.post({ event, args });
-        },
-      );
-
-      contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
-        cancelEvt.post({ event, args });
-      });
+      // const contract = new Contract(
+      //   conf.transactionManagerAddress,
+      //   TransactionManagerArtifact.abi,
+      //   txService.getProvider(chainId).provider,
+      // ) as TTransactionManager;
+      // contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
+      //   prepareEvt.post({ event, args });
+      // });
+      // contract.on(
+      //   "TransactionFulfilled",
+      //   (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
+      //     fulfillEvt.post({ event, args });
+      //   },
+      // );
+      // contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
+      //   cancelEvt.post({ event, args });
+      // });
     }
   });
 };
@@ -366,6 +367,7 @@ export const sanitationCheck = async (
       }
     }
   }
+};
 /**
  * Runs multiple calls at a time, call data should be read methods. used to make it easier for sinon mocks to happen in test cases.
  *

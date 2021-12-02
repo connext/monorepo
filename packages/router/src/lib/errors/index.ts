@@ -18,6 +18,8 @@ export {
   BidExpiryInvalid,
 } from "./prepare";
 
+export { SanitationCheckFailed, NotExistPriceOracle } from "./contracts";
+
 export { NoChainConfig, NotEnoughRelayerFee } from "./fulfill";
 
 export { ReceiverTxExists } from "./cancel";

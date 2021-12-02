@@ -448,8 +448,8 @@ export class NxtpSdkBase {
       numAuctionResponsesQuorum,
     } = params;
 
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
     if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
@@ -618,13 +618,15 @@ export class NxtpSdkBase {
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
           if (signer !== data.bid.router) {
-            const code = await receivingChainProvider.getCode(data.bid.router);
+            const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
             if (code !== "0x") {
-              const routerSigner = await new Contract(
-                data.bid.router,
-                RouterAbi,
-                receivingChainProvider,
-              ).routerSigner();
+              const encodedData = new Interface(RouterAbi).encodeFunctionData("routerSigner");
+              const routerSigner = await this.chainReader.readTx({
+                to: data.bid.router,
+                data: encodedData,
+                chainId: receivingChainId,
+              });
+
               if (routerSigner !== signer) {
                 const msg = "Invalid routerContract signature on bid";
                 this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router, routerSigner });
