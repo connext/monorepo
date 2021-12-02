@@ -1095,7 +1095,9 @@ export class NxtpSdkBase {
     });
     return await this.chainReader.calculateGasFeeInReceivingToken(
       sendingChainId,
+      sendingChainId,
       sendingAssetId,
+      receivingChainId,
       receivingChainId,
       receivingAssetId,
       outputDecimals,
@@ -1129,6 +1131,7 @@ export class NxtpSdkBase {
       receivingAssetId,
     });
     const totalCost = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
+      receivingChainId,
       receivingChainId,
       receivingAssetId,
       outputDecimals,

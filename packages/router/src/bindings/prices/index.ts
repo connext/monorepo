@@ -1,11 +1,11 @@
 import { BigNumber, constants } from "ethers";
 import { createLoggingContext, getNtpTimeSeconds, jsonifyError } from "@connext/nxtp-utils";
+import { cachedPriceMap } from "@connext/nxtp-txservice";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
 import { getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
 
-export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
 
@@ -77,7 +77,10 @@ export const bindPrices = async () => {
               assetIds.map(async (assetId) => {
                 const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
                 const priceCacheKey = chainId.toString().concat("-").concat(assetId);
-                cachedPriceMap.set(priceCacheKey, { timestamp: curTimeInSecs, price: tokenPrice });
+                cachedPriceMap.set(priceCacheKey, {
+                  timestamp: curTimeInSecs,
+                  price: BigNumber.from(tokenPrice),
+                });
                 return tokenPrice;
               }),
             );
