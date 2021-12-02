@@ -18,14 +18,14 @@ import {
   Tracker,
   attemptedTransfer,
   completedTransfer,
-  receiverExpired,
-  receiverFailedPrepare,
-  senderExpired,
-  senderFailedCancel,
-  senderFailedFulfill,
   successfulAuction,
-  receiverFailedCancel,
   TransactionReasons,
+  senderFailedCancel,
+  receiverFailedPrepare,
+  senderFailedFulfill,
+  receiverExpired,
+  senderExpired,
+  receiverFailedCancel,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";

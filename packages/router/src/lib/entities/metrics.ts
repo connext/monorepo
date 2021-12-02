@@ -141,49 +141,6 @@ export const liquidityLocked = new Gauge({
 //////////////////////////
 ///// Low Level
 
-// All success cases (i.e. sending tx didnt fail) should be
-// tracked through the analytics subgraph. All of the failure
-// cases are tracked in real-time if the attempt to send a tx
-// fails
-
-// NOTE: cannot track receiver fulfill failed
-// TODO: is updating these 1/hr enough?
-export const senderPrepared = new Counter({
-  name: "sender_prepared",
-  help: "sender_prepared_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const receiverPrepared = new Counter({
-  name: "receiver_prepared",
-  help: "receiver_prepared_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const senderFulfilled = new Counter({
-  name: "sender_fulfilled",
-  help: "sender_fulfilled_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const receiverFulfilled = new Counter({
-  name: "receiver_fulfilled",
-  help: "receiver_fulfilled_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const senderCancelled = new Counter({
-  name: "sender_cancelled",
-  help: "sender_cancelled_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
-export const receiverCancelled = new Counter({
-  name: "receiver_cancelled",
-  help: "receiver_cancelled_help",
-  labelNames: ["assetId", "chainId"] as const,
-});
-
 export const senderExpired = new Counter({
   name: "sender_expired",
   help: "sender_expired_help",
