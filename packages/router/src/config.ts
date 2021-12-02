@@ -110,7 +110,7 @@ export const TChainConfig = Type.Object({
   multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
-  allowFulfillRelay: Type.Boolean(),
+  allowRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
   routerContractRelayerAsset: Type.Optional(Type.String()),
@@ -148,6 +148,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
   allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
+  allowRelay: Type.Boolean(),
   cleanUpMode: Type.Boolean(),
   priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
@@ -238,6 +239,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
+    allowRelay: process.env.NXTP_ALLOW_RELAY || configJson.allowRelay || configFile.allowRelay || false,
   };
 
   const overridechainRecommendedConfirmations =
@@ -296,8 +298,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (chainConfig.allowFulfillRelay === undefined || chainConfig.allowFulfillRelay === null) {
-      nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
+    if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
+      nxtpConfig.chainConfig[chainId].allowRelay = false;
     }
 
     if (!chainConfig.subgraph) {
