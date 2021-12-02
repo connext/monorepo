@@ -95,6 +95,7 @@ export const TChainConfig = Type.Object({
   allowFulfillRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
+  routerContractRelayerAsset: Type.Optional(Type.String()),
 });
 
 export const TSwapPool = Type.Object({
@@ -190,6 +191,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
+    routerContractAddress:
+      process.env.NXTP_ROUTER_CONTRACT_ADDRESS || configJson.routerContractAddress || configFile.routerContractAddress,
     authUrl,
     natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
