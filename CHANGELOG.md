@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Cleanup prometheus collection
+
 ## 0.0.93
 
 - [router] Improved caching and auction response time
