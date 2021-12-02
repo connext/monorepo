@@ -72,7 +72,7 @@ export const makeRouter = async () => {
         confirmations: config.confirmations,
         providers: config.providers.map((url) => ({ url })),
         gasStations: config.gasStations,
-        defaultInitialGas: config.defaultInitialGas,
+        defaultInitialGasPrice: config.defaultInitialGasPrice,
       } as ChainConfig;
     });
     // TODO: txserviceconfig log level

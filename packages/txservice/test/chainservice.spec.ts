@@ -7,7 +7,7 @@ import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST
 import { ConfigurationError, ProviderNotConfigured, TransactionReverted } from "../src/error";
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
-import { Gas, NxtpTxServiceEvents, Transaction } from "../src/types";
+import { Gas, NxtpTxServiceEvents, OnchainTransaction } from "../src/types";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -22,7 +22,7 @@ let context: RequestContext = {
   origin: "",
 };
 let dispatchCallbacks: DispatchCallbacks;
-let transaction: Transaction;
+let transaction: OnchainTransaction;
 const chains = {
   [TEST_SENDER_CHAIN_ID.toString()]: {
     providers: [{ url: "https://-------------" }],
@@ -39,7 +39,7 @@ describe("ChainService", () => {
     signer = createStubInstance(Wallet);
     // signer.connect.resolves(true);
     // This data structure is used to pass info back through the event callbacks.
-    transaction = new Transaction(
+    transaction = new OnchainTransaction(
       context,
       TEST_TX,
       1,

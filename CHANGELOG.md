@@ -3,6 +3,9 @@
 ## Next Release
 
 - [router] Cleanup prometheus collection
+- [router] delegate fee calc to chainreader
+- [sdk] integrate chainreader
+- [txservice] introduced provider syncing
 
 ## 0.0.93
 

@@ -66,7 +66,7 @@ export const TEST_TX_RECEIPT: TransactionReceipt = {
 
 export const makeChaiReadable = (obj: any) => {
   const result = {};
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (BigNumber.isBigNumber(obj[key])) {
       result[key] = BigNumber.from(obj[key]).toString();
     } else {
