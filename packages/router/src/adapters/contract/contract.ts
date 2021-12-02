@@ -23,8 +23,6 @@ import {
   cancelEvt,
 } from "../../lib/helpers";
 
-const flag = false;
-
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
  *
@@ -97,7 +95,7 @@ export const prepare = async (
       signature,
     ]);
 
-    if (isChainSupportedByGelato(chainId) && flag) {
+    if (isChainSupportedByGelato(chainId)) {
       logger.info("gelato prepare", requestContext, methodContext, {
         prepareParams,
         routerRelayerFeeAsset,
@@ -213,7 +211,7 @@ export const fulfill = async (
       signature,
     ]);
 
-    if (isChainSupportedByGelato(chainId) && flag) {
+    if (isChainSupportedByGelato(chainId)) {
       logger.info("submit router contract fulfill using Gelato Relayer", requestContext, methodContext, {
         fulfillParams,
       });
@@ -317,7 +315,7 @@ export const cancel = async (
       signature,
     ]);
 
-    if (isChainSupportedByGelato(chainId) && flag) {
+    if (isChainSupportedByGelato(chainId)) {
       logger.info("submit router contract cancel using Gelato Relayer", requestContext, methodContext, {
         cancelParams,
       });
