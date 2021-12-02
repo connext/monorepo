@@ -1,8 +1,5 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
-import { getAddress } from "@ethersproject/address";
-import { BigNumber } from "@ethersproject/bignumber";
-import { formatUnits } from "@ethersproject/units";
-import { constants } from "ethers";
+import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import { feesCollected, gasConsumed, totalTransferredVolume, TransactionReason } from "../entities";
 import { getTokenPrice } from "./shared";
@@ -24,7 +21,7 @@ export const convertToUsd = async (
 
   // Convert to USD
   const entry =
-    chainData.get(chainId.toString())?.assetId[getAddress(assetId)] ??
+    chainData.get(chainId.toString())?.assetId[utils.getAddress(assetId)] ??
     chainData.get(chainId.toString())?.assetId[assetId.toLowerCase()] ??
     chainData.get(chainId.toString())?.assetId[assetId.toUpperCase()];
   let decimals = entry?.decimals;
@@ -34,7 +31,7 @@ export const convertToUsd = async (
   const usdWei = BigNumber.from(amount).mul(price).div(BigNumber.from(10).pow(18));
 
   // Convert to correct decimals
-  return +formatUnits(usdWei, decimals);
+  return +utils.formatUnits(usdWei, decimals);
 };
 
 export const getAssetName = (assetId: string, chainId: number): string | undefined => {
