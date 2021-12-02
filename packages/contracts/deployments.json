@@ -4655,7 +4655,7 @@
           ]
         },
         "RouterFactory": {
-          "address": "0x8797F18B690684613d8C1Df4837e6C3eE46D3B60",
+          "address": "0x834B3786575A4aFA67089e15c75cFB3dA8a308Ec",
           "abi": [
             {
               "inputs": [
@@ -4767,11 +4767,6 @@
                   "internalType": "address",
                   "name": "_transactionManager",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_chainId",
-                  "type": "uint256"
                 }
               ],
               "name": "init",
@@ -4816,19 +4811,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_transactionManager",
-                  "type": "address"
-                }
-              ],
-              "name": "setTransactionManager",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -7000,7 +6982,7 @@
       "chainId": "5",
       "contracts": {
         "RouterFactory": {
-          "address": "0x8797F18B690684613d8C1Df4837e6C3eE46D3B60",
+          "address": "0x834B3786575A4aFA67089e15c75cFB3dA8a308Ec",
           "abi": [
             {
               "inputs": [
@@ -7112,11 +7094,6 @@
                   "internalType": "address",
                   "name": "_transactionManager",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_chainId",
-                  "type": "uint256"
                 }
               ],
               "name": "init",
@@ -7161,19 +7138,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_transactionManager",
-                  "type": "address"
-                }
-              ],
-              "name": "setTransactionManager",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
