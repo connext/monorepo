@@ -1,6 +1,6 @@
 export const chainConfig: Record<
   number,
-  { provider: string[]; subgraph?: string; transactionManagerAddress?: string }
+  { providers: string[]; subgraph?: string; transactionManagerAddress?: string }
 > = JSON.parse(process.env.REACT_APP_CHAIN_CONFIG!);
 
 // arrays of "swap pools"

@@ -1,12 +1,29 @@
-import { utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
+import { BigNumber, utils, Wallet } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 
 import { ChainReader } from "../src/chainreader";
 import { ChainRpcProvider } from "../src/provider";
-import { TEST_SENDER_CHAIN_ID, TEST_TX, TEST_READ_TX, TEST_TX_RECEIPT, makeChaiReadable } from "./constants";
-import { ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
-import { getRandomAddress, getRandomBytes32, mkAddress, RequestContext, expect, Logger } from "@connext/nxtp-utils";
-import { err, ok } from "neverthrow";
+import {
+  TEST_SENDER_CHAIN_ID,
+  TEST_TX,
+  TEST_READ_TX,
+  TEST_TX_RECEIPT,
+  makeChaiReadable,
+  TEST_RECEIVER_CHAIN_ID,
+} from "./constants";
+import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
+import * as contractFns from "../src/contracts";
+import {
+  getRandomAddress,
+  getRandomBytes32,
+  mkAddress,
+  RequestContext,
+  expect,
+  Logger,
+  requestContextMock,
+  GAS_ESTIMATES,
+} from "@connext/nxtp-utils";
+import { Interface } from "ethers/lib/utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -56,7 +73,7 @@ describe("ChainReader", () => {
   describe("#readTx", () => {
     it("happy: returns exactly what it reads", async () => {
       const fakeData = getRandomBytes32();
-      provider.readTransaction.resolves(ok(fakeData));
+      provider.readTransaction.resolves(fakeData);
 
       const data = await chainReader.readTx(TEST_READ_TX);
 
@@ -66,7 +83,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.readTransaction.resolves(err(new RpcError("fail")));
+      provider.readTransaction.rejects(new RpcError("fail"));
 
       await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
     });
@@ -76,7 +93,7 @@ describe("ChainReader", () => {
     it("happy", async () => {
       const testBalance = utils.parseUnits("42", "ether");
       const testAddress = getRandomAddress();
-      provider.getBalance.resolves(ok(testBalance));
+      provider.getBalance.resolves(testBalance);
 
       const balance = await chainReader.getBalance(TEST_SENDER_CHAIN_ID, testAddress);
 
@@ -86,7 +103,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBalance.resolves(err(new RpcError("fail")));
+      provider.getBalance.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
     });
@@ -96,7 +113,7 @@ describe("ChainReader", () => {
     it("happy", async () => {
       const decimals = 18;
       const assetId = mkAddress("0xaaa");
-      provider.getDecimalsForAsset.resolves(ok(decimals));
+      provider.getDecimalsForAsset.resolves(decimals);
 
       const retrieved = await chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, assetId);
 
@@ -106,7 +123,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getDecimalsForAsset.resolves(err(new RpcError("fail")));
+      provider.getDecimalsForAsset.rejects(new RpcError("fail"));
 
       await expect(chainReader.getDecimalsForAsset(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith(
         "fail",
@@ -117,7 +134,7 @@ describe("ChainReader", () => {
   describe("#getBlockTime", () => {
     it("happy", async () => {
       const time = Math.floor(Date.now() / 1000);
-      provider.getBlockTime.resolves(ok(time));
+      provider.getBlockTime.resolves(time);
 
       const blockTime = await chainReader.getBlockTime(TEST_SENDER_CHAIN_ID);
 
@@ -126,7 +143,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBlockTime.resolves(err(new RpcError("fail")));
+      provider.getBlockTime.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBlockTime(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
@@ -135,7 +152,7 @@ describe("ChainReader", () => {
   describe("#getBlockNumber", () => {
     it("happy", async () => {
       const testBlockNumber = 42;
-      provider.getBlockNumber.resolves(ok(testBlockNumber));
+      provider.getBlockNumber.resolves(testBlockNumber);
 
       const blockNumber = await chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID);
 
@@ -144,7 +161,7 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getBlockNumber.resolves(err(new RpcError("fail")));
+      provider.getBlockNumber.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBlockNumber(TEST_SENDER_CHAIN_ID)).to.be.rejectedWith("fail");
     });
@@ -152,7 +169,7 @@ describe("ChainReader", () => {
 
   describe("#getTransactionReceipt", () => {
     it("happy", async () => {
-      provider.getTransactionReceipt.resolves(ok(TEST_TX_RECEIPT));
+      provider.getTransactionReceipt.resolves(TEST_TX_RECEIPT);
 
       const receipt = await chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash);
 
@@ -161,11 +178,179 @@ describe("ChainReader", () => {
     });
 
     it("should throw if provider fails", async () => {
-      provider.getTransactionReceipt.resolves(err(new RpcError("fail")));
+      provider.getTransactionReceipt.rejects(new RpcError("fail"));
 
       await expect(
         chainReader.getTransactionReceipt(TEST_SENDER_CHAIN_ID, TEST_TX_RECEIPT.transactionHash),
       ).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getCode", () => {
+    it("happy", async () => {
+      const code = "0x12345789";
+      provider.getCode.resolves(code);
+
+      const result = await chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"));
+
+      expect(result).to.be.eq(code);
+      expect(provider.getCode.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getCode.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getTokenPrice", () => {
+    const priceOracleContractFakeAddr = mkAddress("0x7f");
+    let getDeployedPriceOracleContractStub: SinonStub;
+    let getPriceOracleInterfaceStub: SinonStub;
+    let readTxStub: SinonStub;
+    let interfaceStub: SinonStubbedInstance<Interface>;
+    beforeEach(() => {
+      interfaceStub = createStubInstance(Interface);
+      getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
+      getPriceOracleInterfaceStub.returns(interfaceStub);
+      getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
+      getDeployedPriceOracleContractStub.returns({
+        address: priceOracleContractFakeAddr,
+        abi: ["fakeAbi()"],
+      });
+      readTxStub = Sinon.stub(chainReader, "readTx");
+    });
+
+    it("happy", async () => {
+      const assetId = mkAddress("0xc3");
+      const data = "0x123456789";
+      const tokenPrice = "5812471953821";
+      interfaceStub.encodeFunctionData.returns(data);
+      readTxStub.resolves(tokenPrice);
+
+      const result = await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId);
+
+      expect(result.toString()).to.be.eq(tokenPrice);
+      expect(getDeployedPriceOracleContractStub.getCall(0).args).to.deep.eq([TEST_SENDER_CHAIN_ID]);
+      expect(interfaceStub.encodeFunctionData.getCall(0).args).to.deep.eq(["getTokenPrice", [assetId]]);
+      expect(readTxStub.getCall(0).args[0]).to.deep.eq({
+        chainId: TEST_SENDER_CHAIN_ID,
+        to: priceOracleContractFakeAddr,
+        data,
+      });
+    });
+
+    it("should throw ChainNotSupported if chain not supported for token pricing", async () => {
+      getDeployedPriceOracleContractStub.returns(undefined);
+      await expect(chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
+        ChainNotSupported,
+      );
+    });
+  });
+
+  describe("#calculateGasFeeInReceivingToken", () => {
+    let calculateGasFeeStub: SinonStub;
+    beforeEach(() => {
+      calculateGasFeeStub = Sinon.stub(chainReader as any, "calculateGasFee");
+    });
+
+    it("happy: should return sum of both chains calculations'", async () => {
+      const gasFeeSenderFulfill = BigNumber.from(124098148);
+      const gasFeeReceiverPrepare = BigNumber.from(1151259044);
+      const expectedTotal = gasFeeReceiverPrepare.add(gasFeeSenderFulfill);
+      const sendingAssetId = mkAddress("0xa1");
+      const receivingAssetId = mkAddress("0xb2");
+      calculateGasFeeStub.onFirstCall().resolves(gasFeeSenderFulfill);
+      calculateGasFeeStub.onSecondCall().resolves(gasFeeReceiverPrepare);
+      const result = await chainReader.calculateGasFeeInReceivingToken(
+        TEST_SENDER_CHAIN_ID,
+        sendingAssetId,
+        TEST_RECEIVER_CHAIN_ID,
+        receivingAssetId,
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.eq(expectedTotal.toNumber());
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+        TEST_SENDER_CHAIN_ID,
+        sendingAssetId,
+        18,
+        "fulfill",
+      ]);
+      expect(calculateGasFeeStub.getCall(1).args.slice(0, 4)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
+        receivingAssetId,
+        18,
+        "prepare",
+      ]);
+    });
+  });
+
+  describe("#calculateGasFeeInReceivingToken", () => {
+    let calculateGasFeeStub: SinonStub;
+    beforeEach(() => {
+      calculateGasFeeStub = Sinon.stub(chainReader as any, "calculateGasFee");
+    });
+
+    it("happy: should call calculateGasFee for fulfill", async () => {
+      const gasFee = BigNumber.from(71221304);
+      const assetId = mkAddress("0xb2");
+      calculateGasFeeStub.onFirstCall().resolves(gasFee);
+      const result = await chainReader.calculateGasFeeInReceivingTokenForFulfill(
+        TEST_RECEIVER_CHAIN_ID,
+        assetId,
+        18,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.eq(gasFee.toNumber());
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
+        assetId,
+        18,
+        "fulfill",
+      ]);
+    });
+  });
+
+  describe("#calculateGasFee", () => {
+    const testEthPrice = 1;
+    const testTokenPrice = 2;
+    const testGasPrice = 5;
+    let tokenPriceStub: SinonStub;
+    let gasPriceStub: SinonStub;
+    beforeEach(() => {
+      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [1];
+      tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
+      gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
+      tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
+      tokenPriceStub.onSecondCall().resolves(BigNumber.from(testTokenPrice));
+      gasPriceStub.onFirstCall().resolves(BigNumber.from(testGasPrice));
+    });
+
+    it("happy: should calculate for prepare if chain included and prepare specified", async () => {
+      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "prepare", requestContextMock);
+      expect(result.toNumber()).to.be.eq(
+        (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
+      );
+    });
+
+    it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
+      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "fulfill", requestContextMock);
+      expect(result.toNumber()).to.be.eq(
+        (testGasPrice * parseInt(GAS_ESTIMATES.fulfill) * testEthPrice) / testTokenPrice,
+      );
+    });
+
+    it("should return zero if price oracle isn't configured for that chain", async () => {
+      const result = await (chainReader as any).calculateGasFee(
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(0);
     });
   });
 

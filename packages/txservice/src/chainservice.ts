@@ -5,7 +5,7 @@ import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connex
 import { TransactionServiceConfig, ChainConfig } from "./config";
 import {
   WriteTransaction,
-  Transaction,
+  OnchainTransaction,
   NxtpTxServiceEventPayloads,
   NxtpTxServiceEvent,
   NxtpTxServiceEvents,
@@ -18,6 +18,7 @@ import { ConfigurationError, ProviderNotConfigured } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
 
+// TODO: Should take on the logic of Dispatch (rename to TransactionDispatch) and consume ChainReader instead of extending it.
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
@@ -90,8 +91,7 @@ export class ChainService extends ChainReader {
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    const chainId = tx.chainId;
-    return await this.getProvider(chainId).send(tx, context);
+    return await this.getProvider(tx.chainId).send(tx, context);
   }
 
   /// LISTENER METHODS
@@ -167,8 +167,9 @@ export class ChainService extends ChainReader {
   /**
    * Helper to wrap getting provider for specified chain ID.
    * @param chainId The ID of the chain for which we want a provider.
-   * @returns The TransactionDispatch for that chain.
-   * @throws ConfigurationError if provider is not configured for that chain.
+   * @returns The ChainRpcProvider for that chain.
+   * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
+   * that ID.
    */
   protected getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
@@ -204,13 +205,13 @@ export class ChainService extends ChainReader {
       }
       const chainIdNumber = parseInt(chainId);
       const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer, {
-        onSubmit: (transaction: Transaction) =>
+        onSubmit: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
-        onMined: (transaction: Transaction) =>
+        onMined: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionMined].post({ receipt: transaction.receipt! }),
-        onConfirm: (transaction: Transaction) =>
+        onConfirm: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt: transaction.receipt! }),
-        onFail: (transaction: Transaction) =>
+        onFail: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionFailed].post({
             error: transaction.error!,
             receipt: transaction.receipt,
