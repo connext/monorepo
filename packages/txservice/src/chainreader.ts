@@ -1,13 +1,16 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
-import { createLoggingContext, GAS_ESTIMATES, Logger, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, GAS_ESTIMATES, Logger, RequestContext, MethodContext } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
-import { getDeployedChainIdsForGasFee, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
-
-const NO_ORACLE_CHAINS: number[] = [];
+import {
+  CHAINS_WITH_PRICE_ORACLES,
+  NO_ORACLE_CHAINS,
+  getDeployedPriceOracleContract,
+  getPriceOracleInterface,
+} from "./contracts";
 
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
 // probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
@@ -141,6 +144,14 @@ export class ChainReader {
     return await this.getProvider(chainId).getTransactionReceipt(hash);
   }
 
+  /**
+   * Returns a hexcode string representation of the contract code at the given
+   * address. If there is no contract deployed at the given address, returns "0x".
+   *
+   * @param address - contract address.
+   *
+   * @returns Hexcode string representation of contract code.
+   */
   public async getCode(chainId: number, address: string): Promise<string> {
     return await this.getProvider(chainId).getCode(address);
   }
@@ -170,12 +181,12 @@ export class ChainReader {
   /**
    * Calculates total router gas fee in token.
    *
-   * @param sendingChainId The source chain Id
+   * @param sendingChainId The source chain ID
    * @param sendingAssetId The asset address on source chain
-   * @param receivingChainId The destination chain Id
+   * @param receivingChainId The destination chain ID
    * @param receivingAssetId The asset address on destination chain
-   * @param _outputDecimals Decimal number of receiving asset
-   * @param requestContext Request context instance
+   * @param outputDecimals Decimal number of receiving asset
+   * @param _requestContext Request context instance
    */
   async calculateGasFeeInReceivingToken(
     sendingChainId: number,
@@ -197,102 +208,41 @@ export class ChainReader {
       outputDecimals,
     });
 
-    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
+    // NOTE: This is returning zero when doing a rinkeby to goerli tx. I believe this is because the oracle
+    // is not configured for goerli so theres no way to translate the price to goerli.
+    const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
+      // Calculate gas fees for sender fulfill.
+      this._calculateGasFees(
+        sendingChainId,
+        sendingAssetId,
+        outputDecimals,
+        "fulfill",
+        requestContext,
+        methodContext,
+        "sending",
+      ),
+      // Calculate gas fees for receiver prepare.
+      this._calculateGasFees(
+        receivingChainId,
+        receivingAssetId,
+        outputDecimals,
+        "prepare",
+        requestContext,
+        methodContext,
+        "receiving",
+      ),
+    ]);
 
-    if (!chainIdsForGasFee.includes(sendingChainId) && !chainIdsForGasFee.includes(receivingChainId)) {
-      return constants.Zero;
-    }
-    let totalCost = constants.Zero;
-    // TODO: this is returning zero when doing a rinkeby to goerli tx. i believe this is because the oracle
-    // is not configured for goerli so theres no way to translate the price to goerli
-    // TODO: we can combine these into just 2 if statements and remove the repeated logic
-    // calculate receiving token amount for gas fee
-    // if chainIdsForGasFee includes only sendingChainId, calculate gas fee for fulfill transactions
-    // if chainIdsForGasFee includes only receivingChainId, calculate gas fee for prepare transactions
-
-    const tokenPricingSendingChain = NO_ORACLE_CHAINS.includes(sendingChainId) ? 1 : sendingChainId;
-    const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
-
-    this.logger.info("Getting token prices", requestContext, methodContext, {
-      tokenPricingSendingChain,
-      tokenPricingReceivingChain,
-      sendingAssetId,
-      receivingAssetId,
-      outputDecimals,
-    });
-    if (chainIdsForGasFee.includes(sendingChainId)) {
-      const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-      const [ethPriceInSendingChain, receivingTokenPrice, gasPriceInSendingChain] = await Promise.all([
-        this.getTokenPrice(tokenPricingSendingChain, constants.AddressZero),
-        this.getTokenPrice(tokenPricingSendingChain, sendingAssetId),
-        this.getGasPrice(sendingChainId, requestContext),
-      ]);
-
-      // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-      let l1GasInUsd = BigNumber.from(0);
-      if (sendingChainId === 10) {
-        const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-        l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.fulfillL1).mul(ethPriceInSendingChain);
-      }
-      const gasAmountInUsd = gasPriceInSendingChain.mul(gasLimitForFulfill).mul(ethPriceInSendingChain).add(l1GasInUsd);
-      const tokenAmountForGasFee = receivingTokenPrice.isZero()
-        ? constants.Zero
-        : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-      totalCost = totalCost.add(tokenAmountForGasFee);
-      this.logger.info("Calculated cost on sending chain", requestContext, methodContext, {
-        totalCost: totalCost.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPriceInSendingChain: ethPriceInSendingChain.toString(),
-        receivingTokenPrice: receivingTokenPrice.toString(),
-        gasPriceInSendingChain: gasPriceInSendingChain.toString(),
-      });
-    }
-
-    if (chainIdsForGasFee.includes(receivingChainId)) {
-      const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
-      const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-        this.getTokenPrice(tokenPricingReceivingChain, constants.AddressZero),
-        this.getTokenPrice(tokenPricingReceivingChain, receivingAssetId),
-        this.getGasPrice(receivingChainId, requestContext),
-      ]);
-
-      // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-      let l1GasInUsd = BigNumber.from(0);
-      if (receivingChainId === 10) {
-        const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-        l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
-      }
-      const gasAmountInUsd = gasPriceInReceivingChain
-        .mul(gasLimitForPrepare)
-        .mul(ethPriceInReceivingChain)
-        .add(l1GasInUsd);
-      const tokenAmountForGasFee = receivingTokenPrice.isZero()
-        ? constants.Zero
-        : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-      totalCost = totalCost.add(tokenAmountForGasFee);
-      this.logger.info("Calculated cost on receiving chain", requestContext, methodContext, {
-        totalCost: totalCost.toString(),
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPriceInSendingChain: ethPriceInReceivingChain.toString(),
-        receivingTokenPrice: receivingTokenPrice.toString(),
-        gasPriceInSendingChain: gasPriceInReceivingChain.toString(),
-      });
-    }
-
-    // convert back to the intended decimals
-    return totalCost;
+    return senderFulfillGasFee.add(receiverPrepareGasFee);
   }
 
   /**
    * Calculates relayer fee in receiving token.
    *
-   * @param receivingChainId The destination chain Id
-   * @param receivingAssetId The asset address on destination chain
-   * @param outputDecimals Decimal number of receiving asset
-   * @param requestContext Request context instance
+   * @param receivingChainId - The destination chain ID.
+   * @param receivingAssetId - The asset address on destination chain.
+   * @param outputDecimals - Decimal number of receiving asset.
+   * @param requestContext - Request context instance.
    */
   async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
@@ -309,49 +259,80 @@ export class ChainReader {
       receivingAssetId,
       outputDecimals,
     });
-    const chaindIdsForGasFee = getDeployedChainIdsForGasFee();
+    return await this._calculateGasFees(
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      "fulfill",
+      requestContext,
+      methodContext,
+      "receiving",
+    );
+  }
 
-    if (!chaindIdsForGasFee.includes(receivingChainId)) return constants.Zero;
-    let totalCost = constants.Zero;
+  /**
+   * Calculates gas fee for specified chain and asset.
+   *
+   * @param chainId - The destination chain ID.
+   * @param assetId - The asset address on destination chain.
+   * @param decimals - Decimal number of asset.
+   * @param method - Which contract method to calculate gas fees for.
+   * @param requestContext - Request context instance.
+   * @param methodContext - Method context instance.
+   * @param whichChain - Whether it's sender or receiver chain, used for
+   * logging purposes only.
+   */
+  private async _calculateGasFees(
+    chainId: number,
+    assetId: string,
+    decimals: number,
+    method: "prepare" | "fulfill",
+    requestContext: RequestContext,
+    methodContext?: MethodContext,
+    whichChain: "sending" | "receiving" | "" = "",
+  ): Promise<BigNumber> {
+    // If the list of chains with deployed Price Oracle Contracts does not include
+    // this chain ID, return 0.
+    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId)) return constants.Zero;
 
-    const tokenPricingReceivingChain = NO_ORACLE_CHAINS.includes(receivingChainId) ? 1 : receivingChainId;
+    // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
+    // on the specified chain.
+    const tokenPricingChainId = NO_ORACLE_CHAINS.includes(chainId) ? 1 : chainId;
+    const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
+      this.getTokenPrice(tokenPricingChainId, constants.AddressZero),
+      this.getTokenPrice(tokenPricingChainId, assetId),
+      this.getGasPrice(chainId, requestContext),
+    ]);
 
-    if (chaindIdsForGasFee.includes(receivingChainId)) {
-      const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-      const [ethPriceInReceivingChain, receivingTokenPrice, gasPriceInReceivingChain] = await Promise.all([
-        this.getTokenPrice(tokenPricingReceivingChain, constants.AddressZero),
-        this.getTokenPrice(tokenPricingReceivingChain, receivingAssetId),
-        this.getGasPrice(receivingChainId, requestContext),
-      ]);
-
-      // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
-      let l1GasInUsd = BigNumber.from(0);
-      if (receivingChainId === 10) {
-        const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-        l1GasInUsd = gasPriceMainnet.mul(GAS_ESTIMATES.prepareL1).mul(ethPriceInReceivingChain);
-      }
-
-      const gasAmountInUsd = gasPriceInReceivingChain
-        .mul(gasLimitForFulfill)
-        .mul(ethPriceInReceivingChain)
-        .add(l1GasInUsd);
-      const tokenAmountForGasFee = receivingTokenPrice.isZero()
-        ? constants.Zero
-        : gasAmountInUsd.div(receivingTokenPrice).div(BigNumber.from(10).pow(18 - outputDecimals));
-
-      this.logger.info("Calculated cost on receiving chain for fulfill", requestContext, methodContext, {
-        totalCost: totalCost.toString(),
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPriceInReceivingChain: ethPriceInReceivingChain.toString(),
-        receivingTokenPrice: receivingTokenPrice.toString(),
-        gasPriceInReceivingChain: gasPriceInReceivingChain.toString(),
-      });
-
-      totalCost = totalCost.add(tokenAmountForGasFee);
+    // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
+    let l1GasInUsd = BigNumber.from(0);
+    if (chainId === 10) {
+      const gasPriceMainnet = await this.getGasPrice(1, requestContext);
+      const gasEstimate = method === "prepare" ? GAS_ESTIMATES.prepareL1 : GAS_ESTIMATES.fulfillL1;
+      l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
 
-    return totalCost;
+    const gasLimit =
+      method === "prepare" ? BigNumber.from(GAS_ESTIMATES.prepare) : BigNumber.from(GAS_ESTIMATES.fulfill);
+    const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
+    const tokenAmountForGasFee = tokenPrice.isZero()
+      ? constants.Zero
+      : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
+
+    this.logger.info(
+      `Calculated gas fee on ${whichChain} chain ${chainId} for ${method}`,
+      requestContext,
+      methodContext,
+      {
+        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+        l1GasInUsd: l1GasInUsd.toString(),
+        ethPrice: ethPrice.toString(),
+        tokenPrice: tokenPrice.toString(),
+        gasPrice: gasPrice.toString(),
+      },
+    );
+
+    return tokenAmountForGasFee;
   }
 
   /**

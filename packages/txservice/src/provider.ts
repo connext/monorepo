@@ -529,6 +529,14 @@ export class ChainRpcProvider {
     });
   }
 
+  /**
+   * Returns a hexcode string representation of the contract code at the given
+   * address. If there is no contract deployed at the given address, returns "0x".
+   *
+   * @param address - contract address.
+   *
+   * @returns Hexcode string representation of contract code.
+   */
   public async getCode(address: string): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       return await provider.getCode(address);
