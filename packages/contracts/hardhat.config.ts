@@ -79,7 +79,6 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1,
       url: urlOverride || process.env.ETH_PROVIDER_URL || "https://cloudflare-eth.com",
-      gasPrice: 10000000000,
     },
     ropsten: {
       accounts: { mnemonic },
