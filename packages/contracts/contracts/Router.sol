@@ -16,7 +16,34 @@ contract Router is Ownable {
   address public recipient;
 
   address public routerSigner;
-  
+
+  struct SignedPrepareData {
+    ITransactionManager.PrepareArgs args;
+    address routerRelayerFeeAsset;
+    uint256 routerRelayerFee;
+    uint256 chainId; // For domain separation
+  }
+
+  struct SignedFulfillData {
+    ITransactionManager.FulfillArgs args;
+    address routerRelayerFeeAsset;
+    uint256 routerRelayerFee;
+    uint256 chainId; // For domain separation
+  }
+
+  struct SignedCancelData {
+    ITransactionManager.CancelArgs args;
+    address routerRelayerFeeAsset;
+    uint256 routerRelayerFee;
+    uint256 chainId; // For domain separation
+  }
+
+  struct SignedRemoveLiquidityData {
+    uint256 amount;
+    address assetId;
+    uint256 chainId; // For domain separation
+  }
+
   event RelayerFeeAdded(address assetId, uint256 amount, address caller);
   event RelayerFeeRemoved(address assetId, uint256 amount, address caller);
 
@@ -26,7 +53,7 @@ contract Router is Ownable {
 
   // Prevents from calling methods other than routerFactory contract
   modifier onlyViaFactory() {
-    require( msg.sender == routerFactory, "ONLY_VIA_FACTORY");
+    require(msg.sender == routerFactory, "ONLY_VIA_FACTORY");
     _;
   }
 
@@ -86,7 +113,13 @@ contract Router is Ownable {
     bytes calldata signature
   ) external {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(amount, assetId, chainId, routerSigner), signature);
+      SignedRemoveLiquidityData memory payload = SignedRemoveLiquidityData({
+        amount: amount,
+        assetId: assetId,
+        chainId: chainId
+      });
+
+      address recovered = recoverSignature(abi.encode(payload), signature);
       require(recovered == routerSigner, "#RC_RL:040");
     }
 
@@ -100,7 +133,14 @@ contract Router is Ownable {
     bytes calldata signature
   ) external payable returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
+      SignedPrepareData memory payload = SignedPrepareData({
+        args: args,
+        routerRelayerFeeAsset: routerRelayerFeeAsset,
+        routerRelayerFee: routerRelayerFee,
+        chainId: chainId
+      });
+
+      address recovered = recoverSignature(abi.encode(payload), signature);
       require(recovered == routerSigner, "#RC_P:040");
 
       // Send the relayer the fee
@@ -122,7 +162,14 @@ contract Router is Ownable {
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
+      SignedFulfillData memory payload = SignedFulfillData({
+        args: args,
+        routerRelayerFeeAsset: routerRelayerFeeAsset,
+        routerRelayerFee: routerRelayerFee,
+        chainId: chainId
+      });
+
+      address recovered = recoverSignature(abi.encode(payload), signature);
       require(recovered == routerSigner, "#RC_F:040");
 
       // Send the relayer the fee
@@ -141,7 +188,14 @@ contract Router is Ownable {
     bytes calldata signature
   ) external returns (ITransactionManager.TransactionData memory) {
     if (msg.sender != routerSigner) {
-      address recovered = recoverSignature(abi.encode(args, routerRelayerFeeAsset, routerRelayerFee), signature);
+      SignedCancelData memory payload = SignedCancelData({
+        args: args,
+        routerRelayerFeeAsset: routerRelayerFeeAsset,
+        routerRelayerFee: routerRelayerFee,
+        chainId: chainId
+      });
+
+      address recovered = recoverSignature(abi.encode(payload), signature);
       require(recovered == routerSigner, "#RC_C:040");
 
       // Send the relayer the fee
