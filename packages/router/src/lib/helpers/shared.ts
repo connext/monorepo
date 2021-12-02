@@ -11,8 +11,6 @@ import { cachedPriceMap } from "../../bindings/prices";
 import { getDeployedChainIdsForGasFee } from "../../config";
 import { getContext } from "../../router";
 
-const NO_ORACLE_CHAINS: number[] = [];
-
 /**
  * Helper to allow easy mocking
  */
