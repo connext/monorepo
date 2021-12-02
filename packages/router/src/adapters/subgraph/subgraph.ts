@@ -100,11 +100,9 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
 
 export const getActiveTransactions = async (_requestContext?: RequestContext): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { logger, config, wallet } = getContext();
+  const { logger, config, routerAddress } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
-
-  const walletAddress = await wallet.getAddress();
 
   // get local context
   const sdks = getSdks();
@@ -117,9 +115,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         if (!chainConfig) {
           throw new NoChainConfig(chainId);
         }
-
-        const routerContractAddress = config.routerContractAddress;
-        const routerAddress = routerContractAddress || walletAddress;
 
         // update synced status
         await setSyncRecord(chainId, requestContext);
@@ -370,10 +365,7 @@ export const getTransactionForChain = async (
   const method = "getTransactionForChain";
   const methodId = getUuid();
 
-  const { wallet, config } = getContext();
-  const walletAddress = await wallet.getAddress();
-  const routerContractAddress = config.routerContractAddress;
-  const routerAddress = routerContractAddress || walletAddress;
+  const { routerAddress } = getContext();
 
   const sdks = getSdks();
   const sdk = sdks[chainId];

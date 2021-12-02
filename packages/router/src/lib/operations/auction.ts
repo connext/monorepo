@@ -40,7 +40,8 @@ export const newAuction = async (
     receivingChainId: data.receivingChainId,
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData } = getContext();
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, isRouterContract } =
+    getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
@@ -155,9 +156,6 @@ export const newAuction = async (
     });
   }
 
-  const routerContractAddress = config.routerContractAddress;
-  const routerAddress = routerContractAddress ? routerContractAddress : await wallet.getAddress();
-
   // Make sure subgraphs are synced
   const receivingSyncRecords = await contractReader.getSyncRecords(receivingChainId, requestContext);
   if (!receivingSyncRecords.some((record) => record.synced)) {
@@ -233,7 +231,7 @@ export const newAuction = async (
   }
 
   // No gasfees status check required for routerContractAddress
-  if (!routerContractAddress) {
+  if (!isRouterContract) {
     const [senderBalance, receiverBalance] = await Promise.all([
       txService.getBalance(sendingChainId, routerAddress),
       txService.getBalance(receivingChainId, routerAddress),
