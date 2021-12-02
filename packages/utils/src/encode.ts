@@ -205,35 +205,50 @@ export const decodeAuctionBid = (data: string): AuctionBid => {
  * Encoding for a Router.sol prepare call
  */
 
-export const SignedRouterFulfillDataEncoding = tidy(`tuple(
-  ${TransactionDataEncoding} txData,
-  uint256 relayerFee,
-  bytes signature,
-  bytes callData,
-  bytes encodedMeta,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee
-)`);
-
-export const SignedRouterPrepareDataEncoding = tidy(`tuple(
+export const PrepareDataEncoding = tidy(`tuple(
   ${InvariantTransactionDataEncoding} invariantData,
   uint256 amount,
   uint256 expiry,
   bytes encryptedCallData,
   bytes encodedBid,
   bytes bidSignature,
-  bytes encodedMeta,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee
-)`);
+  bytes encodedMeta
+  )`);
 
-const SignedRouterCancelDataEncoding = tidy(`tuple(
+export const SignedRouterPrepareDataEncoding = tidy(`tuple(
+  ${PrepareDataEncoding} args,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee,
+  uint256 chainId)
+  `);
+
+export const FulfillDataEncoding = tidy(`tuple(
+  ${TransactionDataEncoding} txData,
+  uint256 relayerFee,
+  bytes signature,
+  bytes callData,
+  bytes encodedMeta
+  )`);
+
+export const SignedRouterFulfillDataEncoding = tidy(`tuple(
+  ${FulfillDataEncoding} args,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee,
+  uint256 chainId
+  )`);
+
+const CancelDataEncoding = tidy(`tuple(
   ${TransactionDataEncoding} txData,
   bytes signature,
-  bytes encodedMeta,
+  bytes encodedMeta
+  )`);
+
+const SignedRouterCancelDataEncoding = tidy(`tuple(
+  ${CancelDataEncoding} args,
   address routerRelayerFeeAsset,
-  uint256 routerRelayerFee
-)`);
+  uint256 routerRelayerFee,
+  uint256 chainId
+  )`);
 
 /**
  * Encodes data for prepare function
@@ -261,15 +276,18 @@ export const encodeRouterPrepareData = (
     [SignedRouterPrepareDataEncoding],
     [
       {
-        invariantData,
-        amount,
-        expiry,
-        encryptedCallData,
-        encodedBid,
-        bidSignature,
-        encodedMeta,
+        args: {
+          invariantData,
+          amount,
+          expiry,
+          encryptedCallData,
+          encodedBid,
+          bidSignature,
+          encodedMeta,
+        },
         routerRelayerFeeAsset,
         routerRelayerFee,
+        chainId: invariantData.receivingChainId,
       },
     ],
   );
@@ -287,13 +305,16 @@ export const encodeRouterFulfillData = (
     [SignedRouterFulfillDataEncoding],
     [
       {
-        txData,
-        relayerFee: "0",
-        signature: fulfillSignature,
-        callData,
-        encodedMeta,
+        args: {
+          txData,
+          relayerFee: "0",
+          signature: fulfillSignature,
+          callData,
+          encodedMeta,
+        },
         routerRelayerFeeAsset,
         routerRelayerFee,
+        chainId: txData.receivingChainId,
       },
     ],
   );
@@ -310,11 +331,14 @@ export const encodeRouterCancelData = (
     [SignedRouterCancelDataEncoding],
     [
       {
-        txData,
-        signature: cancelSignature,
-        encodedMeta,
+        args: {
+          txData,
+          signature: cancelSignature,
+          encodedMeta,
+        },
         routerRelayerFeeAsset,
         routerRelayerFee,
+        chainId: txData.receivingChainId,
       },
     ],
   );
@@ -323,15 +347,9 @@ export const encodeRouterCancelData = (
 const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
   uint256 amount,
   address assetId,
-  uint256 chainId,
-  address signer
+  uint256 chainId
 )`);
 
-export const encodeRouterRemoveLiquidityData = (
-  amount: string,
-  assetId: string,
-  chainId: number,
-  signer: string,
-): string => {
-  return defaultAbiCoder.encode([SignedRouterRemoveLiquidityDataEncoding], [{ amount, assetId, chainId, signer }]);
+export const encodeRouterRemoveLiquidityData = (amount: string, assetId: string, chainId: number): string => {
+  return defaultAbiCoder.encode([SignedRouterRemoveLiquidityDataEncoding], [{ amount, assetId, chainId }]);
 };

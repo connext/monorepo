@@ -37,7 +37,7 @@ const sanitizeSignature = (sig: string): string => {
   return sig.slice(0, sig.length - 2) + hex.slice(2);
 };
 
-const sign = async (hash: string, signer: Wallet | Signer): Promise<string> => {
+export const sign = async (hash: string, signer: Wallet | Signer): Promise<string> => {
   const msg = arrayify(hash);
   const addr = await signer.getAddress();
   if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
@@ -188,32 +188,6 @@ export const recoverAuctionBid = (bid: AuctionBid, signature: string): string =>
 
 // Router.sol
 
-const getRouterPrepareTransactionHashToSign = (
-  invariantData: InvariantTransactionData,
-  amount: string,
-  expiry: number,
-  encryptedCallData: string,
-  encodedBid: string,
-  bidSignature: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-): string => {
-  const payload = encodeRouterPrepareData(
-    invariantData,
-    amount,
-    expiry,
-    encryptedCallData,
-    encodedBid,
-    bidSignature,
-    encodedMeta,
-    relayerFeeAsset,
-    relayerFee,
-  );
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return hash;
-};
-
 export const signRouterPrepareTransactionPayload = async (
   invariantData: InvariantTransactionData,
   amount: string,
@@ -226,7 +200,7 @@ export const signRouterPrepareTransactionPayload = async (
   relayerFee: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getRouterPrepareTransactionHashToSign(
+  const payload = encodeRouterPrepareData(
     invariantData,
     amount,
     expiry,
@@ -237,21 +211,9 @@ export const signRouterPrepareTransactionPayload = async (
     relayerFeeAsset,
     relayerFee,
   );
+  const hash = solidityKeccak256(["bytes"], [payload]);
 
   return sign(hash, signer);
-};
-
-const getRouterFulfillTransactionHashToSign = (
-  txData: TransactionData,
-  fulfillSignature: string,
-  callData: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-): string => {
-  const payload = encodeRouterFulfillData(txData, fulfillSignature, callData, encodedMeta, relayerFeeAsset, relayerFee);
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return hash;
 };
 
 export const signRouterFulfillTransactionPayload = async (
@@ -263,28 +225,9 @@ export const signRouterFulfillTransactionPayload = async (
   relayerFee: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getRouterFulfillTransactionHashToSign(
-    txData,
-    fulfillSignature,
-    callData,
-    encodedMeta,
-    relayerFeeAsset,
-    relayerFee,
-  );
-
-  return sign(hash, signer);
-};
-
-const getRouterCancelTransactionHashToSign = (
-  txData: TransactionData,
-  cancelSignature: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-): string => {
-  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee);
+  const payload = encodeRouterFulfillData(txData, fulfillSignature, callData, encodedMeta, relayerFeeAsset, relayerFee);
   const hash = solidityKeccak256(["bytes"], [payload]);
-  return hash;
+  return sign(hash, signer);
 };
 
 export const signRouterCancelTransactionPayload = async (
@@ -295,30 +238,19 @@ export const signRouterCancelTransactionPayload = async (
   relayerFee: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getRouterCancelTransactionHashToSign(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee);
-
-  return sign(hash, signer);
-};
-
-const getRouterRemoveLiquidityHashToSign = (
-  amount: string,
-  assetId: string,
-  chainId: number,
-  signer: string,
-): string => {
-  const payload = encodeRouterRemoveLiquidityData(amount, assetId, chainId, signer);
+  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee);
   const hash = solidityKeccak256(["bytes"], [payload]);
-  return hash;
+  return sign(hash, signer);
 };
 
 export const signRemoveLiquidityTransactionPayload = (
   amount: string,
   assetId: string,
   chainId: number,
-  signerAddress: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getRouterRemoveLiquidityHashToSign(amount, assetId, chainId, signerAddress);
+  const payload = encodeRouterRemoveLiquidityData(amount, assetId, chainId);
+  const hash = solidityKeccak256(["bytes"], [payload]);
 
   return sign(hash, signer);
 };
