@@ -11,7 +11,7 @@ import {
   makeChaiReadable,
   TEST_RECEIVER_CHAIN_ID,
 } from "./constants";
-import { ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
+import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
 import * as contractFns from "../src/contracts";
 import {
   getRandomAddress,
@@ -23,6 +23,7 @@ import {
   requestContextMock,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
+import { Interface } from "ethers/lib/utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -185,6 +186,69 @@ describe("ChainReader", () => {
     });
   });
 
+  describe("#getCode", () => {
+    it("happy", async () => {
+      const code = "0x12345789";
+      provider.getCode.resolves(code);
+
+      const result = await chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"));
+
+      expect(result).to.be.eq(code);
+      expect(provider.getCode.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getCode.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getTokenPrice", () => {
+    const priceOracleContractFakeAddr = mkAddress("0x7f");
+    let getDeployedPriceOracleContractStub: SinonStub;
+    let getPriceOracleInterfaceStub: SinonStub;
+    let readTxStub: SinonStub;
+    let interfaceStub: SinonStubbedInstance<Interface>;
+    beforeEach(() => {
+      interfaceStub = createStubInstance(Interface);
+      getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
+      getPriceOracleInterfaceStub.returns(interfaceStub);
+      getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
+      getDeployedPriceOracleContractStub.returns({
+        address: priceOracleContractFakeAddr,
+        abi: ["fakeAbi()"],
+      });
+      readTxStub = Sinon.stub(chainReader, "readTx");
+    });
+
+    it("happy", async () => {
+      const assetId = mkAddress("0xc3");
+      const data = "0x123456789";
+      const tokenPrice = "5812471953821";
+      interfaceStub.encodeFunctionData.returns(data);
+      readTxStub.resolves(tokenPrice);
+
+      const result = await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId);
+
+      expect(result.toString()).to.be.eq(tokenPrice);
+      expect(getDeployedPriceOracleContractStub.getCall(0).args).to.deep.eq([TEST_SENDER_CHAIN_ID]);
+      expect(interfaceStub.encodeFunctionData.getCall(0).args).to.deep.eq(["getTokenPrice", [assetId]]);
+      expect(readTxStub.getCall(0).args[0]).to.deep.eq({
+        chainId: TEST_SENDER_CHAIN_ID,
+        to: priceOracleContractFakeAddr,
+        data,
+      });
+    });
+
+    it("should throw ChainNotSupported if chain not supported for token pricing", async () => {
+      getDeployedPriceOracleContractStub.returns(undefined);
+      await expect(chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
+        ChainNotSupported,
+      );
+    });
+  });
+
   describe("#calculateGasFeeInReceivingToken", () => {
     let calculateGasFeeStub: SinonStub;
     beforeEach(() => {
@@ -287,47 +351,6 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(0);
-    });
-
-    it("should return zero if price oracle isn't configured for that chain", async () => {
-      const result = await chainReader.calculateGasFeeInReceivingToken(
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x0"),
-        1,
-        mkAddress("0x2"),
-        18,
-        requestContextMock,
-      );
-      expect(result.toNumber()).to.be.eq(
-        (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
-      );
-    });
-
-    it("should return sum of both if both chains included", async () => {
-      const testGasPriceReceivingChain = BigNumber.from(13);
-      const testEthPriceReceivingChain = BigNumber.from(7);
-      const testTokenPriceReceivingChain = BigNumber.from(3);
-      gasPriceStub.onSecondCall().resolves(testGasPriceReceivingChain);
-      tokenPriceStub.onCall(2).resolves(testEthPriceReceivingChain);
-      tokenPriceStub.onCall(3).resolves(testTokenPriceReceivingChain);
-      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [TEST_SENDER_CHAIN_ID, TEST_RECEIVER_CHAIN_ID];
-      const result = await chainReader.calculateGasFeeInReceivingToken(
-        TEST_SENDER_CHAIN_ID,
-        mkAddress("0x0"),
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x2"),
-        18,
-        requestContextMock,
-      );
-      const expectedSumSendingChain = BigNumber.from(testGasPrice)
-        .mul(GAS_ESTIMATES.fulfill)
-        .mul(testEthPrice)
-        .div(testTokenPrice);
-      const expectedSumReceivingChain = testGasPriceReceivingChain
-        .mul(GAS_ESTIMATES.prepare)
-        .mul(testEthPriceReceivingChain)
-        .div(testTokenPriceReceivingChain);
-      expect(result.toNumber()).to.be.eq(expectedSumSendingChain.add(expectedSumReceivingChain).toNumber());
     });
   });
 
