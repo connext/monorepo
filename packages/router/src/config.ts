@@ -8,6 +8,7 @@ import {
   ChainData,
   getChainData,
   getDeployedSubgraphUri,
+  getDeployedAnalyticsSubgraphUri,
   isNode,
   NATS_AUTH_URL,
   NATS_AUTH_URL_LOCAL,
@@ -105,6 +106,7 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Number({ minimum: 1 }),
   defaultInitialGas: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
+  analyticsSubgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
   multicallAddress: Type.Optional(Type.String()),
@@ -305,6 +307,17 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     } else if (typeof chainConfig.subgraph === "string") {
       // Backwards compatibility for subgraph param - support for singular uri string.
       chainConfig.subgraph = [chainConfig.subgraph];
+    }
+
+    if (!chainConfig.analyticsSubgraph) {
+      const defaultSubgraphUri = getDeployedAnalyticsSubgraphUri(Number(chainId), crossChainData);
+      if (!defaultSubgraphUri) {
+        throw new Error(`No subgraph for chain ${chainId}`);
+      }
+      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultSubgraphUri;
+    }
+    if (typeof chainConfig.analyticsSubgraph === "string") {
+      chainConfig.analyticsSubgraph = [chainConfig.analyticsSubgraph];
     }
 
     if (!chainConfig.confirmations) {

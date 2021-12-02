@@ -29,9 +29,10 @@ import {
   GetTransactionQuery,
   GetTransactionsQuery,
   TransactionStatus as SdkTransactionStatus,
-} from "./graphqlsdk";
+} from "./runtime/graphqlsdk";
+import { GetExpressiveAssetBalancesQuery } from "./analytics/graphqlsdk";
 
-import { getSdks } from ".";
+import { getAnalyticsSdks, getSdks } from "./index";
 
 export const getSyncRecords = async (
   chainId: number,
@@ -66,7 +67,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
       latestBlock,
       records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
     });
-  } catch (e) {
+  } catch (e: any) {
     logger.error(`Error getting sync records for chain ${chainId}`, requestContext, methodContext, jsonifyError(e), {
       chainId,
     });
@@ -343,7 +344,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             } as ActiveTransaction<"ReceiverExpired">;
           });
         return filterUndefined.concat(receiverNotConfigured).concat(remainingReceiverExpired);
-      } catch (e) {
+      } catch (e: any) {
         // Set this chain's error.
         errors.set(cId, e);
         logger.error(
@@ -469,22 +470,28 @@ export const getAssetBalances = async (chainId: number): Promise<{ assetId: stri
   });
 };
 
-export const getLiquiditySupplied = async (_chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
-  // const { wallet } = getContext();
+export const getExpressiveAssetBalances = async (
+  chainId: number,
+): Promise<{ assetId: string; amount: BigNumber; supplied: BigNumber; locked: BigNumber }[]> => {
+  const { wallet } = getContext();
 
-  throw new Error("Implement multiple sdk handling");
-  // const sdks = getAnalyticsSdks();
-  // const sdk = sdks[chainId];
+  const sdks = getAnalyticsSdks();
+  const sdk = sdks[chainId];
 
-  // if (!sdk) {
-  //   throw new ContractReaderNotAvailableForChain(chainId);
-  // }
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId);
+  }
 
-  // const addr = await wallet.getAddress();
-  // const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
-  //   client.GetAssetBalances({ routerId: addr }),
-  // );
-  // return assetBalances.map((a) => {
-  //   return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
-  // });
+  const addr = await wallet.getAddress();
+  const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
+    client.GetExpressiveAssetBalances({ routerId: addr }),
+  );
+  return assetBalances.map((a) => {
+    return {
+      assetId: a.assetId,
+      amount: BigNumber.from(a.amount),
+      supplied: BigNumber.from(a.supplied),
+      locked: BigNumber.from(a.locked),
+    };
+  });
 };

@@ -11,7 +11,7 @@ import { providers } from "ethers";
 import { getContext } from "../../router";
 import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { SenderTxTooNew } from "../errors/cancel";
 
 export const SENDER_PREPARE_BUFFER_TIME = 60 * 13; // 13 mins (780s)

@@ -1,6 +1,6 @@
 import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
 
-import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 
 export const CrosschainTransactionStatus = {
   SenderPrepared: "SenderPrepared",
