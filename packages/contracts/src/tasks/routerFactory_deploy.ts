@@ -40,7 +40,7 @@ export default task("deploy-router-factory", "deploy router factory contract")
 
     console.log({ transactionManagerAddress, chainId });
 
-    const tx = await routerFactory.init(transactionManagerAddress, chainId, { from: namedAccounts.deployer });
+    const tx = await routerFactory.init(transactionManagerAddress, { from: namedAccounts.deployer });
     console.log("router factory init tx: ", tx);
     const receipt = await tx.wait();
     console.log("router factory init tx mined: ", receipt.transactionHash);
