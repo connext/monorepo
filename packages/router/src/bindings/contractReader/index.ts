@@ -25,6 +25,7 @@ import {
   senderFailedFulfill,
   successfulAuction,
   receiverFailedCancel,
+  TransactionReasons,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
@@ -217,7 +218,12 @@ export const handleSingle = async (
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
       });
-      incrementGasConsumed(_transaction.crosschainTx.invariant.receivingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
     } catch (err: any) {
       receiverFailedPrepare.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -256,7 +262,12 @@ export const handleSingle = async (
             },
             1,
           );
-          incrementGasConsumed(_transaction.crosschainTx.invariant.sendingChainId, cancelRes!.gasUsed, requestContext);
+          incrementGasConsumed(
+            _transaction.crosschainTx.invariant.sendingChainId,
+            cancelRes!.gasUsed,
+            TransactionReasons.CancelSender,
+            requestContext,
+          );
         } catch (cancelErr: any) {
           senderFailedCancel.inc({
             assetId: _transaction.crosschainTx.invariant.sendingAssetId,
@@ -336,7 +347,12 @@ export const handleSingle = async (
           .toString(),
         requestContext,
       );
-      incrementGasConsumed(_transaction.crosschainTx.invariant.sendingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.FulfillSender,
+        requestContext,
+      );
     } catch (err: any) {
       senderFailedFulfill.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
@@ -376,7 +392,12 @@ export const handleSingle = async (
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
       });
-      incrementGasConsumed(_transaction.crosschainTx.invariant.receivingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelReceiver,
+        requestContext,
+      );
     } catch (err: any) {
       receiverFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -414,7 +435,12 @@ export const handleSingle = async (
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
       });
-      incrementGasConsumed(_transaction.crosschainTx.invariant.sendingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
     } catch (err: any) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
@@ -448,7 +474,12 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
-      incrementGasConsumed(_transaction.crosschainTx.invariant.sendingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
     } catch (err: any) {
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
@@ -483,7 +514,12 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
-      incrementGasConsumed(_transaction.crosschainTx.invariant.sendingChainId, receipt!.gasUsed, requestContext);
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
     } catch (err: any) {
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,

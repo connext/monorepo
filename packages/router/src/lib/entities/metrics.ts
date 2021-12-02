@@ -2,6 +2,18 @@ import { Counter, Gauge } from "prom-client";
 import { collectOnchainLiquidity, collectExpressiveLiquidity } from "../helpers/metrics";
 
 //////////////////////////
+///// Types
+export const TransactionReasons = {
+  PrepareReceiver: "PrepareReceiver",
+  FulfillSender: "FulfillSender",
+  CancelSender: "CancelSender",
+  CancelReceiver: "CancelReceiver",
+  Relay: "Relay",
+} as const;
+
+export type TransactionReason = typeof TransactionReasons[keyof typeof TransactionReasons];
+
+//////////////////////////
 ///// High Level Metrics
 
 // Track the current onchain liquidity, will be set periodically based on

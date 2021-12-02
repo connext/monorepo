@@ -4,7 +4,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { formatUnits } from "@ethersproject/units";
 import { constants } from "ethers";
 import { getContext } from "../../router";
-import { feesCollected, gasConsumed, totalTransferredVolume } from "../entities";
+import { feesCollected, gasConsumed, totalTransferredVolume, TransactionReason } from "../entities";
 import { getTokenPrice } from "./shared";
 
 const convertToUsd = async (
@@ -144,7 +144,12 @@ export const incrementFees = async (
   feesCollected.inc({ assetId, chainId }, usd);
 };
 
-export const incrementGasConsumed = async (chainId: number, gas: BigNumber, _requestContext: RequestContext) => {
+export const incrementGasConsumed = async (
+  chainId: number,
+  gas: BigNumber,
+  reason: TransactionReason,
+  _requestContext: RequestContext,
+) => {
   const { logger } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(incrementGasConsumed.name, _requestContext);
@@ -163,7 +168,7 @@ export const incrementGasConsumed = async (chainId: number, gas: BigNumber, _req
 
   // Update counter
   // TODO: reason type
-  gasConsumed.inc({ chainId }, usd);
+  gasConsumed.inc({ chainId, reason }, usd);
 };
 
 export const incrementTotalTransferredVolume = async (
