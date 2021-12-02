@@ -23,7 +23,7 @@ import {
   requestContextMock,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
-import { Interface } from "ethers/lib/utils";
+import { formatUnits, Interface, parseEther, parseUnits } from "ethers/lib/utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -314,9 +314,9 @@ describe("ChainReader", () => {
   });
 
   describe("#calculateGasFee", () => {
-    const testEthPrice = 1;
-    const testTokenPrice = 2;
-    const testGasPrice = 5;
+    const testEthPrice = parseEther("31");
+    const testTokenPrice = parseEther("7");
+    const testGasPrice = parseUnits("5", "gwei");
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
@@ -331,14 +331,14 @@ describe("ChainReader", () => {
     it("happy: should calculate for prepare if chain included and prepare specified", async () => {
       const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "prepare", requestContextMock);
       expect(result.toNumber()).to.be.eq(
-        (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
+        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.prepare)).mul(testEthPrice).div(testTokenPrice).toNumber(),
       );
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
       const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "fulfill", requestContextMock);
       expect(result.toNumber()).to.be.eq(
-        (testGasPrice * parseInt(GAS_ESTIMATES.fulfill) * testEthPrice) / testTokenPrice,
+        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.fulfill)).mul(testEthPrice).div(testTokenPrice).toNumber(),
       );
     });
 
