@@ -7,7 +7,7 @@ import { getContext } from "../../router";
 import { feesCollected, gasConsumed, totalTransferredVolume, TransactionReason } from "../entities";
 import { getTokenPrice } from "./shared";
 
-const convertToUsd = async (
+export const convertToUsd = async (
   assetId: string,
   chainId: number,
   amount: string,
@@ -31,9 +31,7 @@ const convertToUsd = async (
   if (!decimals) {
     decimals = await txService.getDecimalsForAsset(chainId, assetId);
   }
-  const usdWei = BigNumber.from(amount)
-    .mul(price)
-    .div(BigNumber.from(10).pow(18 - decimals));
+  const usdWei = BigNumber.from(amount).mul(price).div(BigNumber.from(10).pow(18));
 
   // Convert to correct decimals
   return +formatUnits(usdWei, decimals);
@@ -75,18 +73,18 @@ export const collectExpressiveLiquidity = async (): Promise<
   );
 
   // Convert all balances to USD
-  const converted: Record<number, { assetId: string; amount: number; supplied: number; locked: number }[]> = {};
+  const converted: Record<string, { assetId: string; amount: number; supplied: number; locked: number }[]> = {};
   await Promise.all(
-    Object.entries(assetBalances).map(async ([chainId, value]) => {
-      const usd = await Promise.all(
-        value.map(async ({ assetId, supplied, amount, locked }) => {
-          const suppliedUsd = await convertToUsd(assetId, parseInt(chainId), supplied.toString(), requestContext);
-          const amountUsd = await convertToUsd(assetId, parseInt(chainId), amount.toString(), requestContext);
-          const lockedUsd = await convertToUsd(assetId, parseInt(chainId), locked.toString(), requestContext);
-          return { assetId, supplied: suppliedUsd, amount: amountUsd, locked: lockedUsd };
+    Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
+      converted[chainId] = [];
+      await Promise.all(
+        assetValues.map(async (value) => {
+          const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
+          const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
+          const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
+          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked });
         }),
       );
-      return { chainId, converted: usd };
     }),
   );
 
@@ -112,16 +110,16 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
   );
 
   // Convert all balances to USD
-  const converted: Record<number, { assetId: string; balance: number }[]> = {};
+  const converted: Record<string, { assetId: string; balance: number }[]> = {};
   await Promise.all(
-    Object.entries(assetBalances).map(async ([chainId, value]) => {
-      const usd = await Promise.all(
-        value.map(async ({ assetId, amount }) => {
-          const balance = await convertToUsd(assetId, parseInt(chainId), amount.toString(), requestContext);
-          return { assetId, balance };
+    Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
+      converted[chainId] = [];
+      await Promise.all(
+        assetValues.map(async (value) => {
+          const usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
+          converted[chainId].push({ assetId: value.assetId, balance: usd });
         }),
       );
-      return { chainId, converted: usd };
     }),
   );
 

@@ -45,6 +45,17 @@ export const mochaHooks = {
       getAssetBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
       getTransactionForChain: stub().resolves(singleChainTransactionMock),
       getSyncRecords: stub().returns([{ synced: true, syncedBlock: 10000, latestBlock: 10000, lag: 0, uri: "" }]),
+      getAssetBalances: stub().resolves([
+        { assetId: configMock.swapPools[0].assets[0].assetId, amount: BigNumber.from("10001000000000000000000") },
+      ]),
+      getExpressiveAssetBalances: stub().resolves([
+        {
+          assetId: configMock.swapPools[0].assets[0].assetId,
+          amount: BigNumber.from("10001000000000000000000"),
+          supplied: BigNumber.from("10001000000000000000000"),
+          locked: BigNumber.from(0),
+        },
+      ]),
     };
 
     contractWriterMock = {
