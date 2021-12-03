@@ -2,7 +2,6 @@ import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import { feesCollected, gasConsumed, totalTransferredVolume, TransactionReason } from "../entities";
-import { getTokenPrice } from "./shared";
 
 export const convertToUsd = async (
   assetId: string,
@@ -13,7 +12,7 @@ export const convertToUsd = async (
   const { chainData, txService } = getContext();
 
   // Get token price
-  const price = await getTokenPrice(chainId, assetId, requestContext);
+  const price = await txService.getTokenPrice(chainId, assetId, requestContext);
   if (price.isZero()) {
     // Do nothing
     return 0;
