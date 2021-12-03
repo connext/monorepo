@@ -5,6 +5,7 @@
 - [router] delegate fee calc to chainreader
 - [sdk] integrate chainreader
 - [txservice] introduced provider syncing
+- [router] Arbitrum `block.number` handling on cancel
 
 ## 0.0.93
 
