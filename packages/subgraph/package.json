@@ -38,11 +38,11 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.21.1",
-    "@graphprotocol/graph-ts": "^0.20.1",
-    "@types/js-yaml": "^4",
+    "@graphprotocol/graph-cli": "^0.25.0",
+    "@graphprotocol/graph-ts": "^0.24.1",
+    "@types/js-yaml": "^4.0.5",
     "@types/mustache": "^4.1.2",
-    "@types/yaml": "^1",
+    "@types/yaml": "^1.9.7",
     "sinon": "^11.1.2"
   }
 }
