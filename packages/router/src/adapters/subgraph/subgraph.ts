@@ -13,12 +13,7 @@ import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
-import {
-  ActiveTransaction,
-  SingleChainTransaction,
-  CrosschainTransactionStatus,
-  CancelPayload,
-} from "../../lib/entities";
+import { ActiveTransaction, SingleChainTransaction, CrosschainTransactionStatus } from "../../lib/entities";
 import { handlingTracker } from "../../bindings/contractReader";
 
 import {
