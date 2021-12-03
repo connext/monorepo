@@ -9,6 +9,7 @@ import {
   mkBytes32,
   chainDataMock,
 } from "@connext/nxtp-utils";
+
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
 import { getAddress, keccak256 } from "ethers/lib/utils";

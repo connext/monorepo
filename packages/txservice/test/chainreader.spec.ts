@@ -249,6 +249,51 @@ describe("ChainReader", () => {
     });
   });
 
+  describe("#getTokenPriceFromOnChain", () => {
+    const priceOracleContractFakeAddr = mkAddress("0x7f");
+    let getDeployedPriceOracleContractStub: SinonStub;
+    let getPriceOracleInterfaceStub: SinonStub;
+    let readTxStub: SinonStub;
+    let interfaceStub: SinonStubbedInstance<Interface>;
+    beforeEach(() => {
+      interfaceStub = createStubInstance(Interface);
+      getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
+      getPriceOracleInterfaceStub.returns(interfaceStub);
+      getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
+      getDeployedPriceOracleContractStub.returns({
+        address: priceOracleContractFakeAddr,
+        abi: ["fakeAbi()"],
+      });
+      readTxStub = Sinon.stub(chainReader, "readTx");
+    });
+
+    it("happy", async () => {
+      const assetId = mkAddress("0xc3");
+      const data = "0x123456789";
+      const tokenPrice = "5812471953821";
+      interfaceStub.encodeFunctionData.returns(data);
+      readTxStub.resolves(tokenPrice);
+
+      const result = await chainReader.getTokenPriceFromOnChain(TEST_SENDER_CHAIN_ID, assetId);
+
+      expect(result.toString()).to.be.eq(tokenPrice);
+      expect(getDeployedPriceOracleContractStub.getCall(0).args).to.deep.eq([TEST_SENDER_CHAIN_ID]);
+      expect(interfaceStub.encodeFunctionData.getCall(0).args).to.deep.eq(["getTokenPrice", [assetId]]);
+      expect(readTxStub.getCall(0).args[0]).to.deep.eq({
+        chainId: TEST_SENDER_CHAIN_ID,
+        to: priceOracleContractFakeAddr,
+        data,
+      });
+    });
+
+    it("should throw ChainNotSupported if chain not supported for token pricing", async () => {
+      getDeployedPriceOracleContractStub.returns(undefined);
+      await expect(chainReader.getTokenPriceFromOnChain(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
+        ChainNotSupported,
+      );
+    });
+  });
+
   describe("#calculateGasFeeInReceivingToken", () => {
     let calculateGasFeeStub: SinonStub;
     beforeEach(() => {
@@ -265,20 +310,24 @@ describe("ChainReader", () => {
       calculateGasFeeStub.onSecondCall().resolves(gasFeeReceiverPrepare);
       const result = await chainReader.calculateGasFeeInReceivingToken(
         TEST_SENDER_CHAIN_ID,
+        TEST_SENDER_CHAIN_ID,
         sendingAssetId,
+        TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
         18,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(expectedTotal.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
+        TEST_SENDER_CHAIN_ID,
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
         18,
         "fulfill",
       ]);
-      expect(calculateGasFeeStub.getCall(1).args.slice(0, 4)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(1).args.slice(0, 5)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
         18,
@@ -299,12 +348,14 @@ describe("ChainReader", () => {
       calculateGasFeeStub.onFirstCall().resolves(gasFee);
       const result = await chainReader.calculateGasFeeInReceivingTokenForFulfill(
         TEST_RECEIVER_CHAIN_ID,
+        TEST_RECEIVER_CHAIN_ID,
         assetId,
         18,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(gasFee.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 4)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
+        TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         assetId,
         18,
@@ -329,14 +380,28 @@ describe("ChainReader", () => {
     });
 
     it("happy: should calculate for prepare if chain included and prepare specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "prepare", requestContextMock);
+      const result = await (chainReader as any).calculateGasFee(
+        1,
+        1,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        requestContextMock,
+      );
       expect(result.toNumber()).to.be.eq(
         (testGasPrice * parseInt(GAS_ESTIMATES.prepare) * testEthPrice) / testTokenPrice,
       );
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(1, mkAddress("0x0"), 18, "fulfill", requestContextMock);
+      const result = await (chainReader as any).calculateGasFee(
+        1,
+        1,
+        mkAddress("0x0"),
+        18,
+        "fulfill",
+        requestContextMock,
+      );
       expect(result.toNumber()).to.be.eq(
         (testGasPrice * parseInt(GAS_ESTIMATES.fulfill) * testEthPrice) / testTokenPrice,
       );
