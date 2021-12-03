@@ -21,6 +21,7 @@ import {
   getRouterContractInterface,
   prepareEvt,
   cancelEvt,
+  fulfillEvt,
 } from "../../lib/helpers";
 
 /**
@@ -154,9 +155,9 @@ export const prepare = async (
 export const fulfill = async (
   chainId: number,
   fulfillParams: FulfillParams,
-  routerRelayerFeeAsset: string,
-  routerRelayerFee: string,
   requestContext: RequestContext,
+  routerRelayerFeeAsset?: string,
+  routerRelayerFee?: string,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(fulfill.name);
 
@@ -167,7 +168,7 @@ export const fulfill = async (
 
   await sanitationCheck(chainId, txData, "fulfill");
 
-  if (isRouterContract && chainId === txData.receivingChainId) {
+  if (routerRelayerFeeAsset && routerRelayerFee) {
     const signature = await signRouterFulfillTransactionPayload(
       txData,
       fulfillSignature,
@@ -199,7 +200,16 @@ export const fulfill = async (
         if (!data.taskId) {
           throw new Error("No taskId returned");
         }
-        logger.info("Submitted router contract fulfill using Gelato Relayer", requestContext, methodContext, { data });
+        logger.info("Submitted router contract fulfill using Gelato Relayer", requestContext, methodContext, {
+          data,
+        });
+
+        // listen for event on contract
+        const { event } = await fulfillEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
       } catch (err) {
         logger.error(
           "failed router contract fulfill using Gelato Relayer",
@@ -210,29 +220,29 @@ export const fulfill = async (
             fulfillParams,
           },
         );
-        /// TODO fallback to metaTx
       }
-
-      // listen for event on contract
-      const { event } = await cancelEvt
-        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-        .waitFor(300_000);
-      const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-      return receipt;
-    } else {
-      logger.info("router contract fulfill", requestContext, methodContext, { fulfillParams });
-
-      return await txService.sendTx(
-        {
-          to: routerAddress,
-          data: encodedData,
-          value: constants.Zero,
-          chainId,
-          from: wallet.address,
-        },
-        requestContext,
-      );
     }
+
+    /// TODO fallback to metaTx
+    // listen for event on contract
+    const { event } = await fulfillEvt
+      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+      .waitFor(300_000);
+    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+    return receipt;
+  } else {
+    logger.info("router contract fulfill", requestContext, methodContext, { fulfillParams });
+
+    return await txService.sendTx(
+      {
+        to: routerAddress,
+        data: encodedData,
+        value: constants.Zero,
+        chainId,
+        from: wallet.address,
+      },
+      requestContext,
+    );
   }
 
   const nxtpContractAddress = getContractAddress(chainId);

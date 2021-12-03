@@ -398,7 +398,7 @@ export type MetaTxPayloads = {
   [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractFulfillPayload;
 };
 
-export type MetaTxFulfillPayload = FulfillParams;
+export type MetaTxFulfillPayload = FulfillParams & { isRouterContract: boolean };
 export type MetaTxRouterContractPreparePayload = { params: PrepareParams; signature: string };
 export type MetaTxRouterContractCancelPayload = { params: CancelParams; signature: string };
 export type MetaTxRouterContractFulfillPayload = { params: FulfillParams; signature: string };

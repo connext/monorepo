@@ -16,9 +16,9 @@ export type ContractWriter = {
   fulfill: (
     chainId: number,
     fulfillParams: FulfillParams,
-    routerRelayerFeeAsset: string,
-    routerRelayerFee: string,
     requestContext: RequestContext,
+    routerRelayerFeeAsset?: string,
+    routerRelayerFee?: string,
   ) => Promise<providers.TransactionReceipt>;
   cancel: (
     chainId: number,
