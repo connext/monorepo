@@ -12,12 +12,7 @@ import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CON
 import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
-import {
-  CHAINS_WITH_PRICE_ORACLES,
-  NO_ORACLE_CHAINS,
-  getDeployedPriceOracleContract,
-  getPriceOracleInterface,
-} from "./contracts";
+import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
 export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
@@ -344,7 +339,7 @@ export class ChainReader {
 
     // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
     // on the specified chain.
-    const tokenPricingChainId = NO_ORACLE_CHAINS.includes(chainId) ? 1 : chainId;
+    const tokenPricingChainId = chainId;
     const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
       this.getTokenPrice(tokenPricingChainId, constants.AddressZero),
       this.getTokenPrice(tokenPricingChainId, assetId),
