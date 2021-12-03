@@ -17,6 +17,7 @@
     "deploy:prod": "yarn deploy:v1-runtime:prod && yarn deploy:v1-analytics:prod",
     "deploy:staging": "yarn deploy:v1-runtime:staging && yarn deploy:v1-analytics:staging",
     "prepare:local": "yarn deploy v1-runtime local mainnet",
+    "prepare:local:analytics": "yarn deploy v1-analytics local mainnet",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
     "remove-local-1337": "graph remove --node http://localhost:8020/ connext/nxtp",
     "deploy-local-1337": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 connext/nxtp",
