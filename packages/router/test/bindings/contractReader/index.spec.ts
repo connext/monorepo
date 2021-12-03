@@ -1,12 +1,12 @@
 import {
   InvariantTransactionData,
   mkBytes32,
-  RequestContext,
   txReceiptMock,
   expect,
   delay,
   getRandomBytes32,
   RequestContextWithTransactionId,
+  VariantTransactionData,
 } from "@connext/nxtp-utils";
 import { reset, restore, SinonStub, stub } from "sinon";
 import { providers } from "ethers/lib/ethers";
@@ -41,17 +41,17 @@ describe("Contract Reader Binding", () => {
 
   describe("#handleSingle", () => {
     let prepareMock: SinonStub<
-      [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContext],
+      [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContextWithTransactionId],
       Promise<providers.TransactionReceipt>
     >;
 
     let fulfillMock: SinonStub<
-      [invariantData: InvariantTransactionData, input: FulfillInput, requestContext: RequestContext],
+      [invariantData: InvariantTransactionData, input: FulfillInput, requestContext: RequestContextWithTransactionId],
       Promise<providers.TransactionReceipt>
     >;
 
     let cancelMock: SinonStub<
-      [invariantData: InvariantTransactionData, input: CancelInput, requestContext: RequestContext],
+      [invariantData: InvariantTransactionData, input: CancelInput, requestContext: RequestContextWithTransactionId],
       Promise<providers.TransactionReceipt>
     >;
     beforeEach(() => {
@@ -120,6 +120,7 @@ describe("Contract Reader Binding", () => {
         amount: prepare.crosschainTx.sending.amount,
         expiry: prepare.crosschainTx.sending.expiry,
         preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: prepare.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -142,6 +143,7 @@ describe("Contract Reader Binding", () => {
         amount: prepare.crosschainTx.sending.amount,
         expiry: prepare.crosschainTx.sending.expiry,
         preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: prepare.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -187,7 +189,11 @@ describe("Contract Reader Binding", () => {
     it("should handle ReceiverExpired", async () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };
       await binding.handleSingle(receiverExpired, context);
@@ -197,6 +203,7 @@ describe("Contract Reader Binding", () => {
         amount: receiverExpired.crosschainTx.receiving.amount,
         expiry: receiverExpired.crosschainTx.receiving.expiry,
         preparedBlockNumber: receiverExpired.crosschainTx.receiving.preparedBlockNumber,
+        preparedTransactionHash: receiverExpired.payload.hashes.receiving.prepareHash,
         side: "receiver",
       });
     });
@@ -204,7 +211,11 @@ describe("Contract Reader Binding", () => {
     it("should handle already cancelled in ReceiverExpired", async () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };
       cancelMock.rejects(new Error("#C:019"));
@@ -214,7 +225,11 @@ describe("Contract Reader Binding", () => {
     it("should handle error in ReceiverExpired", async () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };
       cancelMock.rejects(new Error("fail"));
@@ -228,7 +243,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.SenderExpired,
       };
       await binding.handleSingle(senderExpiredNoReceiver, context);
@@ -237,6 +256,7 @@ describe("Contract Reader Binding", () => {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -248,7 +268,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.SenderExpired,
       };
       cancelMock.rejects(new Error("#C:019"));
@@ -262,7 +286,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.SenderExpired,
       };
       cancelMock.rejects(new Error("fail"));
@@ -276,7 +304,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
       await binding.handleSingle(senderExpiredNoReceiver, context);
@@ -285,6 +317,7 @@ describe("Contract Reader Binding", () => {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -297,7 +330,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
       await binding.handleSingle(senderExpiredNoReceiver, context);
@@ -306,6 +343,7 @@ describe("Contract Reader Binding", () => {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -320,7 +358,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
       await binding.handleSingle(senderExpiredNoReceiver, context);
@@ -329,6 +371,7 @@ describe("Contract Reader Binding", () => {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -343,7 +386,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
       await binding.handleSingle(senderExpiredNoReceiver, context);
@@ -352,6 +399,7 @@ describe("Contract Reader Binding", () => {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -365,7 +413,11 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverNotConfigured,
       };
 
@@ -375,6 +427,7 @@ describe("Contract Reader Binding", () => {
         amount: receiverNotConfigured.crosschainTx.sending.amount,
         expiry: receiverNotConfigured.crosschainTx.sending.expiry,
         preparedBlockNumber: receiverNotConfigured.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: receiverNotConfigured.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -414,6 +467,7 @@ describe("Contract Reader Binding", () => {
       binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, {
         status: prepare.status,
         chainId: prepare.crosschainTx.invariant.receivingChainId,
+        block: txReceiptMock.blockNumber,
       });
       await binding.handleActiveTransactions([prepare, fulfill]);
       expect(handleSingleStub).callCount(1);

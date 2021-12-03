@@ -16,6 +16,7 @@ import {
   NotEnoughLiquidity,
   SenderChainDataInvalid,
   BidExpiryInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import {
   decodeAuctionBid,
@@ -152,6 +153,17 @@ export const prepare = async (
         subgraphBalance: routerBalance.toString(),
       });
     }
+  }
+
+  // Make sure amount is sensible
+  if (BigNumber.from(receiverAmount).lt(0)) {
+    throw new NotEnoughAmount({
+      receiverAmount,
+      preparedAmount: senderAmount.toString(),
+      transactionId: invariantData.transactionId,
+      methodContext,
+      requestContext,
+    });
   }
 
   // Handle the expiries.

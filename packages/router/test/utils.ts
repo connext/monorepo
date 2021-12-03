@@ -87,10 +87,15 @@ export const fulfillInputMock: FulfillInput = {
   side: "receiver",
 };
 
+export const mockHashes = {
+  prepareHash: mkBytes32("0xa"),
+};
+
 export const cancelInputMock: CancelInput = {
   amount: variantDataMock.amount,
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
+  preparedTransactionHash: mockHashes.prepareHash,
   side: "sender",
 };
 
@@ -107,7 +112,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
     bidSignature: "0xdbc",
     encodedBid: "0xdef",
     encryptedCallData: "0xabc",
-    senderPreparedHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes },
   },
   status: CrosschainTransactionStatus.SenderPrepared,
 };
@@ -118,7 +123,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
     callData: "0x",
     relayerFee: "100000",
     signature: "0xabc",
-    receiverFulfilledHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
 };

@@ -33,25 +33,31 @@ export type FulfillPayload = {
   callData: string;
 };
 
+export type TransactionHashes = {
+  prepareHash: string;
+  cancelHash?: string;
+  fulfillHash?: string;
+};
+
 export type CrosschainTransactionPayload = {
-  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload & {
-    senderPreparedHash: string;
-  };
+  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
   [CrosschainTransactionStatus.SenderExpired]: Record<string, never>;
   [CrosschainTransactionStatus.ReceiverNotConfigured]: Record<string, never>;
-  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
-    receiverFulfilledHash: string;
-  };
-  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload & {
-    receiverCancelledHash: string;
-  };
+  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
+  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
   [CrosschainTransactionStatus.ReceiverExpired]: Record<string, never>;
 };
 
 export type ActiveTransaction<T extends TCrosschainTransactionStatus> = {
   status: T;
   crosschainTx: CrosschainTransaction;
-  payload: CrosschainTransactionPayload[T];
+  payload: {
+    hashes: {
+      sending?: TransactionHashes;
+      // ^ optional if receiver prepared w.o sender or sender subgraph behind
+      receiving?: TransactionHashes;
+    };
+  } & CrosschainTransactionPayload[T];
 };
 
 export type SingleChainTransaction = {
