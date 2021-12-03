@@ -53,6 +53,9 @@ export const bindContractReader = async () => {
         logger.info("active and handling tracker", requestContext, methodContext, {
           transactionsLength: transactions.length,
           handlingTrackerLength: handlingTracker.size,
+          byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
+            return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };
+          }),
         });
         logger.debug("active and handling tracker details", requestContext, methodContext, {
           transactions: transactions,
