@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Arbitrum `block.number` handling on cancel
+
 ## 0.0.93
 
 - [router] Improved caching and auction response time
