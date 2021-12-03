@@ -11,6 +11,7 @@ import {
   Logger,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
+import { parseUnits } from "ethers/lib/utils";
 
 import { chainConfig, swapConfig } from "../constants";
 import { getExplorerLinkForTx, mintTokens as _mintTokens, TestTokenABI } from "../utils";
@@ -322,7 +323,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       receivingChainId,
       receivingAssetId,
       receivingAddress: form.getFieldValue("receivingAddress"),
-      amount: (parseFloat(form.getFieldValue("amount")) * Math.pow(10, sendingDecimals)).toString(),
+      amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
       preferredRouters: form.getFieldValue("preferredRouters")
         ? form.getFieldValue("preferredRouters").split(",")
         : undefined,

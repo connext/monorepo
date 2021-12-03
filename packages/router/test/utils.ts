@@ -58,6 +58,7 @@ export const configMock: NxtpRouterConfig = {
         { assetId: mkAddress("0xc"), chainId: 1337 },
         { assetId: mkAddress("0xf"), chainId: 1338 },
       ],
+      mainnetEquivalent: mkAddress("0xd"),
     },
   ],
   allowedTolerance: 10,

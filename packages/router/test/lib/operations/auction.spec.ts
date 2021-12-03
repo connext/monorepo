@@ -30,7 +30,6 @@ const auctionPayload: AuctionPayload = {
 };
 
 let getReceiverAmountStub: SinonStub;
-let getChainIdForGasFeeStub: SinonStub;
 
 describe("Auction Operation", () => {
   const { newAuction } = getOperations();
@@ -46,13 +45,7 @@ describe("Auction Operation", () => {
 
       stub(AuctionHelperFns, "getBidExpiry").returns(BID_EXPIRY);
 
-      stub(SharedHelperFns, "getTokenPrice").resolves(BigNumber.from("1000000000000000000"));
-
-      stub(SharedHelperFns, "getGasPrice").resolves(BigNumber.from("100000000000"));
-
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
-
-      getChainIdForGasFeeStub = stub(SharedHelperFns, "getChainIdForGasFee").returns([1337]);
     });
 
     it("should error if auction payload data validation fails", async () => {
@@ -105,9 +98,6 @@ describe("Auction Operation", () => {
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
 
-      // sendingChain = 1337, receivingChain = 1338
-      getChainIdForGasFeeStub.returns([1337]);
-
       // it should take a gas fee for fulfill transactions if sendingChain is fee chain.
       const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
@@ -143,9 +133,6 @@ describe("Auction Operation", () => {
         routerFee: "10",
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
-
-      // sendingChain = 1337, receivingChain = 1338
-      getChainIdForGasFeeStub.returns([1338]);
 
       // it should take a gas fee for prepare transactions if receivingChain is fee chain.
       // amountReceived = amount.sub(prepareGasFee)
@@ -183,9 +170,6 @@ describe("Auction Operation", () => {
         routerFee: "10",
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
-
-      // sendingChain = 1337, receivingChain = 1338
-      getChainIdForGasFeeStub.returns([1337, 1338]);
 
       // it should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains.
       // amountReceived = amount.sub(prepareGasFee).sub(fulfillGasFee)
@@ -225,9 +209,6 @@ describe("Auction Operation", () => {
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
 
-      // sendingChain = 1337, receivingChain = 1338
-      getChainIdForGasFeeStub.returns([1]);
-
       // it shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains
       const expectedReceiverAmount = "99999999999999999900";
       const bid = await newAuction(auctionPayload, requestContext);
@@ -258,8 +239,6 @@ describe("Auction Operation", () => {
 
     it("happy: should return auction bid for first valid swap and should return rate exceeded error for second valid swap", async () => {
       AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      // sendingChain = 1337, receivingChain = 1338
-      getChainIdForGasFeeStub.returns([1]);
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,

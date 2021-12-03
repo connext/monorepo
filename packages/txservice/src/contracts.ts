@@ -3,8 +3,6 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain";
 
-export const NO_ORACLE_CHAINS: number[] = [];
-
 /**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
