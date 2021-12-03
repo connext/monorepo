@@ -5,7 +5,7 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { providers, BigNumber } from "ethers";
+import { providers, BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
@@ -13,6 +13,7 @@ import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
 import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
+const { AddressZero } = constants;
 export const fulfill = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
@@ -20,7 +21,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, chainData, txService, wallet } = getContext();
+  const { logger, contractWriter, config, chainData, txService, isRouterContract } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -50,18 +51,21 @@ export const fulfill = async (
 
   const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
 
-  if (!config.chainConfig[invariantData.sendingChainId]) {
-    throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
+  const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
+
+  let routerRelayerFeeAsset = AddressZero;
+  let routerRelayerFee = BigNumber.from("0");
+
+  if (!config.chainConfig[fulfillChain]) {
+    throw new NoChainConfig(fulfillChain, { methodContext, requestContext, invariantData, input });
   }
 
-  // check for relayer fee if we are not submitting ourselves
-  // TODO: move this logic to the metatx logic and handle both types of relayer fee
-  const myAddress = await wallet.getAddress();
-  if (invariantData.router !== myAddress) {
-    const relayerFeeLowerBound = config.chainConfig[invariantData.sendingChainId].relayerFeeThreshold;
-    const allowRelay = config.chainConfig[invariantData.sendingChainId].allowRelay || config.allowRelay;
-    if (!allowRelay) {
-      throw new NotAllowedFulfillRelay(invariantData.sendingChainId, {
+  // Only check for relayer fee at receiving side
+  if (fulfillChain === invariantData.receivingChainId) {
+    const relayerFeeLowerBound = config.chainConfig[fulfillChain].relayerFeeThreshold;
+    const allowFulfillRelay = config.chainConfig[fulfillChain].allowFulfillRelay;
+    if (!allowFulfillRelay) {
+      throw new NotAllowedFulfillRelay(fulfillChain, {
         methodContext,
         requestContext,
         relayerFee: input.relayerFee,
@@ -93,10 +97,30 @@ export const fulfill = async (
     logger.info("Expected Fulfill fee in router side", requestContext, methodContext, {
       expectedFulfillFee: expectedFulfillFee.toString(),
     });
+
+    if (isRouterContract) {
+      routerRelayerFeeAsset = utils.getAddress(
+        config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+      );
+      const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+        invariantData.receivingChainId,
+        invariantData.receivingAssetId,
+      );
+      routerRelayerFee = await txService.calculateGasFee(
+        invariantData.receivingChainId,
+        routerRelayerFeeAsset,
+        relayerFeeAssetDecimal,
+        "fulfill",
+        requestContext,
+        methodContext,
+        "receiving",
+      );
+    }
+
     const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
 
     if (BigNumber.from(amount).sub(input.relayerFee).lt(recvAmountLowerBound)) {
-      throw new NotEnoughRelayerFee(invariantData.sendingChainId, {
+      throw new NotEnoughRelayerFee(fulfillChain, {
         methodContext,
         requestContext,
         relayerFee: input.relayerFee,
@@ -107,10 +131,8 @@ export const fulfill = async (
     }
   }
 
-  const routerRelayerFeeAsset = "0x";
-  const routerRelayerFee = "0";
   const receipt = await contractWriter.fulfill(
-    invariantData.sendingChainId,
+    fulfillChain,
     {
       txData: { ...invariantData, amount, expiry, preparedBlockNumber },
       signature: signature,
@@ -118,7 +140,7 @@ export const fulfill = async (
       callData: callData,
     },
     routerRelayerFeeAsset,
-    routerRelayerFee,
+    routerRelayerFee.toString(),
     requestContext,
   );
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });

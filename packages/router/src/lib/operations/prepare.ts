@@ -37,7 +37,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config, isRouterContract } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
@@ -127,9 +127,27 @@ export const prepare = async (
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
 
-  const routerContractRelayerAsset: string = config.chainConfig.routerContractRelayerAsset.toString() || AddressZero;
-  const routerRelayerFeeAsset = utils.getAddress(routerContractRelayerAsset);
-  const routerRelayerFee = "0";
+  let routerRelayerFeeAsset = AddressZero;
+  let routerRelayerFee = BigNumber.from("0");
+
+  if (isRouterContract) {
+    routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.receivingChainId,
+      invariantData.receivingAssetId,
+    );
+    routerRelayerFee = await txService.calculateGasFee(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "prepare",
+      requestContext,
+      methodContext,
+      "receiving",
+    );
+  }
 
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
@@ -208,7 +226,7 @@ export const prepare = async (
       encryptedCallData,
     },
     routerRelayerFeeAsset,
-    routerRelayerFee,
+    routerRelayerFee.toString(),
     requestContext,
   );
   logger.info("Sent receiver prepare tx", requestContext, methodContext, {
