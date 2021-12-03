@@ -123,6 +123,7 @@ export const TSwapPool = Type.Object({
       assetId: TAddress,
     }),
   ),
+  mainnetEquivalent: Type.Optional(TAddress),
 });
 
 export const NxtpRouterConfigSchema = Type.Object({
