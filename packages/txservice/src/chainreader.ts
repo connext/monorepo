@@ -282,11 +282,11 @@ export class ChainReader {
    * @param whichChain - Whether it's sender or receiver chain, used for
    * logging purposes only.
    */
-  private async calculateGasFee(
+  public async calculateGasFee(
     chainId: number,
     assetId: string,
     decimals: number,
-    method: "prepare" | "fulfill",
+    method: "prepare" | "fulfill" | "cancel",
     requestContext: RequestContext,
     methodContext?: MethodContext,
     whichChain: "sending" | "receiving" | "" = "",
@@ -308,12 +308,25 @@ export class ChainReader {
     let l1GasInUsd = BigNumber.from(0);
     if (chainId === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-      const gasEstimate = method === "prepare" ? GAS_ESTIMATES.prepareL1 : GAS_ESTIMATES.fulfillL1;
+      let gasEstimate = "0";
+      if (method === "prepare") {
+        gasEstimate = GAS_ESTIMATES.prepareL1;
+      } else if (method === "fulfill") {
+        gasEstimate = GAS_ESTIMATES.fulfillL1;
+      } else {
+        gasEstimate = GAS_ESTIMATES.cancelL1;
+      }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
 
-    const gasLimit =
-      method === "prepare" ? BigNumber.from(GAS_ESTIMATES.prepare) : BigNumber.from(GAS_ESTIMATES.fulfill);
+    let gasLimit = BigNumber.from("0");
+    if (method === "prepare") {
+      gasLimit = BigNumber.from(GAS_ESTIMATES.prepare);
+    } else if (method === "fulfill") {
+      gasLimit = BigNumber.from(GAS_ESTIMATES.fulfill);
+    } else {
+      gasLimit = BigNumber.from(GAS_ESTIMATES.cancel);
+    }
     const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
