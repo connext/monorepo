@@ -161,7 +161,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(fulfill.name);
 
-  const { logger, txService, wallet, isRouterContract, routerAddress } = getContext();
+  const { logger, txService, wallet, routerAddress } = getContext();
   logger.info("Method start", requestContext, methodContext);
 
   const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
@@ -169,6 +169,7 @@ export const fulfill = async (
   await sanitationCheck(chainId, txData, "fulfill");
 
   if (routerRelayerFeeAsset && routerRelayerFee) {
+    // for router contract
     const signature = await signRouterFulfillTransactionPayload(
       txData,
       fulfillSignature,
@@ -231,18 +232,6 @@ export const fulfill = async (
     const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
     return receipt;
   } else {
-    logger.info("router contract fulfill", requestContext, methodContext, { fulfillParams });
-
-    return await txService.sendTx(
-      {
-        to: routerAddress,
-        data: encodedData,
-        value: constants.Zero,
-        chainId,
-        from: wallet.address,
-      },
-      requestContext,
-    );
   }
 
   const nxtpContractAddress = getContractAddress(chainId);

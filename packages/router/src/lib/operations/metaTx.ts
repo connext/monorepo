@@ -39,7 +39,7 @@ export const metaTx = async <T extends MetaTxType>(
     });
   }
 
-  const { chainId, to, data, relayerFee, type } = input;
+  const { chainId, to, data, relayerFee, type, relayerFeeAsset } = input;
 
   if (!config.chainConfig[chainId]) {
     throw new NoChainConfig(chainId, { methodContext, requestContext, input });
@@ -57,8 +57,9 @@ export const metaTx = async <T extends MetaTxType>(
     });
   }
 
+  // receiver fulfill, done directly on contract using user's sig broadcast
   if (type === MetaTxTypes.Fulfill) {
-    const { txData, signature, isRouterContract, relayerFee, callData } = data as MetaTxFulfillPayload;
+    const { txData, signature, relayerFee, callData } = data as MetaTxFulfillPayload;
     // Send to tx service
     logger.info("Sending fulfill tx", requestContext, methodContext, { signature });
 
@@ -103,34 +104,30 @@ export const metaTx = async <T extends MetaTxType>(
 
     logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
     return receipt;
-  } else {
+  } else if (type === MetaTxTypes.RouterContractPrepare) {
     // router contract method
-    const routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
-    );
-    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
-      invariantData.receivingChainId,
-      invariantData.receivingAssetId,
-    );
-    routerRelayerFee = await txService.calculateGasFee(
-      invariantData.receivingChainId,
-      routerRelayerFeeAsset,
+
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
+
+    const routerRelayerFee = await txService.calculateGasFee(
+      chainId,
+      relayerFeeAsset,
       relayerFeeAssetDecimal,
-      "fulfill",
+      "prepare",
       requestContext,
       methodContext,
       "receiving",
     );
 
-    const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
+    const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
 
-    if (BigNumber.from(amount).sub(input.relayerFee).lt(recvAmountLowerBound)) {
+    if (BigNumber.from(relayerFee).lt(recvAmountLowerBound)) {
       throw new NotEnoughRelayerFee(chainId, {
         methodContext,
         requestContext,
         relayerFee: input.relayerFee,
         recvAmountLowerBound: recvAmountLowerBound.toString(),
-        invariantData,
+        type,
         input,
       });
     }
