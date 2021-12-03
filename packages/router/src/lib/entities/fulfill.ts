@@ -8,6 +8,7 @@ export const FulfillInputSchema = Type.Object({
   signature: Type.RegEx(/^0x[a-fA-F0-9]*$/),
   relayerFee: TIntegerString,
   callData: Type.RegEx(/^0x[a-fA-F0-9]*$/),
+  side: Type.RegEx(/sender|receiver/),
 });
 
 export type FulfillInput = Static<typeof FulfillInputSchema>;
