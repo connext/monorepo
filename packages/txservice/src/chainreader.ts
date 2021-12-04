@@ -238,8 +238,10 @@ export class ChainReader {
     this.logger.info("Method start", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
+      sendingChainIdForGasPrice,
       receivingAssetId,
       receivingChainId,
+      receivingChainIdForGasPrice,
       outputDecimals,
     });
 
@@ -341,7 +343,7 @@ export class ChainReader {
     // on the specified chain.
     const tokenPricingChainId = chainId;
     const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
-      this.getTokenPrice(tokenPricingChainId, constants.AddressZero),
+      this.getTokenPrice(gasPriceChainId, constants.AddressZero),
       this.getTokenPrice(tokenPricingChainId, assetId),
       this.getGasPrice(gasPriceChainId, requestContext),
     ]);
