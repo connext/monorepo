@@ -5,6 +5,8 @@ type AssetBalance @entity {
   assetId: Bytes!
   supplied: BigInt!
   locked: BigInt!
+  # amount, but never updated with remove liq
+  amountWithoutRemoval: BigInt!
 }
 
 # Router represents a router and its associated liquidity

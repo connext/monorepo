@@ -33,12 +33,16 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     assetBalance.amount = new BigInt(0);
     assetBalance.supplied = new BigInt(0);
     assetBalance.locked = new BigInt(0);
+    assetBalance.amountWithoutRemoval = new BigInt(0);
   }
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
 
   // add invested
   assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
+
+  // add amount without removal
+  assetBalance.amountWithoutRemoval = assetBalance.amountWithoutRemoval.plus(event.params.amount);
 
   // save
   assetBalance.save();
@@ -62,9 +66,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 
   // update amount
   assetBalance!.amount = assetBalance!.amount.minus(event.params.amount);
-
-  // update supplied
-  assetBalance!.supplied = assetBalance!.supplied.minus(event.params.amount);
 
   // save
   assetBalance!.save();
@@ -186,8 +187,10 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
       assetBalance.amount = new BigInt(0);
       assetBalance.supplied = new BigInt(0);
       assetBalance.locked = new BigInt(0);
+      assetBalance.amountWithoutRemoval = new BigInt(0);
     }
     assetBalance.amount = assetBalance.amount.minus(transaction.amount);
+    assetBalance.amountWithoutRemoval = assetBalance.amountWithoutRemoval.minus(transaction.amount);
     assetBalance.locked = assetBalance.locked.plus(transaction.amount);
     assetBalance.save();
   }
@@ -228,8 +231,10 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       sendingAssetBalance.amount = new BigInt(0);
       sendingAssetBalance.supplied = new BigInt(0);
       sendingAssetBalance.locked = new BigInt(0);
+      sendingAssetBalance.amountWithoutRemoval = new BigInt(0);
     }
     // router receives liquidity back on sender fulfill
+    sendingAssetBalance.amountWithoutRemoval = sendingAssetBalance.amountWithoutRemoval.plus(transaction!.amount);
     sendingAssetBalance.amount = sendingAssetBalance.amount.plus(transaction!.amount);
     sendingAssetBalance.save();
   } else {
@@ -243,8 +248,10 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
       receivingAssetBalance.amount = new BigInt(0);
       receivingAssetBalance.supplied = new BigInt(0);
       receivingAssetBalance.locked = new BigInt(0);
+      receivingAssetBalance.amountWithoutRemoval = new BigInt(0);
     }
     // router releases locked liquidity on receiver fulfill
+    receivingAssetBalance.amountWithoutRemoval = receivingAssetBalance.amountWithoutRemoval.minus(transaction!.amount);
     receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction!.amount);
     receivingAssetBalance.save();
   }
@@ -338,6 +345,7 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
     // Should always be defined because will always be created on
     // preparation for the receiving chain
     assetBalance!.amount = assetBalance!.amount.plus(transaction!.amount);
+    assetBalance!.amountWithoutRemoval = assetBalance!.amountWithoutRemoval.plus(transaction!.amount);
     assetBalance!.locked = assetBalance!.locked.minus(transaction!.amount);
     assetBalance!.save();
   }
