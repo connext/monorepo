@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.97
+
+- [contracts] Deploy gas price oracle on xdai
+
 ## 0.0.96
 
 - [router/sdk] Fix gas price estimation
