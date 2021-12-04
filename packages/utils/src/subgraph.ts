@@ -123,7 +123,7 @@ export const getDeployedAnalyticsSubgraphUri = (chainId: number, chainData?: Map
     case 100:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-analytics"];
     case 137:
-      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-matic-v1-analytics"];
+      return ["https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-analytics"];
     case 250:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-v1-analytics"];
     case 1285:
