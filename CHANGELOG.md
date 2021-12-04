@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.96
+
+- [router/sdk] Fix gas price estimation
+
 ## 0.0.94
 
 - [router] Delegate fee calc to chainreader
