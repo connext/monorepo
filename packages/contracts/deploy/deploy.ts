@@ -18,6 +18,7 @@ WRAPPED_ETH_MAP.set("137", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"); // pol
 WRAPPED_ETH_MAP.set("250", "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83"); // fantom WFTM
 WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // arbitrum WETH
 WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
+WRAPPED_ETH_MAP.set("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"); // xdai wxDAI
 
 /**
  * Hardhat task defining the contract deployments for nxtp
