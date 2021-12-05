@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.0.98
+
+- [contracts] Set up Moonriver price oracle
+
 ## 0.0.97
 
 - [contracts] Deploy gas price oracle on xdai
