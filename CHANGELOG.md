@@ -4,6 +4,18 @@
 
 - [router] Cleanup prometheus collection
 
+## 0.0.98
+
+- [contracts] Set up Moonriver price oracle
+
+## 0.0.97
+
+- [contracts] Deploy gas price oracle on xdai
+
+## 0.0.96
+
+- [router/sdk] Fix gas price estimation
+
 ## 0.0.94
 
 - [router] Delegate fee calc to chainreader
