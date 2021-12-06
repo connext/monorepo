@@ -11,6 +11,7 @@ import {
   ChainData,
   isNode,
   getChainData,
+  StatusResponse,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -166,6 +167,15 @@ export class NxtpSdk {
    */
   public async getActiveTransactions(): Promise<ActiveTransaction[]> {
     return this.sdkBase.getActiveTransactions();
+  }
+
+  /**
+   * Gets all the transactions that could require user action from the subgraph across all configured chains
+   *
+   * @returns An array of the active transactions and their status
+   */
+  public async getRouterStatus(requestee: string): Promise<StatusResponse[]> {
+    return this.sdkBase.getRouterStatus(requestee);
   }
 
   /**
