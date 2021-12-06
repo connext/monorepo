@@ -32,7 +32,7 @@ import {
 import { CrossChainParams } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
-// import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
+import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
 import { ChainReader } from "../../../txservice/dist";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
@@ -94,6 +94,7 @@ describe("NxtpSdk", () => {
     (sdkBase as any).chainReader = chainReader;
     chainReader.getDecimalsForAsset.resolves(18);
 
+    stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
     balanceStub = stub(utils, "getOnchainBalance");

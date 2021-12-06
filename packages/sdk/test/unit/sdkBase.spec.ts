@@ -1067,9 +1067,13 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingChainId,
         crossChainParams.sendingChainId,
         crossChainParams.sendingAssetId,
+        crossChainParams.sendingChainId,
+        mkAddress("0x0"),
         crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
+        crossChainParams.receivingChainId,
+        mkAddress("0x0"),
         18,
         null,
         null,
@@ -1084,9 +1088,13 @@ describe("NxtpSdkBase", () => {
         crossChainParams.sendingChainId,
         crossChainParams.sendingChainId,
         crossChainParams.sendingAssetId,
+        crossChainParams.sendingChainId,
+        mkAddress("0x0"),
         crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
+        crossChainParams.receivingChainId,
+        mkAddress("0x0"),
         18,
         null,
         null,
@@ -1104,6 +1112,8 @@ describe("NxtpSdkBase", () => {
         crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
+        crossChainParams.receivingChainId,
+        mkAddress("0x0"),
         18,
         null,
         null,
@@ -1122,6 +1132,8 @@ describe("NxtpSdkBase", () => {
         crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
+        crossChainParams.receivingChainId,
+        mkAddress("0x0"),
         18,
         null,
         null,
@@ -1141,6 +1153,12 @@ describe("NxtpSdkBase", () => {
         ChainNotConfigured.getMessage(11111, supportedChains),
       );
     });
+  });
+
+  describe("#getMainnetEquivalent", () => {
+    it("happy: return null if chainData not configured", () => {});
+    it("happy: return null if equiv doesn't exist", () => {});
+    it("happy: return mainnet equivalent if chainData configured correctly", () => {});
   });
 
   it("happy changeInjectedSigner", () => {

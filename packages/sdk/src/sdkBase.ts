@@ -317,8 +317,6 @@ export class NxtpSdkBase {
   }
 
   public getMainnetEquivalent(chainId: number, assetId: string): string | null {
-    if (!this.chainData) return null;
-
     if (!this.chainData || !this.chainData.has(chainId.toString())) {
       return null;
     }
@@ -361,9 +359,21 @@ export class NxtpSdkBase {
     const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
     const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
 
+    const sendingNativeAssetIdOnMainnet = this.getMainnetEquivalent(sendingChainId, constants.AddressZero);
+    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+      ? sendingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
     const receivingAssetIdOnMainnet = this.getMainnetEquivalent(receivingChainId, receivingAssetId);
     const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
     const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+    const receivingNativeAssetIdOnMainnet = this.getMainnetEquivalent(receivingChainId, constants.AddressZero);
+    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
+      ? receivingNativeAssetIdOnMainnet
+      : constants.AddressZero;
 
     this.logger.debug("Estimating receiver amount in receiving token", requestContext, methodContext, {
       amount,
@@ -371,10 +381,14 @@ export class NxtpSdkBase {
       sendingAssetId,
       tokenPricingSendingChain,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       receivingChainId,
       receivingAssetId,
       tokenPricingReceivingChain,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
     });
 
     // validate that assets/chains are supported and there is enough liquidity
@@ -407,9 +421,13 @@ export class NxtpSdkBase {
       tokenPricingSendingChain,
       sendingChainId,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       tokenPricingReceivingChain,
       receivingChainId,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       outputDecimals,
       requestContext,
       methodContext,
@@ -419,6 +437,8 @@ export class NxtpSdkBase {
       tokenPricingReceivingChain,
       receivingChainId,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       outputDecimals,
       requestContext,
       methodContext,
@@ -1126,19 +1146,27 @@ export class NxtpSdkBase {
    * @param sendingChainId - The network id of sending chain for sending token price
    * @param sendingChainIdForGasPrice - The network id of sending chain
    * @param sendingAssetId  - The sending asset address for sending token price
+   * @param sendingNativeChainId - The network that we're going to get the native token price of sending chain on
+   * @param sendingNativeAssetId - The native asset id on source chain
    * @param receivingChainId  - The network id of receiving chain for receiving token price
    * @param receivingChainIdForGasPrice  - The network id of receiving chain
    * @param receivingAssetId - The receiving asset address for receiving token price
-   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
+   * @param receivingNativeAssetId The native asset id on destination chain
+   * @param outputDecimals - Decimal number of asset
    * @returns Gas fee for transfer in token
    */
   public async estimateFeeForRouterTransfer(
     sendingChainId: number,
     sendingChainIdForGasPrice: number,
     sendingAssetId: string,
+    sendingNativeChainId: number,
+    sendingNativeAssetId: string,
     receivingChainId: number,
     receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
@@ -1147,17 +1175,26 @@ export class NxtpSdkBase {
       sendingChainId,
       sendingAssetId,
       sendingChainIdForGasPrice,
+      sendingNativeChainId,
+      sendingNativeAssetId,
       receivingChainId,
       receivingAssetId,
       receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
     });
+
     return await this.chainReader.calculateGasFeeInReceivingToken(
       sendingChainId,
       sendingChainIdForGasPrice,
       sendingAssetId,
+      sendingNativeChainId,
+      sendingNativeAssetId,
       receivingChainId,
       receivingChainIdForGasPrice,
       receivingAssetId,
+      receivingNativeChainId,
+      receivingNativeAssetId,
       outputDecimals,
       requestContext,
     );
@@ -1169,12 +1206,17 @@ export class NxtpSdkBase {
    * @param receivingChainId  - The network id of receiving chain for getting token price
    * @param receivingChainIdForGasPrice  - The network id of receiving chain
    * @param receivingAssetId - The receiving asset address for getting token price
+   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
+   * @param receivingNativeAssetId The native asset id on destination chain
+   * @param outputDecimals - Decimal number of asset
    * @returns Gas fee for meta transactions in token
    */
   public async estimateFeeForMetaTx(
     receivingChainId: number,
     receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
@@ -1183,11 +1225,15 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
     });
     const totalCost = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
       receivingChainId,
       receivingChainIdForGasPrice,
       receivingAssetId,
+      receivingNativeChainId,
+      receivingNativeAssetId,
       outputDecimals,
       requestContext,
     );
