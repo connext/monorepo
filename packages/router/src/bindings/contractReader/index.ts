@@ -58,7 +58,6 @@ export const bindContractReader = async () => {
           }),
         });
         logger.debug("active and handling tracker details", requestContext, methodContext, {
-          transactions: transactions,
           handlingTracker: [...handlingTracker],
         });
       }
