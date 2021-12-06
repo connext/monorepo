@@ -6,6 +6,8 @@ type AssetBalance @entity {
   supplied: BigInt!
   locked: BigInt!
   removed: BigInt!
+  volume: BigInt!
+  volumeIn: BigInt!
 }
 
 # Router represents a router and its associated liquidity
@@ -99,6 +101,8 @@ type HourlyMetric @entity {
   receivingTxCount: BigInt!
   # cancelled transactions in an hour
   cancelTxCount: BigInt!
+  # hourly volume inbound from sending chain per asset
+  volumeIn: BigInt!
 }
 
 type DayMetric @entity {
@@ -118,4 +122,6 @@ type DayMetric @entity {
   receivingTxCount: BigInt!
   # cancelled transactions in a day
   cancelTxCount: BigInt!
+  # daily volume inbound from sending chain per asset
+  volumeIn: BigInt!
 }
