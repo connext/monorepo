@@ -1,17 +1,20 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
-import { createLoggingContext, GAS_ESTIMATES, Logger, RequestContext, MethodContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  GAS_ESTIMATES,
+  Logger,
+  RequestContext,
+  MethodContext,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
 import { ReadTransaction } from "./types";
 import { ChainRpcProvider } from "./provider";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
-import {
-  CHAINS_WITH_PRICE_ORACLES,
-  NO_ORACLE_CHAINS,
-  getDeployedPriceOracleContract,
-  getPriceOracleInterface,
-} from "./contracts";
+import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
+export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
 // probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
 // directly.
@@ -158,13 +161,40 @@ export class ChainReader {
 
   /// CONTRACT READ METHODS
   /**
+   * Gets token price in usd from cache or price oracle
+   *
+   * @param chainId - The network identifier.
+   * @param assetId - The asset address to get price for.
+   */
+  public async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
+    const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
+
+    const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+    const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
+    const curTimeInSecs = await getNtpTimeSeconds();
+
+    // If it's been less than a minute since we retrieved token price, send the last update in token price.
+    if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
+      return cachedTokenPrice.price;
+    }
+
+    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+    cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
+    return tokenPrice;
+  }
+
+  /**
    * Gets token price in usd from price oracle
    *
    * @param chainId - The network identifier.
    * @param assetId - The asset address to get price for.
    */
-  async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
-    const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
+  public async getTokenPriceFromOnChain(
+    chainId: number,
+    assetId: string,
+    _requestContext?: RequestContext,
+  ): Promise<BigNumber> {
+    const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
     const priceOracleContract = getDeployedPriceOracleContract(chainId);
     if (!priceOracleContract) {
       throw new ChainNotSupported(chainId.toString(), requestContext);
@@ -175,23 +205,28 @@ export class ChainReader {
       to: priceOracleContract.address,
       data: encodedTokenPriceData,
     });
-    return BigNumber.from(tokenPrice);
+    const tokenPriceInBigNum = BigNumber.from(tokenPrice);
+    return tokenPriceInBigNum;
   }
 
   /**
    * Calculates total router gas fee in token.
    *
    * @param sendingChainId The source chain ID
+   * @param sendingChainIdForGasPrice The source chain ID where we're going to gas price on
    * @param sendingAssetId The asset address on source chain
    * @param receivingChainId The destination chain ID
+   * @param receivingChainIdForGasPrice The destination chain ID where we're going to gas price on
    * @param receivingAssetId The asset address on destination chain
    * @param outputDecimals Decimal number of receiving asset
    * @param _requestContext Request context instance
    */
   async calculateGasFeeInReceivingToken(
     sendingChainId: number,
+    sendingChainIdForGasPrice: number,
     sendingAssetId: string,
     receivingChainId: number,
+    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
     outputDecimals: number,
     _requestContext?: RequestContext,
@@ -203,8 +238,10 @@ export class ChainReader {
     this.logger.info("Method start", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
+      sendingChainIdForGasPrice,
       receivingAssetId,
       receivingChainId,
+      receivingChainIdForGasPrice,
       outputDecimals,
     });
 
@@ -214,6 +251,7 @@ export class ChainReader {
       // Calculate gas fees for sender fulfill.
       this.calculateGasFee(
         sendingChainId,
+        sendingChainIdForGasPrice,
         sendingAssetId,
         outputDecimals,
         "fulfill",
@@ -224,6 +262,7 @@ export class ChainReader {
       // Calculate gas fees for receiver prepare.
       this.calculateGasFee(
         receivingChainId,
+        receivingChainIdForGasPrice,
         receivingAssetId,
         outputDecimals,
         "prepare",
@@ -240,12 +279,14 @@ export class ChainReader {
    * Calculates relayer fee in receiving token.
    *
    * @param receivingChainId - The destination chain ID.
+   * @param receivingChainIdForGasPrice - The destination chain ID where we're going to gas price on.
    * @param receivingAssetId - The asset address on destination chain.
    * @param outputDecimals - Decimal number of receiving asset.
    * @param requestContext - Request context instance.
    */
   async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
+    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
     outputDecimals: number,
     _requestContext: RequestContext,
@@ -261,6 +302,7 @@ export class ChainReader {
     });
     return await this.calculateGasFee(
       receivingChainId,
+      receivingChainIdForGasPrice,
       receivingAssetId,
       outputDecimals,
       "fulfill",
@@ -274,6 +316,7 @@ export class ChainReader {
    * Calculates gas fee for specified chain and asset.
    *
    * @param chainId - The destination chain ID.
+   * @param gasPriceChainId - The destination chain ID where we're going to gas price on.
    * @param assetId - The asset address on destination chain.
    * @param decimals - Decimal number of asset.
    * @param method - Which contract method to calculate gas fees for.
@@ -284,6 +327,7 @@ export class ChainReader {
    */
   public async calculateGasFee(
     chainId: number,
+    gasPriceChainId: number,
     assetId: string,
     decimals: number,
     method: "prepare" | "fulfill" | "cancel",
@@ -297,11 +341,11 @@ export class ChainReader {
 
     // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
     // on the specified chain.
-    const tokenPricingChainId = NO_ORACLE_CHAINS.includes(chainId) ? 1 : chainId;
+    const tokenPricingChainId = chainId;
     const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
-      this.getTokenPrice(tokenPricingChainId, constants.AddressZero),
+      this.getTokenPrice(gasPriceChainId, constants.AddressZero),
       this.getTokenPrice(tokenPricingChainId, assetId),
-      this.getGasPrice(chainId, requestContext),
+      this.getGasPrice(gasPriceChainId, requestContext),
     ]);
 
     // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell

@@ -11,6 +11,7 @@ import {
   ChainData,
   isNode,
   getChainData,
+  StatusResponse,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -169,6 +170,15 @@ export class NxtpSdk {
   }
 
   /**
+   * Gets all the transactions that could require user action from the subgraph across all configured chains
+   *
+   * @returns An array of the active transactions and their status
+   */
+  public async getRouterStatus(requestee: string): Promise<StatusResponse[]> {
+    return this.sdkBase.getRouterStatus(requestee);
+  }
+
+  /**
    *
    * @param chainId
    * @returns
@@ -207,11 +217,22 @@ export class NxtpSdk {
     this.sdkBase.assertChainIsConfigured(receivingChainId);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
-    const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
+    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
+    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
+    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+    this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
+      tokenPricingSendingChain,
+      tokenPricingAssetIdSendingChain,
       receivingChainId,
       receivingAssetId,
+    });
+    const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
+      tokenPricingSendingChain,
+      sendingChainId,
+      tokenPricingAssetIdSendingChain,
       decimals,
       requestContext,
       methodContext,
@@ -240,11 +261,24 @@ export class NxtpSdk {
     this.sdkBase.assertChainIsConfigured(receivingChainId);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
-    const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
+    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
+    if (receivingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
+    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+    this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
+      tokenPricingReceivingChain,
+      tokenPricingAssetIdReceivingChain,
+    });
+
+    const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
+      tokenPricingReceivingChain,
+      receivingChainId,
+      tokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,
@@ -273,11 +307,22 @@ export class NxtpSdk {
     this.sdkBase.assertChainIsConfigured(receivingChainId);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
+    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
+    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
+    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
+    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
     const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      tokenPricingSendingChain,
       sendingChainId,
-      sendingAssetId,
+      tokenPricingAssetIdSendingChain,
+      tokenPricingReceivingChain,
       receivingChainId,
-      receivingAssetId,
+      tokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,
@@ -307,11 +352,23 @@ export class NxtpSdk {
     this.sdkBase.assertChainIsConfigured(receivingChainId);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
+    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
+    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
+    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
+    if (receivingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
+    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
     const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
+      tokenPricingSendingChain,
       sendingChainId,
-      sendingAssetId,
+      tokenPricingAssetIdSendingChain,
+      tokenPricingReceivingChain,
       receivingChainId,
-      receivingAssetId,
+      tokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,

@@ -15,7 +15,7 @@ import {
 import { BigNumber, constants, utils, Contract } from "ethers";
 import { Evt } from "evt";
 
-import { Interface } from "ethers/lib/utils";
+import { getAddress, Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
@@ -26,9 +26,6 @@ import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-
-import { cachedPriceMap } from "../../bindings/prices";
-import { getDeployedChainIdsForGasFee } from "../../config";
 
 import { NotExistPriceOracle } from "../../lib/errors/contracts";
 import { getContext } from "../../router";
@@ -69,15 +66,15 @@ export const getTxManagerInterface = () =>
 export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
 /**
- * Returns the mainnet equivalent of the given asset on the given chain.
+ * Returns the mainnet equivalent of the given asset on the given chain from chain data.
  * @param assetId Address you want mainnet equivalent of
  * @param chainId Chain your asset lives on
  * @returns Address of equivalent asset on mainnet
  */
-export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string> => {
-  const chainData = await getChainData();
+export const getMainnetEquivalentFromChainData = async (assetId: string, chainId: number): Promise<string | null> => {
+  const { chainData } = getContext();
   if (!chainData || !chainData.has(chainId.toString())) {
-    throw new Error(`No chain data found for ${chainId}`);
+    return null;
   }
   const chain = chainData.get(chainId.toString())!;
   const equiv =
@@ -87,23 +84,29 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
     chain.assetId[assetId];
 
   if (!equiv || !equiv.mainnetEquivalent) {
-    throw new Error(`No mainnet equivalent found for ${assetId} on ${chainId}`);
+    return null;
   }
   return utils.getAddress(equiv.mainnetEquivalent);
 };
 
 /**
- * Returns the decimals of mainnet equivalent of the given asset on the given chain.
+ * Returns the mainnet equivalent of the given asset on the given chain
+ * Reads from config first, if it fails, tries to read from chain data.
+ *
  * @param assetId Address you want mainnet equivalent of
  * @param chainId Chain your asset lives on
- * @returns Decimals of equivalent asset on mainnet
+ * @returns Address of equivalent asset on mainnet
  */
-export const getMainnetDecimals = async (assetId: string, chainId: number): Promise<number> => {
-  const mainnet = await getMainnetEquivalent(assetId, chainId);
-
-  const { txService } = getContext();
-  const decimals = await txService.getDecimalsForAsset(1, mainnet);
-  return decimals;
+export const getMainnetEquivalent = async (assetId: string, chainId: number): Promise<string | null> => {
+  const { config } = getContext();
+  const allowedSwapPool = config.swapPools.find((pool) =>
+    pool.assets.find((a) => getAddress(a.assetId) === getAddress(assetId) && a.chainId === chainId),
+  );
+  if (allowedSwapPool && allowedSwapPool.mainnetEquivalent) {
+    return allowedSwapPool.mainnetEquivalent;
+  } else {
+    return await getMainnetEquivalentFromChainData(assetId, chainId);
+  }
 };
 
 /**
@@ -125,11 +128,21 @@ export const calculateGasFeeInReceivingToken = async (
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
+  const sendingAssetIdOnMainnet = await getMainnetEquivalent(sendingAssetId, sendingChainId);
+  const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+  const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+  const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
+  const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+  const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
   return txService.calculateGasFeeInReceivingToken(
+    tokenPricingSendingChain,
     sendingChainId,
-    sendingAssetId,
+    tokenPricingAssetIdSendingChain,
+    tokenPricingReceivingChain,
     receivingChainId,
-    receivingAssetId,
+    tokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );
@@ -150,68 +163,27 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   requestContext: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
+
+  const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
+  const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+  const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
   return txService.calculateGasFeeInReceivingTokenForFulfill(
+    tokenPricingReceivingChain,
     receivingChainId,
-    receivingAssetId,
+    tokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );
 };
 
-/**
- * Gets token price in usd from cache first. If its not cached, gets price from price oracle.
- *
- * @param chainId The network identifier
- * @param assetId The asset address to get price for
- */
-export const getTokenPrice = async (
-  chainId: number,
-  assetId: string,
-  requestContext: RequestContext,
-): Promise<BigNumber> => {
-  const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
-  const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
-  const curTimeInSecs = await getNtpTimeSeconds();
-
-  // If it's been less than a minute since we retrieved token price, send the last update in token price.
-  if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
-    return cachedTokenPrice.price;
-  }
-
-  // Gets token price from onchain.
-  const tokenPrice = await getTokenPriceFromOnChain(chainId, assetId, requestContext);
-  cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
-
-  return tokenPrice;
-};
-
 export const getTokenPriceFromOnChain = async (
   chainId: number,
   assetId: string,
-  requestContext: RequestContext,
+  requestContext?: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
-  return txService.getTokenPrice(chainId, assetId, requestContext);
-};
-
-/**
- * Gets gas price in usd
- *
- * @param chainId The network identifier
- * @param requestContext Request context
- * @returns Gas price
- */
-export const getGasPrice = async (chainId: number, requestContext: RequestContext): Promise<BigNumber> => {
-  const { txService } = getContext();
-  const gasPrice = await txService.getGasPrice(chainId, requestContext);
-  return gasPrice;
-};
-
-/**
- * Gets chain ids to take fee from
- */
-export const getChainIdForGasFee = (): number[] => {
-  return getDeployedChainIdsForGasFee();
+  return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
 };
 
 export const prepareEvt = new Evt<{ event: any; args: PrepareParams }>(); // TODO: fix types

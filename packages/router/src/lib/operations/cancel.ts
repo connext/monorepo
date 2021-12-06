@@ -54,7 +54,7 @@ export const cancel = async (
     });
   }
 
-  const { side, amount, preparedBlockNumber, expiry } = input;
+  const { side, preparedTransactionHash, ...variant } = input;
 
   let routerRelayerFeeAsset = AddressZero;
   let routerRelayerFee = BigNumber.from("0");
@@ -78,7 +78,10 @@ export const cancel = async (
     }
 
     // prepare at 1000, 1000 > 2000 - 750
-    const preparedBlock = await txService.getBlock(invariantData.sendingChainId, preparedBlockNumber);
+    // https://developer.offchainlabs.com/docs/time_in_arbitrum#ethereum-block-numbers-within-arbitrum
+    const receipt = await txService.getTransactionReceipt(invariantData.sendingChainId, preparedTransactionHash);
+    const preparedBlock = await txService.getBlock(invariantData.sendingChainId, receipt.blockNumber);
+
     if (!preparedBlock || currentTime < preparedBlock.timestamp + SENDER_PREPARE_BUFFER_TIME) {
       throw new SenderTxTooNew(
         invariantData.transactionId,
@@ -122,7 +125,7 @@ export const cancel = async (
   const receipt = await contractWriter.cancel(
     cancelChain,
     {
-      txData: { ...invariantData, amount, preparedBlockNumber, expiry },
+      txData: { ...invariantData, ...variant },
       signature: "0x",
     },
     routerRelayerFeeAsset,

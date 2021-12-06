@@ -3,6 +3,7 @@ import { createLoggingContext, jsonifyError, MetaTxFulfillPayload, NxtpError } f
 import { getContext } from "../../router";
 
 import { auctionRequestBinding } from "./auctionRequest";
+import { statusRequestBinding } from "./statusRequest";
 import { metaTxRequestBinding } from "./metaTxRequest";
 
 export const bindMessaging = async () => {
@@ -22,6 +23,20 @@ export const bindMessaging = async () => {
     } catch (err) {
       logger[(err as NxtpError).level ?? "error"](
         "Error subscribing to auction request",
+        requestContext,
+        methodContext,
+        jsonifyError(err),
+      );
+    }
+  });
+
+  await messaging.subscribeToStatusRequest(async (from, inbox, data, e) => {
+    const { requestContext, methodContext } = createLoggingContext("subscribeToStatusRequest", undefined, "");
+    try {
+      await statusRequestBinding(from, inbox, data, e, requestContext);
+    } catch (err) {
+      logger[(err as NxtpError).level ?? "error"](
+        "Error subscribing to status request",
         requestContext,
         methodContext,
         jsonifyError(err),

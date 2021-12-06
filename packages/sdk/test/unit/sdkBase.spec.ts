@@ -1065,7 +1065,9 @@ describe("NxtpSdkBase", () => {
       const { crossChainParams } = getMock();
       const result = await sdk.estimateFeeForRouterTransfer(
         crossChainParams.sendingChainId,
+        crossChainParams.sendingChainId,
         crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
         18,
@@ -1080,7 +1082,9 @@ describe("NxtpSdkBase", () => {
       const { crossChainParams } = getMock();
       const result = await sdk.estimateFeeForRouterTransfer(
         crossChainParams.sendingChainId,
+        crossChainParams.sendingChainId,
         crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
         18,
@@ -1097,8 +1101,7 @@ describe("NxtpSdkBase", () => {
       chainReader.calculateGasFeeInReceivingTokenForFulfill.resolves(expectedResult);
       const { crossChainParams } = getMock();
       const result = await sdk.estimateFeeForMetaTx(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
         18,
@@ -1116,8 +1119,7 @@ describe("NxtpSdkBase", () => {
       const { crossChainParams } = getMock();
       getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
       const result = await sdk.estimateFeeForMetaTx(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
+        crossChainParams.receivingChainId,
         crossChainParams.receivingChainId,
         crossChainParams.receivingAssetId,
         18,
