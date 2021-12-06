@@ -28,6 +28,7 @@ export type AssetBalance = {
   assetId: Scalars['Bytes'];
   supplied: Scalars['BigInt'];
   locked: Scalars['BigInt'];
+  removed: Scalars['BigInt'];
 };
 
 export type AssetBalance_Filter = {
@@ -83,6 +84,14 @@ export type AssetBalance_Filter = {
   locked_lte?: Maybe<Scalars['BigInt']>;
   locked_in?: Maybe<Array<Scalars['BigInt']>>;
   locked_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  removed?: Maybe<Scalars['BigInt']>;
+  removed_not?: Maybe<Scalars['BigInt']>;
+  removed_gt?: Maybe<Scalars['BigInt']>;
+  removed_lt?: Maybe<Scalars['BigInt']>;
+  removed_gte?: Maybe<Scalars['BigInt']>;
+  removed_lte?: Maybe<Scalars['BigInt']>;
+  removed_in?: Maybe<Array<Scalars['BigInt']>>;
+  removed_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum AssetBalance_OrderBy {
@@ -91,7 +100,8 @@ export enum AssetBalance_OrderBy {
   Router = 'router',
   AssetId = 'assetId',
   Supplied = 'supplied',
-  Locked = 'locked'
+  Locked = 'locked',
+  Removed = 'removed'
 }
 
 
@@ -1074,7 +1084,7 @@ export type GetExpressiveAssetBalancesQueryVariables = Exact<{
 }>;
 
 
-export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any }> };
+export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any, removed: any }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1089,6 +1099,7 @@ export const GetExpressiveAssetBalancesDocument = gql`
     assetId
     locked
     supplied
+    removed
   }
 }
     `;

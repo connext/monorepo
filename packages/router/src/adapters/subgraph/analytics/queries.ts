@@ -7,6 +7,7 @@ export const getExpressiveAssetBalancesQuery = gql`
       assetId
       locked
       supplied
+      removed
     }
   }
 `;
