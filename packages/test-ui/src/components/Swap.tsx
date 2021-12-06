@@ -375,6 +375,16 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     }
   };
 
+  const getRouterStatus = async () => {
+    if (!sdk) {
+      return;
+    }
+
+    const res = await sdk.getRouterStatus("testUI");
+
+    console.log(res);
+  };
+
   const columns = [
     {
       title: "Prepared At",
@@ -809,6 +819,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
               <Form.Item label="MetaTx Fee (SDK)" name="metaTxFeeInSDK">
                 <Input disabled placeholder="..." />
+              </Form.Item>
+
+              <Form.Item label="Router Status" name="routerStatus">
+                <Button onClick={() => getRouterStatus()}>router status</Button>
               </Form.Item>
             </Form>
           )}

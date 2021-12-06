@@ -383,6 +383,15 @@ export const AuctionResponseSchema = Type.Object({
 
 export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
+export type StatusResponse = {
+  routerVersion: string;
+  routerAddress: string;
+  signerAddress: string;
+  trackerLength: number;
+  swapPools: Map<number, string[]>;
+  supportedChains: number[];
+};
+
 export const MetaTxTypes = {
   Fulfill: "Fulfill",
 } as const;
@@ -420,6 +429,8 @@ export const AUCTION_REQUEST_SUBJECT = "auction.request";
 export const AUCTION_RESPONSE_SUBJECT = "auction.response";
 export const METATX_REQUEST_SUBJECT = "metatx.request";
 export const METATX_RESPONSE_SUBJECT = "metatx.response";
+export const STATUS_REQUEST_SUBJECT = "status.request";
+export const STATUS_RESPONSE_SUBJECT = "status.response";
 
 /**
  * @classdesc Contains the logic for handling all the NATS messaging specific to the nxtp protocol (asserts messaging versions and structure)
@@ -612,6 +623,43 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
       requestContext,
     );
   }
+
+  /**
+   * Subscribes to the get status requests
+   *
+   * @param handler - Callback that attempts to get status on behalf of the requester
+   */
+  async subscribeToStatusRequest(
+    handler: (from: string, inbox: string, data?: any, err?: NxtpErrorJson) => void,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToStatusRequest.name);
+    await this.subscribeToNxtpMessageWithInbox(
+      `*.*.${STATUS_REQUEST_SUBJECT}`,
+      (from: string, inbox: string, data?: any, err?: NxtpErrorJson) => {
+        return handler(from, inbox, data, err);
+      },
+      requestContext,
+    );
+  }
+
+  async publishStatusResponse(
+    from: string,
+    publishInbox: string,
+    data?: StatusResponse,
+    err?: NxtpErrorJson,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.publishStatusResponse.name);
+    const signerAddress = await this.signer.getAddress();
+    await this.publishNxtpMessage(
+      `${from}.${signerAddress}.${STATUS_RESPONSE_SUBJECT}`,
+      data,
+      publishInbox,
+      err,
+      requestContext,
+    );
+  }
 }
 
 /**
@@ -708,7 +756,36 @@ export class UserNxtpNatsMessagingService extends NatsNxtpMessagingService {
       (from: string, inbox: string, data?: MetaTxResponse, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
-      _requestContext ?? createRequestContext(this.publishMetaTxRequest.name),
+      _requestContext ?? createRequestContext(this.subscribeToMetaTxResponse.name),
+    );
+  }
+
+  async publishStatusRequest(data: any, inbox?: string, _requestContext?: RequestContext): Promise<{ inbox: string }> {
+    if (!inbox) {
+      inbox = generateMessagingInbox();
+    }
+    const signerAddress = await this.signer.getAddress();
+    await this.publishNxtpMessage(
+      `${signerAddress}.${signerAddress}.${STATUS_REQUEST_SUBJECT}`,
+      data,
+      inbox,
+      undefined, // error
+      _requestContext ?? createRequestContext(this.publishStatusRequest.name),
+    );
+    return { inbox };
+  }
+
+  async subscribeToStatusResponse(
+    handler: (from: string, inbox: string, data?: StatusResponse, err?: any) => void,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const signerAddress = await this.signer.getAddress();
+    await this.subscribeToNxtpMessageWithInbox<any>(
+      `${signerAddress}.*.${STATUS_RESPONSE_SUBJECT}`,
+      (from: string, inbox: string, data?: any, err?: NxtpErrorJson) => {
+        return handler(from, inbox, data, err);
+      },
+      _requestContext ?? createRequestContext(this.subscribeToStatusResponse.name),
     );
   }
 }

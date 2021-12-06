@@ -31,6 +31,7 @@ import {
   GAS_ESTIMATES,
   getReceiverAmount,
   ChainData,
+  StatusResponse,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -142,6 +143,7 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
+  private readonly statusResponseEvt = createMessagingEvt<StatusResponse>();
 
   constructor(private readonly config: SdkBaseConfigParams) {
     const {
@@ -277,6 +279,10 @@ export class NxtpSdkBase {
         this.auctionResponseEvt.post({ inbox, data, err });
       },
     );
+
+    await this.messaging.subscribeToStatusResponse((_from: string, inbox: string, data?: any, err?: any) => {
+      this.statusResponseEvt.post({ inbox, data, err });
+    });
 
     await delay(1000);
     return token;
@@ -433,6 +439,47 @@ export class NxtpSdkBase {
       gasFee: gasFee.toString(),
       relayerFee: relayerFee.toString(),
     };
+  }
+
+  public async getRouterStatus(requestee: string): Promise<StatusResponse[]> {
+    const { requestContext, methodContext } = createLoggingContext(this.getRouterStatus.name, undefined, "");
+
+    this.logger.info("Method started", requestContext, methodContext);
+
+    if (!this.messaging.isConnected()) {
+      await this.connectMessaging();
+    }
+
+    const inbox = generateMessagingInbox();
+    const statusWaitTimeMs = 2_000;
+
+    const statusCtx = Evt.newCtx();
+
+    const statusPromise = new Promise<StatusResponse[]>(async (resolve) => {
+      const statusResponses: StatusResponse[] = [];
+      this.statusResponseEvt
+        .pipe(statusCtx)
+        .pipe((data) => data.inbox === inbox)
+        .pipe((data) => !!data.data)
+        .attach((data) => {
+          statusResponses.push(data.data as StatusResponse);
+        });
+
+      setTimeout(async () => {
+        this.statusResponseEvt.detach(statusCtx);
+        return resolve(statusResponses);
+      }, statusWaitTimeMs);
+    });
+
+    await this.messaging.publishStatusRequest({ requestee }, inbox);
+
+    this.logger.debug(`Waiting up to ${statusWaitTimeMs} ms for responses`, requestContext, methodContext, {
+      inbox,
+    });
+
+    const receviedStatusResponses = await statusPromise;
+
+    return receviedStatusResponses;
   }
 
   /**
