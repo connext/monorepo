@@ -1,7 +1,7 @@
 import { createLoggingContext, RequestContext, StatusResponse } from "@connext/nxtp-utils";
+
 import { getContext } from "../../router";
 import { handlingTracker } from "../../bindings/contractReader";
-
 // @ts-ignore
 import { version } from "../../../package.json";
 
