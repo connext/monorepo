@@ -384,6 +384,7 @@ export const AuctionResponseSchema = Type.Object({
 export type AuctionResponse = Static<typeof AuctionResponseSchema>;
 
 export type StatusResponse = {
+  routerVersion: string;
   routerAddress: string;
   signerAddress: string;
   trackerLength: number;

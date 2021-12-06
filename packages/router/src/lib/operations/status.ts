@@ -2,12 +2,16 @@ import { createLoggingContext, RequestContext, StatusResponse } from "@connext/n
 import { getContext } from "../../router";
 import { handlingTracker } from "../../bindings/contractReader";
 
+// @ts-ignore
+import { version } from "../../../package.json";
+
 export const getStatus = async (_requestContext: RequestContext<string>): Promise<StatusResponse> => {
   const { requestContext, methodContext } = createLoggingContext(getStatus.name, _requestContext);
 
   const { config, logger, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext, { requestContext });
 
+  const routerVersion = version;
   const signerAddress = await wallet.getAddress();
   const routerAddress = signerAddress;
   const trackerLength = handlingTracker.size;
@@ -29,6 +33,7 @@ export const getStatus = async (_requestContext: RequestContext<string>): Promis
   });
 
   const _status: StatusResponse = {
+    routerVersion,
     routerAddress,
     signerAddress,
     trackerLength,
