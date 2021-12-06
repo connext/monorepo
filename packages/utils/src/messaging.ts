@@ -412,10 +412,13 @@ export type MetaTxRouterContractPreparePayload = {
   params: PrepareParams;
   signature: string;
 };
+
 export type MetaTxRouterContractCancelPayload = {
   params: CancelParams;
   signature: string;
+  side: "sending" | "receiving";
 };
+
 export type MetaTxRouterContractFulfillPayload = {
   params: FulfillParams;
   signature: string;

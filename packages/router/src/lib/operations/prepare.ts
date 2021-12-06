@@ -141,6 +141,7 @@ export const prepare = async (
     );
     routerRelayerFee = await txService.calculateGasFee(
       invariantData.receivingChainId,
+      invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "prepare",
