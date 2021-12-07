@@ -389,17 +389,18 @@ export const handleSingle = async (
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
         _transaction.crosschainTx.invariant.receivingAssetId,
-        transaction.crosschainTx.invariant.receivingChainId,
-        transaction.crosschainTx.receiving!.amount,
+        _transaction.crosschainTx.invariant.receivingChainId,
+        _transaction.crosschainTx.receiving!.amount,
         requestContext,
       );
       // Add difference between sending and receiving amount
       incrementFees(
         _transaction.crosschainTx.invariant.sendingAssetId,
-        transaction.crosschainTx.invariant.sendingChainId,
-        BigNumber.from(transaction.crosschainTx.sending.amount)
-          .sub(transaction.crosschainTx.receiving!.amount)
-          .toString(),
+        _transaction.crosschainTx.invariant.sendingChainId,
+        _transaction.crosschainTx.sending.amount,
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+        _transaction.crosschainTx.receiving!.amount,
         requestContext,
       );
       incrementGasConsumed(
