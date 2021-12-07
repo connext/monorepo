@@ -135,53 +135,37 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
 };
 
 export const incrementFees = async (
-  sendingAssetId: string,
-  sendingChainId: number,
-  sendingAmount: string,
-  receivingAssetId: string,
-  receivingChainId: number,
-  receivingAmount: string,
+  assetId: string,
+  chainId: number,
+  amount: string,
   _requestContext: RequestContext,
 ) => {
   const { logger } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(incrementFees.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
-    sendingAmount,
-    sendingChainId,
-    sendingAssetId,
-    receivingAmount,
-    receivingChainId,
-    receivingAssetId,
+    assetId,
+    chainId,
+    amount,
   });
 
-  const sendingDecimals = await getDecimals(sendingAssetId, sendingChainId);
-  const receivingDecimals = await getDecimals(receivingAssetId, receivingChainId);
-  const normalizedFees = BigNumber.from(sendingAmount)
-    .mul(BigNumber.from(10).pow(18 - sendingDecimals))
-    .sub(BigNumber.from(receivingAmount).mul(BigNumber.from(10).pow(18 - receivingDecimals)));
-  const fees = utils.formatUnits(normalizedFees, receivingDecimals);
-  const usd = await convertToUsd(receivingAssetId, receivingChainId, fees, requestContext);
+  const fees = await convertToUsd(assetId, chainId, amount, requestContext);
 
   logger.debug("Got fees in usd", requestContext, methodContext, {
-    sendingAmount,
-    sendingChainId,
-    sendingAssetId,
-    receivingAmount,
-    receivingChainId,
-    receivingAssetId,
+    assetId,
+    chainId,
+    amount,
     fees,
-    usd: usd.toString(),
   });
 
   // Update counter
   feesCollected.inc(
     {
-      assetId: receivingAssetId,
-      chainId: receivingChainId,
-      assetName: getAssetName(receivingAssetId, receivingChainId),
+      assetId,
+      chainId,
+      assetName: getAssetName(assetId, chainId),
     },
-    usd,
+    fees,
   );
 };
 
